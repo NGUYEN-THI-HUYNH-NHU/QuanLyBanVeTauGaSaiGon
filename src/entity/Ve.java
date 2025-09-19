@@ -14,7 +14,7 @@ package entity;
 
 public class Ve {
 	private String maVe;
-	private PhieuDatCho phieuDatCho;
+	private DonDatCho donDatCho;
 	private String loaiVe;
 	private double giaVe;
 	private Chuyen chuyen;

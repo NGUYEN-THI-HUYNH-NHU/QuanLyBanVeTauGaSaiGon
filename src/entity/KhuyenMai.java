@@ -21,7 +21,7 @@ public class KhuyenMai {
 	private double giaGiam;
 	private LocalDate ngayApDung;
 	private LocalDate ngayHetHan;
-	private String doiTuongApDung;
+	private HanhKhach doiTuongApDung;
 	private String loaiTauApDung;
 	private String loaiToaApDung;
 }

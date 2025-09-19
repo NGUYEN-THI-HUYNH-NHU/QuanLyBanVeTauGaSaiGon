@@ -14,7 +14,9 @@ package entity;
 
 public class DichVuHanhLyKyGui {
 	private String maDichVuHanhLyKyGui;
-	private String tenDiVuHanhLyKyGui;
+	private String tenDichVuHanhLyKyGui;
 	private String moTa;
 	private double giaKyGui;
+	private int minKg;
+	private int maxKg;
 }

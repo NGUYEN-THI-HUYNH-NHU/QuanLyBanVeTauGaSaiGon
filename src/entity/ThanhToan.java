@@ -13,5 +13,6 @@ package entity;
  */
 
 public class ThanhToan {
-
+	private String maThanhToan;
+	private HoaDon hoaDon;
 }

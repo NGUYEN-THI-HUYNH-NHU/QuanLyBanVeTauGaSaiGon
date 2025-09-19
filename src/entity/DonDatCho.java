@@ -14,7 +14,10 @@ import java.time.LocalDateTime;
  * @version: 1.0
  */
 
-public class PhieuDatCho {
+public class DonDatCho {
 	private String maDatCho;
-	private LocalDateTime ngayDatCho;
+	private KhachHang khachHang;
+	private LocalDateTime ngayGioDatCho;
+	private double tongTien;
+	private boolean trangThaiDonDatCho;
 }
