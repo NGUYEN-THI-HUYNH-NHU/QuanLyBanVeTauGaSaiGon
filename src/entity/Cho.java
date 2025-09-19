@@ -16,4 +16,5 @@ public class Cho {
 	private String maCho;
 	private String tenCho;
 	private Toa toa;
+	private String trangThaiCho;
 }

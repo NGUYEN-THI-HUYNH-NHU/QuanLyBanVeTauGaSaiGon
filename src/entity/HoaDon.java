@@ -6,10 +6,6 @@ package entity;
  */
 
 import java.time.LocalDateTime;
-import java.util.List;
-
-import entity.type.EnumLoaiDichVu;
-import entity.type.EnumPhuongThucThanhToan;
 
 /*
  * @description
@@ -20,10 +16,10 @@ import entity.type.EnumPhuongThucThanhToan;
 
 public class HoaDon {
 	private String maHoaDon;
-	private EnumLoaiDichVu loaiDichVu;
+	private String loaiDichVu;
 	private NhanVien nhanVien;
-	private NguoiDatVe khachHang;
-	private List<Ve> dsVe;
-	private LocalDateTime ngayTao;
-	private EnumPhuongThucThanhToan phuongThucThanhToan;
+	private KhachHang khachHang;
+	private LocalDateTime ngayLap;
+	private String phuongThucThanhToan;
+	private String trangThai;
 }

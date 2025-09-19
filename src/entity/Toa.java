@@ -1,12 +1,11 @@
 package entity;
 
-import entity.type.EnumLoaiToa;
-
 /*
  * @(#) Toa.java  1.0  [10:14:42 PM] Sep 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
+
 
 /*
  * @description
@@ -17,7 +16,8 @@ import entity.type.EnumLoaiToa;
 
 public class Toa {
 	private String maToa;
-	private String tenToa;
-	private EnumLoaiToa loaiToa;
+	private String loaiToa;
+	private Tau tau;
 	private int soCho;
+	private int sttToa;
 }

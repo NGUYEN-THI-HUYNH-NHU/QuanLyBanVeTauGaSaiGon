@@ -17,6 +17,6 @@ public class Tuyen {
 	private String tenTuyen;
 	private Ga gaDi;
 	private Ga gaDen;
-	private double khoangCach;
+	private double khoangCachKm;
 	private int thoiGianDuKienPhut;
 }

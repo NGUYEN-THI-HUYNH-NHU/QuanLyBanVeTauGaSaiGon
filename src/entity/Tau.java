@@ -5,9 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.EnumLoaiTau;
-import entity.type.EnumTrangThaiTau;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -18,8 +15,7 @@ import entity.type.EnumTrangThaiTau;
 public class Tau {
 	private String maTau;
 	private String tenTau;
-	private EnumLoaiTau loaiTau;
+	private String loaiTau;
 	private int soToa;
-	private int soCho;
-	private EnumTrangThaiTau trangThai;
+	private String trangThai;
 }

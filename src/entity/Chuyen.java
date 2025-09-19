@@ -20,6 +20,4 @@ public class Chuyen {
 	private Tau tau;
 	private LocalDateTime ngayGioDi;
 	private LocalDateTime ngayGioDen;
-	private int soCho;
-	private int soChoTrong;
 }

@@ -5,8 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.EnumLoaiDoiTuong;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -18,5 +16,5 @@ public class HanhKhach {
 	private String maHanhKhach;
 	private String hoTen;
 	private String cccd;
-	private EnumLoaiDoiTuong loaiDoiTuong;
+	private String loaiDoiTuong;
 }

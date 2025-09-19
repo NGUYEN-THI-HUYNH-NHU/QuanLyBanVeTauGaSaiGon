@@ -5,7 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.EnumLoaiKhachHang;
 
 /*
  * @description
@@ -14,12 +13,12 @@ import entity.type.EnumLoaiKhachHang;
  * @version: 1.0
  */
 
-public class NguoiDatVe {
-	private String maNguoiDatVe;
+public class KhachHang {
+	private String maKhachHang;
 	private String hoTen;
 	private String cccd;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
-	private EnumLoaiKhachHang loaiKhachHang;
+	private String loaiKhachHang;
 }

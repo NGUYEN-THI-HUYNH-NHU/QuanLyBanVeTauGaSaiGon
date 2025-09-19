@@ -7,8 +7,6 @@ package entity;
 
 import java.time.LocalDate;
 
-import entity.type.EnumVaiTro;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -21,7 +19,7 @@ public class TaiKhoan {
 	private String username;
 	private String matKhau;
 	private String email;
-	private EnumVaiTro vaiTro;
+	private String vaiTro;
 	private boolean trangThai;
 	private NhanVien nhanVien;
 	private LocalDate ngayTao;

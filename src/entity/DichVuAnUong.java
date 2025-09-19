@@ -13,5 +13,5 @@ package entity;
  */
 
 public class DichVuAnUong {
-
+	private String maDichVu;
 }

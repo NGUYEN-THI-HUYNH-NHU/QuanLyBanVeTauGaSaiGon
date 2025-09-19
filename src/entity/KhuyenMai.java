@@ -5,6 +5,8 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDate;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -13,5 +15,13 @@ package entity;
  */
 
 public class KhuyenMai {
-
+	private String maKhuyenMai;
+	private String moTa;
+	private String loaiGiamGia;
+	private double giaGiam;
+	private LocalDate ngayApDung;
+	private LocalDate ngayHetHan;
+	private String doiTuongApDung;
+	private String loaiTauApDung;
+	private String loaiToaApDung;
 }

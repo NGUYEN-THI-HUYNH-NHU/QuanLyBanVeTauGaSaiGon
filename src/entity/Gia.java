@@ -12,6 +12,11 @@ package entity;
  * @version: 1.0
  */
 
-public class BangGia {
-
+public class Gia {
+	private String maGia;
+	private Tuyen tuyenApDung;
+	private String loaiTau;
+	private String loaiToa;
+	private int minKhoangCach;
+	private int maxKhoangCach;
 }

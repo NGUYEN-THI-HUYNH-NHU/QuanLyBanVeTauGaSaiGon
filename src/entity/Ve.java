@@ -5,11 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDateTime;
-
-import entity.type.EnumLoaiVe;
-import entity.type.EnumTrangThaiVe;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -19,10 +14,13 @@ import entity.type.EnumTrangThaiVe;
 
 public class Ve {
 	private String maVe;
-	private EnumLoaiVe loaiVe;
-	private double gia;
+	private PhieuDatCho phieuDatCho;
+	private String loaiVe;
+	private double giaVe;
+	private Chuyen chuyen;
+	private Cho cho;
 	private HanhKhach hanhKhach;
-	private EnumTrangThaiVe trangThaiVe;
-	private LocalDateTime ngayBan;
 	private KhuyenMai khuyenMai;
+	private HoaDon hoaDon;
+	private String trangThaiVe;
 }

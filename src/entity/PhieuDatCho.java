@@ -6,7 +6,6 @@ package entity;
  */
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /*
  * @description
@@ -17,7 +16,5 @@ import java.util.List;
 
 public class PhieuDatCho {
 	private String maDatCho;
-	private NguoiDatVe khachHang;
-	private List<Ve> dsVe;
-	private LocalDateTime ngayDat;
+	private LocalDateTime ngayDatCho;
 }
