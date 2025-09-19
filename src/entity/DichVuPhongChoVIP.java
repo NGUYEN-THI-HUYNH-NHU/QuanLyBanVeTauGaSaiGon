@@ -12,6 +12,17 @@ package entity;
  * @version: 1.0
  */
 
-public class DichVuPhongChoVIP {
-
+public class DichVuPhongChoVIP implements DichVu {
+	private String maDichVuPhongChoVIP;
+	private String tenDichVuPhongChoVIP;
+	private double giaDichVuPhongChoVIP;
+	
+	@Override
+	public String getMaDichVu() {
+		return maDichVuPhongChoVIP;
+	}
+	@Override
+	public double getGia() {
+		return giaDichVuPhongChoVIP;
+	}
 }

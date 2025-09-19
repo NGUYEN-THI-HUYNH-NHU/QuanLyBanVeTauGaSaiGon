@@ -12,15 +12,23 @@ package entity;
  * @version: 1.0
  */
 
-public class Ve {
+public class Ve implements DichVu {
 	private String maVe;
 	private DonDatCho donDatCho;
-	private String loaiVe;
-	private double giaVe;
 	private Chuyen chuyen;
 	private Cho cho;
+	private String loaiVe;
+	private double giaVe;
 	private HanhKhach hanhKhach;
-	private KhuyenMai khuyenMai;
 	private HoaDon hoaDon;
 	private String trangThaiVe;
+	
+	@Override
+	public String getMaDichVu() {
+		return maVe;
+	}
+	@Override
+	public double getGia() {
+		return giaVe;
+	}
 }

@@ -5,6 +5,8 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDateTime;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -15,4 +17,8 @@ package entity;
 public class ThanhToan {
 	private String maThanhToan;
 	private HoaDon hoaDon;
+	private KhachHang khachHang;
+	private LocalDateTime ngayGioThanhToan;
+	private double tongTien;
+	private String trangThai;
 }

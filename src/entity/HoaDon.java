@@ -20,6 +20,5 @@ public class HoaDon {
 	private KhachHang khachHang;
 	private LocalDateTime ngayLap;
 	private String phuongThucThanhToan;
-	private ThanhToan thanhToan;
 	private String trangThai;
 }

@@ -14,7 +14,7 @@ import java.time.LocalDate;
  * @version: 1.0
  */
 
-public class KhuyenMai {
+public class KhuyenMai implements DichVu {
 	private String maKhuyenMai;
 	private String moTa;
 	private String loaiGiamGia;
@@ -24,4 +24,13 @@ public class KhuyenMai {
 	private HanhKhach doiTuongApDung;
 	private String loaiTauApDung;
 	private String loaiToaApDung;
+	
+	@Override
+	public String getMaDichVu() {
+		return maKhuyenMai;
+	}
+	@Override
+	public double getGia() {
+		return giaGiam;
+	}
 }
