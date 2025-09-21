@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) EnumTrangThaiCho.java  1.0  [1:09:53 PM] Sep 18, 2025
+ * @(#) EnumLoaiDoiTuong.java  1.0  [1:26:50 PM] Sep 18, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -12,13 +12,14 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum EnumTrangThaiCho {
-	CHO_TRONG("Chỗ trống"),
-    CHO_DA_BAN("Chỗ đã bán");
-
+public enum LoaiDoiTuong {
+	NGUOI_LON("Người lớn"),
+    TRE_EM("Trẻ em"),
+	NGUOI_CAO_TUOI("Người cao tuổi");
+	
     private final String description;
 
-    EnumTrangThaiCho(String description) {
+    LoaiDoiTuong(String description) {
         this.description = description;
     }
 

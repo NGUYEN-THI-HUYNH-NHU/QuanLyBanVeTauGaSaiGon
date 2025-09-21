@@ -1,5 +1,7 @@
 package entity;
 
+import entity.type.HangToa;
+
 /*
  * @(#) Toa.java  1.0  [10:14:42 PM] Sep 17, 2025
  *
@@ -16,8 +18,8 @@ package entity;
 
 public class Toa {
 	private String maToa;
-	private String loaiToa;
 	private Tau tau;
+	private HangToa hangToa;
 	private int soCho;
 	private int sttToa;
 }

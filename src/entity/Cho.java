@@ -1,4 +1,7 @@
 package entity;
+
+import entity.type.TrangThaiCho;
+
 /*
  * @(#) Cho.java  1.0  [11:21:20 AM] Sep 18, 2025
  *
@@ -14,7 +17,7 @@ package entity;
 
 public class Cho {
 	private String maCho;
-	private String tenCho;
 	private Toa toa;
-	private String trangThaiCho;
+	private String tenCho;
+	private TrangThaiCho trangThaiCho;
 }

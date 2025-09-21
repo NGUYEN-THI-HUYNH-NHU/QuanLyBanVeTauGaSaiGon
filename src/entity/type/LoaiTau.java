@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) EnumTrangThaiTau.java  1.0  [10:04:15 PM] Sep 17, 2025
+ * @(#) LoaiTau.java  1.0  [9:45:34 AM] Sep 20, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,18 +8,17 @@ package entity.type;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 17, 2025
+ * @date: Sep 20, 2025
  * @version: 1.0
  */
 
-public enum EnumTrangThaiTau {
-	HOAT_DONG("Hoạt động"),
-    BAO_TRI("Bảo trì"),
-    NGUNG_HOAT_DONG("Ngừng hoạt động");
-
+public enum LoaiTau {
+	TAU_NHANH("Tàu nhanh"),
+    TAU_DU_LICH("Tàu du lịch/địa phương");
+	
     private final String description;
 
-    EnumTrangThaiTau(String description) {
+	LoaiTau(String description) {
         this.description = description;
     }
 

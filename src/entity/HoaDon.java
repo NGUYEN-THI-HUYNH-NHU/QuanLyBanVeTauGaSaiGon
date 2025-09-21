@@ -16,9 +16,13 @@ import java.time.LocalDateTime;
 
 public class HoaDon {
 	private String maHoaDon;
-	private NhanVien nhanVien;
+	private DonDatCho donDatCho;
 	private KhachHang khachHang;
+	private NhanVien nhanVien;
 	private LocalDateTime ngayLap;
-	private String phuongThucThanhToan;
-	private String trangThai;
+	private double tamTinh;
+	private double tongGiamGia;
+	private double tongThue;
+	private double tongTien;
+	private boolean isDaThanhToan;
 }

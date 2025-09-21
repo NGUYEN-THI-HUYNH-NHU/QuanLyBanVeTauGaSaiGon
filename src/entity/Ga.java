@@ -15,6 +15,5 @@ package entity;
 public class Ga {
 	private String maGa;
 	private String tenGa;
-	private String maTinh;
 	private String tenTinh;
 }

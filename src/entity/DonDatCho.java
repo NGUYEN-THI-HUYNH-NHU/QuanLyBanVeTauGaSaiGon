@@ -7,6 +7,8 @@ package entity;
 
 import java.time.LocalDateTime;
 
+import entity.type.TrangThaiDonDatCho;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -15,9 +17,10 @@ import java.time.LocalDateTime;
  */
 
 public class DonDatCho {
-	private String maDatCho;
+	private String maDonDatCho;
 	private KhachHang khachHang;
-	private LocalDateTime ngayGioDatCho;
+	private LocalDateTime ngayGioTao;
+	private LocalDateTime ngayGioHetHan;
 	private double tongTien;
-	private boolean trangThaiDonDatCho;
+	private TrangThaiDonDatCho trangThaiDonDatCho;
 }

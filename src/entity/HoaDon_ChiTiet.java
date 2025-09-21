@@ -15,8 +15,8 @@ package entity;
 public class HoaDon_ChiTiet {
 	private String maChiTietHoaDon;
 	private HoaDon hoaDon;
-	private String loaiDichVu;
-	private String maDichVu;
-	private int soLuong;
+	private DichVu dichVu;
 	private double donGia;
+	private int soLuong;
+	private double thue;
 }

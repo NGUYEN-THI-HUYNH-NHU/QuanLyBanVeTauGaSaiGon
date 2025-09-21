@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) EnumTrangThaiVe.java  1.0  [12:33:07 PM] Sep 18, 2025
+ * @(#) TrangThaiVe.java  1.0  [6:14:34 PM] Sep 21, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,20 +8,20 @@ package entity.type;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 18, 2025
+ * @date: Sep 21, 2025
  * @version: 1.0
  */
 
-public enum EnumTrangThaiVe {
+public enum TrangThaiVe {
 	VE_CHUA_SU_DUNG("Vé chưa sử dụng"),
-    VE_DA_SU_DUNG("Vé đã sử dụng"),
-    VE_HET_HAN("Vé hết hạn"),
+	VE_DA_SU_DUNG("Vé đã sử dụng"),
+	VE_HET_HAN("Vé hết hạn"),
 	VE_DA_HOAN("Vé đã hoàn"),
-	VE_DA_HUY("Vé đã hủy");
-	
-    private final String description;
+	VE_DA_DOI("Vé đã hoàn");
 
-    EnumTrangThaiVe(String description) {
+	private final String description;
+
+	TrangThaiVe(String description) {
         this.description = description;
     }
 

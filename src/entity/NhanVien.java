@@ -7,6 +7,8 @@ package entity;
 
 import java.time.LocalDate;
 
+import entity.type.VaiTroNhanVien;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -16,12 +18,11 @@ import java.time.LocalDate;
 
 public class NhanVien {
 	private String maNhanVien;
+	private VaiTroNhanVien vaiTroNhanVien;
 	private String hoTen;
-	private String vaiTro;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
 	private LocalDate ngayVaoLam;
-	private boolean trangThai;
-	private TaiKhoan taiKhoan;
+	private boolean isDangHoatDong;
 }

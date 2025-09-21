@@ -5,6 +5,8 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import entity.type.LoaiDoiTuong;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -14,7 +16,8 @@ package entity;
 
 public class HanhKhach {
 	private String maHanhKhach;
+	private KhachHang khachHang;
+	private LoaiDoiTuong loaiDoiTuong;
 	private String hoTen;
 	private String cccd;
-	private String loaiDoiTuong;
 }

@@ -7,6 +7,8 @@ package entity;
 
 import java.time.LocalDate;
 
+import entity.type.VaiTroTaiKhoan;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -16,11 +18,10 @@ import java.time.LocalDate;
 
 public class TaiKhoan {
 	private String maTaiKhoan;
-	private String username;
-	private String matKhau;
-	private String email;
-	private String vaiTro;
-	private boolean trangThai;
+	private VaiTroTaiKhoan vaiTroTaiKhoan;
 	private NhanVien nhanVien;
+	private String username;
+	private String matKhauHash;
 	private LocalDate ngayTao;
+	private boolean trangThai;
 }

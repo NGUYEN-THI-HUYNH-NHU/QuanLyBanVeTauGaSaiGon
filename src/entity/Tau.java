@@ -5,6 +5,8 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import entity.type.LoaiTau;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -15,7 +17,7 @@ package entity;
 public class Tau {
 	private String maTau;
 	private String tenTau;
-	private String loaiTau;
+	private LoaiTau loaiTau;
 	private int soToa;
 	private String trangThai;
 }

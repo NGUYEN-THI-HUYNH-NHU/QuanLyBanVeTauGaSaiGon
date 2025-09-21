@@ -20,5 +20,6 @@ public class ThanhToan {
 	private KhachHang khachHang;
 	private LocalDateTime ngayGioThanhToan;
 	private double tongTien;
-	private String trangThai;
+	private boolean isThanhToanTienMat;
+	private boolean isThanhToanThanhCong;
 }

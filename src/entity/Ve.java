@@ -1,4 +1,7 @@
 package entity;
+
+import entity.type.TrangThaiVe;
+
 /*
  * @(#) Ve.java  1.0  [11:27:32 AM] Sep 18, 2025
  *
@@ -17,11 +20,9 @@ public class Ve implements DichVu {
 	private DonDatCho donDatCho;
 	private Chuyen chuyen;
 	private Cho cho;
-	private String loaiVe;
-	private double giaVe;
 	private HanhKhach hanhKhach;
-	private HoaDon hoaDon;
-	private String trangThaiVe;
+	private double giaVe;
+	private TrangThaiVe trangThaiVe;
 	
 	@Override
 	public String getMaDichVu() {

@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) EnumPhuongThucThanhToan.java  1.0  [12:38:28 PM] Sep 18, 2025
+ * @(#) TrangThaiDonDatVe.java  1.0  [4:59:08 PM] Sep 21, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,17 +8,19 @@ package entity.type;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 18, 2025
+ * @date: Sep 21, 2025
  * @version: 1.0
  */
 
-public enum EnumPhuongThucThanhToan {
-	THANH_TOAN_TIEN_MAT("Thanh toán tiền mặt"),
-    THANH_TOAN_CHUYEN_KHOAN("Thanh toán chuyển khoản");
+public enum TrangThaiDonDatCho {
+	DANG_DOI("Nhân viên quầy vé"),
+	DA_XAC_NHAN("Quản lý nhà ga"),
+	HET_HAN("Hết hạn"),
+	DA_HUY("Đã hủy");
 	
     private final String description;
 
-    EnumPhuongThucThanhToan(String description) {
+    TrangThaiDonDatCho(String description) {
         this.description = description;
     }
 

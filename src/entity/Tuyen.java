@@ -14,7 +14,6 @@ package entity;
 
 public class Tuyen {
 	private String maTuyen;
-	private String tenTuyen;
 	private Ga gaDi;
 	private Ga gaDen;
 	private double khoangCachKm;

@@ -12,13 +12,13 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum EnumLoaiKhachHang {
+public enum HangKhachHang {
 	KHACH_HANG_THUONG("Khách hàng thường"),
     KHACH_HANG_VIP("Khách hàng VIP");
 	
     private final String description;
 
-    EnumLoaiKhachHang(String description) {
+    HangKhachHang(String description) {
         this.description = description;
     }
 

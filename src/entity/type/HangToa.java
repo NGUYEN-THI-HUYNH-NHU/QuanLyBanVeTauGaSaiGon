@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) EnumLoaiVe.java  1.0  [12:30:54 PM] Sep 18, 2025
+ * @(#) EnumLoaiToa.java  1.0  [4:22:41 PM] Sep 18, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -12,13 +12,14 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum EnumLoaiVe {
-	VE_MOT_CHIEU("Vé một chiều"),
-    VE_KHU_HOI("Vé khứ hồi");
-
+public enum HangToa {
+	NGOI_MEM_CHAT_LUONG_CAO("Ngồi mềm chất lượng cao"),
+    GIUONG_6_DIEU_HOA("Giường nằm khoang 6 điều hòa"),
+    GIUONG_4_DIEU_HOA("Giường nằm khoang 4 điều hòa");
+    
     private final String description;
 
-	EnumLoaiVe(String description) {
+	HangToa(String description) {
         this.description = description;
     }
 

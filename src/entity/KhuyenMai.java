@@ -16,14 +16,17 @@ import java.time.LocalDate;
 
 public class KhuyenMai implements DichVu {
 	private String maKhuyenMai;
+	private String code;
 	private String moTa;
-	private String loaiGiamGia;
+	private boolean loaiGiamGia;
 	private double giaGiam;
 	private LocalDate ngayApDung;
 	private LocalDate ngayHetHan;
-	private HanhKhach doiTuongApDung;
-	private String loaiTauApDung;
+	private double tienGiamToiDaChoPhep;
+	private String dichVuApDung;
 	private String loaiToaApDung;
+	private String loaiTauApDung;
+	private HanhKhach doiTuongApDung;
 	
 	@Override
 	public String getMaDichVu() {
