@@ -17,10 +17,10 @@ import entity.type.VaiTroTaiKhoan;
  */
 
 public class TaiKhoan {
-	private String maTaiKhoan;
+	private String taiKhoanID;
 	private VaiTroTaiKhoan vaiTroTaiKhoan;
 	private NhanVien nhanVien;
-	private String username;
+	private String tenDangNhap;
 	private String matKhauHash;
 	private LocalDate ngayTao;
 	private boolean trangThai;

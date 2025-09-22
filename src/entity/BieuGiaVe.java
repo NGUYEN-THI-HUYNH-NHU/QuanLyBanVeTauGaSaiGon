@@ -19,17 +19,16 @@ import java.time.LocalDateTime;
 
 import entity.type.LoaiTau;
 
-public class GiaVe {
-	private String maGiaVe;
+public class BieuGiaVe {
+	private String bieuGiaVeID;
 	private Tuyen tuyenApDung;
 	private HangToa hangToaApDung;
 	private LoaiTau loaiTauApDung;
 	private int minKm;
 	private int maxKm;
-	private double phanTramTrenKm;
-	private double giaApCung;
+	private double donGiaTrenKm;
+	private double giaCoDinh;
 	private double phuPhiCaoDiem;
-	private String tienTe;
 	private LocalDate ngayCoHieuLuc;
 	private LocalDate ngayHetHieuLuc;
 	private int doUuTien;

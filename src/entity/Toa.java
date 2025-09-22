@@ -17,9 +17,9 @@ import entity.type.HangToa;
  */
 
 public class Toa {
-	private String maToa;
+	private String toaID;
 	private Tau tau;
 	private HangToa hangToa;
-	private int soCho;
+	private int sucChua;
 	private int sttToa;
 }

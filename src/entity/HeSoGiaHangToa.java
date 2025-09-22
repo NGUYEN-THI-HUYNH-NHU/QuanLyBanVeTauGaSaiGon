@@ -17,7 +17,7 @@ import entity.type.HangToa;
  */
 
 public class HeSoGiaHangToa {
-	private String maHSGLoaiToa;
+	private String hsgLoaiToaID;
 	private HangToa hangToa;
 	private double hsg;
 	private LocalDate ngayCoHieuLuc;

@@ -13,10 +13,11 @@ package entity;
  */
 
 public class DonHoanDoiVe_ChiTiet {
-	private String maDonHoanDoiVeChiTiet;
+	private String donHoanDoiVeChiTietID;
 	private DonHoanDoiVe donHoanDoiVe;
 	private Ve veCu;
 	private Ve veMoi;
-	private double tienHoan;
-	private double tienTraThem;
+	private double soTienHoan;
+	private double phiPhatSinh;
+	private String ghiChu;
 }

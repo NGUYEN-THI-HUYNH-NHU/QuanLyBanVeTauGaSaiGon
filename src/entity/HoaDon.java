@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
  */
 
 public class HoaDon {
-	private String maHoaDon;
+	private String hoaDonID;
 	private DonDatCho donDatCho;
 	private KhachHang khachHang;
 	private NhanVien nhanVien;
-	private LocalDateTime ngayLap;
+	private LocalDateTime ngayTao;
 	private double tamTinh;
 	private double tongGiamGia;
 	private double tongThue;
 	private double tongTien;
-	private boolean isDaThanhToan;
+	private boolean trangThai;
 }

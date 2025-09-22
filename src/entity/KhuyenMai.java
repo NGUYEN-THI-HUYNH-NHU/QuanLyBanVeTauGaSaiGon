@@ -14,26 +14,18 @@ import java.time.LocalDate;
  * @version: 1.0
  */
 
-public class KhuyenMai implements DichVu {
+public class KhuyenMai {
+	private String khuyenMaiID;
 	private String maKhuyenMai;
-	private String code;
 	private String moTa;
-	private boolean loaiGiamGia;
-	private double giaGiam;
-	private LocalDate ngayApDung;
-	private LocalDate ngayHetHan;
-	private double tienGiamToiDaChoPhep;
-	private String dichVuApDung;
-	private String loaiToaApDung;
-	private String loaiTauApDung;
-	private HanhKhach doiTuongApDung;
-	
-	@Override
-	public String getMaDichVu() {
-		return maKhuyenMai;
-	}
-	@Override
-	public double getGia() {
-		return giaGiam;
-	}
+	private double tyLeGiamGia;
+	private double tienGiamGia;
+	private LocalDate ngayBatDau;
+	private LocalDate ngayKetThuc;
+	private double soLuong;
+	private int gioiHanMoiKhachHang;
+	private LocalDate ngayTao;
+	private LocalDate ngayCapNhat;
+	private boolean trangThai;
+
 }

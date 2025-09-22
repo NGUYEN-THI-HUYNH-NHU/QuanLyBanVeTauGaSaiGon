@@ -15,7 +15,7 @@ import entity.type.HangKhachHang;
  */
 
 public class KhachHang {
-	private String maKhachHang;
+	private String khachHangID;
 	private HangKhachHang hangKhachHang;
 	private String hoTen;
 	private String soDienThoai;

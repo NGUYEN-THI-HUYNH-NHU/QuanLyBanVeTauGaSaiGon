@@ -17,7 +17,7 @@ import entity.type.TrangThaiDonDatCho;
  */
 
 public class DonDatCho {
-	private String maDonDatCho;
+	private String donDatChoID;
 	private KhachHang khachHang;
 	private LocalDateTime ngayGioTao;
 	private LocalDateTime ngayGioHetHan;

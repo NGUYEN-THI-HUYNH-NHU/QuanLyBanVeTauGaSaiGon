@@ -15,21 +15,14 @@ import entity.type.TrangThaiVe;
  * @version: 1.0
  */
 
-public class Ve implements DichVu {
-	private String maVe;
+public class Ve {
+	private String veID;
 	private DonDatCho donDatCho;
 	private Chuyen chuyen;
-	private Cho cho;
+	private Ghe ghe;
 	private HanhKhach hanhKhach;
-	private double giaVe;
-	private TrangThaiVe trangThaiVe;
-	
-	@Override
-	public String getMaDichVu() {
-		return maVe;
-	}
-	@Override
-	public double getGia() {
-		return giaVe;
-	}
+	private int sttGaDi;
+	private int sttGaDen;
+	private double gia;
+	private TrangThaiVe trangTha;
 }

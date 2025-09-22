@@ -17,7 +17,7 @@ import entity.type.LoaiTau;
  */
 
 public class HeSoGiaLoaiTau {
-	private String maHSGLoaiTau;
+	private String hsgLoaiTauID;
 	private LoaiTau loaiTau;
 	private double hsg;
 	private LocalDate ngayCoHieuLuc;

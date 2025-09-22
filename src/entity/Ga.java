@@ -13,7 +13,7 @@ package entity;
  */
 
 public class Ga {
-	private String maGa;
+	private String gaID;
 	private String tenGa;
-	private String tenTinh;
+	private String tinhThanh;
 }

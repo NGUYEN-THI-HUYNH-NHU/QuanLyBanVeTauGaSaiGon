@@ -15,9 +15,9 @@ import entity.type.TrangThaiCho;
  * @version: 1.0
  */
 
-public class Cho {
-	private String maCho;
+public class Ghe {
+	private String gheID;
 	private Toa toa;
-	private String tenCho;
-	private TrangThaiCho trangThaiCho;
+	private int soGhe;
+	private TrangThaiCho trangThaiGhe;
 }

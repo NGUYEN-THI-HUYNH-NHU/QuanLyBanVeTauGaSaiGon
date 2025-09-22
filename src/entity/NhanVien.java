@@ -17,12 +17,12 @@ import entity.type.VaiTroNhanVien;
  */
 
 public class NhanVien {
-	private String maNhanVien;
+	private String nhanVienID;
 	private VaiTroNhanVien vaiTroNhanVien;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
-	private LocalDate ngayVaoLam;
-	private boolean isDangHoatDong;
+	private LocalDate ngayThamGia;
+	private boolean trangThai;
 }

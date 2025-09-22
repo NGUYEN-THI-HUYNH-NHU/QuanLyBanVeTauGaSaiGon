@@ -14,8 +14,8 @@ import java.time.LocalDate;
  * @version: 1.0
  */
 
-public class DonHoanDoiVe implements DichVu {
-	private String maDonHoanDoiVe;
+public class DonHoanDoiVe {
+	private String donHoanDoiVeID;
 	private DonDatCho donDatCho;
 	private KhachHang khachHang;
 	private NhanVien nhanVien;
@@ -23,14 +23,4 @@ public class DonHoanDoiVe implements DichVu {
 	private LocalDate ngayYeuCau;
 	private double tongTienHoan;
 	private boolean trangThai;
-	
-	@Override
-	public String getMaDichVu() {
-		return maDonHoanDoiVe;
-	}
-	
-	@Override
-	public double getGia() {
-		return tongTienHoan;
-	}
 }

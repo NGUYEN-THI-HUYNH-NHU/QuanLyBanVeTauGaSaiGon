@@ -12,20 +12,11 @@ package entity;
  * @version: 1.0
  */
 
-public class DichVuHanhLyKyGui implements DichVu {
+public class DichVuHanhLyKyGui {
 	private String maDichVuHanhLyKyGui;
 	private String tenDichVuHanhLyKyGui;
 	private String moTa;
 	private double giaKyGui;
 	private int minKg;
 	private int maxKg;
-	
-	@Override
-	public String getMaDichVu() {
-		return maDichVuHanhLyKyGui;
-	}
-	@Override
-	public double getGia() {
-		return giaKyGui;
-	}	
 }

@@ -12,19 +12,10 @@ package entity;
  * @version: 1.0
  */
 
-public class DichVuAnUong implements DichVu {
-	private String maDichVuAnUong;
+public class DichVuAnUong {
+	private String dichVuAnUongID;
 	private String tenDichVuAnUong;
-	private boolean isDichVuAn;
-	private double giaDichVuAnUong;
-	
-	
-	@Override
-	public String getMaDichVu() {
-		return maDichVuAnUong;
-	}
-	@Override
-	public double getGia() {
-		return giaDichVuAnUong;
-	}
+	private String moTa;
+	private double gia;
+	private boolean trangThai;
 }

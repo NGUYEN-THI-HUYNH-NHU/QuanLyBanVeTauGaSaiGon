@@ -15,9 +15,9 @@ import entity.type.LoaiDoiTuong;
  */
 
 public class HanhKhach {
-	private String maHanhKhach;
-	private KhachHang khachHang;
+	private String hanhKhachID;
 	private LoaiDoiTuong loaiDoiTuong;
+	private KhachHang khachHang;
 	private String hoTen;
-	private String cccd;
+	private String soGiayTo;
 }

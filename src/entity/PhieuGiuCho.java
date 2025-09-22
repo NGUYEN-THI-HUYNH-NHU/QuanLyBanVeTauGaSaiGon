@@ -15,10 +15,13 @@ import java.time.LocalDateTime;
  */
 
 public class PhieuGiuCho {
-	private String maPhieuGiuCho;
+	private String phieuGiuChoID;
 	private DonDatCho donDatCho;
-	private Cho cho;
-	private LocalDateTime ngayGioGiu;
+	private Chuyen chuyen;
+	private Ghe ghe;
+	private int sttGaDi;
+	private int sttGaDen;
+	private LocalDateTime ngayGioDat;
 	private LocalDateTime ngayGioHetHan;
-	private boolean isDuocSuDung;
+	private boolean isDaSuDung;
 }

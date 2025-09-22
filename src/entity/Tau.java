@@ -15,9 +15,9 @@ import entity.type.LoaiTau;
  */
 
 public class Tau {
-	private String maTau;
+	private String tauID;
 	private String tenTau;
 	private LoaiTau loaiTau;
-	private int soToa;
+	private int soLuongToa;
 	private String trangThai;
 }
