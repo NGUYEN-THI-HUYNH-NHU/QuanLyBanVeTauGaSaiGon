@@ -21,8 +21,8 @@ public class Ve {
 	private Chuyen chuyen;
 	private Ghe ghe;
 	private HanhKhach hanhKhach;
-	private int sttGaDi;
-	private int sttGaDen;
+	private int thuTuGaDi;
+	private int thuTuGaDen;
 	private double gia;
 	private TrangThaiVe trangTha;
 }

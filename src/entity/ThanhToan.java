@@ -19,7 +19,7 @@ public class ThanhToan {
 	private HoaDon hoaDon;
 	private KhachHang khachHang;
 	private double soTien;
-	private LocalDateTime ngayGioThanhToan;
+	private LocalDateTime thoiDiemThanhToan;
 	private boolean isThanhToanTienMat;
 	private boolean trangThai;
 }

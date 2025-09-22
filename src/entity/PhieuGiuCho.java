@@ -19,9 +19,9 @@ public class PhieuGiuCho {
 	private DonDatCho donDatCho;
 	private Chuyen chuyen;
 	private Ghe ghe;
-	private int sttGaDi;
-	private int sttGaDen;
-	private LocalDateTime ngayGioDat;
-	private LocalDateTime ngayGioHetHan;
+	private int thuTuGaDi;
+	private int thuTuGaDen;
+	private LocalDateTime thoiDiemGiuCho;
+	private LocalDateTime thoiDiemHetHan;
 	private boolean isDaSuDung;
 }

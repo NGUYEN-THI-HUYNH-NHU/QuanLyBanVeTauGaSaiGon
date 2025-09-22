@@ -19,7 +19,7 @@ public class HoaDon {
 	private DonDatCho donDatCho;
 	private KhachHang khachHang;
 	private NhanVien nhanVien;
-	private LocalDateTime ngayTao;
+	private LocalDateTime thoiDiemTao;
 	private double tamTinh;
 	private double tongGiamGia;
 	private double tongThue;

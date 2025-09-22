@@ -19,5 +19,5 @@ public class SuDungKhuyenMai {
 	private KhuyenMai khuyenMai;
 	private HoaDon_ChiTiet hoaDonChiTiet;
 	private KhachHang khachHang;
-	private LocalDateTime thoiDiemSuDung;
+	private LocalDateTime thoiDiemDung;
 }

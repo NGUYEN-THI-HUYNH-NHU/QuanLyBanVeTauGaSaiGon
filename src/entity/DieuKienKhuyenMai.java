@@ -28,5 +28,4 @@ public class DieuKienKhuyenMai {
 	private int ngayTrongTuan;
 	private boolean ngayLe;
 	private double minGiaTriDonHang;
-	private double maxGiaTriDonHang;
 }

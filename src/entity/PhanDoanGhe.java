@@ -16,6 +16,6 @@ public class PhanDoanGhe {
 	private String phanDoanGheID;
 	private Chuyen chuyen;
 	private Ghe ghe;
-	private int sttGaDi;
-	private int sttGaDen;
+	private int thuThuGaDi;
+	private int thuThuGaDen;
 }

@@ -7,7 +7,7 @@ package entity;
 
 import java.time.LocalDateTime;
 
-import entity.type.TrangThaiDonDatCho;
+import entity.type.TrangThaiDatCho;
 
 /*
  * @description
@@ -19,8 +19,8 @@ import entity.type.TrangThaiDonDatCho;
 public class DonDatCho {
 	private String donDatChoID;
 	private KhachHang khachHang;
-	private LocalDateTime ngayGioTao;
-	private LocalDateTime ngayGioHetHan;
+	private LocalDateTime thoiDiemDatCho;
+	private LocalDateTime thoiDiemHetHan;
 	private double tongTien;
-	private TrangThaiDonDatCho trangThaiDonDatCho;
+	private TrangThaiDatCho trangThaiDonDatCho;
 }

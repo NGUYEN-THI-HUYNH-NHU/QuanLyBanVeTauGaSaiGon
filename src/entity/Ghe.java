@@ -1,6 +1,5 @@
 package entity;
 
-import entity.type.TrangThaiCho;
 
 /*
  * @(#) Cho.java  1.0  [11:21:20 AM] Sep 18, 2025
@@ -19,5 +18,5 @@ public class Ghe {
 	private String gheID;
 	private Toa toa;
 	private int soGhe;
-	private TrangThaiCho trangThaiGhe;
+	private boolean trangThai;
 }

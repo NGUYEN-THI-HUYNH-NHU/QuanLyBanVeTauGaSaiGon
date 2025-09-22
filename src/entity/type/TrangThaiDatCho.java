@@ -12,7 +12,7 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum TrangThaiDonDatCho {
+public enum TrangThaiDatCho {
 	DANG_DOI("Nhân viên quầy vé"),
 	DA_XAC_NHAN("Quản lý nhà ga"),
 	HET_HAN("Hết hạn"),
@@ -20,7 +20,7 @@ public enum TrangThaiDonDatCho {
 	
     private final String description;
 
-    TrangThaiDonDatCho(String description) {
+    TrangThaiDatCho(String description) {
         this.description = description;
     }
 
