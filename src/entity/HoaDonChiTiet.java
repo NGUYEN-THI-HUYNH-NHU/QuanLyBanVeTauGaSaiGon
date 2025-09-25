@@ -12,7 +12,7 @@ package entity;
  * @version: 1.0
  */
 
-public class HoaDon_ChiTiet {
+public class HoaDonChiTiet {
 	private String hoaDonChiTietID;
 	private HoaDon hoaDon;
 	private String loaiDichVu;
@@ -22,4 +22,5 @@ public class HoaDon_ChiTiet {
 	private int soLuong;
 	private double soTien;
 	private double thue;
+	private Ve ve;
 }

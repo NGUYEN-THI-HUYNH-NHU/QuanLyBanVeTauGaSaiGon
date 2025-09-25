@@ -19,6 +19,7 @@ import entity.type.TrangThaiDatCho;
 public class DonDatCho {
 	private String donDatChoID;
 	private KhachHang khachHang;
+	private Chuyen chuyen;
 	private LocalDateTime thoiDiemDatCho;
 	private LocalDateTime thoiDiemHetHan;
 	private double tongTien;
