@@ -10,5 +10,8 @@ package gui;
  * @created : 25/09/2025
  */
 
-public class Application {
+import javax.swing.*;
+
+public class Application extends JFrame {
+
 }
