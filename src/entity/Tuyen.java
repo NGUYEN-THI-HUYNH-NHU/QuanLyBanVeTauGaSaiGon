@@ -12,10 +12,88 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class Tuyen {
 	private String tuyenID;
 	private Ga gaDi;
 	private Ga gaDen;
 	private int khoangCachKm;
 	private int thoiGianDuKienPhut;
+
+	public Tuyen() {
+		super();
+	}
+
+	public Tuyen(String tuyenID, Ga gaDi, Ga gaDen, int khoangCachKm, int thoiGianDuKienPhut) {
+		this.tuyenID = tuyenID;
+		this.gaDi = gaDi;
+		this.gaDen = gaDen;
+		this.khoangCachKm = khoangCachKm;
+		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
+	}
+
+	public String getTuyenID() {
+		return tuyenID;
+	}
+
+	public void setTuyenID(String tuyenID) {
+		this.tuyenID = tuyenID;
+	}
+
+	public Ga getGaDi() {
+		return gaDi;
+	}
+
+	public void setGaDi(Ga gaDi) {
+		this.gaDi = gaDi;
+	}
+
+	public Ga getGaDen() {
+		return gaDen;
+	}
+
+	public void setGaDen(Ga gaDen) {
+		this.gaDen = gaDen;
+	}
+
+	public int getKhoangCachKm() {
+		return khoangCachKm;
+	}
+
+	public void setKhoangCachKm(int khoangCachKm) {
+		this.khoangCachKm = khoangCachKm;
+	}
+
+	public int getThoiGianDuKienPhut() {
+		return thoiGianDuKienPhut;
+	}
+
+	public void setThoiGianDuKienPhut(int thoiGianDuKienPhut) {
+		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
+	}
+
+	@Override
+	public String toString() {
+		return "Tuyen{" +
+				"tuyenID='" + tuyenID + '\'' +
+				", gaDi=" + gaDi +
+				", gaDen=" + gaDen +
+				", khoangCachKm=" + khoangCachKm +
+				", thoiGianDuKienPhut=" + thoiGianDuKienPhut +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Tuyen tuyen = (Tuyen) o;
+		return Objects.equals(tuyenID, tuyen.tuyenID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(tuyenID);
+	}
 }
