@@ -20,23 +20,29 @@ public class NhanVien {
 	private String nhanVienID;
 	private VaiTroNhanVien vaiTroNhanVien;
 	private String hoTen;
+	private boolean isNu;
+	private LocalDate ngaySinh;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
 	private LocalDate ngayThamGia;
-	private boolean trangThai;
+	private boolean isHoatDong;
 	
-	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, String soDienThoai, String email,
-			String diaChi, LocalDate ngayThamGia, boolean trangThai) {
+
+	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu,
+			LocalDate ngaySinh, String soDienThoai, String email, String diaChi, LocalDate ngayThamGia,
+			boolean isHoatDong) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
 		this.hoTen = hoTen;
+		this.isNu = isNu;
+		this.ngaySinh = ngaySinh;
 		this.soDienThoai = soDienThoai;
 		this.email = email;
 		this.diaChi = diaChi;
 		this.ngayThamGia = ngayThamGia;
-		this.trangThai = trangThai;
+		this.isHoatDong = isHoatDong;
 	}
 
 	public String getNhanVienID() {
@@ -49,6 +55,14 @@ public class NhanVien {
 
 	public String getHoTen() {
 		return hoTen;
+	}
+
+	public boolean isNu() {
+		return isNu;
+	}
+
+	public LocalDate getNgaySinh() {
+		return ngaySinh;
 	}
 
 	public String getSoDienThoai() {
@@ -67,8 +81,8 @@ public class NhanVien {
 		return ngayThamGia;
 	}
 
-	public boolean isTrangThai() {
-		return trangThai;
+	public boolean isHoatDong() {
+		return isHoatDong;
 	}
 
 	public void setNhanVienID(String nhanVienID) {
@@ -83,6 +97,14 @@ public class NhanVien {
 		this.hoTen = hoTen;
 	}
 
+	public void setNu(boolean isNu) {
+		this.isNu = isNu;
+	}
+
+	public void setNgaySinh(LocalDate ngaySinh) {
+		this.ngaySinh = ngaySinh;
+	}
+
 	public void setSoDienThoai(String soDienThoai) {
 		this.soDienThoai = soDienThoai;
 	}
@@ -94,20 +116,20 @@ public class NhanVien {
 	public void setDiaChi(String diaChi) {
 		this.diaChi = diaChi;
 	}
-
+	
 	public void setNgayThamGia(LocalDate ngayThamGia) {
 		this.ngayThamGia = ngayThamGia;
 	}
 
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
+	public void setHoatDong(boolean isHoatDong) {
+		this.isHoatDong = isHoatDong;
 	}
 
 	@Override
 	public String toString() {
-		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen
-				+ ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
-				+ ngayThamGia + "" + trangThai;
+		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";"
+				+ ngaySinh + ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
+				+ ngayThamGia + "" + isHoatDong;
 	}
 	
 }

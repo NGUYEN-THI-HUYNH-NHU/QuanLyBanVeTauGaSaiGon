@@ -23,10 +23,10 @@ public class TaiKhoan {
 	private String tenDangNhap;
 	private String matKhauHash;
 	private LocalDateTime thoiDiemTao;
-	private boolean trangThai;
+	private boolean isHoatDong;
 	
 	public TaiKhoan(String taiKhoanID, VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-			String matKhauHash, LocalDateTime thoiDiemTao, boolean trangThai) {
+			String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
 		super();
 		this.taiKhoanID = taiKhoanID;
 		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
@@ -34,18 +34,18 @@ public class TaiKhoan {
 		this.tenDangNhap = tenDangNhap;
 		this.matKhauHash = matKhauHash;
 		this.thoiDiemTao = thoiDiemTao;
-		this.trangThai = trangThai;
+		this.isHoatDong = isHoatDong;
 	}
 	
 	public TaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-			String matKhauHash, LocalDateTime thoiDiemTao, boolean trangThai) {
+			String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
 		super();
 		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
 		this.nhanVien = nhanVien;
 		this.tenDangNhap = tenDangNhap;
 		this.matKhauHash = matKhauHash;
 		this.thoiDiemTao = thoiDiemTao;
-		this.trangThai = trangThai;
+		this.isHoatDong = isHoatDong;
 	}
 	
 	public TaiKhoan() {
@@ -72,12 +72,12 @@ public class TaiKhoan {
 		return matKhauHash;
 	}
 
-	public LocalDateTime getthoiDiemTao() {
+	public LocalDateTime getThoiDiemTao() {
 		return thoiDiemTao;
 	}
 
-	public boolean isTrangThai() {
-		return trangThai;
+	public boolean isHoatDong() {
+		return isHoatDong;
 	}
 
 	public void setTaiKhoanID(String taiKhoanID) {
@@ -100,18 +100,18 @@ public class TaiKhoan {
 		this.matKhauHash = matKhauHash;
 	}
 
-	public void setthoiDiemTao(LocalDateTime thoiDiemTao) {
+	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
 		this.thoiDiemTao = thoiDiemTao;
 	}
 
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
+	public void setHoatDong(boolean isHoatDong) {
+		this.isHoatDong = isHoatDong;
 	}
 
 	@Override
 	public String toString() {
 		return taiKhoanID + ";" + vaiTroTaiKhoan + ";" + nhanVien
 				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + thoiDiemTao
-				+ ";" + trangThai;
+				+ ";" + isHoatDong;
 	}
 }
