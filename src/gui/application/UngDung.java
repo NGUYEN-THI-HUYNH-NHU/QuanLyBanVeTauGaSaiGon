@@ -1,4 +1,4 @@
-package gui;/*
+package gui.application;/*
  * @ (#) Application.java   1.0     25/09/2025
 package gui;
 
@@ -12,6 +12,6 @@ package gui;
 
 import javax.swing.*;
 
-public class Application extends JFrame {
+public class UngDung extends JFrame {
 
 }

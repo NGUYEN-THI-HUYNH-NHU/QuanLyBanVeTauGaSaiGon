@@ -83,8 +83,8 @@ public class DoanDuong {
 	}
 	@Override
 	public String toString() {
-		return "DoanDuong [doanDuongID=" + doanDuongID + ", chuyen=" + chuyen + ", gaDi=" + gaDi + ", gaDen=" + gaDen
-				+ ", thuTuGaDi=" + thuTuGaDi + ", thuTuGaDen=" + thuTuGaDen + ", khoangCachKm=" + khoangCachKm
-				+ ", thoiGianDuKienPhut=" + thoiGianDuKienPhut + "]";
+		return doanDuongID + ";" + chuyen + ";" + gaDi + ";" + gaDen
+				+ ";" + thuTuGaDi + ";" + thuTuGaDen + ";" + khoangCachKm
+				+ ";" + thoiGianDuKienPhut;
 	}
 }

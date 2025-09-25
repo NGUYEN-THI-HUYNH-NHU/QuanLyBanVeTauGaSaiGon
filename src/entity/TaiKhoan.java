@@ -24,4 +24,79 @@ public class TaiKhoan {
 	private String matKhauHash;
 	private LocalDate ngayTao;
 	private boolean trangThai;
+	
+	public TaiKhoan(String taiKhoanID, VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
+			String matKhauHash, LocalDate ngayTao, boolean trangThai) {
+		super();
+		this.taiKhoanID = taiKhoanID;
+		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+		this.nhanVien = nhanVien;
+		this.tenDangNhap = tenDangNhap;
+		this.matKhauHash = matKhauHash;
+		this.ngayTao = ngayTao;
+		this.trangThai = trangThai;
+	}
+
+	public String getTaiKhoanID() {
+		return taiKhoanID;
+	}
+
+	public VaiTroTaiKhoan getVaiTroTaiKhoan() {
+		return vaiTroTaiKhoan;
+	}
+
+	public NhanVien getNhanVien() {
+		return nhanVien;
+	}
+
+	public String getTenDangNhap() {
+		return tenDangNhap;
+	}
+
+	public String getMatKhauHash() {
+		return matKhauHash;
+	}
+
+	public LocalDate getNgayTao() {
+		return ngayTao;
+	}
+
+	public boolean isTrangThai() {
+		return trangThai;
+	}
+
+	public void setTaiKhoanID(String taiKhoanID) {
+		this.taiKhoanID = taiKhoanID;
+	}
+
+	public void setVaiTroTaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan) {
+		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+	}
+
+	public void setNhanVien(NhanVien nhanVien) {
+		this.nhanVien = nhanVien;
+	}
+
+	public void setTenDangNhap(String tenDangNhap) {
+		this.tenDangNhap = tenDangNhap;
+	}
+
+	public void setMatKhauHash(String matKhauHash) {
+		this.matKhauHash = matKhauHash;
+	}
+
+	public void setNgayTao(LocalDate ngayTao) {
+		this.ngayTao = ngayTao;
+	}
+
+	public void setTrangThai(boolean trangThai) {
+		this.trangThai = trangThai;
+	}
+
+	@Override
+	public String toString() {
+		return taiKhoanID + ";" + vaiTroTaiKhoan + ";" + nhanVien
+				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + ngayTao
+				+ ";" + trangThai;
+	}
 }
