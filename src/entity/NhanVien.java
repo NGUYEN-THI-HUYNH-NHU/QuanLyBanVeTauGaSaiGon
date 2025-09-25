@@ -106,9 +106,8 @@ public class NhanVien {
 	@Override
 	public String toString() {
 		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen
-				+ ";" + soDienThoai + ";" + email + ";" + diaChi + ", ngayThamGia="
-				+ ngayThamGia + ", trangThai=" + trangThai + "]";
+				+ ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
+				+ ngayThamGia + "" + trangThai;
 	}
-	
 	
 }

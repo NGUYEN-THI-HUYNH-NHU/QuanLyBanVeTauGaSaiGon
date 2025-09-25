@@ -18,4 +18,61 @@ public class PhieuDungPhongChoVIP {
 	private DichVuPhongChoVIP dichVuPhongChoVIP;
 	private HanhKhach hanhKhach;
 	private int soLuong;
+	
+	public PhieuDungPhongChoVIP(String phieuDungPhongChoVIPID, HoaDonChiTiet hoaDonChiTiet,
+			DichVuPhongChoVIP dichVuPhongChoVIP, HanhKhach hanhKhach, int soLuong) {
+		super();
+		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
+		this.hoaDonChiTiet = hoaDonChiTiet;
+		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
+		this.hanhKhach = hanhKhach;
+		this.soLuong = soLuong;
+	}
+
+	public String getPhieuDungPhongChoVIPID() {
+		return phieuDungPhongChoVIPID;
+	}
+
+	public HoaDonChiTiet getHoaDonChiTiet() {
+		return hoaDonChiTiet;
+	}
+
+	public DichVuPhongChoVIP getDichVuPhongChoVIP() {
+		return dichVuPhongChoVIP;
+	}
+
+	public HanhKhach getHanhKhach() {
+		return hanhKhach;
+	}
+
+	public int getSoLuong() {
+		return soLuong;
+	}
+
+	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
+		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
+	}
+
+	public void setHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
+		this.hoaDonChiTiet = hoaDonChiTiet;
+	}
+
+	public void setDichVuPhongChoVIP(DichVuPhongChoVIP dichVuPhongChoVIP) {
+		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
+	}
+
+	public void setHanhKhach(HanhKhach hanhKhach) {
+		this.hanhKhach = hanhKhach;
+	}
+
+	public void setSoLuong(int soLuong) {
+		this.soLuong = soLuong;
+	}
+
+	@Override
+	public String toString() {
+		return phieuDungPhongChoVIPID + ";"
+				+ hoaDonChiTiet + ";" + dichVuPhongChoVIP + ";" + hanhKhach + ";"
+				+ soLuong;
+	}	
 }

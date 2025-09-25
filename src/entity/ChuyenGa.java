@@ -86,6 +86,4 @@ public class ChuyenGa {
 		return chuyenGaID + ";" + chuyen + ";" + ga + ";" + thuThu
 				+ ";" + ngayGioKhoiHanh + ";" + ngayGioDen;
 	}
-	
-	
 }

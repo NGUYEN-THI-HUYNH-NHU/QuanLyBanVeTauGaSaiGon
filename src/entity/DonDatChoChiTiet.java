@@ -20,4 +20,81 @@ public class DonDatChoChiTiet {
 	private int thuTuGaDi;
 	private int thuTuGaDen;
 	private double gia;
+	
+	public DonDatChoChiTiet(String donDatChoChiTietID, DonDatCho donDatCho, Ghe ghe, HanhKhach hanhKhach, int thuTuGaDi,
+			int thuTuGaDen, double gia) {
+		super();
+		this.donDatChoChiTietID = donDatChoChiTietID;
+		this.donDatCho = donDatCho;
+		this.ghe = ghe;
+		this.hanhKhach = hanhKhach;
+		this.thuTuGaDi = thuTuGaDi;
+		this.thuTuGaDen = thuTuGaDen;
+		this.gia = gia;
+	}
+
+	public String getDonDatChoChiTietID() {
+		return donDatChoChiTietID;
+	}
+
+	public DonDatCho getDonDatCho() {
+		return donDatCho;
+	}
+
+	public Ghe getGhe() {
+		return ghe;
+	}
+
+	public HanhKhach getHanhKhach() {
+		return hanhKhach;
+	}
+
+	public int getThuTuGaDi() {
+		return thuTuGaDi;
+	}
+
+	public int getThuTuGaDen() {
+		return thuTuGaDen;
+	}
+
+	public double getGia() {
+		return gia;
+	}
+
+	public void setDonDatChoChiTietID(String donDatChoChiTietID) {
+		this.donDatChoChiTietID = donDatChoChiTietID;
+	}
+
+	public void setDonDatCho(DonDatCho donDatCho) {
+		this.donDatCho = donDatCho;
+	}
+
+	public void setGhe(Ghe ghe) {
+		this.ghe = ghe;
+	}
+
+	public void setHanhKhach(HanhKhach hanhKhach) {
+		this.hanhKhach = hanhKhach;
+	}
+
+	public void setThuTuGaDi(int thuTuGaDi) {
+		this.thuTuGaDi = thuTuGaDi;
+	}
+
+	public void setThuTuGaDen(int thuTuGaDen) {
+		this.thuTuGaDen = thuTuGaDen;
+	}
+
+	public void setGia(double gia) {
+		this.gia = gia;
+	}
+
+	@Override
+	public String toString() {
+		return donDatChoChiTietID + ";" + donDatCho + ";"
+				+ ghe + ";" + hanhKhach + ";" + thuTuGaDi + ";" + thuTuGaDen
+				+ ";" + gia;
+	}
+	
+	
 }

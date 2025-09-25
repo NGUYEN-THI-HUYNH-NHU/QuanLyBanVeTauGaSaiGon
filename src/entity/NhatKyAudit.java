@@ -22,4 +22,51 @@ public class NhatKyAudit {
 	private String loaiThaoTac;
 	private LocalDateTime thoiGianThaoTac;
 	private String chiTiet;
+	
+	public NhatKyAudit(String nhatKyAuditID, String tenThucThe, String thucTheID, String thucHienBoi,
+			String loaiThaoTac, LocalDateTime thoiGianThaoTac, String chiTiet) {
+		super();
+		this.nhatKyAuditID = nhatKyAuditID;
+		this.tenThucThe = tenThucThe;
+		this.thucTheID = thucTheID;
+		this.thucHienBoi = thucHienBoi;
+		this.loaiThaoTac = loaiThaoTac;
+		this.thoiGianThaoTac = thoiGianThaoTac;
+		this.chiTiet = chiTiet;
+	}
+
+	public String getNhatKyAuditID() {
+		return nhatKyAuditID;
+	}
+
+	public String getTenThucThe() {
+		return tenThucThe;
+	}
+
+	public String getThucTheID() {
+		return thucTheID;
+	}
+
+	public String getThucHienBoi() {
+		return thucHienBoi;
+	}
+
+	public String getLoaiThaoTac() {
+		return loaiThaoTac;
+	}
+
+	public LocalDateTime getThoiGianThaoTac() {
+		return thoiGianThaoTac;
+	}
+
+	public String getChiTiet() {
+		return chiTiet;
+	}
+
+	@Override
+	public String toString() {
+		return nhatKyAuditID + ";" + tenThucThe + ";" + thucTheID
+				+ ";" + thucHienBoi + ";" + loaiThaoTac + ";"
+				+ thoiGianThaoTac + ";" + chiTiet;
+	}
 }
