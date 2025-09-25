@@ -5,7 +5,7 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import entity.type.VaiTroTaiKhoan;
 
@@ -22,19 +22,34 @@ public class TaiKhoan {
 	private NhanVien nhanVien;
 	private String tenDangNhap;
 	private String matKhauHash;
-	private LocalDate ngayTao;
+	private LocalDateTime thoiDiemTao;
 	private boolean trangThai;
 	
 	public TaiKhoan(String taiKhoanID, VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-			String matKhauHash, LocalDate ngayTao, boolean trangThai) {
+			String matKhauHash, LocalDateTime thoiDiemTao, boolean trangThai) {
 		super();
 		this.taiKhoanID = taiKhoanID;
 		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
 		this.nhanVien = nhanVien;
 		this.tenDangNhap = tenDangNhap;
 		this.matKhauHash = matKhauHash;
-		this.ngayTao = ngayTao;
+		this.thoiDiemTao = thoiDiemTao;
 		this.trangThai = trangThai;
+	}
+	
+	public TaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
+			String matKhauHash, LocalDateTime thoiDiemTao, boolean trangThai) {
+		super();
+		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+		this.nhanVien = nhanVien;
+		this.tenDangNhap = tenDangNhap;
+		this.matKhauHash = matKhauHash;
+		this.thoiDiemTao = thoiDiemTao;
+		this.trangThai = trangThai;
+	}
+	
+	public TaiKhoan() {
+		super();
 	}
 
 	public String getTaiKhoanID() {
@@ -57,8 +72,8 @@ public class TaiKhoan {
 		return matKhauHash;
 	}
 
-	public LocalDate getNgayTao() {
-		return ngayTao;
+	public LocalDateTime getthoiDiemTao() {
+		return thoiDiemTao;
 	}
 
 	public boolean isTrangThai() {
@@ -85,8 +100,8 @@ public class TaiKhoan {
 		this.matKhauHash = matKhauHash;
 	}
 
-	public void setNgayTao(LocalDate ngayTao) {
-		this.ngayTao = ngayTao;
+	public void setthoiDiemTao(LocalDateTime thoiDiemTao) {
+		this.thoiDiemTao = thoiDiemTao;
 	}
 
 	public void setTrangThai(boolean trangThai) {
@@ -96,7 +111,7 @@ public class TaiKhoan {
 	@Override
 	public String toString() {
 		return taiKhoanID + ";" + vaiTroTaiKhoan + ";" + nhanVien
-				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + ngayTao
+				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + thoiDiemTao
 				+ ";" + trangThai;
 	}
 }
