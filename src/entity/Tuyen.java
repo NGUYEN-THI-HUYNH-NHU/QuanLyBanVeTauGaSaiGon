@@ -39,7 +39,7 @@ public class Tuyen {
 
 	public void setTuyenID(String tuyenID) {
 		if(tuyenID == null || tuyenID.isEmpty()) {
-			throw new IllegalArgumentException("TuyenID khong duoc de trong");
+			throw new IllegalArgumentException("TuyenID không được để trống!");
 		}
 		this.tuyenID = tuyenID;
 	}
@@ -50,7 +50,7 @@ public class Tuyen {
 
 	public void setGaDi(Ga gaDi) {
 		if (gaDi == null) {
-			throw new IllegalArgumentException("Ga di khong duoc de trong");
+			throw new IllegalArgumentException("Ga Đi không được để trống!");
 		}
 		this.gaDi = gaDi;
 	}
@@ -61,7 +61,7 @@ public class Tuyen {
 
 	public void setGaDen(Ga gaDen) {
 		if (gaDen == null) {
-			throw new IllegalArgumentException("Ga den khong duoc de trong");
+			throw new IllegalArgumentException("Đa đến không được để trống!");
 		}
 		this.gaDen = gaDen;
 	}
@@ -72,7 +72,7 @@ public class Tuyen {
 
 	public void setKhoangCachKm(int khoangCachKm) {
 		if (khoangCachKm <= 0) {
-			throw new IllegalArgumentException("Khoang cach phai lon hon 0");
+			throw new IllegalArgumentException("Khoảng cách phải lớn hơn 0!");
 		}
 		this.khoangCachKm = khoangCachKm;
 	}
@@ -83,7 +83,7 @@ public class Tuyen {
 
 	public void setThoiGianDuKienPhut(int thoiGianDuKienPhut) {
 		if (thoiGianDuKienPhut <= 0) {
-			throw new IllegalArgumentException("Thoi gian du kien phai lon hon 0");
+			throw new IllegalArgumentException("Thời gian dự kiến phải lớn hơn 0!");
 		}
 		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
 	}
