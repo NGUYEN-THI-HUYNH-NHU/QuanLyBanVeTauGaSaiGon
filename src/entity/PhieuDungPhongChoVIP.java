@@ -14,7 +14,7 @@ package entity;
 
 public class PhieuDungPhongChoVIP {
 	private String phieuDungPhongChoVIPID;
-	private HoaDon_ChiTiet hoaDonChiTiet;
+	private HoaDonChiTiet hoaDonChiTiet;
 	private DichVuPhongChoVIP dichVuPhongChoVIP;
 	private HanhKhach hanhKhach;
 	private int soLuong;

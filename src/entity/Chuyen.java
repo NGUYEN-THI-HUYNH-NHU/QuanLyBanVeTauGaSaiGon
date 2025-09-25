@@ -20,4 +20,59 @@ public class Chuyen {
 	private Tau tau;
 	private LocalDateTime ngayGioKhoiHanh;
 	private LocalDateTime ngayGioDen;
+	
+	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime ngayGioKhoiHanh, LocalDateTime ngayGioDen) {
+		super();
+		this.chuyenID = chuyenID;
+		this.tuyen = tuyen;
+		this.tau = tau;
+		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
+		this.ngayGioDen = ngayGioDen;
+	}
+
+	public String getChuyenID() {
+		return chuyenID;
+	}
+
+	public Tuyen getTuyen() {
+		return tuyen;
+	}
+
+	public Tau getTau() {
+		return tau;
+	}
+
+	public LocalDateTime getNgayGioKhoiHanh() {
+		return ngayGioKhoiHanh;
+	}
+
+	public LocalDateTime getNgayGioDen() {
+		return ngayGioDen;
+	}
+
+	public void setChuyenID(String chuyenID) {
+		this.chuyenID = chuyenID;
+	}
+
+	public void setTuyen(Tuyen tuyen) {
+		this.tuyen = tuyen;
+	}
+
+	public void setTau(Tau tau) {
+		this.tau = tau;
+	}
+
+	public void setNgayGioKhoiHanh(LocalDateTime ngayGioKhoiHanh) {
+		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
+	}
+
+	public void setNgayGioDen(LocalDateTime ngayGioDen) {
+		this.ngayGioDen = ngayGioDen;
+	}
+
+	@Override
+	public String toString() {
+		return chuyenID + ";" + tuyen + ";" + tau + ";"
+				+ ngayGioKhoiHanh + ";" + ngayGioDen;
+	}
 }

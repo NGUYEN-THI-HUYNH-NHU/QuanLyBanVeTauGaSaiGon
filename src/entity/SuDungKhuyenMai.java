@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class SuDungKhuyenMai {
 	private String suDungKhuyenMaiID;
 	private KhuyenMai khuyenMai;
-	private HoaDon_ChiTiet hoaDonChiTiet;
+	private HoaDonChiTiet hoaDonChiTiet;
 	private KhachHang khachHang;
 	private LocalDateTime thoiDiemDung;
 }

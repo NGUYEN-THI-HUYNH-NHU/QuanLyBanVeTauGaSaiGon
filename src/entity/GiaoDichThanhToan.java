@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
  * @version: 1.0
  */
 
-public class ThanhToan {
-	private String thanhToanID;
+public class GiaoDichThanhToan {
+	private String giaoDichThanhToan;
 	private HoaDon hoaDon;
 	private KhachHang khachHang;
 	private double soTien;
