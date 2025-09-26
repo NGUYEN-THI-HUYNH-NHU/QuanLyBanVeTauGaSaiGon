@@ -38,6 +38,9 @@ public class Tuyen {
 	}
 
 	public void setTuyenID(String tuyenID) {
+		if(tuyenID == null || tuyenID.isEmpty()) {
+			throw new IllegalArgumentException("TuyenID không được để trống!");
+		}
 		this.tuyenID = tuyenID;
 	}
 
@@ -46,6 +49,9 @@ public class Tuyen {
 	}
 
 	public void setGaDi(Ga gaDi) {
+		if (gaDi == null) {
+			throw new IllegalArgumentException("Ga Đi không được để trống!");
+		}
 		this.gaDi = gaDi;
 	}
 
@@ -54,6 +60,9 @@ public class Tuyen {
 	}
 
 	public void setGaDen(Ga gaDen) {
+		if (gaDen == null) {
+			throw new IllegalArgumentException("Đa đến không được để trống!");
+		}
 		this.gaDen = gaDen;
 	}
 
@@ -62,6 +71,9 @@ public class Tuyen {
 	}
 
 	public void setKhoangCachKm(int khoangCachKm) {
+		if (khoangCachKm <= 0) {
+			throw new IllegalArgumentException("Khoảng cách phải lớn hơn 0!");
+		}
 		this.khoangCachKm = khoangCachKm;
 	}
 
@@ -70,18 +82,19 @@ public class Tuyen {
 	}
 
 	public void setThoiGianDuKienPhut(int thoiGianDuKienPhut) {
+		if (thoiGianDuKienPhut <= 0) {
+			throw new IllegalArgumentException("Thời gian dự kiến phải lớn hơn 0!");
+		}
 		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
 	}
 
 	@Override
 	public String toString() {
-		return "Tuyen{" +
-				"tuyenID='" + tuyenID + '\'' +
-				", gaDi=" + gaDi +
-				", gaDen=" + gaDen +
-				", khoangCachKm=" + khoangCachKm +
-				", thoiGianDuKienPhut=" + thoiGianDuKienPhut +
-				'}';
+		return tuyenID + ";"
+				+ gaDi + ";"
+				+ gaDen + ";"
+				+ khoangCachKm + ";"
+				+ thoiGianDuKienPhut;
 	}
 
 	@Override
