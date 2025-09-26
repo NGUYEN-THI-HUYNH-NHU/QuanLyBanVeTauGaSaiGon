@@ -10,6 +10,7 @@ package gui.application.form;
  * @created : 25/09/2025
  */
 
+
 import javax.swing.*;
 
 import java.awt.BorderLayout;
