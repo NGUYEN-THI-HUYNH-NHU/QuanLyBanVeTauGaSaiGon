@@ -16,12 +16,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.mindrot.jbcrypt.BCrypt;
 
 import connectDB.ConnectDB;
+import entity.NhanVien;
 import entity.TaiKhoan;
+import entity.type.VaiTroNhanVien;
 import entity.type.VaiTroTaiKhoan;
 
 
@@ -162,5 +165,41 @@ public class TaiKhoan_DAO {
 			connectDB.close(stmt, resultSet);
 		}
 		return null;
+	}
+	
+	public NhanVien getNhanVienByTenDangNhap(String tenDangNhap, boolean xacThuc) {
+		NhanVien employee = null;
+		Connection connection = connectDB.getConnection();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+		String sqlQuery = "select *"
+				+ " from NhanVien join TaiKhoan on NhanVien.nhanVienID = TaiKhoan.nhanVienID";
+
+		if (getTaiKhoanByTenDangNhap(tenDangNhap) != null && xacThuc) {
+			try {
+				statement = connection.prepareStatement(sqlQuery);
+				statement.setString(1, tenDangNhap);
+				resultSet = statement.executeQuery();
+
+				if (resultSet.next()) {
+					String id = resultSet.getString("nhanVienID");
+					VaiTroNhanVien vaiTro = VaiTroNhanVien.valueOf(resultSet.getString("vaiTroNhanVienID"));
+					String hoTen = resultSet.getString("hoTen");
+					boolean isNu = resultSet.getBoolean("isNu");
+					LocalDate ngaySinh = resultSet.getDate("ngaySinh").toLocalDate();
+					String sdt = resultSet.getString("soDienThoai");
+					String email = resultSet.getString("email");
+					String diaChi = resultSet.getString("diaChi");
+					LocalDate ngayThamGia = resultSet.getDate("ngayThamGia").toLocalDate();
+					boolean isHoatDong = resultSet.getBoolean("isHoatDong");
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				connectDB.close(statement, resultSet);
+			}
+		}
+
+		return employee;
 	}
 }
