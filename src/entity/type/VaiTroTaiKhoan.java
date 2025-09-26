@@ -13,8 +13,8 @@ package entity.type;
  */
 
 public enum VaiTroTaiKhoan {
-	NHAN_VIEN_QUAY_VE("Nhân viên quầy vé"),
-	QUAN_LY_NHA_GA("Quản lý nhà ga");
+	NHAN_VIEN("Nhân viên quầy vé"),
+	QUAN_LY("Quản lý nhà ga");
 	
     private final String description;
 

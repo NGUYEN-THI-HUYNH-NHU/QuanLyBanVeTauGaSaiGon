@@ -45,6 +45,11 @@ public class NhanVien {
 		this.ngayThamGia = ngayThamGia;
 		this.isHoatDong = isHoatDong;
 	}
+	
+	public NhanVien(String nhanVienID) {
+		super();
+		this.nhanVienID = nhanVienID;
+	}
 
 	public String getNhanVienID() {
 		return nhanVienID;
