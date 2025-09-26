@@ -15,6 +15,7 @@ import javax.swing.*;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.time.LocalDate;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
@@ -22,8 +23,10 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import entity.NhanVien;
+import entity.type.VaiTroNhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
+import gui.application.form.thongTin.FormDoiMatKhau;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -85,5 +88,8 @@ public class UngDung extends JFrame {
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 16));
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
+		
+        NhanVien nhanVien = new NhanVien("NV001", VaiTroNhanVien.valueOf("NHAN_VIEN"), "Nguyen Thi Huynh Nhu", true, LocalDate.now(), "0999999999", "hn@gmail.com", "TP HCM", LocalDate.now(), true); 
+		showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
 	}
 }

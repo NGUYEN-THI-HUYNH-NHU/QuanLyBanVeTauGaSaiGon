@@ -11,170 +11,113 @@ package gui.application.form.thongTin;
  * @date: Sep 26, 2025
  * @version: 1.0
  */
-//
-//import java.awt.BorderLayout;
-//import java.awt.Font;
-//import java.awt.Image;
-//import java.awt.image.BufferedImage;
-//import java.io.File;
-//import java.io.IOException;
-//import java.util.Arrays;
-//
-//import javax.imageio.ImageIO;
-//import javax.swing.*;
-//import javax.swing.filechooser.FileNameExtensionFilter;
-//
-//import org.apache.commons.io.FilenameUtils;
-//
-//import dao.NhanVien_DAO;
-//import entity.NhanVien;
-//import net.miginfocom.swing.MigLayout;
-//import raven.crazypanel.CrazyPanel;
-//
-//public class FormThongTinCaNhan {
-//
-//    private static final long serialVersionUID = 1L;
-//    private CrazyPanel container;
-//    private JLabel nhanVienIDLabel, fullNameLabel, genderLabel, dateOfBirthLabel, emailLabel,
-//                     phoneNumberLabel, roleLabel, startingDateLabel, salaryLabel, imageSourceDisplay;
-//    private JTextField nhanVienIDTextField, fullNameTextField, genderTextField, dateOfBirthTextField,
-//                       emailTextField, phoneNumberTextField, roleTextField, startingDateTextField, salaryTextField;
-//    private JLabel title;
-//    private JButton changeAvatarButton;
-//    private JFileChooser fileChooser;
-//    private FileNameExtensionFilter filter;
-//    private File selectedFile;
-//    private String imagePath;
-//    private NhanVien_DAO nhanVien_DAO;
-//
-//    public FormProfileInfo(NhanVien nhanVien) {
-//        setLayout(new BorderLayout());
-//        nhanVien_DAO = new NhanVien_DAO();
-//        fileChooser = new JFileChooser();
-//        initComponents(nhanVien);
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+
+import javax.swing.*;
+
+import entity.NhanVien;
+import net.miginfocom.swing.MigLayout;
+import raven.crazypanel.CrazyPanel;
+
+public class FormThongTinCaNhan extends JPanel {
+    private static final long serialVersionUID = 1L;
+    
+    private CrazyPanel pnlContainer;
+    private JLabel lblNhanVienID, lblVaiTroNhanVien, lblHoTen, lblGioiTinh, lblNgaySinh,
+                   lblSoDienThoai, lblEmail, lblDiaChi, lblNgayThamGia, lblTrangThaiHoatDong,
+                   lblTitle;
+    private JTextField txtNhanVienID, txtVaiTroNhanVien, txtHoTen, txtGioiTinh, txtNgaySinh,
+                       txtSoDienThoai, txtEmail, txtDiaChi, txtNgayThamGia, txtTrangThaiHoatDong;
+
+    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+
+    public FormThongTinCaNhan(NhanVien nhanVien) {
+        setLayout(new BorderLayout());
+        initComponents(nhanVien);
+    }
+
+    private void initComponents(NhanVien nhanVien) {
+        pnlContainer = new CrazyPanel();
+        lblTitle = new JLabel("Thông tin cá nhân");
+
+        txtNhanVienID = new JTextField(20);
+        txtVaiTroNhanVien = new JTextField(20);
+        txtHoTen = new JTextField(20);
+        txtGioiTinh = new JTextField(8);
+        txtNgaySinh = new JTextField(12);
+        txtSoDienThoai = new JTextField(15);
+        txtEmail = new JTextField(20);
+        txtDiaChi = new JTextField(25);
+        txtNgayThamGia = new JTextField(12);
+        txtTrangThaiHoatDong = new JTextField(12);
+
+        txtNhanVienID.setText(nhanVien.getNhanVienID());
+        txtVaiTroNhanVien.setText(nhanVien.getVaiTroNhanVien() != null ? nhanVien.getVaiTroNhanVien().toString() : "");
+        txtHoTen.setText(nhanVien.getHoTen());
+        txtGioiTinh.setText(nhanVien.isNu() ? "Nữ" : "Nam");
+        LocalDate ngaySinh = nhanVien.getNgaySinh();
+        txtNgaySinh.setText(ngaySinh != null ? ngaySinh.format(DATE_FORMAT) : "");
+        txtSoDienThoai.setText(nhanVien.getSoDienThoai());
+        txtEmail.setText(nhanVien.getEmail());
+        txtDiaChi.setText(nhanVien.getDiaChi());
+        LocalDate ngayThamGia = nhanVien.getNgayThamGia();
+        txtNgayThamGia.setText(ngayThamGia != null ? ngayThamGia.format(DATE_FORMAT) : "");
+        txtTrangThaiHoatDong.setText(nhanVien.isHoatDong() ? "Hoạt động" : "Ngưng hoạt động");
+
+        lblNhanVienID = new JLabel("Mã NV:");
+        lblVaiTroNhanVien = new JLabel("Vai trò:");
+        lblHoTen = new JLabel("Họ và tên:");
+        lblGioiTinh = new JLabel("Giới tính:");
+        lblNgaySinh = new JLabel("Ngày sinh:");
+        lblSoDienThoai = new JLabel("Số ĐT:");
+        lblEmail = new JLabel("Email:");
+        lblDiaChi = new JLabel("Địa chỉ:");
+        lblNgayThamGia = new JLabel("Ngày tham gia:");
+        lblTrangThaiHoatDong = new JLabel("Trạng thái:");
+
+        lblTitle.setFont(new Font(lblTitle.getFont().getFontName(), Font.BOLD, 22));
+
+        pnlContainer.setLayout(new MigLayout(
+                "wrap 2, fillx, insets 10 20 10 20, gap 10",
+                "[right]10[fill, grow]"
+        ));
+
+        pnlContainer.add(lblTitle, "wrap, span, align left, gapbottom 10");
+
+        // Thêm cặp label + field theo đúng thứ tự
+        pnlContainer.add(lblNhanVienID); pnlContainer.add(txtNhanVienID);
+        pnlContainer.add(lblHoTen); pnlContainer.add(txtHoTen);
+        pnlContainer.add(lblGioiTinh); pnlContainer.add(txtGioiTinh);
+        pnlContainer.add(lblNgaySinh); pnlContainer.add(txtNgaySinh);
+        pnlContainer.add(lblSoDienThoai); pnlContainer.add(txtSoDienThoai);
+        pnlContainer.add(lblEmail); pnlContainer.add(txtEmail);
+        pnlContainer.add(lblDiaChi); pnlContainer.add(txtDiaChi);
+        pnlContainer.add(lblVaiTroNhanVien); pnlContainer.add(txtVaiTroNhanVien);
+        pnlContainer.add(lblNgayThamGia); pnlContainer.add(txtNgayThamGia);
+        pnlContainer.add(lblTrangThaiHoatDong); pnlContainer.add(txtTrangThaiHoatDong);
+
+        // Wrap vào JScrollPane và thêm vào panel chính
+        JScrollPane scrollPane = new JScrollPane(pnlContainer);
+        scrollPane.setBorder(null);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Đặt tất cả TextField ở chế độ chỉ đọc
+        for (JTextField tf : Arrays.asList(
+                txtNhanVienID, txtVaiTroNhanVien, txtHoTen, txtGioiTinh, txtNgaySinh,
+                txtSoDienThoai, txtEmail, txtDiaChi, txtNgayThamGia, txtTrangThaiHoatDong)) {
+            tf.setEditable(false);
+        }
+    }
+    
+//    public static void main(String[] args) {
+//    	JFrame frame = new JFrame();
+//        NhanVien nhanVien = new NhanVien("NV001", VaiTroNhanVien.valueOf("NHAN_VIEN"), "Nguyen Thi Huynh Nhu", true, LocalDate.now(), "0999999999", "hn@gmail.com", "TP HCM", LocalDate.now(), true);
+//    	frame.add(new FormThongTinCaNhan(nhanVien));
+//    	frame.setSize(600, 900);
+//    	frame.setVisible(true);
 //    }
-//
-//    private void initComponents(NhanVien nhanVien) {
-//        container = new CrazyPanel();
-//        title = new JLabel("Thông tin cá nhân");
-//        imageSourceDisplay = new JLabel();
-//
-//        // TextFields with adjusted lengths
-//        nhanVienIDTextField = new JTextField(20);
-//        fullNameTextField = new JTextField(20);
-//        genderTextField = new JTextField(10);
-//        dateOfBirthTextField = new JTextField(15);
-//        emailTextField = new JTextField(20);
-//        phoneNumberTextField = new JTextField(15);
-//        roleTextField = new JTextField(15);
-//        startingDateTextField = new JTextField(15);
-//        salaryTextField = new JTextField(15);
-//
-//        boolean isValid = nhanVien.getImageSource() != null && new File(nhanVien.getImageSource()).exists();
-//
-//        Image avatarImage = new ImageIcon(isValid ? nhanVien.getImageSource() : "images/default.png")
-//                .getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-//        imageSourceDisplay.setIcon(new ImageIcon(avatarImage));
-//
-//        // Set texts
-//        nhanVienIDTextField.setText(nhanVien.getNhanVienID());
-//        fullNameTextField.setText(nhanVien.getFullName());
-//        genderTextField.setText(nhanVien.isGender() ? "Nam" : "Nữ");
-//        dateOfBirthTextField.setText(nhanVien.getDateOfBirth().toString());
-//        emailTextField.setText(nhanVien.getEmail());
-//        phoneNumberTextField.setText(nhanVien.getPhoneNumber());
-//        roleTextField.setText(nhanVien.getRole());
-//        startingDateTextField.setText(nhanVien.getStartingDate().toString());
-//        salaryTextField.setText(Double.toString(nhanVien.getSalary()));
-//
-//        // Labels
-//        nhanVienIDLabel = new JLabel("ID Nhân viên:");
-//        fullNameLabel = new JLabel("Họ và Tên:");
-//        genderLabel = new JLabel("Giới tính:");
-//        dateOfBirthLabel = new JLabel("Ngày sinh:");
-//        emailLabel = new JLabel("Email:");
-//        phoneNumberLabel = new JLabel("SĐT:");
-//        roleLabel = new JLabel("Chức vụ:");
-//        startingDateLabel = new JLabel("Ngày bắt đầu:");
-//        salaryLabel = new JLabel("Lương:");
-//        changeAvatarButton = new JButton("Đổi Avatar");
-//
-//        title.setFont(new Font(title.getFont().getFontName(), Font.BOLD, 22));
-//
-//        // MigLayout setup
-//        container.setLayout(new MigLayout(
-//                "wrap 2, fillx, insets 10 20 10 20, gap 10",
-//                "[right]10[fill, grow]"
-//        ));
-//
-//        container.add(title, "wrap, span, align left, gapbottom 10");
-//        container.add(imageSourceDisplay, "wrap, span, align center");
-//        container.add(changeAvatarButton, "wrap, span, align center, gapbottom 15");
-//
-//        // Add fields
-//        container.add(nhanVienIDLabel); container.add(nhanVienIDTextField);
-//        container.add(fullNameLabel); container.add(fullNameTextField);
-//        container.add(genderLabel); container.add(genderTextField);
-//        container.add(dateOfBirthLabel); container.add(dateOfBirthTextField);
-//        container.add(emailLabel); container.add(emailTextField);
-//        container.add(phoneNumberLabel); container.add(phoneNumberTextField);
-//        container.add(roleLabel); container.add(roleTextField);
-//        container.add(startingDateLabel); container.add(startingDateTextField);
-//        container.add(salaryLabel); container.add(salaryTextField);
-//
-//        // Add scroll pane
-//        JScrollPane scrollPane = new JScrollPane(container);
-//        scrollPane.setBorder(null);
-//        add(scrollPane, BorderLayout.CENTER);
-//
-//        // Set fields as non-editable
-//        for (JTextField tf : Arrays.asList(
-//                nhanVienIDTextField, fullNameTextField, genderTextField, dateOfBirthTextField,
-//                emailTextField, phoneNumberTextField, roleTextField, startingDateTextField, salaryTextField)) {
-//            tf.setEditable(false);
-//        }
-//
-//        changeAvatarButton.addActionListener(e -> {
-//            fileChooser.setDialogTitle("Choose Image File");
-//            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//            fileChooser.setAcceptAllFileFilterUsed(false);
-//            fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Images", "jpg", "png", "gif", "bmp"));
-//
-//            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-//                selectedFile = fileChooser.getSelectedFile();
-//                imagePath = saveImage(selectedFile, nhanVien);
-//                displayImage(imagePath);
-//            }
-//        });
-//    }
-//
-//    private String saveImage(File imageFile, NhanVien nhanVien) {
-//        try {
-//            BufferedImage image = ImageIO.read(imageFile);
-//            String extension = FilenameUtils.getExtension(imageFile.getName()).toLowerCase();
-//            if (!Arrays.asList("jpg", "png", "gif", "bmp").contains(extension)) return null;
-//
-//            String imagePath = "images/" + imageFile.getName();
-//            File destinationFile = new File(imagePath);
-//            ImageIO.write(image, extension, destinationFile);
-//            updateImagePathInDatabase(imagePath, nhanVien);
-//            return imagePath;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-//
-//    private void updateImagePathInDatabase(String imagePath, NhanVien nhanVien) {
-//        if (nhanVien_DAO.updateAvatar(imagePath, nhanVien.getNhanVienID())) {
-//            nhanVien.setImageSource(imagePath);
-//        }
-//    }
-//
-//    private void displayImage(String imagePath) {
-//        if (imagePath != null) {
-//            Image scaledImage = new ImageIcon(imagePath).getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-//            imageSourceDisplay.setIcon(new ImageIcon(scaledImage));
-//        }
-//    }
-//}
+}

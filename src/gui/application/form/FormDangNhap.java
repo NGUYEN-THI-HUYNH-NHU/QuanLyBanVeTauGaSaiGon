@@ -26,10 +26,8 @@ import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
 import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.thongTin.FormThongTinCaNhan;
 import net.miginfocom.swing.MigLayout;
-import raven.toast.Notifications;
-import raven.toast.Notifications.Location;
-import raven.toast.Notifications.Type;
 
 public class FormDangNhap extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -98,12 +96,12 @@ public class FormDangNhap extends JPanel {
         UngDung ungDung = UngDung.getInstance();
 
         if (nhanVien == null) {
-            Notifications.getInstance().show(Type.ERROR, Location.TOP_CENTER, "Tên đăng nhập hoặc mật khẩu không đúng!");
+//            Notifications.getInstance().show(Type.ERROR, Location.TOP_CENTER, "Tên đăng nhập hoặc mật khẩu không đúng!");
             resetDangNhap();
         } else {
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            ungDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
+            ungDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
             SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
         }
     }

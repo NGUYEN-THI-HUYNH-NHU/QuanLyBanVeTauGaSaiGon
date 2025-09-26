@@ -39,8 +39,8 @@ import raven.toast.Notifications.Location;
 
 public class FormDoiMatKhau extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private JLabel currentPasswordLabel;
-	private JLabel newPasswordLabel;
+	private JLabel lblMatKhauHienTai;
+	private JLabel lblMatKhauMoi;
 	private JLabel confirmNewPasswordLabel;
 	private JTextField currentPasswordTextField;
 	private JTextField newPasswordTextField;
@@ -62,8 +62,8 @@ public class FormDoiMatKhau extends JPanel {
 
 	private void initComponents(NhanVien nhanVien) {
 		container = new CrazyPanel();
-		currentPasswordLabel = new JLabel("Mật khẩu hiện tại:");
-		newPasswordLabel = new JLabel("Mật khẩu mới:");
+		lblMatKhauHienTai= new JLabel("Mật khẩu hiện tại:");
+		lblMatKhauMoi = new JLabel("Mật khẩu mới:");
 		confirmNewPasswordLabel = new JLabel("Xác nhận mật khẩu mới:");
 		currentPasswordTextField = new JPasswordField();
 		newPasswordTextField = new JPasswordField();
@@ -84,10 +84,10 @@ public class FormDoiMatKhau extends JPanel {
 
 		container.add(titleLabel, "wrap, span, al left, gapbottom 8");
 		container.add(imforamtionLabel, "span 2, al left");
-		container.add(imageSourceDisplay, "wrap, span, al center, gapbottom 8");
-		container.add(currentPasswordLabel, "skip 6");
+//		container.add(imageSourceDisplay, "wrap, span, al center, gapbottom 8");
+		container.add(lblMatKhauHienTai, "skip 6");
 		container.add(currentPasswordTextField);
-		container.add(newPasswordLabel);
+		container.add(lblMatKhauMoi);
 		container.add(newPasswordTextField);
 		container.add(confirmNewPasswordLabel);
 		container.add(confirmNewPasswordTextField);
