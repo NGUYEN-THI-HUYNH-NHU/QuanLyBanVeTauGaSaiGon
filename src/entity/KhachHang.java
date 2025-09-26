@@ -7,6 +7,8 @@ package entity;
 
 import entity.type.HangKhachHang;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -21,4 +23,85 @@ public class KhachHang {
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
+	
+	public KhachHang(String khachHangID, HangKhachHang hangKhachHang, String hoTen, String soDienThoai, String email,
+			String diaChi) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hangKhachHang = hangKhachHang;
+		this.hoTen = hoTen;
+		this.soDienThoai = soDienThoai;
+		this.email = email;
+		this.diaChi = diaChi;
+	}
+
+	public String getKhachHangID() {
+		return khachHangID;
+	}
+
+	public HangKhachHang getHangKhachHang() {
+		return hangKhachHang;
+	}
+
+	public String getHoTen() {
+		return hoTen;
+	}
+
+	public String getSoDienThoai() {
+		return soDienThoai;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getDiaChi() {
+		return diaChi;
+	}
+
+	public void setKhachHangID(String khachHangID) {
+		if(khachHangID == null || khachHangID.isEmpty()) {
+			throw new IllegalArgumentException("KhachHangID không được để trống!");
+		}
+		this.khachHangID = khachHangID;
+	}
+
+	public void setHangKhachHang(HangKhachHang hangKhachHang) {
+		this.hangKhachHang = hangKhachHang;
+	}
+
+	public void setHoTen(String hoTen) {
+		this.hoTen = hoTen;
+	}
+
+	public void setSoDienThoai(String soDienThoai) {
+		this.soDienThoai = soDienThoai;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setDiaChi(String diaChi) {
+		this.diaChi = diaChi;
+	}
+
+	@Override
+	public String toString() {
+		return khachHangID + ";" + hangKhachHang + ";" + hoTen
+				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		KhachHang khachHang = (KhachHang) o;
+		return Objects.equals(getKhachHangID(), khachHang.getKhachHangID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getKhachHangID());
+	}
 }

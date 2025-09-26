@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import entity.type.VaiTroNhanVien;
 
@@ -20,23 +21,29 @@ public class NhanVien {
 	private String nhanVienID;
 	private VaiTroNhanVien vaiTroNhanVien;
 	private String hoTen;
+	private boolean isNu;
+	private LocalDate ngaySinh;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
 	private LocalDate ngayThamGia;
-	private boolean trangThai;
-	
-	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, String soDienThoai, String email,
-			String diaChi, LocalDate ngayThamGia, boolean trangThai) {
+	private boolean isHoatDong;
+
+
+	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu,
+					LocalDate ngaySinh, String soDienThoai, String email, String diaChi, LocalDate ngayThamGia,
+					boolean isHoatDong) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
 		this.hoTen = hoTen;
+		this.isNu = isNu;
+		this.ngaySinh = ngaySinh;
 		this.soDienThoai = soDienThoai;
 		this.email = email;
 		this.diaChi = diaChi;
 		this.ngayThamGia = ngayThamGia;
-		this.trangThai = trangThai;
+		this.isHoatDong = isHoatDong;
 	}
 
 	public String getNhanVienID() {
@@ -49,6 +56,14 @@ public class NhanVien {
 
 	public String getHoTen() {
 		return hoTen;
+	}
+
+	public boolean isNu() {
+		return isNu;
+	}
+
+	public LocalDate getNgaySinh() {
+		return ngaySinh;
 	}
 
 	public String getSoDienThoai() {
@@ -67,23 +82,43 @@ public class NhanVien {
 		return ngayThamGia;
 	}
 
-	public boolean isTrangThai() {
-		return trangThai;
+	public boolean isHoatDong() {
+		return isHoatDong;
 	}
 
 	public void setNhanVienID(String nhanVienID) {
+		if(nhanVienID == null || nhanVienID.isEmpty()) {
+			throw new IllegalArgumentException("Mã nhân viên không được để trống");
+		}
 		this.nhanVienID = nhanVienID;
 	}
 
 	public void setVaiTroNhanVien(VaiTroNhanVien vaiTroNhanVien) {
+		if(vaiTroNhanVien == null) {
+			throw new IllegalArgumentException("Vai trò nhân viên không được để trống");
+		}
 		this.vaiTroNhanVien = vaiTroNhanVien;
 	}
 
 	public void setHoTen(String hoTen) {
+		if(hoTen == null || hoTen.isEmpty()) {
+			throw new IllegalArgumentException("Họ tên không được để trống");
+		}
 		this.hoTen = hoTen;
 	}
 
+	public void setNu(boolean isNu) {
+		this.isNu = isNu;
+	}
+
+	public void setNgaySinh(LocalDate ngaySinh) {
+		this.ngaySinh = ngaySinh;
+	}
+
 	public void setSoDienThoai(String soDienThoai) {
+		if(soDienThoai == null || soDienThoai.isEmpty()) {
+			throw new IllegalArgumentException("Số điện thoại không được để trống");
+		}
 		this.soDienThoai = soDienThoai;
 	}
 
@@ -96,19 +131,33 @@ public class NhanVien {
 	}
 
 	public void setNgayThamGia(LocalDate ngayThamGia) {
+		if(ngayThamGia.isAfter(LocalDate.now())) {
+			throw new IllegalArgumentException("Ngày tham gia không được sau ngày hiện tại");
+		}
 		this.ngayThamGia = ngayThamGia;
 	}
 
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
+	public void setHoatDong(boolean isHoatDong) {
+		this.isHoatDong = isHoatDong;
 	}
 
 	@Override
 	public String toString() {
-		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen
-				+ ";" + soDienThoai + ";" + email + ";" + diaChi + ", ngayThamGia="
-				+ ngayThamGia + ", trangThai=" + trangThai + "]";
+		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";"
+				+ ngaySinh + ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
+				+ ngayThamGia + ";" + isHoatDong;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		NhanVien nhanVien = (NhanVien) o;
+		return Objects.equals(getNhanVienID(), nhanVien.getNhanVienID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getNhanVienID());
+	}
 }

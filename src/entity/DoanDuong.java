@@ -12,6 +12,8 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class DoanDuong {
 	private String doanDuongID;
 	private Chuyen chuyen;
@@ -58,6 +60,9 @@ public class DoanDuong {
 		return thoiGianDuKienPhut;
 	}
 	public void setDoanDuongID(String doanDuongID) {
+		if(doanDuongID == null || doanDuongID.isEmpty()) {
+			throw new IllegalArgumentException("DoanDuongID không được để trống!");
+		}
 		this.doanDuongID = doanDuongID;
 	}
 	public void setChuyen(Chuyen chuyen) {
@@ -86,5 +91,18 @@ public class DoanDuong {
 		return doanDuongID + ";" + chuyen + ";" + gaDi + ";" + gaDen
 				+ ";" + thuTuGaDi + ";" + thuTuGaDen + ";" + khoangCachKm
 				+ ";" + thoiGianDuKienPhut;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DoanDuong doanDuong = (DoanDuong) o;
+		return Objects.equals(doanDuongID, doanDuong.doanDuongID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(doanDuongID);
 	}
 }

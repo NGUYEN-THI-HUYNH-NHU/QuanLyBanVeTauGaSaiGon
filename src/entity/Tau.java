@@ -7,6 +7,8 @@ package entity;
 
 import entity.type.LoaiTau;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -20,4 +22,72 @@ public class Tau {
 	private LoaiTau loaiTau;
 	private int soLuongToa;
 	private String trangThai;
+	
+	public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, String trangThai) {
+		super();
+		this.tauID = tauID;
+		this.tenTau = tenTau;
+		this.loaiTau = loaiTau;
+		this.soLuongToa = soLuongToa;
+		this.trangThai = trangThai;
+	}
+
+	public String getTauID() {
+		return tauID;
+	}
+
+	public String getTenTau() {
+		return tenTau;
+	}
+
+	public LoaiTau getLoaiTau() {
+		return loaiTau;
+	}
+
+	public int getSoLuongToa() {
+		return soLuongToa;
+	}
+
+	public String getTrangThai() {
+		return trangThai;
+	}
+
+	public void setTauID(String tauID) {
+		this.tauID = tauID;
+	}
+
+	public void setTenTau(String tenTau) {
+		this.tenTau = tenTau;
+	}
+
+	public void setLoaiTau(LoaiTau loaiTau) {
+		this.loaiTau = loaiTau;
+	}
+
+	public void setSoLuongToa(int soLuongToa) {
+		this.soLuongToa = soLuongToa;
+	}
+
+	public void setTrangThai(String trangThai) {
+		this.trangThai = trangThai;
+	}
+
+	@Override
+	public String toString() {
+		return tauID + ";" + tenTau + ";" + loaiTau + ";" + soLuongToa
+				+ ";" + trangThai;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Tau tau = (Tau) o;
+		return Objects.equals(getTauID(), tau.getTauID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getTauID());
+	}
 }

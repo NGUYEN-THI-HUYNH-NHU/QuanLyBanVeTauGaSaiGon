@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /*
  * @description
@@ -51,6 +52,12 @@ public class Chuyen {
 	}
 
 	public void setChuyenID(String chuyenID) {
+		if(chuyenID != null && !chuyenID.trim().isEmpty()){
+			this.chuyenID = chuyenID;
+		}else{
+			throw new IllegalArgumentException("Chuyến ID không được để trống!");
+		}
+
 		this.chuyenID = chuyenID;
 	}
 
@@ -63,10 +70,16 @@ public class Chuyen {
 	}
 
 	public void setNgayGioKhoiHanh(LocalDateTime ngayGioKhoiHanh) {
+		if(ngayGioKhoiHanh.isAfter(ngayGioDen)) {
+			throw new IllegalArgumentException("Ngày giờ khởi hành phải trước ngày giờ đến!");
+		}
 		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
 	}
 
 	public void setNgayGioDen(LocalDateTime ngayGioDen) {
+		if(ngayGioDen.isBefore(ngayGioKhoiHanh)) {
+			throw new IllegalArgumentException("Ngày giờ đến phải sau ngày giờ khởi hành!");
+		}
 		this.ngayGioDen = ngayGioDen;
 	}
 
@@ -74,5 +87,18 @@ public class Chuyen {
 	public String toString() {
 		return chuyenID + ";" + tuyen + ";" + tau + ";"
 				+ ngayGioKhoiHanh + ";" + ngayGioDen;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Chuyen chuyen = (Chuyen) o;
+		return Objects.equals(chuyenID, chuyen.chuyenID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(chuyenID);
 	}
 }
