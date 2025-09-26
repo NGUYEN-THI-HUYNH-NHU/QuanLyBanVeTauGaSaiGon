@@ -7,6 +7,8 @@ package entity;
 
 import entity.type.HangKhachHang;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -58,6 +60,9 @@ public class KhachHang {
 	}
 
 	public void setKhachHangID(String khachHangID) {
+		if(khachHangID == null || khachHangID.isEmpty()) {
+			throw new IllegalArgumentException("KhachHangID không được để trống!");
+		}
 		this.khachHangID = khachHangID;
 	}
 
@@ -86,6 +91,17 @@ public class KhachHang {
 		return khachHangID + ";" + hangKhachHang + ";" + hoTen
 				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		KhachHang khachHang = (KhachHang) o;
+		return Objects.equals(getKhachHangID(), khachHang.getKhachHangID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getKhachHangID());
+	}
 }

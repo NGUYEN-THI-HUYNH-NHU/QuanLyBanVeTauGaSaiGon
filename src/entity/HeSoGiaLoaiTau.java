@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import entity.type.LoaiTau;
 
@@ -54,6 +55,9 @@ public class HeSoGiaLoaiTau {
 	}
 
 	public void setHsgLoaiTauID(String hsgLoaiTauID) {
+		if(hsgLoaiTauID == null || hsgLoaiTauID.isEmpty()) {
+			throw new IllegalArgumentException("HsgLoaiTauID không được để trống!");
+		}
 		this.hsgLoaiTauID = hsgLoaiTauID;
 	}
 
@@ -66,10 +70,16 @@ public class HeSoGiaLoaiTau {
 	}
 
 	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
+		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
+			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
+		}
 		this.ngayCoHieuLuc = ngayCoHieuLuc;
 	}
 
 	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
+		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
+			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
+		}
 		this.ngayHetHieuLuc = ngayHetHieuLuc;
 	}
 
@@ -78,6 +88,17 @@ public class HeSoGiaLoaiTau {
 		return hsgLoaiTauID + ";" + loaiTau + ";" + hsg
 				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		HeSoGiaLoaiTau that = (HeSoGiaLoaiTau) o;
+		return Objects.equals(hsgLoaiTauID, that.hsgLoaiTauID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(hsgLoaiTauID);
+	}
 }

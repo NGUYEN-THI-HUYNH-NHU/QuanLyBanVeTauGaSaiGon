@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import entity.type.VaiTroTaiKhoan;
 
@@ -24,9 +25,9 @@ public class TaiKhoan {
 	private String matKhauHash;
 	private LocalDateTime thoiDiemTao;
 	private boolean isHoatDong;
-	
+
 	public TaiKhoan(String taiKhoanID, VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-			String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
+					String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
 		super();
 		this.taiKhoanID = taiKhoanID;
 		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
@@ -36,9 +37,9 @@ public class TaiKhoan {
 		this.thoiDiemTao = thoiDiemTao;
 		this.isHoatDong = isHoatDong;
 	}
-	
+
 	public TaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-			String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
+					String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
 		super();
 		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
 		this.nhanVien = nhanVien;
@@ -47,7 +48,7 @@ public class TaiKhoan {
 		this.thoiDiemTao = thoiDiemTao;
 		this.isHoatDong = isHoatDong;
 	}
-	
+
 	public TaiKhoan() {
 		super();
 	}
@@ -81,23 +82,43 @@ public class TaiKhoan {
 	}
 
 	public void setTaiKhoanID(String taiKhoanID) {
-		this.taiKhoanID = taiKhoanID;
+		if( taiKhoanID != null && !taiKhoanID.trim().isEmpty()){
+			this.taiKhoanID = taiKhoanID;
+		}else{
+			throw new IllegalArgumentException("Tài khoản ID không được để trống!");
+		}
 	}
 
 	public void setVaiTroTaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan) {
-		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+		if(vaiTroTaiKhoan != null) {
+			this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+		}else{
+			throw new IllegalArgumentException("Vai trò tài khoản không được để trống!");
+		}
 	}
 
 	public void setNhanVien(NhanVien nhanVien) {
-		this.nhanVien = nhanVien;
+		if(nhanVien != null) {
+			this.nhanVien = nhanVien;
+		}else{
+			throw new IllegalArgumentException("Nhân viên không được để trống!");
+		}
 	}
 
 	public void setTenDangNhap(String tenDangNhap) {
-		this.tenDangNhap = tenDangNhap;
+		if(tenDangNhap != null && !tenDangNhap.trim().isEmpty()) {
+			this.tenDangNhap = tenDangNhap;
+		}else{
+			throw new IllegalArgumentException("Tên đăng nhập không được để trống!");
+		}
 	}
 
 	public void setMatKhauHash(String matKhauHash) {
-		this.matKhauHash = matKhauHash;
+		if(matKhauHash != null && !matKhauHash.trim().isEmpty()) {
+			this.matKhauHash = matKhauHash;
+		}else{
+			throw new IllegalArgumentException("Mật khẩu không được để trống!");
+		}
 	}
 
 	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
@@ -113,5 +134,18 @@ public class TaiKhoan {
 		return taiKhoanID + ";" + vaiTroTaiKhoan + ";" + nhanVien
 				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + thoiDiemTao
 				+ ";" + isHoatDong;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TaiKhoan taiKhoan = (TaiKhoan) o;
+		return Objects.equals(getTaiKhoanID(), taiKhoan.getTaiKhoanID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getTaiKhoanID());
 	}
 }

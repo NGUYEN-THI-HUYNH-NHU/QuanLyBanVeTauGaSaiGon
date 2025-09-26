@@ -1,6 +1,7 @@
 package entity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import entity.type.TrangThaiVe;
 
@@ -85,7 +86,11 @@ public class Ve {
 	}
 
 	public void setVeID(String veID) {
-		this.veID = veID;
+		if(veID != null && !veID.isEmpty()) {
+			this.veID = veID;
+		}else{
+			throw new IllegalArgumentException("Vé ID không được để trống!");
+		}
 	}
 
 	public void setDonDatCho(DonDatCho donDatCho) {
@@ -121,6 +126,9 @@ public class Ve {
 	}
 
 	public void setNgayBan(LocalDateTime ngayBan) {
+		if(ngayBan == null) {
+			throw new IllegalArgumentException("Ngày bán không được để trống!");
+		}
 		this.ngayBan = ngayBan;
 	}
 
@@ -129,5 +137,18 @@ public class Ve {
 		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";"
 				+ hanhKhach + ";" + thuTuGaDi + ";" + thuTuGaDen + ";" + gia
 				+ ";" + trangThai + ";" + ngayBan;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Ve ve = (Ve) o;
+		return Objects.equals(getVeID(), ve.getVeID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getVeID());
 	}
 }

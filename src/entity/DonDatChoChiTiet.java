@@ -12,6 +12,8 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class DonDatChoChiTiet {
 	private String donDatChoChiTietID;
 	private DonDatCho donDatCho;
@@ -62,6 +64,9 @@ public class DonDatChoChiTiet {
 	}
 
 	public void setDonDatChoChiTietID(String donDatChoChiTietID) {
+		if(donDatChoChiTietID == null || donDatChoChiTietID.isEmpty()) {
+			throw new IllegalArgumentException("Đơn đặt chỗ chi tiết ID không được để trống!");
+		}
 		this.donDatChoChiTietID = donDatChoChiTietID;
 	}
 
@@ -95,6 +100,17 @@ public class DonDatChoChiTiet {
 				+ ghe + ";" + hanhKhach + ";" + thuTuGaDi + ";" + thuTuGaDen
 				+ ";" + gia;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DonDatChoChiTiet that = (DonDatChoChiTiet) o;
+		return Objects.equals(donDatChoChiTietID, that.donDatChoChiTietID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(donDatChoChiTietID);
+	}
 }

@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /*
  * @description
@@ -83,6 +84,9 @@ public class HoaDon {
 	}
 
 	public void setHoaDonID(String hoaDonID) {
+		if(hoaDonID == null || hoaDonID.isEmpty()) {
+			throw new IllegalArgumentException("HoaDonID không được để trống!");
+		}
 		this.hoaDonID = hoaDonID;
 	}
 
@@ -128,6 +132,17 @@ public class HoaDon {
 				+ nhanVien + ";" + thoiDiemTao + ";" + tamTinh + ";" + tongGiamGia
 				+ ";" + tongThue + ";" + tongTien + ";" + trangThai;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		HoaDon hoaDon = (HoaDon) o;
+		return Objects.equals(hoaDonID, hoaDon.hoaDonID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(hoaDonID);
+	}
 }

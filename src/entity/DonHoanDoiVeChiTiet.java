@@ -12,6 +12,8 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class DonHoanDoiVeChiTiet {
 	private String donHoanDoiVeChiTietID;
 	private DonHoanDoiVe donHoanDoiVe;
@@ -62,7 +64,12 @@ public class DonHoanDoiVeChiTiet {
 	}
 
 	public void setDonHoanDoiVeChiTietID(String donHoanDoiVeChiTietID) {
-		this.donHoanDoiVeChiTietID = donHoanDoiVeChiTietID;
+		if(donHoanDoiVeChiTietID != null && !donHoanDoiVeChiTietID.isEmpty()){
+			this.donHoanDoiVeChiTietID = donHoanDoiVeChiTietID;
+		}
+		else {
+			throw new IllegalArgumentException("DonHoanDoiVeChiTietID không được để trống!");
+		}
 	}
 
 	public void setDonHoanDoiVe(DonHoanDoiVe donHoanDoiVe) {
@@ -95,6 +102,17 @@ public class DonHoanDoiVeChiTiet {
 				+ ";" + veCu + ";" + veMoi + ";" + soTienHoan + ";" + phiPhatSinh
 				+ ";" + ghiChu;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DonHoanDoiVeChiTiet that = (DonHoanDoiVeChiTiet) o;
+		return Objects.equals(donHoanDoiVeChiTietID, that.donHoanDoiVeChiTietID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(donHoanDoiVeChiTietID);
+	}
 }

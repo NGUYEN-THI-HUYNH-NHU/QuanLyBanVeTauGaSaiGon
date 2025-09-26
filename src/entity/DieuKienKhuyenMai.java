@@ -10,6 +10,8 @@ import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.LoaiTau;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -86,7 +88,11 @@ public class DieuKienKhuyenMai {
 	}
 
 	public void setDieuKienID(String dieuKienID) {
-		this.dieuKienID = dieuKienID;
+		if(dieuKienID != null && !dieuKienID.trim().isEmpty()) {
+			this.dieuKienID = dieuKienID;
+		}else{
+			throw new IllegalArgumentException("Điều kiện ID không được để trống!");
+		}
 	}
 
 	public void setKhuyenMai(KhuyenMai khuyenMai) {
@@ -131,5 +137,18 @@ public class DieuKienKhuyenMai {
 				+ ";" + loaiTau + ";" + hangToa + ";" + hangKhachHang
 				+ ";" + loaiDoiTuong + ";" + ngayTrongTuan + ";" + ngayLe
 				+ ";" + minGiaTriDonHang;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DieuKienKhuyenMai that = (DieuKienKhuyenMai) o;
+		return Objects.equals(dieuKienID, that.dieuKienID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(dieuKienID);
 	}
 }

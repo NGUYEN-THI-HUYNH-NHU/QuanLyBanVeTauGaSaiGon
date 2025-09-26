@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import entity.type.HangToa;
 
@@ -54,6 +55,9 @@ public class HeSoGiaHangToa {
 	}
 
 	public void setHsgHangToaID(String hsgHangToaID) {
+		if(hsgHangToaID == null || hsgHangToaID.isEmpty()) {
+			throw new IllegalArgumentException("HsgHangToaID không được để trống!");
+		}
 		this.hsgHangToaID = hsgHangToaID;
 	}
 
@@ -66,10 +70,16 @@ public class HeSoGiaHangToa {
 	}
 
 	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
+		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
+			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
+		}
 		this.ngayCoHieuLuc = ngayCoHieuLuc;
 	}
 
 	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
+		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
+			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
+		}
 		this.ngayHetHieuLuc = ngayHetHieuLuc;
 	}
 
@@ -77,5 +87,18 @@ public class HeSoGiaHangToa {
 	public String toString() {
 		return hsgHangToaID + ";" + hangToa + ";" + hsg
 				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc;
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		HeSoGiaHangToa that = (HeSoGiaHangToa) o;
+		return Objects.equals(hsgHangToaID, that.hsgHangToaID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(hsgHangToaID);
+	}
 }

@@ -2,6 +2,8 @@ package entity;
 
 import entity.type.HangToa;
 
+import java.util.Objects;
+
 /*
  * @(#) Toa.java  1.0  [10:14:42 PM] Sep 17, 2025
  *
@@ -53,7 +55,11 @@ public class Toa {
 	}
 
 	public void setToaID(String toaID) {
-		this.toaID = toaID;
+		if(toaID != null && !toaID.isEmpty()) {
+			this.toaID = toaID;
+		}else{
+			throw new IllegalArgumentException("Toa ID không được để trống!");
+		}
 	}
 
 	public void setTau(Tau tau) {
@@ -69,6 +75,9 @@ public class Toa {
 	}
 
 	public void setSttToa(int sttToa) {
+		if(sttToa <= 0) {
+			throw new IllegalArgumentException("Số thứ tự toa phải lớn hơn 0");
+		}
 		this.sttToa = sttToa;
 	}
 
@@ -76,5 +85,18 @@ public class Toa {
 	public String toString() {
 		return toaID + ";" + tau + ";" + hangToa + ";" + sucChua + ";"
 				+ sttToa;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Toa toa = (Toa) o;
+		return Objects.equals(getToaID(), toa.getToaID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getToaID());
 	}
 }

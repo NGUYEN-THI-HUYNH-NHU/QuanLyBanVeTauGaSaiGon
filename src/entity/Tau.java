@@ -7,6 +7,8 @@ package entity;
 
 import entity.type.LoaiTau;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -74,5 +76,18 @@ public class Tau {
 	public String toString() {
 		return tauID + ";" + tenTau + ";" + loaiTau + ";" + soLuongToa
 				+ ";" + trangThai;
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Tau tau = (Tau) o;
+		return Objects.equals(getTauID(), tau.getTauID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getTauID());
+	}
 }

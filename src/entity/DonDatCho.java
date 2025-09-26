@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import entity.type.TrangThaiDatCho;
 
@@ -66,7 +67,11 @@ public class DonDatCho {
 	}
 
 	public void setDonDatChoID(String donDatChoID) {
-		this.donDatChoID = donDatChoID;
+		if(donDatChoID != null && !donDatChoID.trim().isEmpty()) {
+			this.donDatChoID = donDatChoID;
+		}else{
+			throw new IllegalArgumentException("Đơn đặt chỗ ID không được để trống!");
+		}
 	}
 
 	public void setKhachHang(KhachHang khachHang) {
@@ -98,5 +103,18 @@ public class DonDatCho {
 		return donDatChoID + ";" + khachHang + ";" + chuyen
 				+ ";" + thoiDiemDatCho + ";" + thoiDiemHetHan + ";" + tongTien
 				+ ";" + trangThaiDonDatCho;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DonDatCho donDatCho = (DonDatCho) o;
+		return Objects.equals(donDatChoID, donDatCho.donDatChoID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(donDatChoID);
 	}
 }

@@ -16,6 +16,7 @@ import entity.type.HangToa;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import entity.type.LoaiTau;
 
@@ -35,7 +36,11 @@ public class BieuGiaVe {
 	private boolean isCoHieuLuc;
 	private LocalDateTime thoiDiemTao;
 	private LocalDateTime thoiDiemSua;
-	
+
+	public BieuGiaVe(){
+		super();
+	}
+
 	public BieuGiaVe(String bieuGiaVeID, Tuyen tuyenApDung, HangToa hangToaApDung, LoaiTau loaiTauApDung, int minKm,
 			int maxKm, double donGiaTrenKm, double giaCoDinh, double phuPhiCaoDiem, LocalDate ngayCoHieuLuc,
 			LocalDate ngayHetHieuLuc, int doUuTien, boolean isCoHieuLuc, LocalDateTime thoiDiemTao,
@@ -119,7 +124,11 @@ public class BieuGiaVe {
 	}
 
 	public void setBieuGiaVeID(String bieuGiaVeID) {
-		this.bieuGiaVeID = bieuGiaVeID;
+		if (bieuGiaVeID != null && !bieuGiaVeID.isEmpty()) {
+			this.bieuGiaVeID = bieuGiaVeID;
+		} else {
+			throw new IllegalArgumentException("Biểu giá vé ID không được để trống!");
+		}
 	}
 
 	public void setTuyenApDung(Tuyen tuyenApDung) {
@@ -185,5 +194,18 @@ public class BieuGiaVe {
 				+ ";" + donGiaTrenKm + ";" + giaCoDinh + ";" + phuPhiCaoDiem
 				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";" + doUuTien
 				+ ";" + isCoHieuLuc + ";" + thoiDiemTao + ";" + thoiDiemSua;
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		BieuGiaVe bieuGiaVe = (BieuGiaVe) o;
+		return Objects.equals(bieuGiaVeID, bieuGiaVe.bieuGiaVeID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(bieuGiaVeID);
+	}
 }

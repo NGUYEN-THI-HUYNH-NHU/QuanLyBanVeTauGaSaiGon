@@ -1,6 +1,7 @@
 package entity;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /*
  * @(#) DichVuPhongChoVIP.java  1.0  [1:51:58 PM] Sep 19, 2025
@@ -59,10 +60,18 @@ public class DichVuPhongChoVIP {
 	}
 
 	public void setDichVuPhongChoVIPID(String dichVuPhongChoVIPID) {
-		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
+		if(dichVuPhongChoVIPID != null && !dichVuPhongChoVIPID.isEmpty()){
+			this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
+		}
+		else {
+			throw new IllegalArgumentException("DichVuPhongChoVIPID không được để trống!");
+		}
 	}
 
 	public void setGia(double gia) {
+		if(gia < 0) {
+			throw new IllegalArgumentException("Giá không được âm!");
+		}
 		this.gia = gia;
 	}
 
@@ -71,10 +80,16 @@ public class DichVuPhongChoVIP {
 	}
 
 	public void setHieuLucTu(LocalDate hieuLucTu) {
+		if(hieuLucTu.isAfter(hieuLucDen)) {
+			throw new IllegalArgumentException("Ngày hiệu lực từ phải trước ngày hiệu lực đến!");
+		}
 		this.hieuLucTu = hieuLucTu;
 	}
 
 	public void setHieuLucDen(LocalDate hieuLucDen) {
+		if(hieuLucDen.isBefore(hieuLucTu)) {
+			throw new IllegalArgumentException("Ngày hiệu lực đến phải sau ngày hiệu lực từ!");
+		}
 		this.hieuLucDen = hieuLucDen;
 	}
 
@@ -87,6 +102,17 @@ public class DichVuPhongChoVIP {
 		return dichVuPhongChoVIPID + ";" + gia + ";" + moTa
 				+ ";" + hieuLucTu + ";" + hieuLucDen + ";" + trangThai;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DichVuPhongChoVIP that = (DichVuPhongChoVIP) o;
+		return Objects.equals(dichVuPhongChoVIPID, that.dichVuPhongChoVIPID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(dichVuPhongChoVIPID);
+	}
 }

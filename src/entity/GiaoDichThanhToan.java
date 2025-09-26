@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /*
  * @description
@@ -98,4 +99,16 @@ public class GiaoDichThanhToan {
 				+ ";" + isThanhToanTienMat + ";" + trangThai;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		GiaoDichThanhToan that = (GiaoDichThanhToan) o;
+		return Objects.equals(giaoDichThanhToan, that.giaoDichThanhToan);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(giaoDichThanhToan);
+	}
 }

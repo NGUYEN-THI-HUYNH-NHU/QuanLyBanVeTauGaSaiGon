@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import entity.type.VaiTroNhanVien;
 
@@ -27,11 +28,11 @@ public class NhanVien {
 	private String diaChi;
 	private LocalDate ngayThamGia;
 	private boolean isHoatDong;
-	
+
 
 	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu,
-			LocalDate ngaySinh, String soDienThoai, String email, String diaChi, LocalDate ngayThamGia,
-			boolean isHoatDong) {
+					LocalDate ngaySinh, String soDienThoai, String email, String diaChi, LocalDate ngayThamGia,
+					boolean isHoatDong) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
@@ -86,14 +87,23 @@ public class NhanVien {
 	}
 
 	public void setNhanVienID(String nhanVienID) {
+		if(nhanVienID == null || nhanVienID.isEmpty()) {
+			throw new IllegalArgumentException("Mã nhân viên không được để trống");
+		}
 		this.nhanVienID = nhanVienID;
 	}
 
 	public void setVaiTroNhanVien(VaiTroNhanVien vaiTroNhanVien) {
+		if(vaiTroNhanVien == null) {
+			throw new IllegalArgumentException("Vai trò nhân viên không được để trống");
+		}
 		this.vaiTroNhanVien = vaiTroNhanVien;
 	}
 
 	public void setHoTen(String hoTen) {
+		if(hoTen == null || hoTen.isEmpty()) {
+			throw new IllegalArgumentException("Họ tên không được để trống");
+		}
 		this.hoTen = hoTen;
 	}
 
@@ -106,6 +116,9 @@ public class NhanVien {
 	}
 
 	public void setSoDienThoai(String soDienThoai) {
+		if(soDienThoai == null || soDienThoai.isEmpty()) {
+			throw new IllegalArgumentException("Số điện thoại không được để trống");
+		}
 		this.soDienThoai = soDienThoai;
 	}
 
@@ -116,8 +129,11 @@ public class NhanVien {
 	public void setDiaChi(String diaChi) {
 		this.diaChi = diaChi;
 	}
-	
+
 	public void setNgayThamGia(LocalDate ngayThamGia) {
+		if(ngayThamGia.isAfter(LocalDate.now())) {
+			throw new IllegalArgumentException("Ngày tham gia không được sau ngày hiện tại");
+		}
 		this.ngayThamGia = ngayThamGia;
 	}
 
@@ -129,7 +145,19 @@ public class NhanVien {
 	public String toString() {
 		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";"
 				+ ngaySinh + ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
-				+ ngayThamGia + "" + isHoatDong;
+				+ ngayThamGia + ";" + isHoatDong;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		NhanVien nhanVien = (NhanVien) o;
+		return Objects.equals(getNhanVienID(), nhanVien.getNhanVienID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getNhanVienID());
+	}
 }

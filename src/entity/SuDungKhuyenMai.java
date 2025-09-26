@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /*
  * @description
@@ -75,5 +76,18 @@ public class SuDungKhuyenMai {
 	public String toString() {
 		return suDungKhuyenMaiID + ";" + khuyenMai
 				+ ";" + hoaDonChiTiet + ";" + khachHang + ";" + thoiDiemDung;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		SuDungKhuyenMai that = (SuDungKhuyenMai) o;
+		return Objects.equals(getSuDungKhuyenMaiID(), that.getSuDungKhuyenMaiID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getSuDungKhuyenMaiID());
 	}
 }

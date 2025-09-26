@@ -14,6 +14,8 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class Ghe {
 	private String gheID;
 	private Toa toa;
@@ -45,7 +47,11 @@ public class Ghe {
 	}
 
 	public void setGheID(String gheID) {
-		this.gheID = gheID;
+		if(gheID != null && !gheID.isEmpty()) {
+			this.gheID = gheID;
+		}else{
+			throw new IllegalArgumentException("Ghe ID không được để trống!");
+		}
 	}
 
 	public void setToa(Toa toa) {
@@ -64,6 +70,17 @@ public class Ghe {
 	public String toString() {
 		return gheID + ";" + toa + ";" + soGhe + ";" + trangThai;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Ghe ghe = (Ghe) o;
+		return Objects.equals(gheID, ghe.gheID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(gheID);
+	}
 }

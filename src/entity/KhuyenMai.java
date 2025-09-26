@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /*
  * @description
@@ -95,10 +96,16 @@ public class KhuyenMai {
 	}
 
 	public void setKhuyenMaiID(String khuyenMaiID) {
+		if(khuyenMaiID == null || khuyenMaiID.isEmpty()) {
+			throw new IllegalArgumentException("KhuyenMaiID không được để trống!");
+		}
 		this.khuyenMaiID = khuyenMaiID;
 	}
 
 	public void setMaKhuyenMai(String maKhuyenMai) {
+		if(maKhuyenMai == null || maKhuyenMai.isEmpty()) {
+			throw new IllegalArgumentException("Mã khuyến mãi không được để trống!");
+		}
 		this.maKhuyenMai = maKhuyenMai;
 	}
 
@@ -115,10 +122,16 @@ public class KhuyenMai {
 	}
 
 	public void setNgayBatDau(LocalDate ngayBatDau) {
+		if(ngayBatDau.isAfter(ngayKetThuc)) {
+			throw new IllegalArgumentException("Ngày bắt đầu phải trước ngày kết thúc!");
+		}
 		this.ngayBatDau = ngayBatDau;
 	}
 
 	public void setNgayKetThuc(LocalDate ngayKetThuc) {
+		if(ngayKetThuc.isBefore(ngayBatDau)) {
+			throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu!");
+		}
 		this.ngayKetThuc = ngayKetThuc;
 	}
 
@@ -149,5 +162,18 @@ public class KhuyenMai {
 				+ ";" + ngayKetThuc + ";" + soLuong + ";"
 				+ gioiHanMoiKhachHang + ";" + ngayTao + ";" + ngayCapNhat + ";"
 				+ trangThai;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		KhuyenMai khuyenMai = (KhuyenMai) o;
+		return Objects.equals(getKhuyenMaiID(), khuyenMai.getKhuyenMaiID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getKhuyenMaiID());
 	}
 }

@@ -6,6 +6,7 @@ package entity;
  */
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /*
  * @description
@@ -38,6 +39,9 @@ public class DonHoanDoiVe {
 	}
 
 	public String getDonHoanDoiVeID() {
+		if(donHoanDoiVeID == null || donHoanDoiVeID.isEmpty()) {
+			throw new IllegalStateException("Don Hoan Doi Ve ID không được để trống!");
+		}
 		return donHoanDoiVeID;
 	}
 
@@ -106,5 +110,18 @@ public class DonHoanDoiVe {
 		return donHoanDoiVeID + ";" + donDatCho + ";"
 				+ khachHang + ";" + nhanVien + ";" + loaiHoanDoiVe + ";"
 				+ ngayYeuCau + ";" + tongTienHoan + ";" + trangThai;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DonHoanDoiVe that = (DonHoanDoiVe) o;
+		return Objects.equals(getDonHoanDoiVeID(), that.getDonHoanDoiVeID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getDonHoanDoiVeID());
 	}
 }

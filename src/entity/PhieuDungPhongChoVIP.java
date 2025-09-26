@@ -12,6 +12,8 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.Objects;
+
 public class PhieuDungPhongChoVIP {
 	private String phieuDungPhongChoVIPID;
 	private HoaDonChiTiet hoaDonChiTiet;
@@ -50,6 +52,9 @@ public class PhieuDungPhongChoVIP {
 	}
 
 	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
+		if(phieuDungPhongChoVIPID == null || phieuDungPhongChoVIPID.isEmpty()) {
+			throw new IllegalArgumentException("PhieuDungPhongChoVIPID không được để trống!");
+		}
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
 	}
 
@@ -74,5 +79,18 @@ public class PhieuDungPhongChoVIP {
 		return phieuDungPhongChoVIPID + ";"
 				+ hoaDonChiTiet + ";" + dichVuPhongChoVIP + ";" + hanhKhach + ";"
 				+ soLuong;
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		PhieuDungPhongChoVIP that = (PhieuDungPhongChoVIP) o;
+		return Objects.equals(getPhieuDungPhongChoVIPID(), that.getPhieuDungPhongChoVIPID());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(getPhieuDungPhongChoVIPID());
+	}
 }

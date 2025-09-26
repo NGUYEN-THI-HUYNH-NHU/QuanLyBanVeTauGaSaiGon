@@ -7,6 +7,8 @@ package entity;
 
 import entity.type.LoaiDoiTuong;
 
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -52,6 +54,9 @@ public class HanhKhach {
 	}
 
 	public void setHanhKhachID(String hanhKhachID) {
+		if(hanhKhachID == null || hanhKhachID.isEmpty()) {
+			throw new IllegalArgumentException("HanhKhachID không được để trống!");
+		}
 		this.hanhKhachID = hanhKhachID;
 	}
 
@@ -64,10 +69,16 @@ public class HanhKhach {
 	}
 
 	public void setHoTen(String hoTen) {
+		if(hoTen == null || hoTen.isEmpty()) {
+			throw new IllegalArgumentException("Hoten Không được để trống!");
+		}
 		this.hoTen = hoTen;
 	}
 
 	public void setSoGiayTo(String soGiayTo) {
+		if(soGiayTo == null || soGiayTo.isEmpty()) {
+			throw new IllegalArgumentException("SoGiayTo Không được để trống!");
+		}
 		this.soGiayTo = soGiayTo;
 	}
 
@@ -76,6 +87,17 @@ public class HanhKhach {
 		return hanhKhachID + ";" + loaiDoiTuong + ";" + khachHang
 				+ ";" + hoTen + ";" + soGiayTo;
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		HanhKhach hanhKhach = (HanhKhach) o;
+		return Objects.equals(hanhKhachID, hanhKhach.hanhKhachID);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(hanhKhachID);
+	}
 }
