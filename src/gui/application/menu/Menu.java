@@ -82,6 +82,9 @@ public class Menu extends JPanel {
             	if (role.equalsIgnoreCase("NHAN_VIEN")) {
             		if (i==4 || i==5 || i==6 || i==7 || i==9 || i==10)
                         continue;
+            	} else {
+            		if (i==1 || i==2 || i==3)
+                        continue;
             	}
             
                 ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], index++, suKienMenuList, role);
