@@ -112,7 +112,7 @@ public class TaiKhoan_DAO {
 		return success;
 	}
 	
-	public boolean isTaiKhoanTaiKhoan(String tenDangNhap) {
+	public boolean isTaiKhoanTonTai(String tenDangNhap) {
 		Connection connection = connectDB.getConnection();
 		PreparedStatement stmt = null;
 		ResultSet resultSet = null;
@@ -135,7 +135,7 @@ public class TaiKhoan_DAO {
 		return false;
 	}
 
-	public TaiKhoan getTaiKhoanByNhanVienID(String nhanVienIDtim) {
+	public TaiKhoan getTaiKhoanVoiNhanVienID(String nhanVienIDtim) {
 		Connection connection = connectDB.getConnection();
 		PreparedStatement stmt = null;
 		ResultSet resultSet = null;
@@ -154,7 +154,7 @@ public class TaiKhoan_DAO {
 				LocalDateTime thoiDiemTao = resultSet.getTimestamp(6).toLocalDateTime();
 				boolean isHoatDong = resultSet.getBoolean(7);
 				
-				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienByID(nhanVienIDtim), tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienIDtim), tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
