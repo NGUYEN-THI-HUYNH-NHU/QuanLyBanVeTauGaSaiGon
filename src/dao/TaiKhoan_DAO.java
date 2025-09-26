@@ -38,7 +38,7 @@ public class TaiKhoan_DAO {
 		connectDB.connect();
 	}
 
-	public TaiKhoan getTaiKhoanByTenDangNhap(String tenDangNhap) {
+	public TaiKhoan getTaiKhoanVoiTenDangNhap(String tenDangNhap) {
 		TaiKhoan taiKhoan = null;
 		Connection connection = connectDB.getConnection();
 		PreparedStatement stmt = null;
@@ -51,8 +51,8 @@ public class TaiKhoan_DAO {
 
 			if (resultSet.next()) {
 				taiKhoan = new TaiKhoan();
-				taiKhoan.setTenDangNhap(resultSet.getString(2));
-				taiKhoan.setMatKhauHash(resultSet.getString(3));;
+				taiKhoan.setTenDangNhap(resultSet.getString(4));
+				taiKhoan.setMatKhauHash(resultSet.getString(5));;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -168,30 +168,33 @@ public class TaiKhoan_DAO {
 	}
 	
 	public NhanVien getNhanVienByTenDangNhap(String tenDangNhap, boolean xacThuc) {
-		NhanVien employee = null;
+		NhanVien nhanVien = null;
 		Connection connection = connectDB.getConnection();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		String sqlQuery = "select *"
-				+ " from NhanVien join TaiKhoan on NhanVien.nhanVienID = TaiKhoan.nhanVienID";
+		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong"
+				+ " from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID"
+				+ " WHERE TK.tenDangNhap = ?";
 
-		if (getTaiKhoanByTenDangNhap(tenDangNhap) != null && xacThuc) {
+		if (getTaiKhoanVoiTenDangNhap(tenDangNhap)!=null && xacThuc) {
 			try {
 				statement = connection.prepareStatement(sqlQuery);
 				statement.setString(1, tenDangNhap);
 				resultSet = statement.executeQuery();
 
 				if (resultSet.next()) {
-					String id = resultSet.getString("nhanVienID");
-					VaiTroNhanVien vaiTro = VaiTroNhanVien.valueOf(resultSet.getString("vaiTroNhanVienID"));
-					String hoTen = resultSet.getString("hoTen");
-					boolean isNu = resultSet.getBoolean("isNu");
-					LocalDate ngaySinh = resultSet.getDate("ngaySinh").toLocalDate();
-					String sdt = resultSet.getString("soDienThoai");
-					String email = resultSet.getString("email");
-					String diaChi = resultSet.getString("diaChi");
-					LocalDate ngayThamGia = resultSet.getDate("ngayThamGia").toLocalDate();
-					boolean isHoatDong = resultSet.getBoolean("isHoatDong");
+					String nhanVienID = resultSet.getString(1);
+					VaiTroNhanVien vaiTroNhanVien = VaiTroNhanVien.valueOf(resultSet.getString(2));
+					String hoTen = resultSet.getString(3);
+					boolean isNu = resultSet.getBoolean(4);
+					LocalDate ngaySinh = resultSet.getDate(5).toLocalDate();
+					String soDienThoai = resultSet.getString(6);
+					String email = resultSet.getString(7);
+					String diaChi = resultSet.getString(8);
+					LocalDate ngayThamGia = resultSet.getDate(9).toLocalDate();
+					boolean isHoatDong = resultSet.getBoolean(10);
+					
+					nhanVien = new NhanVien(nhanVienID, vaiTroNhanVien, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia, isHoatDong);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -199,7 +202,6 @@ public class TaiKhoan_DAO {
 				connectDB.close(statement, resultSet);
 			}
 		}
-
-		return employee;
+		return nhanVien;
 	}
 }

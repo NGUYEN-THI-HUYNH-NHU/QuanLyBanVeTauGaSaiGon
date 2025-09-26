@@ -5,6 +5,8 @@ package controller;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import dao.TaiKhoan_DAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
@@ -25,7 +27,7 @@ public class DangNhap_Ctrl {
 
 	public boolean checkCredentials(String tenDangNhap, String matKhau) {
 //		TaiKhoan taiKhoan = taiKhoan_DAO.getTaiKhoanByTenDangNhap(tenDangNhap);
-//		if (taiKhoan == null || !tenDangNhap.equals(taiKhoan.getMatKhauHash())) {
+//		if (taiKhoan == null || !BCrypt.checkpw(matKhau, taiKhoan.getMatKhauHash())) {
 //			return false;
 //		}
 	
