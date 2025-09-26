@@ -38,7 +38,7 @@ public class TaiKhoan_DAO {
 		connectDB.connect();
 	}
 
-	public TaiKhoan getTaiKhoanByTenDangNhap(String tenDangNhap) {
+	public TaiKhoan getTaiKhoanVoiTenDangNhap(String tenDangNhap) {
 		TaiKhoan taiKhoan = null;
 		Connection connection = connectDB.getConnection();
 		PreparedStatement stmt = null;
@@ -51,8 +51,8 @@ public class TaiKhoan_DAO {
 
 			if (resultSet.next()) {
 				taiKhoan = new TaiKhoan();
-				taiKhoan.setTenDangNhap(resultSet.getString(2));
-				taiKhoan.setMatKhauHash(resultSet.getString(3));;
+				taiKhoan.setTenDangNhap(resultSet.getString(4));
+				taiKhoan.setMatKhauHash(resultSet.getString(5));;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -174,9 +174,9 @@ public class TaiKhoan_DAO {
 		ResultSet resultSet = null;
 		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong"
 				+ " from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID"
-				+ " WHERE Taikhoan.tenDangNhap = ?";
+				+ " WHERE TK.tenDangNhap = ?";
 
-		if (getTaiKhoanByTenDangNhap(tenDangNhap)!=null && xacThuc) {
+		if (getTaiKhoanVoiTenDangNhap(tenDangNhap)!=null && xacThuc) {
 			try {
 				statement = connection.prepareStatement(sqlQuery);
 				statement.setString(1, tenDangNhap);

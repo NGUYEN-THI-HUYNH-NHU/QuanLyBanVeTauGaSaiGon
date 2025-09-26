@@ -91,12 +91,10 @@ public class FormDangNhap extends JPanel {
     private void dangNhap() {
         String tenDangNhap = txtTenDangNhap.getText().trim();
         String matKhau = new String(txtMatKhau.getText().trim());
-//        NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
-        NhanVien nhanVien = new NhanVien("NV001", VaiTroNhanVien.valueOf("NHAN_VIEN"), "Nguyen Thi Huynh Nhu", true, LocalDate.now(), "0999999999", "hn@gmail.com", "TP HCM", LocalDate.now(), true);
+        NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
         UngDung ungDung = UngDung.getInstance();
 
         if (nhanVien == null) {
-//            Notifications.getInstance().show(Type.ERROR, Location.TOP_CENTER, "Tên đăng nhập hoặc mật khẩu không đúng!");
             resetDangNhap();
         } else {
             ungDung.createGiaoDienChinh(nhanVien);

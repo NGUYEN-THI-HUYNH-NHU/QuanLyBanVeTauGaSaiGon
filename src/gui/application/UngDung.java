@@ -88,8 +88,5 @@ public class UngDung extends JFrame {
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 16));
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
-		
-        NhanVien nhanVien = new NhanVien("NV001", VaiTroNhanVien.valueOf("NHAN_VIEN"), "Nguyen Thi Huynh Nhu", true, LocalDate.now(), "0999999999", "hn@gmail.com", "TP HCM", LocalDate.now(), true); 
-		showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
 	}
 }

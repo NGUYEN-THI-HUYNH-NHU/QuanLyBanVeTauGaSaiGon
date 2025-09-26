@@ -23,7 +23,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 public class Menu extends JPanel {
 
@@ -37,9 +36,10 @@ public class Menu extends JPanel {
     protected final int menuMaxWidth = 240;
     protected final int menuMinWidth = 70;
     protected final int headerFullHgap = 5;
-    private final String[][] menuItems = {{ "~Quản Lý~" }, { "Bán vé" }, { "Quản lý vé" }, { "Quản lý hóa đơn" },{ "Quản lý biểu giá" },
-    		{ "Quản lý tuyến" },{ "Quản lý chuyến" }, { "~Khác~" },{ "Thống Kê", "Chung", "Khách Hàng", "Vé"},
-            { "Hồ sơ", "Thông Tin", "Đổi Mật Khẩu" },{ "Đăng Xuất" }};
+    private final String[][] menuItems = {{ "~Quản Lý~" }, { "Bán vé" }, { "Quản lý vé", "Hoàn vé", "Đổi vé" }, { "Quản lý hóa đơn" },{ "Quản lý biểu giá" },
+    		{ "Quản lý tuyến" },{ "Quản lý chuyến" }, { "Quản lý khuyến mãi" }, { "Quản lý khách hàng" }, { "Quản lý nhân viên" }, {"Quản lý tài khoản"}, 
+    		{ "~Khác~" },{ "Thống Kê", "Chung", "Khách Hàng", "Vé"},
+            { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" },{ "Đăng Xuất" }};
     private JLabel header;
     private JScrollPane scroll;
     private JPanel panelMenu;
@@ -52,11 +52,10 @@ public class Menu extends JPanel {
 
     private void init(String role) {
         header = new JLabel(headerName);
-//        header.setIcon(new FlatSVGIcon(getClass().getResource("/gui/icon/svg/logo.svg")));
         header.putClientProperty(FlatClientProperties.STYLE, "" + "font:$Menu.header.font;" + "foreground:$Menu.foreground");
 
         panelMenu = new JPanel();
-        panelMenu.setLayout(new LayoutThanhPhanMenu(this));  // You can keep your custom layout here for menu items
+        panelMenu.setLayout(new LayoutThanhPhanMenu(this));
         panelMenu.putClientProperty(FlatClientProperties.STYLE, "" + "border:5,5,5,5;" + "background:$Menu.background");
 
         scroll = new JScrollPane(panelMenu);
@@ -80,8 +79,11 @@ public class Menu extends JPanel {
             if (menuName.startsWith("~") && menuName.endsWith("~")) {
                 panelMenu.add(createTitle(menuName));
             } else {
-                if (role.equalsIgnoreCase("Employee") && i == 3)
-                    continue;
+            	if (role.equalsIgnoreCase("NHAN_VIEN")) {
+            		if (i==4 || i==5 || i==6 || i==7 || i==9 || i==10)
+                        continue;
+            	}
+            
                 ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], index++, suKienMenuList, role);
                 panelMenu.add(menuItem);
             }
@@ -107,9 +109,9 @@ public class Menu extends JPanel {
             if (com instanceof ThanhPhanMenu) {
                 ThanhPhanMenu item = (ThanhPhanMenu) com;
                 if (item.getMenuIndex() == index) {
-                    item.setSelectedIndex(subIndex);
+                    item.setIndexDuocChon(subIndex);
                 } else {
-                    item.setSelectedIndex(-1);
+                    item.setIndexDuocChon(-1);
                 }
             }
         }

@@ -56,7 +56,7 @@ public class FormThongTinCaNhan extends JPanel {
         txtTrangThaiHoatDong = new JTextField(12);
 
         txtNhanVienID.setText(nhanVien.getNhanVienID());
-        txtVaiTroNhanVien.setText(nhanVien.getVaiTroNhanVien() != null ? nhanVien.getVaiTroNhanVien().toString() : "");
+        txtVaiTroNhanVien.setText(nhanVien.getVaiTroNhanVien() != null ? nhanVien.getVaiTroNhanVien().getDescription() : "");
         txtHoTen.setText(nhanVien.getHoTen());
         txtGioiTinh.setText(nhanVien.isNu() ? "Nữ" : "Nam");
         LocalDate ngaySinh = nhanVien.getNgaySinh();
@@ -68,12 +68,12 @@ public class FormThongTinCaNhan extends JPanel {
         txtNgayThamGia.setText(ngayThamGia != null ? ngayThamGia.format(DATE_FORMAT) : "");
         txtTrangThaiHoatDong.setText(nhanVien.isHoatDong() ? "Hoạt động" : "Ngưng hoạt động");
 
-        lblNhanVienID = new JLabel("Mã NV:");
+        lblNhanVienID = new JLabel("Mã nhân viên:");
         lblVaiTroNhanVien = new JLabel("Vai trò:");
         lblHoTen = new JLabel("Họ và tên:");
         lblGioiTinh = new JLabel("Giới tính:");
         lblNgaySinh = new JLabel("Ngày sinh:");
-        lblSoDienThoai = new JLabel("Số ĐT:");
+        lblSoDienThoai = new JLabel("Số điện thoại:");
         lblEmail = new JLabel("Email:");
         lblDiaChi = new JLabel("Địa chỉ:");
         lblNgayThamGia = new JLabel("Ngày tham gia:");
@@ -112,12 +112,4 @@ public class FormThongTinCaNhan extends JPanel {
             tf.setEditable(false);
         }
     }
-    
-//    public static void main(String[] args) {
-//    	JFrame frame = new JFrame();
-//        NhanVien nhanVien = new NhanVien("NV001", VaiTroNhanVien.valueOf("NHAN_VIEN"), "Nguyen Thi Huynh Nhu", true, LocalDate.now(), "0999999999", "hn@gmail.com", "TP HCM", LocalDate.now(), true);
-//    	frame.add(new FormThongTinCaNhan(nhanVien));
-//    	frame.setSize(600, 900);
-//    	frame.setVisible(true);
-//    }
 }

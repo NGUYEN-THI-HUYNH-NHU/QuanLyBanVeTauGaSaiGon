@@ -5,8 +5,6 @@ package gui.application.menu;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.BasicStroke;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -14,6 +12,7 @@ import java.awt.BasicStroke;
  * @version: 1.0
  */
 
+import java.awt.BasicStroke;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;

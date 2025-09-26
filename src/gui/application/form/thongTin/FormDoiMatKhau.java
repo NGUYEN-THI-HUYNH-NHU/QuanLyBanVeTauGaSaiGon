@@ -14,88 +14,70 @@ package gui.application.form.thongTin;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.File;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import controller.DangNhap_Ctrl;
-import dao.TaiKhoan_DAO;
 import entity.NhanVien;
-import gui.application.UngDung;
 import net.miginfocom.swing.MigLayout;
 import raven.crazypanel.CrazyPanel;
-import raven.toast.Notifications;
-import raven.toast.Notifications.Location;
 
 public class FormDoiMatKhau extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JLabel lblMatKhauHienTai;
 	private JLabel lblMatKhauMoi;
-	private JLabel confirmNewPasswordLabel;
-	private JTextField currentPasswordTextField;
-	private JTextField newPasswordTextField;
-	private JTextField confirmNewPasswordTextField;
+	private JLabel lblXacNhanMatKhauMoi;
+	private JTextField txtMatKhauHienTai;
+	private JTextField txtMatKhauMoi;
+	private JTextField txtXacNhanMatKhauMoi;
 	private CrazyPanel container;
-	private JLabel imageSourceDisplay;
-	private JButton changePasswordButton;
-	private JLabel imforamtionLabel;
-	private JLabel errorLabel;
-	private TaiKhoan_DAO taiKhoan_DAO;
-	private DangNhap_Ctrl dangNhap_Ctrl;
+	private JButton btnDoiMatKhau;
+	private JLabel lblThongTin;
+	private JLabel lblError;
 
 	public FormDoiMatKhau(NhanVien nhanVien) {
-		dangNhap_Ctrl = new DangNhap_Ctrl();
 		setLayout(new MigLayout("fill"));
 		initComponents(nhanVien);
-		taiKhoan_DAO = new TaiKhoan_DAO();
 	}
 
 	private void initComponents(NhanVien nhanVien) {
 		container = new CrazyPanel();
 		lblMatKhauHienTai= new JLabel("Mật khẩu hiện tại:");
 		lblMatKhauMoi = new JLabel("Mật khẩu mới:");
-		confirmNewPasswordLabel = new JLabel("Xác nhận mật khẩu mới:");
-		currentPasswordTextField = new JPasswordField();
-		newPasswordTextField = new JPasswordField();
-		confirmNewPasswordTextField = new JPasswordField(55);
-		changePasswordButton = new JButton("Đổi mật khẩu");
-		imforamtionLabel = new JLabel(nhanVien.getHoTen() + " - " + nhanVien.getVaiTroNhanVien().toString());
-		errorLabel = new JLabel();
+		lblXacNhanMatKhauMoi = new JLabel("Xác nhận mật khẩu mới:");
+		txtMatKhauHienTai = new JPasswordField();
+		txtMatKhauMoi = new JPasswordField();
+		txtXacNhanMatKhauMoi = new JPasswordField(55);
+		btnDoiMatKhau = new JButton("Đổi mật khẩu");
+		lblThongTin = new JLabel(nhanVien.getHoTen() + " - " + nhanVien.getVaiTroNhanVien().toString());
+		lblError = new JLabel();
 
 		// Title label
 		JLabel titleLabel = new JLabel("Đổi mật khẩu");
 		titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 25));
-		imforamtionLabel.setFont(new Font(imforamtionLabel.getFont().getName(), Font.ITALIC, 20));
-		errorLabel.setBorder(BorderFactory.createEmptyBorder());
-		errorLabel.setForeground(Color.RED);
-		errorLabel.setFont(errorLabel.getFont().deriveFont(Font.ITALIC));
+		lblThongTin.setFont(new Font(lblThongTin.getFont().getName(), Font.ITALIC, 20));
+		lblError.setBorder(BorderFactory.createEmptyBorder());
+		lblError.setForeground(Color.RED);
+		lblError.setFont(lblError.getFont().deriveFont(Font.ITALIC));
 
 		container.setLayout(new MigLayout("wrap 2, fillx, insets 8 50 8 50, gap 20", "[grow 0,trail]15[fill]"));
 
 		container.add(titleLabel, "wrap, span, al left, gapbottom 8");
-		container.add(imforamtionLabel, "span 2, al left");
-//		container.add(imageSourceDisplay, "wrap, span, al center, gapbottom 8");
+		container.add(lblThongTin, "span 2, al left");
 		container.add(lblMatKhauHienTai, "skip 6");
-		container.add(currentPasswordTextField);
+		container.add(txtMatKhauHienTai);
 		container.add(lblMatKhauMoi);
-		container.add(newPasswordTextField);
-		container.add(confirmNewPasswordLabel);
-		container.add(confirmNewPasswordTextField);
+		container.add(txtMatKhauMoi);
+		container.add(lblXacNhanMatKhauMoi);
+		container.add(txtXacNhanMatKhauMoi);
 		container.add(new JLabel(""));
-		container.add(errorLabel, "al left");
-		container.add(changePasswordButton, "span 2, al right");
+		container.add(lblError, "al left");
+		container.add(btnDoiMatKhau, "span 2, al right");
 
 		add(container);
 	}
-
 }
