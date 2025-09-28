@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) TableVe.java  1.0  [3:50:17 PM] Sep 26, 2025
+ * @(#) CardBuoc2.java  1.0  [10:41:00 AM] Sep 27, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,10 +8,10 @@ package gui.application.form.banVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 26, 2025
+ * @date: Sep 27, 2025
  * @version: 1.0
  */
 
-public class TableVe {
+public class PanelBuoc2 {
 
 }

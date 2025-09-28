@@ -37,7 +37,16 @@ public class DonDatCho {
 		this.tongTien = tongTien;
 		this.trangThaiDonDatCho = trangThaiDonDatCho;
 	}
+	
+	public DonDatCho(String donDatChoID) {
+		super();
+		this.donDatChoID = donDatChoID;
+	}
 
+ 	public DonDatCho() {
+ 		super();
+ 	}
+	
 	public String getDonDatChoID() {
 		return donDatChoID;
 	}

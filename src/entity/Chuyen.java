@@ -30,6 +30,14 @@ public class Chuyen {
 		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
 		this.ngayGioDen = ngayGioDen;
 	}
+	
+	public Chuyen(String chuyenID) {
+		this.chuyenID = chuyenID;
+	}
+	
+	public Chuyen() {
+		super();
+	}
 
 	public String getChuyenID() {
 		return chuyenID;
