@@ -1,1 +1,15 @@
-/bin/
+# Ignore build output
+/classes/
+/out/
+/target/
+
+# Ignore IntelliJ IDEA project files
+*.iml
+.idea/
+
+# Ignore logs
+*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
