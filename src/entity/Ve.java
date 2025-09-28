@@ -44,6 +44,11 @@ public class Ve {
 		this.trangThai = trangThai;
 		this.ngayBan = ngayBan;
 	}
+	
+	public Ve(String veID) {
+		super();
+		this.veID = veID;
+	}
 
 	public String getVeID() {
 		return veID;

@@ -39,6 +39,7 @@ public class UngDung extends JFrame {
 		ungDung = this;
 		formDangNhap = new FormDangNhap();
 		
+		setSize(900, 600);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);

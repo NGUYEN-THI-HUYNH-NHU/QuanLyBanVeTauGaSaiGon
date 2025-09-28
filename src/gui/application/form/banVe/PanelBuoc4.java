@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) FormXacNhan.java  1.0  [3:55:06 PM] Sep 26, 2025
+ * @(#) PanelBuoc4.java  1.0  [9:51:33 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,10 +8,10 @@ package gui.application.form.banVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 26, 2025
+ * @date: Sep 28, 2025
  * @version: 1.0
  */
 
-public class FormXacNhan {
+public class PanelBuoc4 {
 
 }

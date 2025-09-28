@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) FormHoanTat.java  1.0  [3:56:12 PM] Sep 26, 2025
+ * @(#) PanelBuoc5.java  1.0  [9:51:42 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,10 +8,10 @@ package gui.application.form.banVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 26, 2025
+ * @date: Sep 28, 2025
  * @version: 1.0
  */
 
-public class FormHoanTat {
+public class PanelBuoc5 {
 
 }
