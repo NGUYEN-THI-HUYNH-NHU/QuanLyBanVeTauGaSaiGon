@@ -1,6 +1,9 @@
 package gui.application.form.banVe;
+
+import entity.Tau;
+
 /*
- * @(#) PanelBuoc4.java  1.0  [1:38:19 PM] Sep 28, 2025
+ * @(#) TrainSelectionListener.java  1.0  [5:02:51 PM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -12,6 +15,6 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-public class PanelBuoc4 {
-
+public interface TrainSelectionListener {
+    void trainSelected(Tau train);
 }

@@ -51,6 +51,28 @@ public class Ga_DAO {
         }
         return gaDS;
     }
+    
+    public List<String> getAllTenGa(){
+        Connection connection = connectDB.getConnection();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<String> gaDS = null;
+
+        try{
+            statement = connection.prepareStatement("SELECT tenGa FROM Ga");
+            resultSet = statement.executeQuery();
+            gaDS = new ArrayList<String>();
+            while(resultSet.next()){
+                String tenGa = resultSet.getString("tenGa");
+                gaDS.add(tenGa);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        } finally {
+            connectDB.close(statement, resultSet);
+        }
+        return gaDS;
+    }
 
     public Ga getGaByIDTim(String gaIDTim) {
         Connection connection = connectDB.getConnection();
@@ -70,6 +92,24 @@ public class Ga_DAO {
         }
 
         return null;
+    }
+    
+    public List<String> getAllGaDenTheoGaDi(String gaDiID) {
+    	Connection con = connectDB.getConnection();
+    	List<String> gaDenList = null;
+    	String sql = "select gaDenID from Tuyen where gaDiID = ?";
+    	try {
+    		gaDenList = new ArrayList<String>();
+    		PreparedStatement pstmt = con.prepareStatement(sql);
+    		pstmt.setString(1, gaDiID);
+    		ResultSet rs = pstmt.executeQuery();
+    		while (rs.next()) {
+    			gaDenList.add(rs.getString("gaDenID"));
+    		}
+    	} catch(SQLException e){
+            e.printStackTrace();
+        }
+    	return gaDenList;
     }
 
     public boolean themGa(Ga gaMoi) {
