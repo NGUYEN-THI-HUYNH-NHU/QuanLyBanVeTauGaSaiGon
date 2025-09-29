@@ -14,7 +14,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.time.LocalDate;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,9 +22,8 @@ import com.itextpdf.text.Font;
 
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
-import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
-import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import net.miginfocom.swing.MigLayout;
 
@@ -99,7 +97,7 @@ public class FormDangNhap extends JPanel {
         } else {
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            ungDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+            ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
             SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
         }
     }

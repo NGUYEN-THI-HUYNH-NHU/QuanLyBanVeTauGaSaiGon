@@ -5,19 +5,19 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-
-import javax.swing.JPanel;
-
-import entity.NhanVien;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 28, 2025
  * @version: 1.0
  */
+
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+
+import javax.swing.JPanel;
+
+import entity.NhanVien;
 
 public class PanelBanVe extends JPanel {
     private CardLayout cardLayout;
@@ -34,8 +34,8 @@ public class PanelBanVe extends JPanel {
         stepPanel.add(new PanelBuoc1(), "search");
         stepPanel.add(new PanelBuoc2(), "seat");
         stepPanel.add(new PanelBuoc3(), "info");
-        stepPanel.add(new PanelBuoc3(), "confirm");
-        stepPanel.add(new PanelBuoc6(), "payment");
+        stepPanel.add(new PanelBuoc4(), "confirm");
+        stepPanel.add(new PanelBuoc5(), "payment");
 
         add(stepPanel, BorderLayout.CENTER);
 

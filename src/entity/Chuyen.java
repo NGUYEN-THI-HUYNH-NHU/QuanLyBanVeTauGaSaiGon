@@ -31,6 +31,14 @@ public class Chuyen {
 		this.gioDen = gioDen;
 	}
 	
+	public Chuyen(String chuyenID, Tau tau, LocalDateTime gioKhoiHanh, LocalDateTime gioDen) {
+		super();
+		this.chuyenID = chuyenID;
+		this.tau = tau;
+		this.gioKhoiHanh = gioKhoiHanh;
+		this.gioDen = gioDen;
+	}
+	
 	public Chuyen(String chuyenID) {
 		this.chuyenID = chuyenID;
 	}

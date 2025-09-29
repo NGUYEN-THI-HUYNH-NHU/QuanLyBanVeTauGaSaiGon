@@ -27,6 +27,8 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
+import entity.Chuyen;
+
 public class PanelBuoc2 extends JPanel {
     private JPanel pnlThongTinChuyen, pnlSoDoGhe, pnlDieuHuong;
     private JTextField txtTenChuyen, txtToa, txtNgay, txtGio;
@@ -96,4 +98,12 @@ public class PanelBuoc2 extends JPanel {
             }
         }
     }
+
+	/**
+	 * @param results
+	 */
+	public void loadSearchResults(List<Chuyen> results) {
+		// TODO Auto-generated method stub
+		
+	}
 }

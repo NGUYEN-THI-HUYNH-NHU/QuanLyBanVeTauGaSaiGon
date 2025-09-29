@@ -14,25 +14,37 @@ package bus;
 import java.util.List;
 
 import dao.Chuyen_DAO;
+import dao.Ga_DAO;
 import entity.Chuyen;
+import entity.Ga;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class Chuyen_BUS {
     private Chuyen_DAO chuyenDAO;
+    private Ga_DAO gaDAO;
 
     public Chuyen_BUS() {
         chuyenDAO = new Chuyen_DAO();
+        gaDAO = new Ga_DAO();
     }
 
-    public List<Chuyen> timChuyen(String gaDi, String gaDen, LocalDate ngayDi) {
-        List<Chuyen> danhSachChuyen = new ArrayList<>();
+    public List<Chuyen> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
+        return chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
+    }
 
-        // Tìm chuyến đi
-        List<Chuyen> chuyenDi = chuyenDAO.getAllChuyenTheoGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
-        danhSachChuyen.addAll(chuyenDi);
+    // Gợi ý ga đi (tên)
+    public List<Ga> goiYGaDI(String prefix, int limit) {
+        return gaDAO.searchGaByPrefix(prefix, limit);
+      
+    }
 
-        return danhSachChuyen;
+    // Gợi ý ga đến dựa trên ga đi đã chọn (dùng ngayDi để filter chuyến ngày đó)
+    public List<Ga> goiYGaDenTheoGaDi(String gaDiID, String destPrefix, int limit) {
+        return gaDAO.searchGaDenKhaThiByGaDi(gaDiID, destPrefix, limit);
+    }
+    
+    public Ga timGaTheoTenGa(String tenGa) {
+    	return gaDAO.getGaByTenGa(tenGa);
     }
 }

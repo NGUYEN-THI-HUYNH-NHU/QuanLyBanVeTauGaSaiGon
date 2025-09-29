@@ -5,6 +5,8 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import javax.swing.JPanel;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -12,6 +14,6 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-public class PanelBuoc4 {
+public class PanelBuoc4 extends JPanel {
 
 }

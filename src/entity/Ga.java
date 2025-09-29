@@ -25,6 +25,12 @@ public class Ga {
 		this.tenGa = tenGa;
 		this.tinhThanh = tinhThanh;
 	}
+	
+	public Ga(String gaID, String tenGa) {
+		super();
+		this.gaID = gaID;
+		this.tenGa = tenGa;
+	}
 
 	public String getGaID() {
 		return gaID;

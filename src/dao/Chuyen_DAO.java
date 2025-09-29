@@ -5,6 +5,13 @@ package dao;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 28, 2025
+ * @version: 1.0
+ */
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -17,14 +24,6 @@ import java.util.List;
 import connectDB.ConnectDB;
 import entity.Chuyen;
 import entity.Tau;
-import entity.Tuyen;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 28, 2025
- * @version: 1.0
- */
 
 public class Chuyen_DAO {
 	private ConnectDB connectDB;
@@ -34,34 +33,51 @@ public class Chuyen_DAO {
 		connectDB.connect(); 
 	}
 	
-	public List<Chuyen> getAllChuyenTheoGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
+	public List<Chuyen> getChuyenByGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
 	    Connection connection = connectDB.getConnection();
-	    String querySQL = "SELECT * FROM Chuyen"
-	    		+ " WHERE gaDiID = ?"
-	    		+ " AND gaDenID = ?"
-	    		+ " AND CAST(gioKhoiHanh AS date) = ?";
-	    List<Chuyen> chuyenList = new ArrayList<>();
+	    String querySQL = " DECLARE @gaDiID VARCHAR(20) = ?"
+			    		+ " DECLARE @gaDenID VARCHAR(20) = ?"
+			    		+ " DECLARE @ngayDi DATE = ?"
+			    		+ " SELECT"
+			    		+ " 	c.chuyenID,"
+			    		+ " 	tau.tauID,"
+			    		+ "		cg_di.gioKhoiHanh AS gioKhoiHanh,"
+			    		+ " 	cg_den.gioDen AS gioDen"
+			    		+ " FROM Chuyen c"
+			    		+ " INNER JOIN ChuyenGa cg_di"
+			    		+ " 	ON cg_di.chuyenID = c.chuyenID"
+			    		+ " 	AND cg_di.gaID = @gaDiID"
+			    		+ "	INNER JOIN ChuyenGa cg_den"
+			    		+ " 	ON cg_den.chuyenID = c.chuyenID"
+			    		+ " 	AND cg_den.gaID = @gaDenID"
+			    		+ " 	AND cg_di.thuTu < cg_den.thuTu"
+			    		+ "	LEFT JOIN Tau tau"
+			    		+ " 	ON tau.tauID = c.tauID"
+			    		+ "	WHERE"
+			    		+ " 	CONVERT(date, COALESCE(cg_di.gioKhoiHanh, cg_di.gioDen, c.gioKhoiHanh)) = @ngayDi"
+			    		+ "	ORDER BY"
+			    		+ " 	COALESCE(cg_di.gioKhoiHanh, cg_di.gioDen, c.gioKhoiHanh);";
+	    List<Chuyen> chuyenList = null;
 
 	    try {
 	        PreparedStatement pstmt = connection.prepareStatement(querySQL);
 	        pstmt.setString(1, gaDiID);
 	        pstmt.setString(2, gaDenID);
 	        pstmt.setDate(3, java.sql.Date.valueOf(ngayDi));
-
 	        ResultSet resultSet = pstmt.executeQuery();
+	        chuyenList = new ArrayList<Chuyen>();
+	        
 	        while (resultSet.next()) {
 	        	String chuyenID = resultSet.getString("chuyenID");
-	        	Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
 	        	Tau tau = new Tau(resultSet.getString("tauID"));
 	        	LocalDateTime gioKhoiHanh = resultSet.getTimestamp("gioKhoiHanh").toLocalDateTime();
 	        	LocalDateTime gioDen = resultSet.getTimestamp("gioDen").toLocalDateTime();
-	        	chuyenList.add(new Chuyen(chuyenID, tuyen, tau, gioKhoiHanh, gioDen));
+	        	chuyenList.add(new Chuyen(chuyenID, tau, gioKhoiHanh, gioDen));
 	        }
-	        return chuyenList;
 
 	    } catch (SQLException e) {
 	        e.printStackTrace();
-	        return null;
 	    }
+	    return chuyenList;
 	}
 }
