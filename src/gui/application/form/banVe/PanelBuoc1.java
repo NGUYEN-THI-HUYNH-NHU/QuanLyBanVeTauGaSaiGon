@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) SearchTripPanel.java  1.0  [10:38:53 AM] Sep 28, 2025
+ * @(#) PanelBuoc1.java  1.0  [10:38:53 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -19,35 +19,18 @@ import javax.swing.event.DocumentListener;
 
 import com.toedter.calendar.JDateChooser;
 
-import bus.Chuyen_BUS;
-import entity.Chuyen;
-import entity.Ga;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Collections;
-import java.util.List;
 
 public class PanelBuoc1 extends JPanel {
-    private Chuyen_BUS chuyenBUS;
-    private javax.swing.Timer debounceTimerGaDi;
-    private javax.swing.Timer debounceTimerGaDen;
-    private final int DEBOUNCE_MS = 300;
-
+    private PanelBuoc1Controller controller;
     private JTextField txtGaDi, txtGaDen;
-    private JDateChooser dateNgayDi, dateNgayVe;
+    private JDateChooser dateChooserNgayDi, dateChooserNgayVe;
     private JRadioButton radMotChieu, radKhuHoi;
     private JButton btnTimKiem;
     private JPanel container;
-
-    // popup reuse (so we can hide previous)
-    private JPopupMenu currentPopup;
-
-    // listener để controller nhận kết quả tìm chuyến
-    private SearchResultListener searchResultListener;
 
     public PanelBuoc1() {
         setLayout(new BorderLayout());
@@ -97,23 +80,23 @@ public class PanelBuoc1 extends JPanel {
         gbc.gridy = 3;
         container.add(new JLabel("Ngày đi:"), gbc);
         gbc.gridx = 1;
-        dateNgayDi = new JDateChooser();
-        dateNgayDi.setDateFormatString("dd/MM/yyyy");
-        dateNgayDi.setDate(new java.util.Date());
-        container.add(dateNgayDi, gbc);
+        dateChooserNgayDi = new JDateChooser();
+        dateChooserNgayDi.setDateFormatString("dd/MM/yyyy");
+        dateChooserNgayDi.setDate(new java.util.Date());
+        container.add(dateChooserNgayDi, gbc);
 
         // Ngày về
         gbc.gridx = 0;
         gbc.gridy = 4;
         container.add(new JLabel("Ngày về:"), gbc);
         gbc.gridx = 1;
-        dateNgayVe = new JDateChooser();
-        dateNgayVe.setDateFormatString("dd/MM/yyyy");
-        dateNgayVe.setEnabled(false);
-        container.add(dateNgayVe, gbc);
+        dateChooserNgayVe = new JDateChooser();
+        dateChooserNgayVe.setDateFormatString("dd/MM/yyyy");
+        dateChooserNgayVe.setEnabled(false);
+        container.add(dateChooserNgayVe, gbc);
 
-        radMotChieu.addActionListener(e -> dateNgayVe.setEnabled(false));
-        radKhuHoi.addActionListener(e -> dateNgayVe.setEnabled(true));
+        radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
+        radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
 
         // Nút tìm kiếm
         gbc.gridx = 0;
@@ -125,49 +108,27 @@ public class PanelBuoc1 extends JPanel {
 
         add(container, BorderLayout.CENTER);
 
-        // BUS
-        chuyenBUS = new Chuyen_BUS();
-
-        // debounce timers
-        debounceTimerGaDi = new javax.swing.Timer(DEBOUNCE_MS, (ActionEvent e) -> fetchGaDiSuggestions());
-        debounceTimerGaDi.setRepeats(false);
-
-        debounceTimerGaDen = new javax.swing.Timer(DEBOUNCE_MS, (ActionEvent e) -> fetchGaDenSuggestions());
-        debounceTimerGaDen.setRepeats(false);
-
-        // add document listeners (clear stored gaId when user types)
+        // Document listeners -> chuyển đến controller (controller sẽ được tạo ngay sau)
         txtGaDi.getDocument().addDocumentListener(new DocumentListener() {
-            private void changed() {
-                // khi user edit, clear gaId selection
-                txtGaDi.putClientProperty("gaId", null);
-                debounceTimerGaDi.restart();
-            }
-
-            public void insertUpdate(DocumentEvent e) { changed(); }
-            public void removeUpdate(DocumentEvent e) { changed(); }
-            public void changedUpdate(DocumentEvent e) { changed(); }
+            public void insertUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
+            public void removeUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
+            public void changedUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
         });
 
         txtGaDen.getDocument().addDocumentListener(new DocumentListener() {
-            private void changed() {
-                txtGaDen.putClientProperty("gaId", null);
-                debounceTimerGaDen.restart();
-            }
-
-            public void insertUpdate(DocumentEvent e) { changed(); }
-            public void removeUpdate(DocumentEvent e) { changed(); }
-            public void changedUpdate(DocumentEvent e) { changed(); }
+            public void insertUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
+            public void removeUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
+            public void changedUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
         });
 
-        // btnTimKiem action
-        btnTimKiem.addActionListener(ev -> performSearch());
+        controller = new PanelBuoc1Controller(this);
     }
 
-    // ---------- Getters (sửa getNgayDi/getNgayVe đúng) ----------
+    // ---------- Getters cho Controller su dung ----------
     public JTextField getTxtGaDi() { return txtGaDi; }
     public JTextField getTxtGaDen() { return txtGaDen; }
-    public JDateChooser getDateNgayDi() { return dateNgayDi; }
-    public JDateChooser getDateNgayVe() { return dateNgayVe; }
+    public JDateChooser getDateNgayDi() { return dateChooserNgayDi; }
+    public JDateChooser getDateNgayVe() { return dateChooserNgayVe; }
     public boolean isKhuHoi() { return radKhuHoi.isSelected(); }
     public JButton getBtnTimKiem() { return btnTimKiem; }
 
@@ -175,158 +136,16 @@ public class PanelBuoc1 extends JPanel {
     public String getGaDen() { return txtGaDen.getText(); }
 
     public LocalDate getNgayDi() {
-        java.util.Date d = dateNgayDi.getDate();
-        if (d == null) throw new IllegalStateException("Ngày đi chưa được chọn");
+        java.util.Date d = dateChooserNgayDi.getDate();
+        if (d == null) return null;
         Instant instant = d.toInstant();
         return instant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public LocalDate getNgayVe() {
-        java.util.Date d = dateNgayVe.getDate();
-        if (d == null) throw new IllegalStateException("Ngày về chưa được chọn");
+        java.util.Date d = dateChooserNgayVe.getDate();
+        if (d == null) return null;
         Instant instant = d.toInstant();
         return instant.atZone(ZoneId.systemDefault()).toLocalDate();
-    }
-
-    // ---------- Suggestions UI ----------
-    private void fetchGaDiSuggestions() {
-        final String prefix = txtGaDi.getText().trim();
-        if (prefix.isEmpty()) {
-            hideCurrentPopup();
-            return;
-        }
-        new javax.swing.SwingWorker<List<Ga>, Void>() {
-            protected List<Ga> doInBackground() throws Exception {
-                return chuyenBUS.goiYGaDI(prefix, 10); // giả sử BUS cung cấp method này
-            }
-            protected void done() {
-                try {
-                    List<Ga> list = get();
-                    showGaSuggestions(txtGaDi, list);
-                } catch (Exception ex) { ex.printStackTrace(); }
-            }
-        }.execute();
-    }
-
-    private void fetchGaDenSuggestions() {
-        final String prefix = txtGaDen.getText().trim();
-        if (prefix.isEmpty()) {
-            hideCurrentPopup();
-            return;
-        }
-        Object gaDiIdObj = txtGaDi.getClientProperty("gaId");
-        if (gaDiIdObj == null) {
-            // fallback: search global stations
-            new javax.swing.SwingWorker<List<Ga>, Void>() {
-                protected List<Ga> doInBackground() throws Exception {
-                    return chuyenBUS.goiYGaDI(prefix, 10);
-                }
-                protected void done() {
-                    try { showGaSuggestions(txtGaDen, get()); } catch (Exception ex) { ex.printStackTrace(); }
-                }
-            }.execute();
-            return;
-        }
-        final String gaDiID = gaDiIdObj.toString();
-        final LocalDate ngayDi = safeGetNgayDiOrToday();
-        new javax.swing.SwingWorker<List<Ga>, Void>() {
-            protected List<Ga> doInBackground() throws Exception {
-                return chuyenBUS.goiYGaDenTheoGaDi(gaDiID, prefix, 10);
-            }
-            protected void done() {
-                try { showGaSuggestions(txtGaDen, get()); } catch (Exception ex) { ex.printStackTrace(); }
-            }
-        }.execute();
-    }
-
-    private LocalDate safeGetNgayDiOrToday() {
-        try { return getNgayDi(); }
-        catch (Exception e) { return LocalDate.now(); }
-    }
-
-    private void showGaSuggestions(JTextField textField, List<Ga> gaList) {
-        hideCurrentPopup();
-        if (gaList == null || gaList.isEmpty()) return;
-
-        JPopupMenu popup = new JPopupMenu();
-        for (Ga s : gaList) {
-            final Ga ga = s; // effectively final for lambda
-            JMenuItem item = new JMenuItem(ga.getTenGa());
-            item.addActionListener(ae -> {
-                textField.setText(ga.getTenGa());
-                textField.putClientProperty("gaId", ga.getGaID());
-                hideCurrentPopup();
-            });
-            popup.add(item);
-        }
-
-        // show under textfield
-        popup.show(textField, 0, textField.getHeight());
-        currentPopup = popup;
-    }
-
-    private void hideCurrentPopup() {
-        if (currentPopup != null && currentPopup.isVisible()) {
-            currentPopup.setVisible(false);
-        }
-        currentPopup = null;
-    }
-
-    // ---------- Search (bấm nút Tìm) ----------
-    private void performSearch() {
-        // resolve IDs
-        Object gaDiIdObj = txtGaDi.getClientProperty("gaId");
-        Object gaDenIdObj = txtGaDen.getClientProperty("gaId");
-
-        new javax.swing.SwingWorker<List<Chuyen>, Void>() {
-            protected List<Chuyen> doInBackground() throws Exception {
-                String gaDiId = null, gaDenId = null;
-                if (gaDiIdObj != null) gaDiId = gaDiIdObj.toString();
-                else {
-                    Ga ga = chuyenBUS.timGaTheoTenGa(txtGaDi.getText().trim());
-                    if (ga != null) gaDiId = ga.getGaID();
-                }
-                if (gaDenIdObj != null) gaDenId = gaDenIdObj.toString();
-                else {
-                    Ga ga = chuyenBUS.timGaTheoTenGa(txtGaDen.getText().trim());
-                    if (ga != null) gaDenId = ga.getGaID();
-                }
-
-                if (gaDiId == null || gaDenId == null) {
-                    return Collections.emptyList(); // hoặc bạn có thể show dialog lỗi
-                }
-
-                LocalDate ngayDi = safeGetNgayDiOrToday();
-                return chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
-            }
-
-            protected void done() {
-                try {
-                    List<Chuyen> results = get();
-                    onSearchResultsReady(results);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }.execute();
-    }
-
-    // Gọi listener khi có kết quả tìm chuyến
-    private void onSearchResultsReady(List<Chuyen> results) {
-        if (this.searchResultListener != null) {
-            this.searchResultListener.onSearchResult(results);
-        } else {
-            // default: bạn có thể debug / log
-            System.out.println("Search returned " + (results == null ? 0 : results.size()) + " chuyến(s).");
-        }
-    }
-
-    // allow controller to set listener
-    public void setSearchResultListener(SearchResultListener listener) {
-        this.searchResultListener = listener;
-    }
-
-    public interface SearchResultListener {
-        void onSearchResult(List<Chuyen> chuyenList);
     }
 }

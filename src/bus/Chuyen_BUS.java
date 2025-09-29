@@ -34,7 +34,7 @@ public class Chuyen_BUS {
     }
 
     // Gợi ý ga đi (tên)
-    public List<Ga> goiYGaDI(String prefix, int limit) {
+    public List<Ga> goiYGaDi(String prefix, int limit) {
         return gaDAO.searchGaByPrefix(prefix, limit);
       
     }
