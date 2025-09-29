@@ -1,39 +1,39 @@
-//package dao;
-///*
-// * @(#) DonDatCho_DAO.java  1.0  [11:14:45 AM] Sep 27, 2025
-// *
-// * Copyright (c) 2025 IUH. All rights reserved.
-// */
-//
-//import java.security.Timestamp;
-//import java.sql.Connection;
-//import java.sql.PreparedStatement;
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//import connectDB.ConnectDB;
-//import entity.Chuyen;
-//import entity.DonDatCho;
-//import entity.KhachHang;
-//import entity.type.TrangThaiDatCho;
-//
-///*
-// * @description
-// * @author: NguyenThiHuynhNhu
-// * @date: Sep 27, 2025
-// * @version: 1.0
-// */
-//
-//public class DonDatCho_DAO {
-//    private ConnectDB connectDB;
-//    
-//    public DonDatCho_DAO() {
-//    	connectDB = ConnectDB.getInstance();
-//    	connectDB.connect();
-//    }
-//
+package dao;
+/*
+ * @(#) DonDatCho_DAO.java  1.0  [11:14:45 AM] Sep 27, 2025
+ *
+ * Copyright (c) 2025 IUH. All rights reserved.
+ */
+
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 27, 2025
+ * @version: 1.0
+ */
+
+import java.security.Timestamp;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import connectDB.ConnectDB;
+import entity.Chuyen;
+import entity.DonDatCho;
+import entity.KhachHang;
+import entity.type.TrangThaiDatCho;
+
+public class DonDatCho_DAO {
+    private ConnectDB connectDB;
+
+    public DonDatCho_DAO() {
+    	connectDB = ConnectDB.getInstance();
+    	connectDB.connect();
+    }
+
 //    public boolean insert(DonDatCho d) {
 //        String sql = "INSERT INTO DonDatCho (donDatChoID, khachHangID, chuyenID, thoiDiemDatCho, thoiDiemHetHan, tongTien, trangThaiDatChoID) VALUES (?, ?, ?, ?, ?, ?, ?)";
 //        Connection con = connectDB.getConnection();
@@ -74,7 +74,7 @@
 //        String sql = "DELETE FROM DonDatCho WHERE donDatChoID = ?";
 //        Connection con = connectDB.getConnection();
 //        PreparedStatement pstmt = null;
-//        
+//
 //        try {
 //        	pstmt = con.prepareStatement(sql);
 //            pstmt.setString(1, id);
@@ -120,8 +120,8 @@
 //            while (rs.next()) {
 //                DonDatCho d = new DonDatCho();
 //                d.setDonDatChoID(rs.getString("donDatChoID"));
-//                d.setKhachHangID(rs.getString("khachHangID"));
-//                d.setChuyenID(rs.getString("chuyenID"));
+//                d.setKhachHang(new KhachHang(rs.getString("khachHangID")));
+//                d.setChuyen(new Chuyen(rs.getString("chuyenID"));
 //                Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
 //                d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
 //                Timestamp t2 = rs.getTimestamp("thoiDiemHetHan");
@@ -139,7 +139,7 @@
 //        String id = "DDC_" + System.currentTimeMillis();
 //        DonDatCho d = new DonDatCho();
 //        d.setDonDatChoID(id);
-//        d.setKhachHangID(khachHangID);
+//        d.setKhachHang(khachHangID);
 //        d.setChuyenID(chuyenID);
 //        d.setThoiDiemDatCho(LocalDateTime.now());
 //        d.setThoiDiemHetHan(hetHan);
@@ -167,7 +167,7 @@
 //                while (rs.next()) {
 //                    DonDatCho d = new DonDatCho();
 //                    d.setDonDatChoID(rs.getString("donDatChoID"));
-//                    d.setKhachHangID(rs.getString("khachHangID"));
+//                    d.setKhachHang(rs.getString("khachHangID"));
 //                    d.setChuyenID(rs.getString("chuyenID"));
 //                    Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
 //                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
@@ -181,4 +181,4 @@
 //        } catch (SQLException e) { e.printStackTrace(); }
 //        return ds;
 //    }
-//}
+}

@@ -17,7 +17,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,13 +67,15 @@ public class Ga_DAO {
     
     public List<Ga> searchGaDenKhaThiByGaDi(String gaDiID, String prefixGaDen, int limit) {
 	    Connection conn = connectDB.getConnection();
-	    String sql = "SELECT DISTINCT TOP (?) cg2.gaID, g2.tenGa "
+	    String sql = "SELECT DISTINCT TOP (?)"
+	    			 + " cg2.gaID, g2.tenGa "
 	                 + " FROM ChuyenGa cg1 "
 	                 + " JOIN Chuyen c ON c.chuyenID = cg1.chuyenID "
 	                 + " JOIN ChuyenGa cg2 ON cg2.chuyenID = cg1.chuyenID AND cg2.thuTu > cg1.thuTu "
 	                 + " JOIN Ga g2 ON g2.gaID = cg2.gaID "
 	                 + " WHERE cg1.gaID = ? "
 	                 + " AND g2.tenGa LIKE ? "
+	                 + " AND cg2.gaID != ?"
 	                 + " ORDER BY g2.tenGa";
 	    List<Ga> gaList = null;
 		try {
@@ -82,6 +83,7 @@ public class Ga_DAO {
 		    ps.setInt(1, limit);
 		    ps.setString(2, gaDiID);
 		    ps.setString(3, prefixGaDen + "%");
+		    ps.setString(4, gaDiID);
 		    ResultSet rs = ps.executeQuery();
 		    gaList = new ArrayList<>();
 		    while (rs.next())
@@ -115,28 +117,6 @@ public class Ga_DAO {
         }
         return gaDS;
     }
-    
-    public List<String> getAllTenGa(){
-        Connection connection = connectDB.getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        List<String> gaDS = null;
-
-        try{
-            statement = connection.prepareStatement("SELECT tenGa FROM Ga");
-            resultSet = statement.executeQuery();
-            gaDS = new ArrayList<String>();
-            while(resultSet.next()){
-                String tenGa = resultSet.getString("tenGa");
-                gaDS.add(tenGa);
-            }
-        }catch (SQLException e){
-            e.printStackTrace();
-        } finally {
-            connectDB.close(statement, resultSet);
-        }
-        return gaDS;
-    }
 
     public Ga getGaByIDTim(String gaIDTim) {
         Connection connection = connectDB.getConnection();
@@ -156,24 +136,6 @@ public class Ga_DAO {
         }
 
         return null;
-    }
-    
-    public List<String> getAllGaDenTheoGaDi(String gaDiID) {
-    	Connection con = connectDB.getConnection();
-    	List<String> gaDenList = null;
-    	String sql = "select gaDenID from Tuyen where gaDiID = ?";
-    	try {
-    		gaDenList = new ArrayList<String>();
-    		PreparedStatement pstmt = con.prepareStatement(sql);
-    		pstmt.setString(1, gaDiID);
-    		ResultSet rs = pstmt.executeQuery();
-    		while (rs.next()) {
-    			gaDenList.add(rs.getString("gaDenID"));
-    		}
-    	} catch(SQLException e){
-            e.printStackTrace();
-        }
-    	return gaDenList;
     }
 
     public boolean themGa(Ga gaMoi) {
