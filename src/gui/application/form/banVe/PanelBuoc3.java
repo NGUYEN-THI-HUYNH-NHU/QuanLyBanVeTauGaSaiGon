@@ -1,9 +1,15 @@
 package gui.application.form.banVe;
 /*
- * @(#) PanelBuoc3.java  1.0  [9:50:52 AM] Sep 28, 2025
+ * @(#) PassengerInfoPanel.java  1.0  [10:39:57 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
+
+import java.awt.GridLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /*
  * @description
@@ -12,6 +18,14 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-public class PanelBuoc3 {
-
+public class PanelBuoc3 extends JPanel {
+    public PanelBuoc3() {
+        setLayout(new GridLayout(3, 2));
+        add(new JLabel("Họ tên:"));
+        add(new JTextField(15));
+        add(new JLabel("CMND:"));
+        add(new JTextField(15));
+        add(new JLabel("SĐT:"));
+        add(new JTextField(15));
+    }
 }

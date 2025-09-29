@@ -32,6 +32,11 @@ public class Tau {
 		this.trangThai = trangThai;
 	}
 
+	public Tau(String tauID) {
+		super();
+		this.tauID = tauID;
+	}
+
 	public String getTauID() {
 		return tauID;
 	}

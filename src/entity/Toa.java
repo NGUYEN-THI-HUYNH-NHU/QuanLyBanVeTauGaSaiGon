@@ -23,15 +23,30 @@ public class Toa {
 	private Tau tau;
 	private HangToa hangToa;
 	private int sucChua;
-	private int sttToa;
+	private int soToa;
 	
-	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int sttToa) {
+	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int soToa) {
 		super();
 		this.toaID = toaID;
 		this.tau = tau;
 		this.hangToa = hangToa;
 		this.sucChua = sucChua;
-		this.sttToa = sttToa;
+		this.soToa = soToa;
+	}
+	
+	public Toa(String toaID, int soToa) {
+		super();
+		this.toaID = toaID;
+		this.soToa = soToa;
+	}
+	
+	public Toa() {
+		super();
+	}
+	
+	public Toa(String toaID) {
+		super();
+		this.toaID = toaID;
 	}
 
 	public String getToaID() {
@@ -50,8 +65,8 @@ public class Toa {
 		return sucChua;
 	}
 
-	public int getSttToa() {
-		return sttToa;
+	public int getSoToa() {
+		return soToa;
 	}
 
 	public void setToaID(String toaID) {
@@ -74,17 +89,17 @@ public class Toa {
 		this.sucChua = sucChua;
 	}
 
-	public void setSttToa(int sttToa) {
-		if(sttToa <= 0) {
+	public void setSoToa(int soToa) {
+		if(soToa <= 0) {
 			throw new IllegalArgumentException("Số thứ tự toa phải lớn hơn 0");
 		}
-		this.sttToa = sttToa;
+		this.soToa = soToa;
 	}
 
 	@Override
 	public String toString() {
 		return toaID + ";" + tau + ";" + hangToa + ";" + sucChua + ";"
-				+ sttToa;
+				+ soToa;
 	}
 
 	@Override

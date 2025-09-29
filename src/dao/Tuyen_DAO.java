@@ -76,7 +76,6 @@ public class Tuyen_DAO {
         return null;
     }
 
-
     public boolean themTuyenMoi(Tuyen tuyenMoi){
         Connection connection = connectDB.getConnection();
         String insertSQl = "INSERT INTO Tuyen(TuyenID, gaDiID, gaDenID, khoangCachKm, thoiGianDuKienPhut) VALUES(?, ?, ?, ?, ?)";

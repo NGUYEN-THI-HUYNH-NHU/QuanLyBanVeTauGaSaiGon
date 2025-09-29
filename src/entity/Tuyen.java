@@ -33,6 +33,12 @@ public class Tuyen {
 		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
 	}
 
+
+	public Tuyen(String tuyenID) {
+		super();
+		this.tuyenID = tuyenID;
+	}
+
 	public String getTuyenID() {
 		return tuyenID;
 	}

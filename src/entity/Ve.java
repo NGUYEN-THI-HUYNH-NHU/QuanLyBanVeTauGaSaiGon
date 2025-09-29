@@ -50,6 +50,11 @@ public class Ve {
 		this.veID = veID;
 	}
 
+	
+	public Ve() {
+		super();
+	}
+
 	public String getVeID() {
 		return veID;
 	}

@@ -1,9 +1,6 @@
 package gui.application.form.banVe;
-
-import entity.NhanVien;
-
 /*
- * @(#) FormBanVe.java  1.0  [3:49:29 PM] Sep 26, 2025
+ * @(#) TicketSalePanel.java  1.0  [10:36:50 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -11,42 +8,43 @@ import entity.NhanVien;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 26, 2025
+ * @date: Sep 28, 2025
  * @version: 1.0
  */
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
 
-import bus.Ve_BUS;
-import controller.BanVe_CTRL;
+import javax.swing.JPanel;
 
-import java.awt.*;
+import entity.NhanVien;
 
 public class PanelBanVe extends JPanel {
-    private final PanelTableVeBan tablePanel;
-    private final TicketWizardPanel wizardPanel;
-    private final BanVe_CTRL controller;
+    private CardLayout cardLayout;
+    private JPanel stepPanel;
+    private WizardController wizardController;
 
     public PanelBanVe(NhanVien nhanVien) {
         setLayout(new BorderLayout());
-        // create BUS and controller
-        Ve_BUS bus = new Ve_BUS();
-        controller = new BanVe_CTRL(bus);
 
-        // Build UI
-        tablePanel = new PanelTableVeBan(controller);
-        wizardPanel = new TicketWizardPanel(controller);
+        cardLayout = new CardLayout();
+        stepPanel = new JPanel(cardLayout);
 
-        // controller knows locations to update
-        controller.setTablePanel(tablePanel);
-        controller.setWizardPanel(wizardPanel);
+        // Add step panels
+        stepPanel.add(new PanelBuoc1(), "search");
+//        stepPanel.add(new PanelBuoc2(), "seat");
+        stepPanel.add(new PanelBuoc3(), "info");
+        stepPanel.add(new PanelBuoc4(), "confirm");
+        stepPanel.add(new PanelBuoc5(), "payment");
 
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tablePanel, wizardPanel);
-        split.setResizeWeight(0.5);
-        split.setDividerLocation(250);
-        add(split, BorderLayout.CENTER);
+        add(stepPanel, BorderLayout.CENTER);
 
-        // initial load
-        controller.refreshTable();
+        // Navigation panel
+        WizardNavigationPanel navPanel = new WizardNavigationPanel();
+        add(navPanel, BorderLayout.SOUTH);
+
+        // Controller
+        wizardController = new WizardController(cardLayout, stepPanel);
+        navPanel.setController(wizardController);
     }
 }

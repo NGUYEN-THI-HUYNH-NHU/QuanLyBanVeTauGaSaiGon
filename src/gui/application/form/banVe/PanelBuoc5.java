@@ -1,9 +1,15 @@
 package gui.application.form.banVe;
 /*
- * @(#) PanelBuoc5.java  1.0  [9:51:42 AM] Sep 28, 2025
+ * @(#) PaymentPanel.java  1.0  [10:41:50 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
+
+import java.awt.FlowLayout;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /*
  * @description
@@ -12,6 +18,10 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-public class PanelBuoc5 {
-
+public class PanelBuoc5 extends JPanel {
+    public PanelBuoc5() {
+        setLayout(new FlowLayout());
+        add(new JLabel("Bước 5: Thanh toán"));
+        add(new JButton("Thanh toán"));
+    }
 }

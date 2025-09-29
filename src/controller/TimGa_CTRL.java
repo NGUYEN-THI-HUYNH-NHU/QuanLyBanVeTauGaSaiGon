@@ -1,6 +1,6 @@
-package bus;
+package controller;
 /*
- * @(#) Ve_Bus.java  1.0  [10:10:54 AM] Sep 27, 2025
+ * @(#) TimGa_CTRL.java  1.0  [9:21:06 PM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,11 +8,10 @@ package bus;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 27, 2025
+ * @date: Sep 28, 2025
  * @version: 1.0
  */
 
-
-public class Ve_BUS {
-   
+public class TimGa_CTRL {
+	
 }
