@@ -32,7 +32,7 @@ public class PanelBuoc2 extends JPanel {
     private PanelBuoc2Controller controller;
 	private JPanel panelChuThich;
 
-    public PanelBuoc2() {    	
+    public PanelBuoc2() {
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("(2) Chọn chỗ"));
         

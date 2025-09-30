@@ -32,7 +32,9 @@ public class PanelGioVe extends JPanel {
         setPreferredSize(new Dimension(240, 10));
     }
 
-    public void setController(PanelBuoc2Controller c) { this.controller = c; }
+    public void setController(PanelBuoc2Controller c) {
+    	this.controller = c;
+    }
 
     public void refresh(List<Ve> tickets) {
         container.removeAll();
@@ -53,7 +55,11 @@ public class PanelGioVe extends JPanel {
         row.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         JLabel info = new JLabel(String.format("<html><b>%s</b><br/>%s -> %s, %s, Toa %s, Ghế %s</html>",
                 v.getChuyen().getTau() == null ? "" : v.getChuyen().getTau().getTauID(),
-                v.getChuyen().getTuyen().getGaDi().toString(), v.getChuyen().getTuyen().getGaDen().toString(), v.getChuyen().getNgayGioKhoiHanh(), v.getGhe().getToa().getHangToa().toString(), v.getGhe().getSoGhe()));
+                v.getChuyen().getTuyen().getGaDi().toString(),
+                v.getChuyen().getTuyen().getGaDen().toString(),
+                v.getChuyen().getNgayGioKhoiHanh(),
+                v.getGhe().getToa().getHangToa().toString(),
+                v.getGhe().getSoGhe()));
 
         // countdown label placeholder
         JLabel lblTimer = new JLabel(formatRemaining(100));
@@ -71,8 +77,8 @@ public class PanelGioVe extends JPanel {
         east.add(btnTrash);
         row.add(east, BorderLayout.EAST);
 
-        // Register this row's timer update callback in controller so it can tick per-second
-        if (controller != null) controller.registerCountdownLabelForTicket(v, lblTimer);
+        if (controller != null)
+        	controller.registerCountdownLabelForTicket(v, lblTimer);
 
         return row;
     }
@@ -84,4 +90,3 @@ public class PanelGioVe extends JPanel {
         return String.format("%02d:%02d", m, s);
     }
 }
-

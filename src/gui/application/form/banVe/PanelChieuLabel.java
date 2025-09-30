@@ -14,6 +14,7 @@ package gui.application.form.banVe;
  */
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -25,9 +26,12 @@ public class PanelChieuLabel extends JPanel {
 
     public PanelChieuLabel() {
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(200, 6));
+        setPreferredSize(new Dimension(200, 4));
+        
         lblInfo = new JLabel("Chiều: —", SwingConstants.LEFT);
         lblInfo.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+        lblInfo.setFont(new Font("", Font.BOLD, 18));
+        
         add(lblInfo, BorderLayout.CENTER);
     }
 

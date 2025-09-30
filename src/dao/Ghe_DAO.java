@@ -24,7 +24,9 @@ import java.util.List;
 public class Ghe_DAO {
     private ConnectDB connectDB = ConnectDB.getInstance();
 
-    public Ghe_DAO() { connectDB.connect(); }
+    public Ghe_DAO() {
+    	connectDB.connect();
+    }
 
     public List<Ghe> getGheByGaDiGaDenChuyenToa(String gaDiID, String gaDenID, String chuyenID, String toaID) {
         Connection conn = connectDB.getConnection();

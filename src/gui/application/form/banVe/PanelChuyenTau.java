@@ -62,7 +62,7 @@ public class PanelChuyenTau extends JPanel {
 
 	private JPanel createChuyenCard(Chuyen c, Consumer<Chuyen> onSelect) {
 	    JPanel p = new JPanel(new BorderLayout());
-	    p.setPreferredSize(new Dimension(200, 100));
+	    p.setPreferredSize(new Dimension(200, 110));
 	    p.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 	    p.setBackground(UIManager.getColor("Panel.background"));
 	    p.setOpaque(true);
@@ -87,10 +87,12 @@ public class PanelChuyenTau extends JPanel {
 	
 	    p.addMouseListener(new MouseAdapter() {
 	        public void mouseEntered(MouseEvent e) {
-	            if (p != selectedCard) p.setBackground(hoverBg);
+	            if (p != selectedCard)
+	            	p.setBackground(hoverBg);
 	        }
 	        public void mouseExited(MouseEvent e) {
-	            if (p != selectedCard) p.setBackground(baseBg);
+	            if (p != selectedCard)
+	            	p.setBackground(baseBg);
 	        }
 	        public void mouseClicked(MouseEvent e) {
 	            setSelectedCard(p);
