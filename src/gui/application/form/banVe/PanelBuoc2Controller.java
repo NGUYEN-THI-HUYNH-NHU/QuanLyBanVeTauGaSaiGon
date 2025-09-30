@@ -1,4 +1,4 @@
-package controller;
+package gui.application.form.banVe;
 /*
  * @(#) PanelBuoc2Controller.java  1.0  [12:53:22 PM] Sep 29, 2025
  *
@@ -12,18 +12,12 @@ package controller;
  * @version: 1.0
  */
 
+import bus.Chuyen_BUS;
 import bus.DonDatCho_BUS;
 import bus.TicketBUS;
-import dao.Ghe_DAO;
-import dao.Toa_DAO;
-import dao.Chuyen_DAO;
+
 import entity.*;
 import entity.type.TrangThaiGhe;
-import gui.application.form.banVe.PanelChieuLabel;
-import gui.application.form.banVe.PanelChuyenTau;
-import gui.application.form.banVe.PanelDoanTau;
-import gui.application.form.banVe.PanelGioVe;
-import gui.application.form.banVe.PanelSoDoCho;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,10 +31,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-/**
- * Controller for PanelBuoc2.
- * Coordinates view panels and calls BUS/DAO.
- */
 public class PanelBuoc2Controller {
     private final PanelChieuLabel panelChieuLabel;
     private final PanelChuyenTau panelChuyenTau;
@@ -48,22 +38,18 @@ public class PanelBuoc2Controller {
     private final PanelSoDoCho panelSoDoCho;
     private final PanelGioVe panelGioVe;
 
-    // BUS/DAO (you can replace with your existing class instances)
-    private final Chuyen_DAO chuyenDAO = new Chuyen_DAO();
-    private final Toa_DAO toaDAO = new Toa_DAO();
-    private final Ghe_DAO gheDAO = new Ghe_DAO();
+    private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
     private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
     private final TicketBUS ticketBUS = TicketBUS.getInstance();
 
-    // for countdowns: map ticketId -> Swing Timer
     private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
-
-    // to update JLabel per ticket each second
     private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
 
-    // current list of chuyens shown
+    private BookingSession bookingSession;     // lưu session chung (được set từ bên ngoài)
     private List<Chuyen> chuyenList;
-
+    private Chuyen selectedChuyen; 
+    private int currentTripIndex = 0;
+    
     public PanelBuoc2Controller(PanelChieuLabel chieuLabel, PanelChuyenTau chuyenTau,
                                 PanelDoanTau doanTau, PanelSoDoCho soDoCho, PanelGioVe gioVe) {
         this.panelChieuLabel = chieuLabel;
@@ -77,28 +63,30 @@ public class PanelBuoc2Controller {
         panelSoDoCho.setController(this);
         panelGioVe.setController(this);
     }
+    
+    public void setBookingSession(BookingSession s) { this.bookingSession = s; }
+    public void setCurrentTripIndex(int idx) { this.currentTripIndex = idx; }
+    public int getCurrentTripIndex() { return this.currentTripIndex; }
 
-    /**
-     * Caller (PanelBuoc1) will pass the results.
-     */
     public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
         this.chuyenList = chuyens;
-        panelChieuLabel.setInfo("Hành trình: " + gaDiName + " → " + gaDenName);
+        panelChieuLabel.setText(gaDiName + "->" + gaDenName + " : " + chuyens.get(0).getNgayGioKhoiHanh().toLocalDate());
         panelChuyenTau.showChuyenList(chuyens);
-        // Optionally select first chuyens
         if (chuyens != null && !chuyens.isEmpty()) {
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
             onChuyenSelected(chuyens.get(0));
         }
-        // refresh gio ve
         panelGioVe.refresh(ticketBUS.getAllTickets());
     }
 
-    // user clicked a chuyen in panelChuyenTau
     public void onChuyenSelected(Chuyen c) {
-        // load toa for this chuyen in background
+        if (c == null)
+        	return;
+        this.selectedChuyen = c;
+
         new SwingWorker<List<Toa>, Void>() {
             protected List<Toa> doInBackground() throws Exception {
-                return toaDAO.getToaByChuyenID(c.getChuyenID());
+                return chuyenBUS.layCacToaTheoChuyen(c.getChuyenID());
             }
             protected void done() {
                 try {
@@ -106,42 +94,116 @@ public class PanelBuoc2Controller {
                     panelDoanTau.showToaList(list, toa -> {
                         onToaSelected(toa);
                     });
-                    // set toa list for soDo to allow prev/next
+                    if (list != null && !list.isEmpty()) {
+                        panelDoanTau.selectToaById(list.get(0).getToaID());
+                    }
                     panelSoDoCho.setToaListAndSelect(list, 0);
-                } catch (Exception ex) { ex.printStackTrace(); }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         }.execute();
     }
 
     public void onToaSelected(Toa toa) {
-        // set current toa soDoCho will ask controller to load seats
         panelSoDoCho.setCurrentToa(toa);
     }
 
-    // called by PanelSoDoCho to load seats for a Toa
+
+    private boolean isMissingId(String s) {
+        return s == null || s.trim().isEmpty() || "null".equalsIgnoreCase(s.trim());
+    }
+
     public void loadSeatsForToa(Toa toa, Consumer<List<Ghe>> callback) {
+        if (toa == null) {
+            callback.accept(Collections.emptyList());
+            return;
+        }
+
+        // 1) fetch current chuyen/toa
+        String chuyenID = (selectedChuyen != null) ? selectedChuyen.getChuyenID() : null;
+        String toaID = toa.getToaID();
+
+        // 2) try to get gaDi/gaDen from bookingSession (based on currentTripIndex)
+        String gaDiID = null;
+        String gaDenID = null;
+        if (bookingSession != null) {
+            SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
+                                                       : bookingSession.getReturnCriteria();
+            if (sc != null) {
+                gaDiID = sc.getGaDiId();   // ensure method name matches your class
+                gaDenID = sc.getGaDenId();
+            }
+        }
+
+        // 3) Normalize: treat literal "null" or empty as missing
+        if (isMissingId(gaDiID)) gaDiID = null;
+        if (isMissingId(gaDenID)) gaDenID = null;
+
+        // 4) Fallback: try get from selectedChuyen's tuyen (if entity supports it)
+        if ((gaDiID == null || gaDenID == null) && selectedChuyen != null) {
+            try {
+                Tuyen tuyen = selectedChuyen.getTuyen(); // adjust to your entity API
+                if (tuyen != null) {
+                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
+                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
+                }
+            } catch (Throwable ignored) {
+                // nếu entity khác, xử lý tương ứng
+            }
+        }
+
+        // 5) Fallback 2: try resolve by name via BUS (use SearchCriteria names)
+        if ((gaDiID == null || gaDenID == null) && bookingSession != null) {
+            SearchCriteria sc = bookingSession.getOutboundCriteria();
+            if (sc == null && currentTripIndex == 1) sc = bookingSession.getReturnCriteria();
+            if (sc != null) {
+                try {
+                    if (gaDiID == null && sc.getGaDiName() != null && !sc.getGaDiName().trim().isEmpty()) {
+                        Ga g = chuyenBUS.timGaTheoTenGa(sc.getGaDiName().trim());
+                        if (g != null) gaDiID = g.getGaID();
+                    }
+                    if (gaDenID == null && sc.getGaDenName() != null && !sc.getGaDenName().trim().isEmpty()) {
+                        Ga g2 = chuyenBUS.timGaTheoTenGa(sc.getGaDenName().trim());
+                        if (g2 != null) gaDenID = g2.getGaID();
+                    }
+                } catch (Throwable ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        // 6) final check
+        if (isMissingId(gaDiID) || isMissingId(gaDenID) || isMissingId(chuyenID) || isMissingId(toaID)) {
+            System.err.println(String.format("loadSeatsForToa: missing param gaDi=%s gaDen=%s chuyen=%s toa=%s",
+                    gaDiID, gaDenID, chuyenID, toaID));
+            callback.accept(Collections.emptyList());
+            return;
+        }
+
+        // 7) call core loader (thứ tự tham số đúng theo Chuyen_BUS)
+        loadSeatsForToa(gaDiID, gaDenID, chuyenID, toaID, callback);
+    }
+    
+    public void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID, Consumer<List<Ghe>> callback) {
         new SwingWorker<List<Ghe>, Void>() {
             protected List<Ghe> doInBackground() throws Exception {
-                // get seats from DAO
-                return gheDAO.getGheByGaDiGaDenChuyenIDToaID("gaDiID", "gaDenID", "chuyenID", toa.getToaID());
+                if (gaDiID == null || gaDenID == null || chuyenID == null || toaID == null) {
+                    return Collections.emptyList();
+                }
+                return chuyenBUS.layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID, toaID);
             }
             protected void done() {
-                try {
-                    List<Ghe> seats = get();
-                    callback.accept(seats);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    callback.accept(Collections.emptyList());
-                }
+                try { callback.accept(get()); }
+                catch (Exception ex) { ex.printStackTrace(); callback.accept(Collections.emptyList()); }
             }
         }.execute();
     }
 
     // user clicked a seat button
     public void onSeatClicked(Toa toa, Ghe ghe) {
-        // if seat available -> create hold (don dat cho) via BUS -> add ticket
+        if (ghe == null || toa == null) return;
         if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
-            // cannot select
             JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
             return;
         }
@@ -161,7 +223,7 @@ public class PanelBuoc2Controller {
                         panelGioVe.refresh(ticketBUS.getAllTickets());
                         // start countdown for this ticket
                         startCountdownForTicket(v);
-                        // optionally refresh seat grid to mark as selected (controller could reload seats)
+                        // refresh seat grid to mark as selected
                         panelSoDoCho.setCurrentToa(toa);
                     } else {
                         JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
@@ -187,12 +249,11 @@ public class PanelBuoc2Controller {
         Timer old = countdownTimers.remove(id);
         if (old != null) old.stop();
 
-//        long secondsLeft = v.getHoldSecondsLeft(); // Ve must supply seconds left
-        long secondsLeft = 100; // Ve must supply seconds left
+        long secondsLeft = 100;
         JLabel lbl = countdownLabels.get(id);
 
         Timer timer = new Timer(1000, e -> {
-            long s = 100; // mutate Ve hold seconds (implement in Ve)
+            long s = 100;
             // update label
             JLabel label = countdownLabels.get(id);
             if (label != null) {
@@ -234,9 +295,7 @@ public class PanelBuoc2Controller {
                     if (t != null) t.stop();
                     countdownLabels.remove(v.getVeID());
                     panelGioVe.refresh(ticketBUS.getAllTickets());
-                    // reload seats for current toa to reflect freed seat
-                    // best effort: if current shown toa equals v's toa, refresh
-                    // (controller could track currentToa; skipping explicit check here)
+                    
                     JOptionPane.showMessageDialog(null, "Đã xóa giữ chỗ.");
                 } catch (Exception ex) { ex.printStackTrace(); }
             }

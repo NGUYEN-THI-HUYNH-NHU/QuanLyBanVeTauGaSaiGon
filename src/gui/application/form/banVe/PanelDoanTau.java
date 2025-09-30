@@ -15,42 +15,47 @@ package gui.application.form.banVe;
 import entity.Toa;
 
 import javax.swing.*;
-
-import controller.PanelBuoc2Controller;
+import javax.swing.border.TitledBorder;
 
 import java.awt.*;
 import java.util.List;
+import java.util.function.Consumer;
 
-/**
- * show carriage list (buttons), clicking a toa triggers controller.onToaSelected
- */
 public class PanelDoanTau extends JPanel {
     private JPanel flow;
     private PanelBuoc2Controller controller;
+    private JButton selectedButton = null;
 
     public PanelDoanTau() {
+        setBorder(new TitledBorder("Sơ đồ đoàn tàu"));
         setLayout(new BorderLayout());
         flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
         JScrollPane scr = new JScrollPane(flow,
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scr.setBorder(BorderFactory.createEmptyBorder());
         add(scr, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(10, 70));
+        setPreferredSize(new Dimension(10, 20));
     }
 
-    public void setController(PanelBuoc2Controller controller) { this.controller = controller; }
+    public void setController(PanelBuoc2Controller controller) {
+    	this.controller = controller;
+    }
 
-    public void showToaList(List<Toa> list, java.util.function.Consumer<Toa> onSelect) {
+    public void showToaList(List<Toa> list, Consumer<Toa> onSelect) {
         flow.removeAll();
+        selectedButton = null;
         if (list == null || list.isEmpty()) {
             flow.add(new JLabel("Không có toa"));
         } else {
             for (Toa t : list) {
-                JButton btn = new JButton(String.valueOf(t.getSoToa()));
+                JButton btn = new JButton(t.getSoToa());
                 btn.setPreferredSize(new Dimension(60, 40));
+                btn.setOpaque(true);
+                btn.setBorderPainted(true);
+                btn.setBackground(UIManager.getColor("Button.background"));
+                btn.putClientProperty("toaID", t.getToaID());
                 btn.addActionListener(e -> {
                     onSelect.accept(t);
-                    // visually highlight: clear others
                     highlightButton(btn);
                 });
                 flow.add(btn);
@@ -61,13 +66,28 @@ public class PanelDoanTau extends JPanel {
     }
 
     private void highlightButton(JButton selected) {
+        Color defaultBg = UIManager.getColor("Button.background");
         Component[] comps = flow.getComponents();
         for (Component c : comps) {
             if (c instanceof JButton) {
-                c.setBackground(null);
+                c.setBackground(defaultBg);
             }
         }
-        selected.setBackground(new Color(135, 206, 250));
+        selectedButton = selected;
+        if (selectedButton != null) selectedButton.setBackground(new Color(135, 206, 250));
+    }
+
+    // controller có thể gọi để chọn tự động
+    public void selectToaById(String toaID) {
+        if (toaID == null) return;
+        for (Component c : flow.getComponents()) {
+            if (c instanceof JButton) {
+                Object id = ((JButton)c).getClientProperty("toaID");
+                if (toaID.equals(id)) {
+                    highlightButton((JButton)c);
+                    break;
+                }
+            }
+        }
     }
 }
-

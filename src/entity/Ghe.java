@@ -21,10 +21,10 @@ import entity.type.TrangThaiGhe;
 public class Ghe {
 	private String gheID;
 	private Toa toa;
-	private int soGhe;
+	private String soGhe;
 	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, int soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
@@ -32,7 +32,7 @@ public class Ghe {
 		this.trangThai = trangThai;
 	}
 
-	public Ghe(String gheID, int soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.soGhe = soGhe;
@@ -51,7 +51,7 @@ public class Ghe {
 		return toa;
 	}
 
-	public int getSoGhe() {
+	public String getSoGhe() {
 		return soGhe;
 	}
 
@@ -71,7 +71,7 @@ public class Ghe {
 		this.toa = toa;
 	}
 
-	public void setSoGhe(int soGhe) {
+	public void setSoGhe(String soGhe) {
 		this.soGhe = soGhe;
 	}
 

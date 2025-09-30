@@ -17,10 +17,11 @@ import entity.Toa;
 import entity.type.TrangThaiGhe;
 
 import javax.swing.*;
-
-import controller.PanelBuoc2Controller;
+import javax.swing.border.TitledBorder;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -28,34 +29,50 @@ public class PanelSoDoCho extends JPanel {
     private JPanel seatGridPanel;
     private JPanel navPanel;
     private JButton btnPrev, btnNext;
-    private PanelBuoc2Controller controller;
+    private PanelBuoc2Controller panelBuoc2Controller;
+    private JLabel lblToaInfo;
+    private JButton selectedSeatButton = null;
 
     // current toa context
     private Toa currentToa;
-    private java.util.List<Toa> toaList;
+    private List<Toa> toaList;
     private int currentIndex = 0;
+	private JPanel pnlNorth;
 
     public PanelSoDoCho() {
+        setBorder(new TitledBorder("Sơ đồ chỗ"));
         setLayout(new BorderLayout());
+        
+        lblToaInfo = new JLabel("Chưa chọn toa", SwingConstants.CENTER);
+        lblToaInfo.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        
         btnPrev = new JButton("<");
         btnNext = new JButton(">");
         navPanel.add(btnPrev);
         navPanel.add(btnNext);
-        add(navPanel, BorderLayout.NORTH);
-
+        
+        pnlNorth = new JPanel();
+        pnlNorth.setLayout(new BorderLayout());
+        pnlNorth.add(lblToaInfo, BorderLayout.NORTH);
+        pnlNorth.add(navPanel, BorderLayout.CENTER);
+        
         seatGridPanel = new JPanel();
+        
+        add(pnlNorth, BorderLayout.NORTH);
         add(seatGridPanel, BorderLayout.CENTER);
 
-        setPreferredSize(new Dimension(10, 300));
+        setPreferredSize(new Dimension(10, 200));
 
         btnPrev.addActionListener(e -> showPrevToa());
         btnNext.addActionListener(e -> showNextToa());
     }
 
-    public void setController(PanelBuoc2Controller c) { this.controller = c; }
+    public void setController(PanelBuoc2Controller c) {
+    	this.panelBuoc2Controller = c;
+    }
 
-    public void setToaList(java.util.List<Toa> list) {
+    public void setToaList(List<Toa> list) {
         this.toaList = list;
         this.currentIndex = 0;
         if (list != null && !list.isEmpty()) {
@@ -67,32 +84,78 @@ public class PanelSoDoCho extends JPanel {
 
     public void setCurrentToa(Toa t) {
         this.currentToa = t;
-        // load seats from controller (which calls DAO via BUS)
-        if (controller != null && t != null) {
-            controller.loadSeatsForToa(t, seats -> {
+        if (t == null) {
+            lblToaInfo.setText("Chưa chọn toa");
+        } else {
+            String soToa = String.valueOf(t.getSoToa());
+            String moTaHang = null;
+            try {
+              moTaHang = (t.getHangToa().getDescription() != null) ? t.getHangToa().getDescription() : t.getHangToa().toString();
+            } catch (Throwable ex) {
+                try {
+                	moTaHang = t.getHangToa().getDescription();
+                } catch (Throwable ignored) {
+                	moTaHang = "";
+                }
+            }
+            lblToaInfo.setText("Toa số " + soToa + ": " + (moTaHang == null ? "" : moTaHang));
+        }
+
+        showLoadingState();
+        if (panelBuoc2Controller != null && t != null) {
+            panelBuoc2Controller.loadSeatsForToa(t, seats -> {
                 SwingUtilities.invokeLater(() -> renderSeats(seats));
             });
         } else {
             renderSeats(null);
         }
     }
-
-    private void renderSeats(java.util.List<Ghe> seats) {
+    
+    private void showLoadingState() {
         seatGridPanel.removeAll();
+        seatGridPanel.setLayout(new BorderLayout());
+        seatGridPanel.revalidate();
+        seatGridPanel.repaint();
+    }
+    
+    private int parseLeadingInt(String s) {
+        if (s == null) return Integer.MAX_VALUE;
+        String num = "";
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (Character.isDigit(ch)) num += ch;
+            else break;
+        }
+        try { return num.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(num); }
+        catch (NumberFormatException ex) { return Integer.MAX_VALUE; }
+    }
+
+    private void renderSeats(List<Ghe> seats) {
+        seatGridPanel.removeAll();
+        selectedSeatButton = null;
         if (seats == null || seats.isEmpty()) {
-            seatGridPanel.add(new JLabel("Không có ghế"));
+            seatGridPanel.add(new JLabel("Không có ghế", SwingConstants.CENTER));
             seatGridPanel.revalidate();
             seatGridPanel.repaint();
             return;
         }
-        // simple heuristic: determine grid size (columns)
-        int cols = 6;
-        int rows = (int) Math.ceil(seats.size() / (double) cols);
-        seatGridPanel.setLayout(new GridLayout(rows, cols, 6, 6));
 
-        for (Ghe g : seats) {
+        // clone + sort by numeric seat id (leading digits) then by full label
+        List<Ghe> sorted = new ArrayList<>(seats);
+        sorted.sort(Comparator
+                .comparingInt((Ghe g) -> parseLeadingInt(g.getSoGhe()))
+                .thenComparing(g -> g.getSoGhe()));
+
+        // choose columns: try detect layout (if seats small -> single row)
+        int cols = 6; // default nicer width
+        if (sorted.size() <= 6) cols = sorted.size();
+        int rows = (int) Math.ceil(sorted.size() / (double) cols);
+        seatGridPanel.setLayout(new GridLayout(rows, cols, 8, 8));
+
+        for (Ghe g : sorted) {
             JButton b = new JButton(String.valueOf(g.getSoGhe()));
-            // color by status
+            b.setMargin(new Insets(2,2,2,2));
+            b.setOpaque(true);
             if (g.getTrangThai() == TrangThaiGhe.OCCUPIED) {
                 b.setBackground(Color.RED);
                 b.setEnabled(false);
@@ -101,10 +164,17 @@ public class PanelSoDoCho extends JPanel {
                 b.setEnabled(true);
             }
             b.addActionListener(e -> {
-                if (controller != null) controller.onSeatClicked(currentToa, g);
+                // visual select for seat
+                if (selectedSeatButton != null && selectedSeatButton != b) {
+                    selectedSeatButton.setBackground(Color.WHITE);
+                }
+                selectedSeatButton = b;
+                b.setBackground(new Color(255, 230, 120));
+                if (panelBuoc2Controller != null) panelBuoc2Controller.onSeatClicked(currentToa, g);
             });
             seatGridPanel.add(b);
         }
+
         seatGridPanel.revalidate();
         seatGridPanel.repaint();
     }
