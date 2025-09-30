@@ -18,17 +18,15 @@ import java.util.Objects;
 
 public class KhachHang {
 	private String khachHangID;
-	private HangKhachHang hangKhachHang;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
 	
-	public KhachHang(String khachHangID, HangKhachHang hangKhachHang, String hoTen, String soDienThoai, String email,
+	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
 			String diaChi) {
 		super();
 		this.khachHangID = khachHangID;
-		this.hangKhachHang = hangKhachHang;
 		this.hoTen = hoTen;
 		this.soDienThoai = soDienThoai;
 		this.email = email;
@@ -46,10 +44,6 @@ public class KhachHang {
 
 	public String getKhachHangID() {
 		return khachHangID;
-	}
-
-	public HangKhachHang getHangKhachHang() {
-		return hangKhachHang;
 	}
 
 	public String getHoTen() {
@@ -75,10 +69,6 @@ public class KhachHang {
 		this.khachHangID = khachHangID;
 	}
 
-	public void setHangKhachHang(HangKhachHang hangKhachHang) {
-		this.hangKhachHang = hangKhachHang;
-	}
-
 	public void setHoTen(String hoTen) {
 		this.hoTen = hoTen;
 	}
@@ -97,7 +87,7 @@ public class KhachHang {
 
 	@Override
 	public String toString() {
-		return khachHangID + ";" + hangKhachHang + ";" + hoTen
+		return khachHangID + ";" + ";" + hoTen
 				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
 	}
 

@@ -34,6 +34,7 @@ import com.formdev.flatlaf.util.UIScale;
 import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.khachHang.FormCustomerManagement;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
@@ -95,7 +96,7 @@ public class GiaoDienChinh extends JLayeredPane {
 //	            	if (isManager) UngDung.showGiaoDienChinh(new FormStaffManagement(nhanVien));
 //	                else action.cancel();
 //	            }
-//	            case 5 -> UngDung.showGiaoDienChinh(new FormCustomerManagement());
+	            case 5 -> UngDung.showGiaoDienChinh(new FormCustomerManagement());
 //	            case 6 -> {
 //	                switch (subIndex) {
 //	                    case 1 -> UngDung.showGiaoDienChinh(new FormFoodManagement());
