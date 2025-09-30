@@ -72,7 +72,7 @@ public class UngDung extends JFrame {
 	}
 
 	public static void dangXuat() {
-		ungDung.formDangNhap.resetDangNhap();;
+		ungDung.formDangNhap.resetDangNhap();
 		FlatAnimatedLafChange.showSnapshot();
 		ungDung.setContentPane(ungDung.formDangNhap);
 		ungDung.formDangNhap.applyComponentOrientation(ungDung.getComponentOrientation());
