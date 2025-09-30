@@ -32,7 +32,7 @@ public class PanelBanVe extends JPanel {
 
         // Add step panels
         stepPanel.add(new PanelBuoc1(), "search");
-        stepPanel.add(new PanelBuoc2(), "seat");
+//        stepPanel.add(new PanelBuoc2(), "seat");
         stepPanel.add(new PanelBuoc3(), "info");
         stepPanel.add(new PanelBuoc4(), "confirm");
         stepPanel.add(new PanelBuoc5(), "payment");

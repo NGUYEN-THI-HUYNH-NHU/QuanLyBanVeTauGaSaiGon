@@ -26,5 +26,4 @@ public class Tau_DAO {
         connectDB = ConnectDB.getInstance();
         connectDB.connect();
     }
-	
 }
