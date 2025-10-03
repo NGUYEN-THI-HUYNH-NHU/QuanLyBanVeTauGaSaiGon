@@ -80,7 +80,7 @@ public class Menu extends JPanel {
                 panelMenu.add(createTitle(menuName));
             } else {
             	if (role.equalsIgnoreCase("NHAN_VIEN")) {
-            		if (i==4 || i==5 || i==6 || i==7 || i==9 || i==10)
+            		if (i==4  || i==6 || i==7 || i==9 || i==10)
                         continue;
             	} else {
             		if (i==1 || i==2 || i==3)

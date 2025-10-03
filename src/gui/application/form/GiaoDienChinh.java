@@ -119,8 +119,8 @@ public class GiaoDienChinh extends JLayeredPane {
 //	                }
 //	            }
 //	            case 9 -> UngDung.dangXuat();
-	        
-	        
+
+
 	            default -> action.cancel();
 	        }
 		});
