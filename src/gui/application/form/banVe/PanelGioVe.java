@@ -57,7 +57,7 @@ public class PanelGioVe extends JPanel {
                 v.getChuyen().getTau() == null ? "" : v.getChuyen().getTau().getTauID(),
                 v.getChuyen().getTuyen().getGaDi().toString(),
                 v.getChuyen().getTuyen().getGaDen().toString(),
-                v.getChuyen().getNgayGioKhoiHanh(),
+                v.getChuyen().getGioDi(),
                 v.getGhe().getToa().getHangToa().toString(),
                 v.getGhe().getSoGhe()));
 

@@ -25,13 +25,11 @@ public class KhuyenMai {
 	private LocalDate ngayKetThuc;
 	private double soLuong;
 	private int gioiHanMoiKhachHang;
-	private LocalDate ngayTao;
-	private LocalDate ngayCapNhat;
 	private boolean trangThai;
 	
 	public KhuyenMai(String khuyenMaiID, String maKhuyenMai, String moTa, double tyLeGiamGia, double tienGiamGia,
-			LocalDate ngayBatDau, LocalDate ngayKetThuc, double soLuong, int gioiHanMoiKhachHang, LocalDate ngayTao,
-			LocalDate ngayCapNhat, boolean trangThai) {
+			LocalDate ngayBatDau, LocalDate ngayKetThuc, double soLuong, int gioiHanMoiKhachHang
+			, boolean trangThai) {
 		super();
 		this.khuyenMaiID = khuyenMaiID;
 		this.maKhuyenMai = maKhuyenMai;
@@ -42,8 +40,6 @@ public class KhuyenMai {
 		this.ngayKetThuc = ngayKetThuc;
 		this.soLuong = soLuong;
 		this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
-		this.ngayTao = ngayTao;
-		this.ngayCapNhat = ngayCapNhat;
 		this.trangThai = trangThai;
 	}
 
@@ -81,14 +77,6 @@ public class KhuyenMai {
 
 	public int getGioiHanMoiKhachHang() {
 		return gioiHanMoiKhachHang;
-	}
-
-	public LocalDate getNgayTao() {
-		return ngayTao;
-	}
-
-	public LocalDate getNgayCapNhat() {
-		return ngayCapNhat;
 	}
 
 	public boolean isTrangThai() {
@@ -143,14 +131,6 @@ public class KhuyenMai {
 		this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
 	}
 
-	public void setNgayTao(LocalDate ngayTao) {
-		this.ngayTao = ngayTao;
-	}
-
-	public void setNgayCapNhat(LocalDate ngayCapNhat) {
-		this.ngayCapNhat = ngayCapNhat;
-	}
-
 	public void setTrangThai(boolean trangThai) {
 		this.trangThai = trangThai;
 	}
@@ -160,7 +140,7 @@ public class KhuyenMai {
 		return khuyenMaiID + ";" + maKhuyenMai + ";" + moTa
 				+ ";" + tyLeGiamGia + ";" + tienGiamGia + ";" + ngayBatDau
 				+ ";" + ngayKetThuc + ";" + soLuong + ";"
-				+ gioiHanMoiKhachHang + ";" + ngayTao + ";" + ngayCapNhat + ";"
+				+ gioiHanMoiKhachHang + ";"
 				+ trangThai;
 	}
 

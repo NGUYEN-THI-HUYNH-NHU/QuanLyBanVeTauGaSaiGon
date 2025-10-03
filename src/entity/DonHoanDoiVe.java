@@ -17,36 +17,25 @@ import java.util.Objects;
 
 public class DonHoanDoiVe {
 	private String donHoanDoiVeID;
-	private DonDatCho donDatCho;
 	private KhachHang khachHang;
 	private NhanVien nhanVien;
-	private String loaiHoanDoiVe;
+	private boolean laDonHoan;
 	private LocalDate ngayYeuCau;
 	private double tongTienHoan;
-	private boolean trangThai;
-	
-	public DonHoanDoiVe(String donHoanDoiVeID, DonDatCho donDatCho, KhachHang khachHang, NhanVien nhanVien,
-			String loaiHoanDoiVe, LocalDate ngayYeuCau, double tongTienHoan, boolean trangThai) {
-		super();
+	private String trangThai;
+
+	public DonHoanDoiVe(String donHoanDoiVeID, KhachHang khachHang, NhanVien nhanVien, boolean laDonHoan, LocalDate ngayYeuCau, double tongTienHoan, String trangThai) {
 		this.donHoanDoiVeID = donHoanDoiVeID;
-		this.donDatCho = donDatCho;
 		this.khachHang = khachHang;
 		this.nhanVien = nhanVien;
-		this.loaiHoanDoiVe = loaiHoanDoiVe;
+		this.laDonHoan = laDonHoan;
 		this.ngayYeuCau = ngayYeuCau;
 		this.tongTienHoan = tongTienHoan;
 		this.trangThai = trangThai;
 	}
 
 	public String getDonHoanDoiVeID() {
-		if(donHoanDoiVeID == null || donHoanDoiVeID.isEmpty()) {
-			throw new IllegalStateException("Don Hoan Doi Ve ID không được để trống!");
-		}
 		return donHoanDoiVeID;
-	}
-
-	public DonDatCho getDonDatCho() {
-		return donDatCho;
 	}
 
 	public KhachHang getKhachHang() {
@@ -57,8 +46,8 @@ public class DonHoanDoiVe {
 		return nhanVien;
 	}
 
-	public String getLoaiHoanDoiVe() {
-		return loaiHoanDoiVe;
+	public boolean isLaDonHoan() {
+		return laDonHoan;
 	}
 
 	public LocalDate getNgayYeuCau() {
@@ -69,31 +58,45 @@ public class DonHoanDoiVe {
 		return tongTienHoan;
 	}
 
-	public boolean isTrangThai() {
+	public String getTrangThai() {
 		return trangThai;
 	}
 
 	public void setDonHoanDoiVeID(String donHoanDoiVeID) {
-		this.donHoanDoiVeID = donHoanDoiVeID;
-	}
-
-	public void setDonDatCho(DonDatCho donDatCho) {
-		this.donDatCho = donDatCho;
+		if(donHoanDoiVeID != null && !donHoanDoiVeID.trim().isEmpty()) {
+			this.donHoanDoiVeID = donHoanDoiVeID;
+		}else{
+			throw new IllegalArgumentException("Đơn hoàn đổi vé ID không được để trống!");
+		}
 	}
 
 	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
+		if(khachHang != null) {
+			this.khachHang = khachHang;
+		}else{
+			throw new IllegalArgumentException("Khách hàng không được rỗng");
+		}
 	}
 
 	public void setNhanVien(NhanVien nhanVien) {
-		this.nhanVien = nhanVien;
+		if(nhanVien != null) {
+			this.nhanVien = nhanVien;
+		}else{
+			throw new IllegalArgumentException("Nhân viên không được rỗng");
+		}
 	}
 
-	public void setLoaiHoanDoiVe(String loaiHoanDoiVe) {
-		this.loaiHoanDoiVe = loaiHoanDoiVe;
+	public void setLaDonHoan(boolean laDonHoan) {
+		if(!laDonHoan && !this.laDonHoan) {
+			throw new IllegalArgumentException("Không thể chuyển đổi từ đơn đổi vé sang đơn hoàn vé");
+		}
+		this.laDonHoan = laDonHoan;
 	}
 
 	public void setNgayYeuCau(LocalDate ngayYeuCau) {
+		if(ngayYeuCau == null || ngayYeuCau.isAfter(LocalDate.now())) {
+			throw new IllegalArgumentException("Ngày yêu cầu không được rỗng và phải là ngày trong quá khứ hoặc ngày hiện tại");
+		}
 		this.ngayYeuCau = ngayYeuCau;
 	}
 
@@ -101,14 +104,15 @@ public class DonHoanDoiVe {
 		this.tongTienHoan = tongTienHoan;
 	}
 
-	public void setTrangThai(boolean trangThai) {
+	public void setTrangThai(String trangThai) {
 		this.trangThai = trangThai;
 	}
 
 	@Override
 	public String toString() {
-		return donHoanDoiVeID + ";" + donDatCho + ";"
-				+ khachHang + ";" + nhanVien + ";" + loaiHoanDoiVe + ";"
+		return donHoanDoiVeID + ";"
+				+ khachHang + ";" + nhanVien + ";"
+				+ laDonHoan + ";"
 				+ ngayYeuCau + ";" + tongTienHoan + ";" + trangThai;
 	}
 

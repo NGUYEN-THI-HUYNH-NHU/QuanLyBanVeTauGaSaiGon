@@ -21,17 +21,14 @@ public class HeSoGiaLoaiTau {
 	private String hsgLoaiTauID;
 	private LoaiTau loaiTau;
 	private double hsg;
-	private LocalDate ngayCoHieuLuc;
-	private LocalDate ngayHetHieuLuc;
-	
-	public HeSoGiaLoaiTau(String hsgLoaiTauID, LoaiTau loaiTau, double hsg, LocalDate ngayCoHieuLuc,
-			LocalDate ngayHetHieuLuc) {
-		super();
+	private boolean isCoHieuLuc;
+
+
+	public HeSoGiaLoaiTau(String hsgLoaiTauID, LoaiTau loaiTau, double hsg, boolean isCoHieuLuc) {
 		this.hsgLoaiTauID = hsgLoaiTauID;
 		this.loaiTau = loaiTau;
 		this.hsg = hsg;
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
+		this.isCoHieuLuc = isCoHieuLuc;
 	}
 
 	public String getHsgLoaiTauID() {
@@ -46,12 +43,8 @@ public class HeSoGiaLoaiTau {
 		return hsg;
 	}
 
-	public LocalDate getNgayCoHieuLuc() {
-		return ngayCoHieuLuc;
-	}
-
-	public LocalDate getNgayHetHieuLuc() {
-		return ngayHetHieuLuc;
+	public boolean isCoHieuLuc() {
+		return isCoHieuLuc;
 	}
 
 	public void setHsgLoaiTauID(String hsgLoaiTauID) {
@@ -69,24 +62,14 @@ public class HeSoGiaLoaiTau {
 		this.hsg = hsg;
 	}
 
-	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
-		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
-			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
-		}
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-	}
-
-	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
-		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
-			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
-		}
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
+	public void setCoHieuLuc(boolean coHieuLuc) {
+		isCoHieuLuc = coHieuLuc;
 	}
 
 	@Override
 	public String toString() {
 		return hsgLoaiTauID + ";" + loaiTau + ";" + hsg
-				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc;
+				+ ";" + isCoHieuLuc ;
 	}
 
 	@Override

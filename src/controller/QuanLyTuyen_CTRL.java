@@ -70,7 +70,7 @@ public class QuanLyTuyen_CTRL {
         List<Tuyen> ketQua;
 
         if(!maTuyen.trim().isEmpty()){
-            ketQua = tuyen_bus.getTuyenByID(maTuyen);
+            ketQua = tuyen_bus.getTuyenByID(maTuyen.trim());
         } else {
             ketQua = tuyen_bus.timTuyenTheoGa(gaDi, gaDen);
         }
