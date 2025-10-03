@@ -28,9 +28,8 @@ public class DieuKienKhuyenMai {
 	private int ngayTrongTuan;
 	private boolean ngayLe;
 	private double minGiaTriDonHang;
-	
-	public DieuKienKhuyenMai(String dieuKienID, KhuyenMai khuyenMai, Tuyen tuyen, LoaiTau loaiTau, HangToa hangToa,
-			HangKhachHang hangKhachHang, LoaiDoiTuong loaiDoiTuong, int ngayTrongTuan, boolean ngayLe,
+
+	public DieuKienKhuyenMai(String dieuKienID, KhuyenMai khuyenMai, Tuyen tuyen, LoaiTau loaiTau, HangToa hangToa, LoaiDoiTuong loaiDoiTuong, int ngayTrongTuan, boolean ngayLe,
 			double minGiaTriDonHang) {
 		super();
 		this.dieuKienID = dieuKienID;

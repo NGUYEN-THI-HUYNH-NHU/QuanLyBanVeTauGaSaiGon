@@ -22,18 +22,21 @@ public class Ghe {
 	private String gheID;
 	private Toa toa;
 	private String soGhe;
+	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, String soGhe) {
+	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
 		this.soGhe = soGhe;
+		this.trangThai = trangThai;
 	}
 
-	public Ghe(String gheID, String soGhe) {
+	public Ghe(String gheID, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.soGhe = soGhe;
+		this.trangThai = trangThai;
 	}
 	
 	public Ghe() {
@@ -50,6 +53,15 @@ public class Ghe {
 
 	public String getSoGhe() {
 		return soGhe;
+	}
+	public TrangThaiGhe getTrangThai() {
+		return trangThai;
+	}
+	public void setTrangThai(TrangThaiGhe trangThai) {
+		if(trangThai == null) {
+			throw new IllegalArgumentException("Trạng thái ghế không được để trống!");
+		}
+		this.trangThai = trangThai;
 	}
 
 	public void setGheID(String gheID) {
@@ -76,7 +88,7 @@ public class Ghe {
 
 	@Override
 	public String toString() {
-		return gheID + ";" + toa + ";" + soGhe ;
+		return gheID + ";" + toa + ";" + soGhe  + ";" + trangThai;
 	}
 
 	@Override

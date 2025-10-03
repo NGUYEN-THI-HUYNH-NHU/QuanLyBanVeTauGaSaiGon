@@ -21,16 +21,13 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
-
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
-
 import entity.NhanVien;
 import gui.application.UngDung;
 //import gui.application.form.banVe.PanelBanVe;
@@ -38,6 +35,7 @@ import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
+import gui.application.form.khachHang.FormCustomerManagement;
 
 
 public class GiaoDienChinh extends JLayeredPane {
@@ -92,11 +90,11 @@ public class GiaoDienChinh extends JLayeredPane {
 //	            case 1 -> UngDung.showGiaoDienChinh(new FormOrderManagement());
 //	            case 2 -> UngDung.showGiaoDienChinh(new FormMovieManagement());
 //	            case 3 -> UngDung.showGiaoDienChinh(new FormScreeningManagement(nhanVien));
-//	            case 4 -> {
+//	            case 5 -> {
 //	            	if (isManager) UngDung.showGiaoDienChinh(new FormStaffManagement(nhanVien));
 //	                else action.cancel();
 //	            }
-//	            case 5 -> UngDung.showGiaoDienChinh(new FormCustomerManagement());
+	            case 4 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
 //	            case 6 -> {
 //	                switch (subIndex) {
 //	                    case 1 -> UngDung.showGiaoDienChinh(new FormFoodManagement());

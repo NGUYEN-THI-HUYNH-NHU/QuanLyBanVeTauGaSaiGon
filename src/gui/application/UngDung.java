@@ -61,7 +61,6 @@ public class UngDung extends JFrame {
 		giaoDienChinh.applyComponentOrientation(getComponentOrientation());
 		SwingUtilities.updateComponentTreeUI(giaoDienChinh);
 	}
-
 	public static void showGiaoDienChinh(Component component) {
 		component.applyComponentOrientation(ungDung.getComponentOrientation());
 		ungDung.giaoDienChinh.showForm(component);
