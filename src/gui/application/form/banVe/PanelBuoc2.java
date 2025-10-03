@@ -13,17 +13,12 @@ package gui.application.form.banVe;
  */
 
 import javax.swing.*;
-
-import controller.PanelBuoc2Controller;
+import javax.swing.border.TitledBorder;
 
 import java.awt.*;
 import java.util.List;
 import entity.Chuyen;
 
-/**
- * PanelBuoc2: container chính cho bước chọn chỗ.
- * Sử dụng controller để điều phối.
- */
 public class PanelBuoc2 extends JPanel {
     private PanelChieuLabel panelChieuLabel;
     private PanelChuyenTau panelChuyenTau;
@@ -35,9 +30,16 @@ public class PanelBuoc2 extends JPanel {
     private JPanel centerPanel;
 
     private PanelBuoc2Controller controller;
+	private JPanel panelChuThich;
 
     public PanelBuoc2() {
         setLayout(new BorderLayout());
+        setBorder(new TitledBorder("(2) Chọn chỗ"));
+        
+        panelChuThich = new JPanel();
+        panelChuThich.setPreferredSize(new Dimension(10, 30));
+        panelChuThich.add(new JLabel("Chú thích", SwingConstants.CENTER));
+        panelChuThich.setBackground(Color.GRAY);
 
         panelChieuLabel = new PanelChieuLabel();
         panelChuyenTau = new PanelChuyenTau();
@@ -51,13 +53,14 @@ public class PanelBuoc2 extends JPanel {
         centerPanel.add(panelChuyenTau);
         centerPanel.add(panelDoanTau);
         centerPanel.add(panelSoDoCho);
+        centerPanel.add(panelChuThich);
 
         JScrollPane centerScroll = new JScrollPane(centerPanel,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         splitMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, centerScroll, panelGioVe);
-        splitMain.setResizeWeight(0.75);
+        splitMain.setResizeWeight(0.85);
         add(splitMain, BorderLayout.CENTER);
 
         controller = new PanelBuoc2Controller(panelChieuLabel, panelChuyenTau, panelDoanTau, panelSoDoCho, panelGioVe);
@@ -72,5 +75,15 @@ public class PanelBuoc2 extends JPanel {
      */
     public void setChuyenList(List<Chuyen> chuyenList, String gaDiName, String gaDenName) {
         controller.setChuyenList(chuyenList, gaDiName, gaDenName);
+    }
+    
+ // trong PanelBuoc2 (UI wrapper), có 1 controller (panelBuoc2Controller)
+    public void enter(SearchCriteria criteria, List<Chuyen> results, int tripIndex, BookingSession session) {
+    	System.out.println("PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
+        controller.setBookingSession(session);
+        controller.setCurrentTripIndex(tripIndex);
+        controller.setChuyenList(results, 
+            criteria != null ? criteria.getGaDiName() : "", 
+            criteria != null ? criteria.getGaDenName() : "");
     }
 }

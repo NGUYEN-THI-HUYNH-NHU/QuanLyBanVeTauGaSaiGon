@@ -16,16 +16,9 @@ import entity.Ve;
 
 import javax.swing.*;
 
-import controller.PanelBuoc2Controller;
-
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
-/**
- * PanelGioVe: show chosen tickets grouped by chiều (goiBus can handle grouping).
- * Each item has countdown label (JLabel) updated by swing Timer inside controller/this class.
- */
 public class PanelGioVe extends JPanel {
     private JPanel container;
     private PanelBuoc2Controller controller;
@@ -36,20 +29,18 @@ public class PanelGioVe extends JPanel {
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         JScrollPane scr = new JScrollPane(container, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(scr, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(340, 10));
+        setPreferredSize(new Dimension(240, 10));
     }
 
-    public void setController(PanelBuoc2Controller c) { this.controller = c; }
+    public void setController(PanelBuoc2Controller c) {
+    	this.controller = c;
+    }
 
-    /**
-     * Refresh full content from controller/bus
-     */
     public void refresh(List<Ve> tickets) {
         container.removeAll();
         if (tickets == null || tickets.isEmpty()) {
             container.add(new JLabel("Giỏ vé trống"));
         } else {
-            // group by direction if needed (simple: single list)
             for (Ve v : tickets) {
                 JPanel row = createTicketRow(v);
                 container.add(row);
@@ -62,9 +53,13 @@ public class PanelGioVe extends JPanel {
     private JPanel createTicketRow(Ve v) {
         JPanel row = new JPanel(new BorderLayout());
         row.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        JLabel info = new JLabel(String.format("<html><b>%s</b><br/>%s → %s, %s, Toa %s, Ghế %s</html>",
+        JLabel info = new JLabel(String.format("<html><b>%s</b><br/>%s -> %s, %s, Toa %s, Ghế %s</html>",
                 v.getChuyen().getTau() == null ? "" : v.getChuyen().getTau().getTauID(),
-                v.getChuyen().getTuyen().getGaDi().toString(), v.getChuyen().getTuyen().getGaDen().toString(), v.getChuyen().getNgayGioKhoiHanh(), v.getGhe().getToa().getHangToa().toString(), v.getGhe().getSoGhe()));
+                v.getChuyen().getTuyen().getGaDi().toString(),
+                v.getChuyen().getTuyen().getGaDen().toString(),
+                v.getChuyen().getNgayGioKhoiHanh(),
+                v.getGhe().getToa().getHangToa().toString(),
+                v.getGhe().getSoGhe()));
 
         // countdown label placeholder
         JLabel lblTimer = new JLabel(formatRemaining(100));
@@ -82,8 +77,8 @@ public class PanelGioVe extends JPanel {
         east.add(btnTrash);
         row.add(east, BorderLayout.EAST);
 
-        // Register this row's timer update callback in controller so it can tick per-second
-        if (controller != null) controller.registerCountdownLabelForTicket(v, lblTimer);
+        if (controller != null)
+        	controller.registerCountdownLabelForTicket(v, lblTimer);
 
         return row;
     }
@@ -95,4 +90,3 @@ public class PanelGioVe extends JPanel {
         return String.format("%02d:%02d", m, s);
     }
 }
-

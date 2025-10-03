@@ -45,7 +45,7 @@ public class Toa_DAO {
                 t.setTau(new Tau(rs.getString("tauID")));
                 t.setHangToa(HangToa.valueOf(rs.getString("hangToaID")));
                 t.setSucChua(rs.getInt("sucChua"));
-                t.setSoToa(rs.getInt("soToa"));
+                t.setSoToa(rs.getString("soToa"));
                 list.add(t);
             }
         } catch (Exception e) {
@@ -66,7 +66,7 @@ public class Toa_DAO {
             t.setTau(new Tau(rs.getString("tauID")));
             t.setHangToa(HangToa.valueOf(rs.getString("hangToaID")));
             t.setSucChua(rs.getInt("sucChua"));
-            t.setSoToa(rs.getInt("soToa"));
+            t.setSoToa(rs.getString("soToa"));
     	} catch (Exception e) {
         	e.printStackTrace();
         }
@@ -90,7 +90,7 @@ public class Toa_DAO {
             t.setTau(new Tau(rs.getString("tauID")));
             t.setHangToa(HangToa.valueOf(rs.getString("hangToaID")));
             t.setSucChua(rs.getInt("sucChua"));
-            t.setSoToa(rs.getInt("soToa"));
+            t.setSoToa(rs.getString("soToa"));
     	} catch (Exception e) {
         	e.printStackTrace();
         }

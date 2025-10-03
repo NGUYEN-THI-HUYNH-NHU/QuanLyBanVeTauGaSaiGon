@@ -19,15 +19,13 @@ import javax.swing.event.DocumentListener;
 
 import com.toedter.calendar.JDateChooser;
 
-import controller.PanelBuoc1Controller;
-
 import java.awt.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class PanelBuoc1 extends JPanel {
-    private PanelBuoc1Controller controller;
+    private PanelBuoc1Controller panelBuoc1Controller;
     private JTextField txtGaDi, txtGaDen;
     private JDateChooser dateChooserNgayDi, dateChooserNgayVe;
     private JRadioButton radMotChieu, radKhuHoi;
@@ -36,7 +34,7 @@ public class PanelBuoc1 extends JPanel {
 
     public PanelBuoc1() {
         setLayout(new BorderLayout());
-        setBorder(new TitledBorder("Tìm kiếm chuyến"));
+        setBorder(new TitledBorder("(1) Tìm kiếm chuyến"));
 
         // Form
         container = new JPanel(new GridBagLayout());
@@ -110,23 +108,23 @@ public class PanelBuoc1 extends JPanel {
 
         add(container, BorderLayout.CENTER);
 
-        // Document listeners -> chuyển đến controller (controller sẽ được tạo ngay sau)
+        // Document listeners -> chuyển đến panelBuoc1Controller (panelBuoc1Controller sẽ được tạo ngay sau)
         txtGaDi.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
-            public void removeUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
-            public void changedUpdate(DocumentEvent e) { controller.handleSearchGaDi(); }
+            public void insertUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDi(); }
+            public void removeUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDi(); }
+            public void changedUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDi(); }
         });
 
         txtGaDen.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
-            public void removeUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
-            public void changedUpdate(DocumentEvent e) { controller.handleSearchGaDen(); }
+            public void insertUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDen(); }
+            public void removeUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDen(); }
+            public void changedUpdate(DocumentEvent e) { panelBuoc1Controller.handleSearchGaDen(); }
         });
 
-        controller = new PanelBuoc1Controller(this);
+        panelBuoc1Controller = new PanelBuoc1Controller(this);
     }
 
-    // ---------- Getters cho Controller su dung ----------
+    // ---------- Getters cho panelBuoc1Controller su dung ----------
     public JTextField getTxtGaDi() { return txtGaDi; }
     public JTextField getTxtGaDen() { return txtGaDen; }
     public JDateChooser getDateNgayDi() { return dateChooserNgayDi; }
@@ -149,5 +147,11 @@ public class PanelBuoc1 extends JPanel {
         if (d == null) return null;
         Instant instant = d.toInstant();
         return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+    
+    public void setWizardController(WizardController wizardController) {
+        if (panelBuoc1Controller != null) {
+            panelBuoc1Controller.setWizardController(wizardController);
+        }
     }
 }

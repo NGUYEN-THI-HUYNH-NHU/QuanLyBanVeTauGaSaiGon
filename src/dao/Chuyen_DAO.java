@@ -24,6 +24,7 @@ import java.util.List;
 import connectDB.ConnectDB;
 import entity.Chuyen;
 import entity.Tau;
+import entity.Tuyen;
 
 public class Chuyen_DAO {
 	private ConnectDB connectDB;
@@ -35,11 +36,12 @@ public class Chuyen_DAO {
 	
 	public List<Chuyen> getChuyenByGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
 	    Connection connection = connectDB.getConnection();
-	    String querySQL = " DECLARE @gaDiID VARCHAR(20) = ?"
-			    		+ " DECLARE @gaDenID VARCHAR(20) = ?"
+	    String querySQL = " DECLARE @gaDiID VARCHAR(50) = ?"
+			    		+ " DECLARE @gaDenID VARCHAR(50) = ?"
 			    		+ " DECLARE @ngayDi DATE = ?"
 			    		+ " SELECT"
 			    		+ " 	c.chuyenID,"
+			    		+ "		c.tuyenID,"	
 			    		+ " 	tau.tauID,"
 			    		+ "		cg_di.gioKhoiHanh AS gioKhoiHanh,"
 			    		+ " 	cg_den.gioDen AS gioDen"
@@ -69,12 +71,12 @@ public class Chuyen_DAO {
 	        
 	        while (resultSet.next()) {
 	        	String chuyenID = resultSet.getString("chuyenID");
+	        	Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
 	        	Tau tau = new Tau(resultSet.getString("tauID"));
 	        	LocalDateTime gioKhoiHanh = resultSet.getTimestamp("gioKhoiHanh").toLocalDateTime();
 	        	LocalDateTime gioDen = resultSet.getTimestamp("gioDen").toLocalDateTime();
-	        	chuyenList.add(new Chuyen(chuyenID, tau, gioKhoiHanh, gioDen));
+	        	chuyenList.add(new Chuyen(chuyenID, tuyen, tau, gioKhoiHanh, gioDen));
 	        }
-
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }

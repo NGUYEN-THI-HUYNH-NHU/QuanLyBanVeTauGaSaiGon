@@ -44,7 +44,7 @@ public class Tuyen_DAO {
                 String gaDenID = resultSet.getString("gaDenID");
                 int khoangCachKm = resultSet.getInt("khoangCachKm");
                 int thoiGianDuKienPhut = resultSet.getInt("thoiGianDuKienPhut");
-                tuyenDS.add(new Tuyen(tuyenID, new Ga_DAO().getGaByIDTim(gaDiID), new Ga_DAO().getGaByIDTim(gaDenID), khoangCachKm, thoiGianDuKienPhut));
+                tuyenDS.add(new Tuyen(tuyenID, new dao.Ga_DAO().getGaByIDTim(gaDiID), new dao.Ga_DAO().getGaByIDTim(gaDenID), khoangCachKm, thoiGianDuKienPhut));
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -55,26 +55,34 @@ public class Tuyen_DAO {
         return tuyenDS;
     }
 
-    public Tuyen getTuyenByID(String tuyenIDTim){
+    public List<Tuyen> getTuyenByID(String tuyenIDTim){
+        List<Tuyen> dsTuyen = new ArrayList<>();
         Connection connection = connectDB.getConnection();
-        String selectByIDSQL = "SELECT * FROM Tuyen WHERE tuyenID = ?";
+        String selectByIDSQL = "SELECT * FROM Tuyen WHERE tuyenID LIKE ?";
         try{
             PreparedStatement statement = connection.prepareStatement(selectByIDSQL);
-            statement.setString(1, tuyenIDTim);
+            statement.setString(1, "%" + tuyenIDTim + "%");
             ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()){
+            while(resultSet.next()){
                 String tuyenID = resultSet.getString("tuyenID");
                 String gaDiID = resultSet.getString("gaDiID");
                 String gaDenID = resultSet.getString("gaDenID");
                 int khoangCachKm = resultSet.getInt("khoangCachKm");
                 int thoiGianDuKienPhut = resultSet.getInt("thoiGianDuKienPhut");
-                return new Tuyen(tuyenID, new Ga_DAO().getGaByIDTim(gaDiID), new Ga_DAO().getGaByIDTim(gaDenID), khoangCachKm, thoiGianDuKienPhut);
+                dsTuyen.add(new Tuyen(
+                        tuyenID,
+                        new dao.Ga_DAO().getGaByIDTim(gaDiID),
+                        new dao.Ga_DAO().getGaByIDTim(gaDenID),
+                        khoangCachKm,
+                        thoiGianDuKienPhut
+                ));
             }
         }catch(SQLException e){
             e.printStackTrace();
         }
-        return null;
+        return dsTuyen;
     }
+
 
     public boolean themTuyenMoi(Tuyen tuyenMoi){
         Connection connection = connectDB.getConnection();
@@ -113,6 +121,43 @@ public class Tuyen_DAO {
             System.out.println("Dữ liệu không thay đổi, vui lòng kiểm tra lại!");
             return 0;
         }
+    }
+
+    public List<Tuyen> getTuyenTheoGa(String tenGaDi, String tenGaDen){
+        ArrayList<Tuyen> dsTuyen = new ArrayList<>();
+        Connection connection = connectDB.getConnection();
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+
+        String di = tenGaDi != null ? tenGaDi.trim().toLowerCase() : "";
+        String den = tenGaDen != null ? tenGaDen.trim().toLowerCase() : "";
+
+        String sql = "SELECT t.* FROM Tuyen t "
+                + "JOIN Ga gaDi ON t.gaDiID = gaDi.gaID "
+                + "JOIN Ga gaDen ON t.gaDenID = gaDen.gaID "
+                + "WHERE (? = '' OR LOWER(gaDi.tenGa) LIKE ?) "
+                + "AND (? = '' OR LOWER(gaDen.tenGa) LIKE ?)";
+        try{
+            statement = connection.prepareStatement(sql);
+            statement.setString(1, di);
+            statement.setString(2, "%" + di + "%");
+            statement.setString(3, den);
+            statement.setString(4, "%" + den + "%");
+            resultSet = statement.executeQuery();
+            while(resultSet.next()){
+                String tuyenID = resultSet.getString("tuyenID");
+                String gaDiID = resultSet.getString("gaDiID");
+                String gaDenID = resultSet.getString("gaDenID");
+                int khoangCachKm = resultSet.getInt("khoangCachKm");
+                int thoiGianDuKienPhut = resultSet.getInt("thoiGianDuKienPhut");
+                dsTuyen.add(new Tuyen(tuyenID, new dao.Ga_DAO().getGaByIDTim(gaDiID), new dao.Ga_DAO().getGaByIDTim(gaDenID), khoangCachKm, thoiGianDuKienPhut));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+    }finally {
+            connectDB.close(statement, resultSet);
+        }
+        return dsTuyen;
     }
 
 

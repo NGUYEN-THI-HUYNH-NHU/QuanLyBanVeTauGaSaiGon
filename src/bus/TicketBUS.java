@@ -28,7 +28,8 @@ public class TicketBUS {
     }
 
     public static synchronized TicketBUS getInstance() {
-        if (instance == null) instance = new TicketBUS();
+        if (instance == null)
+        	instance = new TicketBUS();
         return instance;
     }
 
@@ -44,5 +45,7 @@ public class TicketBUS {
         return new ArrayList<>(tickets);
     }
 
-    public synchronized void clearAll() { tickets.clear(); }
+    public synchronized void clearAll() {
+    	tickets.clear();
+    }
 }

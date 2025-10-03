@@ -47,22 +47,42 @@ public class Ga_DAO {
         
         return gaList;
     }
-    
+
     public Ga getGaByTenGa(String tenGa) {
         Connection conn = connectDB.getConnection();
         String sql = "SELECT gaID, tenGa FROM Ga WHERE tenGa = ?";
         Ga ga = null;
 
         try {
-	        PreparedStatement pstmt = conn.prepareStatement(sql);
-	        pstmt.setString(1, tenGa);
-	        ResultSet rs = pstmt.executeQuery();
-	        if (rs.next())
-	        	ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, tenGa);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+                ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
         } catch (SQLException e){
             e.printStackTrace();
         }
         return ga;
+    }
+    
+    public List<Ga> getGaByTenGaList(String tenGaTim) {
+        List<Ga> dsGa = new ArrayList<>();
+        Connection connection = connectDB.getConnection();
+        String sql = "SELECT * FROM Ga WHERE LOWER(tenGa) LIKE ?";
+        try{
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + tenGaTim + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()){
+               String gaID = resultSet.getString("gaID");
+               String tenGa = resultSet.getString("tenGa");
+                String tinhThanh = resultSet.getString("tinhThanh");
+                dsGa.add(new Ga(gaID, tenGa, tinhThanh));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return dsGa;
     }
     
     public List<Ga> searchGaDenKhaThiByGaDi(String gaDiID, String prefixGaDen, int limit) {

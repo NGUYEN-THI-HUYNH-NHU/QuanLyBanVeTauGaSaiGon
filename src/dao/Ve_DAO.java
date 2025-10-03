@@ -5,6 +5,9 @@
 // * Copyright (c) 2025 IUH. All rights reserved.
 // */
 //
+//import connectDB.ConnectDB;
+//import entity.Ve;
+//
 ///*
 // * @description
 // * @author: NguyenThiHuynhNhu
@@ -13,10 +16,13 @@
 // */
 //
 //public class Ve_DAO {
-//    private final ConnectDB db = ConnectDB.getInstance();
+//	private ConnectDB connectDB = ConnectDB.getInstance();
 //
-//    // CRUD cơ bản
-//    public boolean insert(Ve ve) {
+//    public Ve_DAO() {
+//    	connectDB.connect();
+//    }
+//    
+//    public boolean taoVeTamThoi(Ve ve) {
 //        String sql = "INSERT INTO Ve (veID, donDatChoID, chuyenID, gheID, hanhKhachID, thuTuGaDi, thuTuGaDen, gia, trangThai, ngayBan) "
 //                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 //        try (Connection c = db.getConnection();

@@ -23,9 +23,9 @@ public class Toa {
 	private Tau tau;
 	private HangToa hangToa;
 	private int sucChua;
-	private int soToa;
+	private String soToa;
 	
-	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int soToa) {
+	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, String soToa) {
 		super();
 		this.toaID = toaID;
 		this.tau = tau;
@@ -34,7 +34,7 @@ public class Toa {
 		this.soToa = soToa;
 	}
 	
-	public Toa(String toaID, int soToa) {
+	public Toa(String toaID, String soToa) {
 		super();
 		this.toaID = toaID;
 		this.soToa = soToa;
@@ -65,7 +65,7 @@ public class Toa {
 		return sucChua;
 	}
 
-	public int getSoToa() {
+	public String getSoToa() {
 		return soToa;
 	}
 
@@ -89,10 +89,7 @@ public class Toa {
 		this.sucChua = sucChua;
 	}
 
-	public void setSoToa(int soToa) {
-		if(soToa <= 0) {
-			throw new IllegalArgumentException("Số thứ tự toa phải lớn hơn 0");
-		}
+	public void setSoToa(String soToa) {
 		this.soToa = soToa;
 	}
 
