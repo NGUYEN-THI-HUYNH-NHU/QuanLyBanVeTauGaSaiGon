@@ -21,10 +21,10 @@ import entity.type.TrangThaiGhe;
 public class Ghe {
 	private String gheID;
 	private Toa toa;
-	private String soGhe;
+	private int soGhe;
 	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, Toa toa, int soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
@@ -32,7 +32,7 @@ public class Ghe {
 		this.trangThai = trangThai;
 	}
 	
-	public Ghe(String gheID, String soGhe) {
+	public Ghe(String gheID, int soGhe) {
 		super();
 		this.gheID = gheID;
 		this.soGhe = soGhe;
@@ -50,7 +50,7 @@ public class Ghe {
 		return toa;
 	}
 
-	public String getSoGhe() {
+	public int getSoGhe() {
 		return soGhe;
 	}
 
@@ -69,9 +69,9 @@ public class Ghe {
 		this.toa = toa;
 	}
 
-	public void setSoGhe(String soGhe) {
-		if(soGhe == null || soGhe.isEmpty()) {
-			throw new IllegalArgumentException("Số ghế không được để trống!");
+	public void setSoGhe(int soGhe) {
+		if(soGhe <= 0) {
+			throw new IllegalArgumentException("Số ghế không được <= 0!");
 		}
 		this.soGhe = soGhe;
 	}

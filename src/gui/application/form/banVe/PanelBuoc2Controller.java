@@ -223,19 +223,19 @@ public class PanelBuoc2Controller {
     // user clicked a seat button
     public void onSeatClicked(Toa toa, Ghe ghe) {
         if (ghe == null || toa == null) return;
-        if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
+        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
             JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
             return;
         }
-        new SwingWorker<entity.Ve, Void>() {
-            protected entity.Ve doInBackground() throws Exception {
+        new SwingWorker<Ve, Void>() {
+            protected Ve doInBackground() throws Exception {
                 // create hold in DB via DonDatCho_BUS
                 // returns Ve object with hold expiry timestamp and id
                 return donDatChoBUS.createHold(toa, ghe);
             }
             protected void done() {
                 try {
-                    entity.Ve v = get();
+                    Ve v = get();
                     if (v != null) {
                         // add to TicketBUS
                         ticketBUS.addTicket(v);
