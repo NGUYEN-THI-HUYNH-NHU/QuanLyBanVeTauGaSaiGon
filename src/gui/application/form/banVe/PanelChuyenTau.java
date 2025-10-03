@@ -50,8 +50,7 @@ public class PanelChuyenTau extends JPanel {
 	    } else {
 	        for (Chuyen c : list) {
 	            JPanel card = createChuyenCard(c, sel -> {
-	                if (controller != null)
-	                	controller.onChuyenSelected(c);
+	                if (controller != null) controller.onChuyenSelected(c);
 	            });
 	            card.putClientProperty("chuyenID", c.getChuyenID());
 	            flowPanel.add(card);
@@ -68,8 +67,8 @@ public class PanelChuyenTau extends JPanel {
 	    p.setBackground(UIManager.getColor("Panel.background"));
 	    p.setOpaque(true);
 		JLabel lblTau = new JLabel(c.getTau() == null ? "Tau" : c.getTau().getTauID(), SwingConstants.CENTER);
-	    JLabel lblNgayGioDi = new JLabel(String.format("TG đi  %s", c.getGioDiString()), SwingConstants.CENTER);
-	    JLabel lblNgayGioDen = new JLabel(String.format("TG đến %s", c.getGioDenString()), SwingConstants.CENTER);
+	    JLabel lblNgayGioDi = new JLabel(String.format("TG đi  %s", c.getNgayDi()), SwingConstants.CENTER);
+	    JLabel lblNgayGioDen = new JLabel(String.format("TG đến %s", c.getNgayDi()), SwingConstants.CENTER);
 	    JLabel lblSeats = new JLabel(String.format("Đặt: %d  Trống: %d", 0, 0), SwingConstants.CENTER);
 
 	    JPanel top = new JPanel(new GridLayout(3,1));

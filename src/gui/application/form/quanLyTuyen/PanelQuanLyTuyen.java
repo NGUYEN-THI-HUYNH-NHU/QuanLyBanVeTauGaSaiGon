@@ -9,6 +9,7 @@ package gui.application.form.quanLyTuyen;
  * @version 1.0
  * @created : 29/09/2025
  */
+import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
@@ -59,6 +60,7 @@ public class PanelQuanLyTuyen extends JPanel {
 
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
+
     }
 
     public void initComponents(){
@@ -247,4 +249,21 @@ public class PanelQuanLyTuyen extends JPanel {
     public JPopupMenu getPpTuyenID() {
         return ppTuyenID;
     }
+
+    public JButton getBtnCapNhatTuyen() {
+        return btnCapNhatTuyen;
+    }
+
+    public JButton getBtnThemTuyen() {
+        return btnThemTuyen;
+    }
+
+    public NhanVien getNhanVienThucHien() {
+        return nhanVienThucHien;
+    }
+
+    public JButton getBtnLamMoiTuyen() {
+        return btnLamMoiTuyen;
+    }
+
 }
