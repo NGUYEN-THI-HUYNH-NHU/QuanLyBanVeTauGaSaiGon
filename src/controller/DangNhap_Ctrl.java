@@ -30,7 +30,10 @@ public class DangNhap_Ctrl {
 //		if (taiKhoan == null || !BCrypt.checkpw(matKhau, taiKhoan.getMatKhauHash())) {
 //			return false;
 //		}
-	
+        TaiKhoan taiKhoan = taiKhoan_DAO.getTaiKhoanVoiTenDangNhap(tenDangNhap);
+        if (taiKhoan == null || !taiKhoan.getMatKhauHash().equals(matKhau)) {
+            return false;
+        }
 		return true;
 	}
 

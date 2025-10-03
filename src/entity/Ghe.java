@@ -16,18 +16,31 @@ package entity;
 
 import java.util.Objects;
 
+import entity.type.TrangThaiGhe;
+
 public class Ghe {
 	private String gheID;
 	private Toa toa;
-	private int soGhe;
-	private boolean trangThai;
+	private String soGhe;
+	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, int soGhe, boolean trangThai) {
+	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
 		this.soGhe = soGhe;
 		this.trangThai = trangThai;
+	}
+
+	public Ghe(String gheID, String soGhe, TrangThaiGhe trangThai) {
+		super();
+		this.gheID = gheID;
+		this.soGhe = soGhe;
+		this.trangThai = trangThai;
+	}
+	
+	public Ghe() {
+		super();
 	}
 
 	public String getGheID() {
@@ -38,11 +51,11 @@ public class Ghe {
 		return toa;
 	}
 
-	public int getSoGhe() {
+	public String getSoGhe() {
 		return soGhe;
 	}
 
-	public boolean isTrangThai() {
+	public TrangThaiGhe getTrangThai() {
 		return trangThai;
 	}
 
@@ -58,17 +71,17 @@ public class Ghe {
 		this.toa = toa;
 	}
 
-	public void setSoGhe(int soGhe) {
+	public void setSoGhe(String soGhe) {
 		this.soGhe = soGhe;
 	}
 
-	public void setTrangThai(boolean trangThai) {
+	public void setTrangThai(TrangThaiGhe trangThai) {
 		this.trangThai = trangThai;
 	}
 
 	@Override
 	public String toString() {
-		return gheID + ";" + toa + ";" + soGhe + ";" + trangThai;
+		return gheID + ";" + toa + ";" + soGhe + ";" + trangThai.toString();
 	}
 
 	@Override

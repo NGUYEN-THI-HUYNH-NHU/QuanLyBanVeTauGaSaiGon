@@ -27,6 +27,92 @@ public class Ga_DAO {
         connectDB = ConnectDB.getInstance();
         connectDB.connect();
     }
+    
+    public List<Ga> searchGaByPrefix(String prefix, int limit) {
+        Connection con = connectDB.getConnection();
+        String sql = "SELECT TOP (?) gaID, tenGa FROM Ga WHERE tenGa LIKE ? ORDER BY tenGa";
+        List<Ga> gaList = null;
+        
+        try {
+	        PreparedStatement ps = con.prepareStatement(sql);
+	        ps.setInt(1, limit);
+	        ps.setString(2, prefix + "%");
+	        ResultSet rs = ps.executeQuery();
+	        gaList = new ArrayList<>();
+	        while (rs.next())
+	            gaList.add(new Ga(rs.getString("gaID"), rs.getString("tenGa")));
+	    } catch (SQLException e){
+            e.printStackTrace();
+        }
+        
+        return gaList;
+    }
+
+    public Ga getGaByTenGa(String tenGa) {
+        Connection conn = connectDB.getConnection();
+        String sql = "SELECT gaID, tenGa FROM Ga WHERE tenGa = ?";
+        Ga ga = null;
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, tenGa);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next())
+                ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return ga;
+    }
+    
+    public List<Ga> getGaByTenGaList(String tenGaTim) {
+        List<Ga> dsGa = new ArrayList<>();
+        Connection connection = connectDB.getConnection();
+        String sql = "SELECT * FROM Ga WHERE LOWER(tenGa) LIKE ?";
+        try{
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, "%" + tenGaTim + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()){
+               String gaID = resultSet.getString("gaID");
+               String tenGa = resultSet.getString("tenGa");
+                String tinhThanh = resultSet.getString("tinhThanh");
+                dsGa.add(new Ga(gaID, tenGa, tinhThanh));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return dsGa;
+    }
+    
+    public List<Ga> searchGaDenKhaThiByGaDi(String gaDiID, String prefixGaDen, int limit) {
+	    Connection conn = connectDB.getConnection();
+	    String sql = "SELECT DISTINCT TOP (?)"
+	    			 + " cg2.gaID, g2.tenGa "
+	                 + " FROM ChuyenGa cg1 "
+	                 + " JOIN Chuyen c ON c.chuyenID = cg1.chuyenID "
+	                 + " JOIN ChuyenGa cg2 ON cg2.chuyenID = cg1.chuyenID AND cg2.thuTu > cg1.thuTu "
+	                 + " JOIN Ga g2 ON g2.gaID = cg2.gaID "
+	                 + " WHERE cg1.gaID = ? "
+	                 + " AND g2.tenGa LIKE ? "
+	                 + " AND cg2.gaID != ?"
+	                 + " ORDER BY g2.tenGa";
+	    List<Ga> gaList = null;
+		try {
+	    	PreparedStatement ps = conn.prepareStatement(sql);
+		    ps.setInt(1, limit);
+		    ps.setString(2, gaDiID);
+		    ps.setString(3, prefixGaDen + "%");
+		    ps.setString(4, gaDiID);
+		    ResultSet rs = ps.executeQuery();
+		    gaList = new ArrayList<>();
+		    while (rs.next())
+		        gaList.add(new Ga(rs.getString("gaID"), rs.getString("tenGa")));
+		}catch (SQLException e) {
+            e.printStackTrace();
+		}
+	    return gaList;
+	}
 
     public List<Ga> getAllGa(){
         Connection connection = connectDB.getConnection();

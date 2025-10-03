@@ -34,6 +34,15 @@ public class KhachHang {
 		this.email = email;
 		this.diaChi = diaChi;
 	}
+	
+	public KhachHang(String khachHangID) {
+		super();
+		this.khachHangID = khachHangID;
+	}
+	
+	public KhachHang() {
+		super();
+	}
 
 	public String getKhachHangID() {
 		return khachHangID;

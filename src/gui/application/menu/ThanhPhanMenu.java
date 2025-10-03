@@ -91,7 +91,7 @@ public class ThanhPhanMenu extends JPanel {
 		Color darkColor = FlatUIUtils.getUIColor("Menu.icon.darkColor", Color.red);
 		FlatSVGIcon icon = new FlatSVGIcon("gui/menu/icon/" + menuIndex + ".svg");
 		FlatSVGIcon.ColorFilter f = new FlatSVGIcon.ColorFilter();
-		f.add(Color.decode("#969696"), lightColor, darkColor);
+		f.add(Color.decode("#000000"), lightColor, darkColor);
 		icon.setColorFilter(f);
 		return icon;
 	}
@@ -105,7 +105,7 @@ public class ThanhPhanMenu extends JPanel {
 			menuItem.setHorizontalAlignment(
 					menuItem.getComponentOrientation().isLeftToRight() ? JButton.LEADING : JButton.TRAILING);
 			if (i == 0) {
-				menuItem.setIcon(getIcon(role));
+//				menuItem.setIcon(getIcon(role));
 				menuItem.addActionListener((ActionEvent e) -> {
 					if (menus.length > 1) {
 						if (menu.isMenuFull()) {

@@ -19,16 +19,32 @@ public class Chuyen {
 	private String chuyenID;
 	private Tuyen tuyen;
 	private Tau tau;
-	private LocalDateTime ngayGioKhoiHanh;
-	private LocalDateTime ngayGioDen;
+	private LocalDateTime gioKhoiHanh;
+	private LocalDateTime gioDen;
 	
-	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime ngayGioKhoiHanh, LocalDateTime ngayGioDen) {
+	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime gioKhoiHanh, LocalDateTime gioDen) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tuyen = tuyen;
 		this.tau = tau;
-		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
-		this.ngayGioDen = ngayGioDen;
+		this.gioKhoiHanh = gioKhoiHanh;
+		this.gioDen = gioDen;
+	}
+	
+	public Chuyen(String chuyenID, Tau tau, LocalDateTime gioKhoiHanh, LocalDateTime gioDen) {
+		super();
+		this.chuyenID = chuyenID;
+		this.tau = tau;
+		this.gioKhoiHanh = gioKhoiHanh;
+		this.gioDen = gioDen;
+	}
+	
+	public Chuyen(String chuyenID) {
+		this.chuyenID = chuyenID;
+	}
+	
+	public Chuyen() {
+		super();
 	}
 
 	public String getChuyenID() {
@@ -44,11 +60,11 @@ public class Chuyen {
 	}
 
 	public LocalDateTime getNgayGioKhoiHanh() {
-		return ngayGioKhoiHanh;
+		return gioKhoiHanh;
 	}
 
 	public LocalDateTime getNgayGioDen() {
-		return ngayGioDen;
+		return gioDen;
 	}
 
 	public void setChuyenID(String chuyenID) {
@@ -69,24 +85,24 @@ public class Chuyen {
 		this.tau = tau;
 	}
 
-	public void setNgayGioKhoiHanh(LocalDateTime ngayGioKhoiHanh) {
-		if(ngayGioKhoiHanh.isAfter(ngayGioDen)) {
+	public void setNgayGioKhoiHanh(LocalDateTime gioKhoiHanh) {
+		if(gioKhoiHanh.isAfter(gioDen)) {
 			throw new IllegalArgumentException("Ngày giờ khởi hành phải trước ngày giờ đến!");
 		}
-		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
+		this.gioKhoiHanh = gioKhoiHanh;
 	}
 
-	public void setNgayGioDen(LocalDateTime ngayGioDen) {
-		if(ngayGioDen.isBefore(ngayGioKhoiHanh)) {
+	public void setNgayGioDen(LocalDateTime gioDen) {
+		if(gioDen.isBefore(gioKhoiHanh)) {
 			throw new IllegalArgumentException("Ngày giờ đến phải sau ngày giờ khởi hành!");
 		}
-		this.ngayGioDen = ngayGioDen;
+		this.gioDen = gioDen;
 	}
 
 	@Override
 	public String toString() {
 		return chuyenID + ";" + tuyen + ";" + tau + ";"
-				+ ngayGioKhoiHanh + ";" + ngayGioDen;
+				+ gioKhoiHanh + ";" + gioDen;
 	}
 
 	@Override

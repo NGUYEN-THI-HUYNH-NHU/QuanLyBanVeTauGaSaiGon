@@ -15,7 +15,6 @@ import javax.swing.*;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.time.LocalDate;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
@@ -23,10 +22,8 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 import entity.NhanVien;
-import entity.type.VaiTroNhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
-import gui.application.form.thongTin.FormDoiMatKhau;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -39,6 +36,7 @@ public class UngDung extends JFrame {
 		ungDung = this;
 		formDangNhap = new FormDangNhap();
 		
+		setSize(900, 600);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -74,7 +72,7 @@ public class UngDung extends JFrame {
 	}
 
 	public static void dangXuat() {
-		ungDung.formDangNhap.resetDangNhap();;
+		ungDung.formDangNhap.resetDangNhap();
 		FlatAnimatedLafChange.showSnapshot();
 		ungDung.setContentPane(ungDung.formDangNhap);
 		ungDung.formDangNhap.applyComponentOrientation(ungDung.getComponentOrientation());

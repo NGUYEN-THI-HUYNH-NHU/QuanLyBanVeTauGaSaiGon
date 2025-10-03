@@ -13,9 +13,12 @@ package entity.type;
  */
 
 public enum HangToa {
-	NGOI_MEM_CHAT_LUONG_CAO("Ngồi mềm chất lượng cao"),
-    GIUONG_6_DIEU_HOA("Giường nằm khoang 6 điều hòa"),
-    GIUONG_4_DIEU_HOA("Giường nằm khoang 4 điều hòa");
+//	  NGOI_MEM_CHAT_LUONG_CAO("Ngồi mềm chất lượng cao"),
+//    GIUONG_6_DIEU_HOA("Giường nằm khoang 6 điều hòa"),
+//    GIUONG_4_DIEU_HOA("Giường nằm khoang 4 điều hòa");
+	HT_GHE("Ngồi mềm chất lượng cao"),
+    HT_SEAT_SIMP("Ngồi cứng"),
+    HT_SLP("Giường nằm");
     
     private final String description;
 

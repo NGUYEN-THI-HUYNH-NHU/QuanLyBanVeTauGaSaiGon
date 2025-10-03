@@ -1,0 +1,251 @@
+package gui.application.form.quanLyTuyen;/*
+ * @ (#) PanelQuanLyTuyen.java   1.0     29/09/2025
+package gui.application.form.quanLyTuyen;
+
+
+/**
+ * @description :
+ * @author : Vy, Pham Kha Vy
+ * @version 1.0
+ * @created : 29/09/2025
+ */
+import bus.Tuyen_BUS;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import controller.QuanLyTuyen_CTRL;
+import entity.NhanVien;
+import entity.Tuyen;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+public class PanelQuanLyTuyen extends JPanel {
+    private final Tuyen_BUS tuyen_bus;
+
+    private final NhanVien nhanVienThucHien;
+
+    private JTextField txtGaDi;
+    private JTextField txtGaDen;
+    private JTextField txtTimKiem;
+
+//    private JButton btnTimKiem;
+    private JButton btnThemTuyen;
+    private JButton btnCapNhatTuyen;
+    private JButton btnLamMoiTuyen;
+
+    private JTable tableTuyen;
+    private DefaultTableModel tableModelTuyen;
+    private JScrollPane scrollPane;
+
+    private JPopupMenu ppGaDi;
+    private JPopupMenu ppGaDen;
+    private JPopupMenu ppTuyenID;
+    private JList<String> listTuyenID;
+    private JList<String> listGaDi;
+    private JList<String> listGaDen;
+
+    public PanelQuanLyTuyen(NhanVien nhanVien){
+        setLayout(new BorderLayout());
+
+        this.tuyen_bus = new Tuyen_BUS();
+        this.nhanVienThucHien = nhanVien;
+
+        initComponents();
+        new QuanLyTuyen_CTRL(this, tuyen_bus);
+    }
+
+    public void initComponents(){
+        JPanel panelNorth = new JPanel(new BorderLayout());
+
+        // --- 1. HEADER PANEL ---
+        JPanel panelHeader = new JPanel();
+        panelHeader.setLayout(new MigLayout("wrap 1, fillx, insets 10 10 5 10"));
+
+        JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
+        title.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        title.setForeground(new Color(30, 144, 255));
+        panelHeader.add(title, "growx");
+
+        //Tìm kiếm
+        JPanel panelSearch = new JPanel(new MigLayout("insets 5 10 10 10, gap 10"));
+        txtGaDen = new JTextField(15);
+        txtGaDi = new JTextField(15);
+        btnLamMoiTuyen = new JButton("(F5) Làm mới tuyến");
+        txtTimKiem = new JTextField(10);
+//        btnTimKiem = new JButton("Tìm kiếm");
+        btnThemTuyen = new JButton("Thêm tuyến");
+        btnCapNhatTuyen = new JButton("Cập nhật tuyến");
+        setMauBTN();
+
+//        btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.35f));
+        btnLamMoiTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/refresh.svg", 0.35f));
+        this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                        .put(KeyStroke.getKeyStroke("F5"), "lamMoiTuyenAction");
+
+        this.getActionMap().put("lamMoiTuyenAction", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnLamMoiTuyen.doClick();
+            }
+        });
+        btnThemTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/add.svg", 0.35f));
+        btnCapNhatTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/edit.svg", 0.35f));
+
+        panelSearch.add(new JLabel("Ga Đi:"));
+        panelSearch.add(txtGaDi, "w 150");
+
+        panelSearch.add(new JLabel("Ga Đến:"));
+        panelSearch.add(txtGaDen, "w 150");
+
+        panelSearch.add(new JLabel("Mã Tuyến:"));
+        panelSearch.add(txtTimKiem);
+
+//        panelSearch.add(btnTimKiem);
+        panelSearch.add(btnThemTuyen);
+        panelSearch.add(btnCapNhatTuyen);
+        panelSearch.add(btnLamMoiTuyen);
+
+        panelHeader.add(panelSearch, "growx");
+        panelNorth.add(panelHeader, BorderLayout.NORTH);
+
+        add(panelNorth, BorderLayout.NORTH);
+
+        // --- 2. TABLE DỮ LIỆU ---
+        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến", "Khoảng Cách (km)", "Thời Gian (phút)"};
+        tableModelTuyen = new DefaultTableModel(columnNames,0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Vô hiệu hóa chỉnh sửa trực tiếp trong bảng
+            }
+        };
+        tableTuyen = new JTable(tableModelTuyen);
+        tableTuyen.setRowHeight(28);
+
+        JTableHeader hd = tableTuyen.getTableHeader();
+        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        hd.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        hd.setBackground(new Color(32, 90, 167));
+        hd.setForeground(Color.white);
+
+        tableTuyen.setShowGrid(true);
+        tableTuyen.setShowHorizontalLines(true);
+        tableTuyen.setShowVerticalLines(true);
+
+        TableColumnModel columnModel = tableTuyen.getColumnModel();
+        StripedRowRenderer stripedRenderer = new StripedRowRenderer();
+        for(int i = 0; i < columnModel.getColumnCount(); i++){
+                columnModel.getColumn(i).setCellRenderer(stripedRenderer);
+        }
+
+        scrollPane = new JScrollPane(tableTuyen);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // POPUP GỢI Ý //
+        ppGaDi = new JPopupMenu();
+        listGaDi = new JList<>();
+        ppGaDi.setLayout(new BorderLayout());
+        ppGaDi.add(new JScrollPane(listGaDi), BorderLayout.CENTER);
+
+        ppGaDen = new JPopupMenu();
+        listGaDen = new JList<>();
+        ppGaDen.setLayout(new BorderLayout());
+        ppGaDen.add(new JScrollPane(listGaDen), BorderLayout.CENTER);
+
+        ppTuyenID = new JPopupMenu();
+        listTuyenID = new JList<>();
+        ppTuyenID.setLayout(new BorderLayout());
+        ppTuyenID.add(new JScrollPane(listTuyenID), BorderLayout.CENTER);
+
+        // Load dữ liệu ban đầu
+        capNhatBang(tuyen_bus.getAllTuyen());
+
+    }
+
+    private class StripedRowRenderer extends DefaultTableCellRenderer {
+        private final Color evenColor = new Color(240, 248, 255);
+        private final Color oddColor = Color.WHITE;
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if (row % 2 == 0) {
+                    c.setBackground(evenColor);
+                } else {
+                    c.setBackground(oddColor);
+                }
+            }
+
+            setHorizontalAlignment(SwingConstants.CENTER);
+            return c;
+        }
+    }
+
+    public void capNhatBang(List<Tuyen> dsTuyen){
+         tableModelTuyen.setRowCount(0);
+
+         for(Tuyen t : dsTuyen){
+             tableModelTuyen.addRow(new Object[]{
+                     t.getTuyenID(),
+                     t.getGaDi().getTenGa(),
+                     t.getGaDen().getTenGa(),
+                     t.getKhoangCachKm(),
+                     t.getThoiGianDuKienPhut()
+             });
+         }
+    }
+
+    public void addListeners(ActionListener timKiemListener, ActionListener lamMoiListener){
+//        btnTimKiem.addActionListener(timKiemListener);
+        btnLamMoiTuyen.addActionListener(lamMoiListener);
+    }
+
+    public void setMauBTN() {
+        Color mauNutChu = new Color(32, 90, 167);
+
+        JButton[] buttons = { btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
+
+        for (JButton btn : buttons) {
+            btn.setForeground(mauNutChu);
+            btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        }
+    }
+
+    public JTextField getTxtGaDi() {
+        return txtGaDi;
+    }
+    public JTextField getTxtGaDen() {
+        return txtGaDen;
+    }
+    public JTextField getTxtTimKiem() {
+        return txtTimKiem;
+    }
+    public JList<String> getListGaDi() {
+        return listGaDi;
+    }
+    public JPopupMenu getPpGaDi() {
+        return ppGaDi;
+    }
+    public JList<String> getListGaDen() {
+        return listGaDen;
+    }
+    public JPopupMenu getPpGaDen() {
+        return ppGaDen;
+    }
+    public JList<String> getListTuyenID() {
+        return listTuyenID;
+    }
+    public JPopupMenu getPpTuyenID() {
+        return ppTuyenID;
+    }
+}
