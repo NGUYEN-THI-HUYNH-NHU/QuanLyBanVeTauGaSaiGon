@@ -66,18 +66,18 @@ public class PanelBuoc2Controller {
     }
 
     public void setBookingSession(BookingSession s) {
-    	this.bookingSession = s;
+        this.bookingSession = s;
     }
     public void setCurrentTripIndex(int idx) {
-    	this.currentTripIndex = idx;
+        this.currentTripIndex = idx;
     }
     public int getCurrentTripIndex() {
-    	return this.currentTripIndex;
+        return this.currentTripIndex;
     }
 
     public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
         this.chuyenList = chuyens;
-        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi().toLocalDate());
+        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
         panelChuyenTau.showChuyenList(chuyens);
         if (chuyens != null && !chuyens.isEmpty()) {
             panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
@@ -88,7 +88,7 @@ public class PanelBuoc2Controller {
 
     public void onChuyenSelected(Chuyen c) {
         if (c == null)
-        	return;
+            return;
         this.selectedChuyen = c;
 
         new SwingWorker<List<Toa>, Void>() {
@@ -136,7 +136,7 @@ public class PanelBuoc2Controller {
         String gaDenID = null;
         if (bookingSession != null) {
             SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
-                                                       : bookingSession.getReturnCriteria();
+                    : bookingSession.getReturnCriteria();
             if (sc != null) {
                 gaDiID = sc.getGaDiId();   // ensure method name matches your class
                 gaDenID = sc.getGaDenId();
@@ -220,22 +220,22 @@ public class PanelBuoc2Controller {
         });
     }
 
-//     user clicked a seat button
+    // user clicked a seat button
     public void onSeatClicked(Toa toa, Ghe ghe) {
         if (ghe == null || toa == null) return;
-        if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
+        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
             JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
             return;
         }
-        new SwingWorker<entity.Ve, Void>() {
-            protected entity.Ve doInBackground() throws Exception {
+        new SwingWorker<Ve, Void>() {
+            protected Ve doInBackground() throws Exception {
                 // create hold in DB via DonDatCho_BUS
                 // returns Ve object with hold expiry timestamp and id
                 return donDatChoBUS.createHold(toa, ghe);
             }
             protected void done() {
                 try {
-                    entity.Ve v = get();
+                    Ve v = get();
                     if (v != null) {
                         // add to TicketBUS
                         ticketBUS.addTicket(v);
@@ -313,7 +313,7 @@ public class PanelBuoc2Controller {
                     ticketBUS.removeTicket(v);
                     Timer t = countdownTimers.remove(v.getVeID());
                     if (t != null)
-                    	t.stop();
+                        t.stop();
                     countdownLabels.remove(v.getVeID());
                     panelGioVe.refresh(ticketBUS.getAllTickets());
 
@@ -337,33 +337,33 @@ public class PanelBuoc2Controller {
         SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.getVeID() + " đã hết hạn."));
     }
 
-    private Ve findTicketForSeat(Toa toa, Ghe ghe) {
-        if (toa == null || ghe == null) return null;
-        List<Ve> tickets = ticketBUS.getAllTickets();
-        if (tickets == null) return null;
-        for (Ve v : tickets) {
-            try {
-                if (v.getChuyen() != null && selectedChuyen != null
-                        && v.getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())
-                    && v.getChuyen().getChuyenID() != null && v.getVeID().equals(toa.getToaID())
-                    && v.getVeID() != null && v.getVeID().equals(ghe.getGheID())) {
-                    return v;
-                }
-            } catch (Throwable ignored) {}
-        }
-        return null;
-    }
-
-    public void toggleSeatSelection(Toa toa, Ghe ghe) {
-        if (toa == null || ghe == null)
-        	return;
-
-        Ve existing = findTicketForSeat(toa, ghe);
-        if (existing != null) {
-        	onRemoveTicket(existing);
-            return;
-        } else {
-            onSeatClicked(toa, ghe);
-        }
-    }
+//    private Ve findTicketForSeat(Toa toa, Ghe ghe) {
+//        if (toa == null || ghe == null) return null;
+//        List<Ve> tickets = ticketBUS.getAllTickets();
+//        if (tickets == null) return null;
+//        for (Ve v : tickets) {
+//            try {
+//                if (v.getChuyen() != null && selectedChuyen != null
+//                        && v.getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())
+//                    && v.getChuyen(). != null && v.getToaID().equals(toa.getToaID())
+//                    && v.getGheID() != null && v.getGheID().equals(ghe.getGheID())) {
+//                    return v;
+//                }
+//            } catch (Throwable ignored) {}
+//        }
+//        return null;
+//    }
+//
+//    public void toggleSeatSelection(Toa toa, Ghe ghe) {
+//        if (toa == null || ghe == null)
+//        	return;
+//
+//        Ve existing = findTicketForSeat(toa, ghe);
+//        if (existing != null) {
+//        	onRemoveTicket(existing);
+//            return;
+//        } else {
+//            onSeatClicked(toa, ghe);
+//        }
+//    }
 }
