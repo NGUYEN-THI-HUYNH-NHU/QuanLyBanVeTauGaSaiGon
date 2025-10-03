@@ -11,7 +11,6 @@ package bus;
  */
 
 import entity.type.VaiTroNhanVien;
-import entity.type.VaiTroTaiKhoan;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 
 public class PhanQuyen_BUS {
