@@ -75,16 +75,16 @@ public class PanelBuoc2Controller {
     	return this.currentTripIndex;
     }
 
-//    public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
-//        this.chuyenList = chuyens;
-//        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayGioKhoiHanh().toLocalDate());
-//        panelChuyenTau.showChuyenList(chuyens);
-//        if (chuyens != null && !chuyens.isEmpty()) {
-//            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
-//            onChuyenSelected(chuyens.get(0));
-//        }
-//        panelGioVe.refresh(ticketBUS.getAllTickets());
-//    }
+    public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
+        this.chuyenList = chuyens;
+        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
+        panelChuyenTau.showChuyenList(chuyens);
+        if (chuyens != null && !chuyens.isEmpty()) {
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
+            onChuyenSelected(chuyens.get(0));
+        }
+        panelGioVe.refresh(ticketBUS.getAllTickets());
+    }
 
     public void onChuyenSelected(Chuyen c) {
         if (c == null)
@@ -221,38 +221,38 @@ public class PanelBuoc2Controller {
     }
 
     // user clicked a seat button
-//    public void onSeatClicked(Toa toa, Ghe ghe) {
-//        if (ghe == null || toa == null) return;
-//        if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
-//            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
-//            return;
-//        }
-//        new SwingWorker<entity.Ve, Void>() {
-//            protected entity.Ve doInBackground() throws Exception {
-//                // create hold in DB via DonDatCho_BUS
-//                // returns Ve object with hold expiry timestamp and id
-//                return donDatChoBUS.createHold(toa, ghe);
-//            }
-//            protected void done() {
-//                try {
-//                    entity.Ve v = get();
-//                    if (v != null) {
-//                        // add to TicketBUS
-//                        ticketBUS.addTicket(v);
-//                        // update UI: refresh right panel
-//                        panelGioVe.refresh(ticketBUS.getAllTickets());
-//                        // start countdown for this ticket
-//                        startCountdownForTicket(v);
-//                        // refresh seat grid to mark as selected
-//                        panelSoDoCho.setCurrentToa(toa);
-//                    } else {
-//                        JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
-//                        panelSoDoCho.setCurrentToa(toa);
-//                    }
-//                } catch (Exception ex) { ex.printStackTrace(); }
-//            }
-//        }.execute();
-//    }
+    public void onSeatClicked(Toa toa, Ghe ghe) {
+        if (ghe == null || toa == null) return;
+        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
+            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
+            return;
+        }
+        new SwingWorker<Ve, Void>() {
+            protected Ve doInBackground() throws Exception {
+                // create hold in DB via DonDatCho_BUS
+                // returns Ve object with hold expiry timestamp and id
+                return donDatChoBUS.createHold(toa, ghe);
+            }
+            protected void done() {
+                try {
+                    Ve v = get();
+                    if (v != null) {
+                        // add to TicketBUS
+                        ticketBUS.addTicket(v);
+                        // update UI: refresh right panel
+                        panelGioVe.refresh(ticketBUS.getAllTickets());
+                        // start countdown for this ticket
+                        startCountdownForTicket(v);
+                        // refresh seat grid to mark as selected
+                        panelSoDoCho.setCurrentToa(toa);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
+                        panelSoDoCho.setCurrentToa(toa);
+                    }
+                } catch (Exception ex) { ex.printStackTrace(); }
+            }
+        }.execute();
+    }
 
     // start a swing timer updating corresponding JLabel; label may be registered by panelGioVe
     public void registerCountdownLabelForTicket(entity.Ve v, JLabel lbl) {

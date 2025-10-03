@@ -150,38 +150,40 @@ public class PanelSoDoCho extends JPanel {
         // clone + sort by numeric seat id (leading digits) then by full label
         List<Ghe> sorted = new ArrayList<>(gheList);
         sorted.sort(Comparator
-                .comparingInt((Ghe g) -> parseLeadingInt(g.getSoGhe()))
+                .comparingInt((Ghe g) -> g.getSoGhe())
                 .thenComparing(g -> g.getSoGhe()));
 
         // choose columns: try detect layout (if gheList small -> single row)
         int cols = 6; // default nicer width
-        if (sorted.size() <= 6) cols = sorted.size();
+        if (sorted.size() <= 6)
+        	cols = sorted.size();
         int rows = (int) Math.ceil(sorted.size() / (double) cols);
         seatGridPanel.setLayout(new GridLayout(rows, cols, 8, 8));
 
-//        for (Ghe g : sorted) {
-//            JButton b = new JButton(String.valueOf(g.getSoGhe()));
-//            b.setMargin(new Insets(2,2,2,2));
+        for (Ghe g : sorted) {
+            JButton b = new JButton(String.valueOf(g.getSoGhe()));
+            b.setMargin(new Insets(2,2,2,2));
 //            b.setOpaque(true);
-//            if (g.getTrangThai() == TrangThaiGhe.OCCUPIED) {
-//                b.setBackground(Color.RED);
-//                b.setEnabled(false);
-//            } else {
-//                b.setBackground(Color.WHITE);
-//                b.setEnabled(true);
-//            }
-//            b.addActionListener(e -> {
-//                // visual select for seat
-//                if (selectedSeatButton != null && selectedSeatButton != b) {
-//                    selectedSeatButton.setBackground(Color.WHITE);
-//                }
-//                selectedSeatButton = b;
-//                b.setBackground(new Color(40, 167, 69));
-//                b.setForeground(Color.WHITE);
-//                if (panelBuoc2Controller != null) panelBuoc2Controller.onSeatClicked(currentToa, g);
-//            });
-//            seatGridPanel.add(b);
-//        }
+            if (g.getTrangThai() == TrangThaiGhe.DA_BAN) {
+                b.setBackground(new Color(220, 53, 53));
+                b.setEnabled(false);
+            } else {
+                b.setBackground(Color.WHITE);
+                b.setEnabled(true);
+            }
+            b.addActionListener(e -> {
+                // visual select for seat
+                if (selectedSeatButton != null && selectedSeatButton != b) {
+                    selectedSeatButton.setBackground(Color.WHITE);
+                }
+                selectedSeatButton = b;
+                b.setBackground(new Color(40, 167, 69));
+                b.setForeground(Color.WHITE);
+                if (panelBuoc2Controller != null)
+                	panelBuoc2Controller.onSeatClicked(currentToa, g);
+            });
+            seatGridPanel.add(b);
+        }
 
         seatGridPanel.revalidate();
         seatGridPanel.repaint();

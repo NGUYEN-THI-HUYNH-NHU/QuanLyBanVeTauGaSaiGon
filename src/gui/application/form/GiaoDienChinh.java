@@ -30,7 +30,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
 import entity.NhanVien;
 import gui.application.UngDung;
-//import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.menu.HanhDongMenu;
@@ -86,7 +86,7 @@ public class GiaoDienChinh extends JLayeredPane {
 
 	        switch (index) {
         		case 1 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
-//	            case 0 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+	            case 0 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
 //	            case 1 -> UngDung.showGiaoDienChinh(new FormOrderManagement());
 //	            case 2 -> UngDung.showGiaoDienChinh(new FormMovieManagement());
 //	            case 3 -> UngDung.showGiaoDienChinh(new FormScreeningManagement(nhanVien));

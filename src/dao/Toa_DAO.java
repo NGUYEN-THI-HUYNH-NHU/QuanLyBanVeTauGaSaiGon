@@ -32,9 +32,22 @@ public class Toa_DAO {
     public List<Toa> getToaByChuyenID(String chuyenID) {
         List<Toa> list = new ArrayList<>();
         Connection conn = connectDB.getConnection();
-        String sql = "select toa.toaID, t.tauID, toa.hangToaID, toa.sucChua, toa.soToa"
-        		+ " from Chuyen c join Tau t on c.tauID = t.tauID join Toa toa on t.tauID = toa.tauID"
-        		+ " where c.chuyenID = ?";
+        String sql = "DECLARE @chuyenID VARCHAR(50) = ?;\r\n"
+        		+ "\r\n"
+        		+ "SELECT \r\n"
+        		+ "    t.toaID,\r\n"
+        		+ "    t.soToa,\r\n"
+        		+ "    t.hangToaID,\r\n"
+        		+ "	   t.sucChua,\r\n"
+        		+ "    tau.tauID,\r\n"
+        		+ "    tau.tenTau\r\n"
+        		+ "FROM Chuyen c\r\n"
+        		+ "INNER JOIN Tau tau \r\n"
+        		+ "    ON tau.tauID = c.tauID\r\n"
+        		+ "INNER JOIN Toa t \r\n"
+        		+ "    ON t.tauID = tau.tauID\r\n"
+        		+ "WHERE c.chuyenID = @chuyenID\r\n"
+        		+ "ORDER BY t.soToa;";
         try {
         	PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, chuyenID);

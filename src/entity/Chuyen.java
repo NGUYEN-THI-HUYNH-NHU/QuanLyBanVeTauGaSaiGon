@@ -5,7 +5,9 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /*
@@ -19,19 +21,23 @@ public class Chuyen {
 	private String chuyenID;
 	private Tuyen tuyen;
 	private Tau tau;
-	private LocalDateTime ngayDi;
-	private LocalDateTime gioDi;
+	private LocalDate ngayDi;
+	private LocalTime gioDi;
+	private LocalDate ngayDen;
+	private LocalTime gioDen;
 	
-	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime ngayDi, LocalDateTime gioDi) {
+	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen, LocalTime gioDen) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tuyen = tuyen;
 		this.tau = tau;
 		this.ngayDi = ngayDi;
 		this.gioDi = gioDi;
+		this.ngayDen = ngayDen;
+		this.gioDen = gioDen;
 	}
-	
-	public Chuyen(String chuyenID, Tau tau, LocalDateTime ngayDi, LocalDateTime gioDi) {
+
+	public Chuyen(String chuyenID, Tau tau, LocalDate ngayDi, LocalTime gioDi) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tau = tau;
@@ -75,32 +81,65 @@ public class Chuyen {
 		}
 	}
 
-	public LocalDateTime getNgayDi() {
+	public LocalDate getNgayDi() {
 		return ngayDi;
 	}
 
-	public void setNgayDi(LocalDateTime ngayDi) {
-		if(ngayDi == null || ngayDi.isBefore(LocalDateTime.now())) {
+	public void setNgayDi(LocalDate ngayDi) {
+		if(ngayDi == null || ngayDi.isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
 		}
 		this.ngayDi = ngayDi;
 	}
 
-	public LocalDateTime getGioDi() {
+	public LocalTime getGioDi() {
 		return gioDi;
 	}
+	
+	public String getGioDiString() {
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+		 return gioDi.format(formatter);
+	}
 
-	public void setGioDi(LocalDateTime gioDi) {
-		if(gioDi == null || (ngayDi != null && gioDi.isBefore(ngayDi))) {
-			throw new IllegalArgumentException("Giờ đi không được rỗng và phải sau ngày đi");
+	public void setGioDi(LocalTime gioDi) {
+		if(gioDi == null || gioDi.isBefore(LocalTime.of(0, 0)) || gioDi.isAfter(LocalTime.of(23, 59))) {
+			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
 		}
 		this.gioDi = gioDi;
 	}
+	
+	public LocalDate getNgayDen() {
+		return ngayDen;
+	}
+
+	public void setNgayDen(LocalDate ngayDen) {
+		if(ngayDen == null || ngayDen.isBefore(LocalDate.now())) {
+			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
+		}
+		this.ngayDen = ngayDen;
+	}
+
+	public LocalTime getGioDen() {
+		return gioDen;
+	}
+	
+	public String getGioDenString() {
+		 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+		 return gioDen.format(formatter);
+	}
+
+	public void setGioDen(LocalTime gioDen) {
+		if(gioDen == null || gioDen.isBefore(LocalTime.of(0, 0)) || gioDen.isAfter(LocalTime.of(23, 59))) {
+			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
+		}
+		this.gioDen = gioDen;
+	}
+	
 
 	@Override
 	public String toString() {
 		return chuyenID + ";" + tuyen + ";" + tau + ";"
-				+ ngayDi + ";" + gioDi;
+				+ ngayDi + ";" + gioDi + ngayDen + ";" + gioDen;
 	}
 
 	@Override

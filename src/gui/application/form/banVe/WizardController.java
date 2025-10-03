@@ -91,34 +91,34 @@ public class WizardController {
          currentStep = stepIndex;
      });
 
-//     if (stepIndex == 2) {
-//         JPanel p = getPanel(2);
-//         if (p == null) {
-//             // panel not registered — try to find by cardName (best-effort)
-//             System.err.println("WizardController.goToStep: PanelBuoc2 not registered for step 2 (cardName=" + cardName + ")");
-//             return;
-//         }
-//
-//         if (p instanceof PanelBuoc2) {
-//             PanelBuoc2 panel2 = (PanelBuoc2) p;
-//             BookingSession s = getBookingSession();
-//             SearchCriteria criteria = (tripIndex == 0) ? s.getOutboundCriteria() : s.getReturnCriteria();
-//             @SuppressWarnings("unchecked")
-//             List<Chuyen> results = (List<Chuyen>) ( (tripIndex == 0) ? s.getOutboundResults() : s.getReturnResults() );
-//             // call enter on UI panel on EDT (PanelBuoc2 should handle being called from EDT)
-//             SwingUtilities.invokeLater(() -> {
-//                 try {
-//                	 System.out.println("Wizard.goToStep -> step=2 tripIndex=" + tripIndex + " session=" + s);
-//                     panel2.enter(criteria, results, tripIndex, s);
-//                 } catch (Throwable t) {
-//                     System.err.println("WizardController: error while calling PanelBuoc2.enter: " + t.getMessage());
-//                     t.printStackTrace();
-//                 }
-//             });
-//         } else {
-//             System.err.println("WizardController.goToStep: registered panel for step 2 is not an instance of PanelBuoc2. Actual class: " + p.getClass().getName());
-//         }
-//     }
+     if (stepIndex == 2) {
+         JPanel p = getPanel(2);
+         if (p == null) {
+             // panel not registered — try to find by cardName (best-effort)
+             System.err.println("WizardController.goToStep: PanelBuoc2 not registered for step 2 (cardName=" + cardName + ")");
+             return;
+         }
+
+         if (p instanceof PanelBuoc2) {
+             PanelBuoc2 panel2 = (PanelBuoc2) p;
+             BookingSession s = getBookingSession();
+             SearchCriteria criteria = (tripIndex == 0) ? s.getOutboundCriteria() : s.getReturnCriteria();
+             @SuppressWarnings("unchecked")
+             List<Chuyen> results = (List<Chuyen>) ( (tripIndex == 0) ? s.getOutboundResults() : s.getReturnResults() );
+             // call enter on UI panel on EDT (PanelBuoc2 should handle being called from EDT)
+             SwingUtilities.invokeLater(() -> {
+                 try {
+                	 System.out.println("Wizard.goToStep -> step=2 tripIndex=" + tripIndex + " session=" + s);
+                     panel2.enter(criteria, results, tripIndex, s);
+                 } catch (Throwable t) {
+                     System.err.println("WizardController: error while calling PanelBuoc2.enter: " + t.getMessage());
+                     t.printStackTrace();
+                 }
+             });
+         } else {
+             System.err.println("WizardController.goToStep: registered panel for step 2 is not an instance of PanelBuoc2. Actual class: " + p.getClass().getName());
+         }
+     }
  }
 
  public void goToStep(int stepIndex) {
