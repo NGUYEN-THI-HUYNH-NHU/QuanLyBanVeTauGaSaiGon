@@ -66,13 +66,13 @@ public class PanelBuoc2Controller {
     }
 
     public void setBookingSession(BookingSession s) {
-    	this.bookingSession = s;
+        this.bookingSession = s;
     }
     public void setCurrentTripIndex(int idx) {
-    	this.currentTripIndex = idx;
+        this.currentTripIndex = idx;
     }
     public int getCurrentTripIndex() {
-    	return this.currentTripIndex;
+        return this.currentTripIndex;
     }
 
     public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
@@ -88,7 +88,7 @@ public class PanelBuoc2Controller {
 
     public void onChuyenSelected(Chuyen c) {
         if (c == null)
-        	return;
+            return;
         this.selectedChuyen = c;
 
         new SwingWorker<List<Toa>, Void>() {
@@ -136,7 +136,7 @@ public class PanelBuoc2Controller {
         String gaDenID = null;
         if (bookingSession != null) {
             SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
-                                                       : bookingSession.getReturnCriteria();
+                    : bookingSession.getReturnCriteria();
             if (sc != null) {
                 gaDiID = sc.getGaDiId();   // ensure method name matches your class
                 gaDenID = sc.getGaDenId();
@@ -313,7 +313,7 @@ public class PanelBuoc2Controller {
                     ticketBUS.removeTicket(v);
                     Timer t = countdownTimers.remove(v.getVeID());
                     if (t != null)
-                    	t.stop();
+                        t.stop();
                     countdownLabels.remove(v.getVeID());
                     panelGioVe.refresh(ticketBUS.getAllTickets());
 

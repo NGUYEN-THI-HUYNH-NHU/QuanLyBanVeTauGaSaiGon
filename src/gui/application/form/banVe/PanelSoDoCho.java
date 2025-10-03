@@ -38,7 +38,7 @@ public class PanelSoDoCho extends JPanel {
     private Toa currentToa;
     private List<Toa> toaList;
     private int currentIndex = 0;
-	private JPanel pnlNorth;
+    private JPanel pnlNorth;
 
     public PanelSoDoCho() {
         setBorder(new TitledBorder("Sơ đồ chỗ"));
@@ -70,7 +70,7 @@ public class PanelSoDoCho extends JPanel {
     }
 
     public void setController(PanelBuoc2Controller c) {
-    	this.panelBuoc2Controller = c;
+        this.panelBuoc2Controller = c;
     }
 
     public void setToaList(List<Toa> list) {
@@ -92,12 +92,12 @@ public class PanelSoDoCho extends JPanel {
             String soToa = String.valueOf(t.getSoToa());
             String moTaHang = null;
             try {
-              moTaHang = (t.getHangToa().getDescription() != null) ? t.getHangToa().getDescription() : t.getHangToa().toString();
+                moTaHang = (t.getHangToa().getDescription() != null) ? t.getHangToa().getDescription() : t.getHangToa().toString();
             } catch (Throwable ex) {
                 try {
-                	moTaHang = t.getHangToa().getDescription();
+                    moTaHang = t.getHangToa().getDescription();
                 } catch (Throwable ignored) {
-                	moTaHang = "";
+                    moTaHang = "";
                 }
             }
             lblToaInfo.setText("Toa số " + soToa + ": " + (moTaHang == null ? "" : moTaHang));
@@ -122,19 +122,19 @@ public class PanelSoDoCho extends JPanel {
 
     private int parseLeadingInt(String s) {
         if (s == null)
-        	return Integer.MAX_VALUE;
+            return Integer.MAX_VALUE;
         String num = "";
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if (Character.isDigit(ch))
-            	num += ch;
+                num += ch;
             else break;
         }
         try {
-        	return num.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(num);
-    	} catch (NumberFormatException ex) {
-    		return Integer.MAX_VALUE;
-    	}
+            return num.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(num);
+        } catch (NumberFormatException ex) {
+            return Integer.MAX_VALUE;
+        }
     }
 
     private void renderSeats(List<Ghe> gheList) {
@@ -156,7 +156,7 @@ public class PanelSoDoCho extends JPanel {
         // choose columns: try detect layout (if gheList small -> single row)
         int cols = 6; // default nicer width
         if (sorted.size() <= 6)
-        	cols = sorted.size();
+            cols = sorted.size();
         int rows = (int) Math.ceil(sorted.size() / (double) cols);
         seatGridPanel.setLayout(new GridLayout(rows, cols, 8, 8));
 
@@ -180,7 +180,7 @@ public class PanelSoDoCho extends JPanel {
                 b.setBackground(new Color(40, 167, 69));
                 b.setForeground(Color.WHITE);
                 if (panelBuoc2Controller != null)
-                	panelBuoc2Controller.onSeatClicked(currentToa, g);
+                    panelBuoc2Controller.onSeatClicked(currentToa, g);
             });
             seatGridPanel.add(b);
         }
@@ -189,36 +189,36 @@ public class PanelSoDoCho extends JPanel {
         seatGridPanel.repaint();
     }
 
-	private void showPrevToa() {
+    private void showPrevToa() {
         if (toaList == null || toaList.isEmpty())
-        	return;
+            return;
         if (currentIndex == 0) {
-        	currentIndex = doanTauLength-1;
-        	Toa toa = toaList.get(currentIndex);
-        	setCurrentToa(toa);
-        	panelBuoc2Controller.highlightToa(toa);
-        	return;
+            currentIndex = doanTauLength-1;
+            Toa toa = toaList.get(currentIndex);
+            setCurrentToa(toa);
+            panelBuoc2Controller.highlightToa(toa);
+            return;
         }
         currentIndex = Math.max(0, currentIndex - 1);
         Toa toa = toaList.get(currentIndex);
         setCurrentToa(toa);
-    	panelBuoc2Controller.highlightToa(toa);
+        panelBuoc2Controller.highlightToa(toa);
     }
 
     private void showNextToa() {
         if (toaList == null || toaList.isEmpty())
-        	return;
+            return;
         if (currentIndex == doanTauLength-1) {
-        	currentIndex = 0;
-        	Toa toa = toaList.get(currentIndex);
-        	setCurrentToa(toa);
-        	panelBuoc2Controller.highlightToa(toa);
-        	return;
+            currentIndex = 0;
+            Toa toa = toaList.get(currentIndex);
+            setCurrentToa(toa);
+            panelBuoc2Controller.highlightToa(toa);
+            return;
         }
         currentIndex = Math.min(toaList.size() - 1, currentIndex + 1);
         Toa toa = toaList.get(currentIndex);
         setCurrentToa(toa);
-    	panelBuoc2Controller.highlightToa(toa);
+        panelBuoc2Controller.highlightToa(toa);
     }
 
     // used by controller when user selects a chuyen -> set toa list
