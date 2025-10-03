@@ -11,8 +11,12 @@ package controller;
  */
 
 import bus.Ga_BUS;
+import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.Tuyen;
+import entity.type.VaiTroNhanVien;
+import entity.type.VaiTroTaiKhoan;
+import gui.application.UngDung;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 
 import javax.swing.*;
@@ -29,13 +33,16 @@ public class QuanLyTuyen_CTRL {
     private final PanelQuanLyTuyen pnlTuyen;
     private final Tuyen_BUS tuyen_bus;
     private Ga_BUS ga_bus;
+    private VaiTroNhanVien vaiTroHienTai;
 
     public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, Tuyen_BUS tuyen_bus){
         this.pnlTuyen = pnlTuyen;
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
+        this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
         pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener());
 
+        PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
         thietLapAutoCompleteListener();
     }
 
@@ -108,41 +115,90 @@ public class QuanLyTuyen_CTRL {
         pp.show(txt, 0, txt.getHeight());
     }
 
-    private void taoPopGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem){
-        lst.setFocusable(false);
+    private void taoPopGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem) {
         pp.setFocusable(false);
         pp.removeAll();
         pp.add(new JScrollPane(lst));
 
+        // Hiển thị gợi ý khi input thay đổi
         txt.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) {
-                hienThiGoiY(txt, lst, pp, timKiem);
-            }
-
+            public void insertUpdate(DocumentEvent e) { hienThiGoiY(txt, lst, pp, timKiem); }
             @Override
-            public void removeUpdate(DocumentEvent e) {
-                hienThiGoiY(txt, lst, pp, timKiem);
-            }
-
+            public void removeUpdate(DocumentEvent e) { hienThiGoiY(txt, lst, pp, timKiem); }
             @Override
-            public void changedUpdate(DocumentEvent e) {
-
-            }
+            public void changedUpdate(DocumentEvent e) { }
         });
 
+        // Mouse click chọn item
         lst.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 2){
-                    String selectedGa = lst.getSelectedValue();
-                    if(selectedGa != null){
-                        txt.setText(selectedGa);
-                        pp.setVisible(false);
-                        timKiemTuyen();
-                    }
+            public void mousePressed(MouseEvent e) {
+                int index = lst.locationToIndex(e.getPoint());
+                if (index >= 0) {
+                    txt.setText(lst.getModel().getElementAt(index));
+                    pp.setVisible(false);
+                    timKiemTuyen();
                 }
             }
         });
+
+        // Key listener xử lý ↑ ↓, Enter, → ←
+        txt.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                int key = e.getKeyCode();
+                int selectedIndex = lst.getSelectedIndex();
+
+                switch (key) {
+                    case java.awt.event.KeyEvent.VK_DOWN:
+                        if (selectedIndex < lst.getModel().getSize() - 1) {
+                            lst.setSelectedIndex(selectedIndex + 1);
+                            lst.ensureIndexIsVisible(selectedIndex + 1);
+                        }
+                        break;
+                    case java.awt.event.KeyEvent.VK_UP:
+                        if (selectedIndex > 0) {
+                            lst.setSelectedIndex(selectedIndex - 1);
+                            lst.ensureIndexIsVisible(selectedIndex - 1);
+                        }
+                        break;
+                    case java.awt.event.KeyEvent.VK_ENTER:
+                        String selected = lst.getSelectedValue();
+                        if (selected != null) {
+                            txt.setText(selected);
+                        }
+                        pp.setVisible(false);
+                        timKiemTuyen();
+                        break;
+                    case java.awt.event.KeyEvent.VK_RIGHT:
+                        if (txt == pnlTuyen.getTxtGaDi()) {
+                            pnlTuyen.getTxtGaDen().requestFocus();
+                        } else if (txt == pnlTuyen.getTxtGaDen()) {
+                            pnlTuyen.getTxtTimKiem().requestFocus();
+                        }
+                        break;
+                    case java.awt.event.KeyEvent.VK_LEFT:
+                        if (txt == pnlTuyen.getTxtTimKiem()) {
+                            pnlTuyen.getTxtGaDen().requestFocus();
+                        } else if (txt == pnlTuyen.getTxtGaDen()) {
+                            pnlTuyen.getTxtGaDi().requestFocus();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Ẩn popup khi mất focus
+        txt.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                pp.setVisible(false);
+            }
+        });
     }
+
+
+
+
 }

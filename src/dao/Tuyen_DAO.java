@@ -197,38 +197,46 @@ public class Tuyen_DAO {
 
 
 
-    public List<Tuyen> getTuyenTheoGa(String tenGaDi, String tenGaDen) {
+    public List<Tuyen> getTuyenTheoGa(String gaDi, String gaDen) {
         Map<String, Tuyen> tuyenMap = new LinkedHashMap<>();
 
-        String sql = "SELECT t.tuyenID, t.moTa, " +
-                "tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
-                "ga.tenGa " +
+        String sql = "SELECT t.tuyenID, t.moTa, tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, ga.tenGa " +
                 "FROM Tuyen t " +
                 "JOIN TuyenChiTiet tct ON t.tuyenID = tct.tuyenID " +
                 "JOIN Ga ga ON tct.gaID = ga.gaID " +
                 "WHERE t.tuyenID IN ( " +
-                "    SELECT t1.tuyenID " +
-                "    FROM Tuyen t1 " +
-                "    JOIN TuyenChiTiet tct1 ON t1.tuyenID = tct1.tuyenID " +
-                "    JOIN Ga ga1 ON tct1.gaID = ga1.gaID " +
-                "    JOIN TuyenChiTiet tct2 ON t1.tuyenID = tct2.tuyenID " +
-                "    JOIN Ga ga2 ON tct2.gaID = ga2.gaID " +
-                "    WHERE ga1.tenGa = ? AND ga2.tenGa = ? " +
-                "    AND tct1.thuTu < tct2.thuTu " +
+                "    SELECT t1.tuyenID FROM TuyenChiTiet t1 " +
+                "    JOIN Ga g1 ON t1.gaID = g1.gaID " +
+                "    WHERE (? IS NULL OR LOWER(g1.tenGa) LIKE LOWER(?)) " +
+                ") " +
+                "AND t.tuyenID IN ( " +
+                "    SELECT t2.tuyenID FROM TuyenChiTiet t2 " +
+                "    JOIN Ga g2 ON t2.gaID = g2.gaID " +
+                "    WHERE (? IS NULL OR LOWER(g2.tenGa) LIKE LOWER(?)) " +
+                "    AND (? IS NULL OR t2.thuTu > ( " +
+                "        SELECT MIN(t3.thuTu) FROM TuyenChiTiet t3 " +
+                "        JOIN Ga g3 ON t3.gaID = g3.gaID " +
+                "        WHERE LOWER(g3.tenGa) LIKE LOWER(?) " +
+                "    )) " +
                 ") " +
                 "ORDER BY t.tuyenID, tct.thuTu";
 
         try (Connection con = connectDB.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            pstmt.setString(1, tenGaDi);
-            pstmt.setString(2, tenGaDen);
+            // Thiết lập parameter
+            pstmt.setString(1, gaDi != null && !gaDi.isEmpty() ? gaDi : null);        // subquery 1
+            pstmt.setString(2, gaDi != null && !gaDi.isEmpty() ? "%" + gaDi + "%" : null); // subquery 1 LIKE
+
+            pstmt.setString(3, gaDen != null && !gaDen.isEmpty() ? gaDen : null);       // subquery 2
+            pstmt.setString(4, gaDen != null && !gaDen.isEmpty() ? "%" + gaDen + "%" : null); // subquery 2 LIKE
+
+            pstmt.setString(5, gaDi != null && !gaDi.isEmpty() ? gaDi : null);         // so sánh thứ tự
+            pstmt.setString(6, gaDi != null && !gaDi.isEmpty() ? "%" + gaDi + "%" : null); // MIN(thutu) của ga đi
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     String tuyenID = rs.getString("tuyenID");
-
-                    // Nếu tuyến chưa tồn tại trong map thì tạo mới
                     Tuyen tuyen = tuyenMap.get(tuyenID);
                     if (tuyen == null) {
                         tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
@@ -236,27 +244,30 @@ public class Tuyen_DAO {
                         tuyenMap.put(tuyenID, tuyen);
                     }
 
-                    // Tạo Ga
                     Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-
-                    // Tạo Chi tiết tuyến
                     TuyenChiTiet chiTiet = new TuyenChiTiet(
                             tuyen,
                             ga,
                             rs.getInt("thuTu"),
                             rs.getInt("khoangCachTuGaXuatPhatKm")
                     );
-
-                    // Thêm vào tuyến
                     tuyen.getDanhSachTuyenChiTiet().add(chiTiet);
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return new ArrayList<>(tuyenMap.values());
     }
+
+
+
+
+
+
+
 
 
 

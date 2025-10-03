@@ -54,28 +54,35 @@ public class Ga_DAO {
         }
         return ga;
     }
-    
+
     public List<Ga> getGaByTenGaList(String tenGaTim) {
         List<Ga> dsGa = new ArrayList<>();
-        Connection connection = connectDB.getConnection();
         String sql = "SELECT * FROM Ga WHERE LOWER(tenGa) LIKE ?";
-        try{
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, "%" + tenGaTim + "%");
-            ResultSet resultSet = statement.executeQuery();
-            while(resultSet.next()){
-               String gaID = resultSet.getString("gaID");
-               String tenGa = resultSet.getString("tenGa");
-               boolean isGaLon = resultSet.getBoolean("isGaLon");
-                String tinhThanh = resultSet.getString("tinhThanh");
-                dsGa.add(new Ga(gaID, isGaLon,tenGa, tinhThanh));
+
+        try (Connection connection = connectDB.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + tenGaTim.toLowerCase() + "%");
+
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    dsGa.add(new Ga(
+                            rs.getString("gaID"),
+                            rs.getBoolean("isGaLon"),
+                            rs.getString("tenGa"),
+                            rs.getString("tinhThanh")
+                    ));
+                }
             }
-        }catch (SQLException e){
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return dsGa;
     }
-    
+
+
     public List<Ga> searchGaDenKhaThiByGaDi(String gaDiID, String prefixGaDen, int limit) {
 	    Connection conn = connectDB.getConnection();
 	    String sql = "SELECT DISTINCT TOP (?)"

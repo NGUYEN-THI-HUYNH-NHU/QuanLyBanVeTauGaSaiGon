@@ -98,7 +98,7 @@ public class FormDangNhap extends JPanel {
         } else {
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            ungDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+            ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
             SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
         }
     }
