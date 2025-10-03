@@ -24,6 +24,7 @@ import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import net.miginfocom.swing.MigLayout;
 

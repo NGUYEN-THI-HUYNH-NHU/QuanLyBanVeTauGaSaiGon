@@ -30,7 +30,7 @@ public class PanelBuoc2 extends JPanel {
     private JPanel centerPanel;
 
     private PanelBuoc2Controller controller;
-    private JPanel panelChuThich;
+	private JPanel panelChuThich;
 
     public PanelBuoc2() {
         setLayout(new BorderLayout());
@@ -73,17 +73,17 @@ public class PanelBuoc2 extends JPanel {
     /**
      * Called by outer flow (PanelBuoc1) to provide list of chuyens to show.
      */
-//    public void setChuyenList(List<Chuyen> chuyenList, String gaDiName, String gaDenName) {
-//        controller.setChuyenList(chuyenList, gaDiName, gaDenName);
-//    }
+    public void setChuyenList(List<Chuyen> chuyenList, String gaDiName, String gaDenName) {
+        controller.setChuyenList(chuyenList, gaDiName, gaDenName);
+    }
 
-    // trong PanelBuoc2 (UI wrapper), có 1 controller (panelBuoc2Controller)
+//  trong PanelBuoc2 (UI wrapper), có 1 controller (panelBuoc2Controller)
     public void enter(SearchCriteria criteria, List<Chuyen> results, int tripIndex, BookingSession session) {
-        System.out.println("PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
+    	System.out.println("PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
         controller.setBookingSession(session);
         controller.setCurrentTripIndex(tripIndex);
         controller.setChuyenList(results,
-                criteria != null ? criteria.getGaDiName() : "",
-                criteria != null ? criteria.getGaDenName() : "");
+            criteria != null ? criteria.getGaDiName() : "",
+            criteria != null ? criteria.getGaDenName() : "");
     }
 }

@@ -21,18 +21,18 @@ import entity.type.TrangThaiGhe;
 public class Ghe {
 	private String gheID;
 	private Toa toa;
-	private int soGhe;
+	private String soGhe;
 	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, int soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
 		this.soGhe = soGhe;
 		this.trangThai = trangThai;
 	}
-	
-	public Ghe(String gheID, int soGhe) {
+
+	public Ghe(String gheID, String soGhe) {
 		super();
 		this.gheID = gheID;
 		this.soGhe = soGhe;
@@ -50,7 +50,7 @@ public class Ghe {
 		return toa;
 	}
 
-	public int getSoGhe() {
+	public String getSoGhe() {
 		return soGhe;
 	}
 
@@ -69,13 +69,13 @@ public class Ghe {
 		this.toa = toa;
 	}
 
-	public void setSoGhe(int soGhe) {
-		if(soGhe <= 0) {
-			throw new IllegalArgumentException("Số ghế không được <= 0!");
+	public void setSoGhe(String soGhe) {
+		if(soGhe == null || soGhe.isEmpty()) {
+			throw new IllegalArgumentException("Số ghế không được để trống!");
 		}
 		this.soGhe = soGhe;
 	}
-	
+
 	public TrangThaiGhe getTrangThai() {
 		return trangThai;
 	}
@@ -86,7 +86,7 @@ public class Ghe {
 
 	@Override
 	public String toString() {
-		return gheID + ";" + toa + ";" + soGhe + ";" + trangThai;
+		return gheID + ";" + toa + ";" + soGhe ;
 	}
 
 	@Override
