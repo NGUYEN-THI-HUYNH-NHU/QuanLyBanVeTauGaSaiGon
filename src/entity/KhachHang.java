@@ -5,8 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.HangKhachHang;
-
 import java.util.Objects;
 
 /*
