@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ConnectDB {	
-	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V3;encrypt=false;";
+	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V4;encrypt=false;";
 	private static final String USER = "sa";
 	private static final String PASSWORD = "sapassword";
 
@@ -45,8 +45,14 @@ public class ConnectDB {
 	}
 
 	public Connection getConnection() {
-		return connection;
+		try {
+			return DriverManager.getConnection(URL, USER, PASSWORD);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
+
 
 	public Connection connect() {
 		if (connection == null) {

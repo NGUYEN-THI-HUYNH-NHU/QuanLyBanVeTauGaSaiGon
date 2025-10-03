@@ -20,7 +20,6 @@ public class Tuyen_DAO {
 
     public Tuyen_DAO() {
         connectDB = ConnectDB.getInstance();
-        connectDB.connect();
         ga_dao = new Ga_DAO();
     }
 
@@ -146,19 +145,7 @@ public class Tuyen_DAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            try {
-                // rollback nếu có lỗi
-                connectDB.getConnection().rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
             return false;
-        } finally {
-            try {
-                connectDB.getConnection().setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -203,25 +190,8 @@ public class Tuyen_DAO {
             con.commit(); // commit transaction
         } catch (SQLException e) {
             e.printStackTrace();
-            if (con != null) {
-                try {
-                    con.rollback(); // rollback đúng connection đang dùng
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
             rowsAffected = -1; // báo lỗi
-        } finally {
-            if (con != null) {
-                try {
-                    con.setAutoCommit(true); // trả lại trạng thái ban đầu
-                    con.close(); // đóng connection
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-
         return rowsAffected;
     }
 

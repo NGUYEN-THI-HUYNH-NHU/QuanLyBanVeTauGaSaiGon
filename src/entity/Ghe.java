@@ -22,12 +22,14 @@ public class Ghe {
 	private String gheID;
 	private Toa toa;
 	private String soGhe;
+	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, String soGhe) {
+	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
 		this.soGhe = soGhe;
+		this.trangThai = trangThai;
 	}
 
 	public Ghe(String gheID, String soGhe) {
@@ -72,6 +74,14 @@ public class Ghe {
 			throw new IllegalArgumentException("Số ghế không được để trống!");
 		}
 		this.soGhe = soGhe;
+	}
+
+	public TrangThaiGhe getTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(TrangThaiGhe trangThai) {
+		this.trangThai = trangThai;
 	}
 
 	@Override
