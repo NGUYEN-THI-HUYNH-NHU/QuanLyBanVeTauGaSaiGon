@@ -17,7 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,58 +28,59 @@ import entity.Tuyen;
 
 public class Chuyen_DAO {
 	private ConnectDB connectDB;
-	
+
 	public Chuyen_DAO() {
 		connectDB = ConnectDB.getInstance();
-		connectDB.connect(); 
+		connectDB.connect();
 	}
-	
-	public List<Chuyen> getChuyenByGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
-	    Connection connection = connectDB.getConnection();
-	    String querySQL = " DECLARE @gaDiID VARCHAR(50) = ?"
-			    		+ " DECLARE @gaDenID VARCHAR(50) = ?"
-			    		+ " DECLARE @ngayDi DATE = ?"
-			    		+ " SELECT"
-			    		+ " 	c.chuyenID,"
-			    		+ "		c.tuyenID,"	
-			    		+ " 	tau.tauID,"
-			    		+ "		cg_di.gioKhoiHanh AS gioKhoiHanh,"
-			    		+ " 	cg_den.gioDen AS gioDen"
-			    		+ " FROM Chuyen c"
-			    		+ " INNER JOIN ChuyenGa cg_di"
-			    		+ " 	ON cg_di.chuyenID = c.chuyenID"
-			    		+ " 	AND cg_di.gaID = @gaDiID"
-			    		+ "	INNER JOIN ChuyenGa cg_den"
-			    		+ " 	ON cg_den.chuyenID = c.chuyenID"
-			    		+ " 	AND cg_den.gaID = @gaDenID"
-			    		+ " 	AND cg_di.thuTu < cg_den.thuTu"
-			    		+ "	LEFT JOIN Tau tau"
-			    		+ " 	ON tau.tauID = c.tauID"
-			    		+ "	WHERE"
-			    		+ " 	CONVERT(date, COALESCE(cg_di.gioKhoiHanh, cg_di.gioDen, c.gioKhoiHanh)) = @ngayDi"
-			    		+ "	ORDER BY"
-			    		+ " 	COALESCE(cg_di.gioKhoiHanh, cg_di.gioDen, c.gioKhoiHanh);";
-	    List<Chuyen> chuyenList = null;
 
-	    try {
-	        PreparedStatement pstmt = connection.prepareStatement(querySQL);
-	        pstmt.setString(1, gaDiID);
-	        pstmt.setString(2, gaDenID);
-	        pstmt.setDate(3, java.sql.Date.valueOf(ngayDi));
-	        ResultSet resultSet = pstmt.executeQuery();
-	        chuyenList = new ArrayList<Chuyen>();
-	        
-	        while (resultSet.next()) {
-	        	String chuyenID = resultSet.getString("chuyenID");
-	        	Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
-	        	Tau tau = new Tau(resultSet.getString("tauID"));
-	        	LocalDateTime gioKhoiHanh = resultSet.getTimestamp("gioKhoiHanh").toLocalDateTime();
-	        	LocalDateTime gioDen = resultSet.getTimestamp("gioDen").toLocalDateTime();
-	        	chuyenList.add(new Chuyen(chuyenID, tuyen, tau, gioKhoiHanh, gioDen));
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
-	    return chuyenList;
+	public List<Chuyen> getChuyenByGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
+		Connection connection = connectDB.getConnection();
+		String querySQL = "DECLARE @gaDiID VARCHAR(50) = ?;\r\n"
+				+ "DECLARE @gaDenID VARCHAR(50) = ?;\r\n"
+				+ "DECLARE @ngayDi DATE = ?;\r\n"
+				+ "SELECT\r\n"
+				+ "    c.chuyenID,\r\n"
+				+ "    c.tuyenID,\r\n"
+				+ "    c.tauID,\r\n"
+				+ "	cgDi.ngayDi   AS ngayDi,\r\n"
+				+ "    cgDi.gioDi    AS gioDi,\r\n"
+				+ "    cgDen.ngayDen  AS ngayDen,\r\n"
+				+ "    cgDen.gioDen  AS gioDen\r\n"
+				+ "FROM Chuyen c\r\n"
+				+ "INNER JOIN ChuyenGa cgDi\r\n"
+				+ "    ON cgDi.chuyenID = c.chuyenID\r\n"
+				+ "    AND cgDi.gaID = @gaDiID\r\n"
+				+ "INNER JOIN ChuyenGa cgDen\r\n"
+				+ "    ON cgDen.chuyenID = c.chuyenID\r\n"
+				+ "    AND cgDen.gaID = @gaDenID\r\n"
+				+ "WHERE\r\n"
+				+ "    c.ngayDi = @ngayDi\r\n"
+				+ "    AND cgDi.thuTu < cgDen.thuTu\r\n"
+				+ "ORDER BY c.gioDi, c.chuyenID, cgDi.thuTu;";
+		List<Chuyen> chuyenList = null;
+
+		try {
+			PreparedStatement pstmt = connection.prepareStatement(querySQL);
+			pstmt.setString(1, gaDiID);
+			pstmt.setString(2, gaDenID);
+			pstmt.setDate(3, java.sql.Date.valueOf(ngayDi));
+			ResultSet resultSet = pstmt.executeQuery();
+			chuyenList = new ArrayList<Chuyen>();
+
+			while (resultSet.next()) {
+				String chuyenID = resultSet.getString("chuyenID");
+				Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
+				Tau tau = new Tau(resultSet.getString("tauID"));
+				LocalTime gioDi = resultSet.getTime("gioDi").toLocalTime();
+				LocalDate ngayDen = resultSet.getDate("ngayDen").toLocalDate();
+				LocalTime gioDen = resultSet.getTime("gioDen").toLocalTime();
+
+				chuyenList.add(new Chuyen(chuyenID, tuyen, tau, ngayDi, gioDi, ngayDen, gioDen));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return chuyenList;
 	}
 }

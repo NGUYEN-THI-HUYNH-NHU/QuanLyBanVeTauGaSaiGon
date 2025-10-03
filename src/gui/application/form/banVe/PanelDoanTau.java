@@ -38,7 +38,7 @@ public class PanelDoanTau extends JPanel {
     }
 
     public void setController(PanelBuoc2Controller controller) {
-    	this.controller = controller;
+        this.controller = controller;
     }
 
     public void showToaList(List<Toa> list, Consumer<Toa> onSelect) {
