@@ -20,18 +20,20 @@ import entity.type.TrangThaiVe;
 
 public class Ve {
 	private String veID;
+	private HanhKhach hanhKhach;
 	private DonDatCho donDatCho;
 	private Chuyen chuyen;
 	private Ghe ghe;
-	private HanhKhach hanhKhach;
+	private Ga gaDiID;
+	private Ga gaDenID;
 	private int thuTuGaDi;
 	private int thuTuGaDen;
 	private double gia;
+	private LocalDateTime thoiDiemBan;
 	private TrangThaiVe trangThai;
-	private LocalDateTime ngayBan;
 	
 	public Ve(String veID, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, HanhKhach hanhKhach, int thuTuGaDi,
-			int thuTuGaDen, double gia, TrangThaiVe trangThai, LocalDateTime ngayBan) {
+			int thuTuGaDen, double gia, TrangThaiVe trangThai, LocalDateTime thoiDiemBan) {
 		super();
 		this.veID = veID;
 		this.donDatCho = donDatCho;
@@ -42,7 +44,7 @@ public class Ve {
 		this.thuTuGaDen = thuTuGaDen;
 		this.gia = gia;
 		this.trangThai = trangThai;
-		this.ngayBan = ngayBan;
+		this.thoiDiemBan = thoiDiemBan;
 	}
 	
 	public Ve(String veID) {
@@ -59,94 +61,139 @@ public class Ve {
 		return veID;
 	}
 
-	public DonDatCho getDonDatCho() {
-		return donDatCho;
-	}
-
-	public Chuyen getChuyen() {
-		return chuyen;
-	}
-
-	public Ghe getGhe() {
-		return ghe;
+	public void setVeID(String veID) {
+		if(veID != null && !veID.trim().isEmpty()) {
+			this.veID = veID;
+		} else {
+			throw new IllegalArgumentException("VeID không được rỗng!");
+		}
 	}
 
 	public HanhKhach getHanhKhach() {
 		return hanhKhach;
 	}
 
+	public void setHanhKhach(HanhKhach hanhKhach) {
+		if(hanhKhach != null) {
+			this.hanhKhach = hanhKhach;
+		} else {
+			throw new IllegalArgumentException("Hành khách không được rỗng!");
+		}
+	}
+
+	public DonDatCho getDonDatCho() {
+		return donDatCho;
+	}
+
+	public void setDonDatCho(DonDatCho donDatCho) {
+		if(donDatCho != null) {
+			this.donDatCho = donDatCho;
+		} else {
+			throw new IllegalArgumentException("Đơn đặt chỗ không được rỗng!");
+		}
+	}
+
+	public Chuyen getChuyen() {
+		return chuyen;
+	}
+
+	public void setChuyen(Chuyen chuyen) {
+		if(chuyen != null) {
+			this.chuyen = chuyen;
+		} else {
+			throw new IllegalArgumentException("Chuyến không được rỗng!");
+		}
+	}
+
+	public Ghe getGhe() {
+		return ghe;
+	}
+
+	public void setGhe(Ghe ghe) {
+		if(ghe != null) {
+			this.ghe = ghe;
+		} else {
+			throw new IllegalArgumentException("Ghế không được rỗng!");
+		}
+		this.ghe = ghe;
+	}
+
+	public Ga getGaDiID() {
+		return gaDiID;
+	}
+
+	public void setGaDiID(Ga gaDiID) {
+		if(gaDiID != null) {
+			this.gaDiID = gaDiID;
+		} else {
+			throw new IllegalArgumentException("Ga đi không được rỗng!");
+		}
+	}
+
+	public Ga getGaDenID() {
+		return gaDenID;
+	}
+
+	public void setGaDenID(Ga gaDenID) {
+		if(gaDenID != null) {
+			this.gaDenID = gaDenID;
+		} else {
+			throw new IllegalArgumentException("Ga đến không được rỗng!");
+		}
+	}
+
 	public int getThuTuGaDi() {
 		return thuTuGaDi;
+	}
+
+	public void setThuTuGaDi(int thuTuGaDi) {
+		if(thuTuGaDi >= 0) {
+			this.thuTuGaDi = thuTuGaDi;
+		} else {
+			throw new IllegalArgumentException("Thứ tự ga đi không được âm!");
+		}
 	}
 
 	public int getThuTuGaDen() {
 		return thuTuGaDen;
 	}
 
-	public double getGia() {
-		return gia;
-	}
-
-	public TrangThaiVe getTrangThai() {
-		return trangThai;
-	}
-
-	public LocalDateTime getNgayBan() {
-		return ngayBan;
-	}
-
-	public void setVeID(String veID) {
-		if(veID != null && !veID.isEmpty()) {
-			this.veID = veID;
-		}else{
-			throw new IllegalArgumentException("Vé ID không được để trống!");
+	public void setThuTuGaDen(int thuTuGaDen) {
+		if(thuTuGaDen >= 0) {
+			this.thuTuGaDen = thuTuGaDen;
+		} else {
+			throw new IllegalArgumentException("Thứ tự ga đến không được âm!");
 		}
 	}
 
-	public void setDonDatCho(DonDatCho donDatCho) {
-		this.donDatCho = donDatCho;
-	}
-
-	public void setChuyen(Chuyen chuyen) {
-		this.chuyen = chuyen;
-	}
-
-	public void setGhe(Ghe ghe) {
-		this.ghe = ghe;
-	}
-
-	public void setHanhKhach(HanhKhach hanhKhach) {
-		this.hanhKhach = hanhKhach;
-	}
-
-	public void setThuTuGaDi(int thuTuGaDi) {
-		this.thuTuGaDi = thuTuGaDi;
-	}
-
-	public void setThuTuGaDen(int thuTuGaDen) {
-		this.thuTuGaDen = thuTuGaDen;
+	public double getGia() {
+		return gia;
 	}
 
 	public void setGia(double gia) {
 		this.gia = gia;
 	}
 
+	public LocalDateTime getThoiDiemBan() {
+		return thoiDiemBan;
+	}
+
+	public void setThoiDiemBan(LocalDateTime thoiDiemBan) {
+		this.thoiDiemBan = thoiDiemBan;
+	}
+
+	public TrangThaiVe getTrangThai() {
+		return trangThai;
+	}
+
 	public void setTrangThai(TrangThaiVe trangThai) {
 		this.trangThai = trangThai;
 	}
 
-	public void setNgayBan(LocalDateTime ngayBan) {
-		if(ngayBan == null) {
-			throw new IllegalArgumentException("Ngày bán không được để trống!");
-		}
-		this.ngayBan = ngayBan;
-	}
-
 	@Override
 	public String toString() {
-		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";"
-				+ hanhKhach + ";" + thuTuGaDi + ";" + thuTuGaDen + ";" + gia
-				+ ";" + trangThai + ";" + ngayBan;
+		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";" + hanhKhach + ";"
+				+ thuTuGaDi + ";" + thuTuGaDen + ";" + gia + ";" + thoiDiemBan + ";" + trangThai;
 	}
 
 	@Override

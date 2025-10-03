@@ -19,16 +19,14 @@ public class PhieuDungPhongChoVIP {
 	private HoaDonChiTiet hoaDonChiTiet;
 	private DichVuPhongChoVIP dichVuPhongChoVIP;
 	private HanhKhach hanhKhach;
-	private int soLuong;
 	
 	public PhieuDungPhongChoVIP(String phieuDungPhongChoVIPID, HoaDonChiTiet hoaDonChiTiet,
-			DichVuPhongChoVIP dichVuPhongChoVIP, HanhKhach hanhKhach, int soLuong) {
+			DichVuPhongChoVIP dichVuPhongChoVIP, HanhKhach hanhKhach) {
 		super();
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
 		this.hoaDonChiTiet = hoaDonChiTiet;
 		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
 		this.hanhKhach = hanhKhach;
-		this.soLuong = soLuong;
 	}
 
 	public String getPhieuDungPhongChoVIPID() {
@@ -45,10 +43,6 @@ public class PhieuDungPhongChoVIP {
 
 	public HanhKhach getHanhKhach() {
 		return hanhKhach;
-	}
-
-	public int getSoLuong() {
-		return soLuong;
 	}
 
 	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
@@ -70,15 +64,10 @@ public class PhieuDungPhongChoVIP {
 		this.hanhKhach = hanhKhach;
 	}
 
-	public void setSoLuong(int soLuong) {
-		this.soLuong = soLuong;
-	}
-
 	@Override
 	public String toString() {
 		return phieuDungPhongChoVIPID + ";"
-				+ hoaDonChiTiet + ";" + dichVuPhongChoVIP + ";" + hanhKhach + ";"
-				+ soLuong;
+				+ hoaDonChiTiet + ";" + dichVuPhongChoVIP + ";" + hanhKhach ;
 	}
 
 	@Override

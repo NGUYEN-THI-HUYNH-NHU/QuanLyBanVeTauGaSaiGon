@@ -1,14 +1,4 @@
-package dao;/*
- * @ (#) Ga_DAO.java   1.0     26/09/2025
 package dao;
-
-
-/**
- * @description :
- * @author : Vy, Pham Kha Vy
- * @version 1.0
- * @created : 26/09/2025
- */
 
 import connectDB.ConnectDB;
 import entity.Ga;
@@ -76,8 +66,9 @@ public class Ga_DAO {
             while(resultSet.next()){
                String gaID = resultSet.getString("gaID");
                String tenGa = resultSet.getString("tenGa");
+               boolean isGaLon = resultSet.getBoolean("isGaLon");
                 String tinhThanh = resultSet.getString("tinhThanh");
-                dsGa.add(new Ga(gaID, tenGa, tinhThanh));
+                dsGa.add(new Ga(gaID, isGaLon,tenGa, tinhThanh));
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -127,8 +118,9 @@ public class Ga_DAO {
             while(resultSet.next()){
                 String gaID = resultSet.getString("gaID");
                 String tenGa = resultSet.getString("tenGa");
+                boolean isGaLon = resultSet.getBoolean("isGaLon");
                 String tinhThanh = resultSet.getString("tinhThanh");
-                gaDS.add(new Ga(gaID, tenGa, tinhThanh));
+                gaDS.add(new Ga(gaID,isGaLon, tenGa, tinhThanh));
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -148,8 +140,9 @@ public class Ga_DAO {
             while (resultSet.next()){
                 String gaID = resultSet.getString("gaID");
                 String tenGa = resultSet.getString("tenGa");
+                boolean isGaLon = resultSet.getBoolean("isGaLon");
                 String tinhThanh = resultSet.getString("tinhThanh");
-                return new Ga(gaID, tenGa, tinhThanh);
+                return new Ga(gaID,isGaLon, tenGa, tinhThanh);
             }
         } catch (SQLException e) {
             e.printStackTrace();

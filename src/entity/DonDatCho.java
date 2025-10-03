@@ -19,25 +19,17 @@ import entity.type.TrangThaiDatCho;
 
 public class DonDatCho {
 	private String donDatChoID;
+	private NhanVien nhanVien;
 	private KhachHang khachHang;
-	private Chuyen chuyen;
 	private LocalDateTime thoiDiemDatCho;
-	private LocalDateTime thoiDiemHetHan;
-	private double tongTien;
-	private TrangThaiDatCho trangThaiDonDatCho;
-	
-	public DonDatCho(String donDatChoID, KhachHang khachHang, Chuyen chuyen, LocalDateTime thoiDiemDatCho,
-			LocalDateTime thoiDiemHetHan, double tongTien, TrangThaiDatCho trangThaiDonDatCho) {
-		super();
+
+	public DonDatCho(String donDatChoID, NhanVien nhanVien, KhachHang khachHang, LocalDateTime thoiDiemDatCho) {
 		this.donDatChoID = donDatChoID;
+		this.nhanVien = nhanVien;
 		this.khachHang = khachHang;
-		this.chuyen = chuyen;
 		this.thoiDiemDatCho = thoiDiemDatCho;
-		this.thoiDiemHetHan = thoiDiemHetHan;
-		this.tongTien = tongTien;
-		this.trangThaiDonDatCho = trangThaiDonDatCho;
 	}
-	
+
 	public DonDatCho(String donDatChoID) {
 		super();
 		this.donDatChoID = donDatChoID;
@@ -46,33 +38,21 @@ public class DonDatCho {
  	public DonDatCho() {
  		super();
  	}
-	
+
 	public String getDonDatChoID() {
 		return donDatChoID;
+	}
+
+	public NhanVien getNhanVien() {
+		return nhanVien;
 	}
 
 	public KhachHang getKhachHang() {
 		return khachHang;
 	}
 
-	public Chuyen getChuyen() {
-		return chuyen;
-	}
-
 	public LocalDateTime getThoiDiemDatCho() {
 		return thoiDiemDatCho;
-	}
-
-	public LocalDateTime getThoiDiemHetHan() {
-		return thoiDiemHetHan;
-	}
-
-	public double getTongTien() {
-		return tongTien;
-	}
-
-	public TrangThaiDatCho getTrangThaiDonDatCho() {
-		return trangThaiDonDatCho;
 	}
 
 	public void setDonDatChoID(String donDatChoID) {
@@ -83,35 +63,24 @@ public class DonDatCho {
 		}
 	}
 
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
+	public void setNhanVien(NhanVien nhanVien) {
+		this.nhanVien = nhanVien;
 	}
 
-	public void setChuyen(Chuyen chuyen) {
-		this.chuyen = chuyen;
+	public void setKhachHang(KhachHang khachHang) {
+		this.khachHang = khachHang;
 	}
 
 	public void setThoiDiemDatCho(LocalDateTime thoiDiemDatCho) {
 		this.thoiDiemDatCho = thoiDiemDatCho;
 	}
 
-	public void setThoiDiemHetHan(LocalDateTime thoiDiemHetHan) {
-		this.thoiDiemHetHan = thoiDiemHetHan;
-	}
-
-	public void setTongTien(double tongTien) {
-		this.tongTien = tongTien;
-	}
-
-	public void setTrangThaiDonDatCho(TrangThaiDatCho trangThaiDonDatCho) {
-		this.trangThaiDonDatCho = trangThaiDonDatCho;
-	}
-
 	@Override
 	public String toString() {
-		return donDatChoID + ";" + khachHang + ";" + chuyen
-				+ ";" + thoiDiemDatCho + ";" + thoiDiemHetHan + ";" + tongTien
-				+ ";" + trangThaiDonDatCho;
+		return donDatChoID + ";" + nhanVien
+				+ ";" + khachHang
+				+ ";" + thoiDiemDatCho
+				;
 	}
 
 	@Override

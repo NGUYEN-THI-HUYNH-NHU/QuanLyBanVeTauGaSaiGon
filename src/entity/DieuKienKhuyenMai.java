@@ -5,7 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.HangKhachHang;
 import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.LoaiTau;
@@ -25,7 +24,6 @@ public class DieuKienKhuyenMai {
 	private Tuyen tuyen;
 	private LoaiTau loaiTau;
 	private HangToa hangToa;
-	private HangKhachHang hangKhachHang;
 	private LoaiDoiTuong loaiDoiTuong;
 	private int ngayTrongTuan;
 	private boolean ngayLe;
@@ -40,7 +38,6 @@ public class DieuKienKhuyenMai {
 		this.tuyen = tuyen;
 		this.loaiTau = loaiTau;
 		this.hangToa = hangToa;
-		this.hangKhachHang = hangKhachHang;
 		this.loaiDoiTuong = loaiDoiTuong;
 		this.ngayTrongTuan = ngayTrongTuan;
 		this.ngayLe = ngayLe;
@@ -65,10 +62,6 @@ public class DieuKienKhuyenMai {
 
 	public HangToa getHangToa() {
 		return hangToa;
-	}
-
-	public HangKhachHang getHangKhachHang() {
-		return hangKhachHang;
 	}
 
 	public LoaiDoiTuong getLoaiDoiTuong() {
@@ -111,10 +104,6 @@ public class DieuKienKhuyenMai {
 		this.hangToa = hangToa;
 	}
 
-	public void setHangKhachHang(HangKhachHang hangKhachHang) {
-		this.hangKhachHang = hangKhachHang;
-	}
-
 	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
 		this.loaiDoiTuong = loaiDoiTuong;
 	}
@@ -134,7 +123,7 @@ public class DieuKienKhuyenMai {
 	@Override
 	public String toString() {
 		return dieuKienID + ";" + khuyenMai + ";" + tuyen
-				+ ";" + loaiTau + ";" + hangToa + ";" + hangKhachHang
+				+ ";" + loaiTau + ";" + hangToa
 				+ ";" + loaiDoiTuong + ";" + ngayTrongTuan + ";" + ngayLe
 				+ ";" + minGiaTriDonHang;
 	}

@@ -12,27 +12,22 @@ package entity;
  * @version: 1.0
  */
 
+import java.util.List;
 import java.util.Objects;
 
 public class Tuyen {
 	private String tuyenID;
-	private Ga gaDi;
-	private Ga gaDen;
-	private int khoangCachKm;
-	private int thoiGianDuKienPhut;
+	private String moTa;
+	private List<TuyenChiTiet> danhSachTuyenChiTiet;
 
 	public Tuyen() {
 		super();
 	}
 
-	public Tuyen(String tuyenID, Ga gaDi, Ga gaDen, int khoangCachKm, int thoiGianDuKienPhut) {
+	public Tuyen(String tuyenID, String moTa) {
 		this.tuyenID = tuyenID;
-		this.gaDi = gaDi;
-		this.gaDen = gaDen;
-		this.khoangCachKm = khoangCachKm;
-		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
+		this.moTa = moTa;
 	}
-
 
 	public Tuyen(String tuyenID) {
 		super();
@@ -50,57 +45,47 @@ public class Tuyen {
 		this.tuyenID = tuyenID;
 	}
 
-	public Ga getGaDi() {
-		return gaDi;
+	public String getMoTa() {
+		return moTa;
 	}
 
-	public void setGaDi(Ga gaDi) {
-		if (gaDi == null) {
-			throw new IllegalArgumentException("Ga Đi không được để trống!");
+	public void setMoTa(String moTa) {
+		this.moTa = moTa;
+	}
+
+	public List<TuyenChiTiet> getDanhSachTuyenChiTiet() {
+		return danhSachTuyenChiTiet;
+	}
+
+	public void setDanhSachTuyenChiTiet(List<TuyenChiTiet> danhSachTuyenChiTiet) {
+		this.danhSachTuyenChiTiet = danhSachTuyenChiTiet;
+	}
+
+	public Ga getGaDi() {
+		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
+			return danhSachTuyenChiTiet.get(0).getGa(); // ga đầu tiên
 		}
-		this.gaDi = gaDi;
+		return null;
 	}
 
 	public Ga getGaDen() {
-		return gaDen;
-	}
-
-	public void setGaDen(Ga gaDen) {
-		if (gaDen == null) {
-			throw new IllegalArgumentException("Đa đến không được để trống!");
+		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
+			return danhSachTuyenChiTiet.get(danhSachTuyenChiTiet.size() - 1).getGa(); // ga cuối cùng
 		}
-		this.gaDen = gaDen;
+		return null;
 	}
 
 	public int getKhoangCachKm() {
-		return khoangCachKm;
-	}
-
-	public void setKhoangCachKm(int khoangCachKm) {
-		if (khoangCachKm <= 0) {
-			throw new IllegalArgumentException("Khoảng cách phải lớn hơn 0!");
+		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
+			return danhSachTuyenChiTiet.get(danhSachTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm();
 		}
-		this.khoangCachKm = khoangCachKm;
-	}
-
-	public int getThoiGianDuKienPhut() {
-		return thoiGianDuKienPhut;
-	}
-
-	public void setThoiGianDuKienPhut(int thoiGianDuKienPhut) {
-		if (thoiGianDuKienPhut <= 0) {
-			throw new IllegalArgumentException("Thời gian dự kiến phải lớn hơn 0!");
-		}
-		this.thoiGianDuKienPhut = thoiGianDuKienPhut;
+		return 0;
 	}
 
 	@Override
 	public String toString() {
 		return tuyenID + ";"
-				+ gaDi + ";"
-				+ gaDen + ";"
-				+ khoangCachKm + ";"
-				+ thoiGianDuKienPhut;
+				+ moTa;
 	}
 
 	@Override

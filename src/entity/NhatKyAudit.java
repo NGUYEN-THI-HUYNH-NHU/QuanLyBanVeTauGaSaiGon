@@ -5,6 +5,7 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -17,22 +18,16 @@ import java.util.Objects;
 
 public class NhatKyAudit {
 	private String nhatKyAuditID;
-	private String tenThucThe;
-	private String thucTheID;
-	private String thucHienBoi;
-	private String loaiThaoTac;
-	private LocalDateTime thoiGianThaoTac;
+	private String veID;
+	private String nhanVienID;
+	private LocalDateTime thoiDiemThaoTac;
 	private String chiTiet;
-	
-	public NhatKyAudit(String nhatKyAuditID, String tenThucThe, String thucTheID, String thucHienBoi,
-			String loaiThaoTac, LocalDateTime thoiGianThaoTac, String chiTiet) {
-		super();
+
+	public NhatKyAudit(String nhatKyAuditID, String veID, String nhanVienID, LocalDateTime thoiDiemThaoTac, String chiTiet) {
 		this.nhatKyAuditID = nhatKyAuditID;
-		this.tenThucThe = tenThucThe;
-		this.thucTheID = thucTheID;
-		this.thucHienBoi = thucHienBoi;
-		this.loaiThaoTac = loaiThaoTac;
-		this.thoiGianThaoTac = thoiGianThaoTac;
+		this.veID = veID;
+		this.nhanVienID = nhanVienID;
+		this.thoiDiemThaoTac = thoiDiemThaoTac;
 		this.chiTiet = chiTiet;
 	}
 
@@ -40,24 +35,16 @@ public class NhatKyAudit {
 		return nhatKyAuditID;
 	}
 
-	public String getTenThucThe() {
-		return tenThucThe;
+	public String getVeID() {
+		return veID;
 	}
 
-	public String getThucTheID() {
-		return thucTheID;
+	public String getNhanVienID() {
+		return nhanVienID;
 	}
 
-	public String getThucHienBoi() {
-		return thucHienBoi;
-	}
-
-	public String getLoaiThaoTac() {
-		return loaiThaoTac;
-	}
-
-	public LocalDateTime getThoiGianThaoTac() {
-		return thoiGianThaoTac;
+	public LocalDateTime getThoiDiemThaoTac() {
+		return thoiDiemThaoTac;
 	}
 
 	public String getChiTiet() {
@@ -71,30 +58,16 @@ public class NhatKyAudit {
 		this.nhatKyAuditID = nhatKyAuditID;
 	}
 
-	public void setTenThucThe(String tenThucThe) {
-		if(tenThucThe == null || tenThucThe.isEmpty()) {
-			throw new IllegalArgumentException("Tên thực thể không được để trống!");
-		}
-		this.tenThucThe = tenThucThe;
+	public void setVeID(String veID) {
+		this.veID = veID;
 	}
 
-	public void setThucTheID(String thucTheID) {
-		this.thucTheID = thucTheID;
+	public void setNhanVienID(String nhanVienID) {
+		this.nhanVienID = nhanVienID;
 	}
 
-	public void setThucHienBoi(String thucHienBoi) {
-		this.thucHienBoi = thucHienBoi;
-	}
-
-	public void setLoaiThaoTac(String loaiThaoTac) {
-		this.loaiThaoTac = loaiThaoTac;
-	}
-
-	public void setThoiGianThaoTac(LocalDateTime thoiGianThaoTac) {
-		if(thoiGianThaoTac == null) {
-			throw new IllegalArgumentException("Thời gian thao tác không được để trống!");
-		}
-		this.thoiGianThaoTac = thoiGianThaoTac;
+	public void setThoiDiemThaoTac(LocalDateTime thoiDiemThaoTac) {
+		this.thoiDiemThaoTac = thoiDiemThaoTac;
 	}
 
 	public void setChiTiet(String chiTiet) {
@@ -103,9 +76,11 @@ public class NhatKyAudit {
 
 	@Override
 	public String toString() {
-		return nhatKyAuditID + ";" + tenThucThe + ";" + thucTheID
-				+ ";" + thucHienBoi + ";" + loaiThaoTac + ";"
-				+ thoiGianThaoTac + ";" + chiTiet;
+		return nhanVienID + ";"
+				+ veID + ";"
+				+ nhanVienID + ";"
+				+ thoiDiemThaoTac + ";"
+				+ chiTiet;
 	}
 
 	@Override

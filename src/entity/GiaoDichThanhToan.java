@@ -16,28 +16,28 @@ import java.util.Objects;
  */
 
 public class GiaoDichThanhToan {
-	private String giaoDichThanhToan;
+	private String giaoDichThanhToanID;
 	private HoaDon hoaDon;
 	private KhachHang khachHang;
-	private double soTien;
+	private double tienNhan;
+	private double tienHoan;
 	private LocalDateTime thoiDiemThanhToan;
 	private boolean isThanhToanTienMat;
 	private boolean trangThai;
-	
-	public GiaoDichThanhToan(String giaoDichThanhToan, HoaDon hoaDon, KhachHang khachHang, double soTien,
-			LocalDateTime thoiDiemThanhToan, boolean isThanhToanTienMat, boolean trangThai) {
-		super();
-		this.giaoDichThanhToan = giaoDichThanhToan;
+
+	public GiaoDichThanhToan(String giaoDichThanhToanID, HoaDon hoaDon, KhachHang khachHang, double tienNhan, double tienHoan, LocalDateTime thoiDiemThanhToan, boolean isThanhToanTienMat, boolean trangThai) {
+		this.giaoDichThanhToanID = giaoDichThanhToanID;
 		this.hoaDon = hoaDon;
 		this.khachHang = khachHang;
-		this.soTien = soTien;
+		this.tienNhan = tienNhan;
+		this.tienHoan = tienHoan;
 		this.thoiDiemThanhToan = thoiDiemThanhToan;
 		this.isThanhToanTienMat = isThanhToanTienMat;
 		this.trangThai = trangThai;
 	}
 
-	public String getGiaoDichThanhToan() {
-		return giaoDichThanhToan;
+	public String getGiaoDichThanhToanID() {
+		return giaoDichThanhToanID;
 	}
 
 	public HoaDon getHoaDon() {
@@ -48,8 +48,12 @@ public class GiaoDichThanhToan {
 		return khachHang;
 	}
 
-	public double getSoTien() {
-		return soTien;
+	public double getTienNhan() {
+		return tienNhan;
+	}
+
+	public double getTienHoan() {
+		return tienHoan;
 	}
 
 	public LocalDateTime getThoiDiemThanhToan() {
@@ -64,28 +68,44 @@ public class GiaoDichThanhToan {
 		return trangThai;
 	}
 
-	public void setGiaoDichThanhToan(String giaoDichThanhToan) {
-		this.giaoDichThanhToan = giaoDichThanhToan;
+	public void setGiaoDichThanhToanID(String giaoDichThanhToanID) {
+		if(giaoDichThanhToanID != null && !giaoDichThanhToanID.trim().isEmpty()) {
+			this.giaoDichThanhToanID = giaoDichThanhToanID;
+		}else{
+			throw new IllegalArgumentException("GiaoDichThanhToanID không được để trống!");
+		}
 	}
 
 	public void setHoaDon(HoaDon hoaDon) {
-		this.hoaDon = hoaDon;
+		if(hoaDon != null){
+			this.hoaDon = hoaDon;
+		}else{
+			throw new IllegalArgumentException("Hóa đơn không được để trống!");
+		}
 	}
 
 	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
+		if(khachHang != null) {
+			this.khachHang = khachHang;
+		}else {
+			throw new IllegalArgumentException("Khách hàng không được để trống!");
+		}
 	}
 
-	public void setSoTien(double soTien) {
-		this.soTien = soTien;
+	public void setTienNhan(double tienNhan) {
+		this.tienNhan = tienNhan;
+	}
+
+	public void setTienHoan(double tienHoan) {
+		this.tienHoan = tienHoan;
 	}
 
 	public void setThoiDiemThanhToan(LocalDateTime thoiDiemThanhToan) {
 		this.thoiDiemThanhToan = thoiDiemThanhToan;
 	}
 
-	public void setThanhToanTienMat(boolean isThanhToanTienMat) {
-		this.isThanhToanTienMat = isThanhToanTienMat;
+	public void setThanhToanTienMat(boolean thanhToanTienMat) {
+		isThanhToanTienMat = thanhToanTienMat;
 	}
 
 	public void setTrangThai(boolean trangThai) {
@@ -94,8 +114,8 @@ public class GiaoDichThanhToan {
 
 	@Override
 	public String toString() {
-		return giaoDichThanhToan + ";" + hoaDon + ";"
-				+ khachHang + ";" + soTien + ";" + thoiDiemThanhToan
+		return giaoDichThanhToanID + ";" + hoaDon + ";"
+				+ khachHang + ";" + tienNhan + ";" + tienHoan + ";" + thoiDiemThanhToan
 				+ ";" + isThanhToanTienMat + ";" + trangThai;
 	}
 
@@ -104,11 +124,11 @@ public class GiaoDichThanhToan {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		GiaoDichThanhToan that = (GiaoDichThanhToan) o;
-		return Objects.equals(giaoDichThanhToan, that.giaoDichThanhToan);
+		return Objects.equals(giaoDichThanhToanID, that.giaoDichThanhToanID);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(giaoDichThanhToan);
+		return Objects.hashCode(giaoDichThanhToanID);
 	}
 }

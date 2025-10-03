@@ -17,9 +17,10 @@ import java.util.Objects;
 public class Ga {
 	private String gaID;
 	private String tenGa;
+	private boolean isGaLon;
 	private String tinhThanh;
 	
-	public Ga(String gaID, String tenGa, String tinhThanh) {
+	public Ga(String gaID,boolean isGaLon, String tenGa, String tinhThanh) {
 		super();
 		this.gaID = gaID;
 		this.tenGa = tenGa;
@@ -34,6 +35,10 @@ public class Ga {
 
 	public String getGaID() {
 		return gaID;
+	}
+
+	public boolean isGaLon() {
+		return isGaLon;
 	}
 
 	public String getTenGa() {
@@ -53,11 +58,25 @@ public class Ga {
 	}
 
 	public void setTenGa(String tenGa) {
-		this.tenGa = tenGa;
+		if(tenGa != null && !tenGa.isEmpty()) {
+			this.tenGa = tenGa;
+		}
+		else {
+			throw new IllegalArgumentException("Tên ga không được để trống!");
+		}
+	}
+
+	public void setGaLon(boolean gaLon) {
+		isGaLon = gaLon;
 	}
 
 	public void setTinhThanh(String tinhThanh) {
-		this.tinhThanh = tinhThanh;
+		if(tinhThanh != null && !tinhThanh.isEmpty()) {
+			this.tinhThanh = tinhThanh;
+		}
+		else {
+			throw new IllegalArgumentException("Tỉnh thành không được để trống!");
+		}
 	}
 
 	@Override

@@ -23,7 +23,7 @@ import com.itextpdf.text.Font;
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import gui.application.UngDung;
-import gui.application.form.banVe.PanelBanVe;
+//import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import net.miginfocom.swing.MigLayout;
 
@@ -97,7 +97,7 @@ public class FormDangNhap extends JPanel {
         } else {
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+//            ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
             SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
         }
     }

@@ -19,90 +19,88 @@ public class Chuyen {
 	private String chuyenID;
 	private Tuyen tuyen;
 	private Tau tau;
-	private LocalDateTime gioKhoiHanh;
-	private LocalDateTime gioDen;
+	private LocalDateTime ngayDi;
+	private LocalDateTime gioDi;
 	
-	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime gioKhoiHanh, LocalDateTime gioDen) {
+	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDateTime ngayDi, LocalDateTime gioDi) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tuyen = tuyen;
 		this.tau = tau;
-		this.gioKhoiHanh = gioKhoiHanh;
-		this.gioDen = gioDen;
+		this.ngayDi = ngayDi;
+		this.gioDi = gioDi;
 	}
 	
-	public Chuyen(String chuyenID, Tau tau, LocalDateTime gioKhoiHanh, LocalDateTime gioDen) {
+	public Chuyen(String chuyenID, Tau tau, LocalDateTime ngayDi, LocalDateTime gioDi) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tau = tau;
-		this.gioKhoiHanh = gioKhoiHanh;
-		this.gioDen = gioDen;
-	}
-	
-	public Chuyen(String chuyenID) {
-		this.chuyenID = chuyenID;
-	}
-	
-	public Chuyen() {
-		super();
+		this.ngayDi = ngayDi;
+		this.gioDi = gioDi;
 	}
 
 	public String getChuyenID() {
 		return chuyenID;
 	}
 
+	public void setChuyenID(String chuyenID) {
+		if(chuyenID != null && !chuyenID.trim().isEmpty()){
+			this.chuyenID = chuyenID;
+		}else{
+			throw new IllegalArgumentException("ChuyenID không được rỗng");
+		}
+	}
+
 	public Tuyen getTuyen() {
 		return tuyen;
+	}
+
+	public void setTuyen(Tuyen tuyen) {
+		if(tuyen != null) {
+			this.tuyen = tuyen;
+		}else{
+			throw new IllegalArgumentException("Tuyến không được rỗng");
+		}
 	}
 
 	public Tau getTau() {
 		return tau;
 	}
 
-	public LocalDateTime getNgayGioKhoiHanh() {
-		return gioKhoiHanh;
-	}
-
-	public LocalDateTime getNgayGioDen() {
-		return gioDen;
-	}
-
-	public void setChuyenID(String chuyenID) {
-		if(chuyenID != null && !chuyenID.trim().isEmpty()){
-			this.chuyenID = chuyenID;
-		}else{
-			throw new IllegalArgumentException("Chuyến ID không được để trống!");
-		}
-
-		this.chuyenID = chuyenID;
-	}
-
-	public void setTuyen(Tuyen tuyen) {
-		this.tuyen = tuyen;
-	}
-
 	public void setTau(Tau tau) {
-		this.tau = tau;
+		if(tau != null) {
+			this.tau = tau;
+		}else{
+			throw new IllegalArgumentException("Tàu không được rỗng");
+		}
 	}
 
-	public void setNgayGioKhoiHanh(LocalDateTime gioKhoiHanh) {
-		if(gioKhoiHanh.isAfter(gioDen)) {
-			throw new IllegalArgumentException("Ngày giờ khởi hành phải trước ngày giờ đến!");
-		}
-		this.gioKhoiHanh = gioKhoiHanh;
+	public LocalDateTime getNgayDi() {
+		return ngayDi;
 	}
 
-	public void setNgayGioDen(LocalDateTime gioDen) {
-		if(gioDen.isBefore(gioKhoiHanh)) {
-			throw new IllegalArgumentException("Ngày giờ đến phải sau ngày giờ khởi hành!");
+	public void setNgayDi(LocalDateTime ngayDi) {
+		if(ngayDi == null || ngayDi.isBefore(LocalDateTime.now())) {
+			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
 		}
-		this.gioDen = gioDen;
+		this.ngayDi = ngayDi;
+	}
+
+	public LocalDateTime getGioDi() {
+		return gioDi;
+	}
+
+	public void setGioDi(LocalDateTime gioDi) {
+		if(gioDi == null || (ngayDi != null && gioDi.isBefore(ngayDi))) {
+			throw new IllegalArgumentException("Giờ đi không được rỗng và phải sau ngày đi");
+		}
+		this.gioDi = gioDi;
 	}
 
 	@Override
 	public String toString() {
 		return chuyenID + ";" + tuyen + ";" + tau + ";"
-				+ gioKhoiHanh + ";" + gioDen;
+				+ ngayDi + ";" + gioDi;
 	}
 
 	@Override

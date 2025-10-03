@@ -13,12 +13,15 @@ package bus;
 import dao.Ga_DAO;
 import dao.Tuyen_DAO;
 import entity.Tuyen;
+import entity.TuyenChiTiet;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Tuyen_BUS {
-    private final Tuyen_DAO tuyen_dao;
+    private final dao.Tuyen_DAO tuyen_dao;
     private final Ga_DAO ga_dao;
 
     public Tuyen_BUS(){
@@ -34,19 +37,17 @@ public class Tuyen_BUS {
         return tuyen_dao.getTuyenByID(tuyenID);
     }
 
-    public boolean themTuyenMoi(Tuyen tuyen){
-        if(tuyen.getGaDi().getGaID().equals(tuyen.getGaDen().getGaID())){
-            throw new IllegalArgumentException("Ga Đi và Ga Đến không được trùng nhau!");
+    public boolean themTuyenMoi(Tuyen tuyenMoi){
+        if(tuyenMoi.getDanhSachTuyenChiTiet() == null || tuyenMoi.getDanhSachTuyenChiTiet().size() < 2){
+            throw new IllegalArgumentException("Tuyến mới phải có ít nhất 2 ga.");
         }
-        return tuyen_dao.themTuyenMoi(tuyen);
+        return tuyen_dao.themTuyenMoi(tuyenMoi);
     }
 
-    public int capNhatTuyenByID(String id, Tuyen tuyenCapNhat){
-        return tuyen_dao.capNhatTuyenByID(id, tuyenCapNhat);
-    }
 
-    public List<Tuyen> timTuyenTheoGa(String gaDiID, String gaDenID){
-        return tuyen_dao.getTuyenTheoGa(gaDiID, gaDenID);
+
+    public int capNhatTuyenByID(String tuyenID, Tuyen tuyenCapNhat){
+        return tuyen_dao.capNhatTuyenByID(tuyenID, tuyenCapNhat);
     }
 
     public List<String> timIDTuyenChoGoiY(String input) {
@@ -54,14 +55,23 @@ public class Tuyen_BUS {
             return new ArrayList<>();
         }
 
+        // Gọi xuống DAO
         List<Tuyen> dsTuyen = tuyen_dao.getTuyenByID(input.trim());
         List<String> idTuyenList = new ArrayList<>();
 
-
-            for (Tuyen tuyen : dsTuyen) {
-                idTuyenList.add(tuyen.getTuyenID());
-            }
+        for(Tuyen tuyen : dsTuyen){
+            idTuyenList.add(tuyen.getTuyenID());
+        }
 
         return idTuyenList;
     }
+
+   public List<Tuyen> timTuyenTheoGa(String gaDi, String gaDen){
+        if((gaDi == null || gaDi.trim().isEmpty()) && (gaDen == null || gaDen.trim().isEmpty())){
+            return new ArrayList<>();
+        }
+        return tuyen_dao.getTuyenTheoGa(gaDi.trim(), gaDen.trim());
+    }
 }
+
+

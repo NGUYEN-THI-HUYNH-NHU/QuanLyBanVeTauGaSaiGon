@@ -21,17 +21,13 @@ public class HeSoGiaHangToa {
 	private String hsgHangToaID;
 	private HangToa hangToa;
 	private double hsg;
-	private LocalDate ngayCoHieuLuc;
-	private LocalDate ngayHetHieuLuc;
-	
-	public HeSoGiaHangToa(String hsgHangToaID, HangToa hangToa, double hsg, LocalDate ngayCoHieuLuc,
-			LocalDate ngayHetHieuLuc) {
-		super();
+	private boolean isCoHieuLuc;
+
+	public HeSoGiaHangToa(String hsgHangToaID, HangToa hangToa, double hsg, boolean isCoHieuLuc) {
 		this.hsgHangToaID = hsgHangToaID;
 		this.hangToa = hangToa;
 		this.hsg = hsg;
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
+		this.isCoHieuLuc = isCoHieuLuc;
 	}
 
 	public String getHsgHangToaID() {
@@ -46,12 +42,8 @@ public class HeSoGiaHangToa {
 		return hsg;
 	}
 
-	public LocalDate getNgayCoHieuLuc() {
-		return ngayCoHieuLuc;
-	}
-
-	public LocalDate getNgayHetHieuLuc() {
-		return ngayHetHieuLuc;
+	public boolean isCoHieuLuc() {
+		return isCoHieuLuc;
 	}
 
 	public void setHsgHangToaID(String hsgHangToaID) {
@@ -62,31 +54,27 @@ public class HeSoGiaHangToa {
 	}
 
 	public void setHangToa(HangToa hangToa) {
+		if(hangToa == null) {
+			throw new IllegalArgumentException("Hạng toa không được để trống!");
+		}
 		this.hangToa = hangToa;
 	}
 
 	public void setHsg(double hsg) {
+		if(hsg <= 0) {
+			throw new IllegalArgumentException("Hệ số giá phải lớn hơn 0!");
+		}
 		this.hsg = hsg;
 	}
 
-	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
-		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
-			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
-		}
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-	}
-
-	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
-		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
-			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
-		}
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
+	public void setCoHieuLuc(boolean coHieuLuc) {
+		isCoHieuLuc = coHieuLuc;
 	}
 
 	@Override
 	public String toString() {
 		return hsgHangToaID + ";" + hangToa + ";" + hsg
-				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc;
+				+ ";" + isCoHieuLuc ;
 	}
 
 	@Override

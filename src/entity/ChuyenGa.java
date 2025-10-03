@@ -16,26 +16,20 @@ import java.util.Objects;
  */
 
 public class ChuyenGa {
-	private String chuyenGaID;
 	private Chuyen chuyen;
 	private Ga ga;
-	private int thuThu;
-	private LocalDateTime ngayGioKhoiHanh;
-	private LocalDateTime ngayGioDen;
+	private int thuTu;
+	private LocalDateTime gioDen;
+	private LocalDateTime gioDi;
 	
-	public ChuyenGa(String chuyenGaID, Chuyen chuyen, Ga ga, int thuThu, LocalDateTime ngayGioKhoiHanh,
-			LocalDateTime ngayGioDen) {
+	public ChuyenGa(Chuyen chuyen, Ga ga, int thuTu, LocalDateTime gioDen,
+					LocalDateTime gioDi) {
 		super();
-		this.chuyenGaID = chuyenGaID;
 		this.chuyen = chuyen;
 		this.ga = ga;
-		this.thuThu = thuThu;
-		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
-		this.ngayGioDen = ngayGioDen;
-	}
-
-	public String getChuyenGaID() {
-		return chuyenGaID;
+		this.thuTu = thuTu;
+		this.gioDen = gioDen;
+		this.gioDi = gioDi;
 	}
 
 	public Chuyen getChuyen() {
@@ -46,24 +40,16 @@ public class ChuyenGa {
 		return ga;
 	}
 
-	public int getThuThu() {
-		return thuThu;
+	public int getThuTu() {
+		return thuTu;
 	}
 
-	public LocalDateTime getNgayGioKhoiHanh() {
-		return ngayGioKhoiHanh;
+	public LocalDateTime getGioDen() {
+		return gioDen;
 	}
 
-	public LocalDateTime getNgayGioDen() {
-		return ngayGioDen;
-	}
-
-	public void setChuyenGaID(String chuyenGaID) {
-		if(chuyenGaID != null && !chuyenGaID.trim().isEmpty()){
-			this.chuyenGaID = chuyenGaID;
-		}else{
-			throw new IllegalArgumentException("Chuyến Ga ID không được để trống!");
-		}
+	public LocalDateTime getGioDi() {
+		return gioDi;
 	}
 
 	public void setChuyen(Chuyen chuyen) {
@@ -74,43 +60,25 @@ public class ChuyenGa {
 		this.ga = ga;
 	}
 
-	public void setThuThu(int thuThu) {
-		if(thuThu < 1) {
+	public void setThuTu(int thuTu) {
+		if(thuTu < 1) {
 			throw new IllegalArgumentException("Thứ tự không được nhỏ hơn 1!");
 		}
-		this.thuThu = thuThu;
+		this.thuTu = thuTu;
 	}
 
-	public void setNgayGioKhoiHanh(LocalDateTime ngayGioKhoiHanh) {
-		if(ngayGioKhoiHanh.isAfter(ngayGioDen)) {
-			throw new IllegalArgumentException("Ngày giờ khởi hành phải trước ngày giờ đến!");
-		}
-		this.ngayGioKhoiHanh = ngayGioKhoiHanh;
+	public void setGioDen(LocalDateTime gioDen) {
+		this.gioDen = gioDen;
 	}
 
-	public void setNgayGioDen(LocalDateTime ngayGioDen) {
-		if(ngayGioDen.isBefore(ngayGioKhoiHanh)) {
-			throw new IllegalArgumentException("Ngày giờ đến phải sau ngày giờ khởi hành!");
-		}
-		this.ngayGioDen = ngayGioDen;
+	public void setGioDi(LocalDateTime gioDi) {
+		this.gioDi = gioDi;
 	}
 
 	@Override
 	public String toString() {
-		return chuyenGaID + ";" + chuyen + ";" + ga + ";" + thuThu
-				+ ";" + ngayGioKhoiHanh + ";" + ngayGioDen;
+		return  chuyen + ";" + ga + ";" + thuTu
+				+ ";" + gioDen + ";" + gioDi;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ChuyenGa chuyenGa = (ChuyenGa) o;
-		return Objects.equals(chuyenGaID, chuyenGa.chuyenGaID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(chuyenGaID);
-	}
 }

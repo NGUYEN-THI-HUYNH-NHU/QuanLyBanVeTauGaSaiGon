@@ -5,8 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.HangKhachHang;
-
 import java.util.Objects;
 
 /*
@@ -18,17 +16,15 @@ import java.util.Objects;
 
 public class KhachHang {
 	private String khachHangID;
-	private HangKhachHang hangKhachHang;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
 	private String diaChi;
 	
-	public KhachHang(String khachHangID, HangKhachHang hangKhachHang, String hoTen, String soDienThoai, String email,
+	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
 			String diaChi) {
 		super();
 		this.khachHangID = khachHangID;
-		this.hangKhachHang = hangKhachHang;
 		this.hoTen = hoTen;
 		this.soDienThoai = soDienThoai;
 		this.email = email;
@@ -46,10 +42,6 @@ public class KhachHang {
 
 	public String getKhachHangID() {
 		return khachHangID;
-	}
-
-	public HangKhachHang getHangKhachHang() {
-		return hangKhachHang;
 	}
 
 	public String getHoTen() {
@@ -75,29 +67,37 @@ public class KhachHang {
 		this.khachHangID = khachHangID;
 	}
 
-	public void setHangKhachHang(HangKhachHang hangKhachHang) {
-		this.hangKhachHang = hangKhachHang;
-	}
-
 	public void setHoTen(String hoTen) {
+		if(hoTen == null || hoTen.isEmpty()) {
+			throw new IllegalArgumentException("Họ tên không được để trống!");
+		}
 		this.hoTen = hoTen;
 	}
 
 	public void setSoDienThoai(String soDienThoai) {
+		if(soDienThoai == null || soDienThoai.isEmpty()) {
+			throw new IllegalArgumentException("Số điện thoại không được để trống!");
+		}
 		this.soDienThoai = soDienThoai;
 	}
 
 	public void setEmail(String email) {
+		if(email == null || email.isEmpty()) {
+			throw new IllegalArgumentException("Email không được để trống!");
+		}
 		this.email = email;
 	}
 
 	public void setDiaChi(String diaChi) {
+		if(diaChi == null || diaChi.isEmpty()) {
+			throw new IllegalArgumentException("Địa chỉ không được để trống!");
+		}
 		this.diaChi = diaChi;
 	}
 
 	@Override
 	public String toString() {
-		return khachHangID + ";" + hangKhachHang + ";" + hoTen
+		return khachHangID + ";" +  hoTen
 				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
 	}
 

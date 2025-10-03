@@ -22,21 +22,18 @@ public class Ghe {
 	private String gheID;
 	private Toa toa;
 	private String soGhe;
-	private TrangThaiGhe trangThai;
 	
-	public Ghe(String gheID, Toa toa, String soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, Toa toa, String soGhe) {
 		super();
 		this.gheID = gheID;
 		this.toa = toa;
 		this.soGhe = soGhe;
-		this.trangThai = trangThai;
 	}
 
-	public Ghe(String gheID, String soGhe, TrangThaiGhe trangThai) {
+	public Ghe(String gheID, String soGhe) {
 		super();
 		this.gheID = gheID;
 		this.soGhe = soGhe;
-		this.trangThai = trangThai;
 	}
 	
 	public Ghe() {
@@ -55,10 +52,6 @@ public class Ghe {
 		return soGhe;
 	}
 
-	public TrangThaiGhe getTrangThai() {
-		return trangThai;
-	}
-
 	public void setGheID(String gheID) {
 		if(gheID != null && !gheID.isEmpty()) {
 			this.gheID = gheID;
@@ -68,20 +61,22 @@ public class Ghe {
 	}
 
 	public void setToa(Toa toa) {
+		if(toa == null) {
+			throw new IllegalArgumentException("Toa không được để trống!");
+		}
 		this.toa = toa;
 	}
 
 	public void setSoGhe(String soGhe) {
+		if(soGhe == null || soGhe.isEmpty()) {
+			throw new IllegalArgumentException("Số ghế không được để trống!");
+		}
 		this.soGhe = soGhe;
-	}
-
-	public void setTrangThai(TrangThaiGhe trangThai) {
-		this.trangThai = trangThai;
 	}
 
 	@Override
 	public String toString() {
-		return gheID + ";" + toa + ";" + soGhe + ";" + trangThai.toString();
+		return gheID + ";" + toa + ";" + soGhe ;
 	}
 
 	@Override
