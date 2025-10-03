@@ -75,16 +75,16 @@ public class PanelBuoc2Controller {
     	return this.currentTripIndex;
     }
 
-//    public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
-//        this.chuyenList = chuyens;
-//        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayGioKhoiHanh().toLocalDate());
-//        panelChuyenTau.showChuyenList(chuyens);
-//        if (chuyens != null && !chuyens.isEmpty()) {
-//            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
-//            onChuyenSelected(chuyens.get(0));
-//        }
-//        panelGioVe.refresh(ticketBUS.getAllTickets());
-//    }
+    public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
+        this.chuyenList = chuyens;
+        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
+        panelChuyenTau.showChuyenList(chuyens);
+        if (chuyens != null && !chuyens.isEmpty()) {
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
+            onChuyenSelected(chuyens.get(0));
+        }
+        panelGioVe.refresh(ticketBUS.getAllTickets());
+    }
 
     public void onChuyenSelected(Chuyen c) {
         if (c == null)
@@ -121,91 +121,91 @@ public class PanelBuoc2Controller {
         return s == null || s.trim().isEmpty() || "null".equalsIgnoreCase(s.trim());
     }
 
-//    public void loadSeatsForToa(Toa toa, Consumer<List<Ghe>> callback) {
-//        if (toa == null) {
-//            callback.accept(Collections.emptyList());
-//            return;
-//        }
-//
-//        // 1) fetch current chuyen/toa
-//        String chuyenID = (selectedChuyen != null) ? selectedChuyen.getChuyenID() : null;
-//        String toaID = toa.getToaID();
-//
-//        // 2) try to get gaDi/gaDen from bookingSession (based on currentTripIndex)
-//        String gaDiID = null;
-//        String gaDenID = null;
-//        if (bookingSession != null) {
-//            SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
-//                                                       : bookingSession.getReturnCriteria();
-//            if (sc != null) {
-//                gaDiID = sc.getGaDiId();   // ensure method name matches your class
-//                gaDenID = sc.getGaDenId();
-//            }
-//        }
-//
-//        // 3) Normalize: treat literal "null" or empty as missing
-//        if (isMissingId(gaDiID)) gaDiID = null;
-//        if (isMissingId(gaDenID)) gaDenID = null;
-//
-//        // 4) Fallback: try get from selectedChuyen's tuyen (if entity supports it)
-//        if ((gaDiID == null || gaDenID == null) && selectedChuyen != null) {
-//            try {
-//                Tuyen tuyen = selectedChuyen.getTuyen(); // adjust to your entity API
-//                if (tuyen != null) {
-//                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
-//                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
-//                }
-//            } catch (Throwable ignored) {
-//                // nếu entity khác, xử lý tương ứng
-//            }
-//        }
-//
-//        // 5) Fallback 2: try resolve by name via BUS (use SearchCriteria names)
-//        if ((gaDiID == null || gaDenID == null) && bookingSession != null) {
-//            SearchCriteria sc = bookingSession.getOutboundCriteria();
-//            if (sc == null && currentTripIndex == 1) sc = bookingSession.getReturnCriteria();
-//            if (sc != null) {
-//                try {
-//                    if (gaDiID == null && sc.getGaDiName() != null && !sc.getGaDiName().trim().isEmpty()) {
-//                        Ga g = chuyenBUS.timGaTheoTenGa(sc.getGaDiName().trim());
-//                        if (g != null) gaDiID = g.getGaID();
-//                    }
-//                    if (gaDenID == null && sc.getGaDenName() != null && !sc.getGaDenName().trim().isEmpty()) {
-//                        Ga g2 = chuyenBUS.timGaTheoTenGa(sc.getGaDenName().trim());
-//                        if (g2 != null) gaDenID = g2.getGaID();
-//                    }
-//                } catch (Throwable ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//        }
-//
-//        // 6) final check
-//        if (isMissingId(gaDiID) || isMissingId(gaDenID) || isMissingId(chuyenID) || isMissingId(toaID)) {
-//            System.err.println(String.format("loadSeatsForToa: missing param gaDi=%s gaDen=%s chuyen=%s toa=%s",
-//                    gaDiID, gaDenID, chuyenID, toaID));
-//            callback.accept(Collections.emptyList());
-//            return;
-//        }
-//
-//        // 7) call core loader (thứ tự tham số đúng theo Chuyen_BUS)
-//        loadSeatsForToa(gaDiID, gaDenID, chuyenID, toaID, callback);
-//    }
+    public void loadSeatsForToa(Toa toa, Consumer<List<Ghe>> callback) {
+        if (toa == null) {
+            callback.accept(Collections.emptyList());
+            return;
+        }
 
-//    public void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID, Consumer<List<Ghe>> callback) {
-//        new SwingWorker<List<Ghe>, Void>() {
-//            protected List<Ghe> doInBackground() throws Exception {
-//                if (gaDiID == null || gaDenID == null || chuyenID == null || toaID == null) {
-//                    return Collections.emptyList();
-//                }
-//                return chuyenBUS.layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID, toaID);
-//            }
-//            protected void done() {
-//                try { callback.accept(get()); }
-//                catch (Exception ex) { ex.printStackTrace(); callback.accept(Collections.emptyList()); }
-//            }
-//        }.execute();
-//    }
+        // 1) fetch current chuyen/toa
+        String chuyenID = (selectedChuyen != null) ? selectedChuyen.getChuyenID() : null;
+        String toaID = toa.getToaID();
+
+        // 2) try to get gaDi/gaDen from bookingSession (based on currentTripIndex)
+        String gaDiID = null;
+        String gaDenID = null;
+        if (bookingSession != null) {
+            SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
+                                                       : bookingSession.getReturnCriteria();
+            if (sc != null) {
+                gaDiID = sc.getGaDiId();   // ensure method name matches your class
+                gaDenID = sc.getGaDenId();
+            }
+        }
+
+        // 3) Normalize: treat literal "null" or empty as missing
+        if (isMissingId(gaDiID)) gaDiID = null;
+        if (isMissingId(gaDenID)) gaDenID = null;
+
+        // 4) Fallback: try get from selectedChuyen's tuyen (if entity supports it)
+        if ((gaDiID == null || gaDenID == null) && selectedChuyen != null) {
+            try {
+                Tuyen tuyen = selectedChuyen.getTuyen(); // adjust to your entity API
+                if (tuyen != null) {
+                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
+                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
+                }
+            } catch (Throwable ignored) {
+                // nếu entity khác, xử lý tương ứng
+            }
+        }
+
+        // 5) Fallback 2: try resolve by name via BUS (use SearchCriteria names)
+        if ((gaDiID == null || gaDenID == null) && bookingSession != null) {
+            SearchCriteria sc = bookingSession.getOutboundCriteria();
+            if (sc == null && currentTripIndex == 1) sc = bookingSession.getReturnCriteria();
+            if (sc != null) {
+                try {
+                    if (gaDiID == null && sc.getGaDiName() != null && !sc.getGaDiName().trim().isEmpty()) {
+                        Ga g = chuyenBUS.timGaTheoTenGa(sc.getGaDiName().trim());
+                        if (g != null) gaDiID = g.getGaID();
+                    }
+                    if (gaDenID == null && sc.getGaDenName() != null && !sc.getGaDenName().trim().isEmpty()) {
+                        Ga g2 = chuyenBUS.timGaTheoTenGa(sc.getGaDenName().trim());
+                        if (g2 != null) gaDenID = g2.getGaID();
+                    }
+                } catch (Throwable ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        // 6) final check
+        if (isMissingId(gaDiID) || isMissingId(gaDenID) || isMissingId(chuyenID) || isMissingId(toaID)) {
+            System.err.println(String.format("loadSeatsForToa: missing param gaDi=%s gaDen=%s chuyen=%s toa=%s",
+                    gaDiID, gaDenID, chuyenID, toaID));
+            callback.accept(Collections.emptyList());
+            return;
+        }
+
+        // 7) call core loader (thứ tự tham số đúng theo Chuyen_BUS)
+        loadSeatsForToa(gaDiID, gaDenID, chuyenID, toaID, callback);
+    }
+
+    public void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID, Consumer<List<Ghe>> callback) {
+        new SwingWorker<List<Ghe>, Void>() {
+            protected List<Ghe> doInBackground() throws Exception {
+                if (gaDiID == null || gaDenID == null || chuyenID == null || toaID == null) {
+                    return Collections.emptyList();
+                }
+                return chuyenBUS.layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID, toaID);
+            }
+            protected void done() {
+                try { callback.accept(get()); }
+                catch (Exception ex) { ex.printStackTrace(); callback.accept(Collections.emptyList()); }
+            }
+        }.execute();
+    }
 
     public void highlightToa(Toa toa) {
         if (toa == null) return;
@@ -221,38 +221,38 @@ public class PanelBuoc2Controller {
     }
 
     // user clicked a seat button
-//    public void onSeatClicked(Toa toa, Ghe ghe) {
-//        if (ghe == null || toa == null) return;
-//        if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
-//            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
-//            return;
-//        }
-//        new SwingWorker<entity.Ve, Void>() {
-//            protected entity.Ve doInBackground() throws Exception {
-//                // create hold in DB via DonDatCho_BUS
-//                // returns Ve object with hold expiry timestamp and id
-//                return donDatChoBUS.createHold(toa, ghe);
-//            }
-//            protected void done() {
-//                try {
-//                    entity.Ve v = get();
-//                    if (v != null) {
-//                        // add to TicketBUS
-//                        ticketBUS.addTicket(v);
-//                        // update UI: refresh right panel
-//                        panelGioVe.refresh(ticketBUS.getAllTickets());
-//                        // start countdown for this ticket
-//                        startCountdownForTicket(v);
-//                        // refresh seat grid to mark as selected
-//                        panelSoDoCho.setCurrentToa(toa);
-//                    } else {
-//                        JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
-//                        panelSoDoCho.setCurrentToa(toa);
-//                    }
-//                } catch (Exception ex) { ex.printStackTrace(); }
-//            }
-//        }.execute();
-//    }
+    public void onSeatClicked(Toa toa, Ghe ghe) {
+        if (ghe == null || toa == null) return;
+        if (ghe.getTrangThai() == TrangThaiGhe.OCCUPIED) {
+            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
+            return;
+        }
+        new SwingWorker<entity.Ve, Void>() {
+            protected entity.Ve doInBackground() throws Exception {
+                // create hold in DB via DonDatCho_BUS
+                // returns Ve object with hold expiry timestamp and id
+                return donDatChoBUS.createHold(toa, ghe);
+            }
+            protected void done() {
+                try {
+                    entity.Ve v = get();
+                    if (v != null) {
+                        // add to TicketBUS
+                        ticketBUS.addTicket(v);
+                        // update UI: refresh right panel
+                        panelGioVe.refresh(ticketBUS.getAllTickets());
+                        // start countdown for this ticket
+                        startCountdownForTicket(v);
+                        // refresh seat grid to mark as selected
+                        panelSoDoCho.setCurrentToa(toa);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
+                        panelSoDoCho.setCurrentToa(toa);
+                    }
+                } catch (Exception ex) { ex.printStackTrace(); }
+            }
+        }.execute();
+    }
 
     // start a swing timer updating corresponding JLabel; label may be registered by panelGioVe
     public void registerCountdownLabelForTicket(entity.Ve v, JLabel lbl) {

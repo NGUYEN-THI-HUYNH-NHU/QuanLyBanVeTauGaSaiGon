@@ -78,12 +78,12 @@ public class PanelBuoc2 extends JPanel {
 //    }
 
  // trong PanelBuoc2 (UI wrapper), có 1 controller (panelBuoc2Controller)
-//    public void enter(SearchCriteria criteria, List<Chuyen> results, int tripIndex, BookingSession session) {
-//    	System.out.println("PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
-//        controller.setBookingSession(session);
-//        controller.setCurrentTripIndex(tripIndex);
-//        controller.setChuyenList(results,
-//            criteria != null ? criteria.getGaDiName() : "",
-//            criteria != null ? criteria.getGaDenName() : "");
-//    }
+    public void enter(SearchCriteria criteria, List<Chuyen> results, int tripIndex, BookingSession session) {
+    	System.out.println("PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
+        controller.setBookingSession(session);
+        controller.setCurrentTripIndex(tripIndex);
+        controller.setChuyenList(results,
+            criteria != null ? criteria.getGaDiName() : "",
+            criteria != null ? criteria.getGaDenName() : "");
+    }
 }

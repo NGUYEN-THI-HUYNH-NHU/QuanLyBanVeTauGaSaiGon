@@ -40,17 +40,17 @@ public class Chuyen_BUS {
     }
     
     // Lấy danh sách các ghế trong toa của tàu được chọn kèm trạng thái để hiện thị màu trong sơ đồ chỗ
-//    public Map<String, String> layTrangThaiCacGheTrongToaCuaChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
-//        List<Ghe> gheList = gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
-//
-//        Map<String, String> result = new HashMap<>();
-//        if (gheList != null) {
-//            for (Ghe ghe : gheList)
-//                result.put(ghe.getGheID(), ghe..toString());
-//        }
-//
-//        return result;
-//    }
+    public Map<String, String> layTrangThaiCacGheTrongToaCuaChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
+        List<Ghe> gheList = gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
+
+        Map<String, String> result = new HashMap<>();
+        if (gheList != null) {
+            for (Ghe ghe : gheList)
+                result.put(ghe.getGheID(), ghe.toString());
+        }
+
+        return result;
+    }
 
     public List<Chuyen> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
         return chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
@@ -75,7 +75,7 @@ public class Chuyen_BUS {
     	return toaDAO.getToaByChuyenID(chuyenID);
     }
     
-//    public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
-//    	return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
-//    }
+    public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
+    	return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
+    }
 }
