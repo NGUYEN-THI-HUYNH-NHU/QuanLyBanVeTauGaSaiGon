@@ -15,7 +15,6 @@ import com.formdev.flatlaf.ui.FlatUIUtils;
 import dao.Tuyen_DAO;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
-
 import javax.swing.*;
 import java.awt.*;
 
