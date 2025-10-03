@@ -118,7 +118,7 @@ public class PanelQuanLyTuyen extends JPanel {
         add(panelNorth, BorderLayout.NORTH);
 
         // --- 2. TABLE DỮ LIỆU ---
-        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến", "Khoảng Cách (km)", "Thời Gian (phút)"};
+        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến", "Khoảng Cách (km)"};
         tableModelTuyen = new DefaultTableModel(columnNames,0){
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -199,8 +199,7 @@ public class PanelQuanLyTuyen extends JPanel {
                      t.getTuyenID(),
                      t.getGaDi().getTenGa(),
                      t.getGaDen().getTenGa(),
-                     t.getKhoangCachKm(),
-                     t.getThoiGianDuKienPhut()
+                     t.getKhoangCachKm()
              });
          }
     }

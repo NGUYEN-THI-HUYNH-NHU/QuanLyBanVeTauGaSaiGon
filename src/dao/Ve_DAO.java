@@ -36,7 +36,7 @@
 //            ps.setInt(7, ve.getThuTuGaDen());
 //            ps.setDouble(8, ve.getGia());
 //            ps.setString(9, ve.getTrangThai());
-//            ps.setTimestamp(10, ve.getNgayBan() == null ? null : Timestamp.valueOf(ve.getNgayBan()));
+//            ps.setTimestamp(10, ve.getThoiDiemBan() == null ? null : Timestamp.valueOf(ve.getThoiDiemBan()));
 //            return ps.executeUpdate() > 0;
 //        } catch (SQLException e) {
 //            e.printStackTrace();
@@ -56,7 +56,7 @@
 //            ps.setInt(6, ve.getThuTuGaDen());
 //            ps.setDouble(7, ve.getGia());
 //            ps.setString(8, ve.getTrangThai());
-//            ps.setTimestamp(9, ve.getNgayBan() == null ? null : Timestamp.valueOf(ve.getNgayBan()));
+//            ps.setTimestamp(9, ve.getThoiDiemBan() == null ? null : Timestamp.valueOf(ve.getThoiDiemBan()));
 //            ps.setString(10, ve.getVeID());
 //            return ps.executeUpdate() > 0;
 //        } catch (SQLException e) { e.printStackTrace(); return false; }
@@ -89,7 +89,7 @@
 //                    v.setGia(rs.getDouble("gia"));
 //                    v.setTrangThai(rs.getString("trangThai"));
 //                    Timestamp t = rs.getTimestamp("ngayBan");
-//                    v.setNgayBan(t == null ? null : t.toLocalDateTime());
+//                    v.setThoiDiemBan(t == null ? null : t.toLocalDateTime());
 //                    return v;
 //                }
 //            }
@@ -115,7 +115,7 @@
 //                v.setGia(rs.getDouble("gia"));
 //                v.setTrangThai(rs.getString("trangThai"));
 //                Timestamp t = rs.getTimestamp("ngayBan");
-//                v.setNgayBan(t == null ? null : t.toLocalDateTime());
+//                v.setThoiDiemBan(t == null ? null : t.toLocalDateTime());
 //                list.add(v);
 //            }
 //        } catch (SQLException e) { e.printStackTrace(); }
@@ -227,7 +227,7 @@
 //                v.setThuTuGaDen(ct.getThuTuGaDen());
 //                v.setGia(ct.getGia());
 //                v.setTrangThai("BOOKED");
-//                v.setNgayBan(LocalDateTime.now());
+//                v.setThoiDiemBan(LocalDateTime.now());
 //                if (!veDao.insert(v)) { c.rollback(); c.setAutoCommit(true); return false; }
 //
 //                // thêm chi tiết hóa đơn liên kết vé: HoaDonChiTiet_DAO
@@ -240,7 +240,7 @@
 //                hdc.setTenMatHang("Vé " + v.getVeID());
 //                hdc.setDonGia(v.getGia());
 //                hdc.setSoLuong(1);
-//                hdc.setSoTien(v.getGia());
+//                hdc.setTienNhan(v.getGia());
 //                hdc.setThue(0);
 //                hdc.setVeID(v.getVeID());
 //                if (!hdcDao.insert(hdc)) { c.rollback(); c.setAutoCommit(true); return false; }
@@ -425,7 +425,7 @@
 //            ps.setString(5, hdc.getTenMatHang());
 //            ps.setDouble(6, hdc.getDonGia());
 //            ps.setInt(7, hdc.getSoLuong());
-//            ps.setDouble(8, hdc.getSoTien());
+//            ps.setDouble(8, hdc.getTienNhan());
 //            ps.setDouble(9, hdc.getThue());
 //            ps.setString(10, hdc.getVeID());
 //            return ps.executeUpdate() > 0;
@@ -456,10 +456,10 @@
 //                    BieuGiaVe b = new BieuGiaVe();
 //                    b.setId(rs.getString("bieuGiaveID"));
 //                    b.setTuyenApDungID(rs.getString("tuyenApDungID"));
-//                    b.setHangToaApDungID(rs.getString("hangToaApDungID"));
-//                    b.setLoaiTauApDungID(rs.getString("LoaiTauApDungID"));
+//                    b.setHangToaApDung(rs.getString("hangToaApDungID"));
+//                    b.setLoaiTauApDung(rs.getString("LoaiTauApDungID"));
 //                    b.setDonGiaTrenKm(rs.getDouble("donGiaTrenKm"));
-//                    b.setGiaCoDinh(rs.getDouble("giaCoDinh"));
+//                    b.setGiaCoBan(rs.getDouble("giaCoDinh"));
 //                    b.setPhuPhiCaoDiem(rs.getDouble("phuPhiCaoDiem"));
 //                    return b;
 //                }
@@ -477,7 +477,7 @@
 //        BieuGiaVe b = findApplicablePrice(tuyenID, hangToaID, loaiTauID, km);
 //        if (b == null) return 0.0;
 //        double base;
-//        if (b.getGiaCoDinh() != null && b.getGiaCoDinh() > 0) base = b.getGiaCoDinh();
+//        if (b.getGiaCoBan() != null && b.getGiaCoBan() > 0) base = b.getGiaCoBan();
 //        else if (b.getDonGiaTrenKm() != null) base = b.getDonGiaTrenKm() * km;
 //        else base = 0.0;
 //        if (b.getPhuPhiCaoDiem() != null) base += b.getPhuPhiCaoDiem();

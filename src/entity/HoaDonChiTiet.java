@@ -17,28 +17,24 @@ import java.util.Objects;
 public class HoaDonChiTiet {
 	private String hoaDonChiTietID;
 	private HoaDon hoaDon;
-	private String loaiDichVu;
-	private String dichVuID;
-	private String tenDichVu;
-	private double donGia;
-	private int soLuong;
-	private double soTien;
-	private double thue;
 	private Ve ve;
-	
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, String loaiDichVu, String dichVuID, String tenDichVu,
-			double donGia, int soLuong, double soTien, double thue, Ve ve) {
-		super();
+	private String tenDichVu;
+	private String donViTinh;
+	private int soLuong;
+	private double donGia;
+	private double thue;
+	private double thanhTien;
+
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, String donViTinh, int soLuong, double donGia, double thue, double thanhTien) {
 		this.hoaDonChiTietID = hoaDonChiTietID;
 		this.hoaDon = hoaDon;
-		this.loaiDichVu = loaiDichVu;
-		this.dichVuID = dichVuID;
-		this.tenDichVu = tenDichVu;
-		this.donGia = donGia;
-		this.soLuong = soLuong;
-		this.soTien = soTien;
-		this.thue = thue;
 		this.ve = ve;
+		this.tenDichVu = tenDichVu;
+		this.donViTinh = donViTinh;
+		this.soLuong = soLuong;
+		this.donGia = donGia;
+		this.thue = thue;
+		this.thanhTien = thanhTien;
 	}
 
 	public String getHoaDonChiTietID() {
@@ -49,36 +45,32 @@ public class HoaDonChiTiet {
 		return hoaDon;
 	}
 
-	public String getLoaiDichVu() {
-		return loaiDichVu;
-	}
-
-	public String getDichVuID() {
-		return dichVuID;
+	public Ve getVe() {
+		return ve;
 	}
 
 	public String getTenDichVu() {
 		return tenDichVu;
 	}
 
-	public double getDonGia() {
-		return donGia;
+	public String getDonViTinh() {
+		return donViTinh;
 	}
 
 	public int getSoLuong() {
 		return soLuong;
 	}
 
-	public double getSoTien() {
-		return soTien;
+	public double getDonGia() {
+		return donGia;
 	}
 
 	public double getThue() {
 		return thue;
 	}
 
-	public Ve getVe() {
-		return ve;
+	public double getThanhTien() {
+		return thanhTien;
 	}
 
 	public void setHoaDonChiTietID(String hoaDonChiTietID) {
@@ -91,48 +83,53 @@ public class HoaDonChiTiet {
 	}
 
 	public void setHoaDon(HoaDon hoaDon) {
+		if(hoaDon == null) {
+			throw new IllegalArgumentException("HoaDon không được để trống!");
+		}
 		this.hoaDon = hoaDon;
 	}
 
-	public void setLoaiDichVu(String loaiDichVu) {
-		this.loaiDichVu = loaiDichVu;
-	}
-
-	public void setDichVuID(String dichVuID) {
-		this.dichVuID = dichVuID;
+	public void setVe(Ve ve) {
+		if(ve == null) {
+			throw new IllegalArgumentException("Ve không được để trống!");
+		}
+		this.ve = ve;
 	}
 
 	public void setTenDichVu(String tenDichVu) {
+		if(tenDichVu == null || tenDichVu.isEmpty()) {
+			throw new IllegalArgumentException("TenDichVu không được để trống!");
+		}
 		this.tenDichVu = tenDichVu;
 	}
 
-	public void setDonGia(double donGia) {
-		this.donGia = donGia;
+	public void setDonViTinh(String donViTinh) {
+		if(donViTinh == null || donViTinh.isEmpty()) {
+			throw new IllegalArgumentException("DonViTinh không được để trống!");
+		}
+		this.donViTinh = donViTinh;
 	}
 
 	public void setSoLuong(int soLuong) {
 		this.soLuong = soLuong;
 	}
 
-	public void setSoTien(double soTien) {
-		this.soTien = soTien;
+	public void setDonGia(double donGia) {
+		this.donGia = donGia;
 	}
 
 	public void setThue(double thue) {
 		this.thue = thue;
 	}
 
-	public void setVe(Ve ve) {
-		this.ve = ve;
+	public void setThanhTien(double thanhTien) {
+		this.thanhTien = thanhTien;
 	}
 
 	@Override
 	public String toString() {
-		return hoaDonChiTietID + ";" + hoaDon + ";" + loaiDichVu
-				+ ";" + dichVuID + ";" + tenDichVu + ";" + donGia + ";" + soLuong
-				+ ";" + soTien + ";" + thue + ";" + ve;
+		return hoaDonChiTietID + ";" + hoaDon + ";" + ve + ";" + tenDichVu + ";" + donViTinh + ";" + soLuong + ";" + donGia + ";" + thue + ";" + thanhTien;
 	}
-
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

@@ -14,113 +14,116 @@ package entity;
 
 import entity.type.HangToa;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 import entity.type.LoaiTau;
 
 public class BieuGiaVe {
 	private String bieuGiaVeID;
-	private Tuyen tuyenApDung;
 	private HangToa hangToaApDung;
 	private LoaiTau loaiTauApDung;
 	private int minKm;
 	private int maxKm;
 	private double donGiaTrenKm;
-	private double giaCoDinh;
+	private double giaCoBan;
 	private double phuPhiCaoDiem;
-	private LocalDate ngayCoHieuLuc;
-	private LocalDate ngayHetHieuLuc;
 	private int doUuTien;
 	private boolean isCoHieuLuc;
-	private LocalDateTime thoiDiemTao;
-	private LocalDateTime thoiDiemSua;
 
 	public BieuGiaVe(){
 		super();
 	}
 
-	public BieuGiaVe(String bieuGiaVeID, Tuyen tuyenApDung, HangToa hangToaApDung, LoaiTau loaiTauApDung, int minKm,
-			int maxKm, double donGiaTrenKm, double giaCoDinh, double phuPhiCaoDiem, LocalDate ngayCoHieuLuc,
-			LocalDate ngayHetHieuLuc, int doUuTien, boolean isCoHieuLuc, LocalDateTime thoiDiemTao,
-			LocalDateTime thoiDiemSua) {
-		super();
+	public BieuGiaVe(String bieuGiaVeID, HangToa hangToaApDungID, LoaiTau loaiTauApDungID, int minKm, int maxKm, double donGiaTrenKm, double giaCoBan, double phuPhiCaoDiem, int doUuTien, boolean isCoHieuLuc) {
 		this.bieuGiaVeID = bieuGiaVeID;
-		this.tuyenApDung = tuyenApDung;
-		this.hangToaApDung = hangToaApDung;
-		this.loaiTauApDung = loaiTauApDung;
+		this.hangToaApDung = hangToaApDungID;
+		this.loaiTauApDung = loaiTauApDungID;
 		this.minKm = minKm;
 		this.maxKm = maxKm;
 		this.donGiaTrenKm = donGiaTrenKm;
-		this.giaCoDinh = giaCoDinh;
+		this.giaCoBan = giaCoBan;
 		this.phuPhiCaoDiem = phuPhiCaoDiem;
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
 		this.doUuTien = doUuTien;
 		this.isCoHieuLuc = isCoHieuLuc;
-		this.thoiDiemTao = thoiDiemTao;
-		this.thoiDiemSua = thoiDiemSua;
 	}
 
 	public String getBieuGiaVeID() {
 		return bieuGiaVeID;
 	}
 
-	public Tuyen getTuyenApDung() {
-		return tuyenApDung;
-	}
-
 	public HangToa getHangToaApDung() {
 		return hangToaApDung;
+	}
+
+	public void setHangToaApDung(HangToa hangToaApDung) {
+		this.hangToaApDung = hangToaApDung;
 	}
 
 	public LoaiTau getLoaiTauApDung() {
 		return loaiTauApDung;
 	}
 
+	public void setLoaiTauApDung(LoaiTau loaiTauApDung) {
+		this.loaiTauApDung = loaiTauApDung;
+	}
+
 	public int getMinKm() {
 		return minKm;
+	}
+
+	public void setMinKm(int minKm) {
+		if(minKm <= 0) {
+			throw new IllegalArgumentException("Số km tối thiểu phải lớn hơn 0");
+		}
+		this.minKm = minKm;
 	}
 
 	public int getMaxKm() {
 		return maxKm;
 	}
 
+	public void setMaxKm(int maxKm) {
+		this.maxKm = maxKm;
+	}
+
 	public double getDonGiaTrenKm() {
 		return donGiaTrenKm;
 	}
 
-	public double getGiaCoDinh() {
-		return giaCoDinh;
+	public void setDonGiaTrenKm(double donGiaTrenKm) {
+		this.donGiaTrenKm = donGiaTrenKm;
+	}
+
+	public double getGiaCoBan() {
+		return giaCoBan;
+	}
+
+	public void setGiaCoBan(double giaCoBan) {
+		this.giaCoBan = giaCoBan;
 	}
 
 	public double getPhuPhiCaoDiem() {
 		return phuPhiCaoDiem;
 	}
 
-	public LocalDate getNgayCoHieuLuc() {
-		return ngayCoHieuLuc;
-	}
-
-	public LocalDate getNgayHetHieuLuc() {
-		return ngayHetHieuLuc;
+	public void setPhuPhiCaoDiem(double phuPhiCaoDiem) {
+		this.phuPhiCaoDiem = phuPhiCaoDiem;
 	}
 
 	public int getDoUuTien() {
 		return doUuTien;
 	}
 
+	public void setDoUuTien(int doUuTien) {
+		this.doUuTien = doUuTien;
+	}
+
 	public boolean isCoHieuLuc() {
 		return isCoHieuLuc;
 	}
 
-	public LocalDateTime getThoiDiemTao() {
-		return thoiDiemTao;
-	}
-
-	public LocalDateTime getThoiDiemSua() {
-		return thoiDiemSua;
+	public void setCoHieuLuc(boolean coHieuLuc) {
+		isCoHieuLuc = coHieuLuc;
 	}
 
 	public void setBieuGiaVeID(String bieuGiaVeID) {
@@ -131,69 +134,13 @@ public class BieuGiaVe {
 		}
 	}
 
-	public void setTuyenApDung(Tuyen tuyenApDung) {
-		this.tuyenApDung = tuyenApDung;
-	}
-
-	public void setHangToaApDung(HangToa hangToaApDung) {
-		this.hangToaApDung = hangToaApDung;
-	}
-
-	public void setLoaiTauApDung(LoaiTau loaiTauApDung) {
-		this.loaiTauApDung = loaiTauApDung;
-	}
-
-	public void setMinKm(int minKm) {
-		this.minKm = minKm;
-	}
-
-	public void setMaxKm(int maxKm) {
-		this.maxKm = maxKm;
-	}
-
-	public void setDonGiaTrenKm(double donGiaTrenKm) {
-		this.donGiaTrenKm = donGiaTrenKm;
-	}
-
-	public void setGiaCoDinh(double giaCoDinh) {
-		this.giaCoDinh = giaCoDinh;
-	}
-
-	public void setPhuPhiCaoDiem(double phuPhiCaoDiem) {
-		this.phuPhiCaoDiem = phuPhiCaoDiem;
-	}
-
-	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-	}
-
-	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
-	}
-
-	public void setDoUuTien(int doUuTien) {
-		this.doUuTien = doUuTien;
-	}
-
-	public void setCoHieuLuc(boolean isCoHieuLuc) {
-		this.isCoHieuLuc = isCoHieuLuc;
-	}
-
-	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
-		this.thoiDiemTao = thoiDiemTao;
-	}
-
-	public void setThoiDiemSua(LocalDateTime thoiDiemSua) {
-		this.thoiDiemSua = thoiDiemSua;
-	}
-
 	@Override
 	public String toString() {
-		return bieuGiaVeID + ";" + tuyenApDung + ";"
+		return bieuGiaVeID + ";"
 				+ hangToaApDung + ";" + loaiTauApDung + ";" + minKm + ";" + maxKm
-				+ ";" + donGiaTrenKm + ";" + giaCoDinh + ";" + phuPhiCaoDiem
-				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";" + doUuTien
-				+ ";" + isCoHieuLuc + ";" + thoiDiemTao + ";" + thoiDiemSua;
+				+ ";" + donGiaTrenKm + ";" + giaCoBan + ";" + phuPhiCaoDiem
+				+ ";" + doUuTien
+				+ ";" + isCoHieuLuc ;
 	}
 
 	@Override

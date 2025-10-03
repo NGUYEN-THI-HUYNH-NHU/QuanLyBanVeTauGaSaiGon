@@ -20,18 +20,18 @@ public class DichVuPhongChoVIP {
 	private String dichVuPhongChoVIPID;
 	private double gia;
 	private String moTa;
-	private LocalDate hieuLucTu;
-	private LocalDate hieuLucDen;
+	private LocalDate ngayCoHieuLuc;
+	private LocalDate ngayHetHieuLuc;
 	private boolean trangThai;
 	
-	public DichVuPhongChoVIP(String dichVuPhongChoVIPID, double gia, String moTa, LocalDate hieuLucTu,
-			LocalDate hieuLucDen, boolean trangThai) {
+	public DichVuPhongChoVIP(String dichVuPhongChoVIPID, double gia, String moTa, LocalDate ngayCoHieuLuc,
+							 LocalDate ngayHetHieuLuc, boolean trangThai) {
 		super();
 		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
 		this.gia = gia;
 		this.moTa = moTa;
-		this.hieuLucTu = hieuLucTu;
-		this.hieuLucDen = hieuLucDen;
+		this.ngayCoHieuLuc = ngayCoHieuLuc;
+		this.ngayHetHieuLuc = ngayHetHieuLuc;
 		this.trangThai = trangThai;
 	}
 
@@ -47,12 +47,12 @@ public class DichVuPhongChoVIP {
 		return moTa;
 	}
 
-	public LocalDate getHieuLucTu() {
-		return hieuLucTu;
+	public LocalDate getNgayCoHieuLuc() {
+		return ngayCoHieuLuc;
 	}
 
-	public LocalDate getHieuLucDen() {
-		return hieuLucDen;
+	public LocalDate getNgayHetHieuLuc() {
+		return ngayHetHieuLuc;
 	}
 
 	public boolean isTrangThai() {
@@ -79,18 +79,18 @@ public class DichVuPhongChoVIP {
 		this.moTa = moTa;
 	}
 
-	public void setHieuLucTu(LocalDate hieuLucTu) {
-		if(hieuLucTu.isAfter(hieuLucDen)) {
-			throw new IllegalArgumentException("Ngày hiệu lực từ phải trước ngày hiệu lực đến!");
+	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
+		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
+			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
 		}
-		this.hieuLucTu = hieuLucTu;
+		this.ngayCoHieuLuc = ngayCoHieuLuc;
 	}
 
-	public void setHieuLucDen(LocalDate hieuLucDen) {
-		if(hieuLucDen.isBefore(hieuLucTu)) {
-			throw new IllegalArgumentException("Ngày hiệu lực đến phải sau ngày hiệu lực từ!");
+	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
+		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
+			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
 		}
-		this.hieuLucDen = hieuLucDen;
+		this.ngayHetHieuLuc = ngayHetHieuLuc;
 	}
 
 	public void setTrangThai(boolean trangThai) {
@@ -100,7 +100,7 @@ public class DichVuPhongChoVIP {
 	@Override
 	public String toString() {
 		return dichVuPhongChoVIPID + ";" + gia + ";" + moTa
-				+ ";" + hieuLucTu + ";" + hieuLucDen + ";" + trangThai;
+				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";" + trangThai;
 	}
 
 	@Override

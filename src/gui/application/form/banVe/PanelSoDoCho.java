@@ -43,23 +43,23 @@ public class PanelSoDoCho extends JPanel {
     public PanelSoDoCho() {
         setBorder(new TitledBorder("Sơ đồ chỗ"));
         setLayout(new BorderLayout());
-        
+
         lblToaInfo = new JLabel("Chưa chọn toa", SwingConstants.CENTER);
         lblToaInfo.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        
+
         btnPrev = new JButton("<");
         btnNext = new JButton(">");
         navPanel.add(btnPrev);
         navPanel.add(btnNext);
-        
+
         pnlNorth = new JPanel();
         pnlNorth.setLayout(new BorderLayout());
         pnlNorth.add(lblToaInfo, BorderLayout.NORTH);
         pnlNorth.add(navPanel, BorderLayout.CENTER);
-        
+
         seatGridPanel = new JPanel();
-        
+
         add(pnlNorth, BorderLayout.NORTH);
         add(seatGridPanel, BorderLayout.CENTER);
 
@@ -112,14 +112,14 @@ public class PanelSoDoCho extends JPanel {
             renderSeats(null);
         }
     }
-    
+
     private void showLoadingState() {
         seatGridPanel.removeAll();
         seatGridPanel.setLayout(new BorderLayout());
         seatGridPanel.revalidate();
         seatGridPanel.repaint();
     }
-    
+
     private int parseLeadingInt(String s) {
         if (s == null)
         	return Integer.MAX_VALUE;
@@ -130,9 +130,9 @@ public class PanelSoDoCho extends JPanel {
             	num += ch;
             else break;
         }
-        try { 
+        try {
         	return num.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(num);
-    	} catch (NumberFormatException ex) { 
+    	} catch (NumberFormatException ex) {
     		return Integer.MAX_VALUE;
     	}
     }
@@ -159,29 +159,29 @@ public class PanelSoDoCho extends JPanel {
         int rows = (int) Math.ceil(sorted.size() / (double) cols);
         seatGridPanel.setLayout(new GridLayout(rows, cols, 8, 8));
 
-        for (Ghe g : sorted) {
-            JButton b = new JButton(String.valueOf(g.getSoGhe()));
-            b.setMargin(new Insets(2,2,2,2));
-            b.setOpaque(true);
-            if (g.getTrangThai() == TrangThaiGhe.OCCUPIED) {
-                b.setBackground(Color.RED);
-                b.setEnabled(false);
-            } else {
-                b.setBackground(Color.WHITE);
-                b.setEnabled(true);
-            }
-            b.addActionListener(e -> {
-                // visual select for seat
-                if (selectedSeatButton != null && selectedSeatButton != b) {
-                    selectedSeatButton.setBackground(Color.WHITE);
-                }
-                selectedSeatButton = b;
-                b.setBackground(new Color(40, 167, 69));
-                b.setForeground(Color.WHITE);
-                if (panelBuoc2Controller != null) panelBuoc2Controller.onSeatClicked(currentToa, g);
-            });
-            seatGridPanel.add(b);
-        }
+//        for (Ghe g : sorted) {
+//            JButton b = new JButton(String.valueOf(g.getSoGhe()));
+//            b.setMargin(new Insets(2,2,2,2));
+//            b.setOpaque(true);
+//            if (g.getTrangThai() == TrangThaiGhe.OCCUPIED) {
+//                b.setBackground(Color.RED);
+//                b.setEnabled(false);
+//            } else {
+//                b.setBackground(Color.WHITE);
+//                b.setEnabled(true);
+//            }
+//            b.addActionListener(e -> {
+//                // visual select for seat
+//                if (selectedSeatButton != null && selectedSeatButton != b) {
+//                    selectedSeatButton.setBackground(Color.WHITE);
+//                }
+//                selectedSeatButton = b;
+//                b.setBackground(new Color(40, 167, 69));
+//                b.setForeground(Color.WHITE);
+//                if (panelBuoc2Controller != null) panelBuoc2Controller.onSeatClicked(currentToa, g);
+//            });
+//            seatGridPanel.add(b);
+//        }
 
         seatGridPanel.revalidate();
         seatGridPanel.repaint();

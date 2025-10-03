@@ -12,15 +12,6 @@ package controller;
  * @version: 1.0
  */
 
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import bus.Chuyen_BUS;
-import dao.Ga_DAO;
-import gui.application.form.banVe.PanelBuoc1;
-
-import java.util.List;
-
 public class TimChuyen_CTRL {
 //    private PanelBuoc1 view;
 //    private Ga_DAO gaDAO;
