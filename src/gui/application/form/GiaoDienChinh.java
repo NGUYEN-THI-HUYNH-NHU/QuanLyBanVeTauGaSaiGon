@@ -1,4 +1,5 @@
-package gui.application.form;/*
+package gui.application.form;
+/*
  * @ (#) GiaoDienChinh.java   1.0     25/09/2025
 package gui.application.form;
 
@@ -10,9 +11,6 @@ package gui.application.form;
  * @created : 25/09/2025
  */
 
-
-import javax.swing.*;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -21,22 +19,23 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
+
 import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.khachHang.FormCustomerManagement;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
-import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
-import gui.application.form.khachHang.FormCustomerManagement;
-
 
 public class GiaoDienChinh extends JLayeredPane {
 	private static final long serialVersionUID = 1L;
@@ -84,9 +83,9 @@ public class GiaoDienChinh extends JLayeredPane {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
 			boolean isManager = nhanVien.getVaiTroNhanVien().toString().equalsIgnoreCase("QUAN_LY");
 
-	        switch (index) {
-        		case 1 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
-	            case 0 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+			switch (index) {
+			case 1 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+			case 0 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
 //	            case 1 -> UngDung.showGiaoDienChinh(new FormOrderManagement());
 //	            case 2 -> UngDung.showGiaoDienChinh(new FormMovieManagement());
 //	            case 3 -> UngDung.showGiaoDienChinh(new FormScreeningManagement(nhanVien));
@@ -94,7 +93,7 @@ public class GiaoDienChinh extends JLayeredPane {
 //	            	if (isManager) UngDung.showGiaoDienChinh(new FormStaffManagement(nhanVien));
 //	                else action.cancel();
 //	            }
-	            case 4 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
+			case 4 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
 //	            case 6 -> {
 //	                switch (subIndex) {
 //	                    case 1 -> UngDung.showGiaoDienChinh(new FormFoodManagement());
@@ -120,9 +119,8 @@ public class GiaoDienChinh extends JLayeredPane {
 //	            }
 //	            case 9 -> UngDung.dangXuat();
 
-
-	            default -> action.cancel();
-	        }
+			default -> action.cancel();
+			}
 		});
 	}
 
@@ -139,7 +137,8 @@ public class GiaoDienChinh extends JLayeredPane {
 	}
 
 	public void hideMenu() {
-		menu.hideThanhPhanMenu();;
+		menu.hideThanhPhanMenu();
+		;
 	}
 
 	public void showForm(Component component) {

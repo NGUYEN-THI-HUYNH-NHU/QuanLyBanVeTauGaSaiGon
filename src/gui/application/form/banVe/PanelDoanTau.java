@@ -52,7 +52,7 @@ public class PanelDoanTau extends JPanel {
                 btn.setPreferredSize(new Dimension(60, 40));
                 btn.setOpaque(true);
                 btn.setBorderPainted(true);
-                btn.setBackground(UIManager.getColor("Button.background"));
+                btn.setBackground(new Color(220, 220, 220));
                 btn.putClientProperty("toaID", t.getToaID());
                 btn.addActionListener(e -> {
                     onSelect.accept(t);
@@ -66,15 +66,15 @@ public class PanelDoanTau extends JPanel {
     }
 
     private void highlightButton(JButton selected) {
-        Color defaultBg = UIManager.getColor("Button.background");
         Component[] comps = flow.getComponents();
         for (Component c : comps) {
             if (c instanceof JButton) {
-                c.setBackground(defaultBg);
+                c.setBackground(new Color(220, 220, 220));
             }
         }
         selectedButton = selected;
-        if (selectedButton != null) selectedButton.setBackground(new Color(135, 206, 250));
+        if (selectedButton != null)
+        	selectedButton.setBackground(new Color(40, 167, 69));
     }
 
     // controller có thể gọi để chọn tự động

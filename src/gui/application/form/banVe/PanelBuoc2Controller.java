@@ -208,7 +208,8 @@ public class PanelBuoc2Controller {
     }
 
     public void highlightToa(Toa toa) {
-        if (toa == null) return;
+        if (toa == null)
+        	return;
         SwingUtilities.invokeLater(() -> {
             try {
                 if (panelDoanTau != null) {

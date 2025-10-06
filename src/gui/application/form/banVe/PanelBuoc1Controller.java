@@ -11,451 +11,551 @@ package gui.application.form.banVe;
  * @date: Sep 28, 2025
  * @version: 1.0
  */
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
+import javax.swing.event.ListSelectionEvent;
 
 import bus.Chuyen_BUS;
-import entity.Ga;
 import entity.Chuyen;
+import entity.Ga;
 
 public class PanelBuoc1Controller {
 
-    private final PanelBuoc1 panel;
-    private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
+	private final PanelBuoc1 panel;
+	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
+	private WizardController wizardController;
 
-    private final int DEBOUNCE_MS = 300;
-    private Timer debounceTimerGaDi;
-    private Timer debounceTimerGaDen;
+	// trạng thái được giữ ở controller (id đã chọn)
+	private String selectedGaDi = null;
+	private String selectedGaDen = null;
 
-    private JPopupMenu popupGaDi;
-    private JPopupMenu popupGaDen;
+	// Autocomplete instances
+	private AutoCompleteField acGaDi;
+	private AutoCompleteField acGaDen;
 
-    private String selectedGaDi = null;
-    private String selectedGaDen = null;
+	// debounce millis
+	private static final int DEBOUNCE_MS = 300;
 
-    // Dùng để ngăn chặn việc gọi handle khi sử dụng setText(...) trong code
-    private volatile boolean suppressGaDiChange = false;
-    private volatile boolean suppressGaDenChange = false;
+	public PanelBuoc1Controller(PanelBuoc1 panel) {
+		this.panel = panel;
+		init();
+	}
 
-    // Đánh dấu người dùng đã "xác nhận" giá trị (chọn gợi ý, nhấn Enter hoặc mất focus)
-    private boolean gaDiConfirmed = false;
-    private boolean gaDenConfirmed = false;
+	public void setWizardController(WizardController wizardController) {
+		this.wizardController = wizardController;
+	}
 
-    // lưu text tại thời điểm confirmed để so sánh khi user chỉnh sửa
-    private String lastGaDiConfirmedText = null;
-    private String lastGaDenConfirmedText = null;
-    
-    private WizardController wizardController;
+	private void init() {
+		// AutoComplete cho Ga đi: fetcher dùng chuyenBUS.goiYGaDi(prefix, limit)
+		acGaDi = new AutoCompleteField(panel.getTxtGaDi(), (prefix, limit) -> {
+			try {
+				return chuyenBUS.goiYGaDi(prefix, limit);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return Collections.emptyList();
+			}
+		}, 8, ga -> {
+			// onSelect
+			selectedGaDi = ga.getGaID();
+			// set text programmatically (AutoCompleteField sẽ suppress change)
+			panel.getTxtGaDi().setText(ga.getTenGa());
+			// clear gaDen khi gaDi nhthay đổi
+			selectedGaDen = null;
+			panel.getTxtGaDen().setText("");
+		});
 
-    public PanelBuoc1Controller(PanelBuoc1 panel) {
-        this.panel = panel;
-        init();
-    }
-    
-    public void setWizardController(WizardController wizardController) {
-        this.wizardController = wizardController;
-    }
+		// AutoComplete cho Ga den: fetcher phụ thuộc vào selectedGaDi
+		acGaDen = new AutoCompleteField(panel.getTxtGaDen(), (prefix, limit) -> {
+			try {
+				String gaDiId = selectedGaDi;
+				if (gaDiId != null) {
+					return chuyenBUS.goiYGaDenTheoGaDi(gaDiId, prefix, limit);
+				} else {
+					return chuyenBUS.goiYGaDi(prefix, limit); // fallback chung
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				return Collections.emptyList();
+			}
+		}, 8, ga -> {
+			selectedGaDen = ga.getGaID();
+			panel.getTxtGaDen().setText(ga.getTenGa());
+		});
 
-    private void init() {
-        debounceTimerGaDi = new Timer(DEBOUNCE_MS, (ActionEvent e) -> fetchGoiYGaDi());
-        debounceTimerGaDi.setRepeats(false);
+		// Wiring navigation UX:
+		acGaDi.setNextComponent(panel.getTxtGaDen());
+		acGaDen.setPrevComponent(panel.getTxtGaDi());
+		// When Enter on final field (GaDen) without selecting popup -> trigger search
+		// button
+		acGaDen.setOnFinalEnter(() -> SwingUtilities.invokeLater(() -> panel.getBtnTimKiem().doClick()));
 
-        debounceTimerGaDen = new Timer(DEBOUNCE_MS, (ActionEvent e) -> fetchGoiYGaDen());
-        debounceTimerGaDen.setRepeats(false);
+		// Button tìm kiếm
+		panel.getBtnTimKiem().addActionListener(e -> performSearch());
+	}
 
-        // Ẩn popup khi mất focus VÀ đánh dấu đã xác nhận nếu có nội dung
-        panel.getTxtGaDi().addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent e) {
-                String txt = panel.getTxtGaDi().getText().trim();
-                if (!txt.isEmpty()) {
-                    gaDiConfirmed = true;
-                    lastGaDiConfirmedText = txt;
-                } else {
-                    gaDiConfirmed = false;
-                    lastGaDiConfirmedText = null;
-                    selectedGaDi = null;
-                }
-                hidePopup(popupGaDi);
-            }
-        });
-        panel.getTxtGaDen().addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent e) {
-                String txt = panel.getTxtGaDen().getText().trim();
-                if (!txt.isEmpty()) {
-                    gaDenConfirmed = true;
-                    lastGaDenConfirmedText = txt;
-                } else {
-                    gaDenConfirmed = false;
-                    lastGaDenConfirmedText = null;
-                    selectedGaDen = null;
-                }
-                hidePopup(popupGaDen);
-            }
-        });
+	// ----- Tìm chuyến -----
+	private void performSearch() {
+		final SearchCriteria criteria = buildSearchCriteriaFromPanel();
 
-        // Nhấn ESC để ẩn popup
-        panel.getTxtGaDi().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "hideGaDiPopup");
-        panel.getTxtGaDi().getActionMap().put("hideGaDiPopup", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) { hidePopup(popupGaDi); }
-        });
-        panel.getTxtGaDen().getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "hideGaDenPopup");
-        panel.getTxtGaDen().getActionMap().put("hideGaDenPopup", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) { hidePopup(popupGaDen); }
-        });
+		if (criteria == null || !criteria.isValidForSearch()) {
+			SwingUtilities.invokeLater(
+					() -> JOptionPane.showMessageDialog(panel, "Vui lòng chọn hoặc nhập đúng Ga đi, Ga đến và Ngày đi.",
+							"Thiếu thông tin", JOptionPane.WARNING_MESSAGE));
+			return;
+		}
 
-        // Nhấn Enter để xác nhận giá trị (giống như khi mất focus)
-        panel.getTxtGaDi().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirmGaDi");
-        panel.getTxtGaDi().getActionMap().put("confirmGaDi", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                String txt = panel.getTxtGaDi().getText().trim();
-                if (!txt.isEmpty()) {
-                    gaDiConfirmed = true;
-                    lastGaDiConfirmedText = txt;
-                }
-                hidePopup(popupGaDi);
-            }
-        });
-        panel.getTxtGaDen().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "confirmGaDen");
-        panel.getTxtGaDen().getActionMap().put("confirmGaDen", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                String txt = panel.getTxtGaDen().getText().trim();
-                if (!txt.isEmpty()) {
-                    gaDenConfirmed = true;
-                    lastGaDenConfirmedText = txt;
-                }
-                hidePopup(popupGaDen);
-            }
-        });
+		panel.getBtnTimKiem().setEnabled(false);
 
-        panel.getBtnTimKiem().addActionListener(e -> performSearch());
-    }
+		new SwingWorker<List<Chuyen>, Void>() {
+			protected List<Chuyen> doInBackground() {
+				try {
+					String gaDiId = criteria.getGaDiId();
+					String gaDenId = criteria.getGaDenId();
 
-    // Được gọi khi người dùng gõ vào ô Ga đi
-    public void handleSearchGaDi() {
-        if (suppressGaDiChange) {
-            suppressGaDiChange = false;
-            return;
-        }
+					// Resolve bằng tên nếu id chưa có
+					if (gaDiId == null || gaDiId.trim().isEmpty()) {
+						String name = criteria.getGaDiName();
+						if (name != null && !name.trim().isEmpty()) {
+							Ga g = chuyenBUS.timGaTheoTenGa(name);
+							if (g != null)
+								gaDiId = g.getGaID();
+						}
+					}
+					if (gaDenId == null || gaDenId.trim().isEmpty()) {
+						String name = criteria.getGaDenName();
+						if (name != null && !name.trim().isEmpty()) {
+							Ga g = chuyenBUS.timGaTheoTenGa(name);
+							if (g != null)
+								gaDenId = g.getGaID();
+						}
+					}
 
-        String txt = panel.getTxtGaDi().getText().trim();
+					if (gaDiId == null || gaDenId == null)
+						return Collections.emptyList();
 
-        if (txt.length() < 1) {
-            hidePopup(popupGaDi);
-            selectedGaDi = null;
-            gaDiConfirmed = false;
-            lastGaDiConfirmedText = null;
-            return;
-        }
+					LocalDate ngayDi = criteria.getNgayDi();
+					if (ngayDi == null)
+						ngayDi = LocalDate.now();
 
-        // Nếu đã xác nhận trước đó và nội dung không thay đổi -> không hiển thị gợi ý
-        if (gaDiConfirmed && lastGaDiConfirmedText != null && lastGaDiConfirmedText.equals(txt)) {
-            hidePopup(popupGaDi);
-            return;
-        }
+					return chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					return Collections.emptyList();
+				}
+			}
 
-        gaDiConfirmed = false;
-        lastGaDiConfirmedText = null;
-        selectedGaDi = null;
+			protected void done() {
+				try {
+					List<Chuyen> results = get();
+					panel.getBtnTimKiem().setEnabled(true);
 
-        debounceTimerGaDi.restart();
-    }
+					if (results == null || results.isEmpty()) {
+						SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+								"Không tìm thấy chuyến phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
+						return;
+					}
 
-    // Được gọi khi người dùng gõ vào ô Ga đến
-    public void handleSearchGaDen() {
-        if (suppressGaDenChange) {
-            suppressGaDenChange = false;
-            return;
-        }
+					if (wizardController == null) {
+						System.err.println(
+								"PanelBuoc1Controller.performSearch: wizard is null. Hãy setWizardController(...) từ nơi tạo UI.");
+						SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+								"Tìm được " + results.size() + " chuyến (wizard chưa được kết nối).", "Kết quả",
+								JOptionPane.INFORMATION_MESSAGE));
+						return;
+					}
 
-        String txt = panel.getTxtGaDen().getText().trim();
+					BookingSession session = wizardController.getBookingSession();
+					SearchCriteria resolvedCriteria = new SearchCriteria.Builder().gaDiId(selectedGaDi)
+							.tenGaDi(panel.getGaDi()).gaDenId(selectedGaDen).tenGaDen(panel.getGaDen())
+							.ngayDi(panel.getNgayDi()).ngayVe(panel.getNgayVe()).khuHoi(panel.isKhuHoi()).build();
 
-        if (txt.length() < 1) {
-            hidePopup(popupGaDen);
-            selectedGaDen = null;
-            gaDenConfirmed = false;
-            lastGaDenConfirmedText = null;
-            return;
-        }
+					session.setOutboundCriteria(resolvedCriteria);
+					session.setOutboundResults(results);
 
-        if (gaDenConfirmed && lastGaDenConfirmedText != null && lastGaDenConfirmedText.equals(txt)) {
-            hidePopup(popupGaDen);
-            return;
-        }
+					wizardController.goToStep(2, 0);
 
-        gaDenConfirmed = false;
-        lastGaDenConfirmedText = null;
-        selectedGaDen = null;
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					panel.getBtnTimKiem().setEnabled(true);
+					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+							"Lỗi khi tìm chuyến: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
+				}
+			}
+		}.execute();
+	}
 
-        debounceTimerGaDen.restart();
-    }
+	private SearchCriteria buildSearchCriteriaFromPanel() {
+		return new SearchCriteria.Builder().gaDiId(selectedGaDi).tenGaDi(panel.getGaDi()).gaDenId(selectedGaDen)
+				.tenGaDen(panel.getGaDen()).ngayDi(panel.getNgayDi()).ngayVe(panel.getNgayVe()).khuHoi(panel.isKhuHoi())
+				.build();
+	}
 
-    // Gọi API để lấy gợi ý Ga đi
-    private void fetchGoiYGaDi() {
-        final String prefix = panel.getTxtGaDi().getText().trim();
-        if (prefix.length() < 1) return;
+	// ---------- Inner class chung cho autocomplete ----------
+	private class AutoCompleteField {
+		private final JTextField field;
+		private final BiFunction<String, Integer, List<Ga>> fetcher;
+		private final int maxResults;
+		private final Consumer<Ga> onSelect;
 
-        final String currentPrefix = prefix;
-        new SwingWorker<List<Ga>, Void>() {
-            protected List<Ga> doInBackground() {
-                try {
-                    return chuyenBUS.goiYGaDi(currentPrefix, 5);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return Collections.emptyList();
-                }
-            }
-            protected void done() {
-                try {
-                    // ensure user didn't change text meanwhile
-                    if (!panel.getTxtGaDi().getText().trim().equals(currentPrefix)) {
-                        return;
-                    }
-                    List<Ga> list = get();
-                    showGaDiPopup(list);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }.execute();
-    }
-    
-    // Gọi API để lấy gợi ý Ga đến
-    private void fetchGoiYGaDen() {
-        final String prefix = panel.getTxtGaDen().getText().trim();
-        if (prefix.length() < 1) return;
-        final String currentPrefix = prefix;
+		private final Timer debounce;
+		private JPopupMenu popup;
+		private JList<Ga> list;
+		private DefaultListModel<Ga> listModel;
 
-        new SwingWorker<List<Ga>, Void>() {
-            protected List<Ga> doInBackground() {
-                try {
-                    if (selectedGaDi != null) {
-                        return chuyenBUS.goiYGaDenTheoGaDi(selectedGaDi, currentPrefix, 5);
-                    } else {
-                        return chuyenBUS.goiYGaDi(currentPrefix, 5);
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return Collections.emptyList();
-                }
-            }
-            protected void done() {
-                try {
-                    if (!panel.getTxtGaDen().getText().trim().equals(currentPrefix)) {
-                        return;
-                    }
-                    List<Ga> list = get();
+		// flags
+		private volatile boolean suppressChange = false;
+		private boolean confirmed = false;
+		private String lastConfirmedText = null;
 
-                    // Loại bỏ Ga đi khỏi danh sách gợi ý Ga đến
-                    if (list != null && selectedGaDi != null) {
-                        list.removeIf(g -> selectedGaDi.equals(g.getGaID()));
-                    }
+		// navigation support
+		private JComponent nextComponent = null;
+		private JComponent prevComponent = null;
+		private Runnable onFinalEnter = null; // called when Enter on final field
 
-                    showGaDenPopup(list);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }.execute();
-    }
+		AutoCompleteField(JTextField field, BiFunction<String, Integer, List<Ga>> fetcher, int maxResults,
+				Consumer<Ga> onSelect) {
+			this.field = field;
+			this.fetcher = fetcher;
+			this.maxResults = maxResults;
+			this.onSelect = onSelect;
 
-    // Hiển thị popup gợi ý cho Ga đi
-    private void showGaDiPopup(List<Ga> list) {
-        hidePopup(popupGaDi);
-        if (list == null || list.isEmpty()) return;
+			this.debounce = new Timer(DEBOUNCE_MS, e -> fetchSuggestions());
+			this.debounce.setRepeats(false);
 
-        // Nếu đã xác nhận trước đó và nội dung không thay đổi -> không hiển thị gợi ý
-        String curText = panel.getTxtGaDi().getText().trim();
-        if (gaDiConfirmed && lastGaDiConfirmedText != null && lastGaDiConfirmedText.equals(curText)) {
-            return;
-        }
+			initListeners();
+		}
 
-        popupGaDi = new JPopupMenu();
-        popupGaDi.setFocusable(false);
+		// setters for navigation
+		public void setNextComponent(JComponent next) {
+			this.nextComponent = next;
+		}
 
-        for (Ga g : list) {
-            JMenuItem it = new JMenuItem(g.getTenGa());
-            it.setFocusable(false);
-            it.addActionListener(ae -> {
-                suppressGaDiChange = true;
-                selectedGaDi = g.getGaID();
-                
-                // Set text và đánh dấu xác nhận
-                panel.getTxtGaDi().setText(g.getTenGa());
-                gaDiConfirmed = true;
-                lastGaDiConfirmedText = g.getTenGa();
+		public void setPrevComponent(JComponent prev) {
+			this.prevComponent = prev;
+		}
 
-                // Xóa text ga đến nếu có thay đổi ở ga đi
-                selectedGaDen = null;
-                suppressGaDenChange = true;
-                panel.getTxtGaDen().setText("");
-                gaDenConfirmed = false;
-                lastGaDenConfirmedText = null;
-                hidePopup(popupGaDen);
+		public void setOnFinalEnter(Runnable r) {
+			this.onFinalEnter = r;
+		}
 
-                hidePopup(popupGaDi);
-            });
-            popupGaDi.add(it);
-        }
+		private void initListeners() {
+			// Document change -> handle with debounce
+			field.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+				public void insertUpdate(javax.swing.event.DocumentEvent e) {
+					handleChange();
+				}
 
-        popupGaDi.show(panel.getTxtGaDi(), 0, panel.getTxtGaDi().getHeight());
-    }
+				public void removeUpdate(javax.swing.event.DocumentEvent e) {
+					handleChange();
+				}
 
-    // Hiển thị popup gợi ý cho Ga đến
-    private void showGaDenPopup(List<Ga> list) {
-        hidePopup(popupGaDen);
-        if (list == null || list.isEmpty()) return;
+				public void changedUpdate(javax.swing.event.DocumentEvent e) {
+					handleChange();
+				}
+			});
 
-        String curText = panel.getTxtGaDen().getText().trim();
-        if (gaDenConfirmed && lastGaDenConfirmedText != null && lastGaDenConfirmedText.equals(curText)) {
-            return;
-        }
+			// focus lost -> mark confirmed if non-empty, hide popup
+			field.addFocusListener(new FocusAdapter() {
+				public void focusLost(FocusEvent e) {
+					String txt = field.getText().trim();
+					if (!txt.isEmpty()) {
+						confirmed = true;
+						lastConfirmedText = txt;
+					} else {
+						confirmed = false;
+						lastConfirmedText = null;
+					}
+					hidePopup();
+				}
+			});
 
-        popupGaDen = new JPopupMenu();
-        popupGaDen.setFocusable(false);
+			// key bindings: ESC, UP, DOWN, ENTER
+			InputMap im = field.getInputMap(JComponent.WHEN_FOCUSED);
+			ActionMap am = field.getActionMap();
 
-        for (Ga g : list) {
-            JMenuItem it = new JMenuItem(g.getTenGa());
-            it.setFocusable(false);
-            it.addActionListener(ae -> {
-                suppressGaDenChange = true;
+			im.put(KeyStroke.getKeyStroke("ESCAPE"), "hidePopup");
+			am.put("hidePopup", new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					hidePopup();
+				}
+			});
 
-                selectedGaDen = g.getGaID();
-                panel.getTxtGaDen().setText(g.getTenGa());
-                gaDenConfirmed = true;
-                lastGaDenConfirmedText = g.getTenGa();
+			im.put(KeyStroke.getKeyStroke("UP"), "moveUp");
+			am.put("moveUp", new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					// If popup visible -> moveUp in list, else move focus to prev component
+					if (popup != null && popup.isVisible() && list != null) {
+						int sel = list.getSelectedIndex();
+						int size = listModel.getSize();
+						if (size == 0)
+							return;
+						if (sel <= 0) {
+							list.setSelectedIndex(size - 1);
+							list.ensureIndexIsVisible(size - 1);
+						} else
+							moveSelection(-1);
+					} else {
+						if (prevComponent != null)
+							focusComponent(prevComponent);
+					}
+				}
+			});
 
-                hidePopup(popupGaDen);
-            });
-            popupGaDen.add(it);
-        }
+			im.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
+			am.put("moveDown", new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					// Nếu popup visible -> moveDown trong list (và wrap về đầu nếu đang ở cuối)
+					if (popup != null && popup.isVisible() && list != null) {
+						int sel = list.getSelectedIndex();
+						int size = listModel.getSize();
+						if (size == 0)
+							return;
+						if (sel >= size - 1) {
+							// wrap về đầu thay vì focus next component
+							list.setSelectedIndex(0);
+							list.ensureIndexIsVisible(0);
+						} else {
+							moveSelection(1);
+						}
+					} else {
+						// popup không mở -> chuyển focus tới next component (như trước)
+						if (nextComponent != null)
+							focusComponent(nextComponent);
+					}
+				}
+			});
 
-        popupGaDen.show(panel.getTxtGaDen(), 0, panel.getTxtGaDen().getHeight());
-    }
+			im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "chooseOrConfirm");
+			am.put("chooseOrConfirm", new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					if (popup != null && popup.isVisible() && list != null && list.getSelectedIndex() >= 0) {
+						selectIndex(list.getSelectedIndex());
+					} else {
+						// if there's a next component -> go to it, else final enter action
+						String txt = field.getText().trim();
+						if (!txt.isEmpty()) {
+							confirmed = true;
+							lastConfirmedText = txt;
+						}
+						if (nextComponent != null)
+							focusComponent(nextComponent);
+						else if (onFinalEnter != null)
+							onFinalEnter.run();
+						hidePopup();
+					}
+				}
+			});
+		}
 
-    private void hidePopup(JPopupMenu p) {
-        if (p != null && p.isVisible()) p.setVisible(false);
-        if (p == popupGaDi) popupGaDi = null;
-        if (p == popupGaDen) popupGaDen = null;
-    }
+		private void focusComponent(JComponent comp) {
+			SwingUtilities.invokeLater(() -> {
+				comp.requestFocusInWindow();
+				if (comp instanceof JTextField)
+					((JTextField) comp).selectAll();
+			});
+		}
 
-    // Tìm chuyến khi bấm nút
-    private void performSearch() {
-        // 1) Build criteria from UI
-        final SearchCriteria criteria = buildSearchCriteriaFromPanel();
+		private void handleChange() {
+			if (suppressChange) {
+				suppressChange = false;
+				return;
+			}
+			String txt = field.getText().trim();
+			if (txt.length() < 1) {
+				hidePopup();
+				confirmed = false;
+				lastConfirmedText = null;
+				return;
+			}
+			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(txt)) {
+				hidePopup();
+				return;
+			}
+			confirmed = false;
+			lastConfirmedText = null;
+			debounce.restart();
+		}
 
-        // 2) Quick validation
-        if (criteria == null || !criteria.isValidForSearch()) {
-            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-                    "Vui lòng chọn hoặc nhập đúng Ga đi, Ga đến và Ngày đi.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE));
-            return;
-        }
+		private void fetchSuggestions() {
+			final String prefix = field.getText().trim();
+			if (prefix.length() < 1)
+				return;
+			final String cur = prefix;
 
-        // disable nút tìm kiếm để tránh double-click
-        SwingUtilities.invokeLater(() -> panel.getBtnTimKiem().setEnabled(false));
+			new SwingWorker<List<Ga>, Void>() {
+				protected List<Ga> doInBackground() {
+					try {
+						return fetcher.apply(cur, maxResults);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						return Collections.emptyList();
+					}
+				}
 
-        new SwingWorker<List<Chuyen>, Void>() {
-            protected List<Chuyen> doInBackground() {
-                try {
-                    String gaDiId = criteria.getGaDiId();
-                    String gaDenId = criteria.getGaDenId();
+				protected void done() {
+					try {
+						if (!field.getText().trim().equals(cur))
+							return; // user changed meanwhile
+						List<Ga> res = get();
+						// If this is gaDen, and selectedGaDi exists, remove it (controller ensures
+						// selectedGaDi updated externally)
+						if (field == panel.getTxtGaDen() && selectedGaDi != null && res != null)
+							res.removeIf(g -> selectedGaDi.equals(g.getGaID()));
+						showPopup(res);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}.execute();
+		}
 
-                    // Nếu id chưa resolve, thử resolve bằng tên
-                    if (gaDiId == null || gaDiId.trim().isEmpty()) {
-                        String name = criteria.getGaDiName();
-                        if (name != null && !name.trim().isEmpty()) {
-                            Ga g = chuyenBUS.timGaTheoTenGa(name);
-                            if (g != null) gaDiId = g.getGaID();
-                        }
-                    }
-                    if (gaDenId == null || gaDenId.trim().isEmpty()) {
-                        String name = criteria.getGaDenName();
-                        if (name != null && !name.trim().isEmpty()) {
-                            Ga g = chuyenBUS.timGaTheoTenGa(name);
-                            if (g != null) gaDenId = g.getGaID();
-                        }
-                    }
+		private void showPopup(List<Ga> items) {
+			hidePopup();
+			if (items == null || items.isEmpty())
+				return;
 
-                    // Nếu vẫn không resolve được id -> trả về empty (handled in done())
-                    if (gaDiId == null || gaDenId == null) {
-                        return Collections.emptyList();
-                    }
+			// Don't show if confirmed and text unchanged
+			String curText = field.getText().trim();
+			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(curText))
+				return;
 
-                    LocalDate ngayDi = criteria.getNgayDi();
-                    if (ngayDi == null) ngayDi = LocalDate.now();
+			listModel = new DefaultListModel<>();
+			for (Ga g : items)
+				listModel.addElement(g);
 
-                    // gọi BUS chính để tìm chuyến
-                    return chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
+			list = new JList<>(listModel);
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			list.setVisibleRowCount(Math.min(8, listModel.getSize()));
+			int vPadding = 8;
+			int hPadding = 6;
+			list.setCellRenderer(new DefaultListCellRenderer() {
+				@Override
+				public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+						boolean isSelected, boolean cellHasFocus) {
+					JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
+							cellHasFocus);
+					if (value instanceof Ga)
+						lbl.setText(((Ga) value).getTenGa());
+					lbl.setBorder(BorderFactory.createEmptyBorder(vPadding, hPadding, vPadding, hPadding));
+					if (isSelected) {
+						lbl.setBackground(new Color(30, 144, 255)); // selected bg
+						lbl.setForeground(Color.WHITE);
+					} else {
+						lbl.setBackground(Color.WHITE);
+						lbl.setForeground(Color.BLACK);
+					}
+					lbl.setOpaque(true);
+					return lbl;
+				}
+			});
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return Collections.emptyList();
-                }
-            }
+			// double click or keyboard selection
+			list.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent e) {
+					if (e.getClickCount() == 2) {
+						int idx = list.locationToIndex(e.getPoint());
+						if (idx >= 0)
+							selectIndex(idx);
+					}
+				}
+			});
+			list.addListSelectionListener((ListSelectionEvent e) -> {
+			});
 
-            protected void done() {
-                try {
-                    List<Chuyen> results = get();
-                    panel.getBtnTimKiem().setEnabled(true);
+			JScrollPane sc = new JScrollPane(list);
+			sc.setBorder(BorderFactory.createEmptyBorder());
+			sc.setPreferredSize(null);
+			sc.getViewport().setOpaque(false);
 
-                    if (results == null || results.isEmpty()) {
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-                                "Không tìm thấy chuyến phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
-                        return;
-                    }
+			popup = new JPopupMenu();
+			popup.setBackground(Color.WHITE);
+			int desiredWidth = Math.max(field.getWidth(), 260);
+			int estRowHeight = 20 + vPadding * 2;
+			int desiredHeight = Math.min(8, listModel.getSize()) * estRowHeight;
+			popup.setPopupSize(new Dimension(desiredWidth, Math.min(desiredHeight, 300)));
+			popup.setFocusable(false);
+			popup.add(sc);
 
-                    // --- Lưu vào BookingSession thông qua WizardController ---
-                    if (wizardController == null) {
-                        // Nếu wizard chưa được set -> báo lỗi dev, nhưng vẫn show kết quả
-                        System.err.println("PanelBuoc1Controller.performSearch: wizard is null. Hãy setWizardController(...) từ nơi tạo UI.");
-                        // fallback: chỉ show count
-                        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-                                "Tìm được " + results.size() + " chuyến (wizard chưa được kết nối).", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
-                        return;
-                    }
+			// show below field
+			popup.show(field, 0, field.getHeight());
+			field.requestFocusInWindow();
 
-                    BookingSession session = wizardController.getBookingSession();
-                    // Lưu criteria: lưu cả phiên bản resolved id (nếu có) — rebuild criteria with resolved ids
-                    SearchCriteria resolvedCriteria = new SearchCriteria.Builder()
-                            .gaDiId(criteria.getGaDiId() != null ? criteria.getGaDiId() : null)
-                            .tenGaDi(criteria.getGaDiName())
-                            .gaDenId(criteria.getGaDenId() != null ? criteria.getGaDenId() : null)
-                            .tenGaDen(criteria.getGaDenName())
-                            .ngayDi(criteria.getNgayDi())
-                            .ngayVe(criteria.getNgayVe())
-                            .khuHoi(criteria.isKhuHoi())
-                            .build();
+			// select first
+			if (!listModel.isEmpty())
+				list.setSelectedIndex(0);
+		}
 
-                    session.setOutboundCriteria(resolvedCriteria);
-                    session.setOutboundResults(results);
+		private void moveSelection(int delta) {
+			if (popup == null || !popup.isVisible() || list == null)
+				return;
+			int idx = list.getSelectedIndex();
+			int size = listModel.getSize();
+			if (size == 0)
+				return;
+			int next = idx + delta;
+			if (next < 0)
+				next = 0;
+			if (next >= size)
+				next = size - 1;
+			list.setSelectedIndex(next);
+			list.ensureIndexIsVisible(next);
+		}
 
-                    wizardController.goToStep(2, 0);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    panel.getBtnTimKiem().setEnabled(true);
-                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-                            "Lỗi khi tìm chuyến: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
-                }
-            }
-        }.execute();
-    }
-    
-    private SearchCriteria buildSearchCriteriaFromPanel() {
-        String gaDiId = selectedGaDi;
-        String gaDenId = selectedGaDen;
+		private void selectIndex(int idx) {
+			if (listModel == null || idx < 0 || idx >= listModel.getSize())
+				return;
+			Ga g = listModel.getElementAt(idx);
+			if (g == null)
+				return;
 
-        SearchCriteria criteria = new SearchCriteria.Builder()
-                .gaDiId(gaDiId)
-                .tenGaDi(panel.getGaDi())
-                .gaDenId(gaDenId)
-                .tenGaDen(panel.getGaDen())
-                .ngayDi(panel.getNgayDi())
-                .ngayVe(panel.getNgayVe())
-                .khuHoi(panel.isKhuHoi())
-                .build();
-        return criteria;
-    }
+			// mark suppressChange so document listener won't trigger fetch again
+			suppressChange = true;
+			confirmed = true;
+			lastConfirmedText = g.getTenGa();
+
+			// onSelect may change external selectedGaDi/Den and modify other fields
+			onSelect.accept(g);
+
+			hidePopup();
+		}
+
+		private void hidePopup() {
+			if (popup != null && popup.isVisible())
+				popup.setVisible(false);
+			popup = null;
+			list = null;
+			listModel = null;
+		}
+	}
 }
