@@ -16,14 +16,12 @@ import java.util.Objects;
 public class PhieuGiuCho {
     private String phieuGiuChoID;
     private NhanVien nhanVien;
-    private int thoiGianGiuChoS;
     private LocalDateTime thoiDiemTao;
     private String trangThai;
 
-    public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, int thoiGianGiuChoS, LocalDateTime thoiDiemTao, String trangThai) {
+    public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, LocalDateTime thoiDiemTao, String trangThai) {
         this.phieuGiuChoID = phieuGiuChoID;
         this.nhanVien = nhanVien;
-        this.thoiGianGiuChoS = thoiGianGiuChoS;
         this.thoiDiemTao = thoiDiemTao;
         this.trangThai = trangThai;
     }
@@ -50,17 +48,6 @@ public class PhieuGiuCho {
         this.nhanVien = nhanVien;
     }
 
-    public int getThoiGianGiuChoS() {
-        return thoiGianGiuChoS;
-    }
-
-    public void setThoiGianGiuChoS(int thoiGianGiuChoS) {
-        if(thoiGianGiuChoS <= 0) {
-            throw new IllegalArgumentException("ThoiGianGiuChoS phải lớn hơn 0!");
-        }
-        this.thoiGianGiuChoS = thoiGianGiuChoS;
-    }
-
     public LocalDateTime getThoiDiemTao() {
         return thoiDiemTao;
     }
@@ -82,7 +69,7 @@ public class PhieuGiuCho {
 
     @Override
     public String toString() {
-        return phieuGiuChoID + ";" + nhanVien + ";" + thoiGianGiuChoS
+        return phieuGiuChoID + ";" + nhanVien
                 + ";" + thoiDiemTao + ";" + trangThai;
     }
 

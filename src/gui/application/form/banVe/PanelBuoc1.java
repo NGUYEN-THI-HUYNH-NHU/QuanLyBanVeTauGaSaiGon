@@ -39,8 +39,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
 
 public class PanelBuoc1 extends JPanel {
@@ -49,15 +52,28 @@ public class PanelBuoc1 extends JPanel {
 	private JDateChooser dateChooserNgayDi, dateChooserNgayVe;
 	private JRadioButton radMotChieu, radKhuHoi;
 	private JButton btnTimKiem;
-	private JPanel pnlCenter;
+	private JPanel pnlTimKiem;
 	private JPanel pnlEast;
+	private JPanel pnlCenter;
 
 	public PanelBuoc1() {
 		setLayout(new BorderLayout());
 		setBorder(new TitledBorder("(1) Tìm kiếm chuyến"));
 
+		// pnlCenter
+		pnlCenter = new JPanel(new BorderLayout());
+
+		// lblTieuDe
+		JLabel lblTieuDe = new JLabel("Thông tin hành trình", SwingConstants.CENTER);
+		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 24f));
+		lblTieuDe.setBackground(new Color(32, 83, 145));
+		lblTieuDe.putClientProperty(FlatClientProperties.STYLE, "foreground:$Menu.foreground");
+		lblTieuDe.setOpaque(true);
+
 		// Form
-		pnlCenter = new JPanel(new GridBagLayout());
+		pnlTimKiem = new JPanel(new GridBagLayout());
+		pnlTimKiem.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
+		pnlTimKiem.setBackground(new Color(245, 245, 245));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 5, 10);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -65,27 +81,28 @@ public class PanelBuoc1 extends JPanel {
 		// Ga đi
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		pnlCenter.add(new JLabel("Ga đi:"), gbc);
+		pnlTimKiem.add(new JLabel("Ga đi:"), gbc);
 		gbc.gridx = 1;
 		txtGaDi = new JTextField(15);
 		txtGaDi.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đi...");
-		pnlCenter.add(txtGaDi, gbc);
+		pnlTimKiem.add(txtGaDi, gbc);
 
 		// Ga đến
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		pnlCenter.add(new JLabel("Ga đến:"), gbc);
+		pnlTimKiem.add(new JLabel("Ga đến:"), gbc);
 		gbc.gridx = 1;
 		txtGaDen = new JTextField(15);
 		txtGaDen.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đến...");
-		pnlCenter.add(txtGaDen, gbc);
+		pnlTimKiem.add(txtGaDen, gbc);
 
 		// Loại hành trình
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		pnlCenter.add(new JLabel("Loại hành trình:"), gbc);
+		pnlTimKiem.add(new JLabel("Loại hành trình:"), gbc);
 		gbc.gridx = 1;
 		JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		radioPanel.setBackground(new Color(245, 245, 245));
 		radMotChieu = new JRadioButton("Một chiều", true);
 		radKhuHoi = new JRadioButton("Khứ hồi");
 		ButtonGroup group = new ButtonGroup();
@@ -93,27 +110,27 @@ public class PanelBuoc1 extends JPanel {
 		group.add(radKhuHoi);
 		radioPanel.add(radMotChieu);
 		radioPanel.add(radKhuHoi);
-		pnlCenter.add(radioPanel, gbc);
+		pnlTimKiem.add(radioPanel, gbc);
 
 		// Ngày đi
 		gbc.gridx = 0;
 		gbc.gridy = 3;
-		pnlCenter.add(new JLabel("Ngày đi:"), gbc);
+		pnlTimKiem.add(new JLabel("Ngày đi:"), gbc);
 		gbc.gridx = 1;
 		dateChooserNgayDi = new JDateChooser();
 		dateChooserNgayDi.setDateFormatString("dd/MM/yyyy");
 		dateChooserNgayDi.setDate(new java.util.Date());
-		pnlCenter.add(dateChooserNgayDi, gbc);
+		pnlTimKiem.add(dateChooserNgayDi, gbc);
 
 		// Ngày về
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		pnlCenter.add(new JLabel("Ngày về:"), gbc);
+		pnlTimKiem.add(new JLabel("Ngày về:"), gbc);
 		gbc.gridx = 1;
 		dateChooserNgayVe = new JDateChooser();
 		dateChooserNgayVe.setDateFormatString("dd/MM/yyyy");
 		dateChooserNgayVe.setEnabled(false);
-		pnlCenter.add(dateChooserNgayVe, gbc);
+		pnlTimKiem.add(dateChooserNgayVe, gbc);
 
 		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
 		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
@@ -124,11 +141,14 @@ public class PanelBuoc1 extends JPanel {
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.CENTER;
 		btnTimKiem = new JButton("Tìm chuyến tàu");
-		pnlCenter.add(btnTimKiem, gbc);
+		pnlTimKiem.add(btnTimKiem, gbc);
+
+		pnlCenter.add(lblTieuDe, BorderLayout.NORTH);
+		pnlCenter.add(pnlTimKiem, BorderLayout.CENTER);
 
 		pnlEast = new JPanel(new BorderLayout());
 		pnlEast.setPreferredSize(new Dimension(520, JFrame.HEIGHT));
-		pnlEast.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1, false));
+		pnlEast.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
 
 		BufferedImage img = null;
 		try {

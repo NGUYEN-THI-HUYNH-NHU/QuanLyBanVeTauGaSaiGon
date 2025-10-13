@@ -5,7 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /*
@@ -19,17 +18,12 @@ public class SuDungKhuyenMai {
 	private String suDungKhuyenMaiID;
 	private KhuyenMai khuyenMai;
 	private HoaDonChiTiet hoaDonChiTiet;
-	private KhachHang khachHang;
-	private LocalDateTime thoiDiemDung;
 	
-	public SuDungKhuyenMai(String suDungKhuyenMaiID, KhuyenMai khuyenMai, HoaDonChiTiet hoaDonChiTiet,
-			KhachHang khachHang, LocalDateTime thoiDiemDung) {
+	public SuDungKhuyenMai(String suDungKhuyenMaiID, KhuyenMai khuyenMai, HoaDonChiTiet hoaDonChiTiet) {
 		super();
 		this.suDungKhuyenMaiID = suDungKhuyenMaiID;
 		this.khuyenMai = khuyenMai;
 		this.hoaDonChiTiet = hoaDonChiTiet;
-		this.khachHang = khachHang;
-		this.thoiDiemDung = thoiDiemDung;
 	}
 
 	public String getSuDungKhuyenMaiID() {
@@ -43,15 +37,7 @@ public class SuDungKhuyenMai {
 	public HoaDonChiTiet getHoaDonChiTiet() {
 		return hoaDonChiTiet;
 	}
-
-	public KhachHang getKhachHang() {
-		return khachHang;
-	}
-
-	public LocalDateTime getThoiDiemDung() {
-		return thoiDiemDung;
-	}
-
+	
 	public void setSuDungKhuyenMaiID(String suDungKhuyenMaiID) {
 		this.suDungKhuyenMaiID = suDungKhuyenMaiID;
 	}
@@ -64,18 +50,9 @@ public class SuDungKhuyenMai {
 		this.hoaDonChiTiet = hoaDonChiTiet;
 	}
 
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
-	}
-
-	public void setThoiDiemDung(LocalDateTime thoiDiemDung) {
-		this.thoiDiemDung = thoiDiemDung;
-	}
-
 	@Override
 	public String toString() {
-		return suDungKhuyenMaiID + ";" + khuyenMai
-				+ ";" + hoaDonChiTiet + ";" + khachHang + ";" + thoiDiemDung;
+		return suDungKhuyenMaiID + ";" + khuyenMai.getKhuyenMaiID() + ";" + hoaDonChiTiet.getHoaDonChiTietID();
 	}
 
 	@Override

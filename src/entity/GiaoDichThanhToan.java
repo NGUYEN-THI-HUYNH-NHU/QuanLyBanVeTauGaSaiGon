@@ -4,31 +4,27 @@ package entity;
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 18, 2025
  * @version: 1.0
  */
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class GiaoDichThanhToan {
 	private String giaoDichThanhToanID;
 	private HoaDon hoaDon;
-	private KhachHang khachHang;
 	private double tienNhan;
 	private double tienHoan;
 	private LocalDateTime thoiDiemThanhToan;
 	private boolean isThanhToanTienMat;
 	private boolean trangThai;
 
-	public GiaoDichThanhToan(String giaoDichThanhToanID, HoaDon hoaDon, KhachHang khachHang, double tienNhan, double tienHoan, LocalDateTime thoiDiemThanhToan, boolean isThanhToanTienMat, boolean trangThai) {
+	public GiaoDichThanhToan(String giaoDichThanhToanID, HoaDon hoaDon, double tienNhan, double tienHoan, LocalDateTime thoiDiemThanhToan, boolean isThanhToanTienMat, boolean trangThai) {
 		this.giaoDichThanhToanID = giaoDichThanhToanID;
 		this.hoaDon = hoaDon;
-		this.khachHang = khachHang;
 		this.tienNhan = tienNhan;
 		this.tienHoan = tienHoan;
 		this.thoiDiemThanhToan = thoiDiemThanhToan;
@@ -42,10 +38,6 @@ public class GiaoDichThanhToan {
 
 	public HoaDon getHoaDon() {
 		return hoaDon;
-	}
-
-	public KhachHang getKhachHang() {
-		return khachHang;
 	}
 
 	public double getTienNhan() {
@@ -84,14 +76,6 @@ public class GiaoDichThanhToan {
 		}
 	}
 
-	public void setKhachHang(KhachHang khachHang) {
-		if(khachHang != null) {
-			this.khachHang = khachHang;
-		}else {
-			throw new IllegalArgumentException("Khách hàng không được để trống!");
-		}
-	}
-
 	public void setTienNhan(double tienNhan) {
 		this.tienNhan = tienNhan;
 	}
@@ -114,8 +98,7 @@ public class GiaoDichThanhToan {
 
 	@Override
 	public String toString() {
-		return giaoDichThanhToanID + ";" + hoaDon + ";"
-				+ khachHang + ";" + tienNhan + ";" + tienHoan + ";" + thoiDiemThanhToan
+		return giaoDichThanhToanID + ";" + hoaDon + ";" + tienNhan + ";" + tienHoan + ";" + thoiDiemThanhToan
 				+ ";" + isThanhToanTienMat + ";" + trangThai;
 	}
 

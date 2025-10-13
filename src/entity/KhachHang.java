@@ -8,6 +8,9 @@ package entity;
 
 import java.util.Objects;
 
+import entity.type.LoaiDoiTuong;
+import entity.type.LoaiKhachHang;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -17,11 +20,27 @@ import java.util.Objects;
 
 public class KhachHang {
 	private String khachHangID;
+	private LoaiDoiTuong loaiDoiTuong;
+	private LoaiKhachHang loaiKhachHang;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
+	private String soGiayTo;
 	private String diaChi;
 	
+	public KhachHang(String khachHangID, LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang, String hoTen,
+			String soDienThoai, String email, String soGiayTo, String diaChi) {
+		super();
+		this.khachHangID = khachHangID;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.loaiKhachHang = loaiKhachHang;
+		this.hoTen = hoTen;
+		this.soDienThoai = soDienThoai;
+		this.email = email;
+		this.soGiayTo = soGiayTo;
+		this.diaChi = diaChi;
+	}
+
 	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
 			String diaChi) {
 		super();
@@ -84,10 +103,35 @@ public class KhachHang {
 		this.diaChi = diaChi;
 	}
 
+	public LoaiDoiTuong getLoaiDoiTuong() {
+		return loaiDoiTuong;
+	}
+
+	public LoaiKhachHang getLoaiKhachHang() {
+		return loaiKhachHang;
+	}
+
+	public String getSoGiayTo() {
+		return soGiayTo;
+	}
+
+	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
+		this.loaiDoiTuong = loaiDoiTuong;
+	}
+
+	public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
+		this.loaiKhachHang = loaiKhachHang;
+	}
+
+	public void setSoGiayTo(String soGiayTo) {
+		this.soGiayTo = soGiayTo;
+	}
+
 	@Override
 	public String toString() {
-		return khachHangID + ";" + ";" + hoTen
-				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
+		return khachHangID + ";" + loaiDoiTuong + ";"
+				+ loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email
+				+ ";" + soGiayTo + ";" + diaChi;
 	}
 
 	@Override

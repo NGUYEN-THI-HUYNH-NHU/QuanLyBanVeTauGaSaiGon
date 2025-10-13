@@ -8,8 +8,6 @@ package entity;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import entity.type.TrangThaiDatCho;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
