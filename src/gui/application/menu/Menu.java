@@ -24,6 +24,7 @@ import javax.swing.JScrollPane;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
+
 public class Menu extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -33,13 +34,25 @@ public class Menu extends JPanel {
     protected final boolean hideMenuTitleOnMinimum = true;
     protected final int menuTitleLeftInset = 5;
     protected final int menuTitleVgap = 5;
-    protected final int menuMaxWidth = 240;
+    protected final int menuMaxWidth = 210;
     protected final int menuMinWidth = 70;
     protected final int headerFullHgap = 5;
-    private final String[][] menuItems = {{ "~Quản Lý~" }, { "Bán vé" }, { "Quản lý vé", "Hoàn vé", "Đổi vé" }, { "Quản lý hóa đơn" },{ "Quản lý biểu giá" },
-    		{ "Quản lý tuyến" },{ "Quản lý chuyến" }, { "Quản lý khuyến mãi" }, { "Quản lý khách hàng" }, { "Quản lý nhân viên" }, {"Quản lý tài khoản"}, 
-    		{ "~Khác~" },{ "Thống Kê", "Chung", "Khách Hàng", "Vé"},
-            { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" },{ "Đăng Xuất" }};
+    private final String[][] menuItems = {
+    		{ "~Quản Lý~" }, //0
+    		{ "Bán vé" }, //1
+    		{ "Quản lý vé", "Hoàn vé", "Đổi vé" }, //2 
+    		{ "Quản lý hóa đơn" }, //3
+    		{ "Quản lý tuyến" }, //4
+    		{ "Quản lý chuyến" }, //5
+    		{ "Quản lý biểu giá" }, //6
+    		{ "Quản lý khuyến mãi" }, //7
+    		{ "Quản lý khách hàng" }, //8
+    		{ "Quản lý nhân viên" }, //9
+    		{ "Quản lý tài khoản" }, //10
+    		{ "~Khác~" }, //11
+    		{ "Thống Kê", "Chung", "Khách Hàng", "Vé"}, //12
+            { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, //13
+            { "Đăng Xuất" }}; //14
     private JLabel header;
     private JScrollPane scroll;
     private JPanel panelMenu;
@@ -72,22 +85,20 @@ public class Menu extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
-    private void createMenu(String role) {
-        int index = 0;
+    private void createMenu(String role) {        
         for (int i = 0; i < menuItems.length; i++) {
             String menuName = menuItems[i][0];
             if (menuName.startsWith("~") && menuName.endsWith("~")) {
                 panelMenu.add(createTitle(menuName));
             } else {
             	if (role.equalsIgnoreCase("NHAN_VIEN")) {
-            		if (i==4  || i==6 || i==7 || i==9 || i==10)
+            		if (i==4 || i==5 || i==6 || i==7 || i==9 || i==10)
                         continue;
             	} else {
             		if (i==1 || i==2 || i==3)
                         continue;
             	}
-            
-                ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], index++, suKienMenuList, role);
+                ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], i, suKienMenuList, role);
                 panelMenu.add(menuItem);
             }
         }
