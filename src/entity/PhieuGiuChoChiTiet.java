@@ -18,19 +18,19 @@ public class PhieuGiuChoChiTiet {
     private PhieuGiuCho phieuGiuCho;
     private Chuyen chuyen;
     private Ghe ghe;
-    private int thuTuGaDi;
-    private int thuTuGaDen;
-    private LocalDateTime thoiDiemHetGiuCho;
+    private Ga gaDi;
+    private Ga gaDen;
+    private LocalDateTime thoiDiemGiuCho;
     private String trangThai;
 
-    public PhieuGiuChoChiTiet(String phieuGiuChoChiTietID, PhieuGiuCho phieuGiuCho, Chuyen chuyen, Ghe ghe, int thuTuGaDi, int thuTuGaDen, LocalDateTime thoiDiemHetGiuCho, String trangThai) {
+    public PhieuGiuChoChiTiet(String phieuGiuChoChiTietID, PhieuGiuCho phieuGiuCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen, LocalDateTime thoiDiemGiuCho, String trangThai) {
         this.phieuGiuChoChiTietID = phieuGiuChoChiTietID;
         this.phieuGiuCho = phieuGiuCho;
         this.chuyen = chuyen;
         this.ghe = ghe;
-        this.thuTuGaDi = thuTuGaDi;
-        this.thuTuGaDen = thuTuGaDen;
-        this.thoiDiemHetGiuCho = thoiDiemHetGiuCho;
+        this.gaDi = gaDi;
+        this.gaDen = gaDen;
+        this.thoiDiemGiuCho = thoiDiemGiuCho;
         this.trangThai = trangThai;
     }
 
@@ -75,37 +75,31 @@ public class PhieuGiuChoChiTiet {
         this.ghe = ghe;
     }
 
-    public int getThuTuGaDi() {
-        return thuTuGaDi;
+    public Ga getGaDi() {
+        return gaDi;
     }
 
-    public void setThuTuGaDi(int thuTuGaDi) {
-        if(thuTuGaDi < 0) {
-            throw new IllegalArgumentException("Thứ tự ga đi không được âm!");
-        }
-        this.thuTuGaDi = thuTuGaDi;
+    public void setGaDi(Ga gaDi) {
+        this.gaDi = gaDi;
     }
 
-    public int getThuTuGaDen() {
-        return thuTuGaDen;
+    public Ga getGaDen() {
+        return gaDen;
     }
 
-    public void setThuTuGaDen(int thuTuGaDen) {
-        if(thuTuGaDen < 0) {
-            throw new IllegalArgumentException("Thứ tự ga đến không được âm!");
-        }
-        this.thuTuGaDen = thuTuGaDen;
+    public void setGaDen(Ga gaDen) {
+        this.gaDen = gaDen;
     }
 
     public LocalDateTime getThoiDiemHetGiuCho() {
-        return thoiDiemHetGiuCho;
+        return thoiDiemGiuCho;
     }
 
-    public void setThoiDiemHetGiuCho(LocalDateTime thoiDiemHetGiuCho) {
-        if(thoiDiemHetGiuCho == null) {
+    public void setThoiDiemHetGiuCho(LocalDateTime thoiDiemGiuCho) {
+        if(thoiDiemGiuCho == null) {
             throw new IllegalArgumentException("ThoiDiemHetGiuCho không được để trống!");
         }
-        this.thoiDiemHetGiuCho = thoiDiemHetGiuCho;
+        this.thoiDiemGiuCho = thoiDiemGiuCho;
     }
 
     public String getTrangThai() {
@@ -119,12 +113,12 @@ public class PhieuGiuChoChiTiet {
     @Override
     public String toString() {
         return phieuGiuChoChiTietID + ";"
-                + phieuGiuCho + ";"
-                + chuyen + ";"
-                + ghe + ";"
-                + thuTuGaDi + ";"
-                + thuTuGaDen + ";"
-                + thoiDiemHetGiuCho + ";"
+                + phieuGiuCho.getPhieuGiuChoID() + ";"
+                + chuyen.getChuyenID() + ";"
+                + ghe.getGheID() + ";"
+                + gaDi.getGaID() + ";"
+                + gaDen.getGaID() + ";"
+                + thoiDiemGiuCho + ";"
                 + trangThai;
     }
 

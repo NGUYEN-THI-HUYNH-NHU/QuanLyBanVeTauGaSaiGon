@@ -5,8 +5,8 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDateTime;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /*
  * @description
@@ -19,16 +19,20 @@ public class ChuyenGa {
 	private Chuyen chuyen;
 	private Ga ga;
 	private int thuTu;
-	private LocalDateTime gioDen;
-	private LocalDateTime gioDi;
-	
-	public ChuyenGa(Chuyen chuyen, Ga ga, int thuTu, LocalDateTime gioDen,
-					LocalDateTime gioDi) {
+	private LocalDate ngayDen;
+	private LocalTime gioDen;
+	private LocalDate ngayDi;
+	private LocalTime gioDi;
+
+	public ChuyenGa(Chuyen chuyen, Ga ga, int thuTu, LocalDate ngayDen, LocalTime gioDen, LocalDate ngayDi,
+			LocalTime gioDi) {
 		super();
 		this.chuyen = chuyen;
 		this.ga = ga;
 		this.thuTu = thuTu;
+		this.ngayDen = ngayDen;
 		this.gioDen = gioDen;
+		this.ngayDi = ngayDi;
 		this.gioDi = gioDi;
 	}
 
@@ -44,11 +48,19 @@ public class ChuyenGa {
 		return thuTu;
 	}
 
-	public LocalDateTime getGioDen() {
-		return gioDen;
+	public LocalDate getNgayDen() {
+		return ngayDen;
 	}
 
-	public LocalDateTime getGioDi() {
+	public LocalTime getGioDen() {
+		return gioDi;
+	}
+
+	public LocalDate getNgayDi() {
+		return ngayDi;
+	}
+
+	public LocalTime getGioDi() {
 		return gioDi;
 	}
 
@@ -61,24 +73,30 @@ public class ChuyenGa {
 	}
 
 	public void setThuTu(int thuTu) {
-		if(thuTu < 1) {
+		if (thuTu < 1) {
 			throw new IllegalArgumentException("Thứ tự không được nhỏ hơn 1!");
 		}
 		this.thuTu = thuTu;
 	}
 
-	public void setGioDen(LocalDateTime gioDen) {
+	public void setNgayDen(LocalDate ngayDen) {
+		this.ngayDen = ngayDen;
+	}
+
+	public void setGioDen(LocalTime gioDen) {
 		this.gioDen = gioDen;
 	}
 
-	public void setGioDi(LocalDateTime gioDi) {
+	public void setNgayDi(LocalDate ngayDi) {
+		this.ngayDi = ngayDi;
+	}
+
+	public void setGioDi(LocalTime gioDi) {
 		this.gioDi = gioDi;
 	}
 
 	@Override
 	public String toString() {
-		return  chuyen + ";" + ga + ";" + thuTu
-				+ ";" + gioDen + ";" + gioDi;
+		return chuyen + ";" + ga + ";" + thuTu + ";" + ngayDen + ";" + gioDen + ";" + ngayDi + ";" + gioDi;
 	}
-
 }

@@ -1,6 +1,6 @@
 package entity.type;
 /*
- * @(#) TrangThaiVe.java  1.0  [6:14:34 PM] Sep 21, 2025
+ * @(#) TrangThaiPDPVIP.java  1.0  [10:37:35 AM] Oct 13, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,20 +8,18 @@ package entity.type;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Sep 21, 2025
+ * @date: Oct 13, 2025
  * @version: 1.0
  */
 
-public enum TrangThaiVe {
-	DA_BAN("Vé đã bán"),
-	DA_DUNG("Vé đã sử dụng"),
-	HET_HAN("Vé hết hạn"),
-	DA_HOAN("Vé đã hoàn"),
-	DA_DOI("Vé đã hoàn");
+public enum TrangThaiPDPVIP {
+	DA_BAN("Phiếu chưa sử dụng"),
+	DA_DUNG("Phiếu đã sử dụng"),
+	HET_HAN("Phiếu hết hạn");
 
 	private final String description;
 
-	TrangThaiVe(String description) {
+	TrangThaiPDPVIP(String description) {
         this.description = description;
     }
 

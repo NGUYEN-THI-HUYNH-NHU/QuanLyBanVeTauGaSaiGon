@@ -1,20 +1,21 @@
 package gui.application;/*
- * @ (#) UngDung.java   1.0     25/09/2025
-package gui;
-
-
-/**
- * @description :
- * @author : Vy, Pham Kha Vy
- * @version 1.0
- * @created : 25/09/2025
- */
-
-import javax.swing.*;
-
+						* @ (#) UngDung.java   1.0     25/09/2025
+						package gui;
+						
+						
+						/**
+						* @description :
+						* @author : Vy, Pham Kha Vy
+						* @version 1.0
+						* @created : 25/09/2025
+						*/
 
 import java.awt.Component;
 import java.awt.Font;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
@@ -24,7 +25,6 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import entity.NhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
-//import gui.application.form.GiaoDienChinh;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -36,7 +36,7 @@ public class UngDung extends JFrame {
 		super("Quản Lý Bán Vé Tàu Ga Sài Gòn");
 		ungDung = this;
 		formDangNhap = new FormDangNhap();
-		
+
 		setSize(900, 600);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLocationRelativeTo(null);

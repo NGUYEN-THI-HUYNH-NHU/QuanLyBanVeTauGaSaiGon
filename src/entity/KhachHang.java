@@ -5,7 +5,11 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+
 import java.util.Objects;
+
+import entity.type.LoaiDoiTuong;
+import entity.type.LoaiKhachHang;
 
 /*
  * @description
@@ -16,11 +20,27 @@ import java.util.Objects;
 
 public class KhachHang {
 	private String khachHangID;
+	private LoaiDoiTuong loaiDoiTuong;
+	private LoaiKhachHang loaiKhachHang;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
+	private String soGiayTo;
 	private String diaChi;
 	
+	public KhachHang(String khachHangID, LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang, String hoTen,
+			String soDienThoai, String email, String soGiayTo, String diaChi) {
+		super();
+		this.khachHangID = khachHangID;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.loaiKhachHang = loaiKhachHang;
+		this.hoTen = hoTen;
+		this.soDienThoai = soDienThoai;
+		this.email = email;
+		this.soGiayTo = soGiayTo;
+		this.diaChi = diaChi;
+	}
+
 	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
 			String diaChi) {
 		super();
@@ -68,37 +88,50 @@ public class KhachHang {
 	}
 
 	public void setHoTen(String hoTen) {
-		if(hoTen == null || hoTen.isEmpty()) {
-			throw new IllegalArgumentException("Họ tên không được để trống!");
-		}
 		this.hoTen = hoTen;
 	}
 
 	public void setSoDienThoai(String soDienThoai) {
-		if(soDienThoai == null || soDienThoai.isEmpty()) {
-			throw new IllegalArgumentException("Số điện thoại không được để trống!");
-		}
 		this.soDienThoai = soDienThoai;
 	}
 
 	public void setEmail(String email) {
-		if(email == null || email.isEmpty()) {
-			throw new IllegalArgumentException("Email không được để trống!");
-		}
 		this.email = email;
 	}
 
 	public void setDiaChi(String diaChi) {
-		if(diaChi == null || diaChi.isEmpty()) {
-			throw new IllegalArgumentException("Địa chỉ không được để trống!");
-		}
 		this.diaChi = diaChi;
+	}
+
+	public LoaiDoiTuong getLoaiDoiTuong() {
+		return loaiDoiTuong;
+	}
+
+	public LoaiKhachHang getLoaiKhachHang() {
+		return loaiKhachHang;
+	}
+
+	public String getSoGiayTo() {
+		return soGiayTo;
+	}
+
+	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
+		this.loaiDoiTuong = loaiDoiTuong;
+	}
+
+	public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
+		this.loaiKhachHang = loaiKhachHang;
+	}
+
+	public void setSoGiayTo(String soGiayTo) {
+		this.soGiayTo = soGiayTo;
 	}
 
 	@Override
 	public String toString() {
-		return khachHangID + ";" +  hoTen
-				+ ";" + soDienThoai + ";" + email + ";" + diaChi;
+		return khachHangID + ";" + loaiDoiTuong + ";"
+				+ loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email
+				+ ";" + soGiayTo + ";" + diaChi;
 	}
 
 	@Override

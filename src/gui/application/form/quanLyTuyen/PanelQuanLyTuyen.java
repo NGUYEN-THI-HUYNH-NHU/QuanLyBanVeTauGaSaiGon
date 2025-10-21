@@ -16,7 +16,6 @@ import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
 import entity.Tuyen;
 import net.miginfocom.swing.MigLayout;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;

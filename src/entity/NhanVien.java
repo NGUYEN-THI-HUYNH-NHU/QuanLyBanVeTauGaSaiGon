@@ -51,7 +51,11 @@ public class NhanVien {
 		this.nhanVienID = nhanVienID;
 	}
 
-	public String getNhanVienID() {
+    public NhanVien() {
+
+    }
+
+    public String getNhanVienID() {
 		return nhanVienID;
 	}
 

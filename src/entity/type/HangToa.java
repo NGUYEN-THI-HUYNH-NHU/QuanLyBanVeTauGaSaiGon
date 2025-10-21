@@ -13,16 +13,16 @@ package entity.type;
  */
 
 public enum HangToa {
-    //	  NGOI_MEM_CHAT_LUONG_CAO("Ngồi mềm chất lượng cao"),
+//	  NGOI_MEM_CHAT_LUONG_CAO("Ngồi mềm chất lượng cao"),
 //    GIUONG_6_DIEU_HOA("Giường nằm khoang 6 điều hòa"),
 //    GIUONG_4_DIEU_HOA("Giường nằm khoang 4 điều hòa");
-    NM_CLC("Ngồi mềm chất lượng cao"),
-    GN_K4("Giường nằm khoang 4 điều hòa"),
-    GN_K6("Giường nằm khoang 6 điều hòa");
-
+	NM_CLC("Ngồi mềm chất lượng cao"),
+	GN_K4("Giường nằm khoang 4 điều hòa"),
+	GN_K6("Giường nằm khoang 6 điều hòa");
+    
     private final String description;
 
-    HangToa(String description) {
+	HangToa(String description) {
         this.description = description;
     }
 

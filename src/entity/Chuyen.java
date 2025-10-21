@@ -25,11 +25,26 @@ public class Chuyen {
 	private LocalTime gioDi;
 	private LocalDate ngayDen;
 	private LocalTime gioDen;
+	private int soChoDat;
+	private int soChoTrong;
 
-	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen, LocalTime gioDen) {
+	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen,
+			LocalTime gioDen, int soChoDat, int soChoTrong) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tuyen = tuyen;
+		this.tau = tau;
+		this.ngayDi = ngayDi;
+		this.gioDi = gioDi;
+		this.ngayDen = ngayDen;
+		this.gioDen = gioDen;
+		this.soChoDat = soChoDat;
+		this.soChoTrong = soChoTrong;
+	}
+
+	public Chuyen(String chuyenID, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen, LocalTime gioDen) {
+		super();
+		this.chuyenID = chuyenID;
 		this.tau = tau;
 		this.ngayDi = ngayDi;
 		this.gioDi = gioDi;
@@ -50,9 +65,9 @@ public class Chuyen {
 	}
 
 	public void setChuyenID(String chuyenID) {
-		if(chuyenID != null && !chuyenID.trim().isEmpty()){
+		if (chuyenID != null && !chuyenID.trim().isEmpty()) {
 			this.chuyenID = chuyenID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("ChuyenID không được rỗng");
 		}
 	}
@@ -62,9 +77,9 @@ public class Chuyen {
 	}
 
 	public void setTuyen(Tuyen tuyen) {
-		if(tuyen != null) {
+		if (tuyen != null) {
 			this.tuyen = tuyen;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Tuyến không được rỗng");
 		}
 	}
@@ -74,9 +89,9 @@ public class Chuyen {
 	}
 
 	public void setTau(Tau tau) {
-		if(tau != null) {
+		if (tau != null) {
 			this.tau = tau;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Tàu không được rỗng");
 		}
 	}
@@ -86,7 +101,7 @@ public class Chuyen {
 	}
 
 	public void setNgayDi(LocalDate ngayDi) {
-		if(ngayDi == null || ngayDi.isBefore(LocalDate.now())) {
+		if (ngayDi == null || ngayDi.isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
 		}
 		this.ngayDi = ngayDi;
@@ -102,7 +117,7 @@ public class Chuyen {
 	}
 
 	public void setGioDi(LocalTime gioDi) {
-		if(gioDi == null || gioDi.isBefore(LocalTime.of(0, 0)) || gioDi.isAfter(LocalTime.of(23, 59))) {
+		if (gioDi == null || gioDi.isBefore(LocalTime.of(0, 0)) || gioDi.isAfter(LocalTime.of(23, 59))) {
 			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
 		}
 		this.gioDi = gioDi;
@@ -113,7 +128,7 @@ public class Chuyen {
 	}
 
 	public void setNgayDen(LocalDate ngayDen) {
-		if(ngayDen == null || ngayDen.isBefore(LocalDate.now())) {
+		if (ngayDen == null || ngayDen.isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
 		}
 		this.ngayDen = ngayDen;
@@ -129,23 +144,39 @@ public class Chuyen {
 	}
 
 	public void setGioDen(LocalTime gioDen) {
-		if(gioDen == null || gioDen.isBefore(LocalTime.of(0, 0)) || gioDen.isAfter(LocalTime.of(23, 59))) {
+		if (gioDen == null || gioDen.isBefore(LocalTime.of(0, 0)) || gioDen.isAfter(LocalTime.of(23, 59))) {
 			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
 		}
 		this.gioDen = gioDen;
 	}
 
+	public int getSoChoDat() {
+		return soChoDat;
+	}
+
+	public int getSoChoTrong() {
+		return soChoTrong;
+	}
+
+	public void setSoChoDat(int soChoDat) {
+		this.soChoDat = soChoDat;
+	}
+
+	public void setSoChoTrong(int soChoTrong) {
+		this.soChoTrong = soChoTrong;
+	}
 
 	@Override
 	public String toString() {
-		return chuyenID + ";" + tuyen + ";" + tau + ";"
-				+ ngayDi + ";" + gioDi + ngayDen + ";" + gioDen;
+		return chuyenID + ";" + tuyen + ";" + tau + ";" + ngayDi + ";" + gioDi + ngayDen + ";" + gioDen;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		Chuyen chuyen = (Chuyen) o;
 		return Objects.equals(chuyenID, chuyen.chuyenID);
 	}

@@ -16,7 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ConnectDB {	
+public class ConnectDB {
 	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V5;encrypt=false;";
 	private static final String USER = "sa";
 	private static final String PASSWORD = "sapassword";

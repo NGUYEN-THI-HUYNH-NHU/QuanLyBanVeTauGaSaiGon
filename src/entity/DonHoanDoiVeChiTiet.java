@@ -16,14 +16,14 @@ import java.util.Objects;
 
 public class DonHoanDoiVeChiTiet {
 	private String donHoanDoiVeChiTietID;
-	private DonHoanDoiVe donHoanDoiVe;
+	private GiaoDichHoanDoi donHoanDoiVe;
 	private Ve veCu;
 	private Ve veMoi;
 	private double soTienHoan;
 	private double phiPhatSinh;
 	private String ghiChu;
 	
-	public DonHoanDoiVeChiTiet(String donHoanDoiVeChiTietID, DonHoanDoiVe donHoanDoiVe, Ve veCu, Ve veMoi,
+	public DonHoanDoiVeChiTiet(String donHoanDoiVeChiTietID, GiaoDichHoanDoi donHoanDoiVe, Ve veCu, Ve veMoi,
 			double soTienHoan, double phiPhatSinh, String ghiChu) {
 		super();
 		this.donHoanDoiVeChiTietID = donHoanDoiVeChiTietID;
@@ -39,7 +39,7 @@ public class DonHoanDoiVeChiTiet {
 		return donHoanDoiVeChiTietID;
 	}
 
-	public DonHoanDoiVe getDonHoanDoiVe() {
+	public GiaoDichHoanDoi getDonHoanDoiVe() {
 		return donHoanDoiVe;
 	}
 
@@ -72,7 +72,7 @@ public class DonHoanDoiVeChiTiet {
 		}
 	}
 
-	public void setDonHoanDoiVe(DonHoanDoiVe donHoanDoiVe) {
+	public void setDonHoanDoiVe(GiaoDichHoanDoi donHoanDoiVe) {
 		this.donHoanDoiVe = donHoanDoiVe;
 	}
 

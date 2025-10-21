@@ -76,7 +76,7 @@ public class Chuyen_DAO {
 				LocalDate ngayDen = resultSet.getDate("ngayDen").toLocalDate();
 				LocalTime gioDen = resultSet.getTime("gioDen").toLocalTime();
 
-				chuyenList.add(new Chuyen(chuyenID, tuyen, tau, ngayDi, gioDi, ngayDen, gioDen));
+				chuyenList.add(new Chuyen(chuyenID, tau, ngayDi, gioDi, ngayDen, gioDen));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

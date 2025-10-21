@@ -1,4 +1,9 @@
 package entity;
+
+import java.util.Objects;
+
+import entity.type.TrangThaiPDPVIP;
+
 /*
  * @(#) PhieuDungPhongChoVIP.java  1.0  [3:45:53 PM] Sep 22, 2025
  *
@@ -11,38 +16,43 @@ package entity;
  * @date: Sep 22, 2025
  * @version: 1.0
  */
-
-import java.util.Objects;
-
 public class PhieuDungPhongChoVIP {
 	private String phieuDungPhongChoVIPID;
-	private HoaDonChiTiet hoaDonChiTiet;
 	private DichVuPhongChoVIP dichVuPhongChoVIP;
-	private HanhKhach hanhKhach;
-	
-	public PhieuDungPhongChoVIP(String phieuDungPhongChoVIPID, HoaDonChiTiet hoaDonChiTiet,
-			DichVuPhongChoVIP dichVuPhongChoVIP, HanhKhach hanhKhach) {
+	private Ve ve;
+	private TrangThaiPDPVIP trangThai;
+
+	public PhieuDungPhongChoVIP(String phieuDungPhongChoVIPID, DichVuPhongChoVIP dichVuPhongChoVIP, Ve ve,
+			TrangThaiPDPVIP trangThai) {
 		super();
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
-		this.hoaDonChiTiet = hoaDonChiTiet;
 		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
-		this.hanhKhach = hanhKhach;
+		this.ve = ve;
+		this.trangThai = trangThai;
+	}
+
+	public TrangThaiPDPVIP getTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(TrangThaiPDPVIP trangThai) {
+		this.trangThai = trangThai;
+	}
+
+	public Ve getVe() {
+		return ve;
+	}
+
+	public void setVe(Ve ve) {
+		this.ve = ve;
 	}
 
 	public String getPhieuDungPhongChoVIPID() {
 		return phieuDungPhongChoVIPID;
 	}
 
-	public HoaDonChiTiet getHoaDonChiTiet() {
-		return hoaDonChiTiet;
-	}
-
 	public DichVuPhongChoVIP getDichVuPhongChoVIP() {
 		return dichVuPhongChoVIP;
-	}
-
-	public HanhKhach getHanhKhach() {
-		return hanhKhach;
 	}
 
 	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
@@ -52,23 +62,11 @@ public class PhieuDungPhongChoVIP {
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
 	}
 
-	public void setHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
-		this.hoaDonChiTiet = hoaDonChiTiet;
-	}
 
 	public void setDichVuPhongChoVIP(DichVuPhongChoVIP dichVuPhongChoVIP) {
 		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
 	}
 
-	public void setHanhKhach(HanhKhach hanhKhach) {
-		this.hanhKhach = hanhKhach;
-	}
-
-	@Override
-	public String toString() {
-		return phieuDungPhongChoVIPID + ";"
-				+ hoaDonChiTiet + ";" + dichVuPhongChoVIP + ";" + hanhKhach ;
-	}
 
 	@Override
 	public boolean equals(Object o) {
