@@ -20,25 +20,26 @@ import entity.type.LoaiKhachHang;
 
 public class KhachHang {
 	private String khachHangID;
-	private LoaiDoiTuong loaiDoiTuong;
-	private LoaiKhachHang loaiKhachHang;
 	private String hoTen;
 	private String soDienThoai;
 	private String email;
 	private String soGiayTo;
 	private String diaChi;
+	private LoaiDoiTuong loaiDoiTuong;
+	private LoaiKhachHang loaiKhachHang;
+
 	
-	public KhachHang(String khachHangID, LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang, String hoTen,
-			String soDienThoai, String email, String soGiayTo, String diaChi) {
+	public KhachHang(String khachHangID, String hoTen,
+			String soDienThoai, String email, String soGiayTo, String diaChi, LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang) {
 		super();
 		this.khachHangID = khachHangID;
-		this.loaiDoiTuong = loaiDoiTuong;
-		this.loaiKhachHang = loaiKhachHang;
 		this.hoTen = hoTen;
 		this.soDienThoai = soDienThoai;
 		this.email = email;
 		this.soGiayTo = soGiayTo;
 		this.diaChi = diaChi;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.loaiKhachHang = loaiKhachHang;
 	}
 
 	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
@@ -129,9 +130,8 @@ public class KhachHang {
 
 	@Override
 	public String toString() {
-		return khachHangID + ";" + loaiDoiTuong + ";"
-				+ loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email
-				+ ";" + soGiayTo + ";" + diaChi;
+		return loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email
+				+ ";" + soGiayTo + ";" + diaChi + ";" + khachHangID + ";" + loaiDoiTuong;
 	}
 
 	@Override

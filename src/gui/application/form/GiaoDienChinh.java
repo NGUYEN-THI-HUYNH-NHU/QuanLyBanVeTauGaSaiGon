@@ -32,7 +32,7 @@ import com.formdev.flatlaf.util.UIScale;
 import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.khachHang.FormCustomerManagement;
+import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
@@ -93,7 +93,7 @@ public class GiaoDienChinh extends JLayeredPane {
 //	            	if (isManager) UngDung.showGiaoDienChinh(new FormStaffManagement(nhanVien));
 //	                else action.cancel();
 //	            }
-			case 4 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
+			case 4 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 //	            case 6 -> {
 //	                switch (subIndex) {
 //	                    case 1 -> UngDung.showGiaoDienChinh(new FormFoodManagement());
