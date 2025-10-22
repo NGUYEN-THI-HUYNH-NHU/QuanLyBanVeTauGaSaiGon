@@ -50,7 +50,7 @@ public class Menu extends JPanel {
     		{ "Quản lý nhân viên" }, //9
     		{ "Quản lý tài khoản" }, //10
     		{ "~Khác~" }, //11
-    		{ "Thống Kê", "Chung", "Khách Hàng", "Vé"}, //12
+    		{ "Thống Kê", "Doanh thu", "Vé", "Khách hàng"}, //12
             { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, //13
             { "Đăng Xuất" }}; //14
     private JLabel header;

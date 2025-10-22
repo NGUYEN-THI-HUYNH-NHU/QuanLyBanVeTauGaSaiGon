@@ -34,6 +34,8 @@ import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.khachHang.FormCustomerManagement;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
+import gui.application.form.thongKe.PanelThongKeDoanhThu;
+import gui.application.form.thongKe.PanelThongKeVe;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.menu.HanhDongMenu;
@@ -106,14 +108,14 @@ public class GiaoDienChinh extends JLayeredPane {
 //			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
 			
 			// UC dung chung
-//			case 12 -> {
-//				switch (subIndex) {
-//					case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu(nhanVien));
-//					case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang(nhanVien));
-//					case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeVe(nhanVien));
-//					default -> action.cancel();
-//				}
-//			}
+			case 12 -> {
+				switch (subIndex) {
+					case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
+					case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
+//					case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang(nhanVien));
+					default -> action.cancel();
+				}
+			}
 			case 13 -> {
 				switch (subIndex) {
 					case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
