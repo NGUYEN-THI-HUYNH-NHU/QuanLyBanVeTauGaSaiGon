@@ -260,4 +260,12 @@ public class PanelBuoc3 extends JPanel {
     private static String formatCurrency(long v) {
         return String.format("%,d", v).replace(',', '.') ;
     }
+    
+    public void setComponentsEnabled(boolean enabled) {
+        // Vô hiệu hóa chính PanelBuoc3
+        super.setEnabled(enabled);
+        for (Component comp : this.getComponents()) {
+            comp.setEnabled(enabled);
+        }
+    }
 }

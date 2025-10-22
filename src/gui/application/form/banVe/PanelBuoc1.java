@@ -238,12 +238,6 @@ public class PanelBuoc1 extends JPanel {
 		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
-	public void setWizardController(WizardController wizardController) {
-		if (panelBuoc1Controller != null) {
-			panelBuoc1Controller.setWizardController(wizardController);
-		}
-	}
-
 	class AspectRatioImageLabel extends JLabel {
 		private Image image;
 

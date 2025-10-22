@@ -86,4 +86,44 @@ public class PanelBuoc2 extends JPanel {
             criteria != null ? criteria.getGaDiName() : "",
             criteria != null ? criteria.getGaDenName() : "");
     }
+
+	public PanelChieuLabel getPanelChieuLabel() {
+		return panelChieuLabel;
+	}
+
+	public PanelChuyenTau getPanelChuyenTau() {
+		return panelChuyenTau;
+	}
+
+	public PanelDoanTau getPanelDoanTau() {
+		return panelDoanTau;
+	}
+
+	public PanelSoDoCho getPanelSoDoCho() {
+		return panelSoDoCho;
+	}
+
+	public PanelGioVe getPanelGioVe() {
+		return panelGioVe;
+	}    
+	
+	public void setComponentsEnabled(boolean enabled) {
+	    super.setEnabled(enabled);
+	      
+	    if (panelChieuLabel != null) {
+	        panelChieuLabel.setEnabled(enabled);
+	    }
+	    if (panelChuyenTau != null) {
+	        panelChuyenTau.setEnabled(enabled);
+	    }
+	    if (panelDoanTau != null) {
+	        panelDoanTau.setEnabled(enabled);
+	    }
+	    if (panelSoDoCho != null) {
+	        panelSoDoCho.setEnabled(enabled);
+	    }
+	    if (panelGioVe != null) {
+	        panelGioVe.setEnabled(enabled);
+	    }
+	}
 }

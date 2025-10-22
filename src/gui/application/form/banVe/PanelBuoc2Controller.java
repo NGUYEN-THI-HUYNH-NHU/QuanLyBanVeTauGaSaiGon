@@ -45,7 +45,7 @@ public class PanelBuoc2Controller {
     private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
     private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
 
-    private BookingSession bookingSession;     // lưu session chung (được set từ bên ngoài)
+    private BookingSession bookingSession;
     private List<Chuyen> chuyenList;
     private Chuyen selectedChuyen;
     private int currentTripIndex = 0;
@@ -79,6 +79,33 @@ public class PanelBuoc2Controller {
         this.chuyenList = chuyens;
         panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
         panelChuyenTau.showChuyenList(chuyens);
+        if (chuyens != null && !chuyens.isEmpty()) {
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
+            onChuyenSelected(chuyens.get(0));
+        }
+        panelGioVe.refresh(ticketBUS.getAllTickets());
+    }
+    
+    /**
+     * Đây là hàm "cổng vào" mới, thay thế cho logic của WizardController.goToStep(2) 
+     * Nó sẽ được gọi bởi PanelBanVe1Controller (Mediator).
+     */
+    public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
+        if (criteria == null || chuyens == null || chuyens.isEmpty()) {
+            // Có thể ẩn hoặc xóa trắng panel
+            return;
+        }
+
+        // 1. Set tripIndex để controller biết đang xử lý chiều đi hay về
+        setCurrentTripIndex(tripIndex);
+
+        String gaDiName = criteria.getGaDiName();
+        String gaDenName = criteria.getGaDenName();
+        
+        this.chuyenList = chuyens;
+        panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
+        panelChuyenTau.showChuyenList(chuyens);
+        
         if (chuyens != null && !chuyens.isEmpty()) {
             panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
             onChuyenSelected(chuyens.get(0));
