@@ -36,10 +36,22 @@ public class Menu extends JPanel {
     protected final int menuMaxWidth = 240;
     protected final int menuMinWidth = 70;
     protected final int headerFullHgap = 5;
-    private final String[][] menuItems = {{ "~Quản Lý~" }, { "Bán vé" }, { "Quản lý vé", "Hoàn vé", "Đổi vé" }, { "Quản lý hóa đơn" },{ "Quản lý biểu giá" },
-    		{ "Quản lý tuyến" },{ "Quản lý chuyến" }, { "Quản lý khuyến mãi" }, { "Quản lý khách hàng" }, { "Quản lý nhân viên" }, {"Quản lý tài khoản"}, 
-    		{ "~Khác~" },{ "Thống Kê", "Chung", "Khách Hàng", "Vé"},
-            { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" },{ "Đăng Xuất" }};
+    private final String[][] menuItems = {
+            { "~Quản Lý~" },
+            { "Bán vé" },
+            { "Quản lý vé", "Hoàn vé", "Đổi vé" },
+            { "Quản lý hóa đơn" },
+            { "Quản lý biểu giá" },
+    		{ "Quản lý tuyến" },
+            { "Quản lý chuyến" },
+            { "Quản lý khuyến mãi" },
+            { "Quản lý khách hàng" },
+            { "Quản lý nhân viên" },
+            {"Quản lý tài khoản"},
+    		{ "~Khác~" },
+            { "Thống Kê", "Doanh Thu","Vé", "Khách Hàng"},
+            { "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" },
+            { "Đăng Xuất" }};
     private JLabel header;
     private JScrollPane scroll;
     private JPanel panelMenu;
