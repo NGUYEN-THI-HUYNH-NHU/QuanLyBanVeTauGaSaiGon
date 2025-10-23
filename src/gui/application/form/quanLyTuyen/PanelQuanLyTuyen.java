@@ -1,6 +1,5 @@
 package gui.application.form.quanLyTuyen;/*
  * @ (#) PanelQuanLyTuyen.java   1.0     29/09/2025
-package gui.application.form.quanLyTuyen;
 
 
 /**
@@ -9,12 +8,10 @@ package gui.application.form.quanLyTuyen;
  * @version 1.0
  * @created : 29/09/2025
  */
-import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
-import entity.Tuyen;
 import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -119,7 +116,7 @@ public class PanelQuanLyTuyen extends JPanel {
         add(panelNorth, BorderLayout.NORTH);
 
         // --- 2. TABLE DỮ LIỆU ---
-        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến", "Khoảng Cách (km)"};
+        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến","Danh Sách Ga Trung Gian", "Khoảng Cách (km)"};
         tableModelTuyen = new DefaultTableModel(columnNames,0){
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -152,12 +149,10 @@ public class PanelQuanLyTuyen extends JPanel {
         // POPUP GỢI Ý //
         ppGaDi = new JPopupMenu();
         listGaDi = new JList<>();
-        ppGaDi.setLayout(new BorderLayout());
         ppGaDi.add(new JScrollPane(listGaDi), BorderLayout.CENTER);
 
         ppGaDen = new JPopupMenu();
         listGaDen = new JList<>();
-        ppGaDen.setLayout(new BorderLayout());
         ppGaDen.add(new JScrollPane(listGaDen), BorderLayout.CENTER);
 
         ppTuyenID = new JPopupMenu();
@@ -166,7 +161,7 @@ public class PanelQuanLyTuyen extends JPanel {
         ppTuyenID.add(new JScrollPane(listTuyenID), BorderLayout.CENTER);
 
         // Load dữ liệu ban đầu
-        capNhatBang(tuyen_bus.getAllTuyen());
+        capNhatBang(tuyen_bus.getDuLieuBang());
 
     }
 
@@ -192,22 +187,17 @@ public class PanelQuanLyTuyen extends JPanel {
         }
     }
 
-    public void capNhatBang(List<Tuyen> dsTuyen){
+    public void capNhatBang(List<Object[]> dsTuyen){
          tableModelTuyen.setRowCount(0);
 
-         for(Tuyen t : dsTuyen){
-             tableModelTuyen.addRow(new Object[]{
-                     t.getTuyenID(),
-                     t.getGaDi().getTenGa(),
-                     t.getGaDen().getTenGa(),
-                     t.getKhoangCachKm()
-             });
+         for(Object[] row : dsTuyen){
+             tableModelTuyen.addRow(row);
          }
     }
 
-    public void addListeners(ActionListener timKiemListener, ActionListener lamMoiListener){
-//        btnTimKiem.addActionListener(timKiemListener);
+    public void addListeners( ActionListener timKiemListener,ActionListener lamMoiListener, ActionListener themTuyenListener){
         btnLamMoiTuyen.addActionListener(lamMoiListener);
+        btnThemTuyen.addActionListener(themTuyenListener);
     }
 
     public void setMauBTN() {

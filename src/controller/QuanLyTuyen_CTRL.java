@@ -13,11 +13,10 @@ package controller;
 import bus.Ga_BUS;
 import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
-import entity.Tuyen;
 import entity.type.VaiTroNhanVien;
-import entity.type.VaiTroTaiKhoan;
 import gui.application.UngDung;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
+import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -40,7 +39,7 @@ public class QuanLyTuyen_CTRL {
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
         this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
-        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener());
+        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener());
 
         PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
         thietLapAutoCompleteListener();
@@ -74,25 +73,30 @@ public class QuanLyTuyen_CTRL {
         String gaDen = pnlTuyen.getTxtGaDen().getText();
         String maTuyen = pnlTuyen.getTxtTimKiem().getText();
 
-        List<Tuyen> ketQua;
+        List<Object[]> ketQuaDuLieuBang;
 
         if(!maTuyen.trim().isEmpty()){
-            ketQua = tuyen_bus.getTuyenByID(maTuyen.trim());
+
+            ketQuaDuLieuBang = tuyen_bus.getDuLieuBangTheoTuyenID(maTuyen.trim());
         } else {
-            ketQua = tuyen_bus.timTuyenTheoGa(gaDi, gaDen);
-        }
-        pnlTuyen.capNhatBang(ketQua);
-        if(ketQua.isEmpty()){
-            JOptionPane.showMessageDialog(pnlTuyen, "Không tìm thấy tuyến nào!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+
+            ketQuaDuLieuBang = tuyen_bus.getDuLieuBangTheoGa(gaDi, gaDen);
         }
 
+        // Cập nhật bảng với List<Object[]>
+        pnlTuyen.capNhatBang(ketQuaDuLieuBang);
+
+        if(ketQuaDuLieuBang.isEmpty()){
+            JOptionPane.showMessageDialog(pnlTuyen, "Không tìm thấy tuyến nào!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void lamMoiTuyen(){
         pnlTuyen.getTxtGaDi().setText("");
         pnlTuyen.getTxtGaDen().setText("");
         pnlTuyen.getTxtTimKiem().setText("");
-        pnlTuyen.capNhatBang(tuyen_bus.getAllTuyen());
+
+        pnlTuyen.capNhatBang(tuyen_bus.getDuLieuBang());
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
@@ -198,7 +202,15 @@ public class QuanLyTuyen_CTRL {
         });
     }
 
+    private class ThemTuyenListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhThemTuyen();
+        }
+    }
 
-
-
+    private void hienThiManHinhThemTuyen(){
+        PanelThemTuyen pnlThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
+        UngDung.showGiaoDienChinh(pnlThemTuyen);
+    }
 }
