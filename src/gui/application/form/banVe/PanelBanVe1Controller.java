@@ -13,7 +13,9 @@ package gui.application.form.banVe;
  */
 import java.util.List;
 import entity.Chuyen;
+import entity.Ve;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
+import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class PanelBanVe1Controller {
     
@@ -24,6 +26,12 @@ public class PanelBanVe1Controller {
     private final PanelBuoc1Controller buoc1Controller;
     private final PanelBuoc2Controller buoc2Controller;
     // private final PanelBuoc3Controller buoc3Controller; // Sẽ thêm sau
+    
+    private Runnable onPanel1CompleteListener;
+    
+    public void addPanel1CompleteListener(Runnable listener) {
+        this.onPanel1CompleteListener = listener;
+    }
 
     public PanelBanVe1Controller(PanelBanVe1 view, BookingSession session) {
         this.view = view;
@@ -61,10 +69,8 @@ public class PanelBanVe1Controller {
 
                 // 2. Kích hoạt Panel Buoc2
                 view.setBuoc2Enabled(true);
-                
                 // 3. Vô hiệu hóa Buoc3 (phòng trường hợp tìm lại)
                 view.setBuoc3Enabled(false);
-
                 // 4. "Đẩy" dữ liệu vào Buoc2 để hiển thị
                 buoc2Controller.displayChuyenList(criteria, results, 0); // 0 = chiều đi
             }
@@ -72,21 +78,37 @@ public class PanelBanVe1Controller {
             @Override
             public void onSearchFailure() {
                 // 1. Cập nhật BookingSession
-                bookingSession.setOutboundResults(null);
-                
+                bookingSession.setOutboundResults(null);                
                 // 2. Vô hiệu hóa Buoc2 và Buoc3
                 view.setBuoc2Enabled(false);
                 view.setBuoc3Enabled(false);
             }
         });
 
-        // (Tương tự, sau này bạn sẽ lắng nghe sự kiện từ Buoc2)
-        // Ví dụ: khi Buoc2 chọn ghế xong (onSeatClicked)
-        // this.buoc2Controller.addSeatSelectedListener( ticket -> {
-        //     // Cập nhật session 
-        //     bookingSession.addTicketForTrip(0, ticket); 
-        //     // Kích hoạt Buoc3
-        //     view.setBuoc3Enabled(true);
+     // Lắng nghe sự kiện chọn ghế từ Buoc2
+        this.buoc2Controller.addSeatSelectedListener(new SeatSelectedListener() {
+            @Override
+            public void onSeatSelected(VeSession ticket) {
+                // (Sau này bạn cần logic chuyển đổi Ve -> SelectedTicket)
+                // bookingSession.addTicketForTrip(0, convertedTicket); 
+                
+                // Kích hoạt Buoc3
+                view.setBuoc3Enabled(true);
+                
+                // (Tạm thời) Khi chọn ghế xong thì coi như xong
+                // Lý tưởng nhất: Bạn nên lắng nghe 1 sự kiện
+                // "onInfoComplete" từ PanelBuoc3Controller
+                if (onPanel1CompleteListener != null) {
+                    // onPanel1CompleteListener.run(); // Bỏ comment dòng này để test
+                }
+            }
+        });
+        
+        // (Sau này) Bạn sẽ lắng nghe Buoc3
+        // this.buoc3Controller.addInfoCompleteListener(() -> {
+        //     if (onPanel1CompleteListener != null) {
+        //         onPanel1CompleteListener.run(); // Gọi ở đây là đúng nhất
+        //     }
         // });
     }
 }

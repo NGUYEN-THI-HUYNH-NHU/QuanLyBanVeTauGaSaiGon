@@ -16,7 +16,9 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import java.awt.*;
+
 import java.util.List;
+
 import entity.Chuyen;
 
 public class PanelBuoc2 extends JPanel {
@@ -25,22 +27,24 @@ public class PanelBuoc2 extends JPanel {
     private PanelDoanTau panelDoanTau;
     private PanelSoDoCho panelSoDoCho;
     private PanelGioVe panelGioVe;
-
-    private JSplitPane splitMain;
     private JPanel centerPanel;
 
     private PanelBuoc2Controller controller;
 	private JPanel panelChuThich;
 
     public PanelBuoc2() {
-        setLayout(new BorderLayout());
-        setBorder(new TitledBorder("(2) Chọn chỗ"));
-
+        setLayout(new BorderLayout(2, 0));
+        setBorder(new TitledBorder(""));
+        setPreferredSize(new Dimension(0, 400));
+		
         panelChuThich = new JPanel();
         panelChuThich.setPreferredSize(new Dimension(10, 30));
-        panelChuThich.add(new JLabel("Chú thích", SwingConstants.CENTER));
-        panelChuThich.setBackground(Color.GRAY);
-
+//        ImageIcon iconTrong = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
+//        ImageIcon iconDay = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
+        ImageIcon iconDangChon = new ImageIcon(getClass().getResource("/gui/icon/png/chu-thich.png"));
+        JLabel muc1 = new JLabel("", iconDangChon, JLabel.CENTER);
+        panelChuThich.add(muc1);
+        
         panelChieuLabel = new PanelChieuLabel();
         panelChuyenTau = new PanelChuyenTau();
         panelDoanTau = new PanelDoanTau();
@@ -49,19 +53,16 @@ public class PanelBuoc2 extends JPanel {
 
         centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setPreferredSize(getPreferredSize());
         centerPanel.add(panelChieuLabel);
         centerPanel.add(panelChuyenTau);
         centerPanel.add(panelDoanTau);
         centerPanel.add(panelSoDoCho);
         centerPanel.add(panelChuThich);
 
-        JScrollPane centerScroll = new JScrollPane(centerPanel,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        splitMain = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, centerScroll, panelGioVe);
-        splitMain.setResizeWeight(0.85);
-        add(splitMain, BorderLayout.CENTER);
+        
+        add(centerPanel, BorderLayout.CENTER);
+        add(panelGioVe, BorderLayout.EAST);
 
         controller = new PanelBuoc2Controller(panelChieuLabel, panelChuyenTau, panelDoanTau, panelSoDoCho, panelGioVe);
         panelChuyenTau.setController(controller);

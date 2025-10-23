@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import entity.Toa;
@@ -43,14 +44,11 @@ public class PanelDoanTau extends JPanel {
 	private JPanel flow;
 	private PanelBuoc2Controller controller;
 	private JButton selectedButton = null;
-
 	// ảnh nguồn (gốc, trong suốt)
 	private BufferedImage baseToaImage;
-
 	// cache icon theo (color + w + h) để không phải tạo lại mỗi lần
 	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
-	// màu mặc định / selected (bạn có thể thay)
 	private final Color colorDefault = new Color(220, 220, 220); // màu khi chưa chọn
 	private final Color colorSelected = new Color(40, 167, 69); // màu khi chọn
 	private final Color colorHover = colorSelected.brighter();
@@ -58,17 +56,17 @@ public class PanelDoanTau extends JPanel {
 	public PanelDoanTau() {
 		setBorder(new TitledBorder("Sơ đồ đoàn tàu"));
 		setLayout(new BorderLayout());
-		flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
+		flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		JScrollPane scr = new JScrollPane(flow, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scr.setBorder(BorderFactory.createEmptyBorder());
 		add(scr, BorderLayout.CENTER);
-		setPreferredSize(new Dimension(10, 20));
+		setPreferredSize(new Dimension(10, 55));
 
 		// load ảnh gốc một lần
 		try {
 			baseToaImage = ImageIO.read(getClass().getResourceAsStream("/gui/icon/png/toa-tau.png"));
-			// nếu ảnh lớn, bạn có thể scale xuống kích thước nút
+			// nếu ảnh lớn, có thể scale xuống kích thước nút
 		} catch (IOException | NullPointerException ex) {
 			ex.printStackTrace();
 			baseToaImage = null;
@@ -89,7 +87,7 @@ public class PanelDoanTau extends JPanel {
 		} else {
 			for (Toa t : list) {
 				JButton btn = new JButton(String.valueOf(t.getSoToa()));
-				Dimension pref = new Dimension(60, 40); // kích thước nút / icon mong muốn
+				Dimension pref = new Dimension(50, 30); // kích thước nút / icon mong muốn
 				btn.setPreferredSize(pref);
 				btn.putClientProperty("toaID", t.getToaID());
 
@@ -117,16 +115,15 @@ public class PanelDoanTau extends JPanel {
 					btn.putClientProperty("iconDefault", iconDefault);
 					btn.putClientProperty("iconSelected", iconSelected);
 
-					// Nếu bạn thật sự muốn icon theo kích thước thực tế sau layout,
-					// uncomment block dưới để set lại icon sau khi component đã được hiển thị:
-					/*
-					 * SwingUtilities.invokeLater(() -> { int realW = btn.getWidth() > 0 ?
-					 * btn.getWidth() : iconW; int realH = btn.getHeight() > 0 ? btn.getHeight() :
-					 * iconH; ImageIcon id = getTintedIcon(baseToaImage, colorDefault, realW,
-					 * realH); ImageIcon is = getTintedIcon(baseToaImage, colorSelected, realW,
-					 * realH); btn.setIcon(id); btn.putClientProperty("iconDefault", id);
-					 * btn.putClientProperty("iconSelected", is); });
-					 */
+					
+					SwingUtilities.invokeLater(() -> {
+						int realW = btn.getWidth() > 0 ? btn.getWidth() : iconW;
+						int realH = btn.getHeight() > 0 ? btn.getHeight() : iconH;
+						ImageIcon id = getTintedIcon(baseToaImage, colorDefault, realW, realH);
+						ImageIcon is = getTintedIcon(baseToaImage, colorSelected, realW, realH);
+						btn.setIcon(id); btn.putClientProperty("iconDefault", id);
+						btn.putClientProperty("iconSelected", is);
+					});
 				} else {
 					btn.setOpaque(true);
 					btn.setBorderPainted(true);

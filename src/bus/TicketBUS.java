@@ -12,7 +12,8 @@ package bus;
  * @version: 1.0
  */
 
-import entity.Ve;
+import gui.application.form.banVe.VeSession;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
  */
 public class TicketBUS {
     private static TicketBUS instance;
-    private final List<Ve> tickets;
+    private final List<VeSession> tickets;
 
     private TicketBUS() {
         tickets = new ArrayList<>();
@@ -33,15 +34,15 @@ public class TicketBUS {
         return instance;
     }
 
-    public synchronized void addTicket(Ve v) {
+    public synchronized void addTicket(VeSession v) {
         tickets.add(v);
     }
 
-    public synchronized void removeTicket(Ve v) {
-        tickets.removeIf(x -> x.getVeID().equals(v.getVeID()));
+    public synchronized void removeTicket(VeSession v) {
+        tickets.removeIf(x -> x.equals(v));
     }
 
-    public synchronized List<Ve> getAllTickets() {
+    public synchronized List<VeSession> getAllTickets() {
         return new ArrayList<>(tickets);
     }
 

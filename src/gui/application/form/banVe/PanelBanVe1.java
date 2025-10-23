@@ -5,16 +5,15 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 22, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
 
 public class PanelBanVe1 extends JPanel {
 	private PanelBuoc1 panelBuoc1;
@@ -25,7 +24,7 @@ public class PanelBanVe1 extends JPanel {
 	public PanelBanVe1() {
 		setLayout(new BorderLayout());
 		
-		pnlNorth = new JPanel(new BorderLayout());
+		pnlNorth = new JPanel(new BorderLayout(1, 0));
 		
 		panelBuoc1 = new PanelBuoc1();
 		panelBuoc2 = new PanelBuoc2();
@@ -35,7 +34,7 @@ public class PanelBanVe1 extends JPanel {
 		pnlNorth.add(panelBuoc2, BorderLayout.CENTER);
 				
 		add(pnlNorth, BorderLayout.NORTH);
-		add(panelBuoc2, BorderLayout.CENTER);
+		add(panelBuoc3, BorderLayout.CENTER);
 		
 		panelBuoc2.setEnabled(false);
 		panelBuoc3.setEnabled(false);
@@ -53,15 +52,11 @@ public class PanelBanVe1 extends JPanel {
 		return panelBuoc3;
 	}
 	
-	// === Các hàm điều khiển trạng thái (sẽ được gọi bởi Mediator) ===
     public void setBuoc2Enabled(boolean enabled) {
-        // panelBuoc2.setEnabled(enabled); // Cách này không hiệu quả
-        // Bạn nên tạo một hàm trong PanelBuoc2 để vô hiệu hóa các component con
-        panelBuoc2.setComponentsEnabled(enabled); // (Bạn cần tự viết hàm này)
+        panelBuoc2.setComponentsEnabled(enabled);
     }
 
     public void setBuoc3Enabled(boolean enabled) {
-        // Tương tự, viết hàm setComponentsEnabled(enabled) cho PanelBuoc3
         panelBuoc3.setComponentsEnabled(enabled);
     }
 }

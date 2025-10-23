@@ -17,8 +17,11 @@ import bus.DonDatCho_BUS;
 import bus.TicketBUS;
 
 import entity.*;
-import entity.type.TrangThaiGhe;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +47,23 @@ public class PanelBuoc2Controller {
 
     private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
     private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
-
+    private final List<SeatSelectedListener> seatSelectedListeners = new ArrayList<>();
+    
     private BookingSession bookingSession;
     private List<Chuyen> chuyenList;
     private Chuyen selectedChuyen;
     private int currentTripIndex = 0;
     private Toa selectedToa;
+    
+    public interface SeatSelectedListener {
+        void onSeatSelected(VeSession v);
+    }
+    
+    public void addSeatSelectedListener(SeatSelectedListener listener) {
+        if (listener != null) {
+            this.seatSelectedListeners.add(listener);
+        }
+    }
 
     public PanelBuoc2Controller(PanelChieuLabel chieuLabel, PanelChuyenTau chuyenTau,
                                 PanelDoanTau doanTau, PanelSoDoCho soDoCho, PanelGioVe gioVe) {
@@ -250,27 +264,34 @@ public class PanelBuoc2Controller {
 
     // user clicked a seat button
     public void onSeatClicked(Toa toa, Ghe ghe) {
-        if (ghe == null || toa == null) return;
-        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
-            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
-            return;
-        }
-        new SwingWorker<Ve, Void>() {
-            protected Ve doInBackground() throws Exception {
+        if (ghe == null || toa == null)
+        	return;
+//        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
+//            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
+//            return;
+//        }
+        new SwingWorker<VeSession, Void>() {
+            protected VeSession doInBackground() throws Exception {
                 // create hold in DB via DonDatCho_BUS
-                // returns Ve object with hold expiry timestamp and id
-                return donDatChoBUS.createHold(toa, ghe);
+                // returns VeSession object with hold expiry timestamp and id
+//                return donDatChoBUS.createHold(toa, ghe);
+            	return new VeSession("SGO-BHO-15012025", "SE8", "Sài Gòn", "Biên Hòa", LocalDate.of(2025, 1, 15), LocalTime.of(6, 0), "ToaID", "SoToa", "SoGhe", Instant.now());
             }
             protected void done() {
                 try {
-                    Ve v = get();
+                    VeSession v = get();
                     if (v != null) {
                         // add to TicketBUS
                         ticketBUS.addTicket(v);
                         // update UI: refresh right panel
                         panelGioVe.refresh(ticketBUS.getAllTickets());
+                        
+                        for (SeatSelectedListener listener : seatSelectedListeners) {
+                            listener.onSeatSelected(v);
+                        }
+                        
                         // start countdown for this ticket
-                        startCountdownForTicket(v);
+                        startCountdownForVe(v);
                         // refresh seat grid to mark as selected
                         panelSoDoCho.setCurrentToa(toa);
                     } else {
@@ -283,16 +304,16 @@ public class PanelBuoc2Controller {
     }
 
     // start a swing timer updating corresponding JLabel; label may be registered by panelGioVe
-    public void registerCountdownLabelForTicket(entity.Ve v, JLabel lbl) {
-        countdownLabels.put(v.getVeID(), lbl);
+    public void registerCountdownLabelForVe(VeSession v, JLabel lbl) {
+        countdownLabels.put(v.toString(), lbl);
         // if a timer already exists, reuse (otherwise create)
-        if (!countdownTimers.containsKey(v.getVeID())) {
-            startCountdownForTicket(v);
+        if (!countdownTimers.containsKey(v.toString())) {
+            startCountdownForVe(v);
         }
     }
 
-    private void startCountdownForTicket(entity.Ve v) {
-        String id = v.getVeID();
+    private void startCountdownForVe(VeSession v) {
+        String id = v.toString();
         // cancel existing timer
         Timer old = countdownTimers.remove(id);
         if (old != null) old.stop();
@@ -312,7 +333,7 @@ public class PanelBuoc2Controller {
                 countdownTimers.remove(id);
                 countdownLabels.remove(id);
                 // auto-release hold
-                releaseHoldAndRemoveTicket(v);
+                releaseHoldAndRemoveVe(v);
             }
         });
         timer.setInitialDelay(0);
@@ -320,7 +341,7 @@ public class PanelBuoc2Controller {
         countdownTimers.put(id, timer);
     }
 
-    private String formatSeconds(long s) {
+	private String formatSeconds(long s) {
         if (s <= 0) return "00:00";
         long m = s / 60;
         long sec = s % 60;
@@ -328,7 +349,7 @@ public class PanelBuoc2Controller {
     }
 
     // user clicked trash icon or timer expired -> remove ticket
-    public void onRemoveTicket(entity.Ve v) {
+    public void onRemoveVe(VeSession v) {
         // cancel hold in DB via BUS, remove from TicketBUS, stop timer, refresh UI
         new SwingWorker<Boolean, Void>() {
             protected Boolean doInBackground() throws Exception {
@@ -339,10 +360,10 @@ public class PanelBuoc2Controller {
                 try {
                     boolean ok = get();
                     ticketBUS.removeTicket(v);
-                    Timer t = countdownTimers.remove(v.getVeID());
+                    Timer t = countdownTimers.remove(v.toString());
                     if (t != null)
                         t.stop();
-                    countdownLabels.remove(v.getVeID());
+                    countdownLabels.remove(v.toString());
                     panelGioVe.refresh(ticketBUS.getAllTickets());
 
                     if (selectedToa != null) {
@@ -354,15 +375,15 @@ public class PanelBuoc2Controller {
         }.execute();
     }
 
-    private void releaseHoldAndRemoveTicket(entity.Ve v) {
+    private void releaseHoldAndRemoveVe(VeSession v) {
         // similar to onRemoveTicket but invoked automatically
         try {
             donDatChoBUS.releaseHold(v);
         } catch (Exception ex) { ex.printStackTrace(); }
         ticketBUS.removeTicket(v);
-        countdownLabels.remove(v.getVeID());
+        countdownLabels.remove(v.toString());
         panelGioVe.refresh(ticketBUS.getAllTickets());
-        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.getVeID() + " đã hết hạn."));
+        SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.toString() + " đã hết hạn."));
     }
 
 //    private Ve findTicketForSeat(Toa toa, Ghe ghe) {

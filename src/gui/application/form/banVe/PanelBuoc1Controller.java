@@ -62,7 +62,8 @@ public class PanelBuoc1Controller {
 	private AutoCompleteField acGaDi;
 	private AutoCompleteField acGaDen;
 	// debounce millis
-	private static final int DEBOUNCE_MS = 300;
+//	private static final int DEBOUNCE_MS = 300;
+	private static final int DEBOUNCE_MS = 400;
 
 	// Interface để PanelBanVe1Controller (Mediator) lắng nghe
 	public interface SearchListener {
@@ -497,7 +498,7 @@ public class PanelBuoc1Controller {
 
 			popup = new JPopupMenu();
 			popup.setBackground(Color.WHITE);
-			int desiredWidth = Math.max(field.getWidth(), 260);
+			int desiredWidth = Math.max(field.getWidth(), 120);
 			int estRowHeight = 20 + vPadding * 2;
 			int desiredHeight = Math.min(8, listModel.getSize()) * estRowHeight;
 			popup.setPopupSize(new Dimension(desiredWidth, Math.min(desiredHeight, 300)));

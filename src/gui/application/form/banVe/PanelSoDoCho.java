@@ -45,7 +45,7 @@ public class PanelSoDoCho extends JPanel {
         setLayout(new BorderLayout());
 
         lblToaInfo = new JLabel("Chưa chọn toa", SwingConstants.CENTER);
-        lblToaInfo.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        lblToaInfo.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
         navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         btnPrev = new JButton("<");

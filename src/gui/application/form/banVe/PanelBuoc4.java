@@ -30,7 +30,7 @@ public class PanelBuoc4 extends JPanel {
     private JPanel pnlTabBar;
     private JPanel pnlTicketList;
     private JScrollPane scrTicketList;
-
+    
     public PanelBuoc4() {
         initComponents();
         buildLayout();
@@ -285,5 +285,9 @@ public class PanelBuoc4 extends JPanel {
         padding.add(pnlCardContainer, BorderLayout.CENTER);
 
         return padding;
-    }  
+    } 
+    
+    public void setComponentsEnabled(boolean enabled) {
+	    super.setEnabled(enabled);
+	}
 }

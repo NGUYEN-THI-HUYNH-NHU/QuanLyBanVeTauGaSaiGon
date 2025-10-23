@@ -28,11 +28,11 @@ public class BookingSession {
     // Outbound (chiều đi)
     private SearchCriteria outboundCriteria;
     private List<Chuyen> outboundResults = new ArrayList<>();
-    private final List<SelectedTicket> outboundSelected = new ArrayList<>();
+    private final List<VeSession> outboundSelected = new ArrayList<>();
     // Return (chiều về) — có thể null nếu 1 chiều
     private SearchCriteria returnCriteria;
     private List<Chuyen> returnResults = new ArrayList<>(); // List<Chuyen>
-    private final List<SelectedTicket> returnSelected = new ArrayList<>();
+    private final List<VeSession> returnSelected = new ArrayList<>();
 
     public BookingSession() { }
 
@@ -51,14 +51,14 @@ public class BookingSession {
     }
 
     // add/remove selected tickets for outbound
-    public synchronized void addOutboundTicket(SelectedTicket t) {
+    public synchronized void addOutboundTicket(VeSession t) {
         if (t == null) return;
         if (!outboundSelected.contains(t)) outboundSelected.add(t);
     }
-    public synchronized void removeOutboundTicket(SelectedTicket t) {
+    public synchronized void removeOutboundTicket(VeSession t) {
     	outboundSelected.remove(t);
     }
-    public synchronized List<SelectedTicket> getOutboundSelectedTickets() {
+    public synchronized List<VeSession> getOutboundSelectedTickets() {
         return Collections.unmodifiableList(new ArrayList<>(outboundSelected));
     }
     public synchronized void clearOutboundSelection() { outboundSelected.clear(); }
@@ -78,14 +78,14 @@ public class BookingSession {
         return Collections.unmodifiableList(returnResults);
     }
 
-    public synchronized void addReturnTicket(SelectedTicket t) {
+    public synchronized void addReturnTicket(VeSession t) {
         if (t == null) return;
         if (!returnSelected.contains(t)) returnSelected.add(t);
     }
-    public synchronized void removeReturnTicket(SelectedTicket t) {
+    public synchronized void removeReturnTicket(VeSession t) {
     	returnSelected.remove(t);
     }
-    public synchronized List<SelectedTicket> getReturnSelectedTickets() {
+    public synchronized List<VeSession> getReturnSelectedTickets() {
         return Collections.unmodifiableList(new ArrayList<>(returnSelected));
     }
     public synchronized void clearReturnSelection() {
@@ -100,14 +100,14 @@ public class BookingSession {
     /**
      * Lấy selected tickets theo tripIndex (0 = outbound, 1 = return)
      */
-    public synchronized List<SelectedTicket> getSelectedTicketsForTrip(int tripIndex) {
+    public synchronized List<VeSession> getSelectedTicketsForTrip(int tripIndex) {
         return tripIndex == 0 ? getOutboundSelectedTickets() : getReturnSelectedTickets();
     }
 
     /**
      * Thêm ticket theo tripIndex
      */
-    public synchronized void addTicketForTrip(int tripIndex, SelectedTicket t) {
+    public synchronized void addTicketForTrip(int tripIndex, VeSession t) {
         if (tripIndex == 0) addOutboundTicket(t);
         else addReturnTicket(t);
     }

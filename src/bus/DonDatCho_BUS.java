@@ -18,6 +18,7 @@ import dao.Ghe_DAO;
 import entity.Ghe;
 import entity.Toa;
 import entity.Ve;
+import gui.application.form.banVe.VeSession;
 
 public class DonDatCho_BUS {
     private final DonDatCho_DAO ddDAO = new DonDatCho_DAO();
@@ -28,7 +29,7 @@ public class DonDatCho_BUS {
         return new Ve();
     }
 
-    public boolean releaseHold(Ve v) throws Exception {
+    public boolean releaseHold(VeSession v) throws Exception {
 //        return ddDAO.releaseHoldByVeId(v.getVeID());
     	return true;
     }

@@ -15,26 +15,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -42,7 +32,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
 
@@ -53,29 +42,26 @@ public class PanelBuoc1 extends JPanel {
 	private JRadioButton radMotChieu, radKhuHoi;
 	private JButton btnTimKiem;
 	private JPanel pnlTimKiem;
-	private JPanel pnlEast;
-	private JPanel pnlCenter;
-
+	
 	public PanelBuoc1() {
 		setLayout(new BorderLayout());
-		setBorder(new TitledBorder("(1) Tìm kiếm chuyến"));
+        setBorder(new TitledBorder(""));
 
-		// pnlCenter
-		pnlCenter = new JPanel(new BorderLayout());
-
+		
 		// lblTieuDe
 		JLabel lblTieuDe = new JLabel("Thông tin hành trình", SwingConstants.CENTER);
-		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 24f));
-		lblTieuDe.setBackground(new Color(32, 83, 145));
-		lblTieuDe.putClientProperty(FlatClientProperties.STYLE, "foreground:$Menu.foreground");
+		lblTieuDe.setPreferredSize(new Dimension(10, 20));
+		lblTieuDe.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, new Color(0, 130, 196)));
+		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
+		lblTieuDe.setBackground(new Color(230, 230, 230));
+		lblTieuDe.setForeground(new Color(0, 145, 212));
 		lblTieuDe.setOpaque(true);
 
 		// Form
 		pnlTimKiem = new JPanel(new GridBagLayout());
 		pnlTimKiem.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
-		pnlTimKiem.setBackground(new Color(245, 245, 245));
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(10, 10, 5, 10);
+		gbc.insets = new Insets(10, 5, 10, 5);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		// Ga đi
@@ -83,7 +69,7 @@ public class PanelBuoc1 extends JPanel {
 		gbc.gridy = 0;
 		pnlTimKiem.add(new JLabel("Ga đi:"), gbc);
 		gbc.gridx = 1;
-		txtGaDi = new JTextField(15);
+		txtGaDi = new JTextField(4);
 		txtGaDi.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đi...");
 		pnlTimKiem.add(txtGaDi, gbc);
 
@@ -92,14 +78,14 @@ public class PanelBuoc1 extends JPanel {
 		gbc.gridy = 1;
 		pnlTimKiem.add(new JLabel("Ga đến:"), gbc);
 		gbc.gridx = 1;
-		txtGaDen = new JTextField(15);
+		txtGaDen = new JTextField(4);
 		txtGaDen.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đến...");
 		pnlTimKiem.add(txtGaDen, gbc);
 
 		// Loại hành trình
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		pnlTimKiem.add(new JLabel("Loại hành trình:"), gbc);
+		pnlTimKiem.add(new JLabel("Loại vé:"), gbc);
 		gbc.gridx = 1;
 		JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		radioPanel.setBackground(new Color(245, 245, 245));
@@ -143,49 +129,9 @@ public class PanelBuoc1 extends JPanel {
 		btnTimKiem = new JButton("Tìm chuyến tàu");
 		pnlTimKiem.add(btnTimKiem, gbc);
 
-		pnlCenter.add(lblTieuDe, BorderLayout.NORTH);
-		pnlCenter.add(pnlTimKiem, BorderLayout.CENTER);
-
-		pnlEast = new JPanel(new BorderLayout());
-		pnlEast.setPreferredSize(new Dimension(520, JFrame.HEIGHT));
-		pnlEast.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
-
-		BufferedImage img = null;
-		try {
-			URL url = getClass().getResource("/gui/icon/png/ban-do-tuyen-duong-sat-viet-nam.jpg");
-			if (url != null) {
-				img = ImageIO.read(url);
-			} else {
-				File f = new File("src/gui/icon/png/ban-do-tuyen-duong-sat-viet-nam.jpg");
-				if (f.exists()) {
-					img = ImageIO.read(f);
-				} else {
-					System.err.println("File image not found: " + f.getAbsolutePath());
-				}
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-
-		if (img != null) {
-			AspectRatioImageLabel lblImg = new AspectRatioImageLabel(img);
-			lblImg.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-			pnlEast.add(lblImg, BorderLayout.CENTER);
-
-			pnlEast.addComponentListener(new ComponentAdapter() {
-				@Override
-				public void componentResized(ComponentEvent e) {
-					lblImg.revalidate();
-					lblImg.repaint();
-				}
-			});
-		} else {
-			pnlEast.add(new JLabel("Không load được ảnh"), BorderLayout.CENTER);
-		}
-
-		add(pnlCenter, BorderLayout.CENTER);
-		add(pnlEast, BorderLayout.EAST);
-
+		add(lblTieuDe, BorderLayout.NORTH);
+		add(pnlTimKiem, BorderLayout.CENTER);
+		
 		panelBuoc1Controller = new PanelBuoc1Controller(this);
 	}
 
@@ -236,42 +182,5 @@ public class PanelBuoc1 extends JPanel {
 			return null;
 		Instant instant = d.toInstant();
 		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
-	}
-
-	class AspectRatioImageLabel extends JLabel {
-		private Image image;
-
-		public AspectRatioImageLabel(Image image) {
-			this.image = image;
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			if (image == null)
-				return;
-
-			int panelWidth = getWidth();
-			int panelHeight = getHeight();
-			int imgWidth = image.getWidth(this);
-			int imgHeight = image.getHeight(this);
-
-			double panelRatio = (double) panelWidth / panelHeight;
-			double imgRatio = (double) imgWidth / imgHeight;
-
-			int drawWidth = panelWidth;
-			int drawHeight = panelHeight;
-
-			if (panelRatio > imgRatio) {
-				drawWidth = (int) (panelHeight * imgRatio);
-			} else {
-				drawHeight = (int) (panelWidth / imgRatio);
-			}
-
-			int x = (panelWidth - drawWidth) / 2;
-			int y = (panelHeight - drawHeight) / 2;
-
-			g.drawImage(image, x, y, drawWidth, drawHeight, this);
-		}
-	}
+	}	
 }

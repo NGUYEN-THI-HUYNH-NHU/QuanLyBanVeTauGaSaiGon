@@ -12,73 +12,104 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.Ve;
-
 import javax.swing.*;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.itextpdf.text.Font;
+
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PanelGioVe extends JPanel {
     private JPanel container;
     private PanelBuoc2Controller controller;
+    private JLabel lblGioVe;
+    private JScrollPane scr;
 
     public PanelGioVe() {
         setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(260, 400));
+
         container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-        JScrollPane scr = new JScrollPane(container, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        container.setBackground(Color.WHITE);
+
+        scr = new JScrollPane(container, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scr.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        lblGioVe = new JLabel("Giỏ vé");
+        lblGioVe.setFont(lblGioVe.getFont().deriveFont(Font.BOLD, 16f));
+        lblGioVe.setOpaque(true);
+        lblGioVe.setBackground(new Color(230, 230, 230));
+        lblGioVe.setForeground(new Color(0, 145, 212));
+        lblGioVe.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, new Color(0, 130, 196)));
+
+        add(lblGioVe, BorderLayout.NORTH);
         add(scr, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(240, 10));
     }
 
     public void setController(PanelBuoc2Controller c) {
-    	this.controller = c;
+        this.controller = c;
     }
 
-    public void refresh(List<Ve> tickets) {
+    public void refresh(List<VeSession> dsVeSession) {
         container.removeAll();
-        if (tickets == null || tickets.isEmpty()) {
-            container.add(new JLabel("Giỏ vé trống"));
+
+        if (dsVeSession == null || dsVeSession.isEmpty()) {
+            JLabel emptyLabel = new JLabel("Giỏ vé trống");
+            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            container.add(emptyLabel);
         } else {
-            for (Ve v : tickets) {
-                JPanel row = createTicketRow(v);
+            for (VeSession v : dsVeSession) {
+                JPanel row = createVeRow(v);
                 container.add(row);
             }
         }
+
         container.revalidate();
         container.repaint();
     }
 
-    private JPanel createTicketRow(Ve v) {
+    private JPanel createVeRow(VeSession v) {
         JPanel row = new JPanel(new BorderLayout());
-        row.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        JLabel info = new JLabel(String.format("<html><b>%s</b><br/>%s -> %s, %s, Toa %s, Ghế %s</html>",
-                v.getChuyen().getTau() == null ? "" : v.getChuyen().getTau().getTauID(),
-                v.getChuyen().getTuyen().getGaDi().toString(),
-                v.getChuyen().getTuyen().getGaDen().toString(),
-                v.getChuyen().getGioDi(),
-                v.getGhe().getToa().getHangToa().toString(),
-                v.getGhe().getSoGhe()));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85)); // Chiều cao cố định
+        row.setPreferredSize(new Dimension(240, 85));
+        row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
+        row.setBackground(Color.WHITE);
 
-        // countdown label placeholder
+        JLabel info = new JLabel(String.format(
+            "<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>",
+            v.getTenTau(), v.getTenGaDi(), v.getTenGaDen(),
+            v.getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+            v.getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")),
+            v.getToaID(), v.getSoToa(), v.getSoGhe()
+        ));
+        info.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
+
         JLabel lblTimer = new JLabel(formatRemaining(100));
-        lblTimer.setBorder(BorderFactory.createEmptyBorder(0,6,0,6));
+        lblTimer.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        JButton btnTrash = new JButton("\uD83D\uDDD1"); // trash icon char
-        btnTrash.setToolTipText("Xóa vé / hủy giữ chỗ");
+        JButton btnTrash = new JButton("");
+        btnTrash.setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.35f));
+        btnTrash.setToolTipText("Xóa vé");
+        btnTrash.setFocusable(false);
+        btnTrash.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        btnTrash.setBackground(Color.WHITE);
         btnTrash.addActionListener(e -> {
-            if (controller != null) controller.onRemoveTicket(v);
+            if (controller != null) controller.onRemoveVe(v);
         });
 
-        row.add(info, BorderLayout.CENTER);
-        JPanel east = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel east = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        east.setBackground(Color.WHITE);
         east.add(lblTimer);
         east.add(btnTrash);
+
+        row.add(info, BorderLayout.CENTER);
         row.add(east, BorderLayout.EAST);
 
         if (controller != null)
-        	controller.registerCountdownLabelForTicket(v, lblTimer);
+            controller.registerCountdownLabelForVe(v, lblTimer);
 
         return row;
     }
