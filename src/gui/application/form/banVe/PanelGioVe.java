@@ -55,8 +55,8 @@ public class PanelGioVe extends JPanel {
         row.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         JLabel info = new JLabel(String.format("<html><b>%s</b><br/>%s -> %s, %s, Toa %s, Ghế %s</html>",
                 v.getChuyen().getTau() == null ? "" : v.getChuyen().getTau().getTauID(),
-                v.getChuyen().getTuyen().getGaDi().toString(),
-                v.getChuyen().getTuyen().getGaDen().toString(),
+//                v.getChuyen().getTuyen().getGaDi().toString(),
+//                v.getChuyen().getTuyen().getGaDen().toString(),
                 v.getChuyen().getGioDi(),
                 v.getGhe().getToa().getHangToa().toString(),
                 v.getGhe().getSoGhe()));

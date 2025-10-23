@@ -18,7 +18,6 @@ import java.util.Objects;
 public class Tuyen {
 	private String tuyenID;
 	private String moTa;
-	private List<TuyenChiTiet> danhSachTuyenChiTiet;
 
 	public Tuyen() {
 		super();
@@ -51,35 +50,6 @@ public class Tuyen {
 
 	public void setMoTa(String moTa) {
 		this.moTa = moTa;
-	}
-
-	public List<TuyenChiTiet> getDanhSachTuyenChiTiet() {
-		return danhSachTuyenChiTiet;
-	}
-
-	public void setDanhSachTuyenChiTiet(List<TuyenChiTiet> danhSachTuyenChiTiet) {
-		this.danhSachTuyenChiTiet = danhSachTuyenChiTiet;
-	}
-
-	public Ga getGaDi() {
-		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
-			return danhSachTuyenChiTiet.get(0).getGa(); // ga đầu tiên
-		}
-		return null;
-	}
-
-	public Ga getGaDen() {
-		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
-			return danhSachTuyenChiTiet.get(danhSachTuyenChiTiet.size() - 1).getGa(); // ga cuối cùng
-		}
-		return null;
-	}
-
-	public int getKhoangCachKm() {
-		if (danhSachTuyenChiTiet != null && !danhSachTuyenChiTiet.isEmpty()) {
-			return danhSachTuyenChiTiet.get(danhSachTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm();
-		}
-		return 0;
 	}
 
 	@Override

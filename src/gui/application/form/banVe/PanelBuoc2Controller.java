@@ -152,8 +152,8 @@ public class PanelBuoc2Controller {
             try {
                 Tuyen tuyen = selectedChuyen.getTuyen(); // adjust to your entity API
                 if (tuyen != null) {
-                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
-                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
+//                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
+//                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
                 }
             } catch (Throwable ignored) {
                 // nếu entity khác, xử lý tương ứng
