@@ -16,6 +16,7 @@ import entity.Tuyen;
 import entity.TuyenChiTiet;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Tuyen_BUS {
     private final Tuyen_DAO tuyen_dao;
@@ -67,7 +68,6 @@ public class Tuyen_BUS {
         List<Object[]> dsDuLieuBang = new ArrayList<>();
 
         for (Tuyen tuyen : dsTuyen) {
-            // ... (Giữ nguyên logic bạn đã viết trong hàm getDuLieubang() cũ)
             List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyen.getTuyenID());
 
             if(dsTuyenChiTiet != null && dsTuyenChiTiet.size() >= 2){
@@ -75,10 +75,20 @@ public class Tuyen_BUS {
                 TuyenChiTiet gaDenTCT = dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1);
                 int khoangCach = gaDenTCT.getKhoangCachTuGaXuatPhatKm();
 
+                String gaTrungGian;
+                if(dsTuyenChiTiet.size() > 2){
+                    gaTrungGian = dsTuyenChiTiet.subList(1, dsTuyenChiTiet.size() - 1).stream()
+                            .map(tct -> tct.getGa().getTenGa())
+                            .collect(Collectors.joining(" -> "));
+                } else {
+                    gaTrungGian = "-";
+                }
+
                 Object[] rowData = new Object[]{
                         tuyen.getTuyenID(),
                         gaDiTCT.getGa().getTenGa(),
                         gaDenTCT.getGa().getTenGa(),
+                        gaTrungGian,
                         khoangCach
                 };
                 dsDuLieuBang.add(rowData);

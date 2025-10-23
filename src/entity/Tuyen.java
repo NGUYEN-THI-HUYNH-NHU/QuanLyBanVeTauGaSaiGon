@@ -64,6 +64,7 @@ public class Tuyen {
 		if (o == null || getClass() != o.getClass()) return false;
 		Tuyen tuyen = (Tuyen) o;
 		return Objects.equals(tuyenID, tuyen.tuyenID);
+
 	}
 
 	@Override
