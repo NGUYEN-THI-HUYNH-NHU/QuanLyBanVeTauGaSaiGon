@@ -115,13 +115,13 @@ public class PanelDoanTau extends JPanel {
 					btn.putClientProperty("iconDefault", iconDefault);
 					btn.putClientProperty("iconSelected", iconSelected);
 
-					
 					SwingUtilities.invokeLater(() -> {
 						int realW = btn.getWidth() > 0 ? btn.getWidth() : iconW;
 						int realH = btn.getHeight() > 0 ? btn.getHeight() : iconH;
 						ImageIcon id = getTintedIcon(baseToaImage, colorDefault, realW, realH);
 						ImageIcon is = getTintedIcon(baseToaImage, colorSelected, realW, realH);
-						btn.setIcon(id); btn.putClientProperty("iconDefault", id);
+						btn.setIcon(id);
+						btn.putClientProperty("iconDefault", id);
 						btn.putClientProperty("iconSelected", is);
 					});
 				} else {
@@ -150,8 +150,9 @@ public class PanelDoanTau extends JPanel {
 				JButton b = (JButton) c;
 				if (baseToaImage != null) {
 					ImageIcon iconDefault = (ImageIcon) b.getClientProperty("iconDefault");
-					if (iconDefault != null)
+					if (iconDefault != null) {
 						b.setIcon(iconDefault);
+					}
 				} else {
 					b.setBackground(colorDefault);
 				}
@@ -161,8 +162,9 @@ public class PanelDoanTau extends JPanel {
 		if (selectedButton != null) {
 			if (baseToaImage != null) {
 				ImageIcon iconSel = (ImageIcon) selectedButton.getClientProperty("iconSelected");
-				if (iconSel != null)
+				if (iconSel != null) {
 					selectedButton.setIcon(iconSel);
+				}
 			} else {
 				selectedButton.setBackground(colorSelected);
 			}
@@ -171,8 +173,9 @@ public class PanelDoanTau extends JPanel {
 
 	// controller có thể gọi để chọn tự động
 	public void selectToaById(String toaID) {
-		if (toaID == null)
+		if (toaID == null) {
 			return;
+		}
 		for (Component c : flow.getComponents()) {
 			if (c instanceof JButton) {
 				Object id = ((JButton) c).getClientProperty("toaID");
@@ -191,8 +194,9 @@ public class PanelDoanTau extends JPanel {
 		int h = Math.max(1, height);
 
 		String key = tint.getRGB() + "x" + w + "x" + h;
-		if (iconCache.containsKey(key))
+		if (iconCache.containsKey(key)) {
 			return iconCache.get(key);
+		}
 
 		BufferedImage scaled = scaleToSize(base, w, h);
 		BufferedImage tinted = tintImageWithMask(scaled, tint);
@@ -225,7 +229,8 @@ public class PanelDoanTau extends JPanel {
 		int newW = Math.max(1, (int) Math.round(srcW * scale));
 		int newH = Math.max(1, (int) Math.round(srcH * scale));
 
-		// tạo ảnh result có kích thước đúng target và vẽ ảnh scaled ở giữa (transparent padding)
+		// tạo ảnh result có kích thước đúng target và vẽ ảnh scaled ở giữa (transparent
+		// padding)
 		BufferedImage result = new BufferedImage(targetW, targetH, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = result.createGraphics();
 		// làm mịn

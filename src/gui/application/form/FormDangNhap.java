@@ -1,114 +1,144 @@
 package gui.application.form;/*
- * @ (#) DangNhap.java   1.0     25/09/2025
-package gui.ungDunglication.form;
-
-
-/**
- * @description :
- * @author : Vy, Pham Kha Vy
- * @version 1.0
- * @created : 25/09/2025
- */
+								* @ (#) DangNhap.java   1.0     25/09/2025
+								package gui.ungDunglication.form;
+								
+								
+								/**
+								* @description :
+								* @author : Vy, Pham Kha Vy
+								* @version 1.0
+								* @created : 25/09/2025
+								*/
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-
-import com.itextpdf.text.Font;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
+import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongTin.FormThongTinCaNhan;
+import gui.tuyChinh.RoundedBorder;
 import net.miginfocom.swing.MigLayout;
 
 public class FormDangNhap extends JPanel {
 	private static final long serialVersionUID = 1L;
+	private JTextField txtTenDangNhap;
+	private JTextField txtMatKhau;
+	private JButton btnLogin;
+	private DangNhap_Ctrl dangNhap_Ctrl;
+	private JPanel pnlLogin;
+	private JLabel lblTitle;
+	private JLabel lblTenDangNhap;
+	private JLabel lblMatKhau;
+	private Image backgroundImage;
 
-    private JTextField txtTenDangNhap;
-    private JTextField txtMatKhau;
-    private JButton btnLogin;
-    private DangNhap_Ctrl dangNhap_Ctrl;
-    private JPanel loginPanel;
-    private JLabel lblTitle;
-    private JLabel lblTenDangNhap;
-    private JLabel lblMatKhau;
+	public FormDangNhap() {
+		backgroundImage = new ImageIcon(getClass().getResource("/gui/icon/png/dang-nhap.png")).getImage();
 
-    /**
-     * Constructor khởi tạo giao diện đăng nhập, thiết lập layout và gán sự kiện cho các thành phần.
-     */
-    public FormDangNhap() {
-        dangNhap_Ctrl = new DangNhap_Ctrl();
-        setLayout(new MigLayout("fill", "[grow]", "[grow]"));
+		setLayout(new GridBagLayout());
+		setOpaque(false);
 
-        loginPanel = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]30[]5[]10[]5[]30[]"));
-        loginPanel.setBorder(new EmptyBorder(20, 20, 40, 20));
-        loginPanel.setPreferredSize(new Dimension(400, 300));
-        loginPanel.setBackground(new Color(220, 220, 220));
+		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]5[]10[]5[]40[]"));
+		pnlLogin.setBorder(new RoundedBorder(20, new Color(225, 225, 225, 25), 1, true, new Color(220, 220, 220)));
+		pnlLogin.setOpaque(false);
+		pnlLogin.setPreferredSize(new Dimension(360, 300));
 
-        loginPanel.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER), "align center");
-        lblTitle.setFont(new java.awt.Font("", Font.BOLD, 24));
-        loginPanel.add(lblTenDangNhap = new JLabel("Tên đăng nhập"));
-        loginPanel.add(txtTenDangNhap = new JTextField());
-        loginPanel.add(lblMatKhau = new JLabel("Mật khẩu"));
-        loginPanel.add(txtMatKhau = new JTextField());
-        loginPanel.add(btnLogin = new JButton("Đăng nhập"), "align center");
-        
-        add(loginPanel, "align center");
-        addEvents();
-    }
+		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER), "align center");
+		lblTitle.setFont(new Font("", Font.BOLD, 24));
+		pnlLogin.add(lblTenDangNhap = new JLabel("Tên đăng nhập"));
+		pnlLogin.add(txtTenDangNhap = new JTextField());
+		txtTenDangNhap.requestFocusInWindow();
+		pnlLogin.add(lblMatKhau = new JLabel("Mật khẩu"));
+		pnlLogin.add(txtMatKhau = new JPasswordField());
+		pnlLogin.add(btnLogin = new JButton("Đăng nhập"), "align center");
 
-    /**
-     * Thiết lập các sự kiện cho nút đăng nhập và phím Enter trên các trường nhập liệu.
-     */
-    private void addEvents() {
-        btnLogin.addActionListener(e -> dangNhap());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.insets = new Insets(0, 700, 0, 0);
+		add(pnlLogin, gbc);
 
-        KeyAdapter enterKey = new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    dangNhap();
-                }
-            }
-        };
-        txtTenDangNhap.addKeyListener(enterKey);
-        txtMatKhau.addKeyListener(enterKey);
-    }
+		addEvents();
 
-    /**
-     * Thực hiện kiểm tra thông tin đăng nhập.
-     * Nếu đúng, mở giao diện chính và hiển thị thông tin người dùng.
-     * Nếu sai, hiển thị thông báo lỗi và reset lại form đăng nhập.
-     */
-    private void dangNhap() {
-        String tenDangNhap = txtTenDangNhap.getText().trim();
-        String matKhau = new String(txtMatKhau.getText().trim());
-        NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
-        UngDung ungDung = UngDung.getInstance();
+		dangNhap_Ctrl = new DangNhap_Ctrl();
+	}
 
-        if (nhanVien == null) {
-            resetDangNhap();
-        } else {
-            ungDung.createGiaoDienChinh(nhanVien);
-            ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
-            SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
-        }
-    }
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g.create();
 
-    /**
-     * Xóa nội dung trong ô nhập tên đăng nhập và mật khẩu, đồng thời focus lại vào ô nhập tên.
-     */
-    public void resetDangNhap() {
-        txtTenDangNhap.setText("");
-        txtMatKhau.setText("");
-        txtTenDangNhap.requestFocus();
-    }
+		// vẽ ảnh nền
+		if (backgroundImage != null) {
+			g2.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+		}
+
+		Color overlay = new Color(0, 94, 158, 30);
+		g2.setColor(overlay);
+		g2.fillRect(0, 0, getWidth(), getHeight());
+
+		g2.dispose();
+	}
+
+	private void addEvents() {
+		btnLogin.addActionListener(e -> dangNhap());
+
+		KeyAdapter enterKey = new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					dangNhap();
+				}
+			}
+		};
+		txtTenDangNhap.addKeyListener(enterKey);
+		txtMatKhau.addKeyListener(enterKey);
+	}
+
+	private void dangNhap() {
+		String tenDangNhap = txtTenDangNhap.getText().trim();
+		String matKhau = new String(txtMatKhau.getText().trim());
+		NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
+		UngDung ungDung = UngDung.getInstance();
+
+		if (nhanVien == null) {
+			resetDangNhap();
+		} else {
+			ungDung.createGiaoDienChinh(nhanVien);
+			ungDung.setContentPane(ungDung.getGiaoDienChinh());
+			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
+				ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+			} else {
+				ungDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+			}
+			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
+		}
+	}
+
+	public void resetDangNhap() {
+		txtTenDangNhap.setText("");
+		txtMatKhau.setText("");
+		txtTenDangNhap.requestFocus();
+	}
 }
