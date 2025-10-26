@@ -14,7 +14,6 @@ package gui.application.form.banVe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -36,15 +35,14 @@ import entity.Toa;
 import entity.type.TrangThaiGhe;
 
 public class PanelSoDoCho extends JPanel {
-	private final JPanel seatGridPanel;
-	private final JScrollPane scrollPane;
-	private final JPanel navPanel;
+	private final JPanel pnlGridChoNgoi;
+	private final JScrollPane scroll;
 	private final JButton btnPrev, btnNext;
 	private final JLabel lblToaInfo;
 	private final JPanel pnlNorth;
 
 	private PanelBuoc2Controller panelBuoc2Controller;
-	private JButton selectedSeatButton = null;
+	private JButton btnChoSelected = null;
 	private Toa currentToa;
 	private List<Toa> toaList;
 	private int currentIndex = 0;
@@ -53,7 +51,7 @@ public class PanelSoDoCho extends JPanel {
 	private static final int CELL_WIDTH = 20;
 	private static final int CELL_HEIGHT = 20;
 	private static final int CELL_GAP = 8;
-	private static final int VIEWPORT_HEIGHT = 180;
+	private static final int VIEWPORT_HEIGHT = 160;
 	private static final int VIEWPORT_WIDTH = 400;
 
 	public PanelSoDoCho() {
@@ -65,22 +63,22 @@ public class PanelSoDoCho extends JPanel {
 
 		btnPrev = new JButton("<");
 		btnNext = new JButton(">");
-		navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 2));
-		navPanel.add(btnPrev);
-		navPanel.add(btnNext);
+		btnPrev.setPreferredSize(new Dimension(25, 10));
+		btnNext.setPreferredSize(new Dimension(25, 10));
 
 		pnlNorth = new JPanel(new BorderLayout());
 		pnlNorth.add(lblToaInfo, BorderLayout.NORTH);
-		pnlNorth.add(navPanel, BorderLayout.CENTER);
 
-		seatGridPanel = new JPanel();
-		seatGridPanel.setLayout(new GridLayout(1, 1)); // initial placeholder
-		scrollPane = new JScrollPane(seatGridPanel);
-		scrollPane.setPreferredSize(new Dimension(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
-		scrollPane.setBorder(BorderFactory.createEmptyBorder()); // cleaner look
+		pnlGridChoNgoi = new JPanel();
+		pnlGridChoNgoi.setLayout(new GridLayout(1, 1)); // initial placeholder
+		scroll = new JScrollPane(pnlGridChoNgoi);
+		scroll.setPreferredSize(new Dimension(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
+		scroll.setBorder(BorderFactory.createEmptyBorder()); // cleaner look
 
 		add(pnlNorth, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
+		add(scroll, BorderLayout.CENTER);
+		add(btnPrev, BorderLayout.WEST);
+		add(btnNext, BorderLayout.EAST);
 
 		// Actions
 		btnPrev.addActionListener(e -> showPrevToa());
@@ -114,7 +112,7 @@ public class PanelSoDoCho extends JPanel {
 		lblToaInfo.setText(
 				"Toa số " + t.getSoToa() + ": " + (t.getHangToa() != null ? t.getHangToa().getDescription() : ""));
 
-		showLoadingState();
+//		showLoadingState();
 
 		// Run seat loading on background thread
 		if (panelBuoc2Controller != null) {
@@ -123,20 +121,20 @@ public class PanelSoDoCho extends JPanel {
 	}
 
 	public void showMessage(String text) {
-		seatGridPanel.removeAll();
-		seatGridPanel.setLayout(new BorderLayout());
-		seatGridPanel.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
-		seatGridPanel.revalidate();
-		seatGridPanel.repaint();
+		pnlGridChoNgoi.removeAll();
+		pnlGridChoNgoi.setLayout(new BorderLayout());
+		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
+		pnlGridChoNgoi.revalidate();
+		pnlGridChoNgoi.repaint();
 	}
 
-	public void showLoadingState() {
-		showMessage("Đang tải ...");
-	}
+//	public void showLoadingState() {
+//		showMessage("Đang tải ...");
+//	}
 
 	// ==== Seat Rendering ====
 	public void renderSeats(List<Ghe> gheList) {
-		seatGridPanel.removeAll();
+		pnlGridChoNgoi.removeAll();
 
 		if (gheList == null || gheList.isEmpty()) {
 			showMessage("Không có ghế");
@@ -150,7 +148,7 @@ public class PanelSoDoCho extends JPanel {
 		// Layout
 		int cols = Math.min(sorted.size(), 6);
 		int rows = (int) Math.ceil(sorted.size() / (double) cols);
-		seatGridPanel.setLayout(new GridLayout(rows, cols, CELL_GAP, CELL_GAP));
+		pnlGridChoNgoi.setLayout(new GridLayout(rows, cols, CELL_GAP, CELL_GAP));
 
 		for (Ghe g : sorted) {
 			JButton b = new JButton(String.valueOf(g.getSoGhe()));
@@ -166,11 +164,11 @@ public class PanelSoDoCho extends JPanel {
 			}
 
 			b.addActionListener(e -> {
-				if (selectedSeatButton != null && selectedSeatButton != b) {
-					selectedSeatButton.setBackground(Color.WHITE);
-					selectedSeatButton.setForeground(Color.BLACK);
+				if (btnChoSelected != null && btnChoSelected != b) {
+					btnChoSelected.setBackground(Color.WHITE);
+					btnChoSelected.setForeground(Color.BLACK);
 				}
-				selectedSeatButton = b;
+				btnChoSelected = b;
 				b.setBackground(new Color(40, 167, 69));
 				b.setForeground(Color.WHITE);
 
@@ -179,12 +177,12 @@ public class PanelSoDoCho extends JPanel {
 				}
 			});
 
-			seatGridPanel.add(b);
+			pnlGridChoNgoi.add(b);
 		}
 
 		// Avoid multiple revalidate calls
-		seatGridPanel.revalidate();
-		seatGridPanel.repaint();
+		pnlGridChoNgoi.revalidate();
+		pnlGridChoNgoi.repaint();
 	}
 
 	// ==== Navigation ====

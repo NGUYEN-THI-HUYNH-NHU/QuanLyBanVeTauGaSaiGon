@@ -12,6 +12,8 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.util.List;
+
+import bus.VeSession_BUS;
 import entity.Chuyen;
 import entity.Ve;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
@@ -19,28 +21,27 @@ import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class PanelBanVe1Controller {
     
-    private final PanelBanVe1 view;
+    private final PanelBanVe1 p1;
     private final BookingSession bookingSession;
-
     // Các sub-controller
     private final PanelBuoc1Controller buoc1Controller;
     private final PanelBuoc2Controller buoc2Controller;
     // private final PanelBuoc3Controller buoc3Controller; // Sẽ thêm sau
-    
     private Runnable onPanel1CompleteListener;
+	private PanelBuoc2 p2;
     
     public void addPanel1CompleteListener(Runnable listener) {
         this.onPanel1CompleteListener = listener;
     }
 
-    public PanelBanVe1Controller(PanelBanVe1 view, BookingSession session) {
-        this.view = view;
+    public PanelBanVe1Controller(PanelBanVe1 p1, BookingSession session) {
+        this.p1 = p1;
         this.bookingSession = session;
 
-        this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
+        this.buoc1Controller = new PanelBuoc1Controller(p1.getPanelBuoc1());
         
         // PanelBuoc2Controller cần 5 panel con [cite: 68]
-        PanelBuoc2 p2 = view.getPanelBuoc2();
+        p2 = p1.getPanelBuoc2();
         this.buoc2Controller = new PanelBuoc2Controller(
             p2.getPanelChieuLabel(), 
             p2.getPanelChuyenTau(), 
@@ -68,9 +69,9 @@ public class PanelBanVe1Controller {
                 bookingSession.setOutboundResults(results);
 
                 // 2. Kích hoạt Panel Buoc2
-                view.setBuoc2Enabled(true);
+                p1.setBuoc2Enabled(true);
                 // 3. Vô hiệu hóa Buoc3 (phòng trường hợp tìm lại)
-                view.setBuoc3Enabled(false);
+                p1.setBuoc3Enabled(false);
                 // 4. "Đẩy" dữ liệu vào Buoc2 để hiển thị
                 buoc2Controller.displayChuyenList(criteria, results, 0); // 0 = chiều đi
             }
@@ -80,8 +81,8 @@ public class PanelBanVe1Controller {
                 // 1. Cập nhật BookingSession
                 bookingSession.setOutboundResults(null);                
                 // 2. Vô hiệu hóa Buoc2 và Buoc3
-                view.setBuoc2Enabled(false);
-                view.setBuoc3Enabled(false);
+                p1.setBuoc2Enabled(false);
+                p1.setBuoc3Enabled(false);
             }
         });
 
@@ -93,7 +94,7 @@ public class PanelBanVe1Controller {
                 // bookingSession.addTicketForTrip(0, convertedTicket); 
                 
                 // Kích hoạt Buoc3
-                view.setBuoc3Enabled(true);
+                p1.setBuoc3Enabled(true);
                 
                 // (Tạm thời) Khi chọn ghế xong thì coi như xong
                 // Lý tưởng nhất: Bạn nên lắng nghe 1 sự kiện

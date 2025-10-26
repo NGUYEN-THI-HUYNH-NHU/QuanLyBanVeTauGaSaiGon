@@ -19,18 +19,23 @@ public class Ga {
 	private String tenGa;
 	private boolean isGaLon;
 	private String tinhThanh;
-	
-	public Ga(String gaID,boolean isGaLon, String tenGa, String tinhThanh) {
+
+	public Ga(String gaID, boolean isGaLon, String tenGa, String tinhThanh) {
 		super();
 		this.gaID = gaID;
 		this.tenGa = tenGa;
 		this.tinhThanh = tinhThanh;
 	}
-	
+
 	public Ga(String gaID, String tenGa) {
 		super();
 		this.gaID = gaID;
 		this.tenGa = tenGa;
+	}
+
+	public Ga(String gaID) {
+		super();
+		this.gaID = gaID;
 	}
 
 	public String getGaID() {
@@ -50,18 +55,17 @@ public class Ga {
 	}
 
 	public void setGaID(String gaID) {
-		if(gaID != null && !gaID.isEmpty()){
+		if (gaID != null && !gaID.isEmpty()) {
 			this.gaID = gaID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Ga ID không được để trống!");
 		}
 	}
 
 	public void setTenGa(String tenGa) {
-		if(tenGa != null && !tenGa.isEmpty()) {
+		if (tenGa != null && !tenGa.isEmpty()) {
 			this.tenGa = tenGa;
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException("Tên ga không được để trống!");
 		}
 	}
@@ -71,10 +75,9 @@ public class Ga {
 	}
 
 	public void setTinhThanh(String tinhThanh) {
-		if(tinhThanh != null && !tinhThanh.isEmpty()) {
+		if (tinhThanh != null && !tinhThanh.isEmpty()) {
 			this.tinhThanh = tinhThanh;
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException("Tỉnh thành không được để trống!");
 		}
 	}
@@ -86,8 +89,12 @@ public class Ga {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Ga ga = (Ga) o;
 		return Objects.equals(gaID, ga.gaID);
 	}

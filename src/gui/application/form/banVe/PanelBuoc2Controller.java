@@ -4,10 +4,16 @@ package gui.application.form.banVe;
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 29, 2025
+ * @version: 1.0
+ */
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,16 +27,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 29, 2025
- * @version: 1.0
- */
-
 import bus.Chuyen_BUS;
-import bus.DonDatCho_BUS;
-import bus.TicketBUS;
+import bus.VeSession_BUS;
 import entity.Chuyen;
 import entity.Ga;
 import entity.Ghe;
@@ -45,8 +43,7 @@ public class PanelBuoc2Controller {
 	private final PanelGioVe panelGioVe;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
-	private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
-	private final TicketBUS ticketBUS = TicketBUS.getInstance();
+	private final VeSession_BUS veSessionBUS = VeSession_BUS.getInstance();
 
 	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
 	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
@@ -102,14 +99,9 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-		panelGioVe.refresh(ticketBUS.getAllTickets());
+		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 	}
 
-	/**
-	 * Đây là hàm "cổng vào" mới, thay thế cho logic của
-	 * WizardController.goToStep(2) Nó sẽ được gọi bởi PanelBanVe1Controller
-	 * (Mediator).
-	 */
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
 		if (criteria == null || chuyens == null || chuyens.isEmpty()) {
 			// Có thể ẩn hoặc xóa trắng panel
@@ -130,7 +122,7 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-		panelGioVe.refresh(ticketBUS.getAllTickets());
+		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 	}
 
 	public void onChuyenSelected(Chuyen c) {
@@ -290,34 +282,82 @@ public class PanelBuoc2Controller {
 		});
 	}
 
+//	// user clicked a seat button
+//	public void onSeatClicked(Toa toa, Ghe ghe) {
+//		if (ghe == null || toa == null) {
+//			return;
+//		}
+//		
+//		new SwingWorker<VeSession, Void>() {
+//			@Override
+//			protected VeSession doInBackground() throws Exception {
+//				VeSession v = new VeSession("SGO-BHO-15012025", "SE8", "Sài Gòn", "Biên Hòa", LocalDate.of(2025, 1, 15),
+//						LocalTime.of(6, 0), "ToaID", "SoToa", "SoGhe", Instant.now());
+//				veSessionBUS.getAllVeSessions();
+//				return v;
+//			}
+//
+//			@Override
+//			protected void done() {
+//				try {
+//					VeSession v = get();
+//					if (v != null) {
+//						// add to veSessionBUS
+//						veSessionBUS.addVeSession(v);
+//						// update UI: refresh right panel
+//						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//
+//						for (SeatSelectedListener listener : seatSelectedListeners) {
+//							listener.onSeatSelected(v);
+//						}
+//
+//						// start countdown for this ticket
+//						startCountdownForVe(v);
+//						// refresh seat grid to mark as selected
+//						panelSoDoCho.setCurrentToa(toa);
+//					} else {
+//						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
+//						panelSoDoCho.setCurrentToa(toa);
+//					}
+//				} catch (Exception ex) {
+//					ex.printStackTrace();
+//				}
+//			}
+//		}.execute();
+//	}
 	// user clicked a seat button
 	public void onSeatClicked(Toa toa, Ghe ghe) {
-		if (ghe == null || toa == null) {
-			return;
-		}
-//        if (ghe.getTrangThai() == TrangThaiGhe.DA_BAN) {
-//            JOptionPane.showMessageDialog(null, "Ghế không thể chọn (đã bán/đang giữ).");
-//            return;
-//        }
-		new SwingWorker<VeSession, Void>() {
-			@Override
-			protected VeSession doInBackground() throws Exception {
-				// create hold in DB via DonDatCho_BUS
-				// returns VeSession object with hold expiry timestamp and id
-//                return donDatChoBUS.createHold(toa, ghe);
-				return new VeSession("SGO-BHO-15012025", "SE8", "Sài Gòn", "Biên Hòa", LocalDate.of(2025, 1, 15),
-						LocalTime.of(6, 0), "ToaID", "SoToa", "SoGhe", Instant.now());
-			}
+	    if (ghe == null || toa == null) return;
 
-			@Override
+	    new SwingWorker<VeSession, Void>() {
+	    	SearchCriteria chuyenDiCriteria = bookingSession.getOutboundCriteria();
+
+	        String tauID = selectedChuyen.getTau().getTauID();
+	        String tenGaDi = chuyenDiCriteria.getGaDiName();
+	        String tenGaDen = chuyenDiCriteria.getGaDenName();
+	        LocalDate ngayDi = selectedChuyen.getNgayDi();
+	        LocalTime gioDi = selectedChuyen.getGioDi();
+	        String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
+	        Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
+	        int soToa = toa.getSoToa();
+	        int soGhe = ghe.getSoGhe();
+	        
+	        @Override
+	        protected VeSession doInBackground() throws Exception {	            
+	            VeSession v = new VeSession(selectedChuyen.getChuyenID(), tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, thoiDiemHetHan);
+	            bookingSession.addOutboundTicket(v);
+	            return v;
+	        }
+
+	        @Override
 			protected void done() {
 				try {
 					VeSession v = get();
 					if (v != null) {
-						// add to TicketBUS
-						ticketBUS.addTicket(v);
+						// add to veSessionBUS
+						veSessionBUS.addVeSession(v);
 						// update UI: refresh right panel
-						panelGioVe.refresh(ticketBUS.getAllTickets());
+						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
@@ -335,9 +375,10 @@ public class PanelBuoc2Controller {
 					ex.printStackTrace();
 				}
 			}
-		}.execute();
+	    }.execute();
 	}
-
+	
+	
 	// start a swing timer updating corresponding JLabel; label may be registered by
 	// panelGioVe
 	public void registerCountdownLabelForVe(VeSession v, JLabel lbl) {
@@ -390,54 +431,36 @@ public class PanelBuoc2Controller {
 
 	// user clicked trash icon or timer expired -> remove ticket
 	public void onRemoveVe(VeSession v) {
-		// cancel hold in DB via BUS, remove from TicketBUS, stop timer, refresh UI
-		new SwingWorker<Boolean, Void>() {
-			@Override
-			protected Boolean doInBackground() throws Exception {
-				boolean ok = donDatChoBUS.releaseHold(v);
-				return ok;
-			}
+		veSessionBUS.removeVeSession(v);
+		Timer t = countdownTimers.remove(v.toString());
+		if (t != null) {
+			t.stop();
+		}
+		countdownLabels.remove(v.toString());
+		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 
-			@Override
-			protected void done() {
-				try {
-					boolean ok = get();
-					ticketBUS.removeTicket(v);
-					Timer t = countdownTimers.remove(v.toString());
-					if (t != null) {
-						t.stop();
-					}
-					countdownLabels.remove(v.toString());
-					panelGioVe.refresh(ticketBUS.getAllTickets());
-
-					if (selectedToa != null) {
-						panelSoDoCho.setCurrentToa(selectedToa);
-					}
-					JOptionPane.showMessageDialog(null, "Đã xóa giữ chỗ.");
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		}.execute();
+		if (selectedToa != null) {
+			panelSoDoCho.setCurrentToa(selectedToa);
+		}
 	}
 
 	private void releaseHoldAndRemoveVe(VeSession v) {
 		// similar to onRemoveTicket but invoked automatically
-		try {
-			donDatChoBUS.releaseHold(v);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-		ticketBUS.removeTicket(v);
+//		try {
+//			donDatChoBUS.releaseHold(v);
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
+		veSessionBUS.removeVeSession(v);
 		countdownLabels.remove(v.toString());
-		panelGioVe.refresh(ticketBUS.getAllTickets());
+		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 		SwingUtilities.invokeLater(
 				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.toString() + " đã hết hạn."));
 	}
 
 //    private Ve findTicketForSeat(Toa toa, Ghe ghe) {
 //        if (toa == null || ghe == null) return null;
-//        List<Ve> tickets = ticketBUS.getAllTickets();
+//        List<Ve> tickets = veSessionBUS.getAllTickets();
 //        if (tickets == null) return null;
 //        for (Ve v : tickets) {
 //            try {

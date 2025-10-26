@@ -23,9 +23,9 @@ public class Toa {
 	private Tau tau;
 	private HangToa hangToa;
 	private int sucChua;
-	private String soToa;
+	private int soToa;
 	
-	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, String soToa) {
+	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int soToa) {
 		super();
 		this.toaID = toaID;
 		this.tau = tau;
@@ -34,7 +34,7 @@ public class Toa {
 		this.soToa = soToa;
 	}
 	
-	public Toa(String toaID, String soToa) {
+	public Toa(String toaID, int soToa) {
 		super();
 		this.toaID = toaID;
 		this.soToa = soToa;
@@ -65,7 +65,7 @@ public class Toa {
 		return sucChua;
 	}
 
-	public String getSoToa() {
+	public int getSoToa() {
 		return soToa;
 	}
 
@@ -89,7 +89,7 @@ public class Toa {
 		this.sucChua = sucChua;
 	}
 
-	public void setSoToa(String soToa) {
+	public void setSoToa(int soToa) {
 		this.soToa = soToa;
 	}
 
