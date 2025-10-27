@@ -17,7 +17,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import javax.swing.JLabel;
+import entity.KhuyenMai;
 
 /**
  * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán).
@@ -33,10 +33,13 @@ public class VeSession {
     private final String toaID;
     private final int soToa;
     private final int soGhe;
+    private final double gia;
+    private final String khuyenMaiCode;
+    private final double giam;
     private final Instant thoiDiemHetHan;
 
     public VeSession(String chuyenID, String tenTau, String tenGaDi, String tenGaDen, LocalDate ngayDi, LocalTime gioDi, String toaID,
-			int soToa, int soGhe, Instant thoiDiemHetHan) {
+			int soToa, int soGhe, double gia, String khuyenMaiCode, double giam, Instant thoiDiemHetHan) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tenTau = tenTau;
@@ -47,9 +50,28 @@ public class VeSession {
 		this.toaID = toaID;
 		this.soToa = soToa;
 		this.soGhe = soGhe;
+		this.gia = gia;
+		this.khuyenMaiCode = khuyenMaiCode;
+		this.giam = giam;
 		this.thoiDiemHetHan = thoiDiemHetHan;
 	}
     
+	public String getKhuyenMaiCode() {
+		return khuyenMaiCode;
+	}
+
+	public double getGiam() {
+		return giam;
+	}
+
+	public double getGia() {
+		return gia;
+	}
+
+	public String getChuyenID() {
+		return chuyenID;
+	}
+
 	public String getTenTau() {
 		return tenTau;
 	}

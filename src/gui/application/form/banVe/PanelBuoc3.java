@@ -14,6 +14,8 @@ package gui.application.form.banVe;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import gui.tuyChinh.RoundedBorder;
+
 import java.awt.*;
 
 import java.util.ArrayList;
@@ -25,6 +27,10 @@ public class PanelBuoc3 extends JPanel {
  private final JButton btnConfirm;
  private final JButton btnCancel;
  private final JLabel lblInfo;
+ private JPanel formKhachHang;
+ private JTextField tfKhachTen;
+ private JTextField tfKhachCmnd;
+ private JTextField tfKhachPhone;
 
  public PanelBuoc3() {
      setLayout(new BorderLayout(8,8));
@@ -58,6 +64,43 @@ public class PanelBuoc3 extends JPanel {
      south.add(btns, BorderLayout.EAST);
 
      add(south, BorderLayout.SOUTH);
+     
+     formKhachHang = new JPanel(new GridBagLayout());
+     formKhachHang.setBorder(new RoundedBorder(0, new Color(230, 230, 230), 1));
+     
+     tfKhachTen = new JTextField(18);
+     tfKhachCmnd = new JTextField(18);
+     tfKhachPhone = new JTextField(18);
+     
+     GridBagConstraints gbc = new GridBagConstraints();
+     gbc.insets = new Insets(2, 2, 2, 2);
+     gbc.fill = GridBagConstraints.HORIZONTAL;
+     gbc.gridx = 0;
+
+     // row 0: Họ và tên *
+     gbc.gridy = 0;
+     formKhachHang.add(new JLabel("Họ và tên *"), gbc);
+     gbc.gridy = 1;
+     formKhachHang.add(tfKhachTen, gbc);
+
+     // row 1: CMND/Hộ chiếu *
+     gbc.gridy = 2;
+     formKhachHang.add(new JLabel("Số CMND/Hộ chiếu *"), gbc);
+     gbc.gridy = 3;
+     formKhachHang.add(tfKhachCmnd, gbc);
+
+     // row 2: Số di động *
+     gbc.gridy = 4;
+     formKhachHang.add(new JLabel("Số di động *"), gbc);
+     gbc.gridy = 5;
+     formKhachHang.add(tfKhachPhone, gbc);
+
+     // spacer and note
+     gbc.gridy = 6;
+     gbc.weighty = 1.0;
+     formKhachHang.add(Box.createVerticalGlue(), gbc);
+     
+     add(formKhachHang, BorderLayout.EAST);
  }
 
  /**

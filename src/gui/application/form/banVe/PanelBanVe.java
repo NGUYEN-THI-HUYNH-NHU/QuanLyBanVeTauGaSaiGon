@@ -33,7 +33,7 @@ public class PanelBanVe extends JPanel {
 
     // Các controller "Mediator" cho từng bước
     private BanVe1Controller panelBanVe1Controller;
-    private PanelBanVe2Controller panelBanVe2Controller;
+    private BanVe2Controller panelBanVe2Controller;
 
     public PanelBanVe(NhanVien nhanVien) {
         setLayout(new BorderLayout());

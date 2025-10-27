@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
+import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.thongTin.FormThongTinCaNhan;
@@ -128,6 +129,7 @@ public class FormDangNhap extends JPanel {
 		if (nhanVien == null) {
 			resetDangNhap();
 		} else {
+			AuthService.getInstance().setCurrentUser(nhanVien);
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {

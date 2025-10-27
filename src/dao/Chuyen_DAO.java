@@ -25,6 +25,7 @@ import connectDB.ConnectDB;
 import entity.Chuyen;
 import entity.Tau;
 import entity.Tuyen;
+import entity.type.LoaiTau;
 
 public class Chuyen_DAO {
 	private ConnectDB connectDB;
@@ -44,6 +45,8 @@ public class Chuyen_DAO {
                 + "    c.chuyenID,\r\n"
                 + "    c.tuyenID,\r\n"
                 + "    c.tauID,\r\n"
+                // [THÊM MỚI] Lấy thêm loaiTauID từ bảng Tau
+                + "    t.loaiTauID,\r\n" 
                 // Thông tin tại ga đi yêu cầu
                 + "    cgDi.ngayDi   AS ngayDi,\r\n"
                 + "    cgDi.gioDi    AS gioDi,\r\n"
@@ -51,6 +54,8 @@ public class Chuyen_DAO {
                 + "    cgDen.ngayDen  AS ngayDen,\r\n"
                 + "    cgDen.gioDen  AS gioDen\r\n"
                 + "FROM Chuyen c\r\n"
+                // [THÊM MỚI] JOIN với bảng Tau để lấy loaiTauID
+                + "INNER JOIN Tau t ON c.tauID = t.tauID\r\n" 
                 // Tìm ga đi trong lịch trình của chuyến
                 + "INNER JOIN ChuyenGa cgDi\r\n"
                 + "    ON cgDi.chuyenID = c.chuyenID\r\n"
@@ -60,17 +65,11 @@ public class Chuyen_DAO {
                 + "    ON cgDen.chuyenID = c.chuyenID\r\n"
                 + "    AND cgDen.gaID = @gaDenID\r\n"
                 + "WHERE\r\n"
-                // [SỬA LỖI] Tìm theo ngày khởi hành TẠI GA ĐI (cgDi.ngayDi)
-                // thay vì ngày khởi hành của toàn chuyến (c.ngayDi).
                 + "    cgDi.ngayDi = @ngayDi\r\n"
-                + "    \r\n"
-                // Đảm bảo ga đi phải đứng trước ga đến trong lịch trình
                 + "    AND cgDi.thuTu < cgDen.thuTu\r\n"
-                // [SỬA LỖI] Sắp xếp theo giờ đi TẠI GA ĐI (cgDi.gioDi)
                 + "ORDER BY cgDi.gioDi, c.chuyenID;\r\n";
-        // --- KẾT THÚC SỬA SQL ---
         
-        List<Chuyen> chuyenList = new ArrayList<Chuyen>(); // Khởi tạo luôn
+        List<Chuyen> chuyenList = new ArrayList<Chuyen>();
 
         try (PreparedStatement pstmt = connection.prepareStatement(querySQL)) {
             pstmt.setString(1, gaDiID);
@@ -81,27 +80,26 @@ public class Chuyen_DAO {
                 while (resultSet.next()) {
                     String chuyenID = resultSet.getString("chuyenID");
                     Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
-                    Tau tau = new Tau(resultSet.getString("tauID"));
-                    
-                    // --- BẮT ĐẦU SỬA LOGIC JAVA ---
+                    String tauID = resultSet.getString("tauID");
+                    LoaiTau loaiTau = LoaiTau.valueOf(resultSet.getString("loaiTauID"));
+                    Tau tau = new Tau(tauID, loaiTau);
+
+                    // --- KẾT THÚC SỬA LOGIC JAVA ---
+
                     // Lấy đúng các giá trị từ kết quả truy vấn
                     LocalDate ngayDi_ThucTe = resultSet.getDate("ngayDi").toLocalDate();
                     LocalTime gioDi_ThucTe = resultSet.getTime("gioDi").toLocalTime();
                     LocalDate ngayDen_ThucTe = resultSet.getDate("ngayDen").toLocalDate();
                     LocalTime gioDen_ThucTe = resultSet.getTime("gioDen").toLocalTime();
                     
-                    // Giả sử bạn có một constructor Chuyen phù hợp
-                    // (Constructor này lưu trữ thông tin của phân đoạn, không phải của toàn chuyến)
                     Chuyen c = new Chuyen(chuyenID, tau, ngayDi_ThucTe, gioDi_ThucTe, ngayDen_ThucTe, gioDen_ThucTe);
-                    c.setTuyen(tuyen); // Set Tuyen nếu cần
-                    // --- KẾT THÚC SỬA LOGIC JAVA ---
+                    c.setTuyen(tuyen);
 
                     chuyenList.add(c);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Cân nhắc ném ngoại lệ ở đây để tầng BUS xử lý
         }
         return chuyenList;
     }

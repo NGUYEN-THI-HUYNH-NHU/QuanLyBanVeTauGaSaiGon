@@ -13,7 +13,7 @@ package gui.application.form.banVe;
  */
 import javax.swing.JButton;
 
-public class PanelBanVe2Controller {
+public class BanVe2Controller {
 
     private final PanelBanVe2 view; // View gộp (chứa Buoc4 và Buoc5)
     private final BookingSession bookingSession; // Session dữ liệu
@@ -25,7 +25,7 @@ public class PanelBanVe2Controller {
     // Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
     private Runnable onPaymentSuccessListener;
 
-    public PanelBanVe2Controller(PanelBanVe2 view, BookingSession session) {
+    public BanVe2Controller(PanelBanVe2 view, BookingSession session) {
         this.view = view;
         this.bookingSession = session;
 

@@ -64,7 +64,7 @@ public class PanelBuoc1Controller {
 	// debounce millis
 	private static final int DEBOUNCE_MS = 400;
 
-	// Interface để PanelBanVe1Controller (Mediator) lắng nghe
+	// Interface để BanVe1Controller (Mediator) lắng nghe
 	public interface SearchListener {
 	    void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
 	    void onSearchFailure();

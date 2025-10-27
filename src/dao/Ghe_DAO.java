@@ -179,4 +179,89 @@ public class Ghe_DAO {
 		}
 		return false;
 	}
+	
+	/**
+     * Tính giá vé cho một phân đoạn, dựa trên Loại tàu và Hạng toa cụ thể.
+     * Query này hiệu quả hơn vì không cần JOIN Ghe, Toa, Tau.
+     *
+     * @param chuyenID  ID của chuyến (để tính khoảng cách)
+     * @param gaDiID    ID của ga đi
+     * @param gaDenID   ID của ga đến
+     * @param loaiTauID ID của Loại tàu (từ BieuGiaVe)
+     * @param hangToaID ID của Hạng toa (từ BieuGiaVe)
+     * @return Giá vé (BigDecimal), hoặc BigDecimal.ZERO nếu không tìm thấy quy tắc giá.
+     */
+    public double calcGia(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
+        Connection conn = connectDB.getConnection();
+        
+        String sql = 
+                  "-- 0. Khai báo tham số đầu vào\n"
+                + "DECLARE @chuyenID VARCHAR(50) = ?;\n"
+                + "DECLARE @gaDiID VARCHAR(50) = ?;\n"
+                + "DECLARE @gaDenID VARCHAR(50) = ?;\n"
+                + "DECLARE @loaiTauID VARCHAR(50) = ?;\n"
+                + "DECLARE @hangToaID VARCHAR(50) = ?;\n"
+                + "\n"
+                + "-- 1. CTE: Lấy TuyenID và tính Khoảng cách (Km)\n"
+                + ";WITH Distance AS (\n"
+                + "    SELECT \n"
+                // Tính khoảng cách tuyệt đối
+                + "        ABS(ttDen.khoangCachTuGaXuatPhatKm - ttDi.khoangCachTuGaXuatPhatKm) AS km\n"
+                + "    FROM Chuyen c\n"
+                + "    JOIN TuyenChiTiet ttDi ON c.tuyenID = ttDi.tuyenID AND ttDi.gaID = @gaDiID\n"
+                + "    JOIN TuyenChiTiet ttDen ON c.tuyenID = ttDen.tuyenID AND ttDen.gaID = @gaDenID\n"
+                + "    WHERE c.chuyenID = @chuyenID\n"
+                + "),\n"
+                + "-- 2. CTE: Tìm quy tắc giá tốt nhất (ưu tiên cao nhất) phù hợp\n"
+                + "BestRule AS (\n"
+                + "    SELECT TOP 1\n"
+                + "        bg.donGiaTrenKm,\n"
+                + "        bg.giaCoBan\n"
+                + "    FROM BieuGiaVe bg\n"
+                + "    JOIN Distance d ON d.km BETWEEN bg.minKm AND bg.maxKm\n"
+                + "    WHERE \n"
+                + "        bg.isCoHieuLuc = 1\n"
+                + "        AND bg.loaiTauApDungID = @loaiTauID -- Dùng tham số trực tiếp\n"
+                + "        AND bg.hangToaApDungID = @hangToaID -- Dùng tham số trực tiếp\n"
+                + "    ORDER BY bg.doUuTien DESC -- Lấy quy tắc có độ ưu tiên cao nhất\n"
+                + "),\n"
+                + "-- 3. CTE: Tính giá cơ bản (trước khi nhân hệ số)\n"
+                + "BasePrice AS (\n"
+                + "    SELECT\n"
+                + "        CASE\n"
+                + "            WHEN r.donGiaTrenKm IS NOT NULL THEN r.donGiaTrenKm * d.km\n"
+                + "            ELSE r.giaCoBan\n"
+                + "        END AS giaTrcHeSo\n"
+                + "    FROM BestRule r, Distance d\n"
+                + "),\n"
+                + "-- 4. CTE: Lấy các hệ số nhân\n"
+                + "Multipliers AS (\n"
+                + "    SELECT \n"
+                // Dùng ISNULL để mặc định là 1.0 nếu không tìm thấy hệ số
+                + "        ISNULL((SELECT hsg FROM HeSoGiaLoaiTau hst WHERE hst.loaiTauID = @loaiTauID AND hst.isCoHieuLuc = 1), 1.0) AS hsgTau,\n"
+                + "        ISNULL((SELECT hsg FROM HeSoGiaHangToa hsh WHERE hsh.hangToaID = @hangToaID AND hsh.isCoHieuLuc = 1), 1.0) AS hsgToa\n"
+                + ")\n"
+                + "-- 5. Tính toán cuối cùng\n"
+                + "SELECT \n"
+                + "    ISNULL(ROUND(bp.giaTrcHeSo * m.hsgTau * m.hsgToa, 2), 0.00) AS finalPrice\n"
+                + "FROM BasePrice bp, Multipliers m;";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, chuyenID);
+            ps.setString(2, gaDiID);
+            ps.setString(3, gaDenID);
+            ps.setString(4, loaiTauID);
+            ps.setString(5, hangToaID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("finalPrice");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Nếu có lỗi, trả về 0
+        }
+        return 0; 
+    }
 }

@@ -55,13 +55,14 @@ public class HanhKhachTableModel extends AbstractTableModel {
 	        p.setType(src.getType());
 	        p.setIdNumber(src.getIdNumber());
 	        fireTableRowsUpdated(rowIndex, rowIndex);
-	    } else if (columnIndex == 2 && aValue instanceof Number) {
-	        p.setPrice(((Number)aValue).doubleValue());
-	        fireTableRowsUpdated(rowIndex, rowIndex);
-	    } else if (columnIndex == 3 && aValue instanceof Number) {
-	        p.setDiscount(((Number)aValue).doubleValue());
-	        fireTableRowsUpdated(rowIndex, rowIndex);
-	    }
+	    } 
+//	    else if (columnIndex == 2 && aValue instanceof Number) {
+//	        p.setPrice(((Number)aValue).doubleValue());
+//	        fireTableRowsUpdated(rowIndex, rowIndex);
+//	    } else if (columnIndex == 3 && aValue instanceof Number) {
+//	        p.setDiscount(((Number)aValue).doubleValue());
+//	        fireTableRowsUpdated(rowIndex, rowIndex);
+//	    }
 	}
 	
 	public void setRows(List<PassengerRow> list) {
