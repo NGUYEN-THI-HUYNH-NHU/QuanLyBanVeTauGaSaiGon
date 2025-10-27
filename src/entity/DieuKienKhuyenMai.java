@@ -30,8 +30,7 @@ public class DieuKienKhuyenMai {
 	private double minGiaTriDonHang;
 
 	public DieuKienKhuyenMai(String dieuKienID, KhuyenMai khuyenMai, Tuyen tuyen, LoaiTau loaiTau, HangToa hangToa,
-			LoaiDoiTuong loaiDoiTuong, int ngayTrongTuan, boolean ngayLe,
-			double minGiaTriDonHang) {
+			LoaiDoiTuong loaiDoiTuong, int ngayTrongTuan, boolean ngayLe, double minGiaTriDonHang) {
 		super();
 		this.dieuKienID = dieuKienID;
 		this.khuyenMai = khuyenMai;
@@ -42,6 +41,10 @@ public class DieuKienKhuyenMai {
 		this.ngayTrongTuan = ngayTrongTuan;
 		this.ngayLe = ngayLe;
 		this.minGiaTriDonHang = minGiaTriDonHang;
+	}
+
+	public DieuKienKhuyenMai() {
+
 	}
 
 	public String getDieuKienID() {

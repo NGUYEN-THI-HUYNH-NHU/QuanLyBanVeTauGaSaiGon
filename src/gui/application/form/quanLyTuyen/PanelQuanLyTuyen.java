@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class PanelQuanLyTuyen extends JPanel {
+public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;

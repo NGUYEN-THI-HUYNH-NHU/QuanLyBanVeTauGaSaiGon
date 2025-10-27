@@ -5,8 +5,6 @@ import entity.KhachHang;
 import entity.NhanVien;
 import entity.type.LoaiDoiTuong;
 import entity.type.LoaiKhachHang;
-import gui.application.form.banVe.PanelChieuLabel;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -229,7 +227,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                     kh.getEmail(),
                     kh.getSoGiayTo(),
                     kh.getDiaChi(),
-                    kh.getLoaiDoiTuong(),1
+                    kh.getLoaiDoiTuong(),
                     kh.getLoaiKhachHang()
             });
         }
@@ -241,21 +239,21 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         if (e.getSource() == table) {
             int row = table.getSelectedRow();
             if (row >= 0) {
-                String ten = tableModel.getValueAt(row, 1).toString();
-                String sdt = tableModel.getValueAt(row, 2).toString();
-                String email = tableModel.getValueAt(row, 3).toString();
-                String giayTo = tableModel.getValueAt(row, 4).toString();
-                String diaChi = tableModel.getValueAt(row, 5).toString();
-                String loaiDoiTuong = tableModel.getValueAt(row, 6).toString();
-                String loaiKhachHang = tableModel.getValueAt(row, 7).toString();
+                String ten = tableModel.getValueAt(row, 2).toString();
+                String sdt = tableModel.getValueAt(row, 3).toString();
+                String email = tableModel.getValueAt(row, 4).toString();
+                String giayTo = tableModel.getValueAt(row, 5).toString();
+                String diaChi = tableModel.getValueAt(row, 6).toString();
+                String loaiDoiTuong = tableModel.getValueAt(row, 7).toString();
+                String loaiKhachHang = tableModel.getValueAt(row, 8).toString();
 
                 lblChiTietTen.setText("Tên khách hàng: " + ten);
                 lblChiTietSDT.setText("Số điện thoại: " + sdt);
                 lblChiTietEmail.setText("Email: " + email);
                 lblChiTietDiaChi.setText("Địa chỉ: " + diaChi);
+                lblChiTietGiayTo.setText("Giấy tờ: " + giayTo);
                 lblChiTietLoaiDoiTuong.setText("Loại đối tượng: " + loaiDoiTuong);
                 lblChiTietLoaiKhachHang.setText("Loại khách hàng: " + loaiKhachHang);
-                lblChiTietGiayTo.setText("Giấy tờ: " + giayTo);
             }
         }
     }

@@ -86,7 +86,7 @@ public class ThanhPhanMenu extends JPanel {
 	private Icon getIcon(String role) {
 		Color lightColor = FlatUIUtils.getUIColor("Menu.icon.lightColor", Color.red);
 		Color darkColor = FlatUIUtils.getUIColor("Menu.icon.darkColor", Color.red);
-		FlatSVGIcon icon = new FlatSVGIcon("gui/menu/icon/" + menuIndex + ".svg");
+		FlatSVGIcon icon = new FlatSVGIcon("gui/application/menu/icon/" + menuIndex + ".svg");
 		FlatSVGIcon.ColorFilter f = new FlatSVGIcon.ColorFilter();
 		f.add(Color.decode("#000000"), lightColor, darkColor);
 		icon.setColorFilter(f);
