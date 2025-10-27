@@ -62,7 +62,6 @@ public class PanelBuoc1Controller {
 	private AutoCompleteField acGaDi;
 	private AutoCompleteField acGaDen;
 	// debounce millis
-//	private static final int DEBOUNCE_MS = 300;
 	private static final int DEBOUNCE_MS = 400;
 
 	// Interface để PanelBanVe1Controller (Mediator) lắng nghe
@@ -71,14 +70,14 @@ public class PanelBuoc1Controller {
 	    void onSearchFailure();
 	}
 
+	public void addSearchListener(SearchListener listener) {
+        this.searchListener = listener;
+    }
+	
 	public PanelBuoc1Controller(PanelBuoc1 panel) {
 		this.panel = panel;
 		init();
 	}
-
-	public void setSearchListener(SearchListener listener) {
-        this.searchListener = listener;
-    }
 	
 	private void init() {
 		// AutoComplete cho Ga đi: fetcher dùng chuyenBUS.goiYGaDi(prefix, limit)

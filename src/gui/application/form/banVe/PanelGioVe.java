@@ -16,7 +16,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.time.format.DateTimeFormatter;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -34,6 +34,7 @@ public class PanelGioVe extends JPanel {
 	private PanelBuoc2Controller controller;
 	private JLabel lblGioVe;
 	private JScrollPane scr;
+	private JButton btnMuaVe;
 
 	public PanelGioVe() {
 		setLayout(new BorderLayout());
@@ -57,10 +58,17 @@ public class PanelGioVe extends JPanel {
 
 		add(lblGioVe, BorderLayout.NORTH);
 		add(scr, BorderLayout.CENTER);
+		add(btnMuaVe = new JButton("Mua vé"), BorderLayout.SOUTH);
+
 	}
 
 	public void setController(PanelBuoc2Controller c) {
 		this.controller = c;
+	}
+	
+	public void addBuyButtonListener(ActionListener l) {
+	if (btnMuaVe != null && l != null)
+		btnMuaVe.addActionListener(l);
 	}
 
 	public void refresh(List<VeSession> dsVeSession) {
@@ -83,19 +91,17 @@ public class PanelGioVe extends JPanel {
 
 	private JPanel createVeRow(VeSession v) {
 		JPanel row = new JPanel(new BorderLayout());
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 85)); // Chiều cao cố định
-		row.setPreferredSize(new Dimension(240, 85));
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); // Chiều cao cố định
+		row.setPreferredSize(new Dimension(240, 80));
 		row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
 		row.setBackground(Color.WHITE);
 
-		JLabel info = new JLabel(String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>",
-				v.getTenTau(), v.getTenGaDi(), v.getTenGaDen(),
-				v.getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-				v.getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), v.getToaID(), v.getSoToa(), v.getSoGhe()));
+		JLabel info = new JLabel(v.prettyString());
 		info.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
 
 		JLabel lblTimer = new JLabel(formatRemaining(100));
 		lblTimer.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		lblTimer.setForeground(new Color(205, 0, 0));
 
 		JButton btnTrash = new JButton("");
 		btnTrash.setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.35f));

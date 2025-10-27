@@ -45,13 +45,13 @@ public class PanelChuyenTau extends JPanel {
 	private PanelBuoc2Controller controller;
 
 	private Color hoverBg = new Color(230, 240, 255, 120); // nhẹ, sẽ overlay trên ảnh (nếu muốn)
-	private Border normalBorder = new RoundedBorder(30, new Color(200, 200, 200), 2, true, new Color(230, 230, 230));
-	private Border selectedBorder = new RoundedBorder(20, new Color(30, 120, 220), 3, true, new Color(30, 150, 220));
+	private Border normalBorder = new RoundedBorder(20, new Color(200, 200, 200), 2, true, new Color(230, 230, 230));
+	private Border selectedBorder = new RoundedBorder(20, new Color(30, 120, 220), 2, true, new Color(30, 150, 220));
 
 	public PanelChuyenTau() {
 		setBorder(new TitledBorder("Chuyến tàu có sẵn"));
 		setLayout(new BorderLayout(8, 0));
-		setPreferredSize(new Dimension(10, 110));
+		setPreferredSize(new Dimension(10, 115));
 
 		flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 		scroll = new JScrollPane(flowPanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
@@ -146,7 +146,7 @@ public class PanelChuyenTau extends JPanel {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				if (p != selectedCard) {
-					p.setBackground(hoverBg);
+					p.setBorder(normalBorder);
 					p.setOpaque(false);
 				}
 			}

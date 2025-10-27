@@ -112,7 +112,7 @@ public class PanelSoDoCho extends JPanel {
 		lblToaInfo.setText(
 				"Toa số " + t.getSoToa() + ": " + (t.getHangToa() != null ? t.getHangToa().getDescription() : ""));
 
-//		showLoadingState();
+		showLoadingState();
 
 		// Run seat loading on background thread
 		if (panelBuoc2Controller != null) {
@@ -128,9 +128,9 @@ public class PanelSoDoCho extends JPanel {
 		pnlGridChoNgoi.repaint();
 	}
 
-//	public void showLoadingState() {
-//		showMessage("Đang tải ...");
-//	}
+	public void showLoadingState() {
+		showMessage("Đang tải ...");
+	}
 
 	// ==== Seat Rendering ====
 	public void renderSeats(List<Ghe> gheList) {

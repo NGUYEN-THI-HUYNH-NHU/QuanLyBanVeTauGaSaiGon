@@ -43,7 +43,7 @@ public class PanelBuoc2Controller {
 	private final PanelGioVe panelGioVe;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
-	private final VeSession_BUS veSessionBUS = VeSession_BUS.getInstance();
+//	private final VeSession_BUS veSessionBUS = VeSession_BUS.getInstance();
 
 	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
 	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
@@ -54,9 +54,11 @@ public class PanelBuoc2Controller {
 	private Chuyen selectedChuyen;
 	private int currentTripIndex = 0;
 	private Toa selectedToa;
+	private BanVe1Controller banVe1Controller;
 
 	public interface SeatSelectedListener {
 		void onSeatSelected(VeSession v);
+		void onMuaVeClicked();
 	}
 
 	public void addSeatSelectedListener(SeatSelectedListener listener) {
@@ -77,6 +79,14 @@ public class PanelBuoc2Controller {
 		panelDoanTau.setController(this);
 		panelSoDoCho.setController(this);
 		panelGioVe.setController(this);
+		
+		panelGioVe.addBuyButtonListener(e -> {
+            for (SeatSelectedListener listener : seatSelectedListeners) {
+                try {
+                	listener.onMuaVeClicked(); 
+                } catch (Throwable ignore) {}
+            }
+        });
 	}
 
 	public void setBookingSession(BookingSession s) {
@@ -99,7 +109,8 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 	}
 
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
@@ -122,7 +133,8 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 	}
 
 	public void onChuyenSelected(Chuyen c) {
@@ -282,49 +294,6 @@ public class PanelBuoc2Controller {
 		});
 	}
 
-//	// user clicked a seat button
-//	public void onSeatClicked(Toa toa, Ghe ghe) {
-//		if (ghe == null || toa == null) {
-//			return;
-//		}
-//		
-//		new SwingWorker<VeSession, Void>() {
-//			@Override
-//			protected VeSession doInBackground() throws Exception {
-//				VeSession v = new VeSession("SGO-BHO-15012025", "SE8", "Sài Gòn", "Biên Hòa", LocalDate.of(2025, 1, 15),
-//						LocalTime.of(6, 0), "ToaID", "SoToa", "SoGhe", Instant.now());
-//				veSessionBUS.getAllVeSessions();
-//				return v;
-//			}
-//
-//			@Override
-//			protected void done() {
-//				try {
-//					VeSession v = get();
-//					if (v != null) {
-//						// add to veSessionBUS
-//						veSessionBUS.addVeSession(v);
-//						// update UI: refresh right panel
-//						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-//
-//						for (SeatSelectedListener listener : seatSelectedListeners) {
-//							listener.onSeatSelected(v);
-//						}
-//
-//						// start countdown for this ticket
-//						startCountdownForVe(v);
-//						// refresh seat grid to mark as selected
-//						panelSoDoCho.setCurrentToa(toa);
-//					} else {
-//						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
-//						panelSoDoCho.setCurrentToa(toa);
-//					}
-//				} catch (Exception ex) {
-//					ex.printStackTrace();
-//				}
-//			}
-//		}.execute();
-//	}
 	// user clicked a seat button
 	public void onSeatClicked(Toa toa, Ghe ghe) {
 	    if (ghe == null || toa == null) return;
@@ -355,9 +324,10 @@ public class PanelBuoc2Controller {
 					VeSession v = get();
 					if (v != null) {
 						// add to veSessionBUS
-						veSessionBUS.addVeSession(v);
+//						veSessionBUS.addVeSession(v);
 						// update UI: refresh right panel
-						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+						panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
@@ -390,34 +360,34 @@ public class PanelBuoc2Controller {
 	}
 
 	private void startCountdownForVe(VeSession v) {
-		String id = v.toString();
-		// cancel existing timer
-		Timer old = countdownTimers.remove(id);
-		if (old != null) {
-			old.stop();
-		}
+	    String id = v.toString();
+	    Timer old = countdownTimers.remove(id);
+	    if (old != null) {
+	    	old.stop();
+	    }
 
-		long secondsLeft = 100;
-		JLabel lbl = countdownLabels.get(id);
+	    // Lấy thời điểm hết hạn thực tế từ vé
+	    final Instant thoiDiemHetHan = v.getThoiDiemHetHan();
 
-		Timer timer = new Timer(1000, e -> {
-			long s = 100;
-			// update label
-			JLabel label = countdownLabels.get(id);
-			if (label != null) {
-				label.setText(formatSeconds(s));
-			}
-			if (s <= 0) {
-				((Timer) e.getSource()).stop();
-				countdownTimers.remove(id);
-				countdownLabels.remove(id);
-				// auto-release hold
-				releaseHoldAndRemoveVe(v);
-			}
-		});
-		timer.setInitialDelay(0);
-		timer.start();
-		countdownTimers.put(id, timer);
+	    Timer timer = new Timer(1000, e -> {
+	        // Tính số giây còn lại bằng cách so sánh giờ hiện tại với giờ hết hạn
+	        long s = ChronoUnit.SECONDS.between(Instant.now(), thoiDiemHetHan);
+
+	        JLabel label = countdownLabels.get(id);
+	        if (label != null) {
+	            label.setText(formatSeconds(s));
+	        }
+
+	        if (s <= 0) {
+	            ((Timer) e.getSource()).stop();
+	            countdownTimers.remove(id);
+	            countdownLabels.remove(id);
+	            releaseHoldAndRemoveVe(v); // Tự động xóa vé
+	        }
+	    });
+	    timer.setInitialDelay(0);
+	    timer.start();
+	    countdownTimers.put(id, timer);
 	}
 
 	private String formatSeconds(long s) {
@@ -431,13 +401,16 @@ public class PanelBuoc2Controller {
 
 	// user clicked trash icon or timer expired -> remove ticket
 	public void onRemoveVe(VeSession v) {
-		veSessionBUS.removeVeSession(v);
+//		veSessionBUS.removeVeSession(v);
+		bookingSession.removeOutboundTicket(v);
+
 		Timer t = countdownTimers.remove(v.toString());
 		if (t != null) {
 			t.stop();
 		}
 		countdownLabels.remove(v.toString());
-		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 
 		if (selectedToa != null) {
 			panelSoDoCho.setCurrentToa(selectedToa);
@@ -445,46 +418,11 @@ public class PanelBuoc2Controller {
 	}
 
 	private void releaseHoldAndRemoveVe(VeSession v) {
-		// similar to onRemoveTicket but invoked automatically
-//		try {
-//			donDatChoBUS.releaseHold(v);
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		}
-		veSessionBUS.removeVeSession(v);
+		bookingSession.removeOutboundTicket(v);
 		countdownLabels.remove(v.toString());
-		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
+		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 		SwingUtilities.invokeLater(
 				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.toString() + " đã hết hạn."));
 	}
-
-//    private Ve findTicketForSeat(Toa toa, Ghe ghe) {
-//        if (toa == null || ghe == null) return null;
-//        List<Ve> tickets = veSessionBUS.getAllTickets();
-//        if (tickets == null) return null;
-//        for (Ve v : tickets) {
-//            try {
-//                if (v.getChuyen() != null && selectedChuyen != null
-//                        && v.getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())
-//                    && v.getChuyen(). != null && v.getToaID().equals(toa.getToaID())
-//                    && v.getGheID() != null && v.getGheID().equals(ghe.getGheID())) {
-//                    return v;
-//                }
-//            } catch (Throwable ignored) {}
-//        }
-//        return null;
-//    }
-//
-//    public void toggleSeatSelection(Toa toa, Ghe ghe) {
-//        if (toa == null || ghe == null)
-//        	return;
-//
-//        Ve existing = findTicketForSeat(toa, ghe);
-//        if (existing != null) {
-//        	onRemoveTicket(existing);
-//            return;
-//        } else {
-//            onSeatClicked(toa, ghe);
-//        }
-//    }
 }

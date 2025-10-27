@@ -51,6 +51,7 @@ public class FormDangNhap extends JPanel {
 	private JLabel lblTenDangNhap;
 	private JLabel lblMatKhau;
 	private Image backgroundImage;
+	private JLabel lblQuenMK;
 
 	public FormDangNhap() {
 		backgroundImage = new ImageIcon(getClass().getResource("/gui/icon/png/dang-nhap.png")).getImage();
@@ -58,25 +59,27 @@ public class FormDangNhap extends JPanel {
 		setLayout(new GridBagLayout());
 		setOpaque(false);
 
-		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]5[]10[]5[]40[]"));
-		pnlLogin.setBorder(new RoundedBorder(20, new Color(225, 225, 225, 25), 1, true, new Color(220, 220, 220)));
+		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]20[]"));
+		pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(230, 230, 230)));
 		pnlLogin.setOpaque(false);
-		pnlLogin.setPreferredSize(new Dimension(360, 300));
+		pnlLogin.setPreferredSize(new Dimension(360, 340));
 
-		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER), "align center");
+		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER));
 		lblTitle.setFont(new Font("", Font.BOLD, 24));
 		pnlLogin.add(lblTenDangNhap = new JLabel("Tên đăng nhập"));
 		pnlLogin.add(txtTenDangNhap = new JTextField());
 		txtTenDangNhap.requestFocusInWindow();
 		pnlLogin.add(lblMatKhau = new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
-		pnlLogin.add(btnLogin = new JButton("Đăng nhập"), "align center");
+		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu", JLabel.RIGHT));
+		lblQuenMK.setForeground(new Color(7, 43, 143));
+		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.insets = new Insets(0, 700, 0, 0);
+		gbc.insets = new Insets(0, 720, 0, 0);
 		add(pnlLogin, gbc);
 
 		addEvents();
