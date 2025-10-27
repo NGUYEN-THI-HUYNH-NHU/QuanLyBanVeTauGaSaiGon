@@ -17,6 +17,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import javax.swing.JLabel;
+
 /**
  * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán).
  * Lưu đủ thông tin để hiển thị và để backend gọi hold/confirm sau này.
@@ -115,4 +117,11 @@ public class VeSession {
         if (thoiDiemHetHan == null) return false;
         return Instant.now().isAfter(thoiDiemHetHan);
     }
+    
+	public String prettyString() {
+		return String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>",
+				getTenTau(), getTenGaDi(), getTenGaDen(),
+				getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getToaID(), getSoToa(), getSoGhe());
+	}
 }

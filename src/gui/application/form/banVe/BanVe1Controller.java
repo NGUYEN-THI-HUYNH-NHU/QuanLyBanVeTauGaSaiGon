@@ -13,35 +13,38 @@ package gui.application.form.banVe;
  */
 import java.util.List;
 
-import bus.VeSession_BUS;
+import javax.swing.JOptionPane;
+
 import entity.Chuyen;
-import entity.Ve;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
-public class PanelBanVe1Controller {
+public class BanVe1Controller {
     
-    private final PanelBanVe1 p1;
+    private final PanelBanVe1 view;
+	private PanelBuoc2 p2;
+	private PanelBuoc3 p3;
+
     private final BookingSession bookingSession;
     // Các sub-controller
     private final PanelBuoc1Controller buoc1Controller;
     private final PanelBuoc2Controller buoc2Controller;
+//    private final PanelBuoc3Controller buoc3Controller;
     // private final PanelBuoc3Controller buoc3Controller; // Sẽ thêm sau
     private Runnable onPanel1CompleteListener;
-	private PanelBuoc2 p2;
     
     public void addPanel1CompleteListener(Runnable listener) {
         this.onPanel1CompleteListener = listener;
     }
 
-    public PanelBanVe1Controller(PanelBanVe1 p1, BookingSession session) {
-        this.p1 = p1;
+    public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
+        this.view = view;
         this.bookingSession = session;
 
-        this.buoc1Controller = new PanelBuoc1Controller(p1.getPanelBuoc1());
+        this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
         
         // PanelBuoc2Controller cần 5 panel con [cite: 68]
-        p2 = p1.getPanelBuoc2();
+        this.p2 = view.getPanelBuoc2();
         this.buoc2Controller = new PanelBuoc2Controller(
             p2.getPanelChieuLabel(), 
             p2.getPanelChuyenTau(), 
@@ -54,6 +57,8 @@ public class PanelBanVe1Controller {
         this.buoc2Controller.setBookingSession(this.bookingSession);
         // this.buoc3Controller.setBookingSession(this.bookingSession);
 
+        this.p3 = view.getPanelBuoc3();
+        
         // 3. Kết nối logic (Mediator Pattern)
         initMediatorLogic();
     }
@@ -61,7 +66,7 @@ public class PanelBanVe1Controller {
     private void initMediatorLogic() {
         
         // Lắng nghe sự kiện từ Buoc1
-        this.buoc1Controller.setSearchListener(new SearchListener() {
+        this.buoc1Controller.addSearchListener(new SearchListener() {
             @Override
             public void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria) {
                 // 1. Cập nhật BookingSession (việc mà Buoc1 đã làm )
@@ -69,9 +74,9 @@ public class PanelBanVe1Controller {
                 bookingSession.setOutboundResults(results);
 
                 // 2. Kích hoạt Panel Buoc2
-                p1.setBuoc2Enabled(true);
+                view.setBuoc2Enabled(true);
                 // 3. Vô hiệu hóa Buoc3 (phòng trường hợp tìm lại)
-                p1.setBuoc3Enabled(false);
+                view.setBuoc3Enabled(false);
                 // 4. "Đẩy" dữ liệu vào Buoc2 để hiển thị
                 buoc2Controller.displayChuyenList(criteria, results, 0); // 0 = chiều đi
             }
@@ -81,8 +86,8 @@ public class PanelBanVe1Controller {
                 // 1. Cập nhật BookingSession
                 bookingSession.setOutboundResults(null);                
                 // 2. Vô hiệu hóa Buoc2 và Buoc3
-                p1.setBuoc2Enabled(false);
-                p1.setBuoc3Enabled(false);
+                view.setBuoc2Enabled(false);
+                view.setBuoc3Enabled(false);
             }
         });
 
@@ -94,22 +99,44 @@ public class PanelBanVe1Controller {
                 // bookingSession.addTicketForTrip(0, convertedTicket); 
                 
                 // Kích hoạt Buoc3
-                p1.setBuoc3Enabled(true);
-                
-                // (Tạm thời) Khi chọn ghế xong thì coi như xong
-                // Lý tưởng nhất: Bạn nên lắng nghe 1 sự kiện
-                // "onInfoComplete" từ PanelBuoc3Controller
-                if (onPanel1CompleteListener != null) {
-                    // onPanel1CompleteListener.run(); // Bỏ comment dòng này để test
-                }
+                view.setBuoc3Enabled(true);
             }
+
+			@Override
+			public void onMuaVeClicked() {
+				view.setBuoc2Enabled(false);
+		        // hiển thị bước 3
+		        view.setBuoc3Enabled(true);        // make step 3 visible in UI
+		        p3.initFromBookingSession(bookingSession, buoc2Controller.getCurrentTripIndex());
+		        // attach confirm handler once or each time
+		        p3.getConfirmButton().addActionListener(ev -> {
+		            if (!p3.validateRows()) {
+		                JOptionPane.showMessageDialog(null, "Vui lòng nhập tên đầy đủ cho từng hành khách.");
+		                return;
+		            }
+		            List<PassengerRow> rows = p3.getPassengerRows();
+		            // add VeSession to bookingSession and/or attach passenger info
+		            for (PassengerRow r : rows) {
+		                VeSession v = r.getVeSession();
+		                // optionally attach passenger info to v if model supports
+		                bookingSession.addTicketForTrip(buoc2Controller.getCurrentTripIndex(), v);
+		            }
+		            // move wizard / continue flow
+		            if (onPanel1CompleteListener != null) onPanel1CompleteListener.run();
+		        });
+
+		        p3.getCancelButton().addActionListener(ev -> {
+		            // if cancel -> hide buoc3 or clear selection
+		            view.setBuoc3Enabled(false);
+		        });
+		    }
         });
         
-        // (Sau này) Bạn sẽ lắng nghe Buoc3
-        // this.buoc3Controller.addInfoCompleteListener(() -> {
-        //     if (onPanel1CompleteListener != null) {
-        //         onPanel1CompleteListener.run(); // Gọi ở đây là đúng nhất
-        //     }
-        // });
+//        // Lắng nghe sự kiện chọn ghế từ Buoc3
+//         this.buoc3Controller.addInfoCompleteListener(() -> {
+//             if (onPanel1CompleteListener != null) {
+//                 onPanel1CompleteListener.run(); // Gọi ở đây là đúng nhất
+//             }
+//         });
     }
 }

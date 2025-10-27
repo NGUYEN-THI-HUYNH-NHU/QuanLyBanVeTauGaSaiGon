@@ -32,7 +32,7 @@ public class PanelBanVe extends JPanel {
     private PanelBuoc6 panelBuoc6; // Giữ lại panel "Hoàn tất"
 
     // Các controller "Mediator" cho từng bước
-    private PanelBanVe1Controller panelBanVe1Controller;
+    private BanVe1Controller panelBanVe1Controller;
     private PanelBanVe2Controller panelBanVe2Controller;
 
     public PanelBanVe(NhanVien nhanVien) {
@@ -61,7 +61,7 @@ public class PanelBanVe extends JPanel {
 
         // 5. Khởi tạo các Controller (Mediator) cho từng bước
         // Tiêm (inject) View và Session vào
-        panelBanVe1Controller = new PanelBanVe1Controller(panelBanVe1, bookingSession);
+        panelBanVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
 //        panelBanVe2Controller = new PanelBanVe2Controller(panelBanVe2, bookingSession);
 
         // 6. Khởi tạo Navigation (Next/Back)
@@ -95,7 +95,7 @@ public class PanelBanVe extends JPanel {
             // Khi bước 1 (gộp) xong:
             
             // 1. Yêu cầu PanelBanVe2Controller tải dữ liệu từ session
-            panelBanVe2Controller.loadDataForConfirmation(); // (Cần viết hàm này trong PanelBanVe2Controller)
+//            panelBanVe2Controller.loadDataForConfirmation(); // (Cần viết hàm này trong PanelBanVe2Controller)
             
             // 2. Chuyển sang thẻ "step2"
             wizardController.goToStep(2);

@@ -51,6 +51,14 @@ public class KhachHang {
 		this.diaChi = diaChi;
 	}
 	
+	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
+		super();
+		this.khachHangID = khachHangID;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.hoTen = hoTen;
+		this.soGiayTo = soGiayTo;
+	}
+	
 	public KhachHang(String khachHangID) {
 		super();
 		this.khachHangID = khachHangID;
