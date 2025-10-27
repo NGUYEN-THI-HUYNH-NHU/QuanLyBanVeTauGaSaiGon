@@ -1,14 +1,14 @@
 package gui.application.form;
-
 /*
  * @ (#) GiaoDienChinh.java   1.0     25/09/2025
- */
+package gui.application.form;
+
 
 /**
- * @description : Giao diện chính của ứng dụng Quản lý bán vé tàu Ga Sài Gòn
+ * @description :
  * @author : Vy, Pham Kha Vy
- * @version 1.1
- * @updated : 16/10/2025
+ * @version 1.0
+ * @created : 25/09/2025
  */
 
 import java.awt.BorderLayout;
@@ -33,177 +33,183 @@ import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.khachHang.FormCustomerManagement;
+import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
+import gui.application.form.thongKe.PanelThongKeKhachHang;
+import gui.application.form.thongKe.PanelThongKeVe;
+import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
 
 public class GiaoDienChinh extends JLayeredPane {
-    private static final long serialVersionUID = 1L;
-    private Menu menu;
-    private JPanel panelBody;
-    private JButton menuButton;
+	private static final long serialVersionUID = 1L;
+	private Menu menu;
+	private JPanel panelBody;
+	private JButton menuButton;
 
-    public GiaoDienChinh(NhanVien nhanVien) {
-        init(nhanVien);
-    }
+	public GiaoDienChinh(NhanVien nhanVien) {
+		init(nhanVien);
+	}
 
-    private void init(NhanVien nhanVien) {
-        setBorder(new EmptyBorder(5, 5, 5, 5));
-        setLayout(new GiaoDienChinhLayout());
-        menu = new Menu(nhanVien.getVaiTroNhanVien().toString());
-        panelBody = new JPanel(new BorderLayout());
-        initMenuArrowIcon();
+	private void init(NhanVien nhanVien) {
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(new GiaoDienChinhLayout());
+		menu = new Menu(nhanVien.getVaiTroNhanVien().toString());
+		panelBody = new JPanel(new BorderLayout());
+		initMenuArrowIcon();
+		menuButton.putClientProperty(FlatClientProperties.STYLE,
+				"" + "background:$Menu.button.background;" + "arc:999;" + "focusWidth:0;" + "borderWidth:0");
+		menuButton.addActionListener((ActionEvent e) -> {
+			setMenuFull(!menu.isMenuFull());
+		});
+		initMenuEvent(nhanVien);
+		setLayer(menuButton, JLayeredPane.POPUP_LAYER);
+		add(menuButton);
+		add(menu);
+		add(panelBody);
+	}
 
-        menuButton.putClientProperty(FlatClientProperties.STYLE,
-                "background:$Menu.button.background;arc:999;focusWidth:0;borderWidth:0");
+	@Override
+	public void applyComponentOrientation(ComponentOrientation o) {
+		super.applyComponentOrientation(o);
+		initMenuArrowIcon();
+	}
 
-        menuButton.addActionListener((ActionEvent e) -> setMenuFull(!menu.isMenuFull()));
+	private void initMenuArrowIcon() {
+		if (menuButton == null) {
+			menuButton = new JButton();
+		}
+		String icon = (getComponentOrientation().isLeftToRight()) ? "menu_left.svg" : "menu_right.svg";
+		menuButton.setIcon(new FlatSVGIcon("gui/icon/svg/" + icon, 0.8f));
+	}
 
-        initMenuEvent(nhanVien);
+	private void initMenuEvent(NhanVien nhanVien) {
+		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
+			
+			switch (index) {
+			// UC cua NHAN_VIEN
+			case 1 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+//			case 2 -> {
+//				switch (subIndex) {
+//					case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe(nhanVien));
+//					case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe(nhanVien));
+//					default -> action.cancel();
+//				}
+//			}
+//			case 3 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
+			
+			// UC cua QUAN_LY
+			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+//			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
+//			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+//			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
+			case 8 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
+//			case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
+//			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
+			
+			// UC dung chung
+			case 12 -> {
+				switch (subIndex) {
+					case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
+					case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
+					case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
+					default -> action.cancel();
+				}
+			}
+			case 13 -> {
+				switch (subIndex) {
+					case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+					case 2 -> UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
+					default -> action.cancel();
+				}
+			}
+			case 14 -> UngDung.dangXuat();
+			default -> action.cancel();
+			}
+		});
+	}
 
-        setLayer(menuButton, JLayeredPane.POPUP_LAYER);
-        add(menuButton);
-        add(menu);
-        add(panelBody);
-    }
+	private void setMenuFull(boolean full) {
+		String icon;
+		if (getComponentOrientation().isLeftToRight()) {
+			icon = (full) ? "menu_left.svg" : "menu_right.svg";
+		} else {
+			icon = (full) ? "menu_right.svg" : "menu_left.svg";
+		}
+		menuButton.setIcon(new FlatSVGIcon("gui/icon/svg/" + icon, 0.8f));
+		menu.setMenuFull(full);
+		revalidate();
+	}
 
-    @Override
-    public void applyComponentOrientation(ComponentOrientation o) {
-        super.applyComponentOrientation(o);
-        initMenuArrowIcon();
-    }
+	public void hideMenu() {
+		menu.hideThanhPhanMenu();
+		;
+	}
 
-    private void initMenuArrowIcon() {
-        if (menuButton == null) {
-            menuButton = new JButton();
-        }
-        String icon = (getComponentOrientation().isLeftToRight()) ? "menu_left.svg" : "menu_right.svg";
-        menuButton.setIcon(new FlatSVGIcon("gui/icon/svg/" + icon, 0.8f));
-    }
+	public void showForm(Component component) {
+		panelBody.removeAll();
+		panelBody.add(component);
+		panelBody.repaint();
+		panelBody.revalidate();
+	}
 
-    private void initMenuEvent(NhanVien nhanVien) {
-        menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
-            boolean isManager = nhanVien.getVaiTroNhanVien().toString().equalsIgnoreCase("QUAN_LY");
+	public void setSelectedMenu(int index, int subIndex) {
+		menu.setSelectedMenu(index, subIndex);
+	}
 
-            switch (index) {
+	private class GiaoDienChinhLayout implements LayoutManager {
 
-                // =============================
-                // 🟢 MENU QUẢN LÝ CHÍNH
-                // =============================
-                case 0 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien)); // Bán vé
-               // case 1 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien)); // Quản lý tuyến
-                case 4 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien)); // Quản lý khách hàng
+		@Override
+		public void addLayoutComponent(String name, Component comp) {
+		}
 
-                // =============================
-                // 🟦 MENU "THỐNG KÊ"
-                // =============================
-                case 5-> { // menu Thống kê
-                    switch (subIndex) {
-                        case 1 ->
-                            UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu()); // Thống kê doanh thu
+		@Override
+		public void removeLayoutComponent(Component comp) {
+		}
 
-                        case  2-> {
-                            // ⚙️ TODO: Sau này bạn tạo PanelThongKeVe
-                            JPanel placeholder = new JPanel();
-                            placeholder.add(new javax.swing.JLabel("📊 Thống kê vé (đang phát triển)"));
-                            UngDung.showGiaoDienChinh(placeholder);
-                        }
-                        case 3 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien)); // 📈 Thống kê khách hàng (tái sử dụng giao diện bạn đã có)
-                        default -> action.cancel();
-                    }
-                }
+		@Override
+		public Dimension preferredLayoutSize(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				return new Dimension(5, 5);
+			}
+		}
 
-                // =============================
-                // 🔴 ĐĂNG XUẤT
-                // =============================
-                // case 8 -> UngDung.dangXuat();
+		@Override
+		public Dimension minimumLayoutSize(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				return new Dimension(0, 0);
+			}
+		}
 
-                default -> action.cancel();
-            }
-        });
-    }
-
-    private void setMenuFull(boolean full) {
-        String icon;
-        if (getComponentOrientation().isLeftToRight()) {
-            icon = (full) ? "menu_left.svg" : "menu_right.svg";
-        } else {
-            icon = (full) ? "menu_right.svg" : "menu_left.svg";
-        }
-        menuButton.setIcon(new FlatSVGIcon("gui/icon/svg/" + icon, 0.8f));
-        menu.setMenuFull(full);
-        revalidate();
-    }
-
-    public void hideMenu() {
-        menu.hideThanhPhanMenu();
-    }
-
-    public void showForm(Component component) {
-        panelBody.removeAll();
-        panelBody.add(component);
-        panelBody.repaint();
-        panelBody.revalidate();
-    }
-
-    public void setSelectedMenu(int index, int subIndex) {
-        menu.setSelectedMenu(index, subIndex);
-    }
-
-    // =============================
-    // 🧩 LAYOUT TÙY CHỈNH
-    // =============================
-    private class GiaoDienChinhLayout implements LayoutManager {
-        @Override
-        public void addLayoutComponent(String name, Component comp) {
-        }
-
-        @Override
-        public void removeLayoutComponent(Component comp) {
-        }
-
-        @Override
-        public Dimension preferredLayoutSize(Container parent) {
-            synchronized (parent.getTreeLock()) {
-                return new Dimension(5, 5);
-            }
-        }
-
-        @Override
-        public Dimension minimumLayoutSize(Container parent) {
-            synchronized (parent.getTreeLock()) {
-                return new Dimension(0, 0);
-            }
-        }
-
-        @Override
-        public void layoutContainer(Container parent) {
-            synchronized (parent.getTreeLock()) {
-                boolean ltr = parent.getComponentOrientation().isLeftToRight();
-                Insets insets = UIScale.scale(parent.getInsets());
-                int x = insets.left;
-                int y = insets.top;
-                int width = parent.getWidth() - (insets.left + insets.right);
-                int height = parent.getHeight() - (insets.top + insets.bottom);
-                int menuWidth = UIScale.scale(menu.isMenuFull() ? menu.getMenuMaxWidth() : menu.getMenuMinWidth());
-                int menuX = ltr ? x : x + width - menuWidth;
-                menu.setBounds(menuX, y, menuWidth, height);
-                int menuButtonWidth = menuButton.getPreferredSize().width;
-                int menuButtonHeight = menuButton.getPreferredSize().height;
-                int menubX;
-                if (ltr) {
-                    menubX = (int) (x + menuWidth - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.3f)));
-                } else {
-                    menubX = (int) (menuX - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.7f)));
-                }
-                menuButton.setBounds(menubX, UIScale.scale(30), menuButtonWidth, menuButtonHeight);
-                int gap = UIScale.scale(5);
-                int bodyWidth = width - menuWidth - gap;
-                int bodyHeight = height;
-                int bodyx = ltr ? (x + menuWidth + gap) : x;
-                int bodyy = y;
-                panelBody.setBounds(bodyx, bodyy, bodyWidth, bodyHeight);
-            }
-        }
-    }
+		@Override
+		public void layoutContainer(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				boolean ltr = parent.getComponentOrientation().isLeftToRight();
+				Insets insets = UIScale.scale(parent.getInsets());
+				int x = insets.left;
+				int y = insets.top;
+				int width = parent.getWidth() - (insets.left + insets.right);
+				int height = parent.getHeight() - (insets.top + insets.bottom);
+				int menuWidth = UIScale.scale(menu.isMenuFull() ? menu.getMenuMaxWidth() : menu.getMenuMinWidth());
+				int menuX = ltr ? x : x + width - menuWidth;
+				menu.setBounds(menuX, y, menuWidth, height);
+				int menuButtonWidth = menuButton.getPreferredSize().width;
+				int menuButtonHeight = menuButton.getPreferredSize().height;
+				int menubX;
+				if (ltr) {
+					menubX = (int) (x + menuWidth - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.3f)));
+				} else {
+					menubX = (int) (menuX - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.7f)));
+				}
+				menuButton.setBounds(menubX, UIScale.scale(30), menuButtonWidth, menuButtonHeight);
+				int gap = UIScale.scale(5);
+				int bodyWidth = width - menuWidth - gap;
+				int bodyHeight = height;
+				int bodyx = ltr ? (x + menuWidth + gap) : x;
+				int bodyy = y;
+				panelBody.setBounds(bodyx, bodyy, bodyWidth, bodyHeight);
+			}
+		}
+	}
 }
