@@ -54,28 +54,31 @@ public class PanelBuoc1Controller {
 
 	private final PanelBuoc1 panel;
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
-	private WizardController wizardController;
-
+	private SearchListener searchListener;
 	// trạng thái được giữ ở controller (id đã chọn)
 	private String selectedGaDi = null;
 	private String selectedGaDen = null;
-
 	// Autocomplete instances
 	private AutoCompleteField acGaDi;
 	private AutoCompleteField acGaDen;
-
 	// debounce millis
-	private static final int DEBOUNCE_MS = 300;
+	private static final int DEBOUNCE_MS = 400;
 
+	// Interface để PanelBanVe1Controller (Mediator) lắng nghe
+	public interface SearchListener {
+	    void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
+	    void onSearchFailure();
+	}
+
+	public void addSearchListener(SearchListener listener) {
+        this.searchListener = listener;
+    }
+	
 	public PanelBuoc1Controller(PanelBuoc1 panel) {
 		this.panel = panel;
 		init();
 	}
-
-	public void setWizardController(WizardController wizardController) {
-		this.wizardController = wizardController;
-	}
-
+	
 	private void init() {
 		// AutoComplete cho Ga đi: fetcher dùng chuyenBUS.goiYGaDi(prefix, limit)
 		acGaDi = new AutoCompleteField(panel.getTxtGaDi(), (prefix, limit) -> {
@@ -185,31 +188,25 @@ public class PanelBuoc1Controller {
 								"Không tìm thấy chuyến phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
 						return;
 					}
+					
+					if (searchListener == null) {
+                        System.err.println("PanelBuoc1Controller: searchListener chưa được set!");
+                        return;
+                    }
 
-					if (wizardController == null) {
-						System.err.println(
-								"PanelBuoc1Controller.performSearch: wizard is null. Hãy setWizardController(...) từ nơi tạo UI.");
-						SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-								"Tìm được " + results.size() + " chuyến (wizard chưa được kết nối).", "Kết quả",
-								JOptionPane.INFORMATION_MESSAGE));
-						return;
-					}
-
-					BookingSession session = wizardController.getBookingSession();
 					SearchCriteria resolvedCriteria = new SearchCriteria.Builder().gaDiId(selectedGaDi)
 							.tenGaDi(panel.getGaDi()).gaDenId(selectedGaDen).tenGaDen(panel.getGaDen())
 							.ngayDi(panel.getNgayDi()).ngayVe(panel.getNgayVe()).khuHoi(panel.isKhuHoi()).build();
-
-					session.setOutboundCriteria(resolvedCriteria);
-					session.setOutboundResults(results);
-
-					wizardController.goToStep(2, 0);
-
+					
+					searchListener.onSearchSuccess(results, resolvedCriteria);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					panel.getBtnTimKiem().setEnabled(true);
 					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
 							"Lỗi khi tìm chuyến: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
+					if (searchListener != null) {
+                        searchListener.onSearchFailure();
+                    }
 				}
 			}
 		}.execute();
@@ -500,7 +497,7 @@ public class PanelBuoc1Controller {
 
 			popup = new JPopupMenu();
 			popup.setBackground(Color.WHITE);
-			int desiredWidth = Math.max(field.getWidth(), 260);
+			int desiredWidth = Math.max(field.getWidth(), 120);
 			int estRowHeight = 20 + vPadding * 2;
 			int desiredHeight = Math.min(8, listModel.getSize()) * estRowHeight;
 			popup.setPopupSize(new Dimension(desiredWidth, Math.min(desiredHeight, 300)));

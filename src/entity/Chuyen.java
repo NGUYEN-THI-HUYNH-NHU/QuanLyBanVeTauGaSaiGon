@@ -60,6 +60,10 @@ public class Chuyen {
 		this.gioDi = gioDi;
 	}
 
+	public Chuyen(String chuyenID) {
+		this.chuyenID = chuyenID;
+	}
+
 	public String getChuyenID() {
 		return chuyenID;
 	}
@@ -173,10 +177,12 @@ public class Chuyen {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		Chuyen chuyen = (Chuyen) o;
 		return Objects.equals(chuyenID, chuyen.chuyenID);
 	}

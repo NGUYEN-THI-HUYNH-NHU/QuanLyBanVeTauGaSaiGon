@@ -19,9 +19,18 @@ import javax.swing.JPanel;
  */
 
 public class PanelBuoc5 extends JPanel {
+	private JButton btnThanhToan;
     public PanelBuoc5() {
         setLayout(new FlowLayout());
         add(new JLabel("Bước 5: Thanh toán"));
-        add(new JButton("Thanh toán"));
+        add(btnThanhToan = new JButton("Thanh toán"));
     }
+    
+    public JButton getBtnThanhToan() {
+    	return btnThanhToan;
+    }
+    
+    public void setComponentsEnabled(boolean enabled) {
+	    super.setEnabled(enabled);
+	}
 }

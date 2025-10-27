@@ -24,242 +24,107 @@ public class Tuyen_DAO {
     }
 
     public List<Tuyen> getAllTuyen() {
-        Map<String, Tuyen> tuyenMap = new LinkedHashMap<>();
-
-        String sql = "SELECT t.tuyenID, t.moTa, " +
-                " tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
-                " ga.tenGa " +
-                "FROM Tuyen t " +
-                "JOIN TuyenChiTiet tct ON t.tuyenID = tct.tuyenID " +
-                "JOIN Ga ga ON tct.gaID = ga.gaID " +
-                "ORDER BY t.tuyenID, tct.thuTu";
+        List<Tuyen> danhSachTuyen = new ArrayList<>();
+        String sql = "SELECT tuyenID, moTa FROM Tuyen";
 
         try (Connection con = connectDB.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+            PreparedStatement pstm = con.prepareStatement(sql);
+             ResultSet rs = pstm.executeQuery()) {
 
-            while (rs.next()) {
+            while(rs.next()){
                 String tuyenID = rs.getString("tuyenID");
-
-                // Nếu tuyến chưa có trong map thì tạo mới
-                Tuyen tuyen = tuyenMap.get(tuyenID);
-                if (tuyen == null) {
-                    tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
-                    tuyen.setDanhSachTuyenChiTiet(new ArrayList<>());
-                    tuyenMap.put(tuyenID, tuyen);
-                }
-
-                // Tạo ga
-                Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-
-                // Tạo chi tiết tuyến
-                TuyenChiTiet tuyenChiTiet = new TuyenChiTiet(
-                        tuyen,
-                        ga,
-                        rs.getInt("thuTu"),
-                        rs.getInt("khoangCachTuGaXuatPhatKm")
-                );
-
-                // Thêm vào danh sách chi tiết của tuyến
-                tuyen.getDanhSachTuyenChiTiet().add(tuyenChiTiet);
+                Tuyen tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
+                danhSachTuyen.add(tuyen);
             }
-        } catch (SQLException e) {
+        }catch (SQLException e){
             e.printStackTrace();
         }
-
-        return new ArrayList<>(tuyenMap.values());
+        return danhSachTuyen;
     }
 
 
     public List<Tuyen> getTuyenByID(String tuyenIDTim) {
-        Map<String, Tuyen> tuyenMap = new LinkedHashMap<>();
+        List<Tuyen> danhSachTuyen = new ArrayList<>();
+        String sql = "SELECT * FROM Tuyen WHERE LOWER(tuyenID) LIKE ?";
 
-        String sql = "SELECT t.tuyenID, t.moTa, " +
-                " tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
-                " ga.tenGa " +
-                "FROM Tuyen t " +
-                "JOIN TuyenChiTiet tct ON t.tuyenID = tct.tuyenID " +
-                "JOIN Ga ga ON tct.gaID = ga.gaID " +
-                "WHERE t.tuyenID LIKE ? " +
-                "ORDER BY t.tuyenID, tct.thuTu";
-
-        try (Connection con = connectDB.getConnection();
-             PreparedStatement statement = con.prepareStatement(sql)) {
-            statement.setString(1, "%" + tuyenIDTim + "%");
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                String tuyenID = rs.getString("tuyenID");
-                Tuyen tuyen = tuyenMap.get(tuyenID);
-                if (tuyen == null) {
-                    tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
-                    tuyen.setDanhSachTuyenChiTiet(new ArrayList<>());
-                    tuyenMap.put(tuyenID, tuyen);
-                }
-
-                Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-                TuyenChiTiet chiTiet = new TuyenChiTiet(
-                        tuyen,
-                        ga,
-                        rs.getInt("thuTu"),
-                        rs.getInt("khoangCachTuGaXuatPhatKm")
-                );
-
-                tuyen.getDanhSachTuyenChiTiet().add(chiTiet);
+        try(Connection con = connectDB.getConnection();
+            PreparedStatement pstm = con.prepareStatement(sql)) {
+            pstm.setString(1, "%" + tuyenIDTim.toLowerCase() + "%");
+            ResultSet rs = pstm.executeQuery();
+            while (rs.next()){
+                Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
+                danhSachTuyen.add(tuyen);
             }
-        } catch (SQLException e) {
+        }catch (SQLException e){
             e.printStackTrace();
         }
-
-        return new ArrayList<>(tuyenMap.values());
+        return danhSachTuyen;
     }
-
-
-    public boolean themTuyenMoi(Tuyen tuyenMoi) {
-        String sqlTuyen = "INSERT INTO Tuyen (tuyenID, moTa) VALUES (?, ?)";
-        String sqlChiTiet = "INSERT INTO TuyenChiTiet (tuyenID, gaID, thuTu, khoangCachTuGaXuatPhatKm) VALUES (?, ?, ?, ?)";
-
-        try (Connection con = connectDB.getConnection()) {
-            con.setAutoCommit(false); // bắt đầu transaction
-
-            try (PreparedStatement pstmtTuyen = con.prepareStatement(sqlTuyen)) {
-                // Thêm tuyến
-                pstmtTuyen.setString(1, tuyenMoi.getTuyenID());
-                pstmtTuyen.setString(2, tuyenMoi.getMoTa());
-                pstmtTuyen.executeUpdate();
-            }
-
-            // Thêm chi tiết ga của tuyến
-            try (PreparedStatement pstmtChiTiet = con.prepareStatement(sqlChiTiet)) {
-                for (TuyenChiTiet chiTiet : tuyenMoi.getDanhSachTuyenChiTiet()) {
-                    pstmtChiTiet.setString(1, tuyenMoi.getTuyenID());
-                    pstmtChiTiet.setString(2, chiTiet.getGa().getGaID());
-                    pstmtChiTiet.setInt(3, chiTiet.getThuTu());
-                    pstmtChiTiet.setInt(4, chiTiet.getKhoangCachTuGaXuatPhatKm());
-                    pstmtChiTiet.addBatch(); // gom nhiều lệnh để insert nhanh hơn
-                }
-                pstmtChiTiet.executeBatch();
-            }
-
-            con.commit(); // commit transaction
-            return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-    public int capNhatTuyenByID(String tuyenIDSua, Tuyen capNhatTuyen) {
-        String sqlUpdateTuyen = "UPDATE Tuyen SET moTa = ? WHERE tuyenID = ?";
-        String sqlDeleteChiTiet = "DELETE FROM TuyenChiTiet WHERE tuyenID = ?";
-        String sqlInsertChiTiet = "INSERT INTO TuyenChiTiet (tuyenID, gaID, thuTu, khoangCachTuGaXuatPhatKm) VALUES (?, ?, ?, ?)";
-
-        int rowsAffected = 0;
-
-        Connection con = null;
-        try {
-            con = connectDB.getConnection();
-            con.setAutoCommit(false); // bắt đầu transaction
-
-            // 1. Update bảng TUYEN
-            try (PreparedStatement pstmtUpdate = con.prepareStatement(sqlUpdateTuyen)) {
-                pstmtUpdate.setString(1, capNhatTuyen.getMoTa());
-                pstmtUpdate.setString(2, tuyenIDSua);
-                rowsAffected = pstmtUpdate.executeUpdate();
-            }
-
-            // 2. Xóa chi tiết cũ
-            try (PreparedStatement pstmtDelete = con.prepareStatement(sqlDeleteChiTiet)) {
-                pstmtDelete.setString(1, tuyenIDSua);
-                pstmtDelete.executeUpdate();
-            }
-
-            // 3. Insert chi tiết mới
-            try (PreparedStatement pstmtInsert = con.prepareStatement(sqlInsertChiTiet)) {
-                for (TuyenChiTiet chiTiet : capNhatTuyen.getDanhSachTuyenChiTiet()) {
-                    pstmtInsert.setString(1, tuyenIDSua);
-                    pstmtInsert.setString(2, chiTiet.getGa().getGaID());
-                    pstmtInsert.setInt(3, chiTiet.getThuTu());
-                    pstmtInsert.setInt(4, chiTiet.getKhoangCachTuGaXuatPhatKm());
-                    pstmtInsert.addBatch();
-                }
-                pstmtInsert.executeBatch();
-            }
-
-            con.commit(); // commit transaction
-        } catch (SQLException e) {
-            e.printStackTrace();
-            rowsAffected = -1; // báo lỗi
-        }
-        return rowsAffected;
-    }
-
-
 
     public List<Tuyen> getTuyenTheoGa(String gaDi, String gaDen) {
-        Map<String, Tuyen> tuyenMap = new LinkedHashMap<>();
+        Map<String, Tuyen> tuyepMap = new LinkedHashMap<>();
+        boolean hasBothGa = (gaDi != null && !gaDi.trim().isEmpty()) && (gaDen != null && !gaDen.trim().isEmpty());
+        String sql;
+        int expectedParamCount; // Biến theo dõi số lượng tham số
 
-        String sql = "SELECT t.tuyenID, t.moTa, tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, ga.tenGa " +
-                "FROM Tuyen t " +
-                "JOIN TuyenChiTiet tct ON t.tuyenID = tct.tuyenID " +
-                "JOIN Ga ga ON tct.gaID = ga.gaID " +
-                "WHERE t.tuyenID IN ( " +
-                "    SELECT t1.tuyenID FROM TuyenChiTiet t1 " +
-                "    JOIN Ga g1 ON t1.gaID = g1.gaID " +
-                "    WHERE (? IS NULL OR LOWER(g1.tenGa) LIKE LOWER(?)) " +
-                ") " +
-                "AND t.tuyenID IN ( " +
-                "    SELECT t2.tuyenID FROM TuyenChiTiet t2 " +
-                "    JOIN Ga g2 ON t2.gaID = g2.gaID " +
-                "    WHERE (? IS NULL OR LOWER(g2.tenGa) LIKE LOWER(?)) " +
-                "    AND (? IS NULL OR t2.thuTu > ( " +
-                "        SELECT MIN(t3.thuTu) FROM TuyenChiTiet t3 " +
-                "        JOIN Ga g3 ON t3.gaID = g3.gaID " +
-                "        WHERE LOWER(g3.tenGa) LIKE LOWER(?) " +
-                "    )) " +
-                ") " +
-                "ORDER BY t.tuyenID, tct.thuTu";
+        if (hasBothGa) {
+            // SQL_FULL_SEARCH: Tìm tuyến có GaDi trước GaDen (3 tham số)
+            sql = "SELECT DISTINCT t.tuyenID, t.moTa " +
+                    "FROM Tuyen t " +
+                    "WHERE t.tuyenID IN ( " +
+                    "    SELECT t1.tuyenID FROM TuyenChiTiet t1 JOIN Ga g1 ON t1.gaID = g1.gaID WHERE LOWER(g1.tenGa) LIKE LOWER(?) " + // ?1: Ga Di
+                    "    AND t1.tuyenID IN ( " +
+                    "        SELECT t2.tuyenID FROM TuyenChiTiet t2 JOIN Ga g2 ON t2.gaID = g2.gaID WHERE LOWER(g2.tenGa) LIKE LOWER(?) " + // ?2: Ga Đến
+                    "        AND t2.thuTu > ( " +
+                    "            SELECT MIN(t3.thuTu) FROM TuyenChiTiet t3 JOIN Ga g3 ON t3.gaID = g3.gaID " +
+                    "            WHERE LOWER(g3.tenGa) LIKE LOWER(?) AND t3.tuyenID = t2.tuyenID " + // ?3: Ga Di (MIN)
+                    "        ) " +
+                    "    ) " +
+                    ") ORDER BY t.tuyenID";
+            expectedParamCount = 3;
+        } else {
+            // SQL_PARTIAL_SEARCH: Tìm tuyến chỉ chứa GaDi HOẶC GaDen (1 tham số)
+            sql = "SELECT DISTINCT t.tuyenID, t.moTa " +
+                    "FROM Tuyen t JOIN TuyenChiTiet t1 ON t.tuyenID = t1.tuyenID JOIN Ga g1 ON t1.gaID = g1.gaID " +
+                    "WHERE 1=1 ";
+            if (gaDi != null && !gaDi.trim().isEmpty()) {
+                sql += " AND LOWER(g1.tenGa) LIKE LOWER(?) ";
+            } else if (gaDen != null && !gaDen.trim().isEmpty()) {
+                sql += " AND LOWER(g1.tenGa) LIKE LOWER(?) ";
+            }
+            sql += " ORDER BY t.tuyenID";
+            expectedParamCount = 1;
+        }
 
         try (Connection con = connectDB.getConnection();
              PreparedStatement pstmt = con.prepareStatement(sql)) {
 
-            // Thiết lập parameter
-            pstmt.setString(1, gaDi != null && !gaDi.isEmpty() ? gaDi : null);        // subquery 1
-            pstmt.setString(2, gaDi != null && !gaDi.isEmpty() ? "%" + gaDi + "%" : null); // subquery 1 LIKE
-
-            pstmt.setString(3, gaDen != null && !gaDen.isEmpty() ? gaDen : null);       // subquery 2
-            pstmt.setString(4, gaDen != null && !gaDen.isEmpty() ? "%" + gaDen + "%" : null); // subquery 2 LIKE
-
-            pstmt.setString(5, gaDi != null && !gaDi.isEmpty() ? gaDi : null);         // so sánh thứ tự
-            pstmt.setString(6, gaDi != null && !gaDi.isEmpty() ? "%" + gaDi + "%" : null); // MIN(thutu) của ga đi
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String tuyenID = rs.getString("tuyenID");
-                    Tuyen tuyen = tuyenMap.get(tuyenID);
-                    if (tuyen == null) {
-                        tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
-                        tuyen.setDanhSachTuyenChiTiet(new ArrayList<>());
-                        tuyenMap.put(tuyenID, tuyen);
-                    }
-
-                    Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-                    TuyenChiTiet chiTiet = new TuyenChiTiet(
-                            tuyen,
-                            ga,
-                            rs.getInt("thuTu"),
-                            rs.getInt("khoangCachTuGaXuatPhatKm")
-                    );
-                    tuyen.getDanhSachTuyenChiTiet().add(chiTiet);
-                }
+            if (hasBothGa) {
+                // Thiết lập 3 tham số cho SQL_FULL_SEARCH
+                pstmt.setString(1, "%" + gaDi.trim() + "%");
+                pstmt.setString(2, "%" + gaDen.trim() + "%");
+                pstmt.setString(3, "%" + gaDi.trim() + "%");
+            } else if (gaDi != null && !gaDi.trim().isEmpty()) {
+                // Thiết lập 1 tham số cho SQL_PARTIAL_SEARCH (Ga Di)
+                pstmt.setString(1, "%" + gaDi.trim() + "%");
+            } else if (gaDen != null && !gaDen.trim().isEmpty()) {
+                // Thiết lập 1 tham số cho SQL_PARTIAL_SEARCH (Ga Đến)
+                pstmt.setString(1, "%" + gaDen.trim() + "%");
             }
 
-        } catch (SQLException e) {
+            try(ResultSet rs = pstmt.executeQuery()){
+                while (rs.next()){
+                    String tuyenID = rs.getString("tuyenID");
+                    if(!tuyepMap.containsKey(tuyenID)){
+                        Tuyen tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
+                        tuyepMap.put(tuyenID, tuyen);
+                    }
+                }
+            }
+        }catch (SQLException e){
             e.printStackTrace();
         }
-
-        return new ArrayList<>(tuyenMap.values());
+        return new ArrayList<>(tuyepMap.values());
     }
 
 

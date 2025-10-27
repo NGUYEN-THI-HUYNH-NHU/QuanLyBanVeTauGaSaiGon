@@ -13,6 +13,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -21,16 +22,23 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 public class PanelChieuLabel extends JPanel {
     private JLabel lblInfo;
 
     public PanelChieuLabel() {
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(200, 4));
         
-        lblInfo = new JLabel("Chiều: —", SwingConstants.LEFT);
-        lblInfo.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
-        lblInfo.setFont(new Font("", Font.BOLD, 18));
+        lblInfo = new JLabel("Chiều: —", SwingConstants.CENTER);
+        lblInfo.setPreferredSize(new Dimension(10, 20));
+
+        lblInfo.setBackground(new Color(32, 83, 145));
+		lblInfo.putClientProperty(FlatClientProperties.STYLE, "foreground:$Menu.foreground");
+        lblInfo.setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
+        lblInfo.setFont(lblInfo.getFont().deriveFont(Font.BOLD, 16f));
+        lblInfo.setOpaque(true);
+
         
         add(lblInfo, BorderLayout.CENTER);
     }

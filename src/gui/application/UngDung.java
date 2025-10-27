@@ -84,8 +84,10 @@ public class UngDung extends JFrame {
 	public static void main(String args[]) {
 		FlatRobotoFont.install();
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
-		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 14));
+		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
+		UIManager.put("PasswordField.showRevealButton", true);
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
+
 	}
 }
