@@ -1,6 +1,5 @@
 package entity;
 
-
 /*
  * @(#) Cho.java  1.0  [11:21:20 AM] Sep 18, 2025
  *
@@ -42,6 +41,11 @@ public class Ghe {
 		super();
 	}
 
+	public Ghe(String gheID) {
+		super();
+		this.gheID = gheID;
+	}
+
 	public String getGheID() {
 		return gheID;
 	}
@@ -55,22 +59,22 @@ public class Ghe {
 	}
 
 	public void setGheID(String gheID) {
-		if(gheID != null && !gheID.isEmpty()) {
+		if (gheID != null && !gheID.isEmpty()) {
 			this.gheID = gheID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Ghe ID không được để trống!");
 		}
 	}
 
 	public void setToa(Toa toa) {
-		if(toa == null) {
+		if (toa == null) {
 			throw new IllegalArgumentException("Toa không được để trống!");
 		}
 		this.toa = toa;
 	}
 
 	public void setSoGhe(int soGhe) {
-		if(soGhe <= 0) {
+		if (soGhe <= 0) {
 			throw new IllegalArgumentException("Số ghế không được <= 0!");
 		}
 		this.soGhe = soGhe;
@@ -91,8 +95,12 @@ public class Ghe {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Ghe ghe = (Ghe) o;
 		return Objects.equals(gheID, ghe.gheID);
 	}

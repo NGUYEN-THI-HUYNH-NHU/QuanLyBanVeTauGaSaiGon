@@ -11,222 +11,238 @@ package gui.application.form.banVe;
  * @date: Sep 29, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.border.TitledBorder;
 
 import entity.Ghe;
 import entity.Toa;
 import entity.type.TrangThaiGhe;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-
 public class PanelSoDoCho extends JPanel {
-    private JPanel seatGridPanel;
-    private JPanel navPanel;
-    private JButton btnPrev, btnNext;
-    private PanelBuoc2Controller panelBuoc2Controller;
-    private JLabel lblToaInfo;
-    private JButton selectedSeatButton = null;
-    private int doanTauLength;
+	private final JPanel pnlGridChoNgoi;
+	private final JScrollPane scroll;
+	private final JButton btnPrev, btnNext;
+	private final JLabel lblToaInfo;
+	private final JPanel pnlNorth;
 
-    // current toa context
-    private Toa currentToa;
-    private List<Toa> toaList;
-    private int currentIndex = 0;
-    private JPanel pnlNorth;
+	private PanelBuoc2Controller panelBuoc2Controller;
+	private JButton btnChoSelected = null;
+	private Toa currentToa;
+	private List<Toa> toaList;
+	private int currentIndex = 0;
+	private int doanTauLength;
 
-    public PanelSoDoCho() {
-        setBorder(new TitledBorder("Sơ đồ chỗ"));
-        setLayout(new BorderLayout());
+	private static final int CELL_WIDTH = 20;
+	private static final int CELL_HEIGHT = 20;
+	private static final int CELL_GAP = 8;
+	private static final int VIEWPORT_HEIGHT = 160;
+	private static final int VIEWPORT_WIDTH = 400;
 
-        lblToaInfo = new JLabel("Chưa chọn toa", SwingConstants.CENTER);
-        lblToaInfo.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
-        navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+	public PanelSoDoCho() {
+		setBorder(new TitledBorder("Sơ đồ chỗ"));
+		setLayout(new BorderLayout());
 
-        btnPrev = new JButton("<");
-        btnNext = new JButton(">");
-        navPanel.add(btnPrev);
-        navPanel.add(btnNext);
+		lblToaInfo = new JLabel("Chưa chọn toa", SwingConstants.CENTER);
+		lblToaInfo.setBorder(BorderFactory.createEmptyBorder(1, 8, 1, 8));
 
-        pnlNorth = new JPanel();
-        pnlNorth.setLayout(new BorderLayout());
-        pnlNorth.add(lblToaInfo, BorderLayout.NORTH);
-        pnlNorth.add(navPanel, BorderLayout.CENTER);
+		btnPrev = new JButton("<");
+		btnNext = new JButton(">");
+		btnPrev.setPreferredSize(new Dimension(25, 10));
+		btnNext.setPreferredSize(new Dimension(25, 10));
 
-        seatGridPanel = new JPanel();
+		pnlNorth = new JPanel(new BorderLayout());
+		pnlNorth.add(lblToaInfo, BorderLayout.NORTH);
 
-        add(pnlNorth, BorderLayout.NORTH);
-        add(seatGridPanel, BorderLayout.CENTER);
+		pnlGridChoNgoi = new JPanel();
+		pnlGridChoNgoi.setLayout(new GridLayout(1, 1)); // initial placeholder
+		scroll = new JScrollPane(pnlGridChoNgoi);
+		scroll.setPreferredSize(new Dimension(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
+		scroll.setBorder(BorderFactory.createEmptyBorder()); // cleaner look
 
-        setPreferredSize(new Dimension(10, 200));
+		add(pnlNorth, BorderLayout.NORTH);
+		add(scroll, BorderLayout.CENTER);
+		add(btnPrev, BorderLayout.WEST);
+		add(btnNext, BorderLayout.EAST);
 
-        btnPrev.addActionListener(e -> showPrevToa());
-        btnNext.addActionListener(e -> showNextToa());
-    }
+		// Actions
+		btnPrev.addActionListener(e -> showPrevToa());
+		btnNext.addActionListener(e -> showNextToa());
+	}
 
-    public void setController(PanelBuoc2Controller c) {
-        this.panelBuoc2Controller = c;
-    }
+	// ==== Controller binding ====
+	public void setController(PanelBuoc2Controller c) {
+		this.panelBuoc2Controller = c;
+	}
 
-    public void setToaList(List<Toa> list) {
-        this.toaList = list;
-        this.currentIndex = 0;
-        this.doanTauLength = list.size();
-        if (list != null && !list.isEmpty()) {
-            setCurrentToa(list.get(0));
-        } else {
-            setCurrentToa(null);
-        }
-    }
+	public void setToaList(List<Toa> list) {
+		this.toaList = list;
+		this.doanTauLength = (list == null) ? 0 : list.size();
+		this.currentIndex = 0;
+		if (list != null && !list.isEmpty()) {
+			setCurrentToa(list.get(0));
+		} else {
+			setCurrentToa(null);
+		}
+	}
 
-    public void setCurrentToa(Toa t) {
-        this.currentToa = t;
-        if (t == null) {
-            lblToaInfo.setText("Chưa chọn toa");
-        } else {
-            String soToa = String.valueOf(t.getSoToa());
-            String moTaHang = null;
-            try {
-                moTaHang = (t.getHangToa().getDescription() != null) ? t.getHangToa().getDescription() : t.getHangToa().toString();
-            } catch (Throwable ex) {
-                try {
-                    moTaHang = t.getHangToa().getDescription();
-                } catch (Throwable ignored) {
-                    moTaHang = "";
-                }
-            }
-            lblToaInfo.setText("Toa số " + soToa + ": " + (moTaHang == null ? "" : moTaHang));
-        }
+	public void setCurrentToa(Toa t) {
+		this.currentToa = t;
+		if (t == null) {
+			lblToaInfo.setText("Chưa chọn toa");
+			showMessage("Không có toa được chọn");
+			return;
+		}
 
-        showLoadingState();
-        if (panelBuoc2Controller != null && t != null) {
-            panelBuoc2Controller.loadSeatsForToa(t, gheList -> {
-                SwingUtilities.invokeLater(() -> renderSeats(gheList));
-            });
-        } else {
-            renderSeats(null);
-        }
-    }
+		lblToaInfo.setText(
+				"Toa số " + t.getSoToa() + ": " + (t.getHangToa() != null ? t.getHangToa().getDescription() : ""));
 
-    private void showLoadingState() {
-        seatGridPanel.removeAll();
-        seatGridPanel.setLayout(new BorderLayout());
-        seatGridPanel.revalidate();
-        seatGridPanel.repaint();
-    }
+//		showLoadingState();
 
-    private int parseLeadingInt(String s) {
-        if (s == null)
-            return Integer.MAX_VALUE;
-        String num = "";
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            if (Character.isDigit(ch))
-                num += ch;
-            else break;
-        }
-        try {
-            return num.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(num);
-        } catch (NumberFormatException ex) {
-            return Integer.MAX_VALUE;
-        }
-    }
+		// Run seat loading on background thread
+		if (panelBuoc2Controller != null) {
+			new LoadSeatWorker(t).execute();
+		}
+	}
 
-    private void renderSeats(List<Ghe> gheList) {
-        seatGridPanel.removeAll();
-        selectedSeatButton = null;
-        if (gheList == null || gheList.isEmpty()) {
-            seatGridPanel.add(new JLabel("Không có ghế", SwingConstants.CENTER));
-            seatGridPanel.revalidate();
-            seatGridPanel.repaint();
-            return;
-        }
+	public void showMessage(String text) {
+		pnlGridChoNgoi.removeAll();
+		pnlGridChoNgoi.setLayout(new BorderLayout());
+		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
+		pnlGridChoNgoi.revalidate();
+		pnlGridChoNgoi.repaint();
+	}
 
-        // clone + sort by numeric seat id (leading digits) then by full label
-        List<Ghe> sorted = new ArrayList<>(gheList);
-        sorted.sort(Comparator
-                .comparingInt((Ghe g) -> g.getSoGhe())
-                .thenComparing(g -> g.getSoGhe()));
+//	public void showLoadingState() {
+//		showMessage("Đang tải ...");
+//	}
 
-        // choose columns: try detect layout (if gheList small -> single row)
-        int cols = 6; // default nicer width
-        if (sorted.size() <= 6)
-            cols = sorted.size();
-        int rows = (int) Math.ceil(sorted.size() / (double) cols);
-        seatGridPanel.setLayout(new GridLayout(rows, cols, 8, 8));
+	// ==== Seat Rendering ====
+	public void renderSeats(List<Ghe> gheList) {
+		pnlGridChoNgoi.removeAll();
 
-        for (Ghe g : sorted) {
-            JButton b = new JButton(String.valueOf(g.getSoGhe()));
-            b.setMargin(new Insets(2,2,2,2));
-//            b.setOpaque(true);
-            if (g.getTrangThai() == TrangThaiGhe.DA_BAN) {
-                b.setBackground(new Color(220, 53, 53));
-                b.setEnabled(false);
-            } else {
-                b.setBackground(Color.WHITE);
-                b.setEnabled(true);
-            }
-            b.addActionListener(e -> {
-                // visual select for seat
-                if (selectedSeatButton != null && selectedSeatButton != b) {
-                    selectedSeatButton.setBackground(Color.WHITE);
-                }
-                selectedSeatButton = b;
-                b.setBackground(new Color(40, 167, 69));
-                b.setForeground(Color.WHITE);
-                if (panelBuoc2Controller != null)
-                    panelBuoc2Controller.onSeatClicked(currentToa, g);
-            });
-            seatGridPanel.add(b);
-        }
+		if (gheList == null || gheList.isEmpty()) {
+			showMessage("Không có ghế");
+			return;
+		}
 
-        seatGridPanel.revalidate();
-        seatGridPanel.repaint();
-    }
+		// Sort seats
+		List<Ghe> sorted = new ArrayList<>(gheList);
+		sorted.sort(Comparator.comparingInt(Ghe::getSoGhe));
 
-    private void showPrevToa() {
-        if (toaList == null || toaList.isEmpty())
-            return;
-        if (currentIndex == 0) {
-            currentIndex = doanTauLength-1;
-            Toa toa = toaList.get(currentIndex);
-            setCurrentToa(toa);
-            panelBuoc2Controller.highlightToa(toa);
-            return;
-        }
-        currentIndex = Math.max(0, currentIndex - 1);
-        Toa toa = toaList.get(currentIndex);
-        setCurrentToa(toa);
-        panelBuoc2Controller.highlightToa(toa);
-    }
+		// Layout
+		int cols = Math.min(sorted.size(), 6);
+		int rows = (int) Math.ceil(sorted.size() / (double) cols);
+		pnlGridChoNgoi.setLayout(new GridLayout(rows, cols, CELL_GAP, CELL_GAP));
 
-    private void showNextToa() {
-        if (toaList == null || toaList.isEmpty())
-            return;
-        if (currentIndex == doanTauLength-1) {
-            currentIndex = 0;
-            Toa toa = toaList.get(currentIndex);
-            setCurrentToa(toa);
-            panelBuoc2Controller.highlightToa(toa);
-            return;
-        }
-        currentIndex = Math.min(toaList.size() - 1, currentIndex + 1);
-        Toa toa = toaList.get(currentIndex);
-        setCurrentToa(toa);
-        panelBuoc2Controller.highlightToa(toa);
-    }
+		for (Ghe g : sorted) {
+			JButton b = new JButton(String.valueOf(g.getSoGhe()));
+			b.setPreferredSize(new Dimension(CELL_WIDTH, CELL_HEIGHT));
+			b.setFocusPainted(false);
 
-    // used by controller when user selects a chuyen -> set toa list
-    public void setToaListAndSelect(java.util.List<Toa> list, int selectIndex) {
-        setToaList(list);
-        if (list != null && !list.isEmpty()) {
-            currentIndex = Math.min(Math.max(0, selectIndex), list.size() - 1);
-            setCurrentToa(list.get(currentIndex));
-        }
-    }
+			if (g.getTrangThai() == TrangThaiGhe.DA_BAN) {
+				b.setBackground(new Color(220, 53, 53));
+				b.setEnabled(false);
+			} else {
+				b.setBackground(Color.WHITE);
+				b.setEnabled(true);
+			}
+
+			b.addActionListener(e -> {
+				if (btnChoSelected != null && btnChoSelected != b) {
+					btnChoSelected.setBackground(Color.WHITE);
+					btnChoSelected.setForeground(Color.BLACK);
+				}
+				btnChoSelected = b;
+				b.setBackground(new Color(40, 167, 69));
+				b.setForeground(Color.WHITE);
+
+				if (panelBuoc2Controller != null) {
+					panelBuoc2Controller.onSeatClicked(currentToa, g);
+				}
+			});
+
+			pnlGridChoNgoi.add(b);
+		}
+
+		// Avoid multiple revalidate calls
+		pnlGridChoNgoi.revalidate();
+		pnlGridChoNgoi.repaint();
+	}
+
+	// ==== Navigation ====
+	public void showPrevToa() {
+		if (toaList == null || toaList.isEmpty()) {
+			return;
+		}
+		currentIndex = (currentIndex == 0) ? doanTauLength - 1 : currentIndex - 1;
+		Toa t = toaList.get(currentIndex);
+		setCurrentToa(t);
+		panelBuoc2Controller.highlightToa(t);
+	}
+
+	public void showNextToa() {
+		if (toaList == null || toaList.isEmpty()) {
+			return;
+		}
+		currentIndex = (currentIndex == doanTauLength - 1) ? 0 : currentIndex + 1;
+		Toa t = toaList.get(currentIndex);
+		setCurrentToa(t);
+		panelBuoc2Controller.highlightToa(t);
+	}
+
+	// ==== Background Worker ====
+	private class LoadSeatWorker extends SwingWorker<List<Ghe>, Void> {
+		private final Toa toa;
+
+		LoadSeatWorker(Toa t) {
+			this.toa = t;
+		}
+
+		@Override
+		protected List<Ghe> doInBackground() throws Exception {
+			final List<Ghe>[] resultHolder = new List[1];
+			final Object lock = new Object();
+
+			panelBuoc2Controller.loadSeatsForToa(toa, gheList -> {
+				synchronized (lock) {
+					resultHolder[0] = gheList;
+					lock.notifyAll();
+				}
+			});
+
+			synchronized (lock) {
+				while (resultHolder[0] == null) {
+					lock.wait();
+				}
+			}
+			return resultHolder[0];
+		}
+
+		@Override
+		protected void done() {
+			try {
+				List<Ghe> seats = get();
+				SwingUtilities.invokeLater(() -> renderSeats(seats));
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+				showMessage("Lỗi tải dữ liệu chỗ ngồi");
+			}
+		}
+	}
 }

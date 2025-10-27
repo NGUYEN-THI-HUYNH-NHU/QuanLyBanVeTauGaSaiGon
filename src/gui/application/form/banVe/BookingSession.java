@@ -25,6 +25,7 @@ import entity.Chuyen;
  * Lưu ý: class này thread-safe nhẹ (synchronized khi thay đổi), đủ cho UI single-thread Swing.
  */
 public class BookingSession {
+    private static BookingSession instance;
     // Outbound (chiều đi)
     private SearchCriteria outboundCriteria;
     private List<Chuyen> outboundResults = new ArrayList<>();
@@ -35,6 +36,12 @@ public class BookingSession {
     private final List<VeSession> returnSelected = new ArrayList<>();
 
     public BookingSession() { }
+    
+    public static synchronized BookingSession getInstance() {
+        if (instance == null)
+        	instance = new BookingSession();
+        return instance;
+    }
 
     public synchronized void setOutboundCriteria(SearchCriteria c) {
     	this.outboundCriteria = c;
@@ -51,12 +58,13 @@ public class BookingSession {
     }
 
     // add/remove selected tickets for outbound
-    public synchronized void addOutboundTicket(VeSession t) {
-        if (t == null) return;
-        if (!outboundSelected.contains(t)) outboundSelected.add(t);
+    public synchronized void addOutboundTicket(VeSession v) {
+        if (v == null)
+        	return;
+        if (!outboundSelected.contains(v)) outboundSelected.add(v);
     }
-    public synchronized void removeOutboundTicket(VeSession t) {
-    	outboundSelected.remove(t);
+    public synchronized void removeOutboundTicket(VeSession v) {
+    	outboundSelected.removeIf(x -> x.equals(v));
     }
     public synchronized List<VeSession> getOutboundSelectedTickets() {
         return Collections.unmodifiableList(new ArrayList<>(outboundSelected));
@@ -78,18 +86,23 @@ public class BookingSession {
         return Collections.unmodifiableList(returnResults);
     }
 
-    public synchronized void addReturnTicket(VeSession t) {
-        if (t == null) return;
-        if (!returnSelected.contains(t)) returnSelected.add(t);
+    public synchronized void addReturnTicket(VeSession v) {
+        if (v == null) return;
+        if (!returnSelected.contains(v)) returnSelected.add(v);
     }
-    public synchronized void removeReturnTicket(VeSession t) {
-    	returnSelected.remove(t);
+    public synchronized void removeReturnTicket(VeSession v) {
+    	returnSelected.removeIf(x -> x.equals(v));
     }
     public synchronized List<VeSession> getReturnSelectedTickets() {
         return Collections.unmodifiableList(new ArrayList<>(returnSelected));
     }
     public synchronized void clearReturnSelection() {
     	returnSelected.clear();
+    }
+    
+    public synchronized void removeVeSession(VeSession v) {
+    	outboundResults.removeIf(x -> x.equals(v));
+    	returnResults.removeIf(x -> x.equals(v));
     }
 
     // --- Helpers ---
@@ -107,9 +120,10 @@ public class BookingSession {
     /**
      * Thêm ticket theo tripIndex
      */
-    public synchronized void addTicketForTrip(int tripIndex, VeSession t) {
-        if (tripIndex == 0) addOutboundTicket(t);
-        else addReturnTicket(t);
+    public synchronized void addTicketForTrip(int tripIndex, VeSession v) {
+        if (tripIndex == 0)
+        	addOutboundTicket(v);
+        else addReturnTicket(v);
     }
 
     /**
@@ -127,7 +141,7 @@ public class BookingSession {
     @Override
     public String toString() {
         return "BookingSession{" +
-                "outboundCriteria=" + outboundCriteria +
+                "outBoundCriteria=" + outboundCriteria +
                 ", outboundSelected=" + outboundSelected +
                 ", returnCriteria=" + returnCriteria +
                 ", returnSelected=" + returnSelected +
