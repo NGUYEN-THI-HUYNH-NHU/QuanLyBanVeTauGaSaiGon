@@ -38,7 +38,7 @@ public class PanelGioVe extends JPanel {
 
 	public PanelGioVe() {
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(260, 400));
+		setPreferredSize(new Dimension(230, 400));
 
 		container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
@@ -93,7 +93,7 @@ public class PanelGioVe extends JPanel {
 	private JPanel createVeRow(VeSession v) {
 		JPanel row = new JPanel(new BorderLayout());
 		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); // Chiều cao cố định
-		row.setPreferredSize(new Dimension(240, 80));
+		row.setPreferredSize(new Dimension(230, 80));
 		row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
 		row.setBackground(Color.WHITE);
 

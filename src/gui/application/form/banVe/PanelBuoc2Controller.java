@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -110,7 +112,7 @@ public class PanelBuoc2Controller {
 			onChuyenSelected(chuyens.get(0));
 		}
 //		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
+		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 	}
 
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
@@ -134,19 +136,19 @@ public class PanelBuoc2Controller {
 			onChuyenSelected(chuyens.get(0));
 		}
 //		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
+		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 	}
 
 	public void onChuyenSelected(Chuyen c) {
 		if (c == null) {
 			return;
 		}
-		this.selectedChuyen = c;
+		this.setSelectedChuyen(c);
 
 		new SwingWorker<List<Toa>, Void>() {
 			@Override
 			protected List<Toa> doInBackground() throws Exception {
-				return chuyenBUS.layCacToaTheoChuyen(c.getChuyenID());
+				return getChuyenBUS().layCacToaTheoChuyen(c.getChuyenID());
 			}
 
 			@Override
@@ -182,15 +184,15 @@ public class PanelBuoc2Controller {
 		}
 
 		// 1) fetch current chuyen/toa
-		String chuyenID = (selectedChuyen != null) ? selectedChuyen.getChuyenID() : null;
+		String chuyenID = (getSelectedChuyen() != null) ? getSelectedChuyen().getChuyenID() : null;
 		String toaID = toa.getToaID();
 
 		// 2) try to get gaDi/gaDen from bookingSession (based on currentTripIndex)
 		String gaDiID = null;
 		String gaDenID = null;
-		if (bookingSession != null) {
-			SearchCriteria sc = (currentTripIndex == 0) ? bookingSession.getOutboundCriteria()
-					: bookingSession.getReturnCriteria();
+		if (getBookingSession() != null) {
+			SearchCriteria sc = (currentTripIndex == 0) ? getBookingSession().getOutboundCriteria()
+					: getBookingSession().getReturnCriteria();
 			if (sc != null) {
 				gaDiID = sc.getGaDiId(); // ensure method name matches your class
 				gaDenID = sc.getGaDenId();
@@ -206,9 +208,9 @@ public class PanelBuoc2Controller {
 		}
 
 		// 4) Fallback: try get from selectedChuyen's tuyen (if entity supports it)
-		if ((gaDiID == null || gaDenID == null) && selectedChuyen != null) {
+		if ((gaDiID == null || gaDenID == null) && getSelectedChuyen() != null) {
 			try {
-				Tuyen tuyen = selectedChuyen.getTuyen(); // adjust to your entity API
+				Tuyen tuyen = getSelectedChuyen().getTuyen(); // adjust to your entity API
 				if (tuyen != null) {
 //                    if (gaDiID == null && tuyen.getGaDi() != null) gaDiID = tuyen.getGaDi().getGaID();
 //                    if (gaDenID == null && tuyen.getGaDen() != null) gaDenID = tuyen.getGaDen().getGaID();
@@ -219,21 +221,21 @@ public class PanelBuoc2Controller {
 		}
 
 		// 5) Fallback 2: try resolve by name via BUS (use SearchCriteria names)
-		if ((gaDiID == null || gaDenID == null) && bookingSession != null) {
-			SearchCriteria sc = bookingSession.getOutboundCriteria();
+		if ((gaDiID == null || gaDenID == null) && getBookingSession() != null) {
+			SearchCriteria sc = getBookingSession().getOutboundCriteria();
 			if (sc == null && currentTripIndex == 1) {
-				sc = bookingSession.getReturnCriteria();
+				sc = getBookingSession().getReturnCriteria();
 			}
 			if (sc != null) {
 				try {
 					if (gaDiID == null && sc.getGaDiName() != null && !sc.getGaDiName().trim().isEmpty()) {
-						Ga g = chuyenBUS.timGaTheoTenGa(sc.getGaDiName().trim());
+						Ga g = getChuyenBUS().timGaTheoTenGa(sc.getGaDiName().trim());
 						if (g != null) {
 							gaDiID = g.getGaID();
 						}
 					}
 					if (gaDenID == null && sc.getGaDenName() != null && !sc.getGaDenName().trim().isEmpty()) {
-						Ga g2 = chuyenBUS.timGaTheoTenGa(sc.getGaDenName().trim());
+						Ga g2 = getChuyenBUS().timGaTheoTenGa(sc.getGaDenName().trim());
 						if (g2 != null) {
 							gaDenID = g2.getGaID();
 						}
@@ -264,7 +266,7 @@ public class PanelBuoc2Controller {
 				if (gaDiID == null || gaDenID == null || chuyenID == null || toaID == null) {
 					return Collections.emptyList();
 				}
-				return chuyenBUS.layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID, toaID);
+				return getChuyenBUS().layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID, toaID);
 			}
 
 			@Override
@@ -301,28 +303,10 @@ public class PanelBuoc2Controller {
 		}
 
 		new SwingWorker<VeSession, Void>() {
-			SearchCriteria chuyenDiCriteria = bookingSession.getOutboundCriteria();
-
-			String chuyenID = selectedChuyen.getChuyenID();
-			String tauID = selectedChuyen.getTau().getTauID();
-			String tenGaDi = chuyenDiCriteria.getGaDiName();
-			String tenGaDen = chuyenDiCriteria.getGaDenName();
-			LocalDate ngayDi = selectedChuyen.getNgayDi();
-			LocalTime gioDi = selectedChuyen.getGioDi();
-			String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
-			Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
-			int soToa = toa.getSoToa();
-			int soGhe = ghe.getSoGhe();
-			int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(),
-					chuyenDiCriteria.getGaDenId(), selectedChuyen.getTau().getLoaiTau().toString(), hangToa);
-			String khuyenMaiCode = "";
-			int giam = 0;
-
 			@Override
 			protected VeSession doInBackground() throws Exception {
-				VeSession v = new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe,
-						gia, khuyenMaiCode, giam, thoiDiemHetHan);
-				bookingSession.addOutboundTicket(v);
+				VeSession v = createVeSessionForSeat(toa, ghe);
+				getBookingSession().addOutboundTicket(v);
 				return v;
 			}
 
@@ -331,7 +315,7 @@ public class PanelBuoc2Controller {
 				try {
 					VeSession v = get();
 					if (v != null) {
-						panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
+						panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
@@ -350,6 +334,25 @@ public class PanelBuoc2Controller {
 				}
 			}
 		}.execute();
+	}
+
+	/**
+	 * Xử lý khi người dùng bấm vào một ghế ĐÃ ĐƯỢC CHỌN (để bỏ chọn).
+	 */
+	public void handleSeatDeselection(Toa toa, Ghe ghe) {
+		if (toa == null || ghe == null || getBookingSession() == null) {
+			return;
+		}
+
+		VeSession veToRemove = createVeSessionForSeat(toa, ghe);
+
+		if (veToRemove != null) {
+			onRemoveVe(veToRemove);
+		} else {
+			if (selectedToa != null) {
+				panelSoDoCho.setCurrentToa(selectedToa);
+			}
+		}
 	}
 
 	// start a swing timer updating corresponding JLabel; label may be registered by
@@ -404,16 +407,14 @@ public class PanelBuoc2Controller {
 
 	// user clicked trash icon or timer expired -> remove ticket
 	public void onRemoveVe(VeSession v) {
-//		veSessionBUS.removeVeSession(v);
-		bookingSession.removeOutboundTicket(v);
+		getBookingSession().removeOutboundTicket(v);
 
 		Timer t = countdownTimers.remove(v.toString());
 		if (t != null) {
 			t.stop();
 		}
 		countdownLabels.remove(v.toString());
-//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
+		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 
 		if (selectedToa != null) {
 			panelSoDoCho.setCurrentToa(selectedToa);
@@ -421,11 +422,63 @@ public class PanelBuoc2Controller {
 	}
 
 	private void releaseHoldAndRemoveVe(VeSession v) {
-		bookingSession.removeOutboundTicket(v);
+		getBookingSession().removeOutboundTicket(v);
 		countdownLabels.remove(v.toString());
-//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-		panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
+		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 		SwingUtilities.invokeLater(
 				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.toString() + " đã hết hạn."));
+	}
+
+	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe) {
+		SearchCriteria chuyenDiCriteria = getBookingSession().getOutboundCriteria();
+
+		String chuyenID = getSelectedChuyen().getChuyenID();
+		String tauID = getSelectedChuyen().getTau().getTauID();
+		String tenGaDi = chuyenDiCriteria.getGaDiName();
+		String tenGaDen = chuyenDiCriteria.getGaDenName();
+		LocalDate ngayDi = getSelectedChuyen().getNgayDi();
+		LocalTime gioDi = getSelectedChuyen().getGioDi();
+		String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
+		Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
+		int soToa = toa.getSoToa();
+		int soGhe = ghe.getSoGhe();
+		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(), chuyenDiCriteria.getGaDenId(),
+				getSelectedChuyen().getTau().getLoaiTau().toString(), hangToa);
+		String khuyenMaiCode = "";
+		int giam = 0;
+
+		return new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, gia,
+				khuyenMaiCode, giam, thoiDiemHetHan);
+	}
+
+	public Set<Integer> getSelectedSoGhe(Toa currentToa) {
+		if (currentToa == null || getSelectedChuyen() == null || getBookingSession() == null) {
+			return Collections.emptySet();
+		}
+
+		String currentChuyenID = getSelectedChuyen().getChuyenID();
+		String currentToaID = currentToa.getToaID(); // Dùng Toa từ tham số
+
+		Set<Integer> selectedSoGheSet = getBookingSession().getSelectedTicketsForTrip(getCurrentTripIndex()).stream()
+				.filter(v -> currentChuyenID.equals(v.getChuyenID()) && currentToaID.equals(v.getToaID()))
+				.map(VeSession::getSoGhe).collect(Collectors.toSet());
+
+		return selectedSoGheSet;
+	}
+
+	public BookingSession getBookingSession() {
+		return bookingSession;
+	}
+
+	public Chuyen getSelectedChuyen() {
+		return selectedChuyen;
+	}
+
+	public void setSelectedChuyen(Chuyen selectedChuyen) {
+		this.selectedChuyen = selectedChuyen;
+	}
+
+	public Chuyen_BUS getChuyenBUS() {
+		return chuyenBUS;
 	}
 }

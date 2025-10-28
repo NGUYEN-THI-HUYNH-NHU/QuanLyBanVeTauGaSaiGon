@@ -31,7 +31,7 @@ public class PanelBuoc4 extends JPanel {
 	public PanelBuoc4() {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Xác nhận thông tin vé"));
-		setPreferredSize(new Dimension(getWidth(), 400));
+		setPreferredSize(new Dimension(getWidth(), 350));
 
 		// 1. Khởi tạo model và table
 		model = new HanhKhachTableModel();

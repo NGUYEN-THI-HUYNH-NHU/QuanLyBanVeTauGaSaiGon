@@ -5,6 +5,7 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.awt.event.ActionListener;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
+
+import gui.application.PdfTicketExporter;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -95,28 +99,42 @@ public class BanVe2Controller {
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
+
 		// Lắng nghe nút "Thanh toán" từ PanelBuoc5
-		JButton payButton = panelBuoc5.getBtnThanhToan();
-		if (payButton != null) {
-			payButton.addActionListener(e -> {
-				// TODO: Gọi BUS để thực hiện lưu CSDL
+		// CẦN LẤY CẢ HAI NÚT
+		JButton payButtonCash = panelBuoc5.getBtnXacNhanVaInCash();
+		JButton payButtonQR = panelBuoc5.getBtnXacNhanVaInQR();
 
-				// Giả sử thanh toán thành công
-				boolean paymentSuccess = true;
+		ActionListener paymentListener = e -> {
+			// TODO: Gọi BUS để thực hiện lưu CSDL (lưu Vé, Hóa đơn, Giao dịch...)
+			// boolean saveSuccess = banVeBUS.luuThongTinThanhToan(bookingSession,
+			// isTienMat);
+			boolean saveSuccess = true; // Giả sử lưu thành công
 
-				if (paymentSuccess) {
-					// a. Vô hiệu hóa cả 2 panel
-					panelBuoc4.setComponentsEnabled(false);
-					panelBuoc5.setComponentsEnabled(false);
+			if (saveSuccess) {
+				// a. Vô hiệu hóa PanelBuoc5
+				panelBuoc5.setComponentsEnabled(false);
 
-					// b. Báo cho wizard chính (PanelBanVe) biết
-					if (onPaymentSuccessListener != null) {
-						onPaymentSuccessListener.run();
-					}
-				} else {
-					// (Hiển thị thông báo lỗi thanh toán...)
+				// --- GỌI HÀM XUẤT PDF ---
+				PdfTicketExporter exporter = new PdfTicketExporter();
+				exporter.exportTicketsToPdf(bookingSession);
+				// --- KẾT THÚC GỌI PDF ---
+
+				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
+				if (onPaymentSuccessListener != null) {
+					onPaymentSuccessListener.run();
 				}
-			});
+			} else {
+				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		};
+
+		if (payButtonCash != null) {
+			payButtonCash.addActionListener(paymentListener);
+		}
+		if (payButtonQR != null) {
+			payButtonQR.addActionListener(paymentListener);
 		}
 	}
 }
