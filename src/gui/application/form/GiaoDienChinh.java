@@ -31,10 +31,12 @@ import com.formdev.flatlaf.util.UIScale;
 
 import entity.NhanVien;
 import gui.application.UngDung;
+import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.khachHang.FormCustomerManagement;
+import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
+import gui.application.form.thongKe.PanelThongKeKhachHang;
 import gui.application.form.thongKe.PanelThongKeVe;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.FormThongTinCaNhan;
@@ -102,8 +104,8 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 //			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
 //			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
-//			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
-			case 8 -> UngDung.showGiaoDienChinh(new FormCustomerManagement(nhanVien));
+			case 7 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
+			case 8 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 //			case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
 //			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
 			
@@ -112,7 +114,7 @@ public class GiaoDienChinh extends JLayeredPane {
 				switch (subIndex) {
 					case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
 					case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
-//					case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang(nhanVien));
+				// 	case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
 					default -> action.cancel();
 				}
 			}

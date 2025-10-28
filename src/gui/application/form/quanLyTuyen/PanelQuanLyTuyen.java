@@ -23,7 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-public class PanelQuanLyTuyen extends JPanel {
+public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;
@@ -209,6 +209,10 @@ public class PanelQuanLyTuyen extends JPanel {
             btn.setForeground(mauNutChu);
             btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
         }
+    }
+
+    public JTable getTableTuyen(){
+        return tableTuyen;
     }
 
     public JTextField getTxtGaDi() {

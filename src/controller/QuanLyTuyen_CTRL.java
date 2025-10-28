@@ -21,6 +21,9 @@ import gui.application.form.quanLyTuyen.PanelThemTuyen;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,6 +43,7 @@ public class QuanLyTuyen_CTRL {
         this.ga_bus = new Ga_BUS();
         this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
         pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener());
+        pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
         PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
         thietLapAutoCompleteListener();
@@ -56,6 +60,15 @@ public class QuanLyTuyen_CTRL {
         @Override
         public void actionPerformed(ActionEvent e){
             lamMoiTuyen();
+        }
+    }
+
+    private class TuyenTableListener extends MouseAdapter{
+        @Override
+        public void mouseClicked(MouseEvent e){
+            if(e.getClickCount() == 1){
+                hienThiChiTietTuyenDaChon();
+            }
         }
     }
 
@@ -97,6 +110,58 @@ public class QuanLyTuyen_CTRL {
         pnlTuyen.getTxtTimKiem().setText("");
 
         pnlTuyen.capNhatBang(tuyen_bus.getDuLieuBang());
+    }
+
+    private void hienThiChiTietTuyenDaChon(){
+        JTable table = pnlTuyen.getTableTuyen();
+        int row = table.getSelectedRow();
+
+        if(row == -1) return;
+
+        int modelRow = table.convertRowIndexToModel(row);
+        String tuyenID = table.getValueAt(modelRow, 0).toString();
+        String thongTinChung = tuyen_bus.getChiTietTuyen(tuyenID);
+        List<Object[]> dsGaTrungGian = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen),"Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
+        dialog.setLayout(new BorderLayout());
+
+        JTextArea txtThongTinCHung = new JTextArea(thongTinChung);
+        txtThongTinCHung.setEditable(false);
+        txtThongTinCHung.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        String[] columnNames = { "Tên Ga", "Loại Ga", "Khoảng cách từ ga xuất phát (km)"};
+        DefaultTableModel detailModel = new DefaultTableModel(columnNames,0);
+        for(Object[] rowData : dsGaTrungGian){
+            detailModel.addRow(rowData);
+        }
+
+        JTable detailTable = new JTable(detailModel);
+        detailTable.setFillsViewportHeight(true);
+        detailTable.setRowHeight(25);
+        detailTable.setShowGrid(true);
+        detailTable.setShowHorizontalLines(true);
+        detailTable.setShowVerticalLines(true);
+
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();// căn phait cho cột khoảng cách
+        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+        detailTable.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        JScrollPane tableScrollPane = new JScrollPane(detailTable);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(new JScrollPane(txtThongTinCHung), BorderLayout.NORTH);
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+        dialog.add(mainPanel, BorderLayout.CENTER);
+        JButton btnClose = new JButton("Đóng");
+        btnClose.addActionListener(e -> dialog.dispose());
+        JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        southPanel.setBorder(BorderFactory.createEmptyBorder(5,0,5,5));
+        southPanel.add(btnClose);
+
+        dialog.add(southPanel, BorderLayout.SOUTH);
+
+        dialog.pack();
+        dialog.setSize(600, 600);
+        dialog.setLocationRelativeTo(pnlTuyen);
+        dialog.setVisible(true);
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
