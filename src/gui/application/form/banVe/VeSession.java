@@ -33,14 +33,14 @@ public class VeSession {
 	private final String toaID;
 	private final int soToa;
 	private final int soGhe;
-	private final double gia;
+	private final int gia;
 	private final String khuyenMaiCode;
-	private final double giam;
+	private final int giam;
 	private final Instant thoiDiemHetHan;
 	private KhachHang hanhKhach;
 
 	public VeSession(String chuyenID, String tenTau, String tenGaDi, String tenGaDen, LocalDate ngayDi, LocalTime gioDi,
-			String toaID, int soToa, int soGhe, double gia, String khuyenMaiCode, double giam, Instant thoiDiemHetHan) {
+			String toaID, int soToa, int soGhe, int gia, String khuyenMaiCode, int giam, Instant thoiDiemHetHan) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tenTau = tenTau;
@@ -61,11 +61,11 @@ public class VeSession {
 		return khuyenMaiCode;
 	}
 
-	public double getGiam() {
+	public int getGiam() {
 		return giam;
 	}
 
-	public double getGia() {
+	public int getGia() {
 		return gia;
 	}
 

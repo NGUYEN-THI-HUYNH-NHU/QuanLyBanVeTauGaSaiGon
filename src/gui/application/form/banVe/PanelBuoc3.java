@@ -31,7 +31,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import entity.KhachHang;
@@ -55,7 +54,7 @@ public class PanelBuoc3 extends JPanel {
 		model = new HanhKhachTableModel();
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(250);
+		table.getColumnModel().getColumn(0).setMinWidth(220);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
 		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor());
 		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
@@ -138,15 +137,15 @@ public class PanelBuoc3 extends JPanel {
 		}
 		model.setRows(rows);
 
-		// --- FIX: force UI delegate refresh on EDT so FlatLaf re-applies rounded
-		// corners ---
-		SwingUtilities.invokeLater(() -> {
-			// update UI for this panel only (cheaper than update entire app)
-			SwingUtilities.updateComponentTreeUI(this);
-			// optional: revalidate/repaint to ensure layout and painting refreshed
-			this.revalidate();
-			this.repaint();
-		});
+//		// --- FIX: force UI delegate refresh on EDT so FlatLaf re-applies rounded
+//		// corners ---
+//		SwingUtilities.invokeLater(() -> {
+//			// update UI for this panel only (cheaper than update entire app)
+//			SwingUtilities.updateComponentTreeUI(this);
+//			// optional: revalidate/repaint to ensure layout and painting refreshed
+//			this.revalidate();
+//			this.repaint();
+//		});
 	}
 
 	public List<PassengerRow> getPassengerRows() {

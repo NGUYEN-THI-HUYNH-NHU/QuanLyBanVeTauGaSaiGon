@@ -105,7 +105,7 @@ public class PanelBanVe extends JPanel {
 		});
 
 //        // Lắng nghe sự kiện "Hoàn tất thanh toán" từ PanelBanVe2Controller
-//        panelBanVe2Controller.addPaymentSuccessListener(() -> {
+//        banVe2Controller.addPaymentSuccessListener(() -> {
 //            // Khi bước 2 (gộp) xong:
 //            
 //            // 1. Yêu cầu PanelBuoc6 tải dữ liệu

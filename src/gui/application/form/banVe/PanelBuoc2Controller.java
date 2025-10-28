@@ -1,4 +1,5 @@
 package gui.application.form.banVe;
+
 /*
  * @(#) PanelBuoc2Controller.java  1.0  [12:53:22 PM] Sep 29, 2025
  *
@@ -55,6 +56,7 @@ public class PanelBuoc2Controller {
 
 	public interface SeatSelectedListener {
 		void onSeatSelected(VeSession v);
+
 		void onMuaVeClicked();
 	}
 
@@ -76,14 +78,15 @@ public class PanelBuoc2Controller {
 		panelDoanTau.setController(this);
 		panelSoDoCho.setController(this);
 		panelGioVe.setController(this);
-		
+
 		panelGioVe.addBuyButtonListener(e -> {
-            for (SeatSelectedListener listener : seatSelectedListeners) {
-                try {
-                	listener.onMuaVeClicked(); 
-                } catch (Throwable ignore) {}
-            }
-        });
+			for (SeatSelectedListener listener : seatSelectedListeners) {
+				try {
+					listener.onMuaVeClicked();
+				} catch (Throwable ignore) {
+				}
+			}
+		});
 	}
 
 	public void setBookingSession(BookingSession s) {
@@ -293,32 +296,37 @@ public class PanelBuoc2Controller {
 
 	// user clicked a seat button
 	public void onSeatClicked(Toa toa, Ghe ghe) {
-	    if (ghe == null || toa == null) return;
+		if (ghe == null || toa == null) {
+			return;
+		}
 
-	    new SwingWorker<VeSession, Void>() {
-	    	SearchCriteria chuyenDiCriteria = bookingSession.getOutboundCriteria();
+		new SwingWorker<VeSession, Void>() {
+			SearchCriteria chuyenDiCriteria = bookingSession.getOutboundCriteria();
 
-	    	String chuyenID = selectedChuyen.getChuyenID();
-	        String tauID = selectedChuyen.getTau().getTauID();
-	        String tenGaDi = chuyenDiCriteria.getGaDiName();
-	        String tenGaDen = chuyenDiCriteria.getGaDenName();
-	        LocalDate ngayDi = selectedChuyen.getNgayDi();
-	        LocalTime gioDi = selectedChuyen.getGioDi();
-	        String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
-	        Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
-	        int soToa = toa.getSoToa();
-	        int soGhe = ghe.getSoGhe();
-	        double gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(), chuyenDiCriteria.getGaDenId(), selectedChuyen.getTau().getLoaiTau().toString(), hangToa);
-	        String khuyenMaiCode = "";
-	        double giam = 0;
-	        @Override
-	        protected VeSession doInBackground() throws Exception {
-	        	VeSession v = new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
-	            bookingSession.addOutboundTicket(v);
-	            return v;
-	        }
+			String chuyenID = selectedChuyen.getChuyenID();
+			String tauID = selectedChuyen.getTau().getTauID();
+			String tenGaDi = chuyenDiCriteria.getGaDiName();
+			String tenGaDen = chuyenDiCriteria.getGaDenName();
+			LocalDate ngayDi = selectedChuyen.getNgayDi();
+			LocalTime gioDi = selectedChuyen.getGioDi();
+			String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
+			Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
+			int soToa = toa.getSoToa();
+			int soGhe = ghe.getSoGhe();
+			int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(),
+					chuyenDiCriteria.getGaDenId(), selectedChuyen.getTau().getLoaiTau().toString(), hangToa);
+			String khuyenMaiCode = "";
+			int giam = 0;
 
-	        @Override
+			@Override
+			protected VeSession doInBackground() throws Exception {
+				VeSession v = new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe,
+						gia, khuyenMaiCode, giam, thoiDiemHetHan);
+				bookingSession.addOutboundTicket(v);
+				return v;
+			}
+
+			@Override
 			protected void done() {
 				try {
 					VeSession v = get();
@@ -341,10 +349,9 @@ public class PanelBuoc2Controller {
 					ex.printStackTrace();
 				}
 			}
-	    }.execute();
+		}.execute();
 	}
-	
-	
+
 	// start a swing timer updating corresponding JLabel; label may be registered by
 	// panelGioVe
 	public void registerCountdownLabelForVe(VeSession v, JLabel lbl) {
@@ -356,34 +363,34 @@ public class PanelBuoc2Controller {
 	}
 
 	private void startCountdownForVe(VeSession v) {
-	    String id = v.toString();
-	    Timer old = countdownTimers.remove(id);
-	    if (old != null) {
-	    	old.stop();
-	    }
+		String id = v.toString();
+		Timer old = countdownTimers.remove(id);
+		if (old != null) {
+			old.stop();
+		}
 
-	    // Lấy thời điểm hết hạn thực tế từ vé
-	    final Instant thoiDiemHetHan = v.getThoiDiemHetHan();
+		// Lấy thời điểm hết hạn thực tế từ vé
+		final Instant thoiDiemHetHan = v.getThoiDiemHetHan();
 
-	    Timer timer = new Timer(1000, e -> {
-	        // Tính số giây còn lại bằng cách so sánh giờ hiện tại với giờ hết hạn
-	        long s = ChronoUnit.SECONDS.between(Instant.now(), thoiDiemHetHan);
+		Timer timer = new Timer(1000, e -> {
+			// Tính số giây còn lại bằng cách so sánh giờ hiện tại với giờ hết hạn
+			long s = ChronoUnit.SECONDS.between(Instant.now(), thoiDiemHetHan);
 
-	        JLabel label = countdownLabels.get(id);
-	        if (label != null) {
-	            label.setText(formatSeconds(s));
-	        }
+			JLabel label = countdownLabels.get(id);
+			if (label != null) {
+				label.setText(formatSeconds(s));
+			}
 
-	        if (s <= 0) {
-	            ((Timer) e.getSource()).stop();
-	            countdownTimers.remove(id);
-	            countdownLabels.remove(id);
-	            releaseHoldAndRemoveVe(v); // Tự động xóa vé
-	        }
-	    });
-	    timer.setInitialDelay(0);
-	    timer.start();
-	    countdownTimers.put(id, timer);
+			if (s <= 0) {
+				((Timer) e.getSource()).stop();
+				countdownTimers.remove(id);
+				countdownLabels.remove(id);
+				releaseHoldAndRemoveVe(v); // Tự động xóa vé
+			}
+		});
+		timer.setInitialDelay(0);
+		timer.start();
+		countdownTimers.put(id, timer);
 	}
 
 	private String formatSeconds(long s) {

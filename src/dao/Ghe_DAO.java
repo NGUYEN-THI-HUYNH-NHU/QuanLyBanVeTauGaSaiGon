@@ -155,9 +155,10 @@ public class Ghe_DAO {
 	 * @param gaDenID   ID của ga đến
 	 * @param loaiTauID ID của Loại tàu (từ BieuGiaVe)
 	 * @param hangToaID ID của Hạng toa (từ BieuGiaVe)
-	 * @return Giá vé (BigDecimal), hoặc BigDecimal.ZERO nếu không tìm thấy quy tắc giá.
+	 * @return Giá vé (BigDecimal), hoặc BigDecimal.ZERO nếu không tìm thấy quy tắc
+	 *         giá.
 	 */
-	public double calcGia(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
+	public int calcGia(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
 		Connection conn = connectDB.getConnection();
 
 		String sql = "-- 0. Khai báo tham số đầu vào\n" + "DECLARE @chuyenID VARCHAR(50) = ?;\n"
@@ -197,7 +198,7 @@ public class Ghe_DAO {
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return Math.round(rs.getDouble("finalPrice"));
+					return (int) (Math.round(rs.getDouble("finalPrice") / 500.0) * 500);
 				}
 			}
 		} catch (SQLException e) {
