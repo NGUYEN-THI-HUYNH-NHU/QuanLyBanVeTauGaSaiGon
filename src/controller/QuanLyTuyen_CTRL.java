@@ -72,6 +72,13 @@ public class QuanLyTuyen_CTRL {
         }
     }
 
+    private class ThemTuyenListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhThemTuyen();
+        }
+    }
+
     private void thietLapAutoCompleteListener(){
         taoPopGoiY(pnlTuyen.getTxtGaDi(), pnlTuyen.getPpGaDi(),
                 pnlTuyen.getListGaDi(), input -> ga_bus.timTenGaChoGoiY(input));
@@ -162,6 +169,11 @@ public class QuanLyTuyen_CTRL {
         dialog.setSize(600, 600);
         dialog.setLocationRelativeTo(pnlTuyen);
         dialog.setVisible(true);
+    }
+
+    private void hienThiManHinhThemTuyen(){
+        PanelThemTuyen panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
+        UngDung.showGiaoDienChinh(panelThemTuyen);
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
@@ -265,17 +277,5 @@ public class QuanLyTuyen_CTRL {
                 pp.setVisible(false);
             }
         });
-    }
-
-    private class ThemTuyenListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            hienThiManHinhThemTuyen();
-        }
-    }
-
-    private void hienThiManHinhThemTuyen(){
-        PanelThemTuyen pnlThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
-        UngDung.showGiaoDienChinh(pnlThemTuyen);
     }
 }

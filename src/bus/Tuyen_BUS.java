@@ -58,7 +58,7 @@ public class Tuyen_BUS {
             return new ArrayList<>();
         }
         return tuyen_dao.getTuyenTheoGa(gaDi.trim(), gaDen.trim());
-    }
+   }
 
     public List<Object[]> getDuLieuBang(){
         return convertTuyenListToTableData(tuyen_dao.getAllTuyen());
@@ -182,6 +182,43 @@ public class Tuyen_BUS {
             dsChiTietBang.add(rowData);
         }
         return dsChiTietBang;
+    }
+
+    /**
+     * tạo mã tuyến
+     */
+    public String taoMaTuyen(String gaXuatPhat, String gaDich){
+        if(gaXuatPhat == null || gaXuatPhat.isEmpty() || gaDich == null || gaDich.isEmpty()){
+            return "";
+        }
+        String maDi = ga_dao.getGaByTenGa(gaXuatPhat).getGaID();
+        String maDen = ga_dao.getGaByTenGa(gaDich).getGaID();
+
+        if(maDi.length() < 3 || maDen.length() < 3){
+            return maDi + "-" + maDen;
+        }
+        return maDi + "-" + maDen;
+    }
+
+    public boolean themTuyen(Tuyen tuyenMoi, List<TuyenChiTiet> dsTCT){
+        if(tuyenMoi == null || dsTCT == null || dsTCT.isEmpty()){
+            return false;
+        }
+        boolean themTuyenThanhCong = false;
+        try{
+            boolean themTuyen = tuyen_dao.themTuyenMoi(tuyenMoi);
+            if(themTuyen){
+                boolean themChiTiet = tuyenChiTietDao.themDanhSachChiTiet(dsTCT);
+                if(themChiTiet){
+                    themTuyenThanhCong = true;
+                }else{
+                    // Xoá tuyến nếu thêm chi tiết thất bại
+                    tuyen_dao.xoaTuyen(tuyenMoi.getTuyenID());
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        } return themTuyenThanhCong;
     }
 
 }
