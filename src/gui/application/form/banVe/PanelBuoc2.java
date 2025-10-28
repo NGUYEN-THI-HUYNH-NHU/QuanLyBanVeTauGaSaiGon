@@ -32,20 +32,20 @@ public class PanelBuoc2 extends JPanel {
 	private JPanel centerPanel;
 
 	private PanelBuoc2Controller controller;
-	private JPanel pnlChuThich;
+//	private JPanel pnlChuThich;
 
 	public PanelBuoc2() {
 		setLayout(new BorderLayout(2, 0));
 		setBorder(new TitledBorder(""));
 		setPreferredSize(new Dimension(0, 400));
 
-		pnlChuThich = new JPanel();
-		pnlChuThich.setPreferredSize(new Dimension(10, 20));
-//        ImageIcon iconTrong = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
-//        ImageIcon iconDay = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
-		ImageIcon iconDangChon = new ImageIcon(getClass().getResource("/gui/icon/png/chu-thich.png"));
-		JLabel muc1 = new JLabel("", iconDangChon, JLabel.CENTER);
-		pnlChuThich.add(muc1);
+//		pnlChuThich = new JPanel();
+//		pnlChuThich.setPreferredSize(new Dimension(10, 20));
+////        ImageIcon iconTrong = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
+////        ImageIcon iconDay = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
+//		ImageIcon iconDangChon = new ImageIcon(getClass().getResource("/gui/icon/png/chu-thich.png"));
+//		JLabel muc1 = new JLabel("", iconDangChon, JLabel.CENTER);
+//		pnlChuThich.add(muc1);
 
 		panelChieuLabel = new PanelChieuLabel();
 		panelChuyenTau = new PanelChuyenTau();
@@ -60,7 +60,7 @@ public class PanelBuoc2 extends JPanel {
 		centerPanel.add(panelChuyenTau);
 		centerPanel.add(panelDoanTau);
 		centerPanel.add(panelSoDoCho);
-		centerPanel.add(pnlChuThich);
+//		centerPanel.add(pnlChuThich);
 
 		add(centerPanel, BorderLayout.CENTER);
 		add(panelGioVe, BorderLayout.EAST);
