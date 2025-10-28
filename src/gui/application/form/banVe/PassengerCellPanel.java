@@ -25,18 +25,14 @@ import javax.swing.UIManager;
 import entity.type.LoaiDoiTuong;
 
 public class PassengerCellPanel extends JPanel {
-	private final JTextField tfName = new JTextField(10);
+	private final JTextField txtTen = new JTextField();
+	private final JTextField txtID = new JTextField();
 	String[] types = { "Người lớn", "Trẻ em", "Người cao tuổi" };
 	private final JComboBox<String> cbType = new JComboBox<String>(types);
-	private final JTextField tfID;
-	private final JTextField tfTen;
 
 	public PassengerCellPanel() {
-		super(new GridBagLayout());
-		setOpaque(true); // rất quan trọng
-
-		tfID = new JTextField(10);
-		tfTen = new JTextField(10);
+		setLayout(new GridBagLayout());
+		setOpaque(true);
 
 		// layout
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -46,21 +42,21 @@ public class PassengerCellPanel extends JPanel {
 
 		gbc.gridy = 0;
 		gbc.weightx = 1.0;
-		add(tfTen, gbc);
+		add(txtTen, gbc);
 
 		gbc.gridy = 1;
 		add(cbType, gbc);
 
 		gbc.gridy = 2;
-		add(tfID, gbc);
+		add(txtID, gbc);
 	}
 
 	public void setData(PassengerRow p) {
 		if (p == null) {
 			return;
 		}
-		getTfName().setText(p.getFullName());
-		tfID.setText(p.getIdNumber());
+		getTxtTen().setText(p.getFullName());
+		txtID.setText(p.getIdNumber());
 		switch (p.getType()) {
 		case NGUOI_LON:
 			cbType.setSelectedIndex(0);
@@ -78,27 +74,35 @@ public class PassengerCellPanel extends JPanel {
 		if (base == null) {
 			return null;
 		}
-		base.setFullName(getTfName().getText().trim());
-		base.setIdNumber(tfID.getText().trim());
+		base.setFullName(getTxtTen().getText().trim());
+		base.setIdNumber(txtID.getText().trim());
 		int idx = cbType.getSelectedIndex();
 		base.setType(idx == 1 ? LoaiDoiTuong.TRE_EM : idx == 2 ? LoaiDoiTuong.NGUOI_CAO_TUOI : LoaiDoiTuong.NGUOI_LON);
 		return base;
 	}
 
 	public void setEditable(boolean editable) {
-		getTfName().setEditable(editable);
+		getTxtTen().setEditable(editable);
 		cbType.setEnabled(editable);
-		tfID.setEditable(editable);
+		txtID.setEditable(editable);
 	}
 
 	// helper: ensure the ui of child comps uses current LAF (call when LAF changes)
 	public void updateChildUI() {
-		getTfName().setBorder(UIManager.getBorder("TextField.border"));
-		tfID.setBorder(UIManager.getBorder("TextField.border"));
+		getTxtTen().setBorder(UIManager.getBorder("TextField.border"));
+		txtID.setBorder(UIManager.getBorder("TextField.border"));
 		cbType.setBorder(UIManager.getBorder("ComboBox.border"));
 	}
 
-	public JTextField getTfName() {
-		return tfName;
+	public JTextField getTxtTen() {
+		return txtTen;
+	}
+
+	public JTextField getTxtID() {
+		return txtID;
+	}
+
+	public JComboBox<String> getCbType() {
+		return cbType;
 	}
 }

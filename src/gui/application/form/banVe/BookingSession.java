@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import entity.Chuyen;
+import entity.KhachHang;
 
 /**
  * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
@@ -31,8 +32,10 @@ public class BookingSession {
 	private final List<VeSession> outboundSelected = new ArrayList<>();
 	// Return (chiều về) — có thể null nếu 1 chiều
 	private SearchCriteria returnCriteria;
-	private List<Chuyen> returnResults = new ArrayList<>(); // List<Chuyen>
+	private List<Chuyen> returnResults = new ArrayList<>();
 	private final List<VeSession> returnSelected = new ArrayList<>();
+
+	private KhachHang nguoiMua;
 
 	public BookingSession() {
 	}
@@ -97,6 +100,14 @@ public class BookingSession {
 
 	public synchronized List<Chuyen> getReturnResults() {
 		return Collections.unmodifiableList(returnResults);
+	}
+
+	public KhachHang getNguoiMua() {
+		return nguoiMua;
+	}
+
+	public void setNguoiMua(KhachHang nguoiMua) {
+		this.nguoiMua = nguoiMua;
 	}
 
 	public synchronized void addReturnTicket(VeSession v) {
