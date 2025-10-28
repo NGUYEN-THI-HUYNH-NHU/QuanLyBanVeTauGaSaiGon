@@ -1,14 +1,14 @@
 package connectDB;/*
- * @ (#) ConnectDB.java   1.0     25/09/2025
-package connectDB;
-
-
-/**
- * @description :
- * @author : Vy, Pham Kha Vy
- * @version 1.0
- * @created : 25/09/2025
- */
+					* @ (#) ConnectDB.java   1.0     25/09/2025
+					package connectDB;
+					
+					
+					/**
+					* @description :
+					* @author : Vy, Pham Kha Vy
+					* @version 1.0
+					* @created : 25/09/2025
+					*/
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,11 +20,11 @@ public class ConnectDB {
 	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V7;encrypt=false;";
 	private static final String USER = "sa";
 	private static final String PASSWORD = "sapassword";
-//private static final String PASSWORD = "StrongP@ssw0rd!";
+//  private static final String PASSWORD = "StrongP@ssw0rd!";
 
-	private static ConnectDB instance;//	private static final String PASSWORD = "sapassword";
+	private static ConnectDB instance;
 
-    private Connection connection;
+	private Connection connection;
 
 	private ConnectDB() {
 		try {
@@ -34,7 +34,8 @@ public class ConnectDB {
 		}
 	}
 
-	// Đảm bảo rằng mỗi lần gọi getInstance() sẽ trả về cùng một đối tượng ConnectionDB đã tồn tại.
+	// Đảm bảo rằng mỗi lần gọi getInstance() sẽ trả về cùng một đối tượng
+	// ConnectionDB đã tồn tại.
 	public static ConnectDB getInstance() {
 		if (instance == null) {
 			synchronized (ConnectDB.class) {
@@ -54,7 +55,6 @@ public class ConnectDB {
 			return null;
 		}
 	}
-
 
 	public Connection connect() {
 		if (connection == null) {

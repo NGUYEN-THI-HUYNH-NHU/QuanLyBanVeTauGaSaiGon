@@ -65,10 +65,11 @@ public class PanelGioVe extends JPanel {
 	public void setController(PanelBuoc2Controller c) {
 		this.controller = c;
 	}
-	
+
 	public void addBuyButtonListener(ActionListener l) {
-	if (btnMuaVe != null && l != null)
-		btnMuaVe.addActionListener(l);
+		if (btnMuaVe != null && l != null) {
+			btnMuaVe.addActionListener(l);
+		}
 	}
 
 	public void refresh(List<VeSession> dsVeSession) {
