@@ -28,7 +28,6 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 import bus.Chuyen_BUS;
-import bus.VeSession_BUS;
 import entity.Chuyen;
 import entity.Ga;
 import entity.Ghe;
@@ -43,7 +42,6 @@ public class PanelBuoc2Controller {
 	private final PanelGioVe panelGioVe;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
-//	private final VeSession_BUS veSessionBUS = VeSession_BUS.getInstance();
 
 	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
 	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
@@ -54,7 +52,6 @@ public class PanelBuoc2Controller {
 	private Chuyen selectedChuyen;
 	private int currentTripIndex = 0;
 	private Toa selectedToa;
-	private BanVe1Controller banVe1Controller;
 
 	public interface SeatSelectedListener {
 		void onSeatSelected(VeSession v);
@@ -301,6 +298,7 @@ public class PanelBuoc2Controller {
 	    new SwingWorker<VeSession, Void>() {
 	    	SearchCriteria chuyenDiCriteria = bookingSession.getOutboundCriteria();
 
+	    	String chuyenID = selectedChuyen.getChuyenID();
 	        String tauID = selectedChuyen.getTau().getTauID();
 	        String tenGaDi = chuyenDiCriteria.getGaDiName();
 	        String tenGaDen = chuyenDiCriteria.getGaDenName();
@@ -310,10 +308,12 @@ public class PanelBuoc2Controller {
 	        Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
 	        int soToa = toa.getSoToa();
 	        int soGhe = ghe.getSoGhe();
-	        
+	        double gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(), chuyenDiCriteria.getGaDenId(), selectedChuyen.getTau().getLoaiTau().toString(), hangToa);
+	        String khuyenMaiCode = "";
+	        double giam = 0;
 	        @Override
-	        protected VeSession doInBackground() throws Exception {	            
-	            VeSession v = new VeSession(selectedChuyen.getChuyenID(), tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, thoiDiemHetHan);
+	        protected VeSession doInBackground() throws Exception {
+	        	VeSession v = new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
 	            bookingSession.addOutboundTicket(v);
 	            return v;
 	        }
@@ -323,10 +323,6 @@ public class PanelBuoc2Controller {
 				try {
 					VeSession v = get();
 					if (v != null) {
-						// add to veSessionBUS
-//						veSessionBUS.addVeSession(v);
-						// update UI: refresh right panel
-//						panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 						panelGioVe.refresh(bookingSession.getOutboundSelectedTickets());
 
 						for (SeatSelectedListener listener : seatSelectedListeners) {

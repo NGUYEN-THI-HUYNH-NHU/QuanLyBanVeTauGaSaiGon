@@ -34,6 +34,7 @@ import javax.swing.SwingUtilities;
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
+import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.thongTin.FormThongTinCaNhan;
@@ -62,7 +63,7 @@ public class FormDangNhap extends JPanel {
 		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]20[]"));
 		pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(230, 230, 230)));
 		pnlLogin.setOpaque(false);
-		pnlLogin.setPreferredSize(new Dimension(360, 340));
+		pnlLogin.setPreferredSize(new Dimension(360, 400));
 
 		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER));
 		lblTitle.setFont(new Font("", Font.BOLD, 24));
@@ -128,6 +129,7 @@ public class FormDangNhap extends JPanel {
 		if (nhanVien == null) {
 			resetDangNhap();
 		} else {
+			AuthService.getInstance().setCurrentUser(nhanVien);
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {

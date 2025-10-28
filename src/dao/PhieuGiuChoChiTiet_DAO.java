@@ -37,51 +37,91 @@ public class PhieuGiuChoChiTiet_DAO {
         connectDB.connect();
     }
 
-    public boolean checkConflict(String chuyenID, String gheID, String gaDiID, String gaDenID) {
+    /**
+     * Phương thức kiểm tra xung đột đã được cập nhật.
+     * Nhận đầu vào là thông tin từ "vé session".
+     *
+     * @param chuyenID ID của chuyến (đã có)
+     * @param tenGaDi  Tên ga đi (ví dụ: 'Sài Gòn')
+     * @param tenGaDen Tên ga đến (ví dụ: 'Đà Nẵng')
+     * @param toaID    ID của toa (đã có)
+     * @param soGhe    Số thứ tự của ghế (ví dụ: 5)
+     * @return true nếu CÓ XUNG ĐỘT (bị chiếm), false nếu GHẾ TRỐNG.
+     */
+    public boolean checkConflict(String chuyenID, String tenGaDi, String tenGaDen, String toaID, int soGhe) {
         Connection conn = connectDB.getConnection();
-        String sqlCheck = "DECLARE @chuyenID VARCHAR(50) = ?;\n"
-                + "DECLARE @gheID VARCHAR(50) = ?;\n"
-                + "DECLARE @gaDiID VARCHAR(50) = ?;\n"
-                + "DECLARE @gaDenID VARCHAR(50) = ?;\n"
+
+        // --- BẮT ĐẦU SỬA SQL ---
+        String sqlCheck = 
+                  "-- 1. Khai báo tham số từ session\n"
+                + "DECLARE @chuyenID VARCHAR(50) = ?;\n"
+                + "DECLARE @tenGaDi NVARCHAR(255) = ?;\n"
+                + "DECLARE @tenGaDen NVARCHAR(255) = ?;\n"
+                + "DECLARE @toaID VARCHAR(50) = ?;\n"
+                + "DECLARE @soGhe INT = ?;\n"
+                + "DECLARE @holdMinutes INT = ?;\n" // Tham số thời gian giữ chỗ
                 + "\n"
-                + "-- Lấy thứ tự của ga đi/ga đến MỚI\n"
+                + "-- 2. Truy vấn các ID cần thiết từ thông tin session\n"
+                + "DECLARE @gaDiID VARCHAR(50), @gaDenID VARCHAR(50), @gheID VARCHAR(50);\n"
                 + "DECLARE @thuTuGaDi_Moi INT, @thuTuGaDen_Moi INT;\n"
+                + "\n"
+                + "SELECT @gaDiID = gaID FROM Ga WHERE tenGa = @tenGaDi;\n"
+                + "SELECT @gaDenID = gaID FROM Ga WHERE tenGa = @tenGaDen;\n"
+                + "SELECT @gheID = gheID FROM Ghe WHERE toaID = @toaID AND soGhe = @soGhe;\n"
+                + "\n"
+                + "IF @gheID IS NULL OR @gaDiID IS NULL OR @gaDenID IS NULL\n"
+                + "BEGIN\n"
+                + "    RAISERROR('Không tìm thấy thông tin Ga ID hoặc Ghế ID từ dữ liệu đầu vào.', 16, 1);\n"
+                + "    RETURN;\n"
+                + "END\n"
+                + "\n"
+                + "-- 3. Lấy thứ tự của ga đi/ga đến MỚI (Logic này giữ nguyên)\n"
                 + "SELECT @thuTuGaDi_Moi = thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDiID;\n"
                 + "SELECT @thuTuGaDen_Moi = thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDenID;\n"
                 + "\n"
-                + "-- 1. Kiểm tra Vé đã bán (Ve)\n"
+                + "IF @thuTuGaDi_Moi IS NULL OR @thuTuGaDen_Moi IS NULL\n"
+                + "BEGIN\n"
+                + "    RAISERROR('Không tìm thấy thông tin ga đi/ga đến trong lịch trình của chuyến.', 16, 1);\n"
+                + "    RETURN;\n"
+                + "END\n"
+                + "\n"
+                + "-- 4. Phần logic kiểm tra xung đột (Giữ nguyên)\n"
+                + "-- 4.1. Kiểm tra Vé đã bán (Ve)\n"
                 + "SELECT v.veID\n"
                 + "FROM Ve v\n"
                 + "JOIN ChuyenGa cgDi ON v.chuyenID = cgDi.chuyenID AND v.gaDiID = cgDi.gaID\n"
                 + "JOIN ChuyenGa cgDen ON v.chuyenID = cgDen.chuyenID AND v.gaDenID = cgDen.gaID\n"
                 + "WHERE v.chuyenID = @chuyenID\n"
-                + "  AND v.gheID = @gheID\n"
+                + "  AND v.gheID = @gheID\n" // Dùng @gheID đã truy vấn được
                 + "  AND v.trangThai IN ('DA_BAN', 'DA_DUNG')\n"
-                + "  AND cgDi.thuTu < @thuTuGaDen_Moi -- Điều kiện chồng lấp (overlap)\n"
+                + "  AND cgDi.thuTu < @thuTuGaDen_Moi\n"
                 + "  AND cgDen.thuTu > @thuTuGaDi_Moi\n"
                 + "\n"
                 + "UNION ALL\n"
                 + "\n"
-                + "-- 2. Kiểm tra Phiếu giữ chỗ (PhieuGiuChoChiTiet) đang giữ và còn hạn\n"
+                + "-- 4.2. Kiểm tra Phiếu giữ chỗ (PhieuGiuChoChiTiet) đang giữ và còn hạn\n"
                 + "SELECT pgcct.phieuGiuChoChiTietID\n"
                 + "FROM PhieuGiuChoChiTiet pgcct\n"
                 + "JOIN PhieuGiuCho pgc ON pgcct.phieuGiuChoID = pgc.phieuGiuChoID\n"
                 + "JOIN ChuyenGa cgDi ON pgcct.chuyenID = cgDi.chuyenID AND pgcct.gaDiID = cgDi.gaID\n"
                 + "JOIN ChuyenGa cgDen ON pgcct.chuyenID = cgDen.chuyenID AND pgcct.gaDenID = cgDen.gaID\n"
                 + "WHERE pgcct.chuyenID = @chuyenID\n"
-                + "  AND pgcct.gheID = @gheID\n"
+                + "  AND pgcct.gheID = @gheID\n" // Dùng @gheID đã truy vấn được
                 + "  AND pgcct.trangThai = 'DANG_GIU'\n"
                 + "  AND pgc.trangThai = 'DANG_GIU'\n"
-                + "  AND pgc.thoiDiemTao > DATEADD(minute, -?, SYSUTCDATETIME())\n"
-                + "  AND cgDi.thuTu < @thuTuGaDen_Moi -- Điều kiện chồng lấp (overlap)\n"
+                + "  AND pgc.thoiDiemTao > DATEADD(minute, -@holdMinutes, SYSUTCDATETIME())\n"
+                + "  AND cgDi.thuTu < @thuTuGaDen_Moi\n"
                 + "  AND cgDen.thuTu > @thuTuGaDi_Moi;";
+        // --- KẾT THÚC SỬA SQL ---
 
         try (PreparedStatement ps = conn.prepareStatement(sqlCheck)) {
+            // Set các tham số mới theo đúng thứ tự
             ps.setString(1, chuyenID);
-            ps.setString(2, gheID);
-            ps.setString(3, gaDiID);
-            ps.setString(4, gaDenID);
-            ps.setInt(5, HOLD_DURATION_MINUTES); // Thời gian giữ chỗ
+            ps.setString(2, tenGaDi);   // Thay vì gaDiID
+            ps.setString(3, tenGaDen); // Thay vì gaDenID
+            ps.setString(4, toaID);     // Thêm toaID
+            ps.setInt(5, soGhe);        // Thêm soGhe
+            ps.setInt(6, HOLD_DURATION_MINUTES); // Thời gian giữ chỗ
             
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next(); // Nếu rs.next() là true, nghĩa là tìm thấy ít nhất 1 xung đột

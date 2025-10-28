@@ -78,4 +78,8 @@ public class Chuyen_BUS {
     public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
     	return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
     }
+    
+	public double layGiaGheTheoPhanDoan(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
+		return gheDAO.calcGia(chuyenID, gaDiID, gaDenID, loaiTauID, hangToaID);
+	}
 }
