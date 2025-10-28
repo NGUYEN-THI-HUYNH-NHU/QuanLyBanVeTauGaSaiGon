@@ -68,7 +68,7 @@ public class   PanelQuanLyTuyen extends JPanel {
 
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        title.setForeground(new Color(30, 144, 255));
+        title.setForeground(new Color(30,41,58));
         panelHeader.add(title, "growx");
 
         //Tìm kiếm
@@ -84,6 +84,7 @@ public class   PanelQuanLyTuyen extends JPanel {
 
 //        btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.35f));
         btnLamMoiTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/refresh.svg", 0.35f));
+        btnLamMoiTuyen.setBackground(new Color(240, 248, 255));
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                         .put(KeyStroke.getKeyStroke("F5"), "lamMoiTuyenAction");
 
@@ -94,7 +95,9 @@ public class   PanelQuanLyTuyen extends JPanel {
             }
         });
         btnThemTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/add.svg", 0.35f));
+        btnThemTuyen.setBackground(new Color(240, 248, 255));
         btnCapNhatTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/edit.svg", 0.35f));
+        btnCapNhatTuyen.setBackground(new Color(240, 248, 255));
 
         panelSearch.add(new JLabel("Ga Đi:"));
         panelSearch.add(txtGaDi, "w 150");
@@ -105,7 +108,6 @@ public class   PanelQuanLyTuyen extends JPanel {
         panelSearch.add(new JLabel("Mã Tuyến:"));
         panelSearch.add(txtTimKiem);
 
-//        panelSearch.add(btnTimKiem);
         panelSearch.add(btnThemTuyen);
         panelSearch.add(btnCapNhatTuyen);
         panelSearch.add(btnLamMoiTuyen);
@@ -130,7 +132,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         hd.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        hd.setBackground(new Color(32, 90, 167));
+        hd.setBackground(new Color(30,41,58));
         hd.setForeground(Color.white);
 
         tableTuyen.setShowGrid(true);
@@ -201,7 +203,7 @@ public class   PanelQuanLyTuyen extends JPanel {
     }
 
     public void setMauBTN() {
-        Color mauNutChu = new Color(32, 90, 167);
+        Color mauNutChu = new Color(30,41,58);
 
         JButton[] buttons = { btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
 

@@ -81,12 +81,35 @@ public class ThemTuyen_CTRL {
     }
 
     private void thietLapListener(){
+        ActionListener maTuyenListener = e -> capNhatMaTuyen();
+        panelThemTuyen.getCmbGaXuatPhat().addActionListener(maTuyenListener);
+        panelThemTuyen.getCmbGaDich().addActionListener(maTuyenListener);
+
         taoPopGoiYChoComboBox(panelThemTuyen.getCmbGaXuatPhat(), panelThemTuyen.getPpGaXuatPhat(), panelThemTuyen.getListGaXuatPhat(), gaBus::timTenGaChoGoiY);
         taoPopGoiYChoComboBox(panelThemTuyen.getCmbGaDich(), panelThemTuyen.getPpGaDich(), panelThemTuyen.getListGaDich(), gaBus::timTenGaChoGoiY);
         taoPopGoiYChoComboBox(panelThemTuyen.getCmbGaTrungGian(), panelThemTuyen.getPpGaTrungGian(), panelThemTuyen.getListGaTrungGian(), gaBus::timTenGaChoGoiY);
 
+        panelThemTuyen.getBtnXacNhanTinhKC().addActionListener(e -> capNhatDanhSachVaTinhKC());
+
         panelThemTuyen.getBtnLuu().addActionListener(e -> xuLyLuuTuyen());
         panelThemTuyen.getBtnHuy().addActionListener(e -> xuLyHuyBo());
+
+    }
+
+    private void capNhatMaTuyen() {
+        String tenGaDi = (String) panelThemTuyen.getCmbGaXuatPhat().getSelectedItem();
+        String tenGaDen = (String) panelThemTuyen.getCmbGaDich().getSelectedItem();
+
+        if (tenGaDi != null && tenGaDen != null && !tenGaDi.isEmpty() && !tenGaDen.isEmpty()) {
+            String baseMa = tuyenBus.taoMaTuyen(tenGaDi, tenGaDen);
+            if (!baseMa.isEmpty()) {
+                panelThemTuyen.getTxtMaTuyen().setText(baseMa);
+            } else {
+                panelThemTuyen.getTxtMaTuyen().setText("");
+            }
+        } else {
+            panelThemTuyen.getTxtMaTuyen().setText("");
+        }
     }
 
     private void hienThiGoiYChoComboBox(JTextComponent editor, JComboBox<String> comboBox, JList<String> lst, JPopupMenu pp, Function<String, List<String>> timKiem){
@@ -153,11 +176,12 @@ public class ThemTuyen_CTRL {
 
                     pp.setVisible(false);
 
-                    // KÍCH HOẠT HÀM XỬ LÝ TƯƠNG ỨNG (KHÔNG PHẢI TÌM KIẾM)
+
                     if (comboBox == panelThemTuyen.getCmbGaTrungGian()) {
-                        xuLyChonGaTrungGian(null); // Gọi hàm xử lý chọn Ga TG
-                    } else {
-                        capNhatMaVaKhoangCach(); // Gọi hàm cập nhật mã và KC
+                        xuLyChonGaTrungGian(null);
+                    }
+                    else {
+                        capNhatMaTuyen();
                     }
                 }
             }
@@ -204,7 +228,7 @@ public class ThemTuyen_CTRL {
                             if (comboBox == panelThemTuyen.getCmbGaTrungGian()) {
                                 xuLyChonGaTrungGian(null);
                             } else {
-                                capNhatMaVaKhoangCach();
+                                capNhatMaTuyen();
                             }
                             e.consume();
                             break;
@@ -216,32 +240,6 @@ public class ThemTuyen_CTRL {
                 }
             }
         });
-    }
-
-    private void capNhatMaVaKhoangCach(){
-        String tenGaDi = (String) panelThemTuyen.getCmbGaXuatPhat().getSelectedItem();
-        String tenGaDen = (String) panelThemTuyen.getCmbGaDich().getSelectedItem();
-
-        if(tenGaDi != null && tenGaDen != null && !tenGaDi.isEmpty() && !tenGaDen.isEmpty()){
-            String baseMa = tuyenBus.taoMaTuyen(tenGaDi, tenGaDen);
-            if (!baseMa.isEmpty()) {
-                panelThemTuyen.getTxtMaTuyen().setText(baseMa);
-            } else {
-                panelThemTuyen.getTxtMaTuyen().setText("");
-            }
-
-            capNhatDanhSachVaTinhKC();
-        }
-        else{
-
-            panelThemTuyen.getTxtMaTuyen().setText("");
-            panelThemTuyen.getTxtDoDaiQuangDuong().setText("0");
-            panelThemTuyen.getModelGaChiTiet().setRowCount(0);
-            dsGaDaChon.clear();
-            panelThemTuyen.getPnlGaTrungGianDaChon().removeAll();
-            panelThemTuyen.getPnlGaTrungGianDaChon().revalidate();
-            panelThemTuyen.getPnlGaTrungGianDaChon().repaint();
-        }
     }
 
     private void xuLyChonGaTrungGian(ActionEvent e){
@@ -264,7 +262,6 @@ public class ThemTuyen_CTRL {
         }
         dsGaDaChon.add(gaMoi);
         taovaThemTagGa(gaMoi);
-        capNhatDanhSachVaTinhKC();
         cmb.setSelectedIndex(0);
     }
 
@@ -276,7 +273,6 @@ public class ThemTuyen_CTRL {
             dsGaDaChon.remove(ga);
             panelThemTuyen.getPnlGaTrungGianDaChon().revalidate();
             panelThemTuyen.getPnlGaTrungGianDaChon().repaint();
-            capNhatDanhSachVaTinhKC();
         });
 
         panelThemTuyen.getPnlGaTrungGianDaChon().add(btnGaTag);
@@ -389,6 +385,8 @@ public class ThemTuyen_CTRL {
             boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoi, dsTuyenChiTiet);
             if (luuTuyenThanhCong) {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Đã lưu tuyến mới " + maTuyen + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                PanelQuanLyTuyen panelQuanLy = new PanelQuanLyTuyen(panelThemTuyen.getNhanVienThucHien());
+                UngDung.showGiaoDienChinh(panelQuanLy);
             } else {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Lưu tuyến thất bại! Vui lòng kiểm tra lại dữ liệu.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             }

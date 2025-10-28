@@ -37,6 +37,7 @@ public class PanelThemTuyen extends JPanel {
 
     private JButton btnLuu;
     private JButton btnHuy;
+    private JButton btnXacNhanTinhKC;
 
     private JTextField txtMaTuyen;
     private JTextField txtDoDaiQuangDuong;
@@ -111,6 +112,11 @@ public class PanelThemTuyen extends JPanel {
         JScrollPane scrollPane = new JScrollPane(pnlGaTrungGianDaChon);
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
+
+        btnXacNhanTinhKC = new JButton("Xác Nhận");
+        btnXacNhanTinhKC.setBackground(COLOR_ACCENT);
+        btnXacNhanTinhKC.setForeground(Color.WHITE);
+        pnlContent.add(btnXacNhanTinhKC, "wrap 20");
 
         txtMoTa = new JTextArea(3,20);
         txtMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -250,4 +256,10 @@ public class PanelThemTuyen extends JPanel {
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
     }
+
+    public JButton getBtnXacNhanTinhKC() {
+        return btnXacNhanTinhKC;
+    }
+
+
 }
