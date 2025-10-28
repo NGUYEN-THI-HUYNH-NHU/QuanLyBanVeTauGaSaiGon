@@ -34,7 +34,6 @@ import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
@@ -44,6 +43,8 @@ import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.form.troGiup.PanelTroGiup;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
+import gui.application.form.dashboard.Dashboard;
+
 
 public class GiaoDienChinh extends JLayeredPane {
 	private static final long serialVersionUID = 1L;
@@ -91,7 +92,7 @@ public class GiaoDienChinh extends JLayeredPane {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
 
 			switch (index) {
-			case 1 -> UngDung.showGiaoDienChinh(new Dashboard(nhanVien));
+			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
 			case 2 -> UngDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
 //			case 3 -> {
