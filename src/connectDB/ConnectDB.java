@@ -19,10 +19,12 @@ import java.sql.SQLException;
 public class ConnectDB {
 	private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V7;encrypt=false;";
 	private static final String USER = "sa";
-	private static final String PASSWORD = "sapassword";
+//	private static final String PASSWORD = "sapassword";
+private static final String PASSWORD = "StrongP@ssw0rd!";
 
-	private static ConnectDB instance;
-	private Connection connection;
+	private static ConnectDB instance;//	private static final String PASSWORD = "sapassword";
+
+    private Connection connection;
 
 	private ConnectDB() {
 		try {
