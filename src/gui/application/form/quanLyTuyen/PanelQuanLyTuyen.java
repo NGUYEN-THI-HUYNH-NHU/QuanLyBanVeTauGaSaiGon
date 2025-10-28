@@ -211,6 +211,10 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
     }
 
+    public JTable getTableTuyen(){
+        return tableTuyen;
+    }
+
     public JTextField getTxtGaDi() {
         return txtGaDi;
     }
