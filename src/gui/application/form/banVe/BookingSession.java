@@ -19,132 +19,150 @@ import java.util.List;
 import entity.Chuyen;
 
 /**
- * BookingSession - lưu trạng thái phiên đặt vé.
- * Lưu: search criteria/ results cho cả 2 chiều (nếu có), và danh sách SelectedTicket cho mỗi chiều.
+ * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
+ * cho cả 2 chiều (nếu có), và danh sách SelectedTicket cho mỗi chiều.
  *
- * Lưu ý: class này thread-safe nhẹ (synchronized khi thay đổi), đủ cho UI single-thread Swing.
  */
 public class BookingSession {
-    private static BookingSession instance;
-    // Outbound (chiều đi)
-    private SearchCriteria outboundCriteria;
-    private List<Chuyen> outboundResults = new ArrayList<>();
-    private final List<VeSession> outboundSelected = new ArrayList<>();
-    // Return (chiều về) — có thể null nếu 1 chiều
-    private SearchCriteria returnCriteria;
-    private List<Chuyen> returnResults = new ArrayList<>(); // List<Chuyen>
-    private final List<VeSession> returnSelected = new ArrayList<>();
+	private static BookingSession instance;
+	// Outbound (chiều đi)
+	private SearchCriteria outboundCriteria;
+	private List<Chuyen> outboundResults = new ArrayList<>();
+	private final List<VeSession> outboundSelected = new ArrayList<>();
+	// Return (chiều về) — có thể null nếu 1 chiều
+	private SearchCriteria returnCriteria;
+	private List<Chuyen> returnResults = new ArrayList<>(); // List<Chuyen>
+	private final List<VeSession> returnSelected = new ArrayList<>();
 
-    public BookingSession() { }
-    
-    public static synchronized BookingSession getInstance() {
-        if (instance == null)
-        	instance = new BookingSession();
-        return instance;
-    }
+	public BookingSession() {
+	}
 
-    public synchronized void setOutboundCriteria(SearchCriteria c) {
-    	this.outboundCriteria = c;
-    }
-    public synchronized SearchCriteria getOutboundCriteria() {
-    	return outboundCriteria;
-    }
+	public static synchronized BookingSession getInstance() {
+		if (instance == null) {
+			instance = new BookingSession();
+		}
+		return instance;
+	}
 
-    public synchronized void setOutboundResults(List<Chuyen> results) {
-        this.outboundResults = (results == null) ? new ArrayList<Chuyen>() : new ArrayList<Chuyen>(results);
-    }
-    public synchronized List<Chuyen> getOutboundResults() {
-        return Collections.unmodifiableList(outboundResults);
-    }
+	public synchronized void setOutboundCriteria(SearchCriteria c) {
+		this.outboundCriteria = c;
+	}
 
-    // add/remove selected tickets for outbound
-    public synchronized void addOutboundTicket(VeSession v) {
-        if (v == null)
-        	return;
-        if (!outboundSelected.contains(v)) outboundSelected.add(v);
-    }
-    public synchronized void removeOutboundTicket(VeSession v) {
-    	outboundSelected.removeIf(x -> x.equals(v));
-    }
-    public synchronized List<VeSession> getOutboundSelectedTickets() {
-        return Collections.unmodifiableList(new ArrayList<>(outboundSelected));
-    }
-    public synchronized void clearOutboundSelection() { outboundSelected.clear(); }
+	public synchronized SearchCriteria getOutboundCriteria() {
+		return outboundCriteria;
+	}
 
-    // --- Return getters / setters ---
-    public synchronized void setReturnCriteria(SearchCriteria c) {
-    	this.returnCriteria = c;
-    }
-    public synchronized SearchCriteria getReturnCriteria() {
-    	return returnCriteria;
-    }
+	public synchronized void setOutboundResults(List<Chuyen> results) {
+		this.outboundResults = (results == null) ? new ArrayList<Chuyen>() : new ArrayList<Chuyen>(results);
+	}
 
-    public synchronized void setReturnResults(List<Chuyen> results) {
-        this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
-    }
-    public synchronized List<Chuyen> getReturnResults() {
-        return Collections.unmodifiableList(returnResults);
-    }
+	public synchronized List<Chuyen> getOutboundResults() {
+		return Collections.unmodifiableList(outboundResults);
+	}
 
-    public synchronized void addReturnTicket(VeSession v) {
-        if (v == null) return;
-        if (!returnSelected.contains(v)) returnSelected.add(v);
-    }
-    public synchronized void removeReturnTicket(VeSession v) {
-    	returnSelected.removeIf(x -> x.equals(v));
-    }
-    public synchronized List<VeSession> getReturnSelectedTickets() {
-        return Collections.unmodifiableList(new ArrayList<>(returnSelected));
-    }
-    public synchronized void clearReturnSelection() {
-    	returnSelected.clear();
-    }
-    
-    public synchronized void removeVeSession(VeSession v) {
-    	outboundResults.removeIf(x -> x.equals(v));
-    	returnResults.removeIf(x -> x.equals(v));
-    }
+	// add/remove selected tickets for outbound
+	public synchronized void addOutboundTicket(VeSession v) {
+		if (v == null) {
+			return;
+		}
+		if (!outboundSelected.contains(v)) {
+			outboundSelected.add(v);
+		}
+	}
 
-    // --- Helpers ---
-    public synchronized boolean isRoundTrip() {
-        return outboundCriteria != null && outboundCriteria.isKhuHoi();
-    }
+	public synchronized void removeOutboundTicket(VeSession v) {
+		outboundSelected.removeIf(x -> x.equals(v));
+	}
 
-    /**
-     * Lấy selected tickets theo tripIndex (0 = outbound, 1 = return)
-     */
-    public synchronized List<VeSession> getSelectedTicketsForTrip(int tripIndex) {
-        return tripIndex == 0 ? getOutboundSelectedTickets() : getReturnSelectedTickets();
-    }
+	public synchronized List<VeSession> getOutboundSelectedTickets() {
+		return Collections.unmodifiableList(new ArrayList<>(outboundSelected));
+	}
 
-    /**
-     * Thêm ticket theo tripIndex
-     */
-    public synchronized void addTicketForTrip(int tripIndex, VeSession v) {
-        if (tripIndex == 0)
-        	addOutboundTicket(v);
-        else addReturnTicket(v);
-    }
+	public synchronized void clearOutboundSelection() {
+		outboundSelected.clear();
+	}
 
-    /**
-     * Xóa tất cả dữ liệu session (khi hủy hoặc hoàn tất)
-     */
-    public synchronized void clearAll() {
-        outboundCriteria = null;
-        outboundResults.clear();
-        outboundSelected.clear();
-        returnCriteria = null;
-        returnResults.clear();
-        returnSelected.clear();
-    }
+	// --- Return getters / setters ---
+	public synchronized void setReturnCriteria(SearchCriteria c) {
+		this.returnCriteria = c;
+	}
 
-    @Override
-    public String toString() {
-        return "BookingSession{" +
-                "outBoundCriteria=" + outboundCriteria +
-                ", outboundSelected=" + outboundSelected +
-                ", returnCriteria=" + returnCriteria +
-                ", returnSelected=" + returnSelected +
-                '}';
-    }
+	public synchronized SearchCriteria getReturnCriteria() {
+		return returnCriteria;
+	}
+
+	public synchronized void setReturnResults(List<Chuyen> results) {
+		this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
+	}
+
+	public synchronized List<Chuyen> getReturnResults() {
+		return Collections.unmodifiableList(returnResults);
+	}
+
+	public synchronized void addReturnTicket(VeSession v) {
+		if (v == null) {
+			return;
+		}
+		if (!returnSelected.contains(v)) {
+			returnSelected.add(v);
+		}
+	}
+
+	public synchronized void removeReturnTicket(VeSession v) {
+		returnSelected.removeIf(x -> x.equals(v));
+	}
+
+	public synchronized List<VeSession> getReturnSelectedTickets() {
+		return Collections.unmodifiableList(new ArrayList<>(returnSelected));
+	}
+
+	public synchronized void clearReturnSelection() {
+		returnSelected.clear();
+	}
+
+	public synchronized void removeVeSession(VeSession v) {
+		outboundResults.removeIf(x -> x.equals(v));
+		returnResults.removeIf(x -> x.equals(v));
+	}
+
+	// --- Helpers ---
+	public synchronized boolean isRoundTrip() {
+		return outboundCriteria != null && outboundCriteria.isKhuHoi();
+	}
+
+	/**
+	 * Lấy selected tickets theo tripIndex (0 = outbound, 1 = return)
+	 */
+	public synchronized List<VeSession> getSelectedTicketsForTrip(int tripIndex) {
+		return tripIndex == 0 ? getOutboundSelectedTickets() : getReturnSelectedTickets();
+	}
+
+	/**
+	 * Thêm ticket theo tripIndex
+	 */
+	public synchronized void addTicketForTrip(int tripIndex, VeSession v) {
+		if (tripIndex == 0) {
+			addOutboundTicket(v);
+		} else {
+			addReturnTicket(v);
+		}
+	}
+
+	/**
+	 * Xóa tất cả dữ liệu session (khi hủy hoặc hoàn tất)
+	 */
+	public synchronized void clearAll() {
+		outboundCriteria = null;
+		outboundResults.clear();
+		outboundSelected.clear();
+		returnCriteria = null;
+		returnResults.clear();
+		returnSelected.clear();
+	}
+
+	@Override
+	public String toString() {
+		return "BookingSession{" + "outBoundCriteria=" + outboundCriteria + ", outboundSelected=" + outboundSelected
+				+ ", returnCriteria=" + returnCriteria + ", returnSelected=" + returnSelected + '}';
+	}
 }

@@ -127,6 +127,63 @@ public class Tuyen_BUS {
         // 2. Chuyển đổi sang List<Object[]>
         return convertTuyenListToTableData(dsTuyen);
     }
+
+    /**
+     * Lấy thông tin chi tiết của tuyến.
+     */
+    public String getChiTietTuyen(String tuyenID){
+        if(tuyenID == null || tuyenID.isEmpty())
+            return "Không tìm thấy tuyến";
+        List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
+        if(dsTuyenChiTiet == null || dsTuyenChiTiet.isEmpty()){
+            return "Không tìm thấy thông tin chi tiết của tuyến này!";
+        }
+
+        Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
+        StringBuilder sb = new StringBuilder();
+        sb.append("_________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN_________________________________\n");
+        sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
+        sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
+        sb.append("Khoảng cách từ ga xuất phát đến ga đích: ").append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");
+        sb.append("\n Danh sách các ga trung gian trên tuyến:\n");
+
+        return sb.toString();
+    }
+
+
+    /**
+     * Lấy chi tiết các ga trung gian của một tuyến để hiển thị thông tin chi tiết cho bảng tuyến.
+     * @param tuyenID Mã tuyến cần lấy chi tiết.
+     * @return List<Object[]> danh sách chi tiết ga trung gian.
+     */
+    public List<Object[]> getDuLieuGaTrungGianChiTiet(String tuyenID){
+        List<Object[]> dsChiTietBang = new ArrayList<>();
+        List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
+        if(dsTuyenChiTiet == null || dsTuyenChiTiet.isEmpty()){
+            return dsChiTietBang;
+        }
+        int soLuongGa = dsTuyenChiTiet.size();
+        for(int i = 0 ; i < soLuongGa; i++){
+            TuyenChiTiet tct = dsTuyenChiTiet.get(i);
+            String loaiGa;
+            if(i==0){
+                loaiGa = "Ga Xuất Phát";
+            }else if (i == soLuongGa -1){
+                loaiGa = "Ga Đích";
+            } else {
+                loaiGa = "Ga Trung Gian";
+            }
+
+            Object[] rowData = new Object[]{
+                    tct.getGa().getTenGa(),
+                    loaiGa,
+                    tct.getKhoangCachTuGaXuatPhatKm()
+            };
+            dsChiTietBang.add(rowData);
+        }
+        return dsChiTietBang;
+    }
+
 }
 
 

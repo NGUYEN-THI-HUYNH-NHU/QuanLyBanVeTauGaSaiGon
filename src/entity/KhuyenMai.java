@@ -42,6 +42,9 @@ public class KhuyenMai {
 		this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
 		this.trangThai = trangThai;
 	}
+	public KhuyenMai() {
+		super();
+	}
 
 	public String getKhuyenMaiID() {
 		return khuyenMaiID;
