@@ -16,8 +16,6 @@ import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -38,7 +36,7 @@ public class PanelBuoc2 extends JPanel {
 		setLayout(new BorderLayout(2, 0));
 		setBorder(new TitledBorder(""));
 		setPreferredSize(new Dimension(0, 400));
-//
+
 //		pnlChuThich = new JPanel();
 //		pnlChuThich.setPreferredSize(new Dimension(10, 20));
 ////        ImageIcon iconTrong = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));

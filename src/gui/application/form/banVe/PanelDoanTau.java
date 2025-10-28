@@ -61,7 +61,7 @@ public class PanelDoanTau extends JPanel {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scr.setBorder(BorderFactory.createEmptyBorder());
 		add(scr, BorderLayout.CENTER);
-		setPreferredSize(new Dimension(10, 60));
+		setPreferredSize(new Dimension(10, 70));
 
 		// load ảnh gốc một lần
 		try {

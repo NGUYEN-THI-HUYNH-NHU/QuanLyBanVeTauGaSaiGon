@@ -5,6 +5,12 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 28, 2025
+ * @version: 1.0
+ */
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -15,24 +21,19 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 28, 2025
- * @version: 1.0
- */
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import entity.KhachHang;
 import gui.tuyChinh.RoundedBorder;
 
 public class PanelBuoc3 extends JPanel {
@@ -42,9 +43,9 @@ public class PanelBuoc3 extends JPanel {
 	private final JButton btnCancel;
 	private final JLabel lblInfo;
 	private JPanel formKhachHang;
-	private JTextField tfKhachTen;
-	private JTextField tfKhachCmnd;
-	private JTextField tfKhachPhone;
+	private JTextField txtTen;
+	private JTextField txtCmnd;
+	private JTextField txtPhone;
 
 	public PanelBuoc3() {
 		setLayout(new BorderLayout(8, 8));
@@ -53,6 +54,7 @@ public class PanelBuoc3 extends JPanel {
 		model = new HanhKhachTableModel();
 		table = new JTable(model);
 		table.setRowHeight(110);
+		table.getColumnModel().getColumn(0).setMinWidth(220);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
 		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor());
 		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
@@ -80,9 +82,9 @@ public class PanelBuoc3 extends JPanel {
 		formKhachHang = new JPanel(new GridBagLayout());
 		formKhachHang.setBorder(new RoundedBorder(0, new Color(230, 230, 230), 1));
 
-		tfKhachTen = new JTextField(18);
-		tfKhachCmnd = new JTextField(18);
-		tfKhachPhone = new JTextField(18);
+		txtTen = new JTextField(18);
+		txtCmnd = new JTextField(18);
+		txtPhone = new JTextField(18);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(2, 2, 2, 2);
@@ -93,19 +95,19 @@ public class PanelBuoc3 extends JPanel {
 		gbc.gridy = 0;
 		formKhachHang.add(new JLabel("Họ và tên *"), gbc);
 		gbc.gridy = 1;
-		formKhachHang.add(tfKhachTen, gbc);
+		formKhachHang.add(txtTen, gbc);
 
 		// row 1: CMND/Hộ chiếu *
 		gbc.gridy = 2;
 		formKhachHang.add(new JLabel("Số CMND/Hộ chiếu *"), gbc);
 		gbc.gridy = 3;
-		formKhachHang.add(tfKhachCmnd, gbc);
+		formKhachHang.add(txtCmnd, gbc);
 
 		// row 2: Số di động *
 		gbc.gridy = 4;
 		formKhachHang.add(new JLabel("Số di động *"), gbc);
 		gbc.gridy = 5;
-		formKhachHang.add(tfKhachPhone, gbc);
+		formKhachHang.add(txtPhone, gbc);
 
 		// spacer and note
 		gbc.gridy = 6;
@@ -113,7 +115,6 @@ public class PanelBuoc3 extends JPanel {
 		formKhachHang.add(Box.createVerticalGlue(), gbc);
 
 		add(formKhachHang, BorderLayout.EAST);
-
 	}
 
 	/**
@@ -136,15 +137,15 @@ public class PanelBuoc3 extends JPanel {
 		}
 		model.setRows(rows);
 
-		// --- FIX: force UI delegate refresh on EDT so FlatLaf re-applies rounded
-		// corners ---
-		SwingUtilities.invokeLater(() -> {
-			// update UI for this panel only (cheaper than update entire app)
-			SwingUtilities.updateComponentTreeUI(this);
-			// optional: revalidate/repaint to ensure layout and painting refreshed
-			this.revalidate();
-			this.repaint();
-		});
+//		// --- FIX: force UI delegate refresh on EDT so FlatLaf re-applies rounded
+//		// corners ---
+//		SwingUtilities.invokeLater(() -> {
+//			// update UI for this panel only (cheaper than update entire app)
+//			SwingUtilities.updateComponentTreeUI(this);
+//			// optional: revalidate/repaint to ensure layout and painting refreshed
+//			this.revalidate();
+//			this.repaint();
+//		});
 	}
 
 	public List<PassengerRow> getPassengerRows() {
@@ -155,6 +156,17 @@ public class PanelBuoc3 extends JPanel {
 		return model.getRowsCopy();
 	}
 
+	/*
+	 * Lấy thông tin người mua từ form và đóng gói vào entity KhachHang.
+	 */
+	public KhachHang getNguoiMua() {
+		KhachHang nguoiMua = new KhachHang();
+		nguoiMua.setHoTen(txtTen.getText().trim());
+		nguoiMua.setSoGiayTo(txtCmnd.getText().trim());
+		nguoiMua.setSoDienThoai(txtPhone.getText().trim());
+		return nguoiMua;
+	}
+
 	public JButton getConfirmButton() {
 		return btnConfirm;
 	}
@@ -163,12 +175,18 @@ public class PanelBuoc3 extends JPanel {
 		return btnCancel;
 	}
 
-	// optional helper to validate form quickly
 	public boolean validateRows() {
 		for (PassengerRow r : model.getRowsCopy()) {
 			if (r.getFullName() == null || r.getFullName().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập tên đầy đủ cho tất cả hành khách trong bảng.", "Lỗi",
+						JOptionPane.WARNING_MESSAGE);
 				return false;
-				// add more rules as needed
+			}
+			// Thêm validate cho idNumber nếu cần
+			if (r.getIdNumber() == null || r.getIdNumber().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Vui lòng nhập Số giấy tờ cho hành khách: " + r.getFullName(),
+						"Lỗi", JOptionPane.WARNING_MESSAGE);
+				return false;
 			}
 		}
 		return true;

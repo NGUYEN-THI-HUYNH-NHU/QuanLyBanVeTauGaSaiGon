@@ -16,24 +16,24 @@ import javax.swing.JPanel;
  */
 
 public class WizardNavigationPanel extends JPanel {
-    private JButton btnPrev, btnNext, btnCancel;
-    private WizardController controller;
+	private JButton btnPrev, btnNext, btnCancel;
+	private WizardController controller;
 
-    public WizardNavigationPanel() {
-        btnPrev = new JButton("Quay lại");
-        btnNext = new JButton("Tiếp");
-        btnCancel = new JButton("Hủy");
+	public WizardNavigationPanel() {
+		btnPrev = new JButton("Quay lại");
+		btnNext = new JButton("Tiếp");
+		btnCancel = new JButton("Hủy");
 
-        add(btnPrev);
-        add(btnNext);
-        add(btnCancel);
+		add(btnPrev);
+		add(btnNext);
+		add(btnCancel);
 
-        btnPrev.addActionListener(e -> controller.previousStep());
-        btnNext.addActionListener(e -> controller.nextStep());
-        btnCancel.addActionListener(e -> controller.reset());
-    }
+		btnPrev.addActionListener(e -> controller.previousStep());
+		btnNext.addActionListener(e -> controller.nextStep());
+		btnCancel.addActionListener(e -> controller.reset());
+	}
 
-    public void setController(WizardController controller) {
-        this.controller = controller;
-    }
+	public void setController(WizardController controller) {
+		this.controller = controller;
+	}
 }

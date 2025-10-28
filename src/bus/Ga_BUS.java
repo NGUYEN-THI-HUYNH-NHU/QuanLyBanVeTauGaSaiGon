@@ -13,8 +13,12 @@ package bus;
 import dao.Ga_DAO;
 import entity.Ga;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class Ga_BUS {
     private final Ga_DAO ga_dao;
@@ -39,5 +43,73 @@ public class Ga_BUS {
 
     public Ga getGaByTenGa(String tenGa){
         return ga_dao.getGaByTenGa(tenGa);
+    }
+
+    /**
+     * lấy danh sách tên tất cả ga để hiển thị lên combobox
+     * @return List<String> danh sách tên ga
+     */
+    public List<String> getDanhSachTenGa(){
+        List<Ga> dsGa = ga_dao.getAllGa();
+        List<String> dsTenGa = new ArrayList<>();
+        for(Ga ga : dsGa){
+            dsTenGa.add(ga.getTenGa());
+        }
+        return dsTenGa;
+    }
+
+    /**
+     * Loại bỏ dấu tiếng việt
+     * @param input Chuỗi cần loại bỏ dấu
+     * @return Chuỗi đã loại bỏ dấu
+     */
+    private String removeAccents(String input){
+        if(input == null){
+            return "";
+        }
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        String withoutAccents = normalized.replaceAll("\\p{M}", "");
+        withoutAccents = withoutAccents.replace("[^a-zA-Z\\s]", "");
+        return withoutAccents.toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Hàm tạo mã rút gọn 3 ký tự
+     * @param tenGa Tên Ga đầy đủ
+     * @return Mã rút gọn 3 ký tự
+     */
+    private String taoMaRutGon(String tenGa) {
+        String normalizedName = removeAccents(tenGa);
+        String[] words = normalizedName.split("\\s+");
+        List<String> validWords = Arrays.stream(words).filter(word -> !word.isEmpty()).collect(Collectors.toList());
+
+        int numWords = validWords.size();
+        StringBuilder ma = new StringBuilder();
+
+        if (numWords == 0) {
+            return "";
+        }
+
+        if(numWords == 1){
+            ma.append(validWords.get(0).charAt(0));
+            ma.append("XX");
+        }
+        else if(numWords == 2){
+            ma.append(validWords.get(0).charAt(0));
+            ma.append(validWords.get(0).charAt(1));
+            ma.append(validWords.get(1).charAt(0));
+        }
+        else if(numWords == 3){
+            ma.append(validWords.get(0).charAt(0));
+            ma.append(validWords.get(1).charAt(0));
+            ma.append(validWords.get(2).charAt(0));
+        }
+        else {
+            // Nhiều hơn 3 từ, lấy ký tự đầu tiên của từ đầu tiên, ký tự đầu tiên của từ thứ hai và ký tự đầu tiên của từ cuối cùng
+            ma.append(validWords.get(0).charAt(0));
+            ma.append(validWords.get(1).charAt(0));
+            ma.append(validWords.get(2).charAt(0));
+        }
+        return ma.toString();
     }
 }

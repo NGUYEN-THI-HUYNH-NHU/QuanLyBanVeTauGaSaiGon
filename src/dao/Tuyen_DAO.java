@@ -127,9 +127,35 @@ public class Tuyen_DAO {
         return new ArrayList<>(tuyepMap.values());
     }
 
+    public boolean themTuyenMoi(Tuyen tuyenMoi) {
+        String sql = "INSERT INTO Tuyen(tuyenID, moTa) VALUES(?, ?)";
+        if (tuyenMoi == null || tuyenMoi.getTuyenID() == null || tuyenMoi.getTuyenID().isEmpty()) {
+            return false;
+        }
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, tuyenMoi.getTuyenID());
+            pstmt.setString(2, tuyenMoi.getMoTa());
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-
-
+    public boolean xoaTuyen(String tuyenID){
+        String sql = "DELETE FROM Tuyen WHERE tuyenID = ?";
+        try(Connection con = connectDB.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, tuyenID);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
 

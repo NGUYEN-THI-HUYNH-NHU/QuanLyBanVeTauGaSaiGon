@@ -37,13 +37,12 @@ public class PanelBanVe extends JPanel {
 	private PanelBuoc6 panelBuoc6; // Giữ lại panel "Hoàn tất"
 
 	// Các controller "Mediator" cho từng bước
-	private BanVe1Controller panelBanVe1Controller;
-	private BanVe2Controller panelBanVe2Controller;
+	private BanVe1Controller banVe1Controller;
+	private BanVe2Controller banVe2Controller;
 
 	public PanelBanVe(NhanVien nhanVien) {
 		setLayout(new BorderLayout());
 		setBackground(new Color(230, 230, 230));
-		;
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
@@ -54,13 +53,12 @@ public class PanelBanVe extends JPanel {
 		// Session này sẽ được chia sẻ cho tất cả controller
 		bookingSession = new BookingSession();
 
-		// 3. Khởi tạo các "bước" gộp
-		// (PanelBuoc1, 2, 3... được tạo BÊN TRONG các panel gộp này)
+		// 3. Khởi tạo các bước
 		panelBanVe1 = new PanelBanVe1(); // Gồm Buoc1, Buoc2, Buoc3
 		panelBanVe2 = new PanelBanVe2(); // Gồm Buoc4, Buoc5
-		panelBuoc6 = new PanelBuoc6(); // Panel hoàn tất (từ code cũ)
+		panelBuoc6 = new PanelBuoc6();
 
-		// 4. Thêm các "bước" gộp vào CardLayout
+		// 4. Thêm các bước gộp vào CardLayout
 		stepPanel.add(panelBanVe1, "step1"); // Màn hình đầu tiên
 		stepPanel.add(panelBanVe2, "step2"); // Màn hình thứ hai
 		stepPanel.add(panelBuoc6, "complete"); // Màn hình cuối
@@ -69,11 +67,11 @@ public class PanelBanVe extends JPanel {
 
 		// 5. Khởi tạo các Controller (Mediator) cho từng bước
 		// Tiêm (inject) View và Session vào
-		panelBanVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
-//        panelBanVe2Controller = new PanelBanVe2Controller(panelBanVe2, bookingSession);
+		banVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
+		banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
 
 		// 6. Khởi tạo Navigation (Next/Back)
-		// Chúng ta tận dụng lại WizardNavigationPanel và WizardController cũ
+		// WizardNavigationPanel và WizardController cũ
 		// để xử lý việc chuyển CardLayout (chuyển các bước chính)
 		WizardNavigationPanel navPanel = new WizardNavigationPanel();
 		add(navPanel, BorderLayout.SOUTH);
@@ -98,18 +96,16 @@ public class PanelBanVe extends JPanel {
 		 * (onPanel1CompleteListener != null) { onPanel1CompleteListener.run(); }
 		 */
 
-		panelBanVe1Controller.addPanel1CompleteListener(() -> {
-			// Khi bước 1 (gộp) xong:
+		banVe1Controller.addPanel1CompleteListener(() -> {
+			// 1. Chuẩn bị dữ liệu cho PanelBanVe2 TẠI ĐÂY
+			banVe2Controller.loadDataForConfirmation(); // (Tên hàm ví dụ)
 
-			// 1. Yêu cầu PanelBanVe2Controller tải dữ liệu từ session
-//            panelBanVe2Controller.loadDataForConfirmation(); // (Cần viết hàm này trong PanelBanVe2Controller)
-
-			// 2. Chuyển sang thẻ "step2"
+			// 2. Yêu cầu WizardController chuyển bước (mà không cần logic)
 			wizardController.goToStep(2);
 		});
 
 //        // Lắng nghe sự kiện "Hoàn tất thanh toán" từ PanelBanVe2Controller
-//        panelBanVe2Controller.addPaymentSuccessListener(() -> {
+//        banVe2Controller.addPaymentSuccessListener(() -> {
 //            // Khi bước 2 (gộp) xong:
 //            
 //            // 1. Yêu cầu PanelBuoc6 tải dữ liệu
