@@ -36,18 +36,16 @@ import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
 
 public class PanelBuoc1 extends JPanel {
-	private PanelBuoc1Controller panelBuoc1Controller;
 	private JTextField txtGaDi, txtGaDen;
 	private JDateChooser dateChooserNgayDi, dateChooserNgayVe;
 	private JRadioButton radMotChieu, radKhuHoi;
 	private JButton btnTimKiem;
 	private JPanel pnlTimKiem;
-	
+
 	public PanelBuoc1() {
 		setLayout(new BorderLayout());
-        setBorder(new TitledBorder(""));
+		setBorder(new TitledBorder(""));
 
-		
 		// lblTieuDe
 		JLabel lblTieuDe = new JLabel("Thông tin hành trình", SwingConstants.CENTER);
 		lblTieuDe.setPreferredSize(new Dimension(10, 20));
@@ -131,8 +129,6 @@ public class PanelBuoc1 extends JPanel {
 
 		add(lblTieuDe, BorderLayout.NORTH);
 		add(pnlTimKiem, BorderLayout.CENTER);
-		
-		panelBuoc1Controller = new PanelBuoc1Controller(this);
 	}
 
 	// ---------- Getters cho panelBuoc1Controller su dung ----------
@@ -170,17 +166,19 @@ public class PanelBuoc1 extends JPanel {
 
 	public LocalDate getNgayDi() {
 		java.util.Date d = dateChooserNgayDi.getDate();
-		if (d == null)
+		if (d == null) {
 			return null;
+		}
 		Instant instant = d.toInstant();
 		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
 	public LocalDate getNgayVe() {
 		java.util.Date d = dateChooserNgayVe.getDate();
-		if (d == null)
+		if (d == null) {
 			return null;
+		}
 		Instant instant = d.toInstant();
 		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
-	}	
+	}
 }

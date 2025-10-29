@@ -17,26 +17,30 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import javax.swing.JLabel;
+import entity.KhachHang;
 
 /**
- * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán).
- * Lưu đủ thông tin để hiển thị và để backend gọi hold/confirm sau này.
+ * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán). Lưu đủ thông tin
+ * để hiển thị và để backend gọi hold/confirm sau này.
  */
 public class VeSession {
 	private final String chuyenID;
-    private final String tenTau;
-    private final String tenGaDi;
-    private final String tenGaDen;
-    private final LocalDate ngayDi;
-    private final LocalTime gioDi;
-    private final String toaID;
-    private final int soToa;
-    private final int soGhe;
-    private final Instant thoiDiemHetHan;
+	private final String tenTau;
+	private final String tenGaDi;
+	private final String tenGaDen;
+	private final LocalDate ngayDi;
+	private final LocalTime gioDi;
+	private final String toaID;
+	private final int soToa;
+	private final int soGhe;
+	private final int gia;
+	private final String khuyenMaiCode;
+	private final int giam;
+	private final Instant thoiDiemHetHan;
+	private KhachHang hanhKhach;
 
-    public VeSession(String chuyenID, String tenTau, String tenGaDi, String tenGaDen, LocalDate ngayDi, LocalTime gioDi, String toaID,
-			int soToa, int soGhe, Instant thoiDiemHetHan) {
+	public VeSession(String chuyenID, String tenTau, String tenGaDi, String tenGaDen, LocalDate ngayDi, LocalTime gioDi,
+			String toaID, int soToa, int soGhe, int gia, String khuyenMaiCode, int giam, Instant thoiDiemHetHan) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tenTau = tenTau;
@@ -47,9 +51,28 @@ public class VeSession {
 		this.toaID = toaID;
 		this.soToa = soToa;
 		this.soGhe = soGhe;
+		this.gia = gia;
+		this.khuyenMaiCode = khuyenMaiCode;
+		this.giam = giam;
 		this.thoiDiemHetHan = thoiDiemHetHan;
 	}
-    
+
+	public String getKhuyenMaiCode() {
+		return khuyenMaiCode;
+	}
+
+	public int getGiam() {
+		return giam;
+	}
+
+	public int getGia() {
+		return gia;
+	}
+
+	public String getChuyenID() {
+		return chuyenID;
+	}
+
 	public String getTenTau() {
 		return tenTau;
 	}
@@ -85,43 +108,50 @@ public class VeSession {
 	public Instant getThoiDiemHetHan() {
 		return thoiDiemHetHan;
 	}
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) 
-        	return true;
-        if (!(o instanceof VeSession)) 
-        	return false;
-        VeSession that = (VeSession) o;
-        return Objects.equals(chuyenID, that.chuyenID) &&
-                Objects.equals(tenGaDi, that.tenGaDi) &&
-                Objects.equals(tenGaDen, that.tenGaDen) &&
-                Objects.equals(soToa, that.soToa) &&
-                Objects.equals(soGhe, that.soGhe);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(chuyenID, tenGaDi, tenGaDen, soToa, soGhe);
-    }
+	public KhachHang getHanhKhach() {
+		return hanhKhach;
+	}
 
-    @Override
-    public String toString() {
-        return tenTau + ";" + tenGaDi + ";" + tenGaDen + ";"
-        		+ ngayDi.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ";"
-        		+ gioDi.format(DateTimeFormatter.ofPattern("hh:mm")) + ";"
-        		+ toaID + ";" + soToa + ";" + soGhe;
-    }
+	public void setHanhKhach(KhachHang hanhKhach) {
+		this.hanhKhach = hanhKhach;
+	}
 
-    public boolean isHoldExpired() {
-        if (thoiDiemHetHan == null) return false;
-        return Instant.now().isAfter(thoiDiemHetHan);
-    }
-    
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof VeSession)) {
+			return false;
+		}
+		VeSession that = (VeSession) o;
+		return Objects.equals(chuyenID, that.chuyenID) && Objects.equals(tenGaDi, that.tenGaDi)
+				&& Objects.equals(tenGaDen, that.tenGaDen) && Objects.equals(soToa, that.soToa)
+				&& Objects.equals(soGhe, that.soGhe);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(chuyenID, tenGaDi, tenGaDen, soToa, soGhe);
+	}
+
+	@Override
+	public String toString() {
+		return tenTau + ";" + tenGaDi + ";" + tenGaDen + ";" + ngayDi.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+				+ ";" + gioDi.format(DateTimeFormatter.ofPattern("hh:mm")) + ";" + toaID + ";" + soToa + ";" + soGhe;
+	}
+
+	public boolean isHoldExpired() {
+		if (thoiDiemHetHan == null) {
+			return false;
+		}
+		return Instant.now().isAfter(thoiDiemHetHan);
+	}
+
 	public String prettyString() {
-		return String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>",
-				getTenTau(), getTenGaDi(), getTenGaDen(),
-				getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+		return String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>", getTenTau(), getTenGaDi(),
+				getTenGaDen(), getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
 				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getToaID(), getSoToa(), getSoGhe());
 	}
 }

@@ -1,3 +1,4 @@
+
 package gui.application.form;/*
 								* @ (#) DangNhap.java   1.0     25/09/2025
 								package gui.ungDunglication.form;
@@ -25,6 +26,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -34,6 +36,7 @@ import javax.swing.SwingUtilities;
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
+import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.thongTin.FormThongTinCaNhan;
@@ -62,7 +65,7 @@ public class FormDangNhap extends JPanel {
 		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]20[]"));
 		pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(230, 230, 230)));
 		pnlLogin.setOpaque(false);
-		pnlLogin.setPreferredSize(new Dimension(360, 340));
+		pnlLogin.setPreferredSize(new Dimension(360, 400));
 
 		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER));
 		lblTitle.setFont(new Font("", Font.BOLD, 24));
@@ -106,17 +109,23 @@ public class FormDangNhap extends JPanel {
 
 	private void addEvents() {
 		btnLogin.addActionListener(e -> dangNhap());
+		txtTenDangNhap.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					txtMatKhau.requestFocus();
+				}
+			}
+		});
 
-		KeyAdapter enterKey = new KeyAdapter() {
+		txtMatKhau.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					dangNhap();
 				}
 			}
-		};
-		txtTenDangNhap.addKeyListener(enterKey);
-		txtMatKhau.addKeyListener(enterKey);
+		});
 	}
 
 	private void dangNhap() {
@@ -126,8 +135,11 @@ public class FormDangNhap extends JPanel {
 		UngDung ungDung = UngDung.getInstance();
 
 		if (nhanVien == null) {
+			JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
+					"Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
 			resetDangNhap();
 		} else {
+			AuthService.getInstance().setCurrentUser(nhanVien);
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {

@@ -6,6 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="fonts"/>
 	<classpathentry kind="lib" path="lib/jBCrypt-0.4.1.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-swing-11.3.jar"/>
 	<classpathentry kind="lib" path="lib/miglayout-core.jar"/>
@@ -30,5 +31,10 @@
 	<classpathentry kind="lib" path="lib/jcommander-1.82.jar"/>
 	<classpathentry kind="lib" path="lib/javase-3.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jcalendar-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.24.jar"/>
+	<classpathentry kind="lib" path="lib/poi-5.2.5.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-5.2.5.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox-app-2.0.34.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

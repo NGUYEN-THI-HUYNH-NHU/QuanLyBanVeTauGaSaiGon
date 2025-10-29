@@ -5,6 +5,7 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDate;
 import java.util.HashMap;
 /*
  * @description
@@ -24,58 +25,69 @@ import entity.Ga;
 import entity.Ghe;
 import entity.Toa;
 
-import java.time.LocalDate;
-
 public class Chuyen_BUS {
 	private Ghe_DAO gheDAO;
 	private Toa_DAO toaDAO;
-    private Chuyen_DAO chuyenDAO;
-    private dao.Ga_DAO gaDAO;
+	private Chuyen_DAO chuyenDAO;
+	private dao.Ga_DAO gaDAO;
 
-    public Chuyen_BUS() {
-    	gheDAO = new Ghe_DAO();
-    	toaDAO = new Toa_DAO();
-        chuyenDAO = new Chuyen_DAO();
-        gaDAO = new Ga_DAO();
-    }
-    
-    // Lấy danh sách các ghế trong toa của tàu được chọn kèm trạng thái để hiện thị màu trong sơ đồ chỗ
-    public Map<String, String> layTrangThaiCacGheTrongToaCuaChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
-        List<Ghe> gheList = gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
+	public Chuyen_BUS() {
+		gheDAO = new Ghe_DAO();
+		toaDAO = new Toa_DAO();
+		chuyenDAO = new Chuyen_DAO();
+		gaDAO = new Ga_DAO();
+	}
 
-        Map<String, String> result = new HashMap<>();
-        if (gheList != null) {
-            for (Ghe ghe : gheList)
-                result.put(ghe.getGheID(), ghe.toString());
-        }
+	// Lấy danh sách các ghế trong toa của tàu được chọn kèm trạng thái để hiện thị
+	// màu trong sơ đồ chỗ
+	public Map<String, String> layTrangThaiCacGheTrongToaCuaChuyen(String gaDiID, String gaDenID, String chuyenID,
+			String toaID) {
+		List<Ghe> gheList = gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
 
-        return result;
-    }
+		Map<String, String> result = new HashMap<>();
+		if (gheList != null) {
+			for (Ghe ghe : gheList) {
+				result.put(ghe.getGheID(), ghe.toString());
+			}
+		}
 
-    public List<Chuyen> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
-        return chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
-    }
+		return result;
+	}
 
-    // Gợi ý ga đi (tên)
-    public List<Ga> goiYGaDi(String prefix, int limit) {
-        return gaDAO.searchGaByPrefix(prefix, limit);
-      
-    }
+	public List<Chuyen> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
+		return chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
+	}
 
-    // Gợi ý ga đến dựa trên ga đi đã chọn 
-    public List<Ga> goiYGaDenTheoGaDi(String gaDiID, String prefixGaDen, int limit) {
-        return gaDAO.searchGaDenKhaThiByGaDi(gaDiID, prefixGaDen, limit);
-    }
-    
-    public Ga timGaTheoTenGa(String tenGa) {
-    	return gaDAO.getGaByTenGa(tenGa);
-    }
-    
-    public List<Toa> layCacToaTheoChuyen(String chuyenID) {
-    	return toaDAO.getToaByChuyenID(chuyenID);
-    }
-    
-    public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
-    	return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
-    }
+	// Gợi ý ga đi (tên)
+	public List<Ga> goiYGaDi(String prefix, int limit) {
+		return gaDAO.searchGaByPrefix(prefix, limit);
+
+	}
+
+	// Gợi ý ga đến dựa trên ga đi đã chọn
+	public List<Ga> goiYGaDenTheoGaDi(String gaDiID, String prefixGaDen, int limit) {
+		return gaDAO.searchGaDenKhaThiByGaDi(gaDiID, prefixGaDen, limit);
+	}
+
+	public Ga timGaTheoTenGa(String tenGa) {
+		return gaDAO.getGaByTenGa(tenGa);
+	}
+
+	public List<Toa> layCacToaTheoChuyen(String chuyenID) {
+		return toaDAO.getToaByChuyenID(chuyenID);
+	}
+
+	public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
+		return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
+	}
+
+	public int layGiaGheTheoPhanDoan(String chuyenID, String gaDiID, String gaDenID, String loaiTauID,
+			String hangToaID) {
+		return gheDAO.calcGia(chuyenID, gaDiID, gaDenID, loaiTauID, hangToaID);
+	}
+
+	public double layKhuyenMaiTheoGhe(String tuyenID, String loaiTauID, String hangToaID, String loaiDoiTuongID,
+			LocalDate ngayDi, double giaGhe) {
+		return 0;
+	}
 }
