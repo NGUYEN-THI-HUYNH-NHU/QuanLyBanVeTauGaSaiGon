@@ -15,6 +15,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -79,6 +80,7 @@ public class PanelBuoc3 extends JPanel {
 
 		add(south, BorderLayout.SOUTH);
 
+		// FORM KHÁCH HÀNG (bên phải)
 		formKhachHang = new JPanel(new GridBagLayout());
 		formKhachHang.setBorder(new RoundedBorder(0, new Color(230, 230, 230), 1));
 
@@ -87,30 +89,37 @@ public class PanelBuoc3 extends JPanel {
 		txtPhone = new JTextField(18);
 
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(2, 2, 2, 2);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
 
-		// row 0: Họ và tên *
 		gbc.gridy = 0;
-		formKhachHang.add(new JLabel("Họ và tên *"), gbc);
+		gbc.insets = new Insets(2, 2, 6, 2);
+		JLabel lblNguoiMuaVe = new JLabel("Người mua vé", SwingConstants.CENTER);
+		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
+		lblNguoiMuaVe.setForeground(new Color(232, 75, 2));
+		formKhachHang.add(lblNguoiMuaVe, gbc);
+
+		gbc.insets = new Insets(2, 2, 2, 2);
+		// ====== row 0: Họ và tên * ======
 		gbc.gridy = 1;
+		formKhachHang.add(new JLabel("Họ và tên *"), gbc);
+		gbc.gridy = 2;
 		formKhachHang.add(txtTen, gbc);
 
-		// row 1: CMND/Hộ chiếu *
-		gbc.gridy = 2;
-		formKhachHang.add(new JLabel("Số CMND/Hộ chiếu *"), gbc);
+		// ====== row 1: CMND/Hộ chiếu * ======
 		gbc.gridy = 3;
+		formKhachHang.add(new JLabel("Số CMND/Hộ chiếu *"), gbc);
+		gbc.gridy = 4;
 		formKhachHang.add(txtCmnd, gbc);
 
-		// row 2: Số di động *
-		gbc.gridy = 4;
-		formKhachHang.add(new JLabel("Số di động *"), gbc);
+		// ====== row 2: Số di động * ======
 		gbc.gridy = 5;
+		formKhachHang.add(new JLabel("Số di động *"), gbc);
+		gbc.gridy = 6;
 		formKhachHang.add(txtPhone, gbc);
 
 		// spacer and note
-		gbc.gridy = 6;
+		gbc.gridy = 7;
 		gbc.weighty = 1.0;
 		formKhachHang.add(Box.createVerticalGlue(), gbc);
 
