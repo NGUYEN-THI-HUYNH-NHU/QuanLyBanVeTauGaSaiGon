@@ -202,7 +202,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         table.addMouseListener(this);
 
         JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(30, 100, 150));
+        header.setBackground(new Color(30,41,58));
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Roboto", Font.BOLD, 14));
 

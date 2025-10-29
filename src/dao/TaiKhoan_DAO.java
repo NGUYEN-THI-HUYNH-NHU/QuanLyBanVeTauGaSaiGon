@@ -172,7 +172,7 @@ public class TaiKhoan_DAO {
 		Connection connection = connectDB.getConnection();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong"
+		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong, NV.caLam"
 				+ " from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID"
 				+ " WHERE TK.tenDangNhap = ?";
 
@@ -193,8 +193,9 @@ public class TaiKhoan_DAO {
 					String diaChi = resultSet.getString(8);
 					LocalDate ngayThamGia = resultSet.getDate(9).toLocalDate();
 					boolean isHoatDong = resultSet.getBoolean(10);
+					String caLam = resultSet.getString(11);
 					
-					nhanVien = new NhanVien(nhanVienID, vaiTroNhanVien, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia, isHoatDong);
+					nhanVien = new NhanVien(nhanVienID, vaiTroNhanVien, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLam);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();

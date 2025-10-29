@@ -28,11 +28,12 @@ public class NhanVien {
 	private String diaChi;
 	private LocalDate ngayThamGia;
 	private boolean isHoatDong;
+	private String caLam;
 
 
 	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu,
-					LocalDate ngaySinh, String soDienThoai, String email, String diaChi, LocalDate ngayThamGia,
-					boolean isHoatDong) {
+					LocalDate ngaySinh, String soDienThoai, String email, String diaChi,
+					LocalDate ngayThamGia, boolean isHoatDong, String caLam) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
@@ -44,8 +45,10 @@ public class NhanVien {
 		this.diaChi = diaChi;
 		this.ngayThamGia = ngayThamGia;
 		this.isHoatDong = isHoatDong;
+		this.caLam = caLam;
 	}
-	
+
+
 	public NhanVien(String nhanVienID) {
 		super();
 		this.nhanVienID = nhanVienID;
@@ -54,6 +57,13 @@ public class NhanVien {
     public NhanVien() {
 
     }
+	public String getCaLam() {
+		return caLam;
+	}
+
+	public void setCaLma(String caLam) {
+		this.caLam = caLam;
+	}
 
     public String getNhanVienID() {
 		return nhanVienID;
@@ -154,7 +164,7 @@ public class NhanVien {
 	public String toString() {
 		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";"
 				+ ngaySinh + ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
-				+ ngayThamGia + ";" + isHoatDong;
+				+ ngayThamGia + ";" + isHoatDong + ";" + caLam;
 	}
 
 	@Override

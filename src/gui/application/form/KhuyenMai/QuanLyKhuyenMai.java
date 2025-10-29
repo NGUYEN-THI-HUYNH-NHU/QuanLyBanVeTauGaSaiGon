@@ -35,7 +35,6 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     private JButton btnAdd, btnEdit, btnFind, btnClean;
     private DefaultTableModel tableModel;
     private JTable table;
-    private JLabel lblErrorTuyenID;
     private JComboBox<HangToa> txtHangToa;
     private JComboBox<LoaiTau> txtLoaiTau;
     private JComboBox<LoaiDoiTuong> txtLoaiDoiTuong;
@@ -124,6 +123,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtNgayBD = new JDateChooser();
         txtNgayBD.setDateFormatString("yyyy-MM-dd");
         formNhapThongTin(panelThongTin, gbc, 5, "Ngày bắt đầu:", txtNgayBD, inputFont);
+
         // Ngày kết thúc
         txtNgayKT = new JDateChooser();
         txtNgayKT.setDateFormatString("yyyy-MM-dd");
