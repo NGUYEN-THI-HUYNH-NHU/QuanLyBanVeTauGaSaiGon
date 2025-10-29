@@ -1,3 +1,4 @@
+
 package gui.application.form;/*
 								* @ (#) DangNhap.java   1.0     25/09/2025
 								package gui.ungDunglication.form;
@@ -25,6 +26,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -107,17 +109,23 @@ public class FormDangNhap extends JPanel {
 
 	private void addEvents() {
 		btnLogin.addActionListener(e -> dangNhap());
+		txtTenDangNhap.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					txtMatKhau.requestFocus();
+				}
+			}
+		});
 
-		KeyAdapter enterKey = new KeyAdapter() {
+		txtMatKhau.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					dangNhap();
 				}
 			}
-		};
-		txtTenDangNhap.addKeyListener(enterKey);
-		txtMatKhau.addKeyListener(enterKey);
+		});
 	}
 
 	private void dangNhap() {
@@ -127,6 +135,8 @@ public class FormDangNhap extends JPanel {
 		UngDung ungDung = UngDung.getInstance();
 
 		if (nhanVien == null) {
+			JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
+					"Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
 			resetDangNhap();
 		} else {
 			AuthService.getInstance().setCurrentUser(nhanVien);

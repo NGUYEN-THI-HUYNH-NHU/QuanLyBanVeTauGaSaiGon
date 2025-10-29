@@ -66,19 +66,20 @@ public class PanelBuoc1Controller {
 
 	// Interface để BanVe1Controller (Mediator) lắng nghe
 	public interface SearchListener {
-	    void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
-	    void onSearchFailure();
+		void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
+
+		void onSearchFailure();
 	}
 
 	public void addSearchListener(SearchListener listener) {
-        this.searchListener = listener;
-    }
-	
+		this.searchListener = listener;
+	}
+
 	public PanelBuoc1Controller(PanelBuoc1 panel) {
 		this.panel = panel;
 		init();
 	}
-	
+
 	private void init() {
 		// AutoComplete cho Ga đi: fetcher dùng chuyenBUS.goiYGaDi(prefix, limit)
 		acGaDi = new AutoCompleteField(panel.getTxtGaDi(), (prefix, limit) -> {
@@ -125,6 +126,22 @@ public class PanelBuoc1Controller {
 
 		// Button tìm kiếm
 		panel.getBtnTimKiem().addActionListener(e -> performSearch());
+
+		InputMap btnIm = panel.getBtnTimKiem().getInputMap(JComponent.WHEN_FOCUSED);
+		// Lấy ActionMap của nút
+		ActionMap btnAm = panel.getBtnTimKiem().getActionMap();
+
+		// Map phím ENTER với một "key" (chuỗi tùy ý)
+		btnIm.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "pressButton");
+
+		// Map "key" đó với một hành động
+		btnAm.put("pressButton", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Kích hoạt sự kiện click của nút (sẽ gọi performSearch() qua ActionListener)
+				panel.getBtnTimKiem().doClick();
+			}
+		});
 	}
 
 	// ----- Tìm chuyến -----
@@ -141,6 +158,7 @@ public class PanelBuoc1Controller {
 		panel.getBtnTimKiem().setEnabled(false);
 
 		new SwingWorker<List<Chuyen>, Void>() {
+			@Override
 			protected List<Chuyen> doInBackground() {
 				try {
 					String gaDiId = criteria.getGaDiId();
@@ -151,25 +169,29 @@ public class PanelBuoc1Controller {
 						String name = criteria.getGaDiName();
 						if (name != null && !name.trim().isEmpty()) {
 							Ga g = chuyenBUS.timGaTheoTenGa(name);
-							if (g != null)
+							if (g != null) {
 								gaDiId = g.getGaID();
+							}
 						}
 					}
 					if (gaDenId == null || gaDenId.trim().isEmpty()) {
 						String name = criteria.getGaDenName();
 						if (name != null && !name.trim().isEmpty()) {
 							Ga g = chuyenBUS.timGaTheoTenGa(name);
-							if (g != null)
+							if (g != null) {
 								gaDenId = g.getGaID();
+							}
 						}
 					}
 
-					if (gaDiId == null || gaDenId == null)
+					if (gaDiId == null || gaDenId == null) {
 						return Collections.emptyList();
+					}
 
 					LocalDate ngayDi = criteria.getNgayDi();
-					if (ngayDi == null)
+					if (ngayDi == null) {
 						ngayDi = LocalDate.now();
+					}
 
 					return chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
 				} catch (Exception ex) {
@@ -178,6 +200,7 @@ public class PanelBuoc1Controller {
 				}
 			}
 
+			@Override
 			protected void done() {
 				try {
 					List<Chuyen> results = get();
@@ -188,16 +211,16 @@ public class PanelBuoc1Controller {
 								"Không tìm thấy chuyến phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
 						return;
 					}
-					
+
 					if (searchListener == null) {
-                        System.err.println("PanelBuoc1Controller: searchListener chưa được set!");
-                        return;
-                    }
+						System.err.println("PanelBuoc1Controller: searchListener chưa được set!");
+						return;
+					}
 
 					SearchCriteria resolvedCriteria = new SearchCriteria.Builder().gaDiId(selectedGaDi)
 							.tenGaDi(panel.getGaDi()).gaDenId(selectedGaDen).tenGaDen(panel.getGaDen())
 							.ngayDi(panel.getNgayDi()).ngayVe(panel.getNgayVe()).khuHoi(panel.isKhuHoi()).build();
-					
+
 					searchListener.onSearchSuccess(results, resolvedCriteria);
 				} catch (Exception ex) {
 					ex.printStackTrace();
@@ -205,8 +228,8 @@ public class PanelBuoc1Controller {
 					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
 							"Lỗi khi tìm chuyến: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
 					if (searchListener != null) {
-                        searchListener.onSearchFailure();
-                    }
+						searchListener.onSearchFailure();
+					}
 				}
 			}
 		}.execute();
@@ -269,14 +292,17 @@ public class PanelBuoc1Controller {
 		private void initListeners() {
 			// Document change -> handle with debounce
 			field.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+				@Override
 				public void insertUpdate(javax.swing.event.DocumentEvent e) {
 					handleChange();
 				}
 
+				@Override
 				public void removeUpdate(javax.swing.event.DocumentEvent e) {
 					handleChange();
 				}
 
+				@Override
 				public void changedUpdate(javax.swing.event.DocumentEvent e) {
 					handleChange();
 				}
@@ -284,6 +310,7 @@ public class PanelBuoc1Controller {
 
 			// focus lost -> mark confirmed if non-empty, hide popup
 			field.addFocusListener(new FocusAdapter() {
+				@Override
 				public void focusLost(FocusEvent e) {
 					String txt = field.getText().trim();
 					if (!txt.isEmpty()) {
@@ -303,6 +330,7 @@ public class PanelBuoc1Controller {
 
 			im.put(KeyStroke.getKeyStroke("ESCAPE"), "hidePopup");
 			am.put("hidePopup", new AbstractAction() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					hidePopup();
 				}
@@ -310,34 +338,36 @@ public class PanelBuoc1Controller {
 
 			im.put(KeyStroke.getKeyStroke("UP"), "moveUp");
 			am.put("moveUp", new AbstractAction() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					// If popup visible -> moveUp in list, else move focus to prev component
 					if (popup != null && popup.isVisible() && list != null) {
 						int sel = list.getSelectedIndex();
 						int size = listModel.getSize();
-						if (size == 0)
+						if (size == 0) {
 							return;
+						}
 						if (sel <= 0) {
 							list.setSelectedIndex(size - 1);
 							list.ensureIndexIsVisible(size - 1);
-						} else
+						} else {
 							moveSelection(-1);
-					} else {
-						if (prevComponent != null)
-							focusComponent(prevComponent);
+						}
 					}
 				}
 			});
 
 			im.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
 			am.put("moveDown", new AbstractAction() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Nếu popup visible -> moveDown trong list (và wrap về đầu nếu đang ở cuối)
 					if (popup != null && popup.isVisible() && list != null) {
 						int sel = list.getSelectedIndex();
 						int size = listModel.getSize();
-						if (size == 0)
+						if (size == 0) {
 							return;
+						}
 						if (sel >= size - 1) {
 							// wrap về đầu thay vì focus next component
 							list.setSelectedIndex(0);
@@ -345,16 +375,13 @@ public class PanelBuoc1Controller {
 						} else {
 							moveSelection(1);
 						}
-					} else {
-						// popup không mở -> chuyển focus tới next component (như trước)
-						if (nextComponent != null)
-							focusComponent(nextComponent);
 					}
 				}
 			});
 
 			im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "chooseOrConfirm");
 			am.put("chooseOrConfirm", new AbstractAction() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (popup != null && popup.isVisible() && list != null && list.getSelectedIndex() >= 0) {
 						selectIndex(list.getSelectedIndex());
@@ -365,10 +392,11 @@ public class PanelBuoc1Controller {
 							confirmed = true;
 							lastConfirmedText = txt;
 						}
-						if (nextComponent != null)
+						if (nextComponent != null) {
 							focusComponent(nextComponent);
-						else if (onFinalEnter != null)
+						} else if (onFinalEnter != null) {
 							onFinalEnter.run();
+						}
 						hidePopup();
 					}
 				}
@@ -378,8 +406,9 @@ public class PanelBuoc1Controller {
 		private void focusComponent(JComponent comp) {
 			SwingUtilities.invokeLater(() -> {
 				comp.requestFocusInWindow();
-				if (comp instanceof JTextField)
+				if (comp instanceof JTextField) {
 					((JTextField) comp).selectAll();
+				}
 			});
 		}
 
@@ -406,11 +435,13 @@ public class PanelBuoc1Controller {
 
 		private void fetchSuggestions() {
 			final String prefix = field.getText().trim();
-			if (prefix.length() < 1)
+			if (prefix.length() < 1) {
 				return;
+			}
 			final String cur = prefix;
 
 			new SwingWorker<List<Ga>, Void>() {
+				@Override
 				protected List<Ga> doInBackground() {
 					try {
 						return fetcher.apply(cur, maxResults);
@@ -420,15 +451,18 @@ public class PanelBuoc1Controller {
 					}
 				}
 
+				@Override
 				protected void done() {
 					try {
-						if (!field.getText().trim().equals(cur))
+						if (!field.getText().trim().equals(cur)) {
 							return; // user changed meanwhile
+						}
 						List<Ga> res = get();
 						// If this is gaDen, and selectedGaDi exists, remove it (controller ensures
 						// selectedGaDi updated externally)
-						if (field == panel.getTxtGaDen() && selectedGaDi != null && res != null)
+						if (field == panel.getTxtGaDen() && selectedGaDi != null && res != null) {
 							res.removeIf(g -> selectedGaDi.equals(g.getGaID()));
+						}
 						showPopup(res);
 					} catch (Exception ex) {
 						ex.printStackTrace();
@@ -439,17 +473,20 @@ public class PanelBuoc1Controller {
 
 		private void showPopup(List<Ga> items) {
 			hidePopup();
-			if (items == null || items.isEmpty())
+			if (items == null || items.isEmpty()) {
 				return;
+			}
 
 			// Don't show if confirmed and text unchanged
 			String curText = field.getText().trim();
-			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(curText))
+			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(curText)) {
 				return;
+			}
 
 			listModel = new DefaultListModel<>();
-			for (Ga g : items)
+			for (Ga g : items) {
 				listModel.addElement(g);
+			}
 
 			list = new JList<>(listModel);
 			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -462,8 +499,9 @@ public class PanelBuoc1Controller {
 						boolean isSelected, boolean cellHasFocus) {
 					JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,
 							cellHasFocus);
-					if (value instanceof Ga)
+					if (value instanceof Ga) {
 						lbl.setText(((Ga) value).getTenGa());
+					}
 					lbl.setBorder(BorderFactory.createEmptyBorder(vPadding, hPadding, vPadding, hPadding));
 					if (isSelected) {
 						lbl.setBackground(new Color(30, 144, 255)); // selected bg
@@ -479,11 +517,13 @@ public class PanelBuoc1Controller {
 
 			// double click or keyboard selection
 			list.addMouseListener(new MouseAdapter() {
+				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (e.getClickCount() == 2) {
 						int idx = list.locationToIndex(e.getPoint());
-						if (idx >= 0)
+						if (idx >= 0) {
 							selectIndex(idx);
+						}
 					}
 				}
 			});
@@ -509,32 +549,39 @@ public class PanelBuoc1Controller {
 			field.requestFocusInWindow();
 
 			// select first
-			if (!listModel.isEmpty())
+			if (!listModel.isEmpty()) {
 				list.setSelectedIndex(0);
+			}
 		}
 
 		private void moveSelection(int delta) {
-			if (popup == null || !popup.isVisible() || list == null)
+			if (popup == null || !popup.isVisible() || list == null) {
 				return;
+			}
 			int idx = list.getSelectedIndex();
 			int size = listModel.getSize();
-			if (size == 0)
+			if (size == 0) {
 				return;
+			}
 			int next = idx + delta;
-			if (next < 0)
+			if (next < 0) {
 				next = 0;
-			if (next >= size)
+			}
+			if (next >= size) {
 				next = size - 1;
+			}
 			list.setSelectedIndex(next);
 			list.ensureIndexIsVisible(next);
 		}
 
 		private void selectIndex(int idx) {
-			if (listModel == null || idx < 0 || idx >= listModel.getSize())
+			if (listModel == null || idx < 0 || idx >= listModel.getSize()) {
 				return;
+			}
 			Ga g = listModel.getElementAt(idx);
-			if (g == null)
+			if (g == null) {
 				return;
+			}
 
 			// mark suppressChange so document listener won't trigger fetch again
 			suppressChange = true;
@@ -548,8 +595,9 @@ public class PanelBuoc1Controller {
 		}
 
 		private void hidePopup() {
-			if (popup != null && popup.isVisible())
+			if (popup != null && popup.isVisible()) {
 				popup.setVisible(false);
+			}
 			popup = null;
 			list = null;
 			listModel = null;
