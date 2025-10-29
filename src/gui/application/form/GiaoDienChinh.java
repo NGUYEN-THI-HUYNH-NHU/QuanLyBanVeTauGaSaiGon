@@ -32,6 +32,7 @@ import com.formdev.flatlaf.util.UIScale;
 import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
+import gui.application.form.NhanVien.QuanLyNhanVien;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
@@ -110,8 +111,8 @@ public class GiaoDienChinh extends JLayeredPane {
 //			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
 			case 8 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
-//			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
-//			case 11 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
+			case 10 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
+//			case 11 -> UngDung.showGiaoDienChinh(new Tai(nhanVien));
 
 			// UC dung chung
 			case 13 -> {
