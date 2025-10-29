@@ -74,7 +74,7 @@ public class FormDangNhap extends JPanel {
 		txtTenDangNhap.requestFocusInWindow();
 		pnlLogin.add(lblMatKhau = new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
-		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu", JLabel.RIGHT));
+		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu?", JLabel.RIGHT));
 		lblQuenMK.setForeground(new Color(7, 43, 143));
 		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
 
