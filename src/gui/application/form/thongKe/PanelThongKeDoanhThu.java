@@ -16,7 +16,6 @@ public class PanelThongKeDoanhThu extends JPanel {
         tab.addTab("Tuyến", new PanelThongKeDoanhThuTheoTuyen());
         tab.addTab("Nhân viên", new PanelThongKeDoanhThuTheoNhanVien());
         tab.addTab("Thanh toán", new PanelThongKeDoanhThuTheoThanhToan());
-        tab.addTab("Dashboard", new PanelThongKeDoanhThuTheoDashboard());
 
 
 
