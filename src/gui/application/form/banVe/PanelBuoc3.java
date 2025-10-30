@@ -26,7 +26,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -34,7 +33,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import entity.KhachHang;
 import gui.tuyChinh.RoundedBorder;
 
 public class PanelBuoc3 extends JPanel {
@@ -126,6 +124,26 @@ public class PanelBuoc3 extends JPanel {
 		add(formKhachHang, BorderLayout.EAST);
 	}
 
+	public String getTenNguoiMua() {
+		return txtTen.getText().trim();
+	}
+
+	public String getCmndNguoiMua() {
+		return txtCmnd.getText().trim();
+	}
+
+	public String getPhoneNguoiMua() {
+		return txtPhone.getText().trim();
+	}
+
+	public JButton getConfirmButton() {
+		return btnConfirm;
+	}
+
+	public JButton getCancelButton() {
+		return btnCancel;
+	}
+
 	/**
 	 * Khởi tạo bảng từ BookingSession (lấy VeSession cho tripIndex)
 	 */
@@ -145,16 +163,6 @@ public class PanelBuoc3 extends JPanel {
 			rows.add(r);
 		}
 		model.setRows(rows);
-
-//		// --- FIX: force UI delegate refresh on EDT so FlatLaf re-applies rounded
-//		// corners ---
-//		SwingUtilities.invokeLater(() -> {
-//			// update UI for this panel only (cheaper than update entire app)
-//			SwingUtilities.updateComponentTreeUI(this);
-//			// optional: revalidate/repaint to ensure layout and painting refreshed
-//			this.revalidate();
-//			this.repaint();
-//		});
 	}
 
 	public List<PassengerRow> getPassengerRows() {
@@ -163,42 +171,6 @@ public class PanelBuoc3 extends JPanel {
 			table.getCellEditor().stopCellEditing();
 		}
 		return model.getRowsCopy();
-	}
-
-	/*
-	 * Lấy thông tin người mua từ form và đóng gói vào entity KhachHang.
-	 */
-	public KhachHang getNguoiMua() {
-		KhachHang nguoiMua = new KhachHang();
-		nguoiMua.setHoTen(txtTen.getText().trim());
-		nguoiMua.setSoGiayTo(txtCmnd.getText().trim());
-		nguoiMua.setSoDienThoai(txtPhone.getText().trim());
-		return nguoiMua;
-	}
-
-	public JButton getConfirmButton() {
-		return btnConfirm;
-	}
-
-	public JButton getCancelButton() {
-		return btnCancel;
-	}
-
-	public boolean validateRows() {
-		for (PassengerRow r : model.getRowsCopy()) {
-			if (r.getFullName() == null || r.getFullName().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Vui lòng nhập tên đầy đủ cho tất cả hành khách trong bảng.", "Lỗi",
-						JOptionPane.WARNING_MESSAGE);
-				return false;
-			}
-			// Thêm validate cho idNumber nếu cần
-			if (r.getIdNumber() == null || r.getIdNumber().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Vui lòng nhập Số giấy tờ cho hành khách: " + r.getFullName(),
-						"Lỗi", JOptionPane.WARNING_MESSAGE);
-				return false;
-			}
-		}
-		return true;
 	}
 
 	public void setComponentsEnabled(boolean enabled) {

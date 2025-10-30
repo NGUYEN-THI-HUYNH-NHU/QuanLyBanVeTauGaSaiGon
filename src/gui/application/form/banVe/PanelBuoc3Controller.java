@@ -11,21 +11,135 @@ package gui.application.form.banVe;
  * @date: Oct 26, 2025
  * @version: 1.0
  */
-
 import java.util.List;
 
-import entity.Chuyen;
+import javax.swing.JOptionPane;
+
+import entity.KhachHang;
 
 public class PanelBuoc3Controller {
-	private InfoCompleteListener infoCompleteListener;
 
-	
-	public interface InfoCompleteListener {
-	    void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
-	    void onSearchFailure();
+	private final PanelBuoc3 view;
+	private final BookingSession session;
+
+	// Listeners để báo cho Controller cha (BanVe1Controller)
+	private Runnable onConfirmListener;
+	private Runnable onCancelListener;
+
+	public PanelBuoc3Controller(PanelBuoc3 view, BookingSession session) {
+		this.view = view;
+		this.session = session;
+		attachListeners();
 	}
 
-	public void setSearchListener(InfoCompleteListener listener) {
-        this.infoCompleteListener = listener;
-    }
+	// Gắn listener vào các nút của View
+	private void attachListeners() {
+		view.getConfirmButton().addActionListener(e -> handleConfirm());
+		view.getCancelButton().addActionListener(e -> handleCancel());
+	}
+
+	/**
+	 * Xử lý logic khi bấm "Xác nhận"
+	 */
+	private void handleConfirm() {
+		// 1. Lấy dữ liệu thô từ View
+		List<PassengerRow> rows = view.getPassengerRows();
+		String tenNguoiMua = view.getTenNguoiMua();
+		String cmndNguoiMua = view.getCmndNguoiMua();
+		String phoneNguoiMua = view.getPhoneNguoiMua();
+
+		// 2. Thực hiện Validation (Logic đã chuyển về đây)
+		if (!validateInput(rows, tenNguoiMua, cmndNguoiMua, phoneNguoiMua)) {
+			return;
+		}
+
+		// 3. Cập nhật Model (BookingSession)
+
+		// 3a. Tạo và set Người Mua
+		KhachHang nguoiMua = new KhachHang();
+		nguoiMua.setHoTen(tenNguoiMua);
+		nguoiMua.setSoGiayTo(cmndNguoiMua);
+		nguoiMua.setSoDienThoai(phoneNguoiMua);
+		session.setNguoiMua(nguoiMua);
+
+		// 3b. Cập nhật thông tin Hành Khách vào từng VeSession
+		for (PassengerRow row : rows) {
+			VeSession ve = row.getVeSession();
+
+			// Tạo entity HanhKhach
+			KhachHang hanhKhach = new KhachHang();
+			hanhKhach.setHoTen(row.getFullName());
+			hanhKhach.setSoGiayTo(row.getIdNumber());
+			hanhKhach.setLoaiDoiTuong(row.getType());
+
+			// Gán vào VeSession
+			ve.setHanhKhach(hanhKhach);
+		}
+
+		System.out.println("BookingSession đã được cập nhật với thông tin hành khách và người mua.");
+
+		// 4. Báo cho Controller cha (BanVe1Controller) biết là đã xong
+		if (onConfirmListener != null) {
+			onConfirmListener.run();
+		}
+	}
+
+	/**
+	 * Xử lý logic khi bấm "Hủy"
+	 */
+	private void handleCancel() {
+		// 1. (Tùy chọn) Gọi BUS để hủy phiếu giữ chỗ
+		// datChoBUS.huyPhieuGiuCho(session.getPhieuGiuChoID());
+
+		// 2. Báo cho Controller cha biết
+		if (onCancelListener != null) {
+			onCancelListener.run();
+		}
+	}
+
+	/**
+	 * Logic validation, giờ nằm trong Controller
+	 */
+	private boolean validateInput(List<PassengerRow> rows, String ten, String cmnd, String phone) {
+		// Validate Bảng hành khách
+		for (PassengerRow r : rows) {
+			if (r.getFullName() == null || r.getFullName().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Vui lòng nhập tên đầy đủ cho tất cả hành khách.", "Lỗi",
+						JOptionPane.WARNING_MESSAGE);
+				return false;
+			}
+			if (r.getIdNumber() == null || r.getIdNumber().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Vui lòng nhập Số giấy tờ cho hành khách: " + r.getFullName(),
+						"Lỗi", JOptionPane.WARNING_MESSAGE);
+				return false;
+			}
+		}
+
+		// Validate Form người mua
+		if (ten.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng nhập họ tên người mua vé.", "Lỗi",
+					JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		if (cmnd.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng nhập CMND/Hộ chiếu người mua vé.", "Lỗi",
+					JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		if (phone.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng nhập số điện thoại người mua vé.", "Lỗi",
+					JOptionPane.WARNING_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+
+	// Setter cho các listener
+	public void setOnConfirmListener(Runnable listener) {
+		this.onConfirmListener = listener;
+	}
+
+	public void setOnCancelListener(Runnable listener) {
+		this.onCancelListener = listener;
+	}
 }

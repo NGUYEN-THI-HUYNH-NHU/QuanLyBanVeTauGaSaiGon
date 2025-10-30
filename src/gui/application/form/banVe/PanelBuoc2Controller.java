@@ -442,8 +442,8 @@ public class PanelBuoc2Controller {
 		Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
 		int soToa = toa.getSoToa();
 		int soGhe = ghe.getSoGhe();
-		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(), chuyenDiCriteria.getGaDenId(),
-				getSelectedChuyen().getTau().getLoaiTau().toString(), hangToa);
+		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(),
+				chuyenDiCriteria.getGaDenId(), getSelectedChuyen().getTau().getLoaiTau().toString(), hangToa);
 		String khuyenMaiCode = "";
 		int giam = 0;
 

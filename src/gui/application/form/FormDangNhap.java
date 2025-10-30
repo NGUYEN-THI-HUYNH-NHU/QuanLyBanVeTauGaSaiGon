@@ -39,7 +39,7 @@ import entity.type.VaiTroNhanVien;
 import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.thongTin.FormThongTinCaNhan;
+import gui.application.form.dashboard.Dashboard;
 import gui.tuyChinh.RoundedBorder;
 import net.miginfocom.swing.MigLayout;
 
@@ -145,7 +145,7 @@ public class FormDangNhap extends JPanel {
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
 				ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
 			} else {
-				ungDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+				ungDung.showGiaoDienChinh(new Dashboard());
 			}
 			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
 		}

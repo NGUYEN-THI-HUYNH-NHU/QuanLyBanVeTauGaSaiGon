@@ -150,7 +150,7 @@ public class Ghe_DAO {
 	 * Tính giá vé cho một phân đoạn, dựa trên Loại tàu và Hạng toa cụ thể. Query
 	 * này hiệu quả hơn vì không cần JOIN Ghe, Toa, Tau.
 	 *
-	 * @param chuyenID  ID của chuyến (để tính khoảng cách)
+	 * @param chuyenID  ID của chuyến (để tính khoảng cách, tuyến, và ngày đi)
 	 * @param gaDiID    ID của ga đi
 	 * @param gaDenID   ID của ga đến
 	 * @param loaiTauID ID của Loại tàu (từ BieuGiaVe)
@@ -164,28 +164,36 @@ public class Ghe_DAO {
 		String sql = "-- 0. Khai báo tham số đầu vào\n" + "DECLARE @chuyenID VARCHAR(50) = ?;\n"
 				+ "DECLARE @gaDiID VARCHAR(50) = ?;\n" + "DECLARE @gaDenID VARCHAR(50) = ?;\n"
 				+ "DECLARE @loaiTauID VARCHAR(50) = ?;\n" + "DECLARE @hangToaID VARCHAR(50) = ?;\n" + "\n"
-				+ "-- 1. CTE: Lấy TuyenID và tính Khoảng cách (Km)\n" + ";WITH Distance AS (\n" + "    SELECT \n"
-				// Tính khoảng cách tuyệt đối
+				+ "-- 1. CTE: Lấy thông tin Chuyến (Tuyến, Ngày đi, và Khoảng cách)\n" + ";WITH ChuyenInfo AS (\n"
+				+ "    SELECT \n" + "        c.tuyenID, -- MỚI: Lấy tuyenID để so khớp BieuGiaVe\n"
+				+ "        c.ngayDi,  -- MỚI: Lấy ngayDi để kiểm tra hiệu lực BieuGiaVe\n"
 				+ "        ABS(ttDen.khoangCachTuGaXuatPhatKm - ttDi.khoangCachTuGaXuatPhatKm) AS km\n"
 				+ "    FROM Chuyen c\n"
 				+ "    JOIN TuyenChiTiet ttDi ON c.tuyenID = ttDi.tuyenID AND ttDi.gaID = @gaDiID\n"
 				+ "    JOIN TuyenChiTiet ttDen ON c.tuyenID = ttDen.tuyenID AND ttDen.gaID = @gaDenID\n"
 				+ "    WHERE c.chuyenID = @chuyenID\n" + "),\n"
 				+ "-- 2. CTE: Tìm quy tắc giá tốt nhất (ưu tiên cao nhất) phù hợp\n" + "BestRule AS (\n"
-				+ "    SELECT TOP 1\n" + "        bg.donGiaTrenKm,\n" + "        bg.giaCoBan\n"
-				+ "    FROM BieuGiaVe bg\n" + "    JOIN Distance d ON d.km BETWEEN bg.minKm AND bg.maxKm\n"
-				+ "    WHERE \n" + "        bg.isCoHieuLuc = 1\n"
-				+ "        AND bg.loaiTauApDungID = @loaiTauID -- Dùng tham số trực tiếp\n"
-				+ "        AND bg.hangToaApDungID = @hangToaID -- Dùng tham số trực tiếp\n"
-				+ "    ORDER BY bg.doUuTien DESC -- Lấy quy tắc có độ ưu tiên cao nhất\n" + "),\n"
+				+ "    SELECT TOP 1\n" + "        bg.donGiaTrenKm,\n" + "        bg.giaCoBan,\n"
+				+ "        ci.km -- Lấy km từ CTE trước để dùng sau\n" + "    FROM BieuGiaVe bg\n"
+				+ "    JOIN ChuyenInfo ci ON ci.km BETWEEN bg.minKm AND bg.maxKm\n" + "    WHERE \n"
+				+ "        -- THAY THẾ: Kiểm tra ngày hiệu lực thay cho isCoHieuLuc\n"
+				+ "        (ci.ngayDi >= bg.ngayBatDau AND (bg.ngayKetThuc IS NULL OR ci.ngayDi <= bg.ngayKetThuc))\n"
+				+ "\n" + "        -- MỚI: So khớp tuyến (quy tắc chung NULL hoặc quy tắc cụ thể)\n"
+				+ "        AND (bg.tuyenApDungID IS NULL OR bg.tuyenApDungID = ci.tuyenID)\n" + "\n"
+				+ "        AND bg.loaiTauApDungID = @loaiTauID -- Dùng tham số\n"
+				+ "        AND bg.hangToaApDungID = @hangToaID -- Dùng tham số\n" + "    ORDER BY \n"
+				+ "        bg.doUuTien DESC, -- Lấy độ ưu tiên cao nhất\n"
+				+ "        -- MỚI: Ưu tiên quy tắc có tuyến cụ thể hơn quy tắc chung (NULL)\n"
+				+ "        (CASE WHEN bg.tuyenApDungID IS NOT NULL THEN 1 ELSE 2 END) ASC\n" + "),\n"
 				+ "-- 3. CTE: Tính giá cơ bản (trước khi nhân hệ số)\n" + "BasePrice AS (\n" + "    SELECT\n"
-				+ "        CASE\n" + "            WHEN r.donGiaTrenKm IS NOT NULL THEN r.donGiaTrenKm * d.km\n"
-				+ "            ELSE r.giaCoBan\n" + "        END AS giaTrcHeSo\n" + "    FROM BestRule r, Distance d\n"
-				+ "),\n" + "-- 4. CTE: Lấy các hệ số nhân\n" + "Multipliers AS (\n" + "    SELECT \n"
-				// Dùng ISNULL để mặc định là 1.0 nếu không tìm thấy hệ số
+				+ "        CASE\n" + "            -- SỬA: Dùng r.km thay vì join lại Distance\n"
+				+ "            WHEN r.donGiaTrenKm IS NOT NULL THEN r.donGiaTrenKm * r.km\n"
+				+ "            ELSE r.giaCoBan\n" + "        END AS giaTrcHeSo\n" + "    FROM BestRule r\n" + "),\n"
+				+ "-- 4. CTE: Lấy các hệ số nhân (Giữ nguyên, vì 2 bảng này vẫn dùng isCoHieuLuc)\n"
+				+ "Multipliers AS (\n" + "    SELECT \n"
 				+ "        ISNULL((SELECT hsg FROM HeSoGiaLoaiTau hst WHERE hst.loaiTauID = @loaiTauID AND hst.isCoHieuLuc = 1), 1.0) AS hsgTau,\n"
 				+ "        ISNULL((SELECT hsg FROM HeSoGiaHangToa hsh WHERE hsh.hangToaID = @hangToaID AND hsh.isCoHieuLuc = 1), 1.0) AS hsgToa\n"
-				+ ")\n" + "-- 5. Tính toán cuối cùng\n" + "SELECT \n"
+				+ ")\n" + "-- 5. Tính toán cuối cùng (Giữ nguyên)\n" + "SELECT \n"
 				+ "    ISNULL(ROUND(bp.giaTrcHeSo * m.hsgTau * m.hsgToa, 2), 0.00) AS finalPrice\n"
 				+ "FROM BasePrice bp, Multipliers m;";
 
@@ -203,7 +211,6 @@ public class Ghe_DAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			// Nếu có lỗi, trả về 0
 		}
 		return 0;
 	}
