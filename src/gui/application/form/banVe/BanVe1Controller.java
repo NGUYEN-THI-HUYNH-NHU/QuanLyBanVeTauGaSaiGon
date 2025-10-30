@@ -11,7 +11,6 @@ package gui.application.form.banVe;
  * @date: Oct 22, 2025
  * @version: 1.0
  */
-
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -73,17 +72,30 @@ public class BanVe1Controller {
 		// Lắng nghe sự kiện từ Buoc1 (Tìm chuyến)
 		this.buoc1Controller.addSearchListener(new SearchListener() {
 			@Override
-			public void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria) {
+			// 1. Cập nhật chữ ký (signature) của hàm để nhận 2 danh sách
+			public void onSearchSuccess(List<Chuyen> outboundResults, List<Chuyen> returnResults,
+					SearchCriteria criteria) {
+
+				// 2. Lưu cả criteria và CẢ HAI danh sách kết quả vào session
 				bookingSession.setOutboundCriteria(criteria);
-				bookingSession.setOutboundResults(results);
+				bookingSession.setOutboundResults(outboundResults);
+				bookingSession.setReturnResults(returnResults); // <-- Thêm dòng này
+
+				// 3. Kích hoạt Bước 2
 				p1.setBuoc2Enabled(true);
 				p1.setBuoc3Enabled(false);
-				buoc2Controller.displayChuyenList(criteria, results, 0);
+
+				// 4. CHỈ hiển thị danh sách CHIỀU ĐI (outboundResults) lên PanelBuoc2
+				// Chúng ta truyền tripIndex = 0 để Buoc2Controller biết đây là chiều đi.
+				buoc2Controller.displayChuyenList(criteria, outboundResults, 0);
 			}
 
 			@Override
 			public void onSearchFailure() {
+				// Xóa cả hai danh sách kết quả khi tìm thất bại
 				bookingSession.setOutboundResults(null);
+				bookingSession.setReturnResults(null); // <-- Thêm dòng này
+
 				p1.setBuoc2Enabled(false);
 				p1.setBuoc3Enabled(false);
 			}
@@ -130,7 +142,7 @@ public class BanVe1Controller {
 					try {
 
 						// Gọi BUS để xóa Phiếu giữ chỗ chi tiết trong CSDL
-						return datChoBUS.xoaPhieuGiuChoChiTiet(veSession);
+						return datChoBUS.xoaPhieuGiuChoChiTiet(veSession.getPgcct().getPhieuGiuChoChiTietID());
 
 					} catch (Exception e) {
 						errorMessage = e.getMessage();
@@ -155,7 +167,7 @@ public class BanVe1Controller {
 							if (bookingSession.getOutboundSelectedTickets().size() == 0
 									&& bookingSession.getReturnSelectedTickets().size() == 0) {
 								if (bookingSession.getPgc() != null) {
-									datChoBUS.xoaPhieuGiuCho(bookingSession);
+									datChoBUS.xoaPhieuGiuCho(bookingSession.getPgc().getPhieuGiuChoID());
 								}
 
 							}

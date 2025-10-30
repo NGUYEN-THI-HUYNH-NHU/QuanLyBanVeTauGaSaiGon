@@ -42,6 +42,8 @@ public class PanelBuoc1 extends JPanel {
 	private JButton btnTimKiem;
 	private JPanel pnlTimKiem;
 
+	private PanelBuoc1Controller controller;
+
 	public PanelBuoc1() {
 		setLayout(new BorderLayout());
 		setBorder(new TitledBorder(""));
@@ -129,6 +131,22 @@ public class PanelBuoc1 extends JPanel {
 
 		add(lblTieuDe, BorderLayout.NORTH);
 		add(pnlTimKiem, BorderLayout.CENTER);
+
+		// ----- Gắn sự kiện (Event Handling) -----
+		// 1. Logic nội tại của View
+		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
+		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
+
+		// 2. Logic nghiệp vụ (ủy thác cho Controller)
+		btnTimKiem.addActionListener(e -> {
+			if (controller != null) {
+				controller.performSearch();
+			}
+		});
+	}
+
+	public void setController(PanelBuoc1Controller controller) {
+		this.controller = controller;
 	}
 
 	// ---------- Getters cho panelBuoc1Controller su dung ----------

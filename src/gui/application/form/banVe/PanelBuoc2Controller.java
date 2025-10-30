@@ -20,6 +20,7 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
 import bus.Chuyen_BUS;
+import bus.DatCho_BUS;
 import entity.Chuyen;
 import entity.Ga;
 import entity.Ghe;
@@ -34,6 +35,7 @@ public class PanelBuoc2Controller {
 	private final PanelGioVe panelGioVe;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
+	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 
 	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
 	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
@@ -92,18 +94,6 @@ public class PanelBuoc2Controller {
 		return this.currentTripIndex;
 	}
 
-	public void setChuyenList(List<Chuyen> chuyens, String gaDiName, String gaDenName) {
-		this.chuyenList = chuyens;
-		panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
-		panelChuyenTau.showChuyenList(chuyens);
-		if (chuyens != null && !chuyens.isEmpty()) {
-			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
-			onChuyenSelected(chuyens.get(0));
-		}
-//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
-		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
-	}
-
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
 		if (criteria == null || chuyens == null || chuyens.isEmpty()) {
 			// Có thể ẩn hoặc xóa trắng panel
@@ -124,7 +114,6 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-//		panelGioVe.refresh(veSessionBUS.getAllVeSessions());
 		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 	}
 
@@ -291,11 +280,23 @@ public class PanelBuoc2Controller {
 			return;
 		}
 
+		final int tripIndex = getCurrentTripIndex();
+
 		new SwingWorker<VeSession, Void>() {
 			@Override
 			protected VeSession doInBackground() throws Exception {
-				VeSession v = createVeSessionForSeat(toa, ghe);
-				getBookingSession().addOutboundTicket(v);
+				VeSession v = createVeSessionForSeat(toa, ghe, tripIndex);
+
+				if (v == null) {
+					return null;
+				}
+
+				if (tripIndex == 0) {
+					bookingSession.addOutboundTicket(v);
+				} else {
+					bookingSession.addReturnTicket(v);
+				}
+
 				return v;
 			}
 
@@ -304,18 +305,16 @@ public class PanelBuoc2Controller {
 				try {
 					VeSession v = get();
 					if (v != null) {
-						panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
+						panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(tripIndex));
 
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
 						}
 
-						// start countdown for this ticket
 						startCountdownForVe(v);
-						// refresh seat grid to mark as selected
 						panelSoDoCho.setCurrentToa(toa);
 					} else {
-						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi).");
+						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi tạo vé).");
 						panelSoDoCho.setCurrentToa(toa);
 					}
 				} catch (Exception ex) {
@@ -333,11 +332,21 @@ public class PanelBuoc2Controller {
 			return;
 		}
 
-		VeSession veToRemove = createVeSessionForSeat(toa, ghe);
+		String currentChuyenID = getSelectedChuyen().getChuyenID();
+		String currentToaID = toa.getToaID();
+		int currentSoGhe = ghe.getSoGhe();
+
+		List<VeSession> currentTripTickets = bookingSession.getSelectedTicketsForTrip(getCurrentTripIndex());
+
+		// 3. Tìm VeSession THỰC SỰ đang có trong danh sách
+		VeSession veToRemove = currentTripTickets.stream().filter(v -> v.getChuyenID().equals(currentChuyenID)
+				&& v.getToaID().equals(currentToaID) && v.getSoGhe() == currentSoGhe).findFirst().orElse(null);
 
 		if (veToRemove != null) {
+			// 4. Gọi onRemoveVe với ĐÚNG đối tượng đã tìm thấy
 			onRemoveVe(veToRemove);
 		} else {
+			// Lỗi: Không tìm thấy vé để xóa
 			if (selectedToa != null) {
 				panelSoDoCho.setCurrentToa(selectedToa);
 			}
@@ -373,11 +382,12 @@ public class PanelBuoc2Controller {
 				label.setText(formatSeconds(s));
 			}
 
+			// Tự động xóa vé
 			if (s <= 0) {
 				((Timer) e.getSource()).stop();
 				countdownTimers.remove(id);
 				countdownLabels.remove(id);
-				releaseHoldAndRemoveVe(v); // Tự động xóa vé
+				releaseHoldAndRemoveVe(v);
 			}
 		});
 		timer.setInitialDelay(0);
@@ -428,10 +438,18 @@ public class PanelBuoc2Controller {
 			return;
 		}
 
-		boolean removedOutbound = getBookingSession().removeOutboundTicket(v);
+		boolean removedOutbound = bookingSession.removeOutboundTicket(v);
 		boolean removedReturn = bookingSession.removeReturnTicket(v);
 
 		countdownLabels.remove(v.toString());
+
+		bookingSession.removeVeSession(v);
+
+		datChoBUS.xoaPhieuGiuChoChiTiet(v.getPgcct().getPhieuGiuChoChiTietID());
+		if (bookingSession.getOutboundSelectedTickets().size() == 0
+				&& bookingSession.getReturnSelectedTickets().size() == 0) {
+			datChoBUS.xoaPhieuGiuCho(bookingSession.getPgc().getPhieuGiuChoID());
+		}
 
 		// Refresh giỏ vé của trip HIỆN TẠI
 		panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(currentTripIndex));
@@ -445,30 +463,42 @@ public class PanelBuoc2Controller {
 		}
 	}
 
-	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe) {
-		SearchCriteria chuyenDiCriteria = getBookingSession().getOutboundCriteria();
+	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe, int tripIndex) {
+		SearchCriteria criteria = (tripIndex == 0) ? getBookingSession().getOutboundCriteria()
+				: getBookingSession().getReturnCriteria();
+
+		if (criteria == null) {
+			System.err.println("createVeSessionForSeat: Không tìm thấy SearchCriteria cho tripIndex " + tripIndex);
+			return null;
+		}
 
 		String chuyenID = getSelectedChuyen().getChuyenID();
 		String tauID = getSelectedChuyen().getTau().getTauID();
-		String tenGaDi = chuyenDiCriteria.getGaDiName();
-		String maGaDi = chuyenDiCriteria.getGaDiId();
-		String tenGaDen = chuyenDiCriteria.getGaDenName();
-		String maGaDen = chuyenDiCriteria.getGaDenId();
+
+		// Dùng criteria (thay vì chuyenDiCriteria)
+		String tenGaDi = criteria.getGaDiName();
+		String maGaDi = criteria.getGaDiId();
+		String tenGaDen = criteria.getGaDenName();
+		String maGaDen = criteria.getGaDenId();
+
 		LocalDate ngayDi = getSelectedChuyen().getNgayDi();
 		LocalTime gioDi = getSelectedChuyen().getGioDi();
 		String toaID = (toa != null) ? toa.getToaID() : null;
+		String hangToa = toa.getHangToa().toString();
 		int soToa = toa.getSoToa();
 		String gheID = ghe.getGheID();
 		int soGhe = ghe.getSoGhe();
 		LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
-		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(),
-				chuyenDiCriteria.getGaDenId(), getSelectedChuyen().getTau().getLoaiTau().toString(),
-				toa.getHangToa().toString());
+
+		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, criteria.getGaDiId(), // Dùng maGaDi từ criteria
+				criteria.getGaDenId(), // Dùng maGaDen từ criteria
+				getSelectedChuyen().getTau().getLoaiTau().toString(), toa.getHangToa().toString());
+
 		String khuyenMaiCode = "";
 		int giam = 0;
 
-		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, soToa, gheID,
-				soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
+		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, hangToa, soToa,
+				gheID, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
 	}
 
 	public Set<Integer> getSelectedSoGhe(Toa currentToa) {

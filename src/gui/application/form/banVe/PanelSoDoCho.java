@@ -222,38 +222,47 @@ public class PanelSoDoCho extends JPanel {
 
 		// --- Xác định trạng thái và màu ban đầu ---
 		if (isSelectedInSession && isAvailable) {
-			b.setBackground(new Color(40, 167, 69)); // Green
+			b.setBackground(new Color(40, 167, 69));
 			b.setForeground(Color.WHITE);
 			b.setEnabled(true);
-			b.setOpaque(true); // Cần opaque cho màu tùy chỉnh
+			b.setOpaque(true);
 		} else if (status == TrangThaiGhe.DA_BAN) {
-			b.setBackground(new Color(220, 53, 53)); // Red
+			b.setBackground(new Color(220, 53, 53));
 			b.setForeground(Color.WHITE);
 			b.setEnabled(false);
 			b.setOpaque(true);
 		} else if (status == TrangThaiGhe.BI_CHIEM) {
-			b.setBackground(Color.GRAY); // Gray
+			b.setBackground(Color.GRAY);
 			b.setForeground(Color.WHITE);
 			b.setEnabled(false);
 			b.setOpaque(true);
-		} else { // TRONG (chưa chọn)
+		} else {
 			b.setBackground(UIManager.getColor("Button.background"));
 			b.setForeground(UIManager.getColor("Button.foreground"));
+			b.setOpaque(true);
 			b.setEnabled(true);
-			// Không cần setOpaque(true) cho màu mặc định
 		}
 
 		b.addActionListener(e -> {
 			if (!b.isEnabled()) {
 				return;
 			}
-			// Lấy lại trạng thái mới nhất ngay lúc bấm
 			boolean wasSelectedNow = panelBuoc2Controller.getSelectedSoGhe(currentToa).contains(g.getSoGhe());
 
 			if (panelBuoc2Controller != null) {
 				if (wasSelectedNow) {
+					// ---- GIẢI QUYẾT TỨC THÌ (BỎ CHỌN) ----
+					b.setBackground(UIManager.getColor("Button.background"));
+					b.setForeground(UIManager.getColor("Button.foreground"));
+					b.setOpaque(false);
+
 					panelBuoc2Controller.handleSeatDeselection(currentToa, g);
 				} else {
+					// ---- GIẢI QUYẾT TỨC THÌ ----
+					b.setBackground(new Color(40, 167, 69));
+					b.setForeground(Color.WHITE);
+					b.setOpaque(true);
+
 					panelBuoc2Controller.onSeatClicked(currentToa, g);
 				}
 			}
@@ -513,7 +522,6 @@ public class PanelSoDoCho extends JPanel {
 		}
 	}
 
-	// (layout_Default giữ nguyên)
 	// Layout mặc định (GridLayout cũ)
 	private void layout_Default(List<Ghe> gheList, Set<Integer> selectedSoGheSet) {
 		int cols = Math.min(gheList.size(), 8); // Tăng số cột mặc định
@@ -529,7 +537,6 @@ public class PanelSoDoCho extends JPanel {
 		}
 	}
 
-	// (Các hàm navigation và LoadSeatWorker giữ nguyên)
 	// ==== Navigation ====
 	public void showPrevToa() {
 		if (toaList == null || toaList.isEmpty()) {
@@ -539,7 +546,7 @@ public class PanelSoDoCho extends JPanel {
 		Toa t = toaList.get(currentIndex);
 		setCurrentToa(t);
 		if (panelBuoc2Controller != null) {
-			panelBuoc2Controller.highlightToa(t); // Thêm kiểm tra null
+			panelBuoc2Controller.highlightToa(t);
 		}
 	}
 
@@ -551,7 +558,7 @@ public class PanelSoDoCho extends JPanel {
 		Toa t = toaList.get(currentIndex);
 		setCurrentToa(t);
 		if (panelBuoc2Controller != null) {
-			panelBuoc2Controller.highlightToa(t); // Thêm kiểm tra null
+			panelBuoc2Controller.highlightToa(t);
 		}
 	}
 

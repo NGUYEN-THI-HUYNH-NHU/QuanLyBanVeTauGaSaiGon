@@ -62,11 +62,11 @@ public class PanelBuoc1Controller {
 	private AutoCompleteField acGaDi;
 	private AutoCompleteField acGaDen;
 	// debounce millis
-	private static final int DEBOUNCE_MS = 400;
+	private static final int DEBOUNCE_MS = 300;
 
 	// Interface để BanVe1Controller (Mediator) lắng nghe
 	public interface SearchListener {
-		void onSearchSuccess(List<Chuyen> results, SearchCriteria criteria);
+		void onSearchSuccess(List<Chuyen> outboundResults, List<Chuyen> returnResults, SearchCriteria criteria);
 
 		void onSearchFailure();
 	}
@@ -144,8 +144,13 @@ public class PanelBuoc1Controller {
 		});
 	}
 
+	private static class SearchResultBundle {
+		List<Chuyen> outboundTrips;
+		List<Chuyen> returnTrips;
+	}
+
 	// ----- Tìm chuyến -----
-	private void performSearch() {
+	public void performSearch() {
 		final SearchCriteria criteria = buildSearchCriteriaFromPanel();
 
 		if (criteria == null || !criteria.isValidForSearch()) {
@@ -155,15 +160,23 @@ public class PanelBuoc1Controller {
 			return;
 		}
 
+		if (criteria.isKhuHoi() && criteria.getNgayVe() == null) {
+			SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+					"Vui lòng chọn Ngày về cho vé khứ hồi.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE));
+			return;
+		}
+
 		panel.getBtnTimKiem().setEnabled(false);
 
-		new SwingWorker<List<Chuyen>, Void>() {
+		new SwingWorker<SearchResultBundle, Void>() {
 			@Override
-			protected List<Chuyen> doInBackground() {
+			protected SearchResultBundle doInBackground() {
+				SearchResultBundle bundle = new SearchResultBundle();
 				try {
 					String gaDiId = criteria.getGaDiId();
 					String gaDenId = criteria.getGaDenId();
 
+					/* Chieu di */
 					// Resolve bằng tên nếu id chưa có
 					if (gaDiId == null || gaDiId.trim().isEmpty()) {
 						String name = criteria.getGaDiName();
@@ -185,7 +198,8 @@ public class PanelBuoc1Controller {
 					}
 
 					if (gaDiId == null || gaDenId == null) {
-						return Collections.emptyList();
+						bundle.outboundTrips = Collections.emptyList();
+						return bundle;
 					}
 
 					LocalDate ngayDi = criteria.getNgayDi();
@@ -193,23 +207,44 @@ public class PanelBuoc1Controller {
 						ngayDi = LocalDate.now();
 					}
 
-					return chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
+					bundle.outboundTrips = chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
+
+					/* Chieu ve neu chon khu hoi */
+					if (criteria.isKhuHoi() && criteria.getNgayVe() != null) {
+						// Đảo ngược ga đi và ga đến
+						bundle.returnTrips = chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDenId, gaDiId,
+								criteria.getNgayVe());
+					}
+
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					return Collections.emptyList();
+					bundle.outboundTrips = Collections.emptyList();
+					bundle.returnTrips = Collections.emptyList();
 				}
+				return bundle;
 			}
 
 			@Override
 			protected void done() {
 				try {
-					List<Chuyen> results = get();
+					SearchResultBundle results = get();
 					panel.getBtnTimKiem().setEnabled(true);
 
-					if (results == null || results.isEmpty()) {
+					// Kiểm tra kết quả chiều đi
+					if (results.outboundTrips == null || results.outboundTrips.isEmpty()) {
 						SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-								"Không tìm thấy chuyến phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
+								"Không tìm thấy chuyến đi phù hợp.", "Kết quả", JOptionPane.INFORMATION_MESSAGE));
+						if (searchListener != null) {
+							searchListener.onSearchFailure();
+						}
 						return;
+					}
+
+					// (Thông báo nếu tìm được chiều đi nhưng không tìm được chiều về)
+					if (criteria.isKhuHoi() && (results.returnTrips == null || results.returnTrips.isEmpty())) {
+						SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
+								"Đã tìm thấy chuyến đi, nhưng không tìm thấy chuyến về phù hợp.", "Lưu ý",
+								JOptionPane.INFORMATION_MESSAGE));
 					}
 
 					if (searchListener == null) {
@@ -221,7 +256,7 @@ public class PanelBuoc1Controller {
 							.tenGaDi(panel.getGaDi()).gaDenId(selectedGaDen).tenGaDen(panel.getGaDen())
 							.ngayDi(panel.getNgayDi()).ngayVe(panel.getNgayVe()).khuHoi(panel.isKhuHoi()).build();
 
-					searchListener.onSearchSuccess(results, resolvedCriteria);
+					searchListener.onSearchSuccess(results.outboundTrips, results.returnTrips, resolvedCriteria);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					panel.getBtnTimKiem().setEnabled(true);

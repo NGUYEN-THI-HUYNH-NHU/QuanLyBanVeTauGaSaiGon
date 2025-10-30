@@ -28,8 +28,8 @@ import gui.application.PdfTicketExporter;
  */
 public class BanVe2Controller {
 
-	private final PanelBanVe2 view; // View gộp (chứa Buoc4 và Buoc5)
-	private final BookingSession bookingSession; // Session dữ liệu
+	private final PanelBanVe2 view;
+	private final BookingSession bookingSession;
 
 	// Các panel con
 	private final PanelBuoc4 panelBuoc4;

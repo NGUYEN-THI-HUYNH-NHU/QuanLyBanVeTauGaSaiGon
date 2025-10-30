@@ -28,7 +28,6 @@ import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
-import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class DatCho_BUS {
@@ -88,14 +87,20 @@ public class DatCho_BUS {
 	 * @param veSession
 	 * @return
 	 */
-	public boolean xoaPhieuGiuChoChiTiet(VeSession v) {
-		return pgcctDAO.deletePhieuGiuChoChiTiet(v.getPgcct().getPhieuGiuChoChiTietID());
+	public boolean xoaPhieuGiuChoChiTiet(String phieuGiuChoChiTietID) {
+		if (phieuGiuChoChiTietID.length() == 0 || phieuGiuChoChiTietID == null) {
+			return false;
+		}
+		return pgcctDAO.deletePhieuGiuChoChiTiet(phieuGiuChoChiTietID);
 	}
 
 	/**
 	 * @param bookingSession
 	 */
-	public boolean xoaPhieuGiuCho(BookingSession bookingSession) {
-		return pgcDAO.deletePhieuGiuChoByID(bookingSession.getPgc().getPhieuGiuChoID());
+	public boolean xoaPhieuGiuCho(String phieuGiuChoID) {
+		if (phieuGiuChoID.length() == 0 || phieuGiuChoID == null) {
+			return false;
+		}
+		return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
 	}
 }

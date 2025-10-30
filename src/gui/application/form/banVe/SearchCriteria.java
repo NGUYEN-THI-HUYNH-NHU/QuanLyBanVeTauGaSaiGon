@@ -24,7 +24,7 @@ public class SearchCriteria {
 	private final String gaDenId;
 	private final String tenGaDen;
 	private final LocalDate ngayDi;
-	private final LocalDate ngayVe; // có thể null nếu một chiều
+	private final LocalDate ngayVe;
 	private final boolean khuHoi;
 
 	private SearchCriteria(Builder b) {
