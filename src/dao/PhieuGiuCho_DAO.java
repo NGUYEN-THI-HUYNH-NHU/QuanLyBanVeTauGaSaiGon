@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import connectDB.ConnectDB;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
+import entity.type.TrangThaiPhieuGiuCho;
 
 public class PhieuGiuCho_DAO {
 
@@ -38,7 +39,7 @@ public class PhieuGiuCho_DAO {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, pgc.getPhieuGiuChoID());
 			ps.setString(2, pgc.getNhanVien().getNhanVienID());
-			ps.setString(3, pgc.getTrangThai());
+			ps.setString(3, pgc.getTrangThai().toString());
 
 			return ps.executeUpdate() > 0;
 		} catch (SQLException e) {
@@ -64,7 +65,7 @@ public class PhieuGiuCho_DAO {
 					pgc.setNhanVien(nv);
 
 					pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
-					pgc.setTrangThai(rs.getString("trangThai"));
+					pgc.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
 
 					return pgc;
 				}
@@ -117,6 +118,23 @@ public class PhieuGiuCho_DAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return 0;
+		}
+	}
+
+	/**
+	 * @param phieuGiuChoID
+	 * @return
+	 */
+	public boolean deletePhieuGiuChoByID(String phieuGiuChoID) {
+		Connection conn = connectDB.getConnection();
+		String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, phieuGiuChoID);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 }

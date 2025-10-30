@@ -12,6 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
@@ -26,6 +27,8 @@ public class PanelBuoc3Controller {
 	private Runnable onConfirmListener;
 	private Runnable onCancelListener;
 
+	private Consumer<VeSession> onDeleteListener;
+
 	public PanelBuoc3Controller(PanelBuoc3 view, BookingSession session) {
 		this.view = view;
 		this.session = session;
@@ -36,6 +39,28 @@ public class PanelBuoc3Controller {
 	private void attachListeners() {
 		view.getConfirmButton().addActionListener(e -> handleConfirm());
 		view.getCancelButton().addActionListener(e -> handleCancel());
+		view.setPassengerDeleteListener(row -> {
+			handleDelete(row);
+		});
+	}
+
+	private void handleDelete(PassengerRow rowToDelete) {
+		if (rowToDelete == null) {
+			return;
+		}
+
+		VeSession veSession = rowToDelete.getVeSession();
+
+		// Hiển thị xác nhận
+		int choice = JOptionPane.showConfirmDialog(view, "Bạn có chắc muốn xóa vé:\n" + veSession.prettyString(),
+				"Xác nhận xóa vé", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+		if (choice == JOptionPane.YES_OPTION) {
+			// Nếu người dùng đồng ý, báo cho BanVe1Controller
+			if (onDeleteListener != null) {
+				onDeleteListener.accept(veSession);
+			}
+		}
 	}
 
 	/**
@@ -141,5 +166,9 @@ public class PanelBuoc3Controller {
 
 	public void setOnCancelListener(Runnable listener) {
 		this.onCancelListener = listener;
+	}
+
+	public void setOnDeleteListener(Consumer<VeSession> listener) {
+		this.onDeleteListener = listener;
 	}
 }

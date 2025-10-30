@@ -15,13 +15,16 @@ package entity;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import entity.type.TrangThaiPhieuGiuCho;
+
 public class PhieuGiuCho {
 	private String phieuGiuChoID;
 	private NhanVien nhanVien;
 	private LocalDateTime thoiDiemTao;
-	private String trangThai;
+	private TrangThaiPhieuGiuCho trangThai;
 
-	public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, LocalDateTime thoiDiemTao, String trangThai) {
+	public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, LocalDateTime thoiDiemTao,
+			TrangThaiPhieuGiuCho trangThai) {
 		this.phieuGiuChoID = phieuGiuChoID;
 		this.nhanVien = nhanVien;
 		this.thoiDiemTao = thoiDiemTao;
@@ -34,6 +37,17 @@ public class PhieuGiuCho {
 
 	public PhieuGiuCho(String phieuGiuChoID) {
 		this.phieuGiuChoID = phieuGiuChoID;
+	}
+
+	/**
+	 * @param pgcID
+	 * @param nv
+	 * @param string
+	 */
+	public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, TrangThaiPhieuGiuCho trangThai) {
+		this.phieuGiuChoID = phieuGiuChoID;
+		this.nhanVien = nhanVien;
+		this.trangThai = trangThai;
 	}
 
 	public String getPhieuGiuChoID() {
@@ -69,11 +83,11 @@ public class PhieuGiuCho {
 		this.thoiDiemTao = thoiDiemTao;
 	}
 
-	public String getTrangThai() {
+	public TrangThaiPhieuGiuCho getTrangThai() {
 		return trangThai;
 	}
 
-	public void setTrangThai(String trangThai) {
+	public void setTrangThai(TrangThaiPhieuGiuCho trangThai) {
 		this.trangThai = trangThai;
 	}
 

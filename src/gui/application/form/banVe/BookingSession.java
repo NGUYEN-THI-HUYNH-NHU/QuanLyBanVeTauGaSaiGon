@@ -18,6 +18,7 @@ import java.util.List;
 
 import entity.Chuyen;
 import entity.KhachHang;
+import entity.PhieuGiuCho;
 
 /**
  * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
@@ -36,6 +37,7 @@ public class BookingSession {
 	private final List<VeSession> returnSelected = new ArrayList<>();
 
 	private KhachHang nguoiMua;
+	private PhieuGiuCho pgc;
 
 	public BookingSession() {
 	}
@@ -73,8 +75,8 @@ public class BookingSession {
 		}
 	}
 
-	public synchronized void removeOutboundTicket(VeSession v) {
-		outboundSelected.removeIf(x -> x.equals(v));
+	public synchronized boolean removeOutboundTicket(VeSession v) {
+		return outboundSelected.removeIf(x -> x.equals(v));
 	}
 
 	public synchronized List<VeSession> getOutboundSelectedTickets() {
@@ -119,8 +121,8 @@ public class BookingSession {
 		}
 	}
 
-	public synchronized void removeReturnTicket(VeSession v) {
-		returnSelected.removeIf(x -> x.equals(v));
+	public synchronized boolean removeReturnTicket(VeSession v) {
+		return returnSelected.removeIf(x -> x.equals(v));
 	}
 
 	public synchronized List<VeSession> getReturnSelectedTickets() {
@@ -175,5 +177,13 @@ public class BookingSession {
 	public String toString() {
 		return "BookingSession{" + "outBoundCriteria=" + outboundCriteria + ", outboundSelected=" + outboundSelected
 				+ ", returnCriteria=" + returnCriteria + ", returnSelected=" + returnSelected + '}';
+	}
+
+	public PhieuGiuCho getPgc() {
+		return pgc;
+	}
+
+	public void setPgc(PhieuGiuCho pgc) {
+		this.pgc = pgc;
 	}
 }

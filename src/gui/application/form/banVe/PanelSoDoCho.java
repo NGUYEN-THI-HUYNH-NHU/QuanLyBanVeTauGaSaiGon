@@ -148,7 +148,7 @@ public class PanelSoDoCho extends JPanel {
 
 	public void renderSeats(List<Ghe> gheListFull) {
 		pnlGridChoNgoi.removeAll();
-		seatButtonMap.clear(); // Xóa map nút cũ
+		seatButtonMap.clear();
 
 		if (gheListFull == null || gheListFull.isEmpty() || currentToa == null || currentToa.getHangToa() == null) {
 			showMessage("Không có ghế hoặc thông tin toa không hợp lệ");

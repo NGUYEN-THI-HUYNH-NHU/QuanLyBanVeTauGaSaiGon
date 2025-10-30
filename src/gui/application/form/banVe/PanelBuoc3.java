@@ -19,8 +19,11 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -32,6 +35,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import gui.tuyChinh.RoundedBorder;
 
@@ -45,6 +49,8 @@ public class PanelBuoc3 extends JPanel {
 	private JTextField txtTen;
 	private JTextField txtCmnd;
 	private JTextField txtPhone;
+
+	private Consumer<PassengerRow> deleteListener;
 
 	public PanelBuoc3() {
 		setLayout(new BorderLayout(8, 8));
@@ -61,6 +67,38 @@ public class PanelBuoc3 extends JPanel {
 		table.getColumnModel().getColumn(2).setCellRenderer(center);
 		table.getColumnModel().getColumn(3).setCellRenderer(center);
 		table.getColumnModel().getColumn(4).setCellRenderer(center);
+
+		int deleteColumnIndex = 5; // Cột 5 là "Xóa"
+		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
+
+		// 1. Áp dụng Renderer
+		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
+
+		// 2. Áp dụng Editor và truyền hành động (action)
+		deleteColumn.setCellEditor(new DeleteButtonEditor());
+
+		// 3. Đặt kích thước
+		deleteColumn.setPreferredWidth(60);
+		deleteColumn.setMaxWidth(80);
+
+		// 4. (QUAN TRỌNG) Bắt sự kiện click từ JTable
+		// Cách này đơn giản hơn là sửa DeleteButtonEditor phức tạp
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int column = table.getColumnModel().getColumnIndexAtX(e.getX());
+				int row = e.getY() / table.getRowHeight();
+
+				// Kiểm tra nếu click đúng vào cột 5 và trong phạm vi bảng
+				if (row < table.getRowCount() && row >= 0 && column == deleteColumnIndex) {
+					// Lấy PassengerRow tại dòng đó
+					PassengerRow rowToDelete = model.getRowAt(row);
+					if (deleteListener != null) {
+						deleteListener.accept(rowToDelete);
+					}
+				}
+			}
+		});
 
 		JScrollPane sp = new JScrollPane(table);
 		add(sp, BorderLayout.CENTER);
@@ -134,6 +172,15 @@ public class PanelBuoc3 extends JPanel {
 
 	public String getPhoneNguoiMua() {
 		return txtPhone.getText().trim();
+	}
+
+	public void setPassengerDeleteListener(Consumer<PassengerRow> listener) {
+		this.deleteListener = listener;
+	}
+
+	// Thêm getter cho model
+	public HanhKhachTableModel getModel() {
+		return model;
 	}
 
 	public JButton getConfirmButton() {

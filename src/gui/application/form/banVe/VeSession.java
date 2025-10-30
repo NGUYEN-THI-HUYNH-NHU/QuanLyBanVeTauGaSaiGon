@@ -5,19 +5,14 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 30, 2025
- * @version: 1.0
- */
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import entity.KhachHang;
+import entity.PhieuGiuChoChiTiet;
 
 /**
  * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán). Lưu đủ thông tin
@@ -27,34 +22,54 @@ public class VeSession {
 	private final String chuyenID;
 	private final String tenTau;
 	private final String tenGaDi;
+	private final String gaDiID;
 	private final String tenGaDen;
+	private final String gaDenID;
 	private final LocalDate ngayDi;
 	private final LocalTime gioDi;
 	private final String toaID;
 	private final int soToa;
+	private final String gheID;
 	private final int soGhe;
 	private final int gia;
 	private final String khuyenMaiCode;
 	private final int giam;
-	private final Instant thoiDiemHetHan;
+	private final LocalDateTime thoiDiemHetHan;
 	private KhachHang hanhKhach;
+	private PhieuGiuChoChiTiet pgcct;
 
-	public VeSession(String chuyenID, String tenTau, String tenGaDi, String tenGaDen, LocalDate ngayDi, LocalTime gioDi,
-			String toaID, int soToa, int soGhe, int gia, String khuyenMaiCode, int giam, Instant thoiDiemHetHan) {
+	public VeSession(String chuyenID, String tenTau, String tenGaDi, String gaDiID, String tenGaDen, String gaDenID,
+			LocalDate ngayDi, LocalTime gioDi, String toaID, int soToa, String gheID, int soGhe, int gia,
+			String khuyenMaiCode, int giam, LocalDateTime thoiDiemHetHan) {
 		super();
 		this.chuyenID = chuyenID;
 		this.tenTau = tenTau;
 		this.tenGaDi = tenGaDi;
+		this.gaDiID = gaDiID;
 		this.tenGaDen = tenGaDen;
+		this.gaDenID = gaDenID;
 		this.ngayDi = ngayDi;
 		this.gioDi = gioDi;
 		this.toaID = toaID;
 		this.soToa = soToa;
+		this.gheID = gheID;
 		this.soGhe = soGhe;
 		this.gia = gia;
 		this.khuyenMaiCode = khuyenMaiCode;
 		this.giam = giam;
 		this.thoiDiemHetHan = thoiDiemHetHan;
+	}
+
+	public String getGaDiID() {
+		return gaDiID;
+	}
+
+	public String getGaDenID() {
+		return gaDenID;
+	}
+
+	public String getGheID() {
+		return gheID;
 	}
 
 	public String getKhuyenMaiCode() {
@@ -105,7 +120,7 @@ public class VeSession {
 		return soGhe;
 	}
 
-	public Instant getThoiDiemHetHan() {
+	public LocalDateTime getThoiDiemHetHan() {
 		return thoiDiemHetHan;
 	}
 
@@ -146,12 +161,20 @@ public class VeSession {
 		if (thoiDiemHetHan == null) {
 			return false;
 		}
-		return Instant.now().isAfter(thoiDiemHetHan);
+		return LocalDateTime.now().isAfter(thoiDiemHetHan);
 	}
 
 	public String prettyString() {
 		return String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>", getTenTau(), getTenGaDi(),
 				getTenGaDen(), getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
 				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getToaID(), getSoToa(), getSoGhe());
+	}
+
+	public PhieuGiuChoChiTiet getPgcct() {
+		return pgcct;
+	}
+
+	public void setPgcct(PhieuGiuChoChiTiet pgcct) {
+		this.pgcct = pgcct;
 	}
 }

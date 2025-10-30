@@ -1,18 +1,7 @@
 package gui.application.form.banVe;
 
-/*
- * @(#) PanelBuoc2Controller.java  1.0  [12:53:22 PM] Sep 29, 2025
- *
- * Copyright (c) 2025 IUH. All rights reserved.
- */
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 29, 2025
- * @version: 1.0
- */
-import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -373,11 +362,11 @@ public class PanelBuoc2Controller {
 		}
 
 		// Lấy thời điểm hết hạn thực tế từ vé
-		final Instant thoiDiemHetHan = v.getThoiDiemHetHan();
+		final LocalDateTime thoiDiemHetHan = v.getThoiDiemHetHan();
 
 		Timer timer = new Timer(1000, e -> {
 			// Tính số giây còn lại bằng cách so sánh giờ hiện tại với giờ hết hạn
-			long s = ChronoUnit.SECONDS.between(Instant.now(), thoiDiemHetHan);
+			long s = ChronoUnit.SECONDS.between(LocalDateTime.now(), thoiDiemHetHan);
 
 			JLabel label = countdownLabels.get(id);
 			if (label != null) {
@@ -407,26 +396,53 @@ public class PanelBuoc2Controller {
 
 	// user clicked trash icon or timer expired -> remove ticket
 	public void onRemoveVe(VeSession v) {
-		getBookingSession().removeOutboundTicket(v);
+		if (v == null || bookingSession == null) {
+			return;
+		}
+
+		// Xác định đúng danh sách cần xóa (chiều đi hay về)
+		boolean removed = false;
+		if (currentTripIndex == 0) {
+			removed = bookingSession.removeOutboundTicket(v);
+		} else {
+			removed = bookingSession.removeReturnTicket(v);
+		}
 
 		Timer t = countdownTimers.remove(v.toString());
 		if (t != null) {
 			t.stop();
 		}
 		countdownLabels.remove(v.toString());
-		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 
+		// Refresh giỏ vé của trip HIỆN TẠI
+		panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(currentTripIndex));
+
+		// Luôn refresh sơ đồ ghế để cập nhật màu sắc
 		if (selectedToa != null) {
 			panelSoDoCho.setCurrentToa(selectedToa);
 		}
 	}
 
 	private void releaseHoldAndRemoveVe(VeSession v) {
-		getBookingSession().removeOutboundTicket(v);
+		if (v == null || bookingSession == null) {
+			return;
+		}
+
+		boolean removedOutbound = getBookingSession().removeOutboundTicket(v);
+		boolean removedReturn = bookingSession.removeReturnTicket(v);
+
 		countdownLabels.remove(v.toString());
-		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
+
+		// Refresh giỏ vé của trip HIỆN TẠI
+		panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(currentTripIndex));
+
 		SwingUtilities.invokeLater(
-				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.toString() + " đã hết hạn."));
+				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));
+
+		// Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
+		if (selectedToa != null && v.getToaID().equals(selectedToa.getToaID()) && (removedOutbound || removedReturn)) {
+			panelSoDoCho.setCurrentToa(selectedToa);
+		}
 	}
 
 	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe) {
@@ -435,20 +451,24 @@ public class PanelBuoc2Controller {
 		String chuyenID = getSelectedChuyen().getChuyenID();
 		String tauID = getSelectedChuyen().getTau().getTauID();
 		String tenGaDi = chuyenDiCriteria.getGaDiName();
+		String maGaDi = chuyenDiCriteria.getGaDiId();
 		String tenGaDen = chuyenDiCriteria.getGaDenName();
+		String maGaDen = chuyenDiCriteria.getGaDenId();
 		LocalDate ngayDi = getSelectedChuyen().getNgayDi();
 		LocalTime gioDi = getSelectedChuyen().getGioDi();
-		String hangToa = (toa != null) ? toa.getHangToa().toString() : null;
-		Instant thoiDiemHetHan = Instant.now().plus(10, ChronoUnit.MINUTES);
+		String toaID = (toa != null) ? toa.getToaID() : null;
 		int soToa = toa.getSoToa();
+		String gheID = ghe.getGheID();
 		int soGhe = ghe.getSoGhe();
+		LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
 		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, chuyenDiCriteria.getGaDiId(),
-				chuyenDiCriteria.getGaDenId(), getSelectedChuyen().getTau().getLoaiTau().toString(), hangToa);
+				chuyenDiCriteria.getGaDenId(), getSelectedChuyen().getTau().getLoaiTau().toString(),
+				toa.getHangToa().toString());
 		String khuyenMaiCode = "";
 		int giam = 0;
 
-		return new VeSession(chuyenID, tauID, tenGaDi, tenGaDen, ngayDi, gioDi, hangToa, soToa, soGhe, gia,
-				khuyenMaiCode, giam, thoiDiemHetHan);
+		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, soToa, gheID,
+				soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
 	}
 
 	public Set<Integer> getSelectedSoGhe(Toa currentToa) {
@@ -457,7 +477,7 @@ public class PanelBuoc2Controller {
 		}
 
 		String currentChuyenID = getSelectedChuyen().getChuyenID();
-		String currentToaID = currentToa.getToaID(); // Dùng Toa từ tham số
+		String currentToaID = currentToa.getToaID();
 
 		Set<Integer> selectedSoGheSet = getBookingSession().getSelectedTicketsForTrip(getCurrentTripIndex()).stream()
 				.filter(v -> currentChuyenID.equals(v.getChuyenID()) && currentToaID.equals(v.getToaID()))

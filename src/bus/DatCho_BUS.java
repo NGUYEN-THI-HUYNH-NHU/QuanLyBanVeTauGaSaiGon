@@ -5,10 +5,14 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 29, 2025
+ * @version: 1.0
+ */
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -18,64 +22,80 @@ import dao.PhieuGiuChoChiTiet_DAO;
 import dao.PhieuGiuCho_DAO;
 import entity.Chuyen;
 import entity.Ga;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 29, 2025
- * @version: 1.0
- */
-
 import entity.Ghe;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
-import entity.Toa;
-import entity.Ve;
+import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
+import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class DatCho_BUS {
 	private final PhieuGiuCho_DAO pgcDAO = new PhieuGiuCho_DAO();
 	private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
-    private final DonDatCho_DAO ddDAO = new DonDatCho_DAO();
-    private final Ghe_DAO gheDAO = new Ghe_DAO();
+	private final DonDatCho_DAO ddDAO = new DonDatCho_DAO();
+	private final Ghe_DAO gheDAO = new Ghe_DAO();
 
-    public Ve createHold(Toa toa, Ghe ghe) throws Exception {
-//        Ve v = ddDAO.createHoldForSeat(toa.getToaID(), ghe.getGheID());
-        return new Ve();
-    }
+	public PhieuGiuCho themPhieuGiuCho() {
+		NhanVien nv = AuthService.getInstance().getCurrentUser();
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmm");
+		String pgcID = "PGC-" + now.format(formatter).toString();
 
-    public boolean releaseHold(VeSession v) throws Exception {
-//        return ddDAO.releaseHoldByVeId(v.getVeID());
-    	return true;
-    }
-    
-	public boolean taoPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
-//		NhanVien nv = AuthService.getInstance().getCurrentUser();
-//		LocalDateTime now = LocalDateTime.now();
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmm");
-//
-//        String pgcID = "PGC-" + now.format(formatter).toString();
-//        PhieuGiuCho pgc = new PhieuGiuCho(pgcID, nv, now, "DANG_GIU");
-//        pgcDAO.createPhieuGiuCho(pgc);
-//        
-//        for (VeSession v : veTrongGio) {
-//        	String chuyenID = v.getChuyenID();
-//        	String tenGaDi = v.getTenGaDi();
-//        	String tenGaDen = v.getTenGaDen();
-//        	String toaID = v.getToaID();
-//        	int gheID = v.getSoGhe();
-//        	Instant thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
-//        	if (pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, toaID, gheID)) {
-//        		String pgcctID = pgcID + "-" +  v.getSoGhe();		
-//        		pgcctDAO.createPhieuGiuChoChiTiet(new PhieuGiuChoChiTiet(pgcctID, pgc, 
-//        				new Chuyen(v.getChuyenID()), new Ghe(v.getToaID(), v.getSoGhe()),
-//        			    new Ga(v.getTenGaDi()), new Ga(v.getTenGaDen()), 
-//        			    LocalDateTime.ofInstant(thoiDiemGiuCho, ZoneId.systemDefault()), "DANG_GIU"));
-//        	}
-//        }
-        
+		PhieuGiuCho pgc = new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
+
+		pgcDAO.createPhieuGiuCho(pgc);
+
+		return pgc;
+	}
+
+//	public List<PhieuGiuChoChiTiet> themPhieuGiuChoChiTiet(PhieuGiuCho pgc, List<VeSession> veTrongGio) {
+//		List<PhieuGiuChoChiTiet> dsPgcct = new ArrayList<PhieuGiuChoChiTiet>();
+//		for (VeSession v : veTrongGio) {
+//			PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(pgc, v);
+//			if (pgcctDAO.createPhieuGiuChoChiTiet(pgcct)) {
+//				dsPgcct.add(pgcct);
+//			}
+//		}
+//		return dsPgcct;
+//	}
+
+	public PhieuGiuChoChiTiet themPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v) {
+		String chuyenID = v.getChuyenID();
+		String tenGaDi = v.getTenGaDi();
+		String tenGaDen = v.getTenGaDen();
+		int soToa = v.getSoToa();
+		int soGhe = v.getSoGhe();
+		LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
+
+		if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
+			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(v.getSoGhe());
+			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
+					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
+					TrangThaiPhieuGiuCho.DANG_GIU.toString());
+			pgcctDAO.createPhieuGiuChoChiTiet(pgcct);
+			return pgcct;
+		}
+		return null;
+	}
+
+	public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
 		return true;
+	}
+
+	/**
+	 * @param veSession
+	 * @return
+	 */
+	public boolean xoaPhieuGiuChoChiTiet(VeSession v) {
+		return pgcctDAO.deletePhieuGiuChoChiTiet(v.getPgcct().getPhieuGiuChoChiTietID());
+	}
+
+	/**
+	 * @param bookingSession
+	 */
+	public boolean xoaPhieuGiuCho(BookingSession bookingSession) {
+		return pgcDAO.deletePhieuGiuChoByID(bookingSession.getPgc().getPhieuGiuChoID());
 	}
 }
