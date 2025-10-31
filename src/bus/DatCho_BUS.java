@@ -84,14 +84,25 @@ public class DatCho_BUS {
 	}
 
 	/**
-	 * @param veSession
+	 * @param phieuGiuChoChiTietID
 	 * @return
 	 */
-	public boolean xoaPhieuGiuChoChiTiet(String phieuGiuChoChiTietID) {
+	public boolean xoaPhieuGiuChoChiTietByPgcctID(String phieuGiuChoChiTietID) {
 		if (phieuGiuChoChiTietID.length() == 0 || phieuGiuChoChiTietID == null) {
 			return false;
 		}
 		return pgcctDAO.deletePhieuGiuChoChiTiet(phieuGiuChoChiTietID);
+	}
+
+	/**
+	 * @param phieuGiuChoID
+	 * @return
+	 */
+	public boolean xoaPhieuGiuChoChiTietByPgcID(String phieuGiuChoID) {
+		if (phieuGiuChoID.length() == 0 || phieuGiuChoID == null) {
+			return false;
+		}
+		return pgcctDAO.deletePhieuGiuChoChiTietByPgcID(phieuGiuChoID);
 	}
 
 	/**

@@ -206,7 +206,7 @@ public class Ghe_DAO {
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					return (int) (Math.round(rs.getDouble("finalPrice") / 500.0) * 500);
+					return (int) (Math.round(rs.getDouble("finalPrice") / 1000.0) * 1000);
 				}
 			}
 		} catch (SQLException e) {

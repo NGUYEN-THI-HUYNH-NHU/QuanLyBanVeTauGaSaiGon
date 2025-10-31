@@ -236,4 +236,21 @@ public class PhieuGiuChoChiTiet_DAO {
 			return 0;
 		}
 	}
+
+	/**
+	 * @param phieuGiuChoID
+	 * @return
+	 */
+	public boolean deletePhieuGiuChoChiTietByPgcID(String phieuGiuChoID) {
+		Connection conn = connectDB.getConnection();
+		String sql = "DELETE FROM PhieuGiuChoChiTiet WHERE phieuGiuChoID = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, phieuGiuChoID);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

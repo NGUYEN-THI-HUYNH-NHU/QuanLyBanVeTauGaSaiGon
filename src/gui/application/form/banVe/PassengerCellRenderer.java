@@ -5,18 +5,8 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.Color;
 import java.awt.Component;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Oct 26, 2025
- * @version: 1.0
- */
-
-//PassengerCellRenderer.java
-import javax.swing.BorderFactory;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -26,7 +16,7 @@ public class PassengerCellRenderer implements TableCellRenderer {
 
 	public PassengerCellRenderer() {
 		this.panel = new PassengerCellPanel();
-		this.panel.setOpaque(true); // đảm bảo background được vẽ đúng
+		this.panel.setOpaque(true);
 	}
 
 	@Override
@@ -37,15 +27,17 @@ public class PassengerCellRenderer implements TableCellRenderer {
 			panel.setData(passenger);
 			panel.setEditable(false);
 		}
-		// Thiết lập màu nền & viền cho rõ ràng
+		// Thiết lập màu nền cho rõ ràng
 		if (isSelected) {
 			panel.setBackground(table.getSelectionBackground());
-			panel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 255), 1));
 		} else {
 			panel.setBackground(table.getBackground());
-			panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		}
 
+		return panel;
+	}
+
+	public PassengerCellPanel getPanel() {
 		return panel;
 	}
 }

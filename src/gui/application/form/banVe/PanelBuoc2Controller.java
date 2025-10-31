@@ -94,6 +94,18 @@ public class PanelBuoc2Controller {
 		return this.currentTripIndex;
 	}
 
+	public SearchCriteria getCurrentTripCriteria() {
+		if (getBookingSession() == null) {
+			return null;
+		}
+		return (currentTripIndex == 0) ? getBookingSession().getOutboundCriteria()
+				: getBookingSession().getReturnCriteria();
+	}
+
+	public int getGiaForTooltip(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
+		return chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, gaDiID, gaDenID, loaiTauID, hangToaID);
+	}
+
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
 		if (criteria == null || chuyens == null || chuyens.isEmpty()) {
 			// Có thể ẩn hoặc xóa trắng panel
@@ -332,10 +344,12 @@ public class PanelBuoc2Controller {
 			return;
 		}
 
+		// 1. Lấy thông tin định danh của ghế
 		String currentChuyenID = getSelectedChuyen().getChuyenID();
 		String currentToaID = toa.getToaID();
 		int currentSoGhe = ghe.getSoGhe();
 
+		// 2. Lấy danh sách vé của CHUYẾN HIỆN TẠI
 		List<VeSession> currentTripTickets = bookingSession.getSelectedTicketsForTrip(getCurrentTripIndex());
 
 		// 3. Tìm VeSession THỰC SỰ đang có trong danh sách
@@ -445,7 +459,7 @@ public class PanelBuoc2Controller {
 
 		bookingSession.removeVeSession(v);
 
-		datChoBUS.xoaPhieuGiuChoChiTiet(v.getPgcct().getPhieuGiuChoChiTietID());
+		datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPgcct().getPhieuGiuChoChiTietID());
 		if (bookingSession.getOutboundSelectedTickets().size() == 0
 				&& bookingSession.getReturnSelectedTickets().size() == 0) {
 			datChoBUS.xoaPhieuGiuCho(bookingSession.getPgc().getPhieuGiuChoID());
@@ -464,25 +478,25 @@ public class PanelBuoc2Controller {
 	}
 
 	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe, int tripIndex) {
-		SearchCriteria criteria = (tripIndex == 0) ? getBookingSession().getOutboundCriteria()
-				: getBookingSession().getReturnCriteria();
+		SearchCriteria criteria = (tripIndex == 0) ? bookingSession.getOutboundCriteria()
+				: bookingSession.getReturnCriteria();
 
 		if (criteria == null) {
 			System.err.println("createVeSessionForSeat: Không tìm thấy SearchCriteria cho tripIndex " + tripIndex);
 			return null;
 		}
 
-		String chuyenID = getSelectedChuyen().getChuyenID();
-		String tauID = getSelectedChuyen().getTau().getTauID();
+		String chuyenID = selectedChuyen.getChuyenID();
+		String tauID = selectedChuyen.getTau().getTauID();
 
-		// Dùng criteria (thay vì chuyenDiCriteria)
+		// Dùng criteria
 		String tenGaDi = criteria.getGaDiName();
 		String maGaDi = criteria.getGaDiId();
 		String tenGaDen = criteria.getGaDenName();
 		String maGaDen = criteria.getGaDenId();
 
-		LocalDate ngayDi = getSelectedChuyen().getNgayDi();
-		LocalTime gioDi = getSelectedChuyen().getGioDi();
+		LocalDate ngayDi = selectedChuyen.getNgayDi();
+		LocalTime gioDi = selectedChuyen.getGioDi();
 		String toaID = (toa != null) ? toa.getToaID() : null;
 		String hangToa = toa.getHangToa().toString();
 		int soToa = toa.getSoToa();
@@ -490,15 +504,15 @@ public class PanelBuoc2Controller {
 		int soGhe = ghe.getSoGhe();
 		LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
 
-		int gia = getChuyenBUS().layGiaGheTheoPhanDoan(chuyenID, criteria.getGaDiId(), // Dùng maGaDi từ criteria
-				criteria.getGaDenId(), // Dùng maGaDen từ criteria
-				getSelectedChuyen().getTau().getLoaiTau().toString(), toa.getHangToa().toString());
+		int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, criteria.getGaDiId(), criteria.getGaDenId(),
+				selectedChuyen.getTau().getLoaiTau().toString(), toa.getHangToa().toString());
 
 		String khuyenMaiCode = "";
 		int giam = 0;
 
 		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, hangToa, soToa,
 				gheID, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
+
 	}
 
 	public Set<Integer> getSelectedSoGhe(Toa currentToa) {

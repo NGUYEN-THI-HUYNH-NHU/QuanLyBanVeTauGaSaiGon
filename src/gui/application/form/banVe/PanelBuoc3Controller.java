@@ -16,14 +16,17 @@ import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
+import bus.DatCho_BUS;
 import entity.KhachHang;
 
 public class PanelBuoc3Controller {
 
 	private final PanelBuoc3 view;
-	private final BookingSession session;
 
-	// Listeners để báo cho Controller cha (BanVe1Controller)
+	private final BookingSession session;
+	private final DatCho_BUS datChoBUS = new DatCho_BUS();
+
+	// Listeners để báo cho Controller Mediator (BanVe1Controller)
 	private Runnable onConfirmListener;
 	private Runnable onCancelListener;
 
@@ -70,7 +73,7 @@ public class PanelBuoc3Controller {
 		// 1. Lấy dữ liệu thô từ View
 		List<PassengerRow> rows = view.getPassengerRows();
 		String tenNguoiMua = view.getTenNguoiMua();
-		String cmndNguoiMua = view.getCmndNguoiMua();
+		String cmndNguoiMua = view.getCccdNguoiMua();
 		String phoneNguoiMua = view.getPhoneNguoiMua();
 
 		// 2. Thực hiện Validation (Logic đã chuyển về đây)
@@ -113,10 +116,13 @@ public class PanelBuoc3Controller {
 	 * Xử lý logic khi bấm "Hủy"
 	 */
 	private void handleCancel() {
-		// 1. (Tùy chọn) Gọi BUS để hủy phiếu giữ chỗ
-		// datChoBUS.huyPhieuGiuCho(session.getPhieuGiuChoID());
+		// 1. Gọi BUS để hủy phiếu giữ chỗ
+		datChoBUS.xoaPhieuGiuChoChiTietByPgcID(session.getPgc().getPhieuGiuChoID());
 
-		// 2. Báo cho Controller cha biết
+		// 2. Nếu sau khi xóa mà không còn vé nào thì xóa luôn Phiếu giữ chỗ
+		datChoBUS.xoaPhieuGiuCho(session.getPgc().getPhieuGiuChoID());
+
+		// 3. Báo cho Controller cha biết
 		if (onCancelListener != null) {
 			onCancelListener.run();
 		}

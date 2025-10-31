@@ -81,6 +81,10 @@ public class PanelBuoc1Controller {
 	}
 
 	private void init() {
+		SwingUtilities.invokeLater(() -> {
+			panel.getTxtGaDi().requestFocusInWindow();
+		});
+
 		// AutoComplete cho Ga đi: fetcher dùng chuyenBUS.goiYGaDi(prefix, limit)
 		acGaDi = new AutoCompleteField(panel.getTxtGaDi(), (prefix, limit) -> {
 			try {

@@ -36,9 +36,12 @@ import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
 
 public class PanelBuoc1 extends JPanel {
-	private JTextField txtGaDi, txtGaDen;
-	private JDateChooser dateChooserNgayDi, dateChooserNgayVe;
-	private JRadioButton radMotChieu, radKhuHoi;
+	private JTextField txtGaDi;
+	private JTextField txtGaDen;
+	private JDateChooser dateChooserNgayDi;
+	private JDateChooser dateChooserNgayVe;
+	private JRadioButton radMotChieu;
+	private JRadioButton radKhuHoi;
 	private JButton btnTimKiem;
 	private JPanel pnlTimKiem;
 
@@ -149,7 +152,6 @@ public class PanelBuoc1 extends JPanel {
 		this.controller = controller;
 	}
 
-	// ---------- Getters cho panelBuoc1Controller su dung ----------
 	public JTextField getTxtGaDi() {
 		return txtGaDi;
 	}

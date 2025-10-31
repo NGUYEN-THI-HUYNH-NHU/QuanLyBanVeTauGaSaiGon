@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -165,26 +166,52 @@ public class PanelSoDoCho extends JPanel {
 		// Sắp xếp ghế theo số ghế
 		gheListFiltered.sort(Comparator.comparingInt(Ghe::getSoGhe));
 
-		// Lấy danh sách ghế đã chọn từ session
 		Set<Integer> selectedSoGheSet = (panelBuoc2Controller != null)
 				? panelBuoc2Controller.getSelectedSoGhe(this.currentToa)
 				: Collections.emptySet();
 
-		// Chọn layout phù hợp dựa trên hangToaID
+		String giaFormatted = "(Không rõ giá)";
+		boolean priceCalculated = false;
+		try {
+			if (panelBuoc2Controller != null && panelBuoc2Controller.getSelectedChuyen() != null) {
+
+				String chuyenID = panelBuoc2Controller.getSelectedChuyen().getChuyenID();
+				String loaiTauID = panelBuoc2Controller.getSelectedChuyen().getTau().getLoaiTau().toString();
+
+				SearchCriteria criteria = panelBuoc2Controller.getCurrentTripCriteria();
+				String gaDiID = (criteria != null) ? criteria.getGaDiId() : null;
+				String gaDenID = (criteria != null) ? criteria.getGaDenId() : null;
+
+				String hangToaID = (currentToa.getHangToa() != null) ? currentToa.getHangToa().toString() : null;
+
+				if (chuyenID != null && gaDiID != null && gaDenID != null && loaiTauID != null && hangToaID != null) {
+
+					// Gọi Controller để lấy giá
+					int gia = panelBuoc2Controller.getGiaForTooltip(chuyenID, gaDiID, gaDenID, loaiTauID, hangToaID);
+
+					// Định dạng tiền tệ VNĐ
+					DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
+					giaFormatted = formatter.format(gia);
+					priceCalculated = true;
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("PanelSoDoCho: renderSeats() Lỗi tính giá");
+		}
+
 		String hangToaID = currentToa.getHangToa().toString();
 		switch (hangToaID) {
-		case "GN_K4": // Giường nằm khoang 4 (28 ghế)
-			layout_GN_K4(gheListFiltered, selectedSoGheSet);
+		case "GN_K4":
+			layout_GN_K4(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);
 			break;
-		case "GN_K6": // Giường nằm khoang 6 (42 ghế)
-			layout_GN_K6(gheListFiltered, selectedSoGheSet);
+		case "GN_K6":
+			layout_GN_K6(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);
 			break;
-		case "NM_CLC": // Ngồi mềm chất lượng cao (56 ghế)
-			layout_NM_CLC(gheListFiltered, selectedSoGheSet);
+		case "NM_CLC":
+			layout_NM_CLC(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);
 			break;
 		default:
-			// Layout mặc định nếu không khớp (có thể dùng GridLayout cũ)
-			layout_Default(gheListFiltered, selectedSoGheSet);
+			layout_Default(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);
 			break;
 		}
 
@@ -205,13 +232,13 @@ public class PanelSoDoCho extends JPanel {
 			maxSeats = 56;
 			break;
 		default:
-			return new ArrayList<>(originalList); // Không lọc nếu không khớp
+			return new ArrayList<>(originalList);
 		}
 		return originalList.stream().filter(g -> g.getSoGhe() <= maxSeats).collect(Collectors.toList());
 	}
 
 	// --- HÀM TẠO NÚT GHẾ CHUNG ---
-	private JButton createSeatButton(Ghe g, boolean isSelectedInSession) {
+	private JButton createSeatButton(Ghe g, boolean isSelectedInSession, String tooltipPrice, boolean priceCalculated) {
 		JButton b = new JButton(String.valueOf(g.getSoGhe()));
 		b.setMargin(new Insets(0, 0, 0, 0));
 		b.setFocusPainted(false);
@@ -219,6 +246,15 @@ public class PanelSoDoCho extends JPanel {
 
 		TrangThaiGhe status = g.getTrangThai();
 		boolean isAvailable = (status == TrangThaiGhe.TRONG);
+
+		if (isAvailable) {
+			b.setToolTipText(String.format("<html><span style='color:green'>Chỗ %s trống</span><br>Giá: %s</html>",
+					g.getSoGhe(), tooltipPrice));
+		} else if (status == TrangThaiGhe.DA_BAN) {
+			b.setToolTipText(String.format("<html>Chỗ %s đã bán<br>Không thể đặt</html>", g.getSoGhe()));
+		} else if (status == TrangThaiGhe.BI_CHIEM) {
+			b.setToolTipText(String.format("<html>Chỗ %s đang bị giữ<br>Không thể đặt</html>", g.getSoGhe()));
+		}
 
 		// --- Xác định trạng thái và màu ban đầu ---
 		if (isSelectedInSession && isAvailable) {
@@ -273,7 +309,8 @@ public class PanelSoDoCho extends JPanel {
 	}
 
 	// Layout cho GN_K4 (Giường nằm khoang 4 - 28 ghế) - SỬA LẠI
-	private void layout_GN_K4(List<Ghe> gheList, Set<Integer> selectedSoGheSet) {
+	private void layout_GN_K4(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+			boolean priceCalculated) {
 		// Layout: 2 hàng (T1, T2), 7 cột khoang, mỗi khoang 2 ghế
 		// Định nghĩa cột: 14 cột (7 cặp), có gap lớn hơn giữa các cặp
 		String colConstraints = String.format("[%d!]%d", SEAT_WIDTH, 5); // Ghế + gap nhỏ
@@ -302,7 +339,7 @@ public class PanelSoDoCho extends JPanel {
 			String cellConstraint = "cell " + i + " 0"; // Xác định ô: cột i, hàng 0
 			if (g != null) {
 				boolean isSelected = selectedSoGheSet.contains(soGhe);
-				JButton btn = createSeatButton(g, isSelected);
+				JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 				pnlGridChoNgoi.add(btn, cellConstraint + ", " + SEAT_SIZE_CONSTRAINTS);
 			} else {
 				pnlGridChoNgoi.add(new JLabel(""), cellConstraint); // Placeholder
@@ -316,7 +353,7 @@ public class PanelSoDoCho extends JPanel {
 			String cellConstraint = "cell " + i + " 1"; // Xác định ô: cột i, hàng 1
 			if (g != null) {
 				boolean isSelected = selectedSoGheSet.contains(soGhe);
-				JButton btn = createSeatButton(g, isSelected);
+				JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 				pnlGridChoNgoi.add(btn, cellConstraint + ", " + SEAT_SIZE_CONSTRAINTS);
 			} else {
 				pnlGridChoNgoi.add(new JLabel(""), cellConstraint);
@@ -325,7 +362,8 @@ public class PanelSoDoCho extends JPanel {
 	}
 
 	// Layout cho GN_K6 (Giường nằm khoang 6 - 42 ghế) - SỬA LẠI
-	private void layout_GN_K6(List<Ghe> gheList, Set<Integer> selectedSoGheSet) {
+	private void layout_GN_K6(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+			boolean priceCalculated) {
 		// Layout: 3 hàng (T1, T2, T3), 7 cột khoang, mỗi khoang 2 ghế
 		// Định nghĩa cột tương tự GN_K4
 		String colConstraints = String.format("[%d!]%d", SEAT_WIDTH, 5);
@@ -355,7 +393,7 @@ public class PanelSoDoCho extends JPanel {
 			String cellConstraint = "cell " + i + " 0";
 			if (g != null) {
 				boolean isSelected = selectedSoGheSet.contains(soGhe);
-				JButton btn = createSeatButton(g, isSelected);
+				JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 				pnlGridChoNgoi.add(btn, cellConstraint + ", " + SEAT_SIZE_CONSTRAINTS);
 			} else {
 				pnlGridChoNgoi.add(new JLabel(""), cellConstraint);
@@ -369,7 +407,7 @@ public class PanelSoDoCho extends JPanel {
 			String cellConstraint = "cell " + i + " 1";
 			if (g != null) {
 				boolean isSelected = selectedSoGheSet.contains(soGhe);
-				JButton btn = createSeatButton(g, isSelected);
+				JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 				pnlGridChoNgoi.add(btn, cellConstraint + ", " + SEAT_SIZE_CONSTRAINTS);
 			} else {
 				pnlGridChoNgoi.add(new JLabel(""), cellConstraint);
@@ -383,7 +421,7 @@ public class PanelSoDoCho extends JPanel {
 			String cellConstraint = "cell " + i + " 2";
 			if (g != null) {
 				boolean isSelected = selectedSoGheSet.contains(soGhe);
-				JButton btn = createSeatButton(g, isSelected);
+				JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 				pnlGridChoNgoi.add(btn, cellConstraint + ", " + SEAT_SIZE_CONSTRAINTS);
 			} else {
 				pnlGridChoNgoi.add(new JLabel(""), cellConstraint);
@@ -392,7 +430,8 @@ public class PanelSoDoCho extends JPanel {
 	}
 
 	// Layout cho NM_CLC (Ngồi mềm CLC - 56 ghế)
-	private void layout_NM_CLC(List<Ghe> gheList, Set<Integer> selectedSoGheSet) {
+	private void layout_NM_CLC(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+			boolean priceCalculated) {
 		// --- Xây dựng ràng buộc cột (Giữ nguyên như lần 8) ---
 		StringBuilder colFormat = new StringBuilder();
 		int seatGap = 5;
@@ -440,82 +479,82 @@ public class PanelSoDoCho extends JPanel {
 
 		// --- Hardcode vị trí từng ghế (giữ nguyên logic đặt ghế vào cell) ---
 		// Hàng 1 (MigLayout row 0)
-		addSeatButtonToGridNM_Cell(gheMap, 1, selectedSoGheSet, 0, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 8, selectedSoGheSet, 1, 0);
+		addSeatButtonToGridNM_Cell(gheMap, 1, selectedSoGheSet, 0, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 8, selectedSoGheSet, 1, 0, giaFormatted, priceCalculated);
 		// ... (Thêm tất cả ghế hàng 0) ...
-		addSeatButtonToGridNM_Cell(gheMap, 9, selectedSoGheSet, 2, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 16, selectedSoGheSet, 3, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 17, selectedSoGheSet, 4, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 24, selectedSoGheSet, 5, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 25, selectedSoGheSet, 6, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 32, selectedSoGheSet, 8, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 33, selectedSoGheSet, 9, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 40, selectedSoGheSet, 10, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 41, selectedSoGheSet, 11, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 48, selectedSoGheSet, 12, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 49, selectedSoGheSet, 13, 0);
-		addSeatButtonToGridNM_Cell(gheMap, 56, selectedSoGheSet, 14, 0);
+		addSeatButtonToGridNM_Cell(gheMap, 9, selectedSoGheSet, 2, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 16, selectedSoGheSet, 3, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 17, selectedSoGheSet, 4, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 24, selectedSoGheSet, 5, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 25, selectedSoGheSet, 6, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 32, selectedSoGheSet, 8, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 33, selectedSoGheSet, 9, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 40, selectedSoGheSet, 10, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 41, selectedSoGheSet, 11, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 48, selectedSoGheSet, 12, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 49, selectedSoGheSet, 13, 0, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 56, selectedSoGheSet, 14, 0, giaFormatted, priceCalculated);
 
 		// Hàng 2 (MigLayout row 1)
-		addSeatButtonToGridNM_Cell(gheMap, 2, selectedSoGheSet, 0, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 7, selectedSoGheSet, 1, 1);
+		addSeatButtonToGridNM_Cell(gheMap, 2, selectedSoGheSet, 0, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 7, selectedSoGheSet, 1, 1, giaFormatted, priceCalculated);
 		// ... (Thêm tất cả ghế hàng 1) ...
-		addSeatButtonToGridNM_Cell(gheMap, 10, selectedSoGheSet, 2, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 15, selectedSoGheSet, 3, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 18, selectedSoGheSet, 4, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 23, selectedSoGheSet, 5, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 26, selectedSoGheSet, 6, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 31, selectedSoGheSet, 8, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 34, selectedSoGheSet, 9, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 39, selectedSoGheSet, 10, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 42, selectedSoGheSet, 11, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 47, selectedSoGheSet, 12, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 50, selectedSoGheSet, 13, 1);
-		addSeatButtonToGridNM_Cell(gheMap, 55, selectedSoGheSet, 14, 1);
+		addSeatButtonToGridNM_Cell(gheMap, 10, selectedSoGheSet, 2, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 15, selectedSoGheSet, 3, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 18, selectedSoGheSet, 4, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 23, selectedSoGheSet, 5, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 26, selectedSoGheSet, 6, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 31, selectedSoGheSet, 8, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 34, selectedSoGheSet, 9, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 39, selectedSoGheSet, 10, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 42, selectedSoGheSet, 11, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 47, selectedSoGheSet, 12, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 50, selectedSoGheSet, 13, 1, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 55, selectedSoGheSet, 14, 1, giaFormatted, priceCalculated);
 
 		// Hàng 3 (MigLayout row 2) - Lưu ý index hàng là 2
-		addSeatButtonToGridNM_Cell(gheMap, 3, selectedSoGheSet, 0, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 6, selectedSoGheSet, 1, 2);
+		addSeatButtonToGridNM_Cell(gheMap, 3, selectedSoGheSet, 0, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 6, selectedSoGheSet, 1, 2, giaFormatted, priceCalculated);
 		// ... (Thêm tất cả ghế hàng 2) ...
-		addSeatButtonToGridNM_Cell(gheMap, 11, selectedSoGheSet, 2, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 14, selectedSoGheSet, 3, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 19, selectedSoGheSet, 4, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 22, selectedSoGheSet, 5, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 27, selectedSoGheSet, 6, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 30, selectedSoGheSet, 8, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 35, selectedSoGheSet, 9, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 38, selectedSoGheSet, 10, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 43, selectedSoGheSet, 11, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 46, selectedSoGheSet, 12, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 51, selectedSoGheSet, 13, 2);
-		addSeatButtonToGridNM_Cell(gheMap, 54, selectedSoGheSet, 14, 2);
+		addSeatButtonToGridNM_Cell(gheMap, 11, selectedSoGheSet, 2, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 14, selectedSoGheSet, 3, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 19, selectedSoGheSet, 4, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 22, selectedSoGheSet, 5, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 27, selectedSoGheSet, 6, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 30, selectedSoGheSet, 8, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 35, selectedSoGheSet, 9, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 38, selectedSoGheSet, 10, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 43, selectedSoGheSet, 11, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 46, selectedSoGheSet, 12, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 51, selectedSoGheSet, 13, 2, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 54, selectedSoGheSet, 14, 2, giaFormatted, priceCalculated);
 
 		// Hàng 4 (MigLayout row 3) - Lưu ý index hàng là 3
-		addSeatButtonToGridNM_Cell(gheMap, 4, selectedSoGheSet, 0, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 5, selectedSoGheSet, 1, 3);
+		addSeatButtonToGridNM_Cell(gheMap, 4, selectedSoGheSet, 0, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 5, selectedSoGheSet, 1, 3, giaFormatted, priceCalculated);
 		// ... (Thêm tất cả ghế hàng 3) ...
-		addSeatButtonToGridNM_Cell(gheMap, 12, selectedSoGheSet, 2, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 13, selectedSoGheSet, 3, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 20, selectedSoGheSet, 4, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 21, selectedSoGheSet, 5, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 28, selectedSoGheSet, 6, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 29, selectedSoGheSet, 8, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 36, selectedSoGheSet, 9, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 37, selectedSoGheSet, 10, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 44, selectedSoGheSet, 11, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 45, selectedSoGheSet, 12, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 52, selectedSoGheSet, 13, 3);
-		addSeatButtonToGridNM_Cell(gheMap, 53, selectedSoGheSet, 14, 3);
+		addSeatButtonToGridNM_Cell(gheMap, 12, selectedSoGheSet, 2, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 13, selectedSoGheSet, 3, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 20, selectedSoGheSet, 4, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 21, selectedSoGheSet, 5, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 28, selectedSoGheSet, 6, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 29, selectedSoGheSet, 8, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 36, selectedSoGheSet, 9, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 37, selectedSoGheSet, 10, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 44, selectedSoGheSet, 11, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 45, selectedSoGheSet, 12, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 52, selectedSoGheSet, 13, 3, giaFormatted, priceCalculated);
+		addSeatButtonToGridNM_Cell(gheMap, 53, selectedSoGheSet, 14, 3, giaFormatted, priceCalculated);
 	}
 
 	// (Hàm addSeatButtonToGridNM_Cell giữ nguyên)
 	private void addSeatButtonToGridNM_Cell(Map<Integer, Ghe> gheMap, int soGhe, Set<Integer> selectedSoGheSet, int col,
-			int row) {
+			int row, String giaFormatted, boolean priceCalculated) {
 		Ghe g = gheMap.get(soGhe);
 		String constraints = "cell " + col + " " + row; // Tạo ràng buộc cell
 		if (g != null && soGhe <= 56) {
 			boolean isSelected = selectedSoGheSet.contains(soGhe);
-			JButton btn = createSeatButton(g, isSelected);
+			JButton btn = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
 			pnlGridChoNgoi.add(btn, constraints + ", " + SEAT_SIZE_CONSTRAINTS);
 		} else {
 			pnlGridChoNgoi.add(new JLabel(""), constraints);
@@ -523,17 +562,17 @@ public class PanelSoDoCho extends JPanel {
 	}
 
 	// Layout mặc định (GridLayout cũ)
-	private void layout_Default(List<Ghe> gheList, Set<Integer> selectedSoGheSet) {
+	private void layout_Default(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+			boolean priceCalculated) {
 		int cols = Math.min(gheList.size(), 8); // Tăng số cột mặc định
 		int rows = (int) Math.ceil(gheList.size() / (double) cols);
-		pnlGridChoNgoi.setLayout(new MigLayout(String.format("wrap %d, insets 10, gap 5 5", cols), // Dùng MigLayout
-																									// thay GridLayout
+		pnlGridChoNgoi.setLayout(new MigLayout(String.format("wrap %d, insets 10, gap 5 5", cols),
 				"[" + SEAT_WIDTH + "!]", "[" + SEAT_HEIGHT + "!]"));
 
 		for (Ghe g : gheList) {
 			boolean isSelected = selectedSoGheSet.contains(g.getSoGhe());
-			JButton b = createSeatButton(g, isSelected);
-			pnlGridChoNgoi.add(b, SEAT_SIZE_CONSTRAINTS); // Thêm constraints kích thước
+			JButton b = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
+			pnlGridChoNgoi.add(b, SEAT_SIZE_CONSTRAINTS);
 		}
 	}
 

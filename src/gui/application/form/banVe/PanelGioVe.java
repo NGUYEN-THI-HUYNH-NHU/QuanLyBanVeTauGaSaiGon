@@ -58,7 +58,7 @@ public class PanelGioVe extends JPanel {
 
 		add(lblGioVe, BorderLayout.NORTH);
 		add(scr, BorderLayout.CENTER);
-		add(btnMuaVe = new JButton("Mua vé"), BorderLayout.SOUTH);
+		add(btnMuaVe = new JButton("Tiếp tục"), BorderLayout.SOUTH);
 
 	}
 
@@ -92,7 +92,7 @@ public class PanelGioVe extends JPanel {
 
 	private JPanel createVeRow(VeSession v) {
 		JPanel row = new JPanel(new BorderLayout());
-		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); // Chiều cao cố định
+		row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
 		row.setPreferredSize(new Dimension(230, 80));
 		row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
 		row.setBackground(Color.WHITE);
@@ -105,7 +105,7 @@ public class PanelGioVe extends JPanel {
 		lblTimer.setForeground(new Color(205, 0, 0));
 
 		JButton btnTrash = new JButton("");
-		btnTrash.setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.35f));
+		btnTrash.setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.40f));
 		btnTrash.setToolTipText("Xóa vé");
 		btnTrash.setFocusable(false);
 		btnTrash.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));

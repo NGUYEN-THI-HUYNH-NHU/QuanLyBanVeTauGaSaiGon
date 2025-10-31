@@ -5,10 +5,6 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -16,11 +12,17 @@ import java.awt.Insets;
  * @version: 1.0
  */
 
-//PassengerCellPanel.java
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.SwingUtilities;
 
 import entity.type.LoaiDoiTuong;
 
@@ -29,6 +31,10 @@ public class PassengerCellPanel extends JPanel {
 	private final JTextField txtID = new JTextField();
 	String[] types = { "Người lớn", "Trẻ em", "Người cao tuổi" };
 	private final JComboBox<String> cbType = new JComboBox<String>(types);
+
+	// === THÊM THAM CHIẾU ĐỂ ĐIỀU HƯỚNG ===
+	private JTable table;
+	private PanelBuoc3 panelBuoc3;
 
 	public PassengerCellPanel() {
 		setLayout(new GridBagLayout());
@@ -49,6 +55,89 @@ public class PassengerCellPanel extends JPanel {
 
 		gbc.gridy = 2;
 		add(txtID, gbc);
+
+		// 1. Enter trên txtTen -> focus cbType
+		txtTen.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cbType.requestFocusInWindow();
+			}
+		});
+
+		// 2. Enter trên cbType -> focus txtID
+		cbType.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Chỉ di chuyển focus nếu sự kiện là "Enter" (thường là "comboBoxEdited"
+				// hoặc "comboBoxChanged" nhưng addActionListener cũng bắt)
+				// Cần kiểm tra kỹ, nhưng cách đơn giản nhất là cứ focus
+				txtID.requestFocusInWindow();
+			}
+		});
+
+		// 3. Enter trên txtID -> nhảy dòng hoặc nhảy ra form
+		txtID.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				handleFinalEnter();
+			}
+		});
+	}
+
+	/**
+	 * Xử lý khi Enter ở trường cuối cùng (txtID)
+	 */
+	private void handleFinalEnter() {
+		if (table == null || panelBuoc3 == null) {
+			return;
+		}
+
+		// Lấy hàng đang chỉnh sửa (trước khi dừng)
+		int currentRow = table.getEditingRow();
+
+		// Dừng chỉnh sửa ô hiện tại (quan trọng để lưu dữ liệu)
+		if (table.getCellEditor() != null) {
+			table.getCellEditor().stopCellEditing();
+		}
+
+		int nextRow = currentRow + 1;
+
+		if (nextRow < table.getRowCount()) {
+			// 1. Nếu còn dòng tiếp theo:
+			table.editCellAt(nextRow, 0);
+
+			// (Việc focus txtTen của dòng mới đã được xử lý
+			// trong invokeLater của PassengerCellEditor)
+
+		} else {
+			// 2. Nếu hết dòng: focus vào txtTen của form người mua
+			try {
+				panelBuoc3.getTxtTenNguoiMua().requestFocusInWindow();
+			} catch (Exception e) {
+				System.err.println("Lỗi khi focus txtTenNguoiMua. " + e.getMessage());
+			}
+		}
+	}
+
+	@Override
+	public void updateUI() {
+		super.updateUI(); // Cập nhật UI cho chính panel này (nền,...)
+
+		// Phải kiểm tra null vì updateUI có thể được gọi
+		// trong constructor của JPanel (trước khi txtTen được khởi tạo)
+		if (txtTen != null) {
+			// Yêu cầu các con cũng cập nhật UI của chúng
+			SwingUtilities.updateComponentTreeUI(this);
+		}
+	}
+
+	// === THÊM SETTERS ĐỂ NHẬN THAM CHIẾU ===
+	public void setTable(JTable table) {
+		this.table = table;
+	}
+
+	public void setPanelBuoc3(PanelBuoc3 panelBuoc3) {
+		this.panelBuoc3 = panelBuoc3;
 	}
 
 	public void setData(PassengerRow p) {
@@ -57,6 +146,10 @@ public class PassengerCellPanel extends JPanel {
 		}
 		getTxtTen().setText(p.getFullName());
 		txtID.setText(p.getIdNumber());
+		if (p.getType() == null) {
+			cbType.setSelectedIndex(0);
+			return;
+		}
 		switch (p.getType()) {
 		case NGUOI_LON:
 			cbType.setSelectedIndex(0);
@@ -85,13 +178,6 @@ public class PassengerCellPanel extends JPanel {
 		getTxtTen().setEditable(editable);
 		cbType.setEnabled(editable);
 		txtID.setEditable(editable);
-	}
-
-	// helper: ensure the ui of child comps uses current LAF (call when LAF changes)
-	public void updateChildUI() {
-		getTxtTen().setBorder(UIManager.getBorder("TextField.border"));
-		txtID.setBorder(UIManager.getBorder("TextField.border"));
-		cbType.setBorder(UIManager.getBorder("ComboBox.border"));
 	}
 
 	public JTextField getTxtTen() {

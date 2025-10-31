@@ -5,6 +5,7 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -171,9 +172,11 @@ public class VeSession {
 	}
 
 	public String prettyString() {
-		return String.format("<html><b>%s</b> %s-%s<br/>%s %s<br/>%s toa %s chỗ %s</html>", getTenTau(), getTenGaDi(),
-				getTenGaDen(), getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getHangToa(), getSoToa(), getSoGhe());
+		DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
+		return String.format("<html><b>%s</b> %s - %s<br/>%s %s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
+				getTenTau(), getTenGaDi(), getTenGaDen(), getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getHangToa(), getSoToa(), getSoGhe(),
+				formatter.format(getGia()));
 	}
 
 	public PhieuGiuChoChiTiet getPgcct() {

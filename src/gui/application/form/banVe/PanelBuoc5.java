@@ -79,7 +79,7 @@ public class PanelBuoc5 extends JPanel {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Thanh Toán"));
 
-		currencyFormat = new DecimalFormat("#,### VND");
+		currencyFormat = new DecimalFormat("#,### VNĐ");
 		btnFormat = new DecimalFormat("#,###");
 
 		// Panel Phương thức thanh toán
@@ -543,8 +543,5 @@ public class PanelBuoc5 extends JPanel {
 	public JButton getBtnXacNhanVaInQR() {
 		return btnXacNhanVaInQR;
 	}
-//	public JButton getBtnThanhToan() {
-//		return radTienMat.isSelected() ? btnXacNhanVaInCash : btnXacNhanVaInQR;
-//	}
 
 }

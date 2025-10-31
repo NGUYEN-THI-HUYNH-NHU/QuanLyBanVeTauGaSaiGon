@@ -47,7 +47,7 @@ public class PanelBuoc3 extends JPanel {
 	private final JLabel lblInfo;
 	private JPanel formKhachHang;
 	private JTextField txtTen;
-	private JTextField txtCmnd;
+	private JTextField txtCccd;
 	private JTextField txtPhone;
 
 	private Consumer<PassengerRow> deleteListener;
@@ -59,30 +59,26 @@ public class PanelBuoc3 extends JPanel {
 		model = new HanhKhachTableModel();
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(220);
+		table.getColumnModel().getColumn(0).setMinWidth(200);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
-		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor());
+		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
 		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
 		center.setHorizontalAlignment(SwingConstants.CENTER);
 		table.getColumnModel().getColumn(2).setCellRenderer(center);
 		table.getColumnModel().getColumn(3).setCellRenderer(center);
 		table.getColumnModel().getColumn(4).setCellRenderer(center);
 
-		int deleteColumnIndex = 5; // Cột 5 là "Xóa"
+		int deleteColumnIndex = 5;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
-
 		// 1. Áp dụng Renderer
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
-
 		// 2. Áp dụng Editor và truyền hành động (action)
 		deleteColumn.setCellEditor(new DeleteButtonEditor());
-
 		// 3. Đặt kích thước
-		deleteColumn.setPreferredWidth(60);
-		deleteColumn.setMaxWidth(80);
+		deleteColumn.setPreferredWidth(40);
+		deleteColumn.setMaxWidth(40);
 
 		// 4. (QUAN TRỌNG) Bắt sự kiện click từ JTable
-		// Cách này đơn giản hơn là sửa DeleteButtonEditor phức tạp
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -121,7 +117,7 @@ public class PanelBuoc3 extends JPanel {
 		formKhachHang.setBorder(new RoundedBorder(0, new Color(230, 230, 230), 1));
 
 		txtTen = new JTextField(18);
-		txtCmnd = new JTextField(18);
+		txtCccd = new JTextField(18);
 		txtPhone = new JTextField(18);
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -138,19 +134,19 @@ public class PanelBuoc3 extends JPanel {
 		gbc.insets = new Insets(2, 2, 2, 2);
 		// ====== row 0: Họ và tên * ======
 		gbc.gridy = 1;
-		formKhachHang.add(new JLabel("Họ và tên *"), gbc);
+		formKhachHang.add(new JLabel("<html>Họ và Tên <font color='red'>*</font></html>"), gbc);
 		gbc.gridy = 2;
 		formKhachHang.add(txtTen, gbc);
 
-		// ====== row 1: CMND/Hộ chiếu * ======
+		// ====== row 1: CCCD/Hộ chiếu * ======
 		gbc.gridy = 3;
-		formKhachHang.add(new JLabel("Số CMND/Hộ chiếu *"), gbc);
+		formKhachHang.add(new JLabel("<html>Số CCCD/Hộ chiếu <font color='red'>*</font></html>"), gbc);
 		gbc.gridy = 4;
-		formKhachHang.add(txtCmnd, gbc);
+		formKhachHang.add(txtCccd, gbc);
 
 		// ====== row 2: Số di động * ======
 		gbc.gridy = 5;
-		formKhachHang.add(new JLabel("Số di động *"), gbc);
+		formKhachHang.add(new JLabel("<html>Số di động <font color='red'>*</font></html>"), gbc);
 		gbc.gridy = 6;
 		formKhachHang.add(txtPhone, gbc);
 
@@ -162,12 +158,20 @@ public class PanelBuoc3 extends JPanel {
 		add(formKhachHang, BorderLayout.EAST);
 	}
 
+	public JTable getTable() {
+		return table;
+	}
+
+	public JTextField getTxtTenNguoiMua() {
+		return this.txtTen;
+	}
+
 	public String getTenNguoiMua() {
 		return txtTen.getText().trim();
 	}
 
-	public String getCmndNguoiMua() {
-		return txtCmnd.getText().trim();
+	public String getCccdNguoiMua() {
+		return txtCccd.getText().trim();
 	}
 
 	public String getPhoneNguoiMua() {

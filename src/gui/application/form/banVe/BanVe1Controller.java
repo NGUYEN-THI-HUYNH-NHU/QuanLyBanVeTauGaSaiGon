@@ -18,8 +18,10 @@ import javax.swing.SwingWorker;
 
 import bus.DatCho_BUS;
 import entity.Chuyen;
+import entity.Ghe;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
+import entity.Toa;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
@@ -108,15 +110,25 @@ public class BanVe1Controller {
 			public void onSeatSelected(VeSession ticket) {
 				// (Chưa cần làm gì khi chỉ chọn 1 ghế,
 				// vì logic mới là chờ bấm "Mua vé")
+//				p2.setEnabled(false);
+//				// Lấy danh sách vé từ giỏ hàng (session)
+//				final List<VeSession> veTrongGio = bookingSession
+//						.getSelectedTicketsForTrip(buoc2Controller.getCurrentTripIndex());
+//
+//				if (veTrongGio == null || veTrongGio.isEmpty()) {
+//					JOptionPane.showMessageDialog(p1, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
+//							JOptionPane.WARNING_MESSAGE);
+//					return;
+//				}
+//
+//				// Gọi BUS trong luồng nền (SwingWorker) để tránh đơ UI
+//				goiBusGiuCho(veTrongGio);
 			}
 
 			@Override
 			public void onMuaVeClicked() {
 				p2.setEnabled(false);
-				// === 3. ĐÂY LÀ LOGIC CỦA BẠN ===
-				// Bắt đầu quá trình giữ chỗ khi bấm "Mua vé"
-
-				// 3a. Lấy danh sách vé từ giỏ hàng (session)
+				// Lấy danh sách vé từ giỏ hàng (session)
 				final List<VeSession> veTrongGio = bookingSession
 						.getSelectedTicketsForTrip(buoc2Controller.getCurrentTripIndex());
 
@@ -126,23 +138,21 @@ public class BanVe1Controller {
 					return;
 				}
 
-				// 3b. Gọi BUS trong luồng nền (SwingWorker) để tránh đơ UI
+				// Gọi BUS trong luồng nền (SwingWorker) để tránh đơ UI
 				goiBusGiuCho(veTrongGio);
 			}
 		});
 
-		// Lắng nghe sự kiện từ Buoc3 (Nhập thông tin hành khách/khách hàng)
+		// Lắng nghe sự kiện từ Buoc3 (Bấm nút xóa hàng vé)
 		this.buoc3Controller.setOnDeleteListener(veSession -> {
-			// 1. Gọi BUS để xóa phiếu giữ chỗ chi tiết TRONG BACKGROUND
+			// 1. Gọi BUS để xóa phiếu giữ chỗ chi tiết TRONG DB
 			new SwingWorker<Boolean, Void>() {
 				private String errorMessage = "Lỗi không xác định khi xóa phiếu.";
 
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-
-						// Gọi BUS để xóa Phiếu giữ chỗ chi tiết trong CSDL
-						return datChoBUS.xoaPhieuGiuChoChiTiet(veSession.getPgcct().getPhieuGiuChoChiTietID());
+						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(veSession.getPgcct().getPhieuGiuChoChiTietID());
 
 					} catch (Exception e) {
 						errorMessage = e.getMessage();
@@ -156,11 +166,13 @@ public class BanVe1Controller {
 					try {
 						Boolean deleteSuccess = get();
 						if (deleteSuccess) {
-							// 2. (SAU KHI DB ĐÃ XÓA THÀNH CÔNG)
+							// 2. SAU KHI DB ĐÃ XÓA THÀNH CÔNG
 							// Gọi Buoc2Controller để xóa vé khỏi session (client-side)
 							if (buoc2Controller != null) {
 								// onRemoveVe sẽ tự động refresh PanelGioVe VÀ PanelSoDoCho
 								buoc2Controller.onRemoveVe(veSession);
+								buoc2Controller.handleSeatDeselection(new Toa(veSession.getToaID()),
+										new Ghe(veSession.getGheID(), veSession.getSoGhe()));
 							}
 
 							// Nếu không còn vé nào trong giỏ thì xóa Phiếu giữ chỗ
