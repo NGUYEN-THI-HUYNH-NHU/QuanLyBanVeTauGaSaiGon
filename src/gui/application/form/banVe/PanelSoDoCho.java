@@ -14,6 +14,7 @@ package gui.application.form.banVe;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
@@ -128,7 +129,7 @@ public class PanelSoDoCho extends JPanel {
 		lblToaInfo.setText("Toa số " + t.getSoToa() + ": "
 				+ (t.getHangToa() != null ? t.getHangToa().getDescription() : "Chưa xác định"));
 
-		showLoadingState();
+//		showLoadingState();
 
 		if (panelBuoc2Controller != null) {
 			new LoadSeatWorker(t).execute();
@@ -137,15 +138,15 @@ public class PanelSoDoCho extends JPanel {
 
 	public void showMessage(String text) {
 		pnlGridChoNgoi.removeAll();
-		pnlGridChoNgoi.setLayout(new BorderLayout());
-		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
-		pnlGridChoNgoi.revalidate();
+//		pnlGridChoNgoi.setLayout(new BorderLayout());
+//		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
+//		pnlGridChoNgoi.revalidate();
 		pnlGridChoNgoi.repaint();
 	}
 
-	public void showLoadingState() {
-		showMessage("Đang tải ...");
-	}
+//	public void showLoadingState() {
+//		showMessage("Đang tải ...");
+//	}
 
 	public void renderSeats(List<Ghe> gheListFull) {
 		pnlGridChoNgoi.removeAll();
@@ -243,6 +244,7 @@ public class PanelSoDoCho extends JPanel {
 		b.setMargin(new Insets(0, 0, 0, 0));
 		b.setFocusPainted(false);
 		b.setFont(new Font(getFont().getFamily(), Font.PLAIN, 10));
+		b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
 		TrangThaiGhe status = g.getTrangThai();
 		boolean isAvailable = (status == TrangThaiGhe.TRONG);

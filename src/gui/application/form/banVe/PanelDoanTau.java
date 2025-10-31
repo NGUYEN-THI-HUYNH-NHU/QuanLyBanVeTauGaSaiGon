@@ -15,11 +15,15 @@ import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -35,7 +39,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import entity.Toa;
@@ -49,14 +52,15 @@ public class PanelDoanTau extends JPanel {
 	// cache icon theo (color + w + h) để không phải tạo lại mỗi lần
 	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
-	private final Color colorDefault = new Color(220, 220, 220); // màu khi chưa chọn
-	private final Color colorSelected = new Color(40, 167, 69); // màu khi chọn
+	private final Color colorDefault = new Color(8, 156, 255); // màu khi chưa chọn
+	private final Color colorSelected = new Color(22, 171, 56); // màu khi chọn
 	private final Color colorHover = colorSelected.brighter();
+	private BufferedImage baseDauTauImage;
 
 	public PanelDoanTau() {
 		setBorder(new TitledBorder("Sơ đồ đoàn tàu"));
 		setLayout(new BorderLayout());
-		flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		flow = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 0));
 		JScrollPane scr = new JScrollPane(flow, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scr.setBorder(BorderFactory.createEmptyBorder());
@@ -66,10 +70,11 @@ public class PanelDoanTau extends JPanel {
 		// load ảnh gốc một lần
 		try {
 			baseToaImage = ImageIO.read(getClass().getResourceAsStream("/gui/icon/png/toa-tau.png"));
-			// nếu ảnh lớn, có thể scale xuống kích thước nút
+			baseDauTauImage = ImageIO.read(getClass().getResourceAsStream("/gui/icon/png/dau-tau-trai.png"));
 		} catch (IOException | NullPointerException ex) {
 			ex.printStackTrace();
 			baseToaImage = null;
+			baseDauTauImage = null;
 		}
 	}
 
@@ -77,7 +82,6 @@ public class PanelDoanTau extends JPanel {
 		this.controller = controller;
 	}
 
-	// --- showToaList: dùng preferredSize thay vì getWidth/getHeight trực tiếp ---
 	public void showToaList(List<Toa> list, Consumer<Toa> onSelect) {
 		flow.removeAll();
 		selectedButton = null;
@@ -85,57 +89,38 @@ public class PanelDoanTau extends JPanel {
 		if (list == null || list.isEmpty()) {
 			flow.add(new JLabel("Không có toa"));
 		} else {
+			flow.add(drawDauTau());
 			for (Toa t : list) {
-				JButton btn = new JButton(String.valueOf(t.getSoToa()));
-				Dimension pref = new Dimension(50, 30); // kích thước nút / icon mong muốn
-				btn.setPreferredSize(pref);
-				btn.putClientProperty("toaID", t.getToaID());
-
-				if (baseToaImage != null) {
-					// dùng preferred size (không dùng getWidth/getHeight gây 0 nếu chưa hiển thị)
-					int iconW = pref.width;
-					int iconH = pref.height;
-
-					ImageIcon iconDefault = getTintedIcon(baseToaImage, colorDefault, iconW, iconH);
-					ImageIcon iconSelected = getTintedIcon(baseToaImage, colorSelected, iconW, iconH);
-					ImageIcon iconHover = getTintedIcon(baseToaImage, colorHover, iconW, iconH);
-
-					btn.setIcon(iconDefault);
-					btn.setHorizontalTextPosition(SwingConstants.CENTER);
-					btn.setVerticalTextPosition(SwingConstants.CENTER);
-					btn.setBorderPainted(false);
-					btn.setContentAreaFilled(false);
-					btn.setFocusPainted(false);
-					btn.setOpaque(false);
-
-					btn.setRolloverEnabled(true);
-					btn.setRolloverIcon(iconHover);
-					btn.setPressedIcon(iconSelected);
-
-					btn.putClientProperty("iconDefault", iconDefault);
-					btn.putClientProperty("iconSelected", iconSelected);
-
-					SwingUtilities.invokeLater(() -> {
-						int realW = btn.getWidth() > 0 ? btn.getWidth() : iconW;
-						int realH = btn.getHeight() > 0 ? btn.getHeight() : iconH;
-						ImageIcon id = getTintedIcon(baseToaImage, colorDefault, realW, realH);
-						ImageIcon is = getTintedIcon(baseToaImage, colorSelected, realW, realH);
-						btn.setIcon(id);
-						btn.putClientProperty("iconDefault", id);
-						btn.putClientProperty("iconSelected", is);
-					});
-				} else {
-					btn.setOpaque(true);
-					btn.setBorderPainted(true);
-					btn.setBackground(colorDefault);
-				}
-
-				btn.addActionListener(e -> {
+				JButton btnToa = drawToa(t);
+				btnToa.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+				btnToa.addActionListener(e -> {
 					onSelect.accept(t);
-					highlightButton(btn);
+					highlightButton(btnToa);
 				});
+				btnToa.addMouseListener(new java.awt.event.MouseAdapter() {
+					@Override
+					public void mouseEntered(MouseEvent evt) {
+						// Chỉ đổi icon HVER nếu nút này KHÔNG đang được CHỌN
+						if (btnToa != selectedButton) {
+							ImageIcon iconHov = (ImageIcon) btnToa.getClientProperty("iconHover");
+							if (iconHov != null) {
+								btnToa.setIcon(iconHov);
+							}
+						}
+					}
 
-				flow.add(btn);
+					@Override
+					public void mouseExited(MouseEvent evt) {
+						// Chỉ đổi về icon MẶC ĐỊNH nếu nút này KHÔNG đang được CHỌN
+						if (btnToa != selectedButton) {
+							ImageIcon iconDef = (ImageIcon) btnToa.getClientProperty("iconDefault");
+							if (iconDef != null) {
+								btnToa.setIcon(iconDef);
+							}
+						}
+					}
+				});
+				flow.add(btnToa);
 			}
 		}
 
@@ -143,28 +128,113 @@ public class PanelDoanTau extends JPanel {
 		flow.repaint();
 	}
 
+	private JLabel drawDauTau() {
+		if (baseDauTauImage != null) {
+			try {
+				int fixedCarWidth = 42;
+				int baseCarW = baseToaImage.getWidth(null);
+				int baseCarH = baseToaImage.getHeight(null);
+				double carAspectRatio = (baseCarW > 0) ? (double) baseCarH / (double) baseCarW : 1.0;
+				int standardHeight = Math.max(1, (int) (fixedCarWidth * carAspectRatio));
+
+				// Tính chiều rộng cho đầu tàu (dựa trên chiều cao chuẩn)
+				int baseDauTauW = baseDauTauImage.getWidth(null);
+				int baseDauTauH = baseDauTauImage.getHeight(null);
+				double dauTauAspectRatio = (baseDauTauH > 0) ? (double) baseDauTauW / (double) baseDauTauH : 1.0;
+				int newDauTauWidth = Math.max(1, (int) (standardHeight * dauTauAspectRatio));
+
+				// Scale ảnh đầu tàu (dùng hàm scaleToSize "vừa khít" của bạn)
+				BufferedImage scaledDauTauImg = scaleToSize(baseDauTauImage, newDauTauWidth, standardHeight);
+				ImageIcon dauTauIcon = new ImageIcon(scaledDauTauImg);
+
+				// Tạo JLabel và thêm vào panel
+				JLabel lblDauTau = new JLabel(dauTauIcon);
+
+				lblDauTau.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 2));
+				return lblDauTau;
+			} catch (Exception ex) {
+				System.out.println("PanelDoanTau: showDauTau() - Loi xu ly anh dau tau");
+				ex.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	private JButton drawToa(Toa t) {
+		JButton btnToa = new JButton(String.valueOf(t.getSoToa()));
+		btnToa.setFont(new Font("Roboto", Font.PLAIN, 10));
+		btnToa.putClientProperty("toaID", t.getToaID());
+		btnToa.setToolTipText(String.format("<html>Toa %d - %s</html>", t.getSoToa(), t.getHangToa().getDescription()));
+
+		if (baseToaImage != null) {
+			int fixedIconWidth = 42;
+
+			// Lấy kích thước ảnh gốc
+			int baseW = baseToaImage.getWidth(null);
+			int baseH = baseToaImage.getHeight(null);
+
+			// Tính chiều cao mới (iconH) dựa trên tỷ lệ
+			double aspectRatio = (double) baseH / (double) baseW;
+			int newIconHeight = Math.max(1, (int) (fixedIconWidth * aspectRatio));
+
+			// Sử dụng kích thước "vừa khít" mới
+			int iconW = fixedIconWidth;
+			int iconH = newIconHeight;
+
+			ImageIcon iconDefault = getTintedIcon(baseToaImage, colorDefault, iconW, iconH);
+			ImageIcon iconSelected = getTintedIcon(baseToaImage, colorSelected, iconW, iconH);
+			ImageIcon iconHover = getTintedIcon(baseToaImage, colorHover, iconW, iconH);
+
+			btnToa.setIcon(iconDefault);
+			btnToa.setMargin(new Insets(0, 0, 0, 0));
+			btnToa.setHorizontalAlignment(SwingConstants.CENTER);
+			btnToa.setVerticalAlignment(SwingConstants.TOP);
+			btnToa.setHorizontalTextPosition(SwingConstants.CENTER);
+			btnToa.setVerticalTextPosition(SwingConstants.BOTTOM);
+
+			btnToa.setIconTextGap(1);
+
+			btnToa.setBorderPainted(false);
+			btnToa.setContentAreaFilled(false);
+			btnToa.setFocusPainted(false);
+			btnToa.setOpaque(false);
+
+			btnToa.setRolloverEnabled(false);
+
+			btnToa.putClientProperty("iconDefault", iconDefault);
+			btnToa.putClientProperty("iconSelected", iconSelected);
+			btnToa.putClientProperty("iconHover", iconHover);
+		} else {
+			btnToa.setOpaque(true);
+			btnToa.setBorderPainted(true);
+			btnToa.setBackground(colorDefault);
+		}
+
+		return btnToa;
+	}
+
 	private void highlightButton(JButton selected) {
 		Component[] comps = flow.getComponents();
+
 		for (Component c : comps) {
-			if (c instanceof JButton) {
+			if (c instanceof JButton && c != selected) {
 				JButton b = (JButton) c;
-				if (baseToaImage != null) {
-					ImageIcon iconDefault = (ImageIcon) b.getClientProperty("iconDefault");
-					if (iconDefault != null) {
-						b.setIcon(iconDefault);
-					}
+				ImageIcon iconDefault = (ImageIcon) b.getClientProperty("iconDefault");
+
+				if (baseToaImage != null && iconDefault != null) {
+					b.setIcon(iconDefault);
 				} else {
 					b.setBackground(colorDefault);
 				}
 			}
 		}
+
 		selectedButton = selected;
 		if (selectedButton != null) {
-			if (baseToaImage != null) {
-				ImageIcon iconSel = (ImageIcon) selectedButton.getClientProperty("iconSelected");
-				if (iconSel != null) {
-					selectedButton.setIcon(iconSel);
-				}
+			ImageIcon iconSel = (ImageIcon) selectedButton.getClientProperty("iconSelected");
+
+			if (baseToaImage != null && iconSel != null) {
+				selectedButton.setIcon(iconSel);
 			} else {
 				selectedButton.setBackground(colorSelected);
 			}
@@ -231,19 +301,17 @@ public class PanelDoanTau extends JPanel {
 
 		// tạo ảnh result có kích thước đúng target và vẽ ảnh scaled ở giữa (transparent
 		// padding)
-		BufferedImage result = new BufferedImage(targetW, targetH, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage result = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = result.createGraphics();
 		// làm mịn
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
 		g2.setComposite(AlphaComposite.Clear);
-		g2.fillRect(0, 0, targetW, targetH);
+		g2.fillRect(0, 0, newW, newH);
 		g2.setComposite(AlphaComposite.SrcOver);
-
-		int x = (targetW - newW) / 2;
-		int y = (targetH - newH) / 2;
-
 		Image scaled = src.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-		g2.drawImage(scaled, x, y, null);
+		g2.drawImage(scaled, 0, 0, null);
+
 		g2.dispose();
 		return result;
 	}
@@ -261,7 +329,7 @@ public class PanelDoanTau extends JPanel {
 		g.fillRect(0, 0, w, h);
 
 		// 2) giữ alpha của src (lấy src alpha làm mask)
-		g.setComposite(AlphaComposite.DstIn); // giữ phần alpha của src
+		g.setComposite(AlphaComposite.DstIn);
 		g.drawImage(src, 0, 0, null);
 
 		g.dispose();

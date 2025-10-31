@@ -152,6 +152,10 @@ public class PanelBuoc1 extends JPanel {
 		this.controller = controller;
 	}
 
+	public PanelBuoc1Controller getController() {
+		return controller;
+	}
+
 	public JTextField getTxtGaDi() {
 		return txtGaDi;
 	}
@@ -200,5 +204,15 @@ public class PanelBuoc1 extends JPanel {
 		}
 		Instant instant = d.toInstant();
 		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
+	public void setComponentsEnabled(boolean enabled) {
+		txtGaDi.setEnabled(enabled);
+		txtGaDen.setEnabled(enabled);
+		dateChooserNgayDi.setEnabled(enabled);
+		dateChooserNgayVe.setEnabled(enabled);
+		radMotChieu.setEnabled(enabled);
+		radKhuHoi.setEnabled(enabled);
+		btnTimKiem.setEnabled(enabled);
 	}
 }

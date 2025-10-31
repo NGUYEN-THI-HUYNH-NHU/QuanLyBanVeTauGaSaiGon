@@ -27,7 +27,8 @@ import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class BanVe1Controller {
 
-	private final PanelBanVe1 p1;
+	private final PanelBanVe1 view;
+	private final PanelBuoc1 p1;
 	private final PanelBuoc2 p2;
 	private final PanelBuoc3 p3;
 
@@ -46,25 +47,25 @@ public class BanVe1Controller {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public BanVe1Controller(PanelBanVe1 p1, BookingSession session) {
-		this.p1 = p1;
+	public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
+		this.view = view;
 		this.bookingSession = session;
-
-		// === 2. Khởi tạo BUS ===
 		// (Hoặc DatCho_BUS.getInstance() nếu là Singleton)
 		this.datChoBUS = new DatCho_BUS();
 
 		// Khởi tạo các panel con
-		this.buoc1Controller = new PanelBuoc1Controller(p1.getPanelBuoc1());
-		this.p2 = p1.getPanelBuoc2();
-		this.p3 = p1.getPanelBuoc3();
+		this.p1 = view.getPanelBuoc1();
+		this.p2 = view.getPanelBuoc2();
+		this.p3 = view.getPanelBuoc3();
+
+		this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
 
 		this.buoc2Controller = new PanelBuoc2Controller(p2.getPanelChieuLabel(), p2.getPanelChuyenTau(),
 				p2.getPanelDoanTau(), p2.getPanelSoDoCho(), p2.getPanelGioVe());
 
 		this.buoc2Controller.setBookingSession(this.bookingSession);
 
-		this.buoc3Controller = new PanelBuoc3Controller(p1.getPanelBuoc3(), this.bookingSession);
+		this.buoc3Controller = new PanelBuoc3Controller(view.getPanelBuoc3(), this.bookingSession);
 
 		initMediatorLogic();
 	}
@@ -84,8 +85,8 @@ public class BanVe1Controller {
 				bookingSession.setReturnResults(returnResults); // <-- Thêm dòng này
 
 				// 3. Kích hoạt Bước 2
-				p1.setBuoc2Enabled(true);
-				p1.setBuoc3Enabled(false);
+				view.setBuoc2Enabled(true);
+				view.setBuoc3Enabled(false);
 
 				// 4. CHỈ hiển thị danh sách CHIỀU ĐI (outboundResults) lên PanelBuoc2
 				// Chúng ta truyền tripIndex = 0 để Buoc2Controller biết đây là chiều đi.
@@ -96,44 +97,30 @@ public class BanVe1Controller {
 			public void onSearchFailure() {
 				// Xóa cả hai danh sách kết quả khi tìm thất bại
 				bookingSession.setOutboundResults(null);
-				bookingSession.setReturnResults(null); // <-- Thêm dòng này
-
-				p1.setBuoc2Enabled(false);
-				p1.setBuoc3Enabled(false);
+				bookingSession.setReturnResults(null);
+				view.setBuoc2Enabled(false);
+				view.setBuoc3Enabled(false);
 			}
 		});
 
 		// Lắng nghe sự kiện từ Buoc2 (Chọn ghế VÀ Bấm Mua vé)
 		this.buoc2Controller.addSeatSelectedListener(new SeatSelectedListener() {
-
 			@Override
 			public void onSeatSelected(VeSession ticket) {
 				// (Chưa cần làm gì khi chỉ chọn 1 ghế,
 				// vì logic mới là chờ bấm "Mua vé")
-//				p2.setEnabled(false);
-//				// Lấy danh sách vé từ giỏ hàng (session)
-//				final List<VeSession> veTrongGio = bookingSession
-//						.getSelectedTicketsForTrip(buoc2Controller.getCurrentTripIndex());
-//
-//				if (veTrongGio == null || veTrongGio.isEmpty()) {
-//					JOptionPane.showMessageDialog(p1, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
-//							JOptionPane.WARNING_MESSAGE);
-//					return;
-//				}
-//
-//				// Gọi BUS trong luồng nền (SwingWorker) để tránh đơ UI
-//				goiBusGiuCho(veTrongGio);
 			}
 
 			@Override
 			public void onMuaVeClicked() {
-				p2.setEnabled(false);
+				view.setBuoc1Enabled(false);
+				view.setBuoc2Enabled(false);
 				// Lấy danh sách vé từ giỏ hàng (session)
 				final List<VeSession> veTrongGio = bookingSession
 						.getSelectedTicketsForTrip(buoc2Controller.getCurrentTripIndex());
 
 				if (veTrongGio == null || veTrongGio.isEmpty()) {
-					JOptionPane.showMessageDialog(p1, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
+					JOptionPane.showMessageDialog(view, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
 							JOptionPane.WARNING_MESSAGE);
 					return;
 				}
@@ -191,12 +178,12 @@ public class BanVe1Controller {
 
 						} else {
 							// Báo lỗi nếu xóa DB thất bại
-							JOptionPane.showMessageDialog(p1, "Lỗi: " + errorMessage, "Lỗi xóa vé",
+							JOptionPane.showMessageDialog(view, "Lỗi: " + errorMessage, "Lỗi xóa vé",
 									JOptionPane.ERROR_MESSAGE);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
-						JOptionPane.showMessageDialog(p1, "Lỗi hệ thống khi xóa phiếu giữ chỗ.", "Lỗi",
+						JOptionPane.showMessageDialog(view, "Lỗi hệ thống khi xóa phiếu giữ chỗ.", "Lỗi",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -212,7 +199,7 @@ public class BanVe1Controller {
 
 		// Lắng nghe sự kiện "Hủy" từ Buoc 3
 		this.buoc3Controller.setOnCancelListener(() -> {
-			p1.setBuoc3Enabled(false);
+			view.setBuoc3Enabled(false);
 			// (Logic hủy phiếu giữ chỗ đã được chuyển vào handleCancel của buoc3Controller)
 		});
 	}
@@ -254,14 +241,14 @@ public class BanVe1Controller {
 					Boolean success = get();
 					if (success) {
 						// 5. THÀNH CÔNG: Hiển thị PanelBuoc3
-						p1.setBuoc3Enabled(true);
+						view.setBuoc3Enabled(true);
 						p3.initFromBookingSession(bookingSession, buoc2Controller.getCurrentTripIndex());
 
 						// (Bạn có thể thêm logic cuộn màn hình xuống p3 nếu cần)
 
 					} else {
 						// 6. THẤT BẠI: Hiển thị lỗi
-						JOptionPane.showMessageDialog(p1, "Không thể giữ chỗ: \n" + errorMessage, "Lỗi giữ chỗ",
+						JOptionPane.showMessageDialog(view, "Không thể giữ chỗ: \n" + errorMessage, "Lỗi giữ chỗ",
 								JOptionPane.ERROR_MESSAGE);
 
 						// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
@@ -269,7 +256,7 @@ public class BanVe1Controller {
 					}
 				} catch (Exception e) {
 					// Lỗi của chính SwingWorker
-					JOptionPane.showMessageDialog(p1, "Lỗi hệ thống: " + e.getMessage(), "Lỗi",
+					JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + e.getMessage(), "Lỗi",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}

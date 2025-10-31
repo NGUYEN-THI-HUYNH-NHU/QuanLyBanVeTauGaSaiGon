@@ -23,19 +23,19 @@ public class PanelBanVe1 extends JPanel {
 
 	public PanelBanVe1() {
 		setLayout(new BorderLayout());
-		
+
 		pnlNorth = new JPanel(new BorderLayout(1, 0));
-		
+
 		panelBuoc1 = new PanelBuoc1();
 		panelBuoc2 = new PanelBuoc2();
 		panelBuoc3 = new PanelBuoc3();
-		
+
 		pnlNorth.add(panelBuoc1, BorderLayout.WEST);
 		pnlNorth.add(panelBuoc2, BorderLayout.CENTER);
-				
+
 		add(pnlNorth, BorderLayout.NORTH);
 		add(panelBuoc3, BorderLayout.CENTER);
-		
+
 		panelBuoc2.setEnabled(false);
 		panelBuoc3.setEnabled(false);
 	}
@@ -51,12 +51,16 @@ public class PanelBanVe1 extends JPanel {
 	public PanelBuoc3 getPanelBuoc3() {
 		return panelBuoc3;
 	}
-	
-    public void setBuoc2Enabled(boolean enabled) {
-        panelBuoc2.setComponentsEnabled(enabled);
-    }
 
-    public void setBuoc3Enabled(boolean enabled) {
-        panelBuoc3.setComponentsEnabled(enabled);
-    }
+	public void setBuoc1Enabled(boolean enabled) {
+		panelBuoc1.setComponentsEnabled(enabled);
+	}
+
+	public void setBuoc2Enabled(boolean enabled) {
+		panelBuoc2.setComponentsEnabled(enabled);
+	}
+
+	public void setBuoc3Enabled(boolean enabled) {
+		panelBuoc3.setComponentsEnabled(enabled);
+	}
 }
