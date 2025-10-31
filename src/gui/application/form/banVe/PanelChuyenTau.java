@@ -57,6 +57,9 @@ public class PanelChuyenTau extends JPanel {
 		scroll = new JScrollPane(flowPanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
+		// Tăng tốc độ cuộn (tùy chọn)
+		scroll.getVerticalScrollBar().setUnitIncrement(16);
+		scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
 		add(scroll, BorderLayout.CENTER);
 	}

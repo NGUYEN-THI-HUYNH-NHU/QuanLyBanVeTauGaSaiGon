@@ -230,7 +230,7 @@ public class BanVe1Controller {
 
 					return true;
 				} catch (Exception e) {
-					errorMessage = e.getMessage(); // Lấy thông báo lỗi nghiệp vụ
+					errorMessage = e.getMessage();
 					return false;
 				}
 			}

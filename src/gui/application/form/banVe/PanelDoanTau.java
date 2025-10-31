@@ -52,7 +52,7 @@ public class PanelDoanTau extends JPanel {
 	// cache icon theo (color + w + h) để không phải tạo lại mỗi lần
 	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
-	private final Color colorDefault = new Color(8, 156, 255); // màu khi chưa chọn
+	private final Color colorDefault = new Color(50, 150, 210); // màu khi chưa chọn
 	private final Color colorSelected = new Color(22, 171, 56); // màu khi chọn
 	private final Color colorHover = colorSelected.brighter();
 	private BufferedImage baseDauTauImage;
@@ -64,6 +64,10 @@ public class PanelDoanTau extends JPanel {
 		JScrollPane scr = new JScrollPane(flow, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scr.setBorder(BorderFactory.createEmptyBorder());
+		// Tăng tốc độ cuộn (tùy chọn)
+		scr.getVerticalScrollBar().setUnitIncrement(16);
+		scr.getHorizontalScrollBar().setUnitIncrement(16);
+
 		add(scr, BorderLayout.CENTER);
 		setPreferredSize(new Dimension(10, 70));
 

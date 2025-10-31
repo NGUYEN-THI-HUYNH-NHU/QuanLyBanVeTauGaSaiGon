@@ -68,9 +68,6 @@ public class PassengerCellPanel extends JPanel {
 		cbType.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Chỉ di chuyển focus nếu sự kiện là "Enter" (thường là "comboBoxEdited"
-				// hoặc "comboBoxChanged" nhưng addActionListener cũng bắt)
-				// Cần kiểm tra kỹ, nhưng cách đơn giản nhất là cứ focus
 				txtID.requestFocusInWindow();
 			}
 		});
