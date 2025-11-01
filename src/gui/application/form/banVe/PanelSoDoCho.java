@@ -149,6 +149,35 @@ public class PanelSoDoCho extends JPanel {
 //		showMessage("Đang tải ...");
 //	}
 
+	// Thêm hàm này vào PanelSoDoCho.java
+
+	/**
+	 * Cập nhật trạng thái trực quan cho MỘT nút ghế
+	 * 
+	 * @param soGhe      Số ghế cần cập nhật
+	 * @param isSelected Trạng thái mới (true = chọn, false = bỏ chọn)
+	 */
+	public void updateSeatVisual(int soGhe, boolean isSelected) {
+		JButton b = seatButtonMap.get(soGhe);
+		if (b == null) {
+			return;
+		}
+
+		if (isSelected) {
+			b.setBackground(new Color(40, 167, 69));
+			b.setForeground(Color.WHITE);
+			b.setEnabled(true);
+			b.setOpaque(true);
+		} else {
+			b.setBackground(UIManager.getColor("Button.background"));
+			b.setForeground(UIManager.getColor("Button.foreground"));
+			b.setOpaque(false);
+			b.setEnabled(true);
+		}
+		// Yêu cầu Swing vẽ lại chỉ nút này
+		b.repaint();
+	}
+
 	public void renderSeats(List<Ghe> gheListFull) {
 		pnlGridChoNgoi.removeAll();
 		seatButtonMap.clear();
@@ -278,8 +307,8 @@ public class PanelSoDoCho extends JPanel {
 		} else {
 			b.setBackground(UIManager.getColor("Button.background"));
 			b.setForeground(UIManager.getColor("Button.foreground"));
-			b.setOpaque(true);
 			b.setEnabled(true);
+			b.setOpaque(false);
 		}
 
 		b.addActionListener(e -> {
@@ -652,5 +681,13 @@ public class PanelSoDoCho extends JPanel {
 				SwingUtilities.invokeLater(() -> showMessage("Lỗi tải dữ liệu chỗ ngồi"));
 			}
 		}
+	}
+
+	public Map<Integer, JButton> getSeatButtonMap() {
+		return seatButtonMap;
+	}
+
+	public void deselectSeat(Toa toa, Ghe ghe) {
+
 	}
 }

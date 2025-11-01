@@ -49,11 +49,12 @@ public class Menu extends JPanel {
 			{ "Quản lý nhân viên" }, // 10
 			{ "Quản lý tài khoản" }, // 11
 			{ "~Khác~" }, // 12
-			{ "Thống Kê", "Doanh thu", "Vé", "Khách hàng" }, // 13
-			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 14
-			{ "About" }, // 15
-			{ "Trợ giúp" }, // 16
-			{ "Đăng Xuất" } }; // 17
+			{ "Thống kê & Báo cáo ", "Thống kê", "Báo cáo" }, // 13
+			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 14
+			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 15
+			{ "About" }, // 16
+			{ "Trợ giúp" }, // 17
+			{ "Đăng Xuất" } }; // 18
 	private JLabel header;
 	private JScrollPane scroll;
 	private JPanel panelMenu;
@@ -95,12 +96,13 @@ public class Menu extends JPanel {
 			if (menuName.startsWith("~") && menuName.endsWith("~")) {
 				panelMenu.add(createTitle(menuName));
 			} else {
+				// NV: {2, 3, 4, 9, 13, 15, 16, 17, 18}
 				if (role.equalsIgnoreCase("NHAN_VIEN")) {
-					if (i == 1 || i == 4 || i == 5 || i == 6 || i == 7 || i == 9 || i == 10) {
+					if (i == 1 || i == 5 || i == 6 || i == 7 || i == 8 || i == 10 || i == 11 || i == 12 || i == 14) {
 						continue;
 					}
 				} else {
-					if (i == 2 || i == 3) {
+					if (i == 2 || i == 3 || i == 4 || i == 9 || i == 13) {
 						continue;
 					}
 				}

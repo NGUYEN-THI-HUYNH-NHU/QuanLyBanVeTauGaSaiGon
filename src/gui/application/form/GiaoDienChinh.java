@@ -35,8 +35,11 @@ import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.dashboard.Dashboard;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
+import gui.application.form.thongKe.PanelBaoCao;
+import gui.application.form.thongKe.PanelThongKe;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
 import gui.application.form.thongKe.PanelThongKeVe;
 import gui.application.form.thongTin.FormDoiMatKhau;
@@ -44,8 +47,6 @@ import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.form.troGiup.PanelTroGiup;
 import gui.application.menu.HanhDongMenu;
 import gui.application.menu.Menu;
-import gui.application.form.dashboard.Dashboard;
-
 
 public class GiaoDienChinh extends JLayeredPane {
 	private static final long serialVersionUID = 1L;
@@ -104,6 +105,12 @@ public class GiaoDienChinh extends JLayeredPane {
 //				}
 //			}
 //			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
+			case 13 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe(nhanVien));
+				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao(nhanVien));
+				}
+			}
 
 			// UC cua QUAN_LY
 			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
@@ -115,7 +122,7 @@ public class GiaoDienChinh extends JLayeredPane {
 //			case 11 -> UngDung.showGiaoDienChinh(new Tai(nhanVien));
 
 			// UC dung chung
-			case 13 -> {
+			case 14 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
@@ -123,16 +130,16 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-			case 14 -> {
+			case 15 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
 				case 2 -> UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
 				default -> action.cancel();
 				}
 			}
-			case 15 -> UngDung.showGiaoDienChinh(new PanelAbout());
-			case 16 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
-			case 17 -> UngDung.dangXuat();
+			case 16 -> UngDung.showGiaoDienChinh(new PanelAbout());
+			case 17 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
+			case 18 -> UngDung.dangXuat();
 			default -> action.cancel();
 			}
 		});

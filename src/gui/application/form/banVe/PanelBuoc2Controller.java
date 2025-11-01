@@ -42,9 +42,9 @@ public class PanelBuoc2Controller {
 	private final List<SeatSelectedListener> seatSelectedListeners = new ArrayList<>();
 
 	private BookingSession bookingSession;
+	private int currentTripIndex = 0;
 	private List<Chuyen> chuyenList;
 	private Chuyen selectedChuyen;
-	private int currentTripIndex = 0;
 	private Toa selectedToa;
 
 	public interface SeatSelectedListener {
@@ -443,8 +443,30 @@ public class PanelBuoc2Controller {
 
 		// Luôn refresh sơ đồ ghế để cập nhật màu sắc
 		if (selectedToa != null) {
-			panelSoDoCho.setCurrentToa(selectedToa);
+			refreshSeatOnDelete(v);
 		}
+	}
+
+	// Trong PanelBuoc2Controller.java
+
+	/**
+	 * Hàm này được gọi khi một vé bị xóa TỪ BẤT CỨ ĐÂU. Nó kiểm tra và cập nhật lại
+	 * PanelSoDoCho NẾU cần thiết. * @param veSessionBiXoa Vé vừa bị xóa khỏi
+	 * BookingSession
+	 */
+	public void refreshSeatOnDelete(VeSession veSessionBiXoa) {
+		if (veSessionBiXoa == null) {
+			return;
+		}
+
+		// Kiểm tra xem vé vừa bị xóa có nằm trên SƠ ĐỒ đang hiển thị không
+		if (selectedToa != null && selectedChuyen != null && veSessionBiXoa.getToaID().equals(selectedToa.getToaID())
+				&& veSessionBiXoa.getChuyenID().equals(selectedChuyen.getChuyenID())) {
+			// Có, vé này nằm trên sơ đồ đang xem.
+			// Yêu cầu PanelSoDoCho cập nhật MỘT nút (false = bỏ chọn)
+			panelSoDoCho.updateSeatVisual(veSessionBiXoa.getSoGhe(), false);
+		}
+		// Nếu không (vé bị xóa ở toa khác/chuyến khác), thì không làm gì cả.
 	}
 
 	private void releaseHoldAndRemoveVe(VeSession v) {
@@ -473,7 +495,10 @@ public class PanelBuoc2Controller {
 
 		// Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
 		if (selectedToa != null && v.getToaID().equals(selectedToa.getToaID()) && (removedOutbound || removedReturn)) {
-			panelSoDoCho.setCurrentToa(selectedToa);
+			// Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
+			if (selectedChuyen != null && v.getChuyenID().equals(selectedChuyen.getChuyenID())) {
+				panelSoDoCho.updateSeatVisual(v.getSoGhe(), false);
+			}
 		}
 	}
 

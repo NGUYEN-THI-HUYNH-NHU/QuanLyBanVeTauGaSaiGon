@@ -18,10 +18,8 @@ import javax.swing.SwingWorker;
 
 import bus.DatCho_BUS;
 import entity.Chuyen;
-import entity.Ghe;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
-import entity.Toa;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
@@ -153,13 +151,16 @@ public class BanVe1Controller {
 					try {
 						Boolean deleteSuccess = get();
 						if (deleteSuccess) {
+
+							buoc2Controller.refreshSeatOnDelete(veSession);
+
 							// 2. SAU KHI DB ĐÃ XÓA THÀNH CÔNG
 							// Gọi Buoc2Controller để xóa vé khỏi session (client-side)
 							if (buoc2Controller != null) {
 								// onRemoveVe sẽ tự động refresh PanelGioVe VÀ PanelSoDoCho
 								buoc2Controller.onRemoveVe(veSession);
-								buoc2Controller.handleSeatDeselection(new Toa(veSession.getToaID()),
-										new Ghe(veSession.getGheID(), veSession.getSoGhe()));
+//								buoc2Controller.handleSeatDeselection(new Toa(veSession.getToaID()),
+//										new Ghe(veSession.getGheID(), veSession.getSoGhe()));
 							}
 
 							// Nếu không còn vé nào trong giỏ thì xóa Phiếu giữ chỗ
