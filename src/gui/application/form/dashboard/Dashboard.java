@@ -1,721 +1,713 @@
 package gui.application.form.dashboard;
 
+import com.formdev.flatlaf.FlatDarkLaf; // Cần thư viện FlatLaf
+
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.text.DecimalFormat;
-import java.util.Arrays;
+import java.util.*;
 
 /**
- * Dashboard - Phiên bản được thiết kế lại theo hình ảnh mới.
- * - Cập nhật bố cục GridBagLayout để giống hình ảnh hơn.
- * - Điều chỉnh các KPI cards.
- * - Tinh chỉnh các biểu đồ để trông hiện đại và khớp với dữ liệu/nhãn trong hình.
+ * Giao diện Dashboard quản lý bán vé tàu hỏa.
+ * Yêu cầu thư viện FlatLaf (ví dụ: flatlaf-3.4.jar) để chạy đúng giao diện.
  */
 public class Dashboard extends JPanel {
 
+    // Màu sắc chủ đạo (dark mode)
+    private static final Color BG_COLOR = new Color(24, 26, 31); // Nền chính
+    private static final Color PANEL_COLOR = new Color(34, 38, 46); // Nền của các ô panel
+    private static final Color TEXT_COLOR = new Color(230, 230, 230); // Chữ chính
+    private static final Color TEXT_MUTED = new Color(148, 163, 184); // Chữ phụ (mờ)
+    private static final Color BORDER_COLOR = new Color(55, 63, 78); // Viền
+
+    // Bảng màu cho biểu đồ (tương thích dark mode)
+    private static final Color[] CHART_COLORS = {
+            new Color(59, 130, 246), // Blue
+            new Color(16, 185, 129), // Green
+            new Color(249, 115, 22), // Orange
+            new Color(239, 68, 68),  // Red
+            new Color(168, 85, 247), // Purple
+            new Color(217, 70, 239)  // Pink
+    };
+
     public Dashboard() {
+        // Thiết lập giao diện cơ bản
         setLayout(new BorderLayout());
-        setBackground(new Color(245, 247, 250)); // Nền màu xám nhạt cho toàn bộ dashboard
+        setBackground(BG_COLOR);
+        setBorder(new EmptyBorder(12, 12, 12, 12));
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(new Color(245, 247, 250)); // Nền cho khu vực nội dung
-        contentPanel.add(buildTopBar(), BorderLayout.NORTH);
-        contentPanel.add(buildContent(), BorderLayout.CENTER);
+        // --- A. Header Bar (Thanh tiêu đề) ---
+        add(createHeaderBar(), BorderLayout.NORTH);
 
-        add(contentPanel, BorderLayout.CENTER);
+        // --- B. Main Grid (Lưới nội dung chính) ---
+        add(createMainGrid(), BorderLayout.CENTER);
     }
 
-    // ========== Top blue bar (Đã cập nhật tiêu đề, màu sắc) ==========
-    private JComponent buildTopBar() {
-        JPanel bar = new JPanel(new BorderLayout());
-        bar.setBackground(new Color(28, 66, 108)); // Giữ màu xanh đậm
-        bar.setBorder(new EmptyBorder(8, 12, 8, 12));
+    /**
+     * A. Tạo Header Bar (Tiêu đề và bộ lọc)
+     */
+    private JPanel createHeaderBar() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false); // Trong suốt để lấy nền BG_COLOR
+        headerPanel.setBorder(new EmptyBorder(0, 0, 12, 0)); // Khoảng cách với lưới
 
-        JLabel title = new JLabel("   QUẢN LÝ BÁN VÉ TÀU HỎA");
-        title.setForeground(Color.WHITE);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
+        // Tiêu đề
+        JLabel title = new JLabel("HỆ THỐNG QUẢN LÝ BÁN VÉ TÀU HỎA");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setForeground(TEXT_COLOR);
+        // Thêm icon (nếu có)
+        // title.setIcon(new ImageIcon(getClass().getResource("/icons/train_icon.png")));
+        headerPanel.add(title, BorderLayout.WEST);
 
-        bar.add(title, BorderLayout.WEST);
+        // Bộ lọc thời gian
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        filterPanel.setOpaque(false);
 
-        // Thêm các nút điều khiển giả lập ở góc phải trên
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        controlPanel.setOpaque(false); // Trong suốt để thấy màu nền bar
+        JLabel filterLabel = new JLabel("Bộ lọc:");
+        filterLabel.setForeground(TEXT_MUTED);
+        filterLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // Các biểu tượng hoặc nút
-        JLabel icon1 = new JLabel("🔍"); // Search
-        JLabel icon2 = new JLabel("🔔"); // Notification
-        JLabel icon3 = new JLabel("⚙️"); // Settings
-        JLabel icon4 = new JLabel("👤"); // User
+        JButton btnToday = new JButton("Hôm nay");
+        JButton btnWeek = new JButton("Tuần này");
+        JButton btnMonth = new JButton("Tháng này");
+        // Style cho nút (FlatLaf sẽ tự động style, nhưng có thể tùy chỉnh thêm)
+        // btnToday.putClientProperty("JButton.buttonType", "roundRect");
 
-        icon1.setForeground(Color.WHITE);
-        icon2.setForeground(Color.WHITE);
-        icon3.setForeground(Color.WHITE);
-        icon4.setForeground(Color.WHITE);
+        filterPanel.add(filterLabel);
+        filterPanel.add(btnToday);
+        filterPanel.add(btnWeek);
+        filterPanel.add(btnMonth);
+        headerPanel.add(filterPanel, BorderLayout.EAST);
 
-        controlPanel.add(icon1);
-        controlPanel.add(icon2);
-        controlPanel.add(icon3);
-        controlPanel.add(icon4);
-
-        bar.add(controlPanel, BorderLayout.EAST);
-
-        return bar;
+        return headerPanel;
     }
 
-    // ========== Central grid (Đã cập nhật bố cục và dữ liệu) ==========
-    private JComponent buildContent() {
-        JPanel grid = new JPanel(new GridBagLayout());
-        grid.setBackground(new Color(245, 247, 250)); // Nền màu xám nhạt
-        grid.setBorder(new EmptyBorder(12, 12, 12, 12)); // Khoảng cách xung quanh grid
+    /**
+     * B. Tạo Lưới Nội dung Chính (KPIs và Biểu đồ)
+     */
+    private JPanel createMainGrid() {
+        JPanel mainGrid = new JPanel(new GridBagLayout());
+        mainGrid.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6); // Khoảng cách giữa các ô
+        gbc.fill = GridBagConstraints.BOTH;
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(8, 8, 8, 8); // Giảm insets để các card gần nhau hơn
-        c.fill = GridBagConstraints.BOTH;
+        // --- HÀNG 1: 4 Thẻ KPI ---
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.2; // 20% chiều cao
 
-        // --- Row 1: KPI cards (4 cards) ---
-        // Mỗi card có trọng số ngang bằng nhau, chiếm 1/4 tổng chiều rộng
-        c.gridy = 0; c.weighty = 0.08;
+        // (KPI 1) TỔNG DOANH THU
+        gbc.gridx = 0;
+        mainGrid.add(new KpiCard("TỔNG DOANH THU", "1,250,000,000", "+15% vs. tháng trước", CHART_COLORS[1]), gbc);
 
-        c.gridx = 0; c.weightx = 0.25; c.gridwidth = 1; // 25% chiều rộng
-        grid.add(new KpiCard("TỔNG DOANH THU HÔM NAY", "245.500.000 VND", KpiCard.Style.BLUE, "+5.2% ↑"), c);
+        // (KPI 2) SỐ VÉ ĐÃ BÁN
+        gbc.gridx = 1;
+        mainGrid.add(new KpiCard("SỐ VÉ ĐÃ BÁN", "9,870", "+19% vs. tháng trước", CHART_COLORS[0]), gbc);
 
-        c.gridx = 1; c.weightx = 0.25;
-        grid.add(new KpiCard("SỐ VÉ ĐÃ BÁN", "1.250", KpiCard.Style.GREEN, "+2.1% ↑"), c);
+        // (KPI 3) TỶ LỆ LẤP ĐẦY TB
+        gbc.gridx = 2;
+        mainGrid.add(new KpiCard("TỶ LỆ LẤP ĐẦY TB", "82%", "Mục tiêu: 80%", CHART_COLORS[2]), gbc);
 
-        c.gridx = 2; c.weightx = 0.25;
-        // Đổi tên "Tỷ lệ đầy TB" thành "SỐ VÉ ĐÃ BÁN" thứ 2 để khớp ảnh
-        grid.add(new KpiCard("Tỷ lệ lắp đầy TB", "28%", KpiCard.Style.ORANGE, "-1.5% ↓"), c);
+        // (KPI 4) TUYẾN DOANH THU CAO NHẤT
+        gbc.gridx = 3;
+        mainGrid.add(new KpiCard("TUYẾN DOANH THU CAO NHẤT", "SG - HN", "Chiếm 35% tổng DT", CHART_COLORS[4]), gbc);
 
-        c.gridx = 3; c.weightx = 0.25;
-        // Đổi tên "Tỷ lệ hủy vé" thành "TỶ LỆ HỦY VÉ"
-        grid.add(new KpiCard("TỶ LỆ HỦY VÉ", "3.5%", KpiCard.Style.RED, "+0.3% ↑"), c);
+        // --- HÀNG 2: Biểu đồ (Line Chart, Top 5, Phân loại KH) ---
+        gbc.gridy = 1;
+        gbc.weighty = 0.4; // 40% chiều cao
 
-        // --- Row 2: Biểu đồ (BarChart, Gauge, StackedBar) ---
-        c.gridy = 1; c.weighty = 0.42; // Cung cấp nhiều không gian theo chiều dọc
+        // (B.1) DOANH THU THEO THỜI GIAN (2 ô)
+        gbc.gridx = 0;
+        gbc.gridwidth = 2; // Chiếm 2 cột
+        mainGrid.add(new RevenueOverTimeChartPanel(), gbc);
 
-        // DOANH THU THEO TUYẾN (Bar Chart) - chiếm 2/4 chiều rộng
-        String[] routes = {"SG - HN", "SG - Đà Nẵng", "HN - HP", "HN - Hạ Long", "TPHCM - NT", "TPHCM - ĐL"};
-        // Giá trị mô phỏng trong ảnh: SG-HN ~12B, SG-ĐN ~23B, HN-HP ~6B, HN-HL ~5B, TPHCM-NT ~3B, TPHCM-ĐL ~2B
-        double[] revenue = {12.3, 23.1, 5.8, 4.9, 2.7, 1.8}; // Đơn vị tỷ VNĐ
-        ChartBar barsRoutes = new ChartBar("DOANH THU THEO TUYẾN", "Tuyến", "Tỷ VNĐ", routes, revenue, ChartBar.BarLabelPosition.ABOVE);
-        c.gridx = 0; c.gridwidth = 2; c.weightx = 0.5; // Chiếm 50% chiều rộng
-        grid.add(cardWrap(barsRoutes), c);
+        // (B.3) TOP 5 CHUYẾN DOANH THU CAO NHẤT (1 ô)
+        gbc.gridx = 2;
+        gbc.gridwidth = 1; // Chiếm 1 cột
+        mainGrid.add(new Top5RevenueChartPanel(), gbc);
 
-        // DSI | Ngày đổi vé trước TB (Gauge) - chiếm 1/4 chiều rộng
-        Gauge7Day gauge = new Gauge7Day("DSI | Ngày đổi vé trước TB", 5.2); // 0..7
-        c.gridx = 2; c.gridwidth = 1; c.weightx = 0.25; // Chiếm 25% chiều rộng
-        grid.add(cardWrap(gauge), c);
+        // (B.4) PHÂN LOẠI KHÁCH HÀNG (1 ô) - THAY THẾ MỚI
+        gbc.gridx = 3;
+        gbc.gridwidth = 1; // Chiếm 1 cột
+        mainGrid.add(new CustomerTypeChartPanel(), gbc);
 
-        // NGẢ VÉ THEO LOẠI GHẾ (Stacked Bar Chart) - chiếm 1/4 chiều rộng
-        String[] stackedPeriods = {"Current", "25-10", "26-10", "27-10", "28-10"};
-        String[] stackedSeriesNames = {"Ghế mềm", "Giường nằm T4", "Giường nằm 6/4"};
-        int[][] stackedValues = {
-                {55, 38, 45, 30, 15}, // Ghế mềm
-                {40, 25, 20, 18, 10}, // Giường nằm T4
-                {25, 15, 10, 8, 5}   // Giường nằm 6/4
+        // --- HÀNG 3: Biểu đồ (Ngả vé, Giữ chỗ, Khuyến mãi) ---
+        gbc.gridy = 2;
+        gbc.weighty = 0.4; // 40% chiều cao
+
+        // (B.5) NGẢ VÉ THEO LOẠI GHẾ (1 ô)
+        gbc.gridx = 0;
+        gbc.gridwidth = 1; // Chiếm 1 cột
+        mainGrid.add(new StackedBarChartPanel(), gbc);
+
+        // (B.6) PHÂN TÍCH GIỮ CHỖ (1 ô) - THAY THẾ MỚI
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        mainGrid.add(new ReservationStatusChartPanel(), gbc);
+
+        // (B.7) TOP 5 KHUYẾN MÃI HIỆU QUẢ (2 ô) - THAY THẾ MỚI
+        gbc.gridx = 2;
+        gbc.gridwidth = 2; // Chiếm 2 cột
+        mainGrid.add(new TopPromotionChartPanel(), gbc);
+
+        return mainGrid;
+    }
+
+    // =========================================================================
+    // LỚP NỘI BỘ: BasePanel (Panel cơ sở cho các ô)
+    // =========================================================================
+    static class BasePanel extends JPanel {
+        protected final DecimalFormat formatter = new DecimalFormat("#,##0");
+
+        public BasePanel() {
+            setBackground(PANEL_COLOR);
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(BORDER_COLOR, 1), // Viền ngoài
+                    new EmptyBorder(15, 20, 15, 20) // Padding bên trong
+            ));
+            setLayout(new BorderLayout());
+        }
+
+        // Hàm tiện ích vẽ Tiêu đề cho các ô biểu đồ
+        protected void createChartTitle(Graphics2D g, String title) {
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g.setColor(TEXT_COLOR);
+            g.drawString(title, 20, 30); // Vị trí padding top + 15
+        }
+
+        // Hàm tiện ích vẽ Chú thích (Legend)
+        protected void drawLegend(Graphics2D g, int x, int y, Color color, String text) {
+            g.setColor(color);
+            g.fillRect(x, y - 10, 12, 12);
+            g.setColor(TEXT_MUTED);
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g.drawString(text, x + 20, y);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            // Tạo hiệu ứng bo góc (hơi khó trong Swing)
+            // Tạm thời dùng nền panel_color
+            super.paintComponent(g);
+        }
+    }
+
+    // =========================================================================
+    // HÀNG 1: Thẻ KPI
+    // =========================================================================
+    static class KpiCard extends BasePanel {
+        private String title, value, subtext;
+        private Color accentColor;
+
+        public KpiCard(String title, String value, String subtext, Color accentColor) {
+            this.title = title;
+            this.value = value;
+            this.subtext = subtext;
+            this.accentColor = accentColor;
+            // Đặt chiều cao tối thiểu (GridBagLayout sẽ co giãn)
+            setPreferredSize(new Dimension(200, 120));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            // Vẽ một đường viền màu bên trái
+            g2d.setColor(accentColor);
+            g2d.fillRect(0, 0, 5, getHeight());
+
+            // Title (ví dụ: TỔNG DOANH THU)
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            g2d.setColor(TEXT_MUTED);
+            g2d.drawString(title, 25, 35);
+
+            // Value (ví dụ: 1,250,000,000)
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 28));
+            g2d.setColor(TEXT_COLOR);
+            g2d.drawString(value, 25, 70);
+
+            // Subtext (ví dụ: +15% vs. tháng trước)
+            g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2d.setColor(accentColor); // Dùng màu nhấn cho subtext
+            g2d.drawString(subtext, 25, 95);
+
+            // Icon (Placeholder)
+            g2d.setColor(accentColor);
+            g2d.fillOval(getWidth() - 60, 30, 30, 30);
+            g2d.setColor(PANEL_COLOR);
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g2d.drawString("i", getWidth() - 50, 52); // Icon chữ "i"
+        }
+    }
+
+    // =========================================================================
+    // HÀNG 2: (B.1) DOANH THU THEO THỜI GIAN (Line Chart)
+    // =========================================================================
+    static class RevenueOverTimeChartPanel extends BasePanel {
+        // Dữ liệu mẫu (12 tháng)
+        private final double[] data = {
+                150.5, 180.2, 220.0, 200.8, 250.3, 270.1,
+                300.7, 280.5, 310.9, 340.0, 370.4, 410.6
         };
-        ChartStackedBar stacked = new ChartStackedBar("NGẢ VÉ THEO LOẠI GHẾ", stackedPeriods, stackedSeriesNames, stackedValues);
-        c.gridx = 3; c.gridwidth = 1; c.weightx = 0.25; // Chiếm 25% chiều rộng
-        grid.add(cardWrap(stacked), c);
-
-        // --- Row 3: Biểu đồ (LineChart, BarChart, ComboChart) ---
-        c.gridy = 2; c.weighty = 0.42;
-
-        // DOANH THU THEO THÁNG (Line Chart) - chiếm 2/4 chiều rộng
-        String[] months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-        // Dữ liệu mô phỏng giống hình ảnh
-        double[] revMonth = {210,230,240,230,245,260,280,500,320,360,410,450};   // Doanh thu (triệu)
-        double[] qtyMonth = {2.1,2.2,2.4,2.3,2.5,2.8,3.0,3.6,3.2,3.5,3.9,4.5}; // Số lượng vé (nghìn)
-        ChartLine line = new ChartLine("DOANH THU THEO THÁNG", "Tháng", "Doanh thu (VNĐ) | Số lượng vé", months,
-                new ChartLine.Serie("Doanh thu (VND)", revMonth, new Color(255, 170, 51)), // Màu cam
-                new ChartLine.Serie("Số lượng vé", qtyMonth, new Color(58, 122, 202))   // Màu xanh
-        );
-        c.gridx = 0; c.gridwidth = 2; c.weightx = 0.5; // Chiếm 50% chiều rộng
-        grid.add(cardWrap(line), c);
-
-        // SỐ VÉ THEO LOẠI GHẾ (Bar Chart) - chiếm 1/4 chiều rộng
-        String[] seatTypes = {"Ghế mềm", "Giường T4", "Giường T6"};
-        // Dữ liệu mô phỏng giống hình ảnh
-        double[] counts = {5200, 3100, 1800};
-        ChartBar barSeats = new ChartBar("SỐ VÉ THEO LOẠI GHẾ", "Loại ghế", "Số vé", seatTypes, counts, ChartBar.BarLabelPosition.NONE);
-        c.gridx = 2; c.gridwidth = 1; c.weightx = 0.25; // Chiếm 25% chiều rộng
-        grid.add(cardWrap(barSeats), c);
-
-        // SO SÁNH CÁC LOẠI VÉ (VÍ DỤ) (Combo Chart - Line + Stacked Bar) - chiếm 1/4 chiều rộng
-        // Đây là một biểu đồ kết hợp, tôi sẽ cố gắng mô phỏng nó bằng cách tùy biến ChartLine
-        // Hoặc một Bar Chart với nhiều Series để có được màu sắc đó
-        String[] months3 = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-        // Dữ liệu mô phỏng cho biểu đồ Line/Bar kết hợp ở cuối
-        double[] compA = {100,200,150,250,300,400,350,300,250,300,350,500}; // Số lượng vé khuyến mãi (Line)
-        int[][] compB = { // Dữ liệu Bar (chia thành 2 series, ví dụ vé thường và vé giảm giá)
-                {150,180,160,200,220,280,250,230,200,220,250,350}, // Vé thường
-                {50,70,40,60,80,120,100,70,50,80,100,150}        // Vé giảm giá
+        private final String[] labels = {
+                "T1", "T2", "T3", "T4", "T5", "T6",
+                "T7", "T8", "T9", "T10", "T11", "T12"
         };
 
-        // Tạo một biểu đồ kết hợp đơn giản hoặc sử dụng một ChartLine với nhiều Series
-        // Để đạt được hiệu ứng Bar + Line trong hình, chúng ta cần một component phức tạp hơn.
-        // Tạm thời, tôi sẽ dùng ChartLine với nhiều Series để mô phỏng "số lượng khuyến mãi" và "số lượng vé thường".
-        // Để vẽ Bar và Line cùng lúc, cần một class Chart riêng.
-        ChartCombined comboChart = new ChartCombined("SO SÁNH CÁC LOẠI VÉ (ví dụ)", months3, compA, compB);
-        c.gridx = 3; c.gridwidth = 1; c.weightx = 0.25; // Chiếm 25% chiều rộng
-        grid.add(cardWrap(comboChart), c);
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        return grid;
-    }
+            createChartTitle(g2d, "DOANH THU THEO THỜI GIAN (Triệu VND)");
 
-    // ==== Card wrapper (Không đổi) ====
-    private static JComponent cardWrap(JComponent inner) {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Color.WHITE); // Màu nền trắng cho card
-        p.setBorder(new CompoundBorder(
-                new EmptyBorder(0,0,0,0), // Viền rỗng bên ngoài để tạo khoảng cách giữa các card
-                new CompoundBorder(
-                        BorderFactory.createLineBorder(new Color(235, 238, 245), 1), // Viền mỏng xám
-                        new EmptyBorder(12, 12, 12, 12)))); // Padding bên trong card
-        p.add(inner, BorderLayout.CENTER);
-        return p;
-    }
+            int padding = 20;
+            int labelPadding = 25;
+            Insets insets = getInsets();
+            int w = getWidth() - insets.left - insets.right - 2 * padding;
+            int h = getHeight() - insets.top - insets.bottom - 2 * padding - labelPadding - 30; // 30 cho title
+            int x0 = insets.left + padding + labelPadding;
+            int y0 = insets.top + padding + 30; // 30 cho title
 
-    // ===== KPI CARD (Đã cập nhật để khớp hình ảnh mới) =====
-    static class KpiCard extends JPanel {
-        enum Style { BLUE, GREEN, ORANGE, RED, TEAL } // Thêm ORANGE
-        private final String title, value, change; // Thêm trường change
-        private final Style style;
+            double maxVal = Arrays.stream(data).max().orElse(1) * 1.1; // 110% max
 
-        public KpiCard(String title, String value, Style style, String change) {
-            this.title = title; this.value = value; this.style = style; this.change = change;
-            // setPreferredSize(new Dimension(260, 100)); // Xóa PreferredSize để GridBagLayout quản lý
-            setBackground(Color.WHITE);
-            setBorder(new CompoundBorder(
-                    BorderFactory.createLineBorder(new Color(235,238,245)),
-                    new EmptyBorder(12, 12, 12, 12)));
-        }
-
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            Color accent;
-            Color textColor;
-            switch (style) {
-                case BLUE:  accent = new Color(32, 99, 155); textColor = new Color(58, 122, 202); break;
-                case GREEN: accent = new Color(33, 150, 83);  textColor = new Color(33, 150, 83); break;
-                case ORANGE: accent = new Color(255, 170, 51); textColor = new Color(255, 170, 51); break; // Màu cam
-                case TEAL:  accent = new Color(0, 150, 136);  textColor = new Color(0, 150, 136); break;
-                default:    accent = new Color(219, 68, 55); textColor = new Color(219, 68, 55); // RED
+            // Vẽ các đường lưới Y và nhãn Y
+            g2d.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            g2d.setColor(TEXT_MUTED);
+            int numYGrid = 5;
+            for (int i = 0; i <= numYGrid; i++) {
+                int y = y0 + h - (i * h / numYGrid);
+                g2d.setColor(BORDER_COLOR);
+                g2d.drawLine(x0, y, x0 + w, y); // Đường lưới
+                g2d.setColor(TEXT_MUTED);
+                String yLabel = formatter.format(maxVal * i / numYGrid);
+                g2d.drawString(yLabel, insets.left + padding - 5, y + 5);
             }
 
-            // Title
-            g.setColor(new Color(101, 110, 121));
-            g.setFont(getFont().deriveFont(Font.PLAIN, 12f));
-            g.drawString(title, 6, 18);
+            // Vẽ đường dữ liệu
+            g2d.setColor(CHART_COLORS[0]);
+            g2d.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            Polygon p = new Polygon();
+            for (int i = 0; i < data.length; i++) {
+                int x = x0 + (i * w / (data.length - 1));
+                int y = y0 + h - (int) (data[i] / maxVal * h);
+                p.addPoint(x, y);
+            }
+            g2d.drawPolyline(p.xpoints, p.ypoints, p.npoints);
 
-            // Big value
-            g.setColor(textColor); // Dùng textColor cho giá trị lớn
-            g.setFont(getFont().deriveFont(Font.BOLD, 22f));
-            g.drawString(value, 6, 48);
+            // Vẽ các điểm chấm
+            for (int i = 0; i < p.npoints; i++) {
+                g2d.setColor(CHART_COLORS[0]);
+                g2d.fillOval(p.xpoints[i] - 4, p.ypoints[i] - 4, 8, 8);
+                g2d.setColor(Color.WHITE);
+                g2d.fillOval(p.xpoints[i] - 2, p.ypoints[i] - 2, 4, 4);
+            }
 
-            // Change (Thêm vào dưới giá trị)
-            g.setFont(getFont().deriveFont(Font.PLAIN, 12f));
-            g.setColor(new Color(101, 110, 121)); // Màu xám cho phần trăm thay đổi
-            g.drawString(change, 6, 68); // Vị trí dưới giá trị chính
-
-            // tiny spark line (fake)
-            int y = getHeight() - 18;
-            int x0 = 6; int w = getWidth()-20;
-            g.setColor(new Color(240, 247, 255));
-            g.fillRoundRect(x0, y-10, w, 12, 12, 12);
-            g.setColor(accent); // Dùng màu accent cho đường spark line
-            for (int i = 0; i < 10; i++) {
-                int x1 = x0 + (i*w)/10;
-                int x2 = x0 + ((i+1)*w)/10;
-                int y1 = y - (int)(Math.sin(i*0.6)*6 + 6);
-                int y2 = y - (int)(Math.sin((i+1)*0.6)*6 + 6);
-                g.drawLine(x1, y1, x2, y2);
+            // Vẽ nhãn X
+            g2d.setColor(TEXT_MUTED);
+            for (int i = 0; i < labels.length; i++) {
+                int x = x0 + (i * w / (labels.length - 1));
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString(labels[i], x - fm.stringWidth(labels[i]) / 2, y0 + h + labelPadding - 5);
             }
         }
     }
 
-    // ===== Simple Bar Chart (Đã cập nhật để khớp hình ảnh mới) =====
-    static class ChartBar extends JPanel {
-        enum BarLabelPosition { ABOVE, NONE } // Để hiển thị nhãn trên cột hoặc không
-        private final String title, xLabel, yLabel;
-        private final String[] labels;
-        private final double[] values;
-        private final BarLabelPosition labelPosition;
-        private final DecimalFormat valueFormat = new DecimalFormat("#,##0.#"); // Định dạng giá trị trên cột
+    // =========================================================================
+    // HÀNG 2: (B.3) TOP 5 CHUYẾN DOANH THU CAO NHẤT (Horizontal Bar)
+    // =========================================================================
+    static class Top5RevenueChartPanel extends BasePanel {
+        // Dữ liệu mẫu
+        private final Map<String, Double> revenueData = new HashMap<>();
+        private final Map<String, Integer> occupancyData = new HashMap<>();
 
-        public ChartBar(String title, String xLabel, String yLabel, String[] labels, double[] values, BarLabelPosition labelPosition) {
-            this.title = title; this.xLabel = xLabel; this.yLabel = yLabel; this.labels = labels; this.values = values;
-            this.labelPosition = labelPosition;
-            setBackground(Color.WHITE);
-            // setPreferredSize(new Dimension(400, 260)); // Đã xóa
+        public Top5RevenueChartPanel() {
+            revenueData.put("SG-HN (SE1)", 120.5);
+            revenueData.put("SG-DN (SE3)", 95.2);
+            revenueData.put("HN-LP (LP5)", 88.0);
+            revenueData.put("SG-NT (SNT2)", 75.3);
+            revenueData.put("HN-LC (SP3)", 60.1);
+
+            occupancyData.put("SG-HN (SE1)", 95);
+            occupancyData.put("SG-DN (SE3)", 88);
+            occupancyData.put("HN-LP (LP5)", 92);
+            occupancyData.put("SG-NT (SNT2)", 78);
+            occupancyData.put("HN-LC (SP3)", 85);
         }
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-            Insets m = new Insets(38, 54, 46, 18);
-            int W = getWidth(), H = getHeight();
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            createChartTitle(g2d, "TOP 5 CHUYẾN DOANH THU CAO NHẤT");
 
-            // Title
-            g.setFont(getFont().deriveFont(Font.BOLD, 14f));
-            g.setColor(new Color(40, 48, 59));
-            g.drawString(title, m.left, 24);
+            int topMargin = 70;
+            int barHeight = 30;
+            int barGap = 20;
+            int availableWidth = getWidth() - getInsets().left - getInsets().right - 40; // 40 padding
+            double maxRevenue = revenueData.values().stream().max(Double::compare).orElse(1.0);
 
-            // Axes
-            int x0 = m.left, y0 = H - m.bottom;
-            int x1 = W - m.right, y1 = m.top;
+            int i = 0;
+            for (Map.Entry<String, Double> entry : revenueData.entrySet()) {
+                String name = entry.getKey();
+                double revenue = entry.getValue();
+                int occupancy = occupancyData.get(name);
 
-            g.setColor(new Color(230, 235, 242));
-            g.drawLine(x0, y0, x1, y0);
-            g.drawLine(x0, y0, x0, y1);
+                int y = topMargin + i * (barHeight + barGap);
+                int barWidth = (int) (revenue / maxRevenue * (availableWidth * 0.6)); // Thanh chỉ chiếm 60%
 
-            double max = Arrays.stream(values).max().orElse(1d) * 1.15; // Tăng max để có khoảng trống trên cùng
-            int n = values.length;
-            int barGap = 8; // Khoảng cách giữa các cột
-            int bw = Math.max(18, (x1 - x0 - (n+1)*barGap) / n); // Chiều rộng cột động
+                // Vẽ tên chuyến + Tỷ lệ lấp đầy
+                g2d.setColor(TEXT_COLOR);
+                g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                g2d.drawString(name, getInsets().left + 20, y + 12);
+                g2d.setColor(TEXT_MUTED);
+                g2d.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                g2d.drawString("Lấp đầy: " + occupancy + "%", getInsets().left + 20, y + 26);
 
-            // grid + y labels
-            g.setFont(getFont().deriveFont(11f));
-            DecimalFormat dfY = new DecimalFormat("#,##0"); // Định dạng cho trục Y
+                // Vẽ thanh (nền)
+                g2d.setColor(BORDER_COLOR);
+                g2d.fillRoundRect(getInsets().left + 20, y + 35, availableWidth, 8, 8, 8);
 
-            for (int i = 0; i <= 5; i++) {
-                int y = y0 - i * (y0 - y1) / 5;
-                g.setColor(new Color(241, 244, 248));
-                g.drawLine(x0, y, x1, y);
-                g.setColor(new Color(134, 142, 154));
-                String t = dfY.format(max * i / 5);
-                g.drawString(t, 8, y + 4);
+                // Vẽ thanh (giá trị)
+                g2d.setColor(CHART_COLORS[i % CHART_COLORS.length]);
+                g2d.fillRoundRect(getInsets().left + 20, y + 35, barWidth, 8, 8, 8);
+
+                // Vẽ giá trị doanh thu
+                g2d.setColor(TEXT_COLOR);
+                g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                g2d.drawString(formatter.format(revenue) + " Tr", getInsets().left + 30 + (int)(availableWidth * 0.6), y + 18);
+
+
+                i++;
+            }
+        }
+    }
+
+// HÀNG 2: (B.4) CƠ CẤU KHÁCH HÀNG (Biểu đồ cột hiển thị số lượng và tỉ lệ)
+// =========================================================================
+    static class CustomerTypeChartPanel extends BasePanel {
+        // Dữ liệu mẫu (số lượng khách hàng)
+        private final Map<String, Integer> data = new LinkedHashMap<>();
+
+        public CustomerTypeChartPanel() {
+            data.put("Khách hàng mới", 320);
+            data.put("Khách hàng cũ", 680);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            createChartTitle(g2d, "CƠ CẤU KHÁCH HÀNG");
+
+            int total = data.values().stream().mapToInt(Integer::intValue).sum();
+            if (total == 0) return;
+
+            Insets insets = getInsets();
+            int padding = 40;
+            int labelPadding = 40;
+            int w = getWidth() - insets.left - insets.right - padding * 2;
+            int h = getHeight() - insets.top - insets.bottom - padding * 2 - 40; // 40 cho tiêu đề
+
+            int x0 = insets.left + padding + 40;
+            int y0 = insets.top + padding + 40;
+
+            int numBars = data.size();
+            int barWidth = w / (numBars * 2);
+            int gap = barWidth; // khoảng cách giữa các cột
+            int maxVal = data.values().stream().max(Integer::compareTo).orElse(1);
+
+            // Vẽ trục Y
+            g2d.setColor(BORDER_COLOR);
+            g2d.drawLine(x0, y0, x0, y0 + h);
+            g2d.drawLine(x0, y0 + h, x0 + w, y0 + h);
+
+            // Vẽ cột
+            int i = 0;
+            for (Map.Entry<String, Integer> entry : data.entrySet()) {
+                String name = entry.getKey();
+                int value = entry.getValue();
+                double percent = value * 100.0 / total;
+
+                int barHeight = (int) (value / (double) maxVal * (h * 0.9));
+                int x = x0 + gap / 2 + i * (barWidth + gap);
+                int y = y0 + h - barHeight;
+
+                g2d.setColor(CHART_COLORS[i % CHART_COLORS.length]);
+                g2d.fillRoundRect(x, y, barWidth, barHeight, 10, 10);
+
+                // Vẽ nhãn dưới cột
+                g2d.setColor(TEXT_MUTED);
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString(name, x + (barWidth - fm.stringWidth(name)) / 2, y0 + h + fm.getAscent() + 5);
+
+                // Hiển thị giá trị & phần trăm trên cột
+                g2d.setColor(TEXT_COLOR);
+                String label = formatter.format(value) + " (" + String.format("%.1f%%", percent) + ")";
+                g2d.drawString(label, x + (barWidth - fm.stringWidth(label)) / 2, y - 8);
+
+                i++;
             }
 
-            // bars
-            Color barColor = new Color(58, 122, 202); // Màu xanh cho cột
-            for (int i = 0; i < n; i++) {
-                int x = x0 + barGap + i * (bw + barGap); // Vị trí x của cột
-                int h = (int) ((values[i] / max) * (y0 - y1));
-                g.setColor(barColor);
-                g.fillRoundRect(x, y0 - h, bw, h, 8, 8); // Cột bo góc
+            // Hiển thị tổng
+            g2d.setColor(TEXT_MUTED);
+            g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2d.drawString("Tổng: " + formatter.format(total) + " KH", x0, y0 + h + labelPadding);
+        }
+    }
 
-                // Nhãn giá trị trên cột
-                if (labelPosition == BarLabelPosition.ABOVE) {
-                    g.setColor(new Color(70, 78, 90)); // Màu chữ cho giá trị trên cột
-                    g.setFont(getFont().deriveFont(9f));
-                    String valText = valueFormat.format(values[i]) + "M"; // Thêm "M" để giống hình ảnh
-                    int tw = g.getFontMetrics().stringWidth(valText);
-                    g.drawString(valText, x + bw / 2 - tw / 2, y0 - h - 5); // Vị trí trên cột
+
+
+    // =========================================================================
+    // HÀNG 3: (B.5) NGẢ VÉ THEO LOẠI GHẾ (Stacked Bar Chart)
+    // =========================================================================
+    static class StackedBarChartPanel extends BasePanel {
+        // Dữ liệu mẫu (từ hình ảnh)
+        private final String[] labels = {"Current", "25-10", "26-10", "27-10", "28-10"};
+        private final String[] seriesNames = {"Ghế mềm", "Giường nằm T4", "Giường nằm 6/4"};
+        private final int[][] data = {
+                // Tương ứng với labels
+                {55, 38, 45, 30, 15}, // Ghế mềm (Blue)
+                {40, 25, 20, 18, 10}, // Giường nằm T4 (Orange)
+                {25, 15, 10, 8, 5}    // Giường nằm 6/4 (Green)
+        };
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            createChartTitle(g2d, "NGẢ VÉ THEO LOẠI GHẾ");
+
+            int padding = 20;
+            int labelPadding = 25;
+            Insets insets = getInsets();
+            int w = getWidth() - insets.left - insets.right - 2 * padding;
+            int h = getHeight() - insets.top - insets.bottom - 2 * padding - labelPadding - 60; // 60 cho title + legend
+            int x0 = insets.left + padding + labelPadding;
+            int y0 = insets.top + padding + 60; // 60 cho title + legend
+
+            // Tính max Y
+            int maxVal = 0;
+            for (int j = 0; j < labels.length; j++) {
+                int sum = 0;
+                for (int i = 0; i < seriesNames.length; i++) {
+                    sum += data[i][j];
                 }
+                maxVal = Math.max(maxVal, sum);
+            }
+            maxVal = (int) (maxVal * 1.1); // 110%
 
-                // Nhãn dưới trục X
-                g.setColor(new Color(90, 98, 110));
-                String lab = labels[i];
-                int tw = g.getFontMetrics().stringWidth(lab);
-                g.setFont(getFont().deriveFont(10f));
-                g.drawString(lab, x + bw / 2 - tw / 2, y0 + 16);
+            // Vẽ lưới Y
+            g2d.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            int numYGrid = 5;
+            for (int i = 0; i <= numYGrid; i++) {
+                int y = y0 + h - (i * h / numYGrid);
+                g2d.setColor(BORDER_COLOR);
+                g2d.drawLine(x0, y, x0 + w, y);
+                g2d.setColor(TEXT_MUTED);
+                String yLabel = formatter.format(maxVal * i / numYGrid);
+                g2d.drawString(yLabel, insets.left + padding - 5, y + 5);
             }
 
-            // axis labels (optional minimal)
-            g.setFont(getFont().deriveFont(11f));
-            g.setColor(new Color(120, 128, 139));
-            g.drawString(xLabel, (x0 + x1) / 2 - 20, H - 8);
-        }
-    }
-
-    // ===== Simple Line Chart (Đã cập nhật để khớp hình ảnh mới) =====
-    static class ChartLine extends JPanel {
-        static class Serie {
-            final String name;
-            final double[] vals;
-            final Color color; // Thêm màu sắc cho từng series
-            Serie(String name, double[] vals, Color color) {
-                this.name = name; this.vals = vals; this.color = color;
-            }
-        }
-        private final String title, xLabel, yLabel;
-        private final String[] labels;
-        private final Serie[] series;
-
-        public ChartLine(String title, String x, String y, String[] labels, Serie... series) {
-            this.title = title; this.xLabel = x; this.yLabel = y; this.labels = labels; this.series = series;
-            setBackground(Color.WHITE);
-            // setPreferredSize(new Dimension(500, 260)); // Đã xóa
-        }
-
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            Insets m = new Insets(38, 54, 46, 18);
-            int W = getWidth(), H = getHeight();
-
-            g.setFont(getFont().deriveFont(Font.BOLD, 14f));
-            g.setColor(new Color(40, 48, 59));
-            g.drawString(title, m.left, 24);
-
-            int x0 = m.left, y0 = H - m.bottom;
-            int x1 = W - m.right, y1 = m.top;
-
-            // grid
-            g.setColor(new Color(230, 235, 242));
-            g.drawLine(x0, y0, x1, y0);
-            g.drawLine(x0, y0, x0, y1);
-
-            double max = 0;
-            for (Serie s : series) for (double v : s.vals) max = Math.max(max, v);
-            max *= 1.15; // Tăng max để có khoảng trống trên cùng
-
-            // y grid + labels
-            g.setFont(getFont().deriveFont(11f));
-            DecimalFormat dfY = new DecimalFormat("#,##0"); // Định dạng cho trục Y
-            for (int i = 0; i <= 5; i++) {
-                int y = y0 - i * (y0 - y1) / 5;
-                g.setColor(new Color(241, 244, 248));
-                g.drawLine(x0, y, x1, y);
-                g.setColor(new Color(134, 142, 154));
-                g.drawString(dfY.format(max * i / 5), 8, y + 4);
-            }
-
-            // x labels
-            int n = labels.length;
-            for (int i = 0; i < n; i++) {
-                int x = x0 + i * (x1 - x0) / Math.max(1, n - 1);
-                g.setColor(new Color(150, 158, 170));
-                g.setFont(getFont().deriveFont(10f));
-                int tw = g.getFontMetrics().stringWidth(labels[i]);
-                g.drawString(labels[i], x - tw / 2, y0 + 16);
-            }
-
-            // series lines
-            Stroke old = g.getStroke();
-            for (int k = 0; k < series.length; k++) {
-                Serie s = series[k];
-                g.setStroke(new BasicStroke(2f));
-                g.setColor(s.color); // Sử dụng màu của series
-
-                int prevX = -1, prevY = -1;
-                for (int i = 0; i < s.vals.length; i++) {
-                    int x = x0 + i * (x1 - x0) / Math.max(1, n - 1);
-                    int y = y0 - (int) ((s.vals[i] / max) * (y0 - y1));
-                    if (prevX >= 0) g.drawLine(prevX, prevY, x, y);
-                    g.fillOval(x - 3, y - 3, 6, 6); // Điểm tròn
-                    prevX = x; prevY = y;
+            // Vẽ các cột chồng
+            int barWidth = (w / labels.length) - (labels.length * 10);
+            int barGap = (w - (barWidth * labels.length)) / (labels.length + 1);
+            for (int j = 0; j < labels.length; j++) {
+                int x = x0 + barGap + j * (barWidth + barGap);
+                int yBottom = y0 + h;
+                for (int i = 0; i < seriesNames.length; i++) {
+                    int barHeight = (int) (data[i][j] / (double) maxVal * h);
+                    g2d.setColor(CHART_COLORS[i % CHART_COLORS.length]);
+                    g2d.fillRect(x, yBottom - barHeight, barWidth, barHeight);
+                    yBottom -= barHeight;
                 }
             }
-            g.setStroke(old);
 
-            // axis labels (Y-axis title)
-            g.setFont(getFont().deriveFont(11f));
-            g.setColor(new Color(120, 128, 139));
-            g.drawString(xLabel, (x0 + x1) / 2 - 20, H - 8);
+            // Vẽ nhãn X
+            g2d.setColor(TEXT_MUTED);
+            for (int i = 0; i < labels.length; i++) {
+                int x = x0 + barGap + i * (barWidth + barGap) + barWidth / 2;
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString(labels[i], x - fm.stringWidth(labels[i]) / 2, y0 + h + labelPadding - 5);
+            }
 
-            // Legend ở dưới cùng bên trái
+            // Vẽ Chú thích (Legend)
             int legendX = x0;
-            int legendY = H - 8; // Vị trí dưới cùng
-
-            for (int i = 0; i < series.length; i++) {
-                Serie s = series[i];
-                g.setColor(s.color);
-                g.fillRect(legendX, legendY, 10, 4); // Hình chữ nhật nhỏ tượng trưng
-                g.setFont(getFont().deriveFont(9f));
-                g.setColor(new Color(70, 78, 90));
-                g.drawString(s.name, legendX + 14, legendY + 4);
-
-                legendX += g.getFontMetrics().stringWidth(s.name) + 25; // Di chuyển sang phải cho legend tiếp theo
+            int legendY = insets.top + 50; // Dưới title
+            for (int i = 0; i < seriesNames.length; i++) {
+                drawLegend(g2d, legendX, legendY, CHART_COLORS[i], seriesNames[i]);
+                legendX += g2d.getFontMetrics().stringWidth(seriesNames[i]) + 40;
             }
         }
     }
 
-    // ===== Gauge 0..7 days (Đã cập nhật để khớp hình ảnh mới) =====
-    static class Gauge7Day extends JPanel {
-        private final String title;
-        private final double value; // 0..7
+    // =========================================================================
+    // HÀNG 3: (B.6) PHÂN TÍCH GIỮ CHỖ (Donut Chart) - THAY THẾ MỚI
+    // =========================================================================
+    static class ReservationStatusChartPanel extends BasePanel {
+        // Dữ liệu mẫu (từ PhieuGiuCho.trangThai)
+        private final Map<String, Integer> data = new HashMap<>();
 
-        public Gauge7Day(String title, double value) {
-            this.title = title; this.value = Math.max(0, Math.min(7, value));
-            setBackground(Color.WHITE);
-            // setPreferredSize(new Dimension(260, 260)); // Đã xóa
+        public ReservationStatusChartPanel() {
+            data.put("Xác nhận", 650);
+            data.put("Hết hạn", 210);
+            data.put("Đang giữ", 140);
         }
 
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            createChartTitle(g2d, "PHÂN TÍCH GIỮ CHỖ");
 
-            g.setFont(getFont().deriveFont(Font.BOLD, 14f));
-            g.setColor(new Color(40,48,59));
-            g.drawString(title, 12, 24);
+            int total = data.values().stream().mapToInt(Integer::intValue).sum();
+            if (total == 0) return;
 
-            int cx = getWidth()/2, cy = getHeight()/2 + 12;
-            int r = Math.min(getWidth(), getHeight())/2 - 24; // Bán kính
+            int diameter = Math.min(getWidth(), getHeight()) / 2;
+            int x = getWidth() / 2 - diameter / 2;
+            int y = getHeight() / 2 - diameter / 2 + 10;
+            int holeSize = (int) (diameter * 0.6);
+            int innerX = x + (diameter - holeSize) / 2;
+            int innerY = y + (diameter - holeSize) / 2;
 
-            // Điều chỉnh vị trí của vòng cung để bắt đầu từ khoảng 200 độ và kết thúc ở 340 độ
-            // Tổng 140 độ
-            double startAngle = 200;
-            double arcExtent = 140;
+            double startAngle = 90;
+            int i = 0;
+            int legendY = y + diameter + 20;
 
-            // arc background
-            g.setStroke(new BasicStroke(16f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            g.setColor(new Color(236, 240, 245));
-            g.draw(new Arc2D.Double(cx - r, cy - r, 2*r, 2*r, startAngle, arcExtent, Arc2D.OPEN));
+            // Sắp xếp dữ liệu để vẽ
+            java.util.List<Map.Entry<String, Integer>> entries = new java.util.ArrayList<>(data.entrySet());
+            entries.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
 
-            // value arc
-            double pct = value/7.0; // Giá trị từ 0 đến 1
-            g.setColor(new Color(58, 122, 202)); // Màu xanh cho giá trị
-            g.draw(new Arc2D.Double(cx - r, cy - r, 2*r, 2*r, startAngle, (int)(arcExtent*pct), Arc2D.OPEN));
+            for (Map.Entry<String, Integer> entry : entries) {
+                double extent = (entry.getValue() / (double) total) * 360;
+                g2d.setColor(CHART_COLORS[i]);
+                g2d.fill(new Arc2D.Double(x, y, diameter, diameter, startAngle, -extent, Arc2D.PIE));
+                startAngle -= extent;
 
-            // needle
-            double ang = Math.toRadians(startAngle + arcExtent*pct); // Góc của kim
-            int needleLength = r - 20; // Chiều dài kim
-            int nx = (int)(cx + needleLength*Math.cos(ang));
-            int ny = (int)(cy + needleLength*Math.sin(ang));
-
-            g.setStroke(new BasicStroke(3f));
-            g.setColor(new Color(33,150,243)); // Màu kim
-            g.drawLine(cx, cy, nx, ny);
-            g.fillOval(cx-5, cy-5, 10, 10); // Tâm kim
-
-            // label (giá trị)
-            g.setFont(getFont().deriveFont(Font.BOLD, 20f));
-            g.setColor(new Color(58, 63, 72));
-            String s = new DecimalFormat("#0.0").format(value) + " NGÀY";
-            int tw = g.getFontMetrics().stringWidth(s);
-            g.drawString(s, cx - tw/2, cy + r - 10);
-
-            // Label "7 NGÀY" ở cạnh vòng tròn
-            g.setFont(getFont().deriveFont(Font.PLAIN, 10f));
-            g.setColor(new Color(101, 110, 121));
-            String limitLabel = "7 NGÀY";
-            int limitLabelTw = g.getFontMetrics().stringWidth(limitLabel);
-            g.drawString(limitLabel, cx + r - limitLabelTw/2 - 5, cy + 10); // Ước lượng vị trí gần cuối cung
-        }
-    }
-
-    // ===== Stacked Bar (Đã cập nhật để khớp hình ảnh mới) =====
-    static class ChartStackedBar extends JPanel {
-        private final String title;
-        private final String[] xLabels;
-        private final String[] seriesNames;
-        private final int[][] values; // [serie][x]
-
-        public ChartStackedBar(String title, String[] xLabels, String[] seriesNames, int[][] values) {
-            this.title = title; this.xLabels = xLabels; this.seriesNames = seriesNames; this.values = values;
-            setBackground(Color.WHITE);
-            // setPreferredSize(new Dimension(360, 260)); // Đã xóa
-        }
-
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            Insets m = new Insets(38, 54, 46, 18);
-            int W = getWidth(), H = getHeight();
-
-            g.setFont(getFont().deriveFont(Font.BOLD, 14f));
-            g.setColor(new Color(40, 48, 59));
-            g.drawString(title, m.left, 24);
-
-            int x0 = m.left, y0 = H - m.bottom;
-            int x1 = W - m.right, y1 = m.top;
-
-            // axis
-            g.setColor(new Color(230, 235, 242));
-            g.drawLine(x0, y0, x1, y0);
-            g.drawLine(x0, y0, x0, y1);
-
-            // max height for Y-axis
-            int n = xLabels.length; // Số lượng cột
-            int k = seriesNames.length; // Số lượng series trong mỗi cột
-            int maxTotalValue = 1;
-            for (int i = 0; i < n; i++) {
-                int s = 0;
-                for (int j = 0; j < k; j++) s += values[j][i];
-                maxTotalValue = Math.max(maxTotalValue, s);
-            }
-            maxTotalValue = (int) (maxTotalValue * 1.2); // Thêm khoảng trống 20% trên cùng
-
-            // Y-axis labels and grid lines
-            g.setFont(getFont().deriveFont(11f));
-            DecimalFormat dfY = new DecimalFormat("#,##0");
-            for (int i = 0; i <= 5; i++) {
-                int y = y0 - i * (y0 - y1) / 5;
-                g.setColor(new Color(241, 244, 248)); // Màu nhạt cho đường lưới
-                g.drawLine(x0, y, x1, y);
-                g.setColor(new Color(134, 142, 154)); // Màu xám cho chữ
-                g.drawString(dfY.format(maxTotalValue * i / 5), 8, y + 4);
+                // Vẽ chú thích
+                drawLegend(g2d, getInsets().left + 20, legendY + (i * 20), CHART_COLORS[i],
+                        entry.getKey() + " (" + (int)(extent/3.6) + "%)");
+                i++;
             }
 
+            // Vẽ lỗ donut
+            g2d.setColor(PANEL_COLOR);
+            g2d.fillOval(innerX, innerY, holeSize, holeSize);
 
-            // bars
-            Color[] cols = {new Color(58,122,202), new Color(255,152,0), new Color(76,175,80)}; // Blue, Orange, Green
-            int barPadding = 10; // Khoảng cách giữa các nhóm cột
-            int bw = Math.max(14, (x1 - x0 - (n + 1) * barPadding) / n); // Chiều rộng mỗi cột trong nhóm
-
-            for (int i = 0; i < n; i++) { // Duyệt qua từng nhóm cột (tức là từng nhãn X)
-                int baseY = y0;
-                int x = x0 + barPadding + i * (bw + barPadding); // Vị trí x của nhóm cột
-
-                for (int j = 0; j < k; j++) { // Duyệt qua từng series trong nhóm cột
-                    int h = (int)((values[j][i]/(double)maxTotalValue)*(y0-y1));
-                    g.setColor(cols[j % cols.length]); // Chọn màu cho series
-                    g.fillRect(x, baseY - h, bw, h); // Vẽ thanh
-                    baseY -= h; // Cập nhật vị trí đáy cho thanh tiếp theo
-                }
-                g.setColor(new Color(120,128,139));
-                g.setFont(getFont().deriveFont(10f));
-                int tw = g.getFontMetrics().stringWidth(xLabels[i]);
-                g.drawString(xLabels[i], x + bw/2 - tw/2, y0 + 16); // Nhãn dưới trục X
-            }
-
-            // legend (Ở bên phải trên cùng, khớp với hình ảnh)
-            int legendX = x1 - 100; // Căn lề phải
-            int legendY = m.top + 5;
-            g.setFont(getFont().deriveFont(10f)); // Font nhỏ hơn cho legend
-            for (int j = 0; j < k; j++) {
-                g.setColor(cols[j % cols.length]);
-                g.fillRect(legendX, legendY + j*18, 10, 10); // Ô vuông màu
-                g.setColor(new Color(70,78,90));
-                g.drawString(seriesNames[j], legendX + 14, legendY + 9 + j*18);
-            }
-        }
-    }
-
-    // ===== Chart Combined (Mới: để mô phỏng biểu đồ Bar + Line) =====
-    static class ChartCombined extends JPanel {
-        private final String title;
-        private final String[] xLabels;
-        private final double[] lineValues; // Dữ liệu cho đường Line
-        private final int[][] barValues;   // Dữ liệu cho Bar (có thể 2 series)
-
-        public ChartCombined(String title, String[] xLabels, double[] lineValues, int[][] barValues) {
-            this.title = title; this.xLabels = xLabels; this.lineValues = lineValues; this.barValues = barValues;
-            setBackground(Color.WHITE);
-            // setPreferredSize(new Dimension(400, 260)); // Đã xóa
-        }
-
-        @Override protected void paintComponent(Graphics g0) {
-            super.paintComponent(g0);
-            Graphics2D g = (Graphics2D) g0;
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            Insets m = new Insets(38, 54, 46, 18);
-            int W = getWidth(), H = getHeight();
-
-            g.setFont(getFont().deriveFont(Font.BOLD, 14f));
-            g.setColor(new Color(40, 48, 59));
-            g.drawString(title, m.left, 24);
-
-            int x0 = m.left, y0 = H - m.bottom;
-            int x1 = W - m.right, y1 = m.top;
-
-            // axis
-            g.setColor(new Color(230, 235, 242));
-            g.drawLine(x0, y0, x1, y0);
-            g.drawLine(x0, y0, x0, y1);
-
-            // Calculate max for scaling
-            double maxLine = Arrays.stream(lineValues).max().orElse(1d);
-            int maxBar = 1;
-            for (int i = 0; i < xLabels.length; i++) {
-                int s = 0;
-                for (int j = 0; j < barValues.length; j++) s += barValues[j][i];
-                maxBar = Math.max(maxBar, s);
-            }
-            double overallMax = Math.max(maxLine, maxBar) * 1.15;
-
-            // Y-axis labels and grid lines
-            g.setFont(getFont().deriveFont(11f));
-            DecimalFormat dfY = new DecimalFormat("#,##0");
-            for (int i = 0; i <= 5; i++) {
-                int y = y0 - i * (y0 - y1) / 5;
-                g.setColor(new Color(241, 244, 248));
-                g.drawLine(x0, y, x1, y);
-                g.setColor(new Color(134, 142, 154));
-                g.drawString(dfY.format(overallMax * i / 5), 8, y + 4);
-            }
-
-            // x labels
-            int n = xLabels.length;
-            int barGap = 10;
-            int bw = Math.max(10, (x1 - x0 - (n + 1) * barGap) / n); // Chiều rộng mỗi nhóm bar
-
-            for (int i = 0; i < n; i++) {
-                g.setColor(new Color(150, 158, 170));
-                g.setFont(getFont().deriveFont(10f));
-                int x = x0 + barGap + i * (bw + barGap);
-                int tw = g.getFontMetrics().stringWidth(xLabels[i]);
-                g.drawString(xLabels[i], x + bw / 2 - tw / 2, y0 + 16);
-            }
-
-            // Draw Bars (2 series)
-            Color[] barCols = {new Color(255, 170, 51, 150), new Color(255, 170, 51, 80)}; // Cam đậm và nhạt
-            for (int i = 0; i < n; i++) {
-                int baseY = y0;
-                int x = x0 + barGap + i * (bw + barGap);
-                for (int j = 0; j < barValues.length; j++) {
-                    int h = (int) ((barValues[j][i] / overallMax) * (y0 - y1));
-                    g.setColor(barCols[j]); // Sử dụng màu khác nhau cho mỗi series bar
-                    g.fillRect(x, baseY - h, bw, h);
-                    baseY -= h;
-                }
-            }
-
-            // Draw Line
-            Stroke old = g.getStroke();
-            g.setStroke(new BasicStroke(2f));
-            g.setColor(new Color(76, 175, 80)); // Màu xanh lá cho đường line
-            int prevX = -1, prevY = -1;
-            for (int i = 0; i < lineValues.length; i++) {
-                int x = x0 + barGap + i * (bw + barGap) + bw / 2; // Vị trí giữa cột bar
-                int y = y0 - (int) ((lineValues[i] / overallMax) * (y0 - y1));
-                if (prevX >= 0) g.drawLine(prevX, prevY, x, y);
-                g.fillOval(x - 3, y - 3, 6, 6);
-                prevX = x; prevY = y;
-            }
-            g.setStroke(old);
-
-            // Legend
-            g.setFont(getFont().deriveFont(10f));
-            g.setColor(new Color(120, 128, 139));
-            String legendText = "Số lượng vé khuyến mãi"; // Lấy từ hình ảnh
-            int tw = g.getFontMetrics().stringWidth(legendText);
-            g.drawString(legendText, (x0 + x1) / 2 - tw/2, H - 8); // Đặt ở dưới cùng
+            // Hiển thị tổng
+            g2d.setColor(TEXT_COLOR);
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            String totalStr = formatter.format(total);
+            FontMetrics fm = g2d.getFontMetrics();
+            g2d.drawString(totalStr, x + (diameter - fm.stringWidth(totalStr)) / 2, y + (diameter / 2) + fm.getAscent() / 2 - 5);
+            g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2d.setColor(TEXT_MUTED);
+            String phieuStr = "Phiếu";
+            fm = g2d.getFontMetrics();
+            g2d.drawString(phieuStr, x + (diameter - fm.stringWidth(phieuStr)) / 2, y + (diameter / 2) + fm.getAscent() + 10);
         }
     }
 
 
-    // ====== MAIN (test độc lập) ======
+    // =========================================================================
+    // HÀNG 3: (B.7) TOP 5 KHUYẾN MÃI HIỆU QUẢ (Bar Chart) - THAY THẾ MỚI
+    // =========================================================================
+    static class TopPromotionChartPanel extends BasePanel {
+        // Dữ liệu mẫu (từ SuDungKhuyenMai)
+        private final Map<String, Integer> data = new HashMap<>();
+
+        public TopPromotionChartPanel() {
+            data.put("HE2025", 1250);
+            data.put("CHAOMUNG", 980);
+            data.put("VIP10", 720);
+            data.put("TET2025", 450);
+            data.put("SINHVIEN", 310);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            createChartTitle(g2d, "TOP 5 KHUYẾN MÃI HIỆU QUẢ (Số lần sử dụng)");
+
+            int padding = 20;
+            int labelPadding = 60; // Tăng padding cho tên KM
+            Insets insets = getInsets();
+            int w = getWidth() - insets.left - insets.right - 2 * padding - labelPadding;
+            int h = getHeight() - insets.top - insets.bottom - 2 * padding - labelPadding - 30; // 30 cho title
+            int x0 = insets.left + padding + labelPadding;
+            int y0 = insets.top + padding + 30;
+
+            int numBars = data.size();
+            double maxVal = data.values().stream().mapToInt(Integer::intValue).max().orElse(1) * 1.1;
+
+            int barHeight = h / (numBars * 2 - 1); // Chiều cao thanh
+            int barGap = barHeight; // Khoảng cách
+
+            int i = 0;
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            for (Map.Entry<String, Integer> entry : data.entrySet()) {
+                int y = y0 + i * (barHeight + barGap);
+                int barWidth = (int) (entry.getValue() / maxVal * w);
+
+                // Vẽ tên (Nhãn Y)
+                g2d.setColor(TEXT_MUTED);
+                FontMetrics fm = g2d.getFontMetrics();
+                g2d.drawString(entry.getKey(), x0 - fm.stringWidth(entry.getKey()) - 10, y + barHeight / 2 + fm.getAscent() / 2);
+
+                // Vẽ thanh
+                g2d.setColor(CHART_COLORS[i % CHART_COLORS.length]);
+                g2d.fillRoundRect(x0, y, barWidth, barHeight, 8, 8);
+
+                // Vẽ giá trị
+                g2d.setColor(TEXT_COLOR);
+                String valueStr = formatter.format(entry.getValue());
+                g2d.drawString(valueStr, x0 + barWidth + 10, y + barHeight / 2 + fm.getAscent() / 2);
+
+                i++;
+            }
+
+            // Vẽ trục X (đường 0)
+            g2d.setColor(BORDER_COLOR);
+            g2d.drawLine(x0, y0, x0, y0 + h);
+        }
+    }
+
+
+    // =========================================================================
+    // MAIN METHOD (Để chạy thử)
+    // =========================================================================
     public static void main(String[] args) {
+        // Cài đặt Look and Feel FlatLaf Dark
         try {
-            UIManager.setLookAndFeel("com.formdev.flatlaf.themes.FlatMacLightLaf");
-        } catch (Exception ignore) {
-            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception ignored) {}
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+        } catch (UnsupportedLookAndFeelException e) {
+            System.err.println("Không thể cài đặt FlatLaf Look and Feel.");
+            e.printStackTrace();
         }
 
         SwingUtilities.invokeLater(() -> {
-            JFrame f = new JFrame("Dashboard - Recreated");
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            JFrame frame = new JFrame("Dashboard Quản lý Bán vé Tàu hỏa (Swing)");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            // Bọc Dashboard trong JScrollPane để đảm bảo cuộn nếu cần
-            JScrollPane scroller = new JScrollPane(new Dashboard());
-            scroller.setBorder(BorderFactory.createEmptyBorder());
-            scroller.getVerticalScrollBar().setUnitIncrement(16);
+            // Bọc Dashboard trong JScrollPane để đảm bảo cuộn nếu cửa sổ quá nhỏ
+            JScrollPane scrollPane = new JScrollPane(new Dashboard());
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+            scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
 
-            f.setContentPane(scroller);
-            f.setSize(1200, 720);
-            f.setLocationRelativeTo(null);
-            f.setVisible(true);
+            frame.setContentPane(scrollPane);
+            frame.setSize(1400, 900); // Kích thước lớn để hiển thị đẹp
+            frame.setLocationRelativeTo(null); // Giữa màn hình
+            frame.setVisible(true);
         });
     }
 }
+

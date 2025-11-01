@@ -13,8 +13,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet; // <<< SỬ DỤNG SHEET (Interface)
 import org.apache.poi.ss.usermodel.BorderStyle;
-// KHÔNG import org.apache.poi.ss.usermodel.Color
-// KHÔNG import org.apache.poi.ss.usermodel.Font
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 // Import JFreeChart
 import org.jfree.chart.ChartFactory;
