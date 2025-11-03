@@ -79,7 +79,7 @@ public class PanelBuoc5 extends JPanel {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Thanh Toán"));
 
-		currencyFormat = new DecimalFormat("#,### VNĐ");
+		currencyFormat = new DecimalFormat("#,### VND");
 		btnFormat = new DecimalFormat("#,###");
 
 		// Panel Phương thức thanh toán
@@ -330,7 +330,7 @@ public class PanelBuoc5 extends JPanel {
 
 			public void updateChange() {
 				try {
-					String text = txtTienKhachDua.getText().replace(".", "").replace(",", ""); // Remove separators
+					String text = txtTienKhachDua.getText().replace(".", "").replace(",", "");
 					if (text.isEmpty()) {
 						lblTienThoiLai.setText("0 VND");
 						return;
@@ -351,6 +351,15 @@ public class PanelBuoc5 extends JPanel {
 				}
 			}
 		});
+	}
+
+	public int getTongThanhToan() {
+		return tongThanhToan;
+	}
+
+	public int getTienKhachDua() {
+		String text = txtTienKhachDua.getText().replace(".", "").replace(",", "");
+		return Integer.parseInt(text);
 	}
 
 	private void setTienMatEnabled(boolean enabled) {

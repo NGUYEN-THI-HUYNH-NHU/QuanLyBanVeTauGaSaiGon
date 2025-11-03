@@ -38,6 +38,7 @@ public class PanelBuoc4 extends JPanel {
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(250);
+		table.removeColumn(table.getColumnModel().getColumn(5));
 
 		// 2. CHỈ DÙNG Renderer (để hiển thị), KHÔNG DÙNG Editor (để không thể sửa)
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());

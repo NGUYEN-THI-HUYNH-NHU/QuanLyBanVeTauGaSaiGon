@@ -39,6 +39,7 @@ public class VeSession {
 	private final LocalDateTime thoiDiemHetHan;
 	private KhachHang hanhKhach;
 	private PhieuGiuChoChiTiet pgcct;
+	private boolean isHanhKhachMoi = true;
 
 	public VeSession(String chuyenID, String tenTau, String tenGaDi, String gaDiID, String tenGaDen, String gaDenID,
 			LocalDate ngayDi, LocalTime gioDi, String toaID, String hangToa, int soToa, String gheID, int soGhe,
@@ -185,5 +186,13 @@ public class VeSession {
 
 	public void setPgcct(PhieuGiuChoChiTiet pgcct) {
 		this.pgcct = pgcct;
+	}
+
+	public boolean isHanhKhachMoi() {
+		return isHanhKhachMoi;
+	}
+
+	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
+		this.isHanhKhachMoi = isHanhKhachMoi;
 	}
 }

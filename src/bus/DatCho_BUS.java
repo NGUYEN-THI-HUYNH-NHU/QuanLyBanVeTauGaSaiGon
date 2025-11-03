@@ -21,6 +21,7 @@ import dao.Ghe_DAO;
 import dao.PhieuGiuChoChiTiet_DAO;
 import dao.PhieuGiuCho_DAO;
 import entity.Chuyen;
+import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
 import entity.NhanVien;
@@ -28,12 +29,13 @@ import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
+import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class DatCho_BUS {
 	private final PhieuGiuCho_DAO pgcDAO = new PhieuGiuCho_DAO();
 	private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
-	private final DonDatCho_DAO ddDAO = new DonDatCho_DAO();
+	private final DonDatCho_DAO ddcDAO = new DonDatCho_DAO();
 	private final Ghe_DAO gheDAO = new Ghe_DAO();
 
 	public PhieuGiuCho themPhieuGiuCho() {
@@ -113,5 +115,24 @@ public class DatCho_BUS {
 			return false;
 		}
 		return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
+	}
+
+	/**
+	 * @param BookingSession bookingSession
+	 * @return DonDatCho
+	 */
+	public DonDatCho themDonDatCho(BookingSession bookingSession) {
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
+
+		String ddcID = "DDC-" + now.format(formatter).toString();
+
+		DonDatCho ddc = new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
+
+		if (ddcDAO.createDonDatCho(ddc)) {
+			return ddc;
+		}
+
+		return null;
 	}
 }

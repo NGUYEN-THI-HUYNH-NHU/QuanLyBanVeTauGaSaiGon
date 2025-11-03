@@ -26,6 +26,10 @@ public class PassengerRow {
 //     recalcTotal();
 	}
 
+//	public PassengerRow() {
+//		super();
+//	}
+
 	public VeSession getVeSession() {
 		return veSession;
 	}

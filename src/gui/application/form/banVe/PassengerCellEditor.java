@@ -5,7 +5,6 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.BorderLayout;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -20,18 +19,24 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellEditor;
 
+// (Giả sử bạn đã import các lớp liên quan)
+
 public class PassengerCellEditor extends AbstractCellEditor implements TableCellEditor {
-	private final PassengerCellPanel panel;
+	// (Kỹ thuật bọc panel để giữ L&F)
 	private final JPanel wrapperPanel;
+	private final PassengerCellPanel panel;
+
 	private PassengerRow current;
-	private PanelBuoc3 panelBuoc3;
+	private PanelBuoc3 panelBuoc3; // Tham chiếu đến Panel cha
 
 	public PassengerCellEditor(PanelBuoc3 panelBuoc3) {
-		this.panel = new PassengerCellPanel();
-		this.wrapperPanel = new JPanel(new BorderLayout());
-		this.wrapperPanel.add(this.panel, BorderLayout.CENTER);
-		this.wrapperPanel.setBorder(null);
 		this.panelBuoc3 = panelBuoc3;
+		this.panel = new PassengerCellPanel();
+
+		// Kỹ thuật bọc panel
+		this.wrapperPanel = new JPanel(new java.awt.BorderLayout());
+		this.wrapperPanel.add(this.panel, java.awt.BorderLayout.CENTER);
+		this.wrapperPanel.setBorder(null);
 	}
 
 	@Override
@@ -39,14 +44,16 @@ public class PassengerCellEditor extends AbstractCellEditor implements TableCell
 		if (value instanceof PassengerRow) {
 			current = (PassengerRow) value;
 
-			// 1. Truyền table để panel có thể điều khiển (nhảy dòng, dừng edit)
+			// === TRUYỀN THAM CHIẾU XUỐNG PANEL ===
 			panel.setTable(table);
-			// 2. Truyền PanelBuoc3 để panel có thể focus ra form bên ngoài
 			panel.setPanelBuoc3(this.panelBuoc3);
+			// (Quan trọng) Truyền Controller xuống
+			panel.setController(this.panelBuoc3.getController());
 
 			panel.setData(current);
 			panel.setEditable(true);
 
+			// (Code set màu nền cho wrapperPanel và panel giữ nguyên)
 			if (isSelected) {
 				wrapperPanel.setBackground(table.getSelectionBackground());
 				panel.setBackground(table.getSelectionBackground());
@@ -55,12 +62,12 @@ public class PassengerCellEditor extends AbstractCellEditor implements TableCell
 				panel.setBackground(table.getBackground());
 			}
 
-			// request focus for first field after editor added to table
+			// Yêu cầu focus vào trường ĐẦU TIÊN (bây giờ là txtID)
 			SwingUtilities.invokeLater(() -> {
-				panel.getTxtTen().requestFocusInWindow();
+				panel.getTxtID().requestFocusInWindow(); // <-- Đổi sang txtID
 			});
 		}
-
+		// Trả về panel bọc ngoài
 		return wrapperPanel;
 	}
 

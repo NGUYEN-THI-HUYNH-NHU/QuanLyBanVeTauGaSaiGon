@@ -24,6 +24,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import entity.KhachHang;
 import entity.type.LoaiDoiTuong;
 
 public class PassengerCellPanel extends JPanel {
@@ -31,6 +32,9 @@ public class PassengerCellPanel extends JPanel {
 	private final JTextField txtID = new JTextField();
 	String[] types = { "Người lớn", "Trẻ em", "Người cao tuổi" };
 	private final JComboBox<String> cbType = new JComboBox<String>(types);
+
+	private PanelBuoc3Controller controller;
+	private PassengerRow currentRowData;
 
 	// === THÊM THAM CHIẾU ĐỂ ĐIỀU HƯỚNG ===
 	private JTable table;
@@ -45,18 +49,27 @@ public class PassengerCellPanel extends JPanel {
 		gbc.insets = new Insets(2, 2, 2, 2);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
+		gbc.weightx = 1;
 
 		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		add(txtTen, gbc);
-
-		gbc.gridy = 1;
-		add(cbType, gbc);
-
-		gbc.gridy = 2;
 		add(txtID, gbc);
 
-		// 1. Enter trên txtTen -> focus cbType
+		gbc.gridy = 1;
+		add(txtTen, gbc);
+
+		gbc.gridy = 2;
+		add(cbType, gbc);
+
+		// 1. Enter trên txtID -> Tìm kiếm VÀ focus txtTen
+		txtID.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				handleFindHanhKhach();
+				txtTen.requestFocusInWindow();
+			}
+		});
+
+		// 2. Enter trên txtTen -> focus cbType
 		txtTen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -64,21 +77,36 @@ public class PassengerCellPanel extends JPanel {
 			}
 		});
 
-		// 2. Enter trên cbType -> focus txtID
+		// 3. Enter trên cbType -> Nhảy dòng
 		cbType.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				txtID.requestFocusInWindow();
-			}
-		});
-
-		// 3. Enter trên txtID -> nhảy dòng hoặc nhảy ra form
-		txtID.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleFinalEnter();
 			}
 		});
+	}
+
+	/**
+	 * Hàm tìm kiếm hành khách (gọi Controller)
+	 */
+	private void handleFindHanhKhach() {
+		String id = txtID.getText().trim();
+		if (controller != null && !id.isEmpty()) {
+			KhachHang kh = controller.findKhachHangByID(id);
+			if (kh != null) {
+				// Tìm thấy -> Cập nhật Model của cell
+				currentRowData.setFullName(kh.getHoTen());
+				currentRowData.setType(kh.getLoaiDoiTuong());
+				// (Quan trọng) Lưu entity KhachHang vào VeSession
+				currentRowData.getVeSession().setHanhKhach(kh);
+
+				// Cập nhật View (các trường) từ Model vừa sửa
+				setData(currentRowData);
+			} else {
+				// Không tìm thấy, đảm bảo VeSession không giữ khách cũ
+				currentRowData.getVeSession().setHanhKhach(null);
+			}
+		}
 	}
 
 	/**
@@ -88,30 +116,21 @@ public class PassengerCellPanel extends JPanel {
 		if (table == null || panelBuoc3 == null) {
 			return;
 		}
-
-		// Lấy hàng đang chỉnh sửa (trước khi dừng)
 		int currentRow = table.getEditingRow();
-
-		// Dừng chỉnh sửa ô hiện tại (quan trọng để lưu dữ liệu)
 		if (table.getCellEditor() != null) {
 			table.getCellEditor().stopCellEditing();
 		}
-
 		int nextRow = currentRow + 1;
 
 		if (nextRow < table.getRowCount()) {
-			// 1. Nếu còn dòng tiếp theo:
+			// Còn dòng tiếp theo -> Edit ô đầu tiên của dòng đó
 			table.editCellAt(nextRow, 0);
-
-			// (Việc focus txtTen của dòng mới đã được xử lý
-			// trong invokeLater của PassengerCellEditor)
-
 		} else {
-			// 2. Nếu hết dòng: focus vào txtTen của form người mua
+			// Hết dòng -> Focus vào trường CCCD của người mua
 			try {
-				panelBuoc3.getTxtTenNguoiMua().requestFocusInWindow();
+				panelBuoc3.getTxtCccdNguoiMua().requestFocusInWindow();
 			} catch (Exception e) {
-				System.err.println("Lỗi khi focus txtTenNguoiMua. " + e.getMessage());
+				System.err.println("Lỗi khi focus txtCccdNguoiMua: " + e.getMessage());
 			}
 		}
 	}
@@ -128,7 +147,10 @@ public class PassengerCellPanel extends JPanel {
 		}
 	}
 
-	// === THÊM SETTERS ĐỂ NHẬN THAM CHIẾU ===
+	public void setController(PanelBuoc3Controller controller) {
+		this.controller = controller;
+	}
+
 	public void setTable(JTable table) {
 		this.table = table;
 	}
@@ -138,7 +160,12 @@ public class PassengerCellPanel extends JPanel {
 	}
 
 	public void setData(PassengerRow p) {
+		this.currentRowData = p;
+
 		if (p == null) {
+			txtTen.setText("");
+			txtID.setText("");
+			cbType.setSelectedIndex(0);
 			return;
 		}
 		getTxtTen().setText(p.getFullName());

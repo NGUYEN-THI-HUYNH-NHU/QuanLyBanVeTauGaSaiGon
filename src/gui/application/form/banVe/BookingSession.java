@@ -17,8 +17,12 @@ import java.util.Collections;
 import java.util.List;
 
 import entity.Chuyen;
+import entity.DonDatCho;
+import entity.GiaoDichThanhToan;
 import entity.KhachHang;
+import entity.NhanVien;
 import entity.PhieuGiuCho;
+import gui.application.AuthService;
 
 /**
  * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
@@ -36,8 +40,11 @@ public class BookingSession {
 	private List<Chuyen> returnResults = new ArrayList<>();
 	private final List<VeSession> returnSelected = new ArrayList<>();
 
-	private KhachHang nguoiMua;
-	private PhieuGiuCho pgc;
+	private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
+	private KhachHang khachHang = new KhachHang();
+	private PhieuGiuCho phieuGiuCho = new PhieuGiuCho();
+	private DonDatCho donDatCho = new DonDatCho();
+	private GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan();
 
 	public BookingSession() {
 	}
@@ -104,12 +111,12 @@ public class BookingSession {
 		return Collections.unmodifiableList(returnResults);
 	}
 
-	public KhachHang getNguoiMua() {
-		return nguoiMua;
+	public KhachHang getKhachHang() {
+		return khachHang;
 	}
 
-	public void setNguoiMua(KhachHang nguoiMua) {
-		this.nguoiMua = nguoiMua;
+	public void setKhachHang(KhachHang khachHang) {
+		this.khachHang = khachHang;
 	}
 
 	public synchronized void addReturnTicket(VeSession v) {
@@ -179,11 +186,50 @@ public class BookingSession {
 				+ ", returnCriteria=" + returnCriteria + ", returnSelected=" + returnSelected + '}';
 	}
 
-	public PhieuGiuCho getPgc() {
-		return pgc;
+	public PhieuGiuCho getPhieuGiuCho() {
+		return phieuGiuCho;
 	}
 
-	public void setPgc(PhieuGiuCho pgc) {
-		this.pgc = pgc;
+	public void setPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
+		this.phieuGiuCho = phieuGiuCho;
+	}
+
+	public List<VeSession> getOutboundSelected() {
+		return outboundSelected;
+	}
+
+	public List<VeSession> getReturnSelected() {
+		return returnSelected;
+	}
+
+	public NhanVien getNhanVien() {
+		return nhanVien;
+	}
+
+	public DonDatCho getDonDatCho() {
+		return donDatCho;
+	}
+
+	public void setDonDatCho(DonDatCho donDatCho) {
+		this.donDatCho = donDatCho;
+	}
+
+	public GiaoDichThanhToan getGiaoDichThanhToan() {
+		return giaoDichThanhToan;
+	}
+
+	public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+		this.giaoDichThanhToan = giaoDichThanhToan;
+	}
+
+	public double getTongTienVe() {
+		double tongTienVe = 0;
+		for (VeSession v : outboundSelected) {
+			tongTienVe += v.getGia();
+		}
+		for (VeSession v : returnSelected) {
+			tongTienVe += v.getGia();
+		}
+		return tongTienVe;
 	}
 }
