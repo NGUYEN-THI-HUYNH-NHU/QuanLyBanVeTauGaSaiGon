@@ -52,6 +52,8 @@ public class PanelBuoc3 extends JPanel {
 
 	private Consumer<PassengerRow> deleteListener;
 
+	private PanelBuoc3Controller controller;
+
 	public PanelBuoc3() {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
@@ -132,17 +134,18 @@ public class PanelBuoc3 extends JPanel {
 		formKhachHang.add(lblNguoiMuaVe, gbc);
 
 		gbc.insets = new Insets(2, 2, 2, 2);
-		// ====== row 0: Họ và tên * ======
-		gbc.gridy = 1;
-		formKhachHang.add(new JLabel("<html>Họ và Tên <font color='red'>*</font></html>"), gbc);
-		gbc.gridy = 2;
-		formKhachHang.add(txtTen, gbc);
 
-		// ====== row 1: CCCD/Hộ chiếu * ======
-		gbc.gridy = 3;
+		// ====== row 0: CCCD/Hộ chiếu * ======
+		gbc.gridy = 1;
 		formKhachHang.add(new JLabel("<html>Số CCCD/Hộ chiếu <font color='red'>*</font></html>"), gbc);
-		gbc.gridy = 4;
+		gbc.gridy = 2;
 		formKhachHang.add(txtCccd, gbc);
+
+		// ====== row 1: Họ và tên * ======
+		gbc.gridy = 3;
+		formKhachHang.add(new JLabel("<html>Họ và Tên <font color='red'>*</font></html>"), gbc);
+		gbc.gridy = 4;
+		formKhachHang.add(txtTen, gbc);
 
 		// ====== row 2: Số di động * ======
 		gbc.gridy = 5;
@@ -158,6 +161,14 @@ public class PanelBuoc3 extends JPanel {
 		add(formKhachHang, BorderLayout.EAST);
 	}
 
+	public void setController(PanelBuoc3Controller controller) {
+		this.controller = controller;
+	}
+
+	public PanelBuoc3Controller getController() {
+		return this.controller;
+	}
+
 	public JTable getTable() {
 		return table;
 	}
@@ -166,23 +177,14 @@ public class PanelBuoc3 extends JPanel {
 		return this.txtTen;
 	}
 
-	public String getTenNguoiMua() {
-		return txtTen.getText().trim();
+	public JTextField getTxtCccdNguoiMua() {
+		return this.txtCccd;
 	}
 
-	public String getCccdNguoiMua() {
-		return txtCccd.getText().trim();
+	public JTextField getTxtPhoneNguoiMua() {
+		return this.txtPhone;
 	}
 
-	public String getPhoneNguoiMua() {
-		return txtPhone.getText().trim();
-	}
-
-	public void setPassengerDeleteListener(Consumer<PassengerRow> listener) {
-		this.deleteListener = listener;
-	}
-
-	// Thêm getter cho model
 	public HanhKhachTableModel getModel() {
 		return model;
 	}
@@ -193,6 +195,10 @@ public class PanelBuoc3 extends JPanel {
 
 	public JButton getCancelButton() {
 		return btnCancel;
+	}
+
+	public void setPassengerDeleteListener(Consumer<PassengerRow> listener) {
+		this.deleteListener = listener;
 	}
 
 	/**

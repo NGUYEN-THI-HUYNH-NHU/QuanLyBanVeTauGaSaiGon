@@ -166,8 +166,8 @@ public class BanVe1Controller {
 							// Nếu không còn vé nào trong giỏ thì xóa Phiếu giữ chỗ
 							if (bookingSession.getOutboundSelectedTickets().size() == 0
 									&& bookingSession.getReturnSelectedTickets().size() == 0) {
-								if (bookingSession.getPgc() != null) {
-									datChoBUS.xoaPhieuGiuCho(bookingSession.getPgc().getPhieuGiuChoID());
+								if (bookingSession.getPhieuGiuCho() != null) {
+									datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
 								}
 
 							}
@@ -219,7 +219,7 @@ public class BanVe1Controller {
 					// === 4. GỌI BUS TẠI ĐÂY ===
 					PhieuGiuCho pgc = datChoBUS.themPhieuGiuCho();
 
-					bookingSession.setPgc(pgc);
+					bookingSession.setPhieuGiuCho(pgc);
 
 					for (VeSession v : veTrongGio) {
 						PhieuGiuChoChiTiet pgcct = datChoBUS.themPhieuGiuChoChiTiet(pgc, v);

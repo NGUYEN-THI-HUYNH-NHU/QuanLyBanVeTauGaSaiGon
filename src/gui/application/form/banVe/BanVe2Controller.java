@@ -18,6 +18,12 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
+import bus.DatCho_BUS;
+import bus.HoaDon_BUS;
+import bus.ThanhToan_BUS;
+import bus.Ve_BUS;
+import entity.DonDatCho;
+import entity.GiaoDichThanhToan;
 import gui.application.PdfTicketExporter;
 
 /**
@@ -29,11 +35,15 @@ import gui.application.PdfTicketExporter;
 public class BanVe2Controller {
 
 	private final PanelBanVe2 view;
-	private final BookingSession bookingSession;
+	private final PanelBuoc4 p4;
+	private final PanelBuoc5 p5;
 
-	// Các panel con
-	private final PanelBuoc4 panelBuoc4;
-	private final PanelBuoc5 panelBuoc5;
+	private final DatCho_BUS datChoBUS = new DatCho_BUS();
+	private final Ve_BUS veBUS = new Ve_BUS();
+	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
+	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+
+	private final BookingSession bookingSession;
 
 	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
@@ -42,9 +52,8 @@ public class BanVe2Controller {
 		this.view = view;
 		this.bookingSession = session;
 
-		// Lấy các panel con từ view gộp
-		this.panelBuoc4 = view.getPanelBuoc4();
-		this.panelBuoc5 = view.getPanelBuoc5();
+		this.p4 = view.getPanelBuoc4();
+		this.p5 = view.getPanelBuoc5();
 
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
@@ -60,11 +69,11 @@ public class BanVe2Controller {
 	 */
 	public void loadDataForConfirmation() {
 		// 1. Đặt lại trạng thái
-		panelBuoc4.setComponentsEnabled(true);
-		panelBuoc5.setComponentsEnabled(true); // Bật cả 2 panel
+		p4.setComponentsEnabled(true);
+		p5.setComponentsEnabled(true);
 
 		// 2. Tải dữ liệu vào bảng xác nhận (Buoc4)
-		panelBuoc4.hienThiThongTin(bookingSession);
+		p4.hienThiThongTin(bookingSession);
 
 		// 3. Tính toán chi tiết thanh toán
 		int tongTienVe = 0;
@@ -92,33 +101,52 @@ public class BanVe2Controller {
 		giamGiaDT = 0;
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
-		panelBuoc5.setChiTietThanhToan(tongTienVe, giamGiaDT, khuyenMai, dichVu);
+		p5.setChiTietThanhToan(tongTienVe, giamGiaDT, khuyenMai, dichVu);
 	}
 
 	/**
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
-
-		// Lắng nghe nút "Thanh toán" từ PanelBuoc5
-		// CẦN LẤY CẢ HAI NÚT
-		JButton payButtonCash = panelBuoc5.getBtnXacNhanVaInCash();
-		JButton payButtonQR = panelBuoc5.getBtnXacNhanVaInQR();
+		// Lắng nghe nút thanh toán từ PanelBuoc5
+		JButton payButtonCash = p5.getBtnXacNhanVaInCash();
+		JButton payButtonQR = p5.getBtnXacNhanVaInQR();
 
 		ActionListener paymentListener = e -> {
 			// TODO: Gọi BUS để thực hiện lưu CSDL (lưu Vé, Hóa đơn, Giao dịch...)
-			// boolean saveSuccess = banVeBUS.luuThongTinThanhToan(bookingSession,
-			// isTienMat);
-			boolean saveSuccess = true; // Giả sử lưu thành công
+			boolean isThanhToanTienMat = true;
+			if (payButtonQR.isSelected()) {
+				isThanhToanTienMat = false;
+			}
+
+			double tongTien = p5.getTongThanhToan();
+			double tienNhan = p5.getTienKhachDua();
+			double tienHoan = tienNhan - tongTien;
+			// TODO: xu ly lay ma giao dich
+			String maGiaoDich = "GDTEST";
+			boolean trangThai = true;
+			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, maGiaoDich, tongTien,
+					isThanhToanTienMat, trangThai);
+			System.out.println(giaoDichThanhToan);
+
+			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
+
+			DonDatCho donDatCho = datChoBUS.themDonDatCho(bookingSession);
+			if (donDatCho != null) {
+				bookingSession.setDonDatCho(donDatCho);
+				veBUS.themCacVe(donDatCho.getDonDatChoID(), bookingSession);
+				hoaDonBUS.themHoaDon(bookingSession, giaoDichThanhToan);
+			}
+			// Giả sử lưu thành công
+			boolean saveSuccess = true;
 
 			if (saveSuccess) {
 				// a. Vô hiệu hóa PanelBuoc5
-				panelBuoc5.setComponentsEnabled(false);
+				p5.setComponentsEnabled(false);
 
-				// --- GỌI HÀM XUẤT PDF ---
+				// Xuất file pdf
 				PdfTicketExporter exporter = new PdfTicketExporter();
 				exporter.exportTicketsToPdf(bookingSession);
-				// --- KẾT THÚC GỌI PDF ---
 
 				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
 				if (onPaymentSuccessListener != null) {

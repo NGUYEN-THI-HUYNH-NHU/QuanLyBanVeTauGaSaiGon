@@ -5,7 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-
 import java.util.Objects;
 
 import entity.type.LoaiDoiTuong;
@@ -28,9 +27,8 @@ public class KhachHang {
 	private LoaiDoiTuong loaiDoiTuong;
 	private LoaiKhachHang loaiKhachHang;
 
-	
-	public KhachHang(String khachHangID, String hoTen,
-			String soDienThoai, String email, String soGiayTo, String diaChi, LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang) {
+	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email, String soGiayTo, String diaChi,
+			LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang) {
 		super();
 		this.khachHangID = khachHangID;
 		this.hoTen = hoTen;
@@ -42,8 +40,7 @@ public class KhachHang {
 		this.loaiKhachHang = loaiKhachHang;
 	}
 
-	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email,
-			String diaChi) {
+	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email, String diaChi) {
 		super();
 		this.khachHangID = khachHangID;
 		this.hoTen = hoTen;
@@ -51,7 +48,7 @@ public class KhachHang {
 		this.email = email;
 		this.diaChi = diaChi;
 	}
-	
+
 	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
 		super();
 		this.khachHangID = khachHangID;
@@ -59,12 +56,22 @@ public class KhachHang {
 		this.hoTen = hoTen;
 		this.soGiayTo = soGiayTo;
 	}
-	
+
+	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String soGiayTo,
+			LoaiKhachHang loaiKhachHang) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.soDienThoai = soDienThoai;
+		this.soGiayTo = soGiayTo;
+		this.loaiKhachHang = loaiKhachHang;
+	}
+
 	public KhachHang(String khachHangID) {
 		super();
 		this.khachHangID = khachHangID;
 	}
-	
+
 	public KhachHang() {
 		super();
 	}
@@ -90,7 +97,7 @@ public class KhachHang {
 	}
 
 	public void setKhachHangID(String khachHangID) {
-		if(khachHangID == null || khachHangID.isEmpty()) {
+		if (khachHangID == null || khachHangID.isEmpty()) {
 			throw new IllegalArgumentException("KhachHangID không được để trống!");
 		}
 		this.khachHangID = khachHangID;
@@ -138,14 +145,18 @@ public class KhachHang {
 
 	@Override
 	public String toString() {
-		return loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email
-				+ ";" + soGiayTo + ";" + diaChi + ";" + khachHangID + ";" + loaiDoiTuong;
+		return loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email + ";" + soGiayTo + ";" + diaChi + ";"
+				+ khachHangID + ";" + loaiDoiTuong;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		KhachHang khachHang = (KhachHang) o;
 		return Objects.equals(getKhachHangID(), khachHang.getKhachHangID());
 	}

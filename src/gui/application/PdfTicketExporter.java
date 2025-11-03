@@ -39,7 +39,7 @@ public class PdfTicketExporter {
 		}
 
 		// --- Lấy dữ liệu từ Session ---
-		KhachHang nguoiMua = session.getNguoiMua();
+		KhachHang nguoiMua = session.getKhachHang();
 		List<VeSession> tickets = session.getOutboundSelectedTickets(); // Lấy vé chiều đi
 		if (session.isRoundTrip()) {
 			tickets.addAll(session.getReturnSelectedTickets()); // Thêm vé chiều về nếu có

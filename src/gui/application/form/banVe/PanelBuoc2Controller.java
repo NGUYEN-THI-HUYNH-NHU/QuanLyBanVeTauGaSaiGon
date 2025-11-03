@@ -484,7 +484,7 @@ public class PanelBuoc2Controller {
 		datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPgcct().getPhieuGiuChoChiTietID());
 		if (bookingSession.getOutboundSelectedTickets().size() == 0
 				&& bookingSession.getReturnSelectedTickets().size() == 0) {
-			datChoBUS.xoaPhieuGiuCho(bookingSession.getPgc().getPhieuGiuChoID());
+			datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
 		}
 
 		// Refresh giỏ vé của trip HIỆN TẠI
