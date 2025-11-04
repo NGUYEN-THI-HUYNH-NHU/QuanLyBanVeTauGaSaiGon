@@ -19,6 +19,7 @@ import java.util.List;
 import entity.Chuyen;
 import entity.DonDatCho;
 import entity.GiaoDichThanhToan;
+import entity.HoaDon;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
@@ -41,10 +42,11 @@ public class BookingSession {
 	private final List<VeSession> returnSelected = new ArrayList<>();
 
 	private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
-	private KhachHang khachHang = new KhachHang();
-	private PhieuGiuCho phieuGiuCho = new PhieuGiuCho();
-	private DonDatCho donDatCho = new DonDatCho();
-	private GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan();
+	private KhachHang khachHang;
+	private PhieuGiuCho phieuGiuCho;
+	private DonDatCho donDatCho;
+	private GiaoDichThanhToan giaoDichThanhToan;
+	private HoaDon hoaDon;
 
 	public BookingSession() {
 	}
@@ -231,5 +233,17 @@ public class BookingSession {
 			tongTienVe += v.getGia();
 		}
 		return tongTienVe;
+	}
+
+	public HoaDon getHoaDon() {
+		return hoaDon;
+	}
+
+	public static void setInstance(BookingSession instance) {
+		BookingSession.instance = instance;
+	}
+
+	public void setHoaDon(HoaDon hoaDon) {
+		this.hoaDon = hoaDon;
 	}
 }

@@ -26,12 +26,12 @@ public class Ve {
 	private Ghe ghe;
 	private Ga gaDi;
 	private Ga gaDen;
-	private LocalDateTime thoiDiemBan;
+	private LocalDateTime ngayGioDi;
 	private double gia;
 	private TrangThaiVe trangThai;
-	
+
 	public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
-			LocalDateTime thoiDiemBan, double gia, TrangThaiVe trangThai) {
+			LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
 		super();
 		this.veID = veID;
 		this.khachHang = khachHang;
@@ -40,7 +40,7 @@ public class Ve {
 		this.ghe = ghe;
 		this.gaDi = gaDi;
 		this.gaDen = gaDen;
-		this.thoiDiemBan = thoiDiemBan;
+		this.ngayGioDi = ngayGioDi;
 		this.gia = gia;
 		this.trangThai = trangThai;
 	}
@@ -59,7 +59,7 @@ public class Ve {
 	}
 
 	public void setVeID(String veID) {
-		if(veID != null && !veID.trim().isEmpty()) {
+		if (veID != null && !veID.trim().isEmpty()) {
 			this.veID = veID;
 		} else {
 			throw new IllegalArgumentException("VeID không được rỗng!");
@@ -71,7 +71,7 @@ public class Ve {
 	}
 
 	public void setKhachHang(KhachHang khachHang) {
-		if(khachHang != null) {
+		if (khachHang != null) {
 			this.khachHang = khachHang;
 		} else {
 			throw new IllegalArgumentException("Hành khách không được rỗng!");
@@ -83,7 +83,7 @@ public class Ve {
 	}
 
 	public void setDonDatCho(DonDatCho donDatCho) {
-		if(donDatCho != null) {
+		if (donDatCho != null) {
 			this.donDatCho = donDatCho;
 		} else {
 			throw new IllegalArgumentException("Đơn đặt chỗ không được rỗng!");
@@ -95,7 +95,7 @@ public class Ve {
 	}
 
 	public void setChuyen(Chuyen chuyen) {
-		if(chuyen != null) {
+		if (chuyen != null) {
 			this.chuyen = chuyen;
 		} else {
 			throw new IllegalArgumentException("Chuyến không được rỗng!");
@@ -107,7 +107,7 @@ public class Ve {
 	}
 
 	public void setGhe(Ghe ghe) {
-		if(ghe != null) {
+		if (ghe != null) {
 			this.ghe = ghe;
 		} else {
 			throw new IllegalArgumentException("Ghế không được rỗng!");
@@ -120,7 +120,7 @@ public class Ve {
 	}
 
 	public void setGaDi(Ga gaDi) {
-		if(gaDi != null) {
+		if (gaDi != null) {
 			this.gaDi = gaDi;
 		} else {
 			throw new IllegalArgumentException("Ga đi không được rỗng!");
@@ -132,7 +132,7 @@ public class Ve {
 	}
 
 	public void setGaDen(Ga gaDen) {
-		if(gaDen != null) {
+		if (gaDen != null) {
 			this.gaDen = gaDen;
 		} else {
 			throw new IllegalArgumentException("Ga đến không được rỗng!");
@@ -147,12 +147,12 @@ public class Ve {
 		this.gia = gia;
 	}
 
-	public LocalDateTime getThoiDiemBan() {
-		return thoiDiemBan;
+	public LocalDateTime getNgayGioDi() {
+		return ngayGioDi;
 	}
 
-	public void setThoiDiemBan(LocalDateTime thoiDiemBan) {
-		this.thoiDiemBan = thoiDiemBan;
+	public void setNgayGioDi(LocalDateTime ngayGioDi) {
+		this.ngayGioDi = ngayGioDi;
 	}
 
 	public TrangThaiVe getTrangThai() {
@@ -165,14 +165,18 @@ public class Ve {
 
 	@Override
 	public String toString() {
-		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";" + khachHang + ";"
-				+ gia + ";" + thoiDiemBan + ";" + trangThai;
+		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";" + khachHang + ";" + gia + ";" + ngayGioDi + ";"
+				+ trangThai;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Ve ve = (Ve) o;
 		return Objects.equals(getVeID(), ve.getVeID());
 	}

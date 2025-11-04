@@ -14,29 +14,45 @@ package dao;
  * 
  * @version: 1.0
  */
-//
-//public class HoaDonChiTiet_DAO {
-//	private final ConnectDB db = ConnectDB.getInstance();
-//
-//	public boolean insert(HoaDonChiTiet hdc) {
-//		String sql = "INSERT INTO HoaDonChiTiet (hoaDonChiTietID, hoaDonID, loaiDichVu, matHangID, tenMatHang, donGia, soLuong, soTien, thue, veID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//		try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-//			ps.setString(1, hdc.getHoaDonChiTietID());
-//			ps.setString(2, hdc.getHoaDonID());
-//			ps.setString(3, hdc.getLoaiDichVu());
-//			ps.setString(4, hdc.getMatHangID());
-//			ps.setString(5, hdc.getTenMatHang());
-//			ps.setDouble(6, hdc.getDonGia());
-//			ps.setInt(7, hdc.getSoLuong());
-//			ps.setDouble(8, hdc.getTienNhan());
-//			ps.setDouble(9, hdc.getThue());
-//			ps.setString(10, hdc.getVeID());
-//			return ps.executeUpdate() > 0;
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			return false;
-//		}
-//	}
-//
-//	// update/delete/findById/findAll tương tự có thể thêm khi cần
-//}
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import connectDB.ConnectDB;
+import entity.HoaDonChiTiet;
+
+public class HoaDonChiTiet_DAO {
+	private final ConnectDB connectDB = ConnectDB.getInstance();
+
+	public HoaDonChiTiet_DAO() {
+		connectDB.connect();
+	}
+
+	public boolean createHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
+		Connection conn = connectDB.getConnection();
+		String sql = "INSERT INTO HoaDonChiTiet (hoaDonChiTietID, hoaDonID, veID, phieuDungPhongVIPID, tenDichVu, loaiDichVu, donViTinh, soLuong, donGia, thanhTien) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
+			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
+			if (hoaDonChiTiet.getVe().getVeID() != null) {
+				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
+				ps.setNull(4, 0);
+			} else {
+				ps.setNull(3, 0);
+				ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
+			}
+			ps.setString(5, hoaDonChiTiet.getTenDichVu());
+			ps.setString(6, hoaDonChiTiet.getLoaiDichVu().toString());
+			ps.setString(7, hoaDonChiTiet.getDonViTinh());
+			ps.setInt(8, hoaDonChiTiet.getSoLuong());
+			ps.setDouble(9, hoaDonChiTiet.getDonGia());
+			ps.setDouble(10, hoaDonChiTiet.getThanhTien());
+
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

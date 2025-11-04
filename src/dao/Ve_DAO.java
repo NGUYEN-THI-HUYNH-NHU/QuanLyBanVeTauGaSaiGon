@@ -7,11 +7,9 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.time.LocalDateTime;
 
 import connectDB.ConnectDB;
-import entity.type.TrangThaiVe;
-import gui.application.form.banVe.VeSession;
+import entity.Ve;
 
 /*
  * @description
@@ -27,7 +25,7 @@ public class Ve_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createVe(String veID, String donDatChoID, VeSession veSession) {
+	public boolean createVe(Ve ve) {
 		Connection conn = connectDB.getConnection();
 		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try {
@@ -44,17 +42,16 @@ public class Ve_DAO {
 //			System.out.println(veSession.getGia());
 //			System.out.println(TrangThaiVe.DA_BAN.toString());
 
-			ps.setString(1, veID);
-			ps.setString(2, veSession.getHanhKhach().getKhachHangID());
-			ps.setString(3, donDatChoID);
-			ps.setString(4, veSession.getChuyenID());
-			ps.setString(5, veSession.getGheID());
-			ps.setString(6, veSession.getGaDiID());
-			ps.setString(7, veSession.getGaDenID());
-			ps.setTimestamp(8,
-					java.sql.Timestamp.valueOf(LocalDateTime.of(veSession.getNgayDi(), veSession.getGioDi())));
-			ps.setDouble(9, veSession.getGia());
-			ps.setString(10, TrangThaiVe.DA_BAN.toString());
+			ps.setString(1, ve.getVeID());
+			ps.setString(2, ve.getKhachHang().getKhachHangID());
+			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
+			ps.setString(4, ve.getChuyen().getChuyenID());
+			ps.setString(5, ve.getGhe().getGheID());
+			ps.setString(6, ve.getGaDi().getGaID());
+			ps.setString(7, ve.getGaDen().getGaID());
+			ps.setTimestamp(8, java.sql.Timestamp.valueOf(ve.getNgayGioDi()));
+			ps.setDouble(9, ve.getGia());
+			ps.setString(10, ve.getTrangThai().toString());
 
 			return ps.executeUpdate() > 0;
 		} catch (Exception e) {

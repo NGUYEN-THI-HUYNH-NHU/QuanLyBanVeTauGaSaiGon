@@ -95,9 +95,10 @@ public class PassengerCellPanel extends JPanel {
 			KhachHang kh = controller.findKhachHangByID(id);
 			if (kh != null) {
 				// Tìm thấy -> Cập nhật Model của cell
+				currentRowData.setIdNumber(kh.getSoGiayTo());
 				currentRowData.setFullName(kh.getHoTen());
 				currentRowData.setType(kh.getLoaiDoiTuong());
-				// (Quan trọng) Lưu entity KhachHang vào VeSession
+				// (Lưu entity KhachHang vào VeSession
 				currentRowData.getVeSession().setHanhKhach(kh);
 
 				// Cập nhật View (các trường) từ Model vừa sửa
@@ -163,12 +164,12 @@ public class PassengerCellPanel extends JPanel {
 		this.currentRowData = p;
 
 		if (p == null) {
-			txtTen.setText("");
 			txtID.setText("");
+			txtTen.setText("");
 			cbType.setSelectedIndex(0);
 			return;
 		}
-		getTxtTen().setText(p.getFullName());
+		txtTen.setText(p.getFullName());
 		txtID.setText(p.getIdNumber());
 		if (p.getType() == null) {
 			cbType.setSelectedIndex(0);

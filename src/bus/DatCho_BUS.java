@@ -38,17 +38,17 @@ public class DatCho_BUS {
 	private final DonDatCho_DAO ddcDAO = new DonDatCho_DAO();
 	private final Ghe_DAO gheDAO = new Ghe_DAO();
 
-	public PhieuGiuCho themPhieuGiuCho() {
+	public PhieuGiuCho taoPhieuGiuCho() {
 		NhanVien nv = AuthService.getInstance().getCurrentUser();
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmm");
 		String pgcID = "PGC-" + now.format(formatter).toString();
 
-		PhieuGiuCho pgc = new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
+		return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
+	}
 
-		pgcDAO.createPhieuGiuCho(pgc);
-
-		return pgc;
+	public boolean themPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
+		return pgcDAO.createPhieuGiuCho(phieuGiuCho);
 	}
 
 //	public List<PhieuGiuChoChiTiet> themPhieuGiuChoChiTiet(PhieuGiuCho pgc, List<VeSession> veTrongGio) {
@@ -62,7 +62,7 @@ public class DatCho_BUS {
 //		return dsPgcct;
 //	}
 
-	public PhieuGiuChoChiTiet themPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v) {
+	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v) {
 		String chuyenID = v.getChuyenID();
 		String tenGaDi = v.getTenGaDi();
 		String tenGaDen = v.getTenGaDen();
@@ -75,10 +75,13 @@ public class DatCho_BUS {
 			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
 					TrangThaiPhieuGiuCho.DANG_GIU.toString());
-			pgcctDAO.createPhieuGiuChoChiTiet(pgcct);
 			return pgcct;
 		}
 		return null;
+	}
+
+	public boolean themPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
+		return pgcctDAO.createPhieuGiuChoChiTiet(phieuGiuChoChiTiet);
 	}
 
 	public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
@@ -117,22 +120,16 @@ public class DatCho_BUS {
 		return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
 	}
 
-	/**
-	 * @param BookingSession bookingSession
-	 * @return DonDatCho
-	 */
-	public DonDatCho themDonDatCho(BookingSession bookingSession) {
+	public DonDatCho taoDonDatCho(BookingSession bookingSession) {
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
 
 		String ddcID = "DDC-" + now.format(formatter).toString();
 
-		DonDatCho ddc = new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
+		return new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
+	}
 
-		if (ddcDAO.createDonDatCho(ddc)) {
-			return ddc;
-		}
-
-		return null;
+	public boolean themDonDatCho(DonDatCho donDatCho) {
+		return ddcDAO.createDonDatCho(donDatCho);
 	}
 }

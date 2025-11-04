@@ -14,27 +14,77 @@ package entity;
 
 import java.util.Objects;
 
+import entity.type.LoaiDichVu;
+
 public class HoaDonChiTiet {
 	private String hoaDonChiTietID;
 	private HoaDon hoaDon;
 	private Ve ve;
+	private PhieuDungPhongChoVIP phieuDungPhongVIP;
 	private String tenDichVu;
+	private LoaiDichVu loaiDichVu;
 	private String donViTinh;
 	private int soLuong;
 	private double donGia;
-	private double thue;
 	private double thanhTien;
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, String donViTinh, int soLuong, double donGia, double thue, double thanhTien) {
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, PhieuDungPhongChoVIP phieuDungPhongVIP,
+			String tenDichVu, LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
+		super();
+		this.hoaDonChiTietID = hoaDonChiTietID;
+		this.hoaDon = hoaDon;
+		this.ve = ve;
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
+		this.tenDichVu = tenDichVu;
+		this.loaiDichVu = loaiDichVu;
+		this.donViTinh = donViTinh;
+		this.soLuong = soLuong;
+		this.donGia = donGia;
+		this.thanhTien = thanhTien;
+	}
+
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+			String donViTinh, int soLuong, double donGia, double thanhTien) {
+		super();
 		this.hoaDonChiTietID = hoaDonChiTietID;
 		this.hoaDon = hoaDon;
 		this.ve = ve;
 		this.tenDichVu = tenDichVu;
+		this.loaiDichVu = loaiDichVu;
 		this.donViTinh = donViTinh;
 		this.soLuong = soLuong;
 		this.donGia = donGia;
-		this.thue = thue;
 		this.thanhTien = thanhTien;
+	}
+
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongChoVIP phieuDungPhongVIP,
+			String tenDichVu, LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
+		super();
+		this.hoaDonChiTietID = hoaDonChiTietID;
+		this.hoaDon = hoaDon;
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
+		this.tenDichVu = tenDichVu;
+		this.loaiDichVu = loaiDichVu;
+		this.donViTinh = donViTinh;
+		this.soLuong = soLuong;
+		this.donGia = donGia;
+		this.thanhTien = thanhTien;
+	}
+
+	public PhieuDungPhongChoVIP getPhieuDungPhongVIP() {
+		return phieuDungPhongVIP;
+	}
+
+	public LoaiDichVu getLoaiDichVu() {
+		return loaiDichVu;
+	}
+
+	public void setPhieuDungPhongVIP(PhieuDungPhongChoVIP phieuDungPhongVIP) {
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
+	}
+
+	public void setLoaiDichVu(LoaiDichVu loaiDichVu) {
+		this.loaiDichVu = loaiDichVu;
 	}
 
 	public String getHoaDonChiTietID() {
@@ -65,46 +115,41 @@ public class HoaDonChiTiet {
 		return donGia;
 	}
 
-	public double getThue() {
-		return thue;
-	}
-
 	public double getThanhTien() {
 		return thanhTien;
 	}
 
 	public void setHoaDonChiTietID(String hoaDonChiTietID) {
-		if(hoaDonChiTietID != null && !hoaDonChiTietID.isEmpty()){
+		if (hoaDonChiTietID != null && !hoaDonChiTietID.isEmpty()) {
 			this.hoaDonChiTietID = hoaDonChiTietID;
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException("HoaDonChiTietID không được để trống!");
 		}
 	}
 
 	public void setHoaDon(HoaDon hoaDon) {
-		if(hoaDon == null) {
+		if (hoaDon == null) {
 			throw new IllegalArgumentException("HoaDon không được để trống!");
 		}
 		this.hoaDon = hoaDon;
 	}
 
 	public void setVe(Ve ve) {
-		if(ve == null) {
+		if (ve == null) {
 			throw new IllegalArgumentException("Ve không được để trống!");
 		}
 		this.ve = ve;
 	}
 
 	public void setTenDichVu(String tenDichVu) {
-		if(tenDichVu == null || tenDichVu.isEmpty()) {
+		if (tenDichVu == null || tenDichVu.isEmpty()) {
 			throw new IllegalArgumentException("TenDichVu không được để trống!");
 		}
 		this.tenDichVu = tenDichVu;
 	}
 
 	public void setDonViTinh(String donViTinh) {
-		if(donViTinh == null || donViTinh.isEmpty()) {
+		if (donViTinh == null || donViTinh.isEmpty()) {
 			throw new IllegalArgumentException("DonViTinh không được để trống!");
 		}
 		this.donViTinh = donViTinh;
@@ -118,22 +163,24 @@ public class HoaDonChiTiet {
 		this.donGia = donGia;
 	}
 
-	public void setThue(double thue) {
-		this.thue = thue;
-	}
-
 	public void setThanhTien(double thanhTien) {
 		this.thanhTien = thanhTien;
 	}
 
 	@Override
 	public String toString() {
-		return hoaDonChiTietID + ";" + hoaDon + ";" + ve + ";" + tenDichVu + ";" + donViTinh + ";" + soLuong + ";" + donGia + ";" + thue + ";" + thanhTien;
+		return hoaDonChiTietID + ";" + hoaDon + ";" + ve + ";" + tenDichVu + ";" + donViTinh + ";" + soLuong + ";"
+				+ donGia + ";" + thanhTien;
 	}
+
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		HoaDonChiTiet that = (HoaDonChiTiet) o;
 		return Objects.equals(hoaDonChiTietID, that.hoaDonChiTietID);
 	}

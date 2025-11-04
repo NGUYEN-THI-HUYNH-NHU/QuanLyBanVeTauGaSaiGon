@@ -5,9 +5,17 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import dao.Ve_DAO;
+import entity.Chuyen;
+import entity.DonDatCho;
+import entity.Ga;
+import entity.Ghe;
+import entity.Ve;
+import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
@@ -22,18 +30,39 @@ public class Ve_BUS {
 	private final Ve_DAO veDAO = new Ve_DAO();
 
 	/**
+	 * @param donDatCho
 	 * @param bookingSession
-	 * @return
+	 * @return List<Ve>
 	 */
-	public boolean themCacVe(String donDatChoID, BookingSession bookingSession) {
+	public List<Ve> taoCacVeVaThemVaoBookingSession(DonDatCho donDatCho, BookingSession bookingSession) {
+		List<Ve> dsVe = new ArrayList<Ve>();
 		List<VeSession> dsVeDi = bookingSession.getOutboundSelected();
 		List<VeSession> dsVeVe = bookingSession.getReturnSelected();
 
 		for (VeSession v : dsVeDi) {
 			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getChuyenID() + "-" + v.getSoGhe();
-			veDAO.createVe(veID, donDatChoID, v);
+			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
+					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
+					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
+					TrangThaiVe.DA_BAN);
+			dsVe.add(ve);
+			v.setVe(ve);
+		}
+		return dsVe;
+	}
+
+	/**
+	 * @param dsVe
+	 * @return boolean
+	 */
+	public boolean themCacVe(List<Ve> dsVe) {
+		for (Ve v : dsVe) {
+			if (!veDAO.createVe(v)) {
+				return false;
+			}
 		}
 		return true;
+
 	}
 
 }

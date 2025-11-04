@@ -14,6 +14,7 @@ import java.util.Objects;
 
 import entity.KhachHang;
 import entity.PhieuGiuChoChiTiet;
+import entity.Ve;
 
 /**
  * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán). Lưu đủ thông tin
@@ -39,6 +40,7 @@ public class VeSession {
 	private final LocalDateTime thoiDiemHetHan;
 	private KhachHang hanhKhach;
 	private PhieuGiuChoChiTiet pgcct;
+	private Ve ve;
 	private boolean isHanhKhachMoi = true;
 
 	public VeSession(String chuyenID, String tenTau, String tenGaDi, String gaDiID, String tenGaDen, String gaDenID,
@@ -194,5 +196,13 @@ public class VeSession {
 
 	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
 		this.isHanhKhachMoi = isHanhKhachMoi;
+	}
+
+	public Ve getVe() {
+		return ve;
+	}
+
+	public void setVe(Ve ve) {
+		this.ve = ve;
 	}
 }

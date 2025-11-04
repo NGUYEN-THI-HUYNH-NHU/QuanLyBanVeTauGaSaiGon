@@ -24,6 +24,9 @@ import bus.ThanhToan_BUS;
 import bus.Ve_BUS;
 import entity.DonDatCho;
 import entity.GiaoDichThanhToan;
+import entity.HoaDon;
+import entity.HoaDonChiTiet;
+import entity.Ve;
 import gui.application.PdfTicketExporter;
 
 /**
@@ -127,15 +130,25 @@ public class BanVe2Controller {
 			boolean trangThai = true;
 			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, maGiaoDich, tongTien,
 					isThanhToanTienMat, trangThai);
-			System.out.println(giaoDichThanhToan);
+			bookingSession.setGiaoDichThanhToan(giaoDichThanhToan);
 
 			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
 
-			DonDatCho donDatCho = datChoBUS.themDonDatCho(bookingSession);
+			DonDatCho donDatCho = datChoBUS.taoDonDatCho(bookingSession);
 			if (donDatCho != null) {
+				datChoBUS.themDonDatCho(donDatCho);
 				bookingSession.setDonDatCho(donDatCho);
-				veBUS.themCacVe(donDatCho.getDonDatChoID(), bookingSession);
-				hoaDonBUS.themHoaDon(bookingSession, giaoDichThanhToan);
+				// Lưu các vé
+				List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, bookingSession);
+				veBUS.themCacVe(dsVe);
+				// Lưu hóa đơn và hóa đơn chi tiết
+				HoaDon hoaDon = hoaDonBUS.taoHoaDon(bookingSession);
+				bookingSession.setHoaDon(hoaDon);
+
+				hoaDonBUS.themHoaDon(hoaDon);
+				List<HoaDonChiTiet> dsHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(bookingSession, giaoDichThanhToan);
+				hoaDonBUS.themCacHoaDonChiTiet(dsHoaDonChiTiet);
+
 			}
 			// Giả sử lưu thành công
 			boolean saveSuccess = true;

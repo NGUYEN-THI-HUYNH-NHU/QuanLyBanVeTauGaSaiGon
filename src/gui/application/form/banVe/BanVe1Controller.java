@@ -217,15 +217,22 @@ public class BanVe1Controller {
 			protected Boolean doInBackground() throws Exception {
 				try {
 					// === 4. GỌI BUS TẠI ĐÂY ===
-					PhieuGiuCho pgc = datChoBUS.themPhieuGiuCho();
+					PhieuGiuCho pgc = datChoBUS.taoPhieuGiuCho();
+					if (pgc != null) {
+						datChoBUS.themPhieuGiuCho(pgc);
+					} else {
+						JOptionPane.showMessageDialog(view, "BanVe1Controller: Không thể tạo phiếu giữ chỗ");
+						return false;
+					}
 
 					bookingSession.setPhieuGiuCho(pgc);
 
 					for (VeSession v : veTrongGio) {
-						PhieuGiuChoChiTiet pgcct = datChoBUS.themPhieuGiuChoChiTiet(pgc, v);
+						PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v);
 						if (pgcct == null) {
 							return false;
 						}
+						datChoBUS.themPhieuGiuChoChiTiet(pgcct);
 						v.setPgcct(pgcct);
 					}
 
