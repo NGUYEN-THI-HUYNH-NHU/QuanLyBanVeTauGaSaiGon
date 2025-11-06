@@ -38,7 +38,7 @@ public class PanelBuoc4 extends JPanel {
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(250);
-		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.removeColumn(table.getColumnModel().getColumn(6));
 
 		// 2. CHỈ DÙNG Renderer (để hiển thị), KHÔNG DÙNG Editor (để không thể sửa)
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
@@ -49,6 +49,7 @@ public class PanelBuoc4 extends JPanel {
 		table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
 		table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 		table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+		table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
 
 		JScrollPane sp = new JScrollPane(table);
 		add(sp, BorderLayout.CENTER);

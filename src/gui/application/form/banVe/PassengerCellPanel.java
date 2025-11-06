@@ -1,3 +1,4 @@
+
 package gui.application.form.banVe;
 /*
  * @(#) PassengerCellPanel.java  1.0  [10:13:12 PM] Oct 26, 2025
@@ -98,7 +99,7 @@ public class PassengerCellPanel extends JPanel {
 				currentRowData.setIdNumber(kh.getSoGiayTo());
 				currentRowData.setFullName(kh.getHoTen());
 				currentRowData.setType(kh.getLoaiDoiTuong());
-				// (Lưu entity KhachHang vào VeSession
+				// Lưu entity KhachHang vào VeSession
 				currentRowData.getVeSession().setHanhKhach(kh);
 
 				// Cập nhật View (các trường) từ Model vừa sửa

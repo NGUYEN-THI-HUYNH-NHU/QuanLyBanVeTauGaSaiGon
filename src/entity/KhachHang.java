@@ -49,12 +49,14 @@ public class KhachHang {
 		this.diaChi = diaChi;
 	}
 
-	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
+	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo,
+			LoaiKhachHang loaiKhachHang) {
 		super();
 		this.khachHangID = khachHangID;
 		this.loaiDoiTuong = loaiDoiTuong;
 		this.hoTen = hoTen;
 		this.soGiayTo = soGiayTo;
+		this.loaiKhachHang = loaiKhachHang;
 	}
 
 	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String soGiayTo,

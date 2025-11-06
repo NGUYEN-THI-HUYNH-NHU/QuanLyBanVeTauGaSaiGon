@@ -141,7 +141,7 @@ public class PanelBuoc5 extends JPanel {
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
 		lblGiamGiaDT = new JLabel("0 VND", JLabel.RIGHT);
-		lblGiamGiaDT.setForeground(Color.RED);
+		lblGiamGiaDT.setForeground(Color.GREEN);
 		pnl.add(lblGiamGiaDT, gbc);
 
 		gbc.gridx = 0;
@@ -151,7 +151,7 @@ public class PanelBuoc5 extends JPanel {
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
 		lblKhuyenMai = new JLabel("0 VND");
-		lblKhuyenMai.setForeground(Color.RED);
+		lblKhuyenMai.setForeground(Color.GREEN);
 		pnl.add(lblKhuyenMai, gbc);
 
 		gbc.gridx = 0;

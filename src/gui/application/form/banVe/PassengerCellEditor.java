@@ -62,9 +62,9 @@ public class PassengerCellEditor extends AbstractCellEditor implements TableCell
 				panel.setBackground(table.getBackground());
 			}
 
-			// Yêu cầu focus vào trường ĐẦU TIÊN (bây giờ là txtID)
+			// Yêu cầu focus vào trường ĐẦU TIÊN
 			SwingUtilities.invokeLater(() -> {
-				panel.getTxtID().requestFocusInWindow(); // <-- Đổi sang txtID
+				panel.getTxtID().requestFocusInWindow();
 			});
 		}
 		// Trả về panel bọc ngoài

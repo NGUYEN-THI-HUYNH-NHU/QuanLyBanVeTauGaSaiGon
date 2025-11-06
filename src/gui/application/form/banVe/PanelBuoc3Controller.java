@@ -5,14 +5,14 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 26, 2025
  * @version: 1.0
  */
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -117,6 +117,15 @@ public class PanelBuoc3Controller {
 		}
 	}
 
+	public boolean addHanhKhach(KhachHang hanhKhach) {
+		if (hanhKhach != null) {
+			String hanhKhachID = khachHangBUS.taoMaKhachHangTuDong();
+			hanhKhach.setKhachHangID(hanhKhachID);
+			return khachHangBUS.themKhachHang(hanhKhach);
+		}
+		return false;
+	}
+
 	private void handleDelete(PassengerRow rowToDelete) {
 		if (rowToDelete == null) {
 			return;
@@ -139,49 +148,6 @@ public class PanelBuoc3Controller {
 	/**
 	 * Xử lý logic khi bấm "Xác nhận"
 	 */
-//	private void handleConfirm() {
-//		// 1. Lấy dữ liệu thô từ View
-//		List<PassengerRow> rows = view.getPassengerRows();
-//		String tenNguoiMua = view.getTxtTenNguoiMua().getText();
-//		String cmndNguoiMua = view.getTxtCccdNguoiMua().getText();
-//		String phoneNguoiMua = view.getTxtPhoneNguoiMua().getText();
-//
-//		// 2. Thực hiện Validation (Logic đã chuyển về đây)
-//		if (!validateInput(rows, tenNguoiMua, cmndNguoiMua, phoneNguoiMua)) {
-//			return;
-//		}
-//
-//		// 3. Cập nhật Model (BookingSession)
-//
-//		// 3a. Tạo và set Khách hàng (Người Mua)
-//		// Nếu là khách hàng mới thì tạo và thêm vào CSDL
-//		if (bookingSession.getKhachHang() != null) {
-//			KhachHang khachHang = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua,
-//					cmndNguoiMua, LoaiKhachHang.KHACH_HANG);
-//			bookingSession.setKhachHang(khachHang);
-//			System.out.println(khachHang);
-//		}
-//
-//		// 3b. Cập nhật thông tin Hành Khách vào từng VeSession
-//		for (PassengerRow row : rows) {
-//			VeSession ve = row.getVeSession();
-//			// Nếu là hành khách mới thì tạo và thêm vào CSDL
-//			if (ve.getHanhKhach() != null) {
-//				KhachHang hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(),
-//						row.getType(), row.getIdNumber());
-//				// Gán vào VeSession
-//				ve.setHanhKhach(hanhKhach);
-//				System.out.println(hanhKhach);
-//			}
-//		}
-//
-//		System.out.println("BookingSession đã được cập nhật với thông tin hành khách và người mua.");
-//
-//		// 4. Báo cho Controller cha (BanVe1Controller) biết là đã xong
-//		if (onConfirmListener != null) {
-//			onConfirmListener.run();
-//		}
-//	}
 	private void handleConfirm() {
 		// 1. Lấy dữ liệu thô từ View
 		List<PassengerRow> rows = view.getPassengerRows();
@@ -202,26 +168,25 @@ public class PanelBuoc3Controller {
 			// Không tìm thấy (hoặc không nhập) -> Tạo khách hàng mới
 			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, cmndNguoiMua,
 					LoaiKhachHang.KHACH_HANG);
-			// TODO: Gọi khachHangBUS.themKhachHang(nguoiMua)
 			bookingSession.setKhachHang(nguoiMua);
+			khachHangBUS.themKhachHang(nguoiMua);
 			System.out.println("Tạo người mua mới: " + nguoiMua);
 		} else {
 			// Tìm thấy -> Cập nhật lại thông tin (nếu người dùng sửa)
 			nguoiMua.setHoTen(tenNguoiMua);
 			nguoiMua.setSoDienThoai(phoneNguoiMua);
-			// TODO: Gọi khachHangBUS.capNhatKhachHang(nguoiMua)
 			System.out.println("Cập nhật người mua: " + nguoiMua);
 		}
 
 		// 3b. Cập nhật thông tin Hành Khách vào từng VeSession
 		for (PassengerRow row : rows) {
 			VeSession ve = row.getVeSession();
-			KhachHang hanhKhach = ve.getHanhKhach(); // Lấy từ VeSession (được set bởi CellPanel)
+			KhachHang hanhKhach = ve.getHanhKhach();
 
 			if (hanhKhach == null) {
 				// Không tìm thấy -> Tạo hành khách mới
 				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), row.getType(),
-						row.getIdNumber());
+						row.getIdNumber(), LoaiKhachHang.HANH_KHACH);
 				// TODO: Gọi khachHangBUS.themKhachHang(hanhKhach)
 				ve.setHanhKhach(hanhKhach);
 				System.out.println("Tạo hành khách mới: " + hanhKhach);
