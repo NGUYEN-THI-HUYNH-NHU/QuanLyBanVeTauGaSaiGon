@@ -40,4 +40,5 @@ public final class AuthService {
 	public boolean isAuthenticated() {
 	    return current.get() != null;
 	}
+
 }
