@@ -48,6 +48,15 @@ public class Ve_BUS {
 			dsVe.add(ve);
 			v.setVe(ve);
 		}
+		for (VeSession v : dsVeVe) {
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getChuyenID() + "-" + v.getSoGhe();
+			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
+					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
+					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
+					TrangThaiVe.DA_BAN);
+			dsVe.add(ve);
+			v.setVe(ve);
+		}
 		return dsVe;
 	}
 

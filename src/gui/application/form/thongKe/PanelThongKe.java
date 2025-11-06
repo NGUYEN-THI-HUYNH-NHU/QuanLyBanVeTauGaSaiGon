@@ -5,20 +5,17 @@ package gui.application.form.thongKe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import javax.swing.JPanel;
-
-import entity.NhanVien;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Nov 1, 2025
  * @version: 1.0
  */
+import javax.swing.JPanel;
 
 public class PanelThongKe extends JPanel {
 
-	public PanelThongKe(NhanVien nhanVien) {
+	public PanelThongKe() {
 
 	}
 }

@@ -7,8 +7,6 @@ package gui.application.form.thongKe;
 
 import javax.swing.JPanel;
 
-import entity.NhanVien;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -18,7 +16,7 @@ import entity.NhanVien;
 
 public class PanelBaoCao extends JPanel {
 
-	public PanelBaoCao(NhanVien nhanVien) {
+	public PanelBaoCao() {
 
 	}
 

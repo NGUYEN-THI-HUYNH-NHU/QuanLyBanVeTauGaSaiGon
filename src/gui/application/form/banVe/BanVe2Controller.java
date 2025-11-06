@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 
 import bus.DatCho_BUS;
 import bus.HoaDon_BUS;
+import bus.KhachHang_BUS;
 import bus.ThanhToan_BUS;
 import bus.Ve_BUS;
 import entity.DonDatCho;
@@ -27,6 +28,7 @@ import entity.GiaoDichThanhToan;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.Ve;
+import entity.type.LoaiDoiTuong;
 import gui.application.PdfTicketExporter;
 
 /**
@@ -45,6 +47,7 @@ public class BanVe2Controller {
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
 	private final BookingSession bookingSession;
 
@@ -80,7 +83,7 @@ public class BanVe2Controller {
 
 		// 3. Tính toán chi tiết thanh toán
 		int tongTienVe = 0;
-		int giamGiaDT = 0;
+		double giamGiaDT = 0;
 		int khuyenMai = 0;
 		int dichVu = 0;
 
@@ -91,20 +94,19 @@ public class BanVe2Controller {
 
 		for (VeSession ve : allTickets) {
 			tongTienVe += ve.getGia();
-			khuyenMai += ve.getGiam();
 
-			// TODO: Bạn cần thêm logic tính giảm giá đối tượng ở đây
-			// ví dụ: if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
-			// giamGiaDT = giamGiaDT.add(ve.getGia().multiply(new int("0.25"))); //
-			// Giảm 25%
-			// }
+			// Giảm giá đối tượng ở đây
+			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				ve.setGiamDoiTuong((int) (Math.round((ve.getGia() * 0.25) / 1000) * 1000));
+				giamGiaDT += ve.getGiamDoiTuong();
+			}
+			// TODO: khuyenMai += ve.getGiam()
+			khuyenMai = 0;
+
 		}
 
-		// Cập nhật hardcode từ prototype (bạn sẽ thay bằng logic thật)
-		giamGiaDT = 0;
-
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
-		p5.setChiTietThanhToan(tongTienVe, giamGiaDT, khuyenMai, dichVu);
+		p5.setChiTietThanhToan(tongTienVe, (int) giamGiaDT, khuyenMai, dichVu);
 	}
 
 	/**
@@ -148,10 +150,16 @@ public class BanVe2Controller {
 				hoaDonBUS.themHoaDon(hoaDon);
 				List<HoaDonChiTiet> dsHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(bookingSession, giaoDichThanhToan);
 				hoaDonBUS.themCacHoaDonChiTiet(dsHoaDonChiTiet);
-
 			}
 			// Giả sử lưu thành công
 			boolean saveSuccess = true;
+
+			for (VeSession v : bookingSession.getOutboundSelected()) {
+				khachHangBUS.themKhachHang(v.getHanhKhach());
+			}
+			for (VeSession v : bookingSession.getReturnSelected()) {
+				khachHangBUS.themKhachHang(v.getHanhKhach());
+			}
 
 			if (saveSuccess) {
 				// a. Vô hiệu hóa PanelBuoc5

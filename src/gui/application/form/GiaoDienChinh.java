@@ -107,8 +107,8 @@ public class GiaoDienChinh extends JLayeredPane {
 //			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
 			case 13 -> {
 				switch (subIndex) {
-				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe(nhanVien));
-				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao(nhanVien));
+				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
 				}
 			}
 

@@ -5,19 +5,19 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 26, 2025
  * @version: 1.0
  */
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 public class HanhKhachTableModel extends AbstractTableModel {
-	private final String[] cols = { "Hành khách", "Vé", "Giá", "Khuyến mãi", "Thành tiền", "" };
+	private final String[] cols = { "Hành khách", "Vé", "Giá", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" };
 	private final List<PassengerRow> rows = new ArrayList<>();
 
 	@Override
@@ -40,16 +40,18 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		PassengerRow p = rows.get(rowIndex);
 		switch (columnIndex) {
 		case 0:
-			return p; // renderer/editor will read PassengerRow
+			return p;
 		case 1:
 			return p.getVeSession().prettyString();
 		case 2:
-			return p.getPrice();
+			return p.getVeSession().getGia();
 		case 3:
-			return p.getDiscount();
+			return p.getVeSession().getGiamDoiTuong();
 		case 4:
-			return p.getTotal();
+			return p.getVeSession().getGiam();
 		case 5:
+			return p.getVeSession().getGia() - p.getVeSession().getGiam() - p.getVeSession().getGiamDoiTuong();
+		case 6:
 			return "Xóa";
 		default:
 			return null;
@@ -58,7 +60,7 @@ public class HanhKhachTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == 0 || columnIndex == 5;
+		return columnIndex == 0 || columnIndex == 6;
 	}
 
 	@Override
@@ -71,13 +73,6 @@ public class HanhKhachTableModel extends AbstractTableModel {
 			p.setIdNumber(src.getIdNumber());
 			fireTableRowsUpdated(rowIndex, rowIndex);
 		}
-//	    else if (columnIndex == 2 && aValue instanceof Number) {
-//	        p.setPrice(((Number)aValue).doubleValue());
-//	        fireTableRowsUpdated(rowIndex, rowIndex);
-//	    } else if (columnIndex == 3 && aValue instanceof Number) {
-//	        p.setDiscount(((Number)aValue).doubleValue());
-//	        fireTableRowsUpdated(rowIndex, rowIndex);
-//	    }
 	}
 
 	public void setRows(List<PassengerRow> list) {

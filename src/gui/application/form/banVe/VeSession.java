@@ -35,8 +35,9 @@ public class VeSession {
 	private final String gheID;
 	private final int soGhe;
 	private final int gia;
-	private final String khuyenMaiCode;
-	private final int giam;
+	private String khuyenMaiCode;
+	private int giam;
+	private int giamDoiTuong;
 	private final LocalDateTime thoiDiemHetHan;
 	private KhachHang hanhKhach;
 	private PhieuGiuChoChiTiet pgcct;
@@ -204,5 +205,21 @@ public class VeSession {
 
 	public void setVe(Ve ve) {
 		this.ve = ve;
+	}
+
+	public void setKhuyenMaiCode(String khuyenMaiCode) {
+		this.khuyenMaiCode = khuyenMaiCode;
+	}
+
+	public void setGiam(int giam) {
+		this.giam = giam;
+	}
+
+	public int getGiamDoiTuong() {
+		return giamDoiTuong;
+	}
+
+	public void setGiamDoiTuong(int giamDoiTuong) {
+		this.giamDoiTuong = giamDoiTuong;
 	}
 }

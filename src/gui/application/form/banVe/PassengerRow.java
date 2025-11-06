@@ -21,14 +21,7 @@ public class PassengerRow {
 
 	public PassengerRow(VeSession v) {
 		this.veSession = v;
-		// nếu VeSession chứa giá, set ở đây:
-		// this.price = (v.getFare() != null) ? v.getFare() : 0.0;
-//     recalcTotal();
 	}
-
-//	public PassengerRow() {
-//		super();
-//	}
 
 	public VeSession getVeSession() {
 		return veSession;
@@ -58,14 +51,8 @@ public class PassengerRow {
 		this.idNumber = idNumber;
 	}
 
-	public double getPrice() {
-		return veSession.getGia();
-	}
 // public void setPrice(double price) { this.price = price; recalcTotal(); }
 
-	public double getDiscount() {
-		return veSession.getGiam();
-	}
 // public void setDiscount(double discount) { this.discount = discount; recalcTotal(); }
 
 	public double getTotal() {

@@ -59,18 +59,21 @@ public class PanelBuoc3 extends JPanel {
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
 
 		model = new HanhKhachTableModel();
+//		{ "Hành khách", "Vé", "Giá", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(200);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
 		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
-		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
-		center.setHorizontalAlignment(SwingConstants.CENTER);
-		table.getColumnModel().getColumn(2).setCellRenderer(center);
-		table.getColumnModel().getColumn(3).setCellRenderer(center);
-		table.getColumnModel().getColumn(4).setCellRenderer(center);
+		table.removeColumn(table.getColumnModel().getColumn(3));
+		table.removeColumn(table.getColumnModel().getColumn(3));
+		table.removeColumn(table.getColumnModel().getColumn(3));
 
-		int deleteColumnIndex = 5;
+		DefaultTableCellRenderer right = new DefaultTableCellRenderer();
+		right.setHorizontalAlignment(SwingConstants.RIGHT);
+		table.getColumnModel().getColumn(2).setCellRenderer(right);
+
+		int deleteColumnIndex = 3;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
 		// 1. Áp dụng Renderer
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
