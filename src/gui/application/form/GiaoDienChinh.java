@@ -38,10 +38,7 @@ import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
-import gui.application.form.thongKe.PanelBaoCao;
-import gui.application.form.thongKe.PanelThongKe;
-import gui.application.form.thongKe.PanelThongKeDoanhThu;
-import gui.application.form.thongKe.PanelThongKeVe;
+import gui.application.form.thongKe.*;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.form.troGiup.PanelTroGiup;
@@ -126,7 +123,7 @@ public class GiaoDienChinh extends JLayeredPane {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
-				// case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
+				case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
 				default -> action.cancel();
 				}
 			}

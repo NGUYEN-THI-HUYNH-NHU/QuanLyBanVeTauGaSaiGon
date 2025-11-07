@@ -45,7 +45,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.SQLException; // <<< THÊM MỚI
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -53,7 +53,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List; // <<< THÊM MỚI
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -159,7 +159,25 @@ public class PanelThongKeVe extends JPanel {
         // --- Cấu hình Layout chính ---
         setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
-        setBorder(new EmptyBorder(10, 10, 10, 10));
+        // Bước 1: Tạo đường viền bên ngoài (LineBorder) CÓ TIÊU ĐỀ
+
+        javax.swing.border.Border titledLineBorder = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 2, true), // Border BẠN MUỐN DÙNG
+                "THỐNG KÊ VÉ", // Tiêu đề
+                javax.swing.border.TitledBorder.LEFT,
+                javax.swing.border.TitledBorder.TOP,
+                new Font("Arial", Font.BOLD, 16),
+                new Color(0, 110, 185)
+        );
+
+        // Bước 2: Tạo padding (khoảng đệm) bên trong
+        javax.swing.border.Border padding = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+
+        // Bước 3: Gộp 2 border lại. (TitledBorder bên ngoài, padding bên trong)
+        setBorder(BorderFactory.createCompoundBorder(
+                titledLineBorder,
+                padding
+        ));
 
         // ===== Khu vực NORTH: Thanh lọc và Cards =====
         JPanel topPanel = new JPanel(new BorderLayout(0, 15));
@@ -188,10 +206,10 @@ public class PanelThongKeVe extends JPanel {
         tab.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         chartPanelContainer = taoPanelTongQuan();
 
-        // --- Tạo Table Model ---
+        // --- Tạo Table Model (THÊM CỘT GA ĐI, GA ĐẾN) ---
         String[] columnNames = {
                 "STT", "Thời Gian", "Vé bán", "Vé còn hiệu lực", "Vé đã dùng",
-                "Vé đổi", "Vé hoàn", "Tổng tiền vé (VNĐ)"
+                "Vé đổi", "Vé hoàn", "Tuyến đường", "Tổng tiền vé (VNĐ)"
         };
         chiTietTableModel = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
@@ -199,8 +217,8 @@ public class PanelThongKeVe extends JPanel {
             public Class<?> getColumnClass(int columnIndex) {
                 return switch (columnIndex) {
                     case 0, 2, 3, 4, 5, 6 -> Integer.class;
-                    case 7 -> Double.class;
-                    default -> String.class;
+                    case 8 -> Double.class; // Cột tiền là 8
+                    default -> String.class; // Thời gian, Tuyến
                 };
             }
         };
@@ -231,13 +249,12 @@ public class PanelThongKeVe extends JPanel {
         add(tab, BorderLayout.CENTER);
 
         // ===== Load dữ liệu ban đầu =====
-        loadComboBoxesData(); // <<< TẢI DỮ LIỆU CHO COMBOBOX GA
+        loadComboBoxesData(); // TẢI DỮ LIỆU CHO COMBOBOX GA
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
     /**
      * Xây dựng panel lọc, sử dụng GridBagLayout.
-     * ĐÃ THÊM: Bộ lọc Tuyến (Tất cả / Theo Ga đi - Ga đến).
      */
     private JPanel buildFilterBar() {
         JPanel bar = new JPanel();
@@ -275,7 +292,7 @@ public class PanelThongKeVe extends JPanel {
         btnTimKiem.setPreferredSize(new Dimension(120, 40));
 
         gbc.gridx = 3; gbc.gridy = 0; // Cột 3, Hàng 0
-        gbc.gridheight = 2; // <<< NÚT CAO 2 HÀNG
+        gbc.gridheight = 2; // NÚT CAO 2 HÀNG
         gbc.fill = GridBagConstraints.VERTICAL; // Lấp đầy theo chiều dọc
         gbc.anchor = GridBagConstraints.EAST;
         gbc.insets = new Insets(5, 15, 5, 5);
@@ -308,15 +325,30 @@ public class PanelThongKeVe extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         bar.add(panelGaDiDen, gbc);
 
-        // === Gắn sự kiện (Di chuyển từ constructor) ===
+        // === Gắn sự kiện ===
         cbLoaiThoiGian.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
+                String item = (String) e.getItem();
                 CardLayout cl = (CardLayout) filterSwitcher.getLayout();
-                cl.show(filterSwitcher, (String) e.getItem());
+
+                switch (item) {
+                    case "Theo ngày":
+                        cl.show(filterSwitcher, CARD_NGAY);
+                        break;
+                    case "Theo tháng":
+                        cl.show(filterSwitcher, CARD_THANG);
+                        break;
+                    case "Theo năm":
+                        cl.show(filterSwitcher, CARD_NAM);
+                        break;
+                    case "Tất cả":
+                    default:
+                        cl.show(filterSwitcher, CARD_TATCA);
+                        break;
+                }
             }
         });
 
-        // <<< SỰ KIỆN MỚI CHO LỌC TUYẾN >>>
         cbLoaiTuyen.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 boolean enableGaFilter = e.getItem().equals("Theo Ga đi/đến");
@@ -330,6 +362,7 @@ public class PanelThongKeVe extends JPanel {
         // Cài đặt trạng thái ban đầu
         cbGaDi.setEnabled(false);
         cbGaDen.setEnabled(false);
+        ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
 
         return bar;
     }
@@ -340,26 +373,24 @@ public class PanelThongKeVe extends JPanel {
     private void loadComboBoxesData() {
         try {
             List<String> tenGaList = thongKeVeDAO.getDanhSachTenGa();
-            // Thêm "Tất cả" hoặc một lựa chọn mặc định nếu cần,
-            // nhưng ở đây ta chỉ cần load danh sách
 
-            // Xóa item cũ (nếu có)
             cbGaDi.removeAllItems();
             cbGaDen.removeAllItems();
 
+            //cbGaDi.addItem("Tất cả"); // Giao diện sẽ tự thêm "Tất cả"
+            //cbGaDen.addItem("Tất cả");
+
             if (tenGaList.isEmpty()) {
                 LOGGER.warning("Không tìm thấy ga nào trong CSDL.");
-                cbGaDi.addItem("Không tìm thấy ga");
-                cbGaDen.addItem("Không tìm thấy ga");
             } else {
                 for (String tenGa : tenGaList) {
                     cbGaDi.addItem(tenGa);
                     cbGaDen.addItem(tenGa);
                 }
             }
-            // TODO: Đặt ga đi và ga đến mặc định nếu muốn
-            // Ví dụ: cbGaDi.setSelectedItem("Sài Gòn");
-            // Ví dụ: cbGaDen.setSelectedItem("Hà Nội");
+            // Đặt ga đi và ga đến mặc định
+            cbGaDi.setSelectedItem("Sài Gòn");
+            cbGaDen.setSelectedItem("Hà Nội");
 
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Lỗi khi tải danh sách ga", e);
@@ -392,7 +423,7 @@ public class PanelThongKeVe extends JPanel {
         return card;
     }
 
-    // --- Hàm cấu hình JTable ---
+    // --- Hàm cấu hình JTable (Đã cập nhật) ---
     private void setupTableDetails() {
         tableChiTiet.setFont(new Font("Times New Roman", Font.PLAIN, 14));
         tableChiTiet.setRowHeight(28);
@@ -410,6 +441,9 @@ public class PanelThongKeVe extends JPanel {
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        DefaultTableCellRenderer leftRenderer = new DefaultTableCellRenderer(); // <<< THÊM MỚI
+        leftRenderer.setHorizontalAlignment(JLabel.LEFT);
 
         DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
             @Override
@@ -435,16 +469,21 @@ public class PanelThongKeVe extends JPanel {
 
 
         TableColumnModel columnModel = tableChiTiet.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(40);
+        columnModel.getColumn(0).setPreferredWidth(40); // STT
         columnModel.getColumn(0).setCellRenderer(centerRenderer);
-        columnModel.getColumn(1).setPreferredWidth(100);
+        columnModel.getColumn(1).setPreferredWidth(100); // Thời gian
         columnModel.getColumn(1).setCellRenderer(centerRenderer);
-        for (int i = 2; i <= 6; i++) {
+
+        for (int i = 2; i <= 6; i++) { // Vé bán, HL, Dùng, Đổi, Hoàn
             columnModel.getColumn(i).setPreferredWidth(90);
             columnModel.getColumn(i).setCellRenderer(integerRenderer);
         }
-        columnModel.getColumn(7).setPreferredWidth(140);
-        columnModel.getColumn(7).setCellRenderer(currencyRenderer);
+
+        columnModel.getColumn(7).setPreferredWidth(150); // <<< CỘT TUYẾN ĐƯỜNG MỚI
+        columnModel.getColumn(7).setCellRenderer(leftRenderer); // Căn trái cho dễ đọc
+
+        columnModel.getColumn(8).setPreferredWidth(140); // Tổng tiền vé (index 8)
+        columnModel.getColumn(8).setCellRenderer(currencyRenderer);
     }
 
 
@@ -453,14 +492,23 @@ public class PanelThongKeVe extends JPanel {
     private void xuLyThongKe() {
         // --- 1. LẤY GIÁ TRỊ TỪ CÁC BỘ LỌC ---
 
-        // Lấy lọc thời gian
         String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
         if (loaiThoiGian == null) loaiThoiGian = "Tất cả";
 
-        // Lấy lọc tuyến (MỚI)
         String loaiTuyen = (String) cbLoaiTuyen.getSelectedItem();
         String tenGaDi = (String) cbGaDi.getSelectedItem();
         String tenGaDen = (String) cbGaDen.getSelectedItem();
+
+        // <<< SỬA LOGIC LẤY GA >>>
+        if (loaiTuyen.equals("Tất cả")) {
+            tenGaDi = null; // Gửi null nếu chọn "Tất cả"
+            tenGaDen = null;
+        } else { // "Theo Ga đi/đến"
+            if (tenGaDi == null || tenGaDen == null || tenGaDi.contains("Lỗi") || tenGaDen.contains("Không")) {
+                JOptionPane.showMessageDialog(this, "Không thể lọc vì danh sách ga bị lỗi.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
 
         LocalDate fromLocalDate, toLocalDate;
         String titleLoai = loaiThoiGian;
@@ -481,7 +529,6 @@ public class PanelThongKeVe extends JPanel {
                     titleChart = "ngày";
                     break;
                 case "Theo tháng":
-                    // ... (giữ nguyên logic của bạn) ...
                     int fm = cbTuThang.getSelectedIndex() + 1; int fy = (Integer) cbTuNamThang.getSelectedItem();
                     int tm = cbDenThang.getSelectedIndex() + 1; int ty = (Integer) cbDenNamThang.getSelectedItem();
                     fromLocalDate = LocalDate.of(fy, fm, 1);
@@ -494,7 +541,6 @@ public class PanelThongKeVe extends JPanel {
                     titleChart = "tháng";
                     break;
                 case "Theo năm":
-                    // ... (giữ nguyên logic của bạn) ...
                     int startYear = (Integer) cbTuNam.getSelectedItem(); int endYear = (Integer) cbDenNam.getSelectedItem();
                     fromLocalDate = LocalDate.of(startYear, 1, 1);
                     toLocalDate = LocalDate.of(endYear, 12, 31);
@@ -507,10 +553,10 @@ public class PanelThongKeVe extends JPanel {
                     break;
                 default: // "Tất cả"
                     fromLocalDate = LocalDate.of(2000, 1, 1);
-                    toLocalDate = LocalDate.now();
+                    toLocalDate = LocalDate.now().plusDays(1); // Để lấy cả ngày hôm nay
                     titleLoai = "tất cả (thống kê theo năm)";
                     titleChart = "Tất cả (theo năm)";
-                    loaiThoiGian = "Tất cả"; // 'loai' cho DAO
+                    loaiThoiGian = "Theo năm"; // Dùng "Theo năm" cho DAO khi chọn "Tất cả"
                     break;
             }
         } catch (Exception ex) {
@@ -536,7 +582,6 @@ public class PanelThongKeVe extends JPanel {
         final String finalDaoLoai = loaiThoiGian;
         final String finalTitleLoai = titleLoai;
         final String finalChartTitle = titleChart;
-        // <<< THÊM THAM SỐ LỌC TUYẾN >>>
         final String finalLoaiTuyen = loaiTuyen;
         final String finalTenGaDi = tenGaDi;
         final String finalTenGaDen = tenGaDen;
@@ -546,11 +591,9 @@ public class PanelThongKeVe extends JPanel {
             protected ThongKeVeResult doInBackground() throws Exception {
                 ThongKeVeResult result = new ThongKeVeResult();
 
-                // Lấy dữ liệu chi tiết (với bộ lọc tuyến)
                 result.thongKeVeChiTietTheoThoiGian = thongKeVeDAO.getThongKeVeChiTietTheoThoiGian(
                         finalDaoLoai, finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
 
-                // Lấy dữ liệu tổng quan cho cards (với bộ lọc tuyến)
                 result.tongSoVeBan = thongKeVeDAO.getTongSoVeBanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
                 result.tongVeConHieuLuc = thongKeVeDAO.getTongVeConHieuLucTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
                 result.tongVeDaDung = thongKeVeDAO.getTongVeDaDungTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
@@ -598,7 +641,7 @@ public class PanelThongKeVe extends JPanel {
             capNhatBangRong();
             btnExportExcel.setEnabled(false);
         } else {
-            // --- Cập nhật Biểu đồ (Vé bán và Vé hoàn/đổi) ---
+            // --- Cập nhật Biểu đồ ---
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             final String seriesVeBan = "Vé bán";
             final String seriesVeHoanDoi = "Vé hoàn/đổi";
@@ -625,7 +668,7 @@ public class PanelThongKeVe extends JPanel {
             rangeAxis.setUpperMargin(0.15);
             rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-            // Tùy chỉnh Renderer (cột)
+            // Tùy chỉnh Renderer
             BarRenderer renderer = (BarRenderer) plot.getRenderer();
             renderer.setSeriesPaint(0, new Color(52, 152, 219));
             renderer.setSeriesPaint(1, new Color(231, 76, 60));
@@ -646,14 +689,9 @@ public class PanelThongKeVe extends JPanel {
             domainAxis.setLowerMargin(0.02);
             domainAxis.setUpperMargin(0.02);
 
-            // Tùy chỉnh Legend
             if (barChart.getLegend() != null) {
                 barChart.getLegend().setFrame(BlockBorder.NONE);
-                barChart.getLegend().setItemFont(new Font("Times New Roman", Font.PLAIN, 12));
-                barChart.getLegend().setBorder(5, 5, 5, 5);
             }
-
-            barChart.setBorderVisible(false);
             barChart.setBackgroundPaint(Color.WHITE);
             barChart.getTitle().setFont(new Font("Times New Roman", Font.BOLD, 16));
 
@@ -666,7 +704,7 @@ public class PanelThongKeVe extends JPanel {
             chartPanelContainer.revalidate();
             chartPanelContainer.repaint();
 
-            // --- Cập nhật Bảng chi tiết ---
+            // --- Cập nhật Bảng chi tiết (THÊM CỘT MỚI) ---
             chiTietTableModel.setRowCount(0);
             int stt = 1;
             for (Map.Entry<String, ThongKeVeChiTietItem> entry : data.entrySet()) {
@@ -680,6 +718,7 @@ public class PanelThongKeVe extends JPanel {
                         item.tongVeDaDung,
                         item.tongVeDaDoi,
                         item.tongVeHoan,
+                        item.tuyenDuong, // <<< CỘT MỚI
                         item.tongTienVe
                 });
             }
@@ -687,7 +726,7 @@ public class PanelThongKeVe extends JPanel {
         }
     }
 
-    // --- Hàm xử lý xuất Excel ---
+    // --- Hàm xử lý xuất Excel (Đã cập nhật) ---
     private void exportTableToExcel(ActionEvent e) {
         if (chiTietTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -700,13 +739,10 @@ public class PanelThongKeVe extends JPanel {
         fileChooser.setSelectedFile(new File(defaultFileName));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
 
-        int userSelection = fileChooser.showSaveDialog(this);
-
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
-            String filePath = fileToSave.getAbsolutePath();
-            if (!filePath.toLowerCase().endsWith(".xlsx")) {
-                fileToSave = new File(filePath + ".xlsx");
+            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
+                fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
             }
 
             final File finalFileToSave = fileToSave;
@@ -741,13 +777,13 @@ public class PanelThongKeVe extends JPanel {
                 CellStyle currencyCellStyle = workbook.createCellStyle();
                 currencyCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0 ₫"));
                 currencyCellStyle.setAlignment(HorizontalAlignment.RIGHT);
-
                 CellStyle integerCellStyle = workbook.createCellStyle();
                 integerCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0"));
                 integerCellStyle.setAlignment(HorizontalAlignment.RIGHT);
-
                 CellStyle centerCellStyle = workbook.createCellStyle();
                 centerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+                CellStyle leftCellStyle = workbook.createCellStyle(); // <<< Style cho cột Tuyến đường
+                leftCellStyle.setAlignment(HorizontalAlignment.LEFT);
 
                 // --- Ghi Tiêu đề báo cáo ---
                 Row titleRow = sheet.createRow(0);
@@ -780,7 +816,8 @@ public class PanelThongKeVe extends JPanel {
                                 cell.setCellStyle(currencyCellStyle);
                             } else if (value instanceof String) {
                                 cell.setCellValue((String) value);
-                                cell.setCellStyle(centerCellStyle);
+                                // Cột 1 (Thời gian) căn giữa, Cột 7 (Tuyến) căn trái
+                                cell.setCellStyle((col == 1) ? centerCellStyle : leftCellStyle);
                             } else if (value != null) {
                                 cell.setCellValue(value.toString());
                             }
@@ -801,13 +838,8 @@ public class PanelThongKeVe extends JPanel {
                 JOptionPane.showMessageDialog(this, "Xuất báo cáo Excel thành công!\n" + finalFileToSave.getAbsolutePath(), "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
                 if (Desktop.isDesktopSupported()) {
-                    try {
-                        Desktop.getDesktop().open(finalFileToSave);
-                    } catch (IOException ioex) {
-                        LOGGER.log(Level.WARNING, "Không thể tự động mở file Excel.", ioex);
-                    }
+                    Desktop.getDesktop().open(finalFileToSave);
                 }
-
             } catch (Exception ex) {
                 handleLoadingError(ex, "Lỗi khi ghi file Excel");
             }
