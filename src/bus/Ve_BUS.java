@@ -5,6 +5,12 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 27, 2025
+ * @version: 1.0
+ */
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +24,6 @@ import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 27, 2025
- * @version: 1.0
- */
 
 public class Ve_BUS {
 	private final Ve_DAO veDAO = new Ve_DAO();
@@ -40,7 +39,7 @@ public class Ve_BUS {
 		List<VeSession> dsVeVe = bookingSession.getReturnSelected();
 
 		for (VeSession v : dsVeDi) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getChuyenID() + "-" + v.getSoGhe();
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getGheID();
 			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
 					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
@@ -49,7 +48,7 @@ public class Ve_BUS {
 			v.setVe(ve);
 		}
 		for (VeSession v : dsVeVe) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getChuyenID() + "-" + v.getSoGhe();
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getGheID();
 			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
 					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),

@@ -35,6 +35,7 @@ public class VeSession {
 	private final String gheID;
 	private final int soGhe;
 	private final int gia;
+	private int phongChoVIP;
 	private String khuyenMaiCode;
 	private int giam;
 	private int giamDoiTuong;
@@ -191,20 +192,20 @@ public class VeSession {
 		this.pgcct = pgcct;
 	}
 
-	public boolean isHanhKhachMoi() {
-		return isHanhKhachMoi;
-	}
-
-	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
-		this.isHanhKhachMoi = isHanhKhachMoi;
-	}
-
 	public Ve getVe() {
 		return ve;
 	}
 
 	public void setVe(Ve ve) {
 		this.ve = ve;
+	}
+
+	public boolean isHanhKhachMoi() {
+		return isHanhKhachMoi;
+	}
+
+	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
+		this.isHanhKhachMoi = isHanhKhachMoi;
 	}
 
 	public void setKhuyenMaiCode(String khuyenMaiCode) {
@@ -221,5 +222,13 @@ public class VeSession {
 
 	public void setGiamDoiTuong(int giamDoiTuong) {
 		this.giamDoiTuong = giamDoiTuong;
+	}
+
+	public int getPhongChoVIP() {
+		return phongChoVIP;
+	}
+
+	public void setPhongChoVIP(int phongChoVIP) {
+		this.phongChoVIP = phongChoVIP;
 	}
 }

@@ -149,8 +149,6 @@ public class PanelSoDoCho extends JPanel {
 //		showMessage("Đang tải ...");
 //	}
 
-	// Thêm hàm này vào PanelSoDoCho.java
-
 	/**
 	 * Cập nhật trạng thái trực quan cho MỘT nút ghế
 	 * 

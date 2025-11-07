@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) PaymentPanel.java  1.0  [10:41:50 AM] Sep 28, 2025
+ * @(#) PanelBuoc5.java  1.0  [10:41:50 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -403,6 +403,12 @@ public class PanelBuoc5 extends JPanel {
 			suggestions.add(roundUp1000);
 		}
 
+		// Làm tròn lên 2.000 gần nhất
+		int roundUp2000 = (int) (Math.ceil(total / 2000.0) * 2000);
+		if (roundUp2000 > total) {
+			suggestions.add(roundUp2000);
+		}
+
 		// Làm tròn lên 5.000 gần nhất
 		int roundUp5000 = (int) (Math.ceil(total / 5000.0) * 5000);
 		if (roundUp5000 > total) {
@@ -415,6 +421,12 @@ public class PanelBuoc5 extends JPanel {
 			suggestions.add(roundUp10000);
 		}
 
+		// Làm tròn lên 20.000 gần nhất
+		int roundUp20000 = (int) (Math.ceil(total / 20000.0) * 20000);
+		if (roundUp20000 > total) {
+			suggestions.add(roundUp20000);
+		}
+
 		// Làm tròn lên 50.000 gần nhất
 		int roundUp50000 = (int) (Math.ceil(total / 50000.0) * 50000);
 		if (roundUp50000 > total) {
@@ -425,6 +437,12 @@ public class PanelBuoc5 extends JPanel {
 		int roundUp100000 = (int) (Math.ceil(total / 100000.0) * 100000);
 		if (roundUp100000 > total) {
 			suggestions.add(roundUp100000);
+		}
+
+		// Làm tròn lên 200.000 gần nhất
+		int roundUp200000 = (int) (Math.ceil(total / 200000.0) * 200000);
+		if (roundUp200000 > total) {
+			suggestions.add(roundUp200000);
 		}
 
 		// 3. Thêm các mệnh giá chuẩn lớn hơn total gần nhất

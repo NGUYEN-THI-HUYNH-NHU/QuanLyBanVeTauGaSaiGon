@@ -59,21 +59,25 @@ public class PanelBuoc3 extends JPanel {
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
 
 		model = new HanhKhachTableModel();
-//		{ "Hành khách", "Vé", "Giá", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }
+//		{ "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(200);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
 		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
-		table.removeColumn(table.getColumnModel().getColumn(3));
-		table.removeColumn(table.getColumnModel().getColumn(3));
-		table.removeColumn(table.getColumnModel().getColumn(3));
+		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.removeColumn(table.getColumnModel().getColumn(5));
 
 		DefaultTableCellRenderer right = new DefaultTableCellRenderer();
 		right.setHorizontalAlignment(SwingConstants.RIGHT);
+		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+		center.setHorizontalAlignment(SwingConstants.CENTER);
 		table.getColumnModel().getColumn(2).setCellRenderer(right);
+		table.getColumnModel().getColumn(4).setCellRenderer(right);
+		table.getColumnModel().getColumn(5).setCellRenderer(right);
 
-		int deleteColumnIndex = 3;
+		int deleteColumnIndex = 5;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
 		// 1. Áp dụng Renderer
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
@@ -212,11 +216,12 @@ public class PanelBuoc3 extends JPanel {
 		if (session == null) {
 			return;
 		}
-		List<VeSession> vs = session.getSelectedTicketsForTrip(tripIndex);
+		List<VeSession> vs = session.getAllSelectedTickets();
 		if (vs == null || vs.isEmpty()) {
 			lblInfo.setText("Không có vé nào để nhập hành khách.");
 			return;
 		}
+
 		List<PassengerRow> rows = new ArrayList<>();
 		for (VeSession v : vs) {
 			PassengerRow r = new PassengerRow(v);

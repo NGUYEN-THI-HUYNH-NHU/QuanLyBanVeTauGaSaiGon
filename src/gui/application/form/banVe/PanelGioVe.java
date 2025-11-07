@@ -14,6 +14,7 @@ package gui.application.form.banVe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -31,7 +32,7 @@ import com.itextpdf.text.Font;
 
 public class PanelGioVe extends JPanel {
 	private JPanel container;
-	private PanelBuoc2Controller controller;
+	private BanVe1Controller mediator;
 	private JLabel lblGioVe;
 	private JScrollPane scr;
 	private JButton btnMuaVe;
@@ -62,12 +63,16 @@ public class PanelGioVe extends JPanel {
 
 	}
 
-	public void setController(PanelBuoc2Controller c) {
-		this.controller = c;
+	public void setMediator(BanVe1Controller c) {
+		this.mediator = c;
 	}
 
 	public void addBuyButtonListener(ActionListener l) {
 		if (btnMuaVe != null && l != null) {
+			// Xóa listener cũ (nếu có) để đảm bảo chỉ có 1
+			for (ActionListener al : btnMuaVe.getActionListeners()) {
+				btnMuaVe.removeActionListener(al);
+			}
 			btnMuaVe.addActionListener(l);
 		}
 	}
@@ -107,12 +112,13 @@ public class PanelGioVe extends JPanel {
 		JButton btnTrash = new JButton("");
 		btnTrash.setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.40f));
 		btnTrash.setToolTipText("Xóa vé");
+		btnTrash.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		btnTrash.setFocusable(false);
 		btnTrash.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		btnTrash.setBackground(Color.WHITE);
 		btnTrash.addActionListener(e -> {
-			if (controller != null) {
-				controller.onRemoveVe(v);
+			if (mediator != null) {
+				mediator.handleGioVeRemove(v);
 			}
 		});
 
@@ -124,8 +130,8 @@ public class PanelGioVe extends JPanel {
 		row.add(info, BorderLayout.CENTER);
 		row.add(east, BorderLayout.EAST);
 
-		if (controller != null) {
-			controller.registerCountdownLabelForVe(v, lblTimer);
+		if (mediator != null) {
+			mediator.registerCountdownLabelForVe(v, lblTimer);
 		}
 
 		return row;

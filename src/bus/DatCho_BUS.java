@@ -62,7 +62,7 @@ public class DatCho_BUS {
 //		return dsPgcct;
 //	}
 
-	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v) {
+	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v, int soThuTu) {
 		String chuyenID = v.getChuyenID();
 		String tenGaDi = v.getTenGaDi();
 		String tenGaDen = v.getTenGaDen();
@@ -71,7 +71,7 @@ public class DatCho_BUS {
 		LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
 		if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
-			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(v.getSoGhe());
+			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
 			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
 					TrangThaiPhieuGiuCho.DANG_GIU.toString());

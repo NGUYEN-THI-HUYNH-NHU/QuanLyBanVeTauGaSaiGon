@@ -13,17 +13,22 @@ package gui.application.form.banVe;
  */
 
 import java.awt.Component;
+import java.awt.Cursor;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 public class DeleteButtonRenderer extends JButton implements TableCellRenderer {
 
 	public DeleteButtonRenderer() {
+		setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.5f));
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		setOpaque(true);
-		setText("Xóa");
 	}
 
 	@Override
@@ -34,9 +39,11 @@ public class DeleteButtonRenderer extends JButton implements TableCellRenderer {
 			setForeground(table.getSelectionForeground());
 			setBackground(table.getSelectionBackground());
 		} else {
-			setForeground(table.getForeground());
-			setBackground(UIManager.getColor("Button.background"));
+			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+			setBackground(UIManager.getColor("Table.background"));
+			setForeground(UIManager.getColor("Table.foreground"));
 		}
+
 		return this;
 	}
 }

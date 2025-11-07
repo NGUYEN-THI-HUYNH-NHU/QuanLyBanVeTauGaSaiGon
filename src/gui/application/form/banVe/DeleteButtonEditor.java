@@ -28,8 +28,7 @@ public class DeleteButtonEditor extends AbstractCellEditor implements TableCellE
 	private boolean isPushed;
 
 	public DeleteButtonEditor() {
-		editorButton = new JButton("Xóa"); // Phải giống với renderer
-		editorButton.setOpaque(true);
+		editorButton = new JButton();
 		// Bắt sự kiện click vào nút này
 		editorButton.addActionListener(this);
 	}
