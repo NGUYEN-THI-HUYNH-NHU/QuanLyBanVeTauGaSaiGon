@@ -31,7 +31,7 @@ public class PanelChuyen extends JPanel {
 		panelDoanTau = new PanelDoanTau();
 		panelSoDoCho = new PanelSoDoCho();
 
-		panelChuyenTau.setPreferredSize(new Dimension(0, 150));
+		panelChuyenTau.setPreferredSize(new Dimension(0, 142));
 		panelDoanTau.setPreferredSize(new Dimension(0, 80));
 
 		add(panelChieuLabel);

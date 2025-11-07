@@ -16,13 +16,13 @@ import entity.type.TrangThaiPDPVIP;
  * @date: Sep 22, 2025
  * @version: 1.0
  */
-public class PhieuDungPhongChoVIP {
+public class PhieuDungPhongVIP {
 	private String phieuDungPhongChoVIPID;
 	private DichVuPhongChoVIP dichVuPhongChoVIP;
 	private Ve ve;
 	private TrangThaiPDPVIP trangThai;
 
-	public PhieuDungPhongChoVIP(String phieuDungPhongChoVIPID, DichVuPhongChoVIP dichVuPhongChoVIP, Ve ve,
+	public PhieuDungPhongVIP(String phieuDungPhongChoVIPID, DichVuPhongChoVIP dichVuPhongChoVIP, Ve ve,
 			TrangThaiPDPVIP trangThai) {
 		super();
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
@@ -72,7 +72,7 @@ public class PhieuDungPhongChoVIP {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		PhieuDungPhongChoVIP that = (PhieuDungPhongChoVIP) o;
+		PhieuDungPhongVIP that = (PhieuDungPhongVIP) o;
 		return Objects.equals(getPhieuDungPhongChoVIPID(), that.getPhieuDungPhongChoVIPID());
 	}
 

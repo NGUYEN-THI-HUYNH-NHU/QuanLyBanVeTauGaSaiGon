@@ -32,7 +32,7 @@ import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class BanVe1Controller {
-
+	private final PanelBanVe wizardView;
 	private final PanelBanVe1 view;
 	private final PanelBuoc1 p1;
 	private final PanelBuoc2 p2;
@@ -57,7 +57,9 @@ public class BanVe1Controller {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
+	public BanVe1Controller(PanelBanVe wizardView, PanelBanVe1 view, BookingSession session) {
+		this.wizardView = wizardView;
+
 		this.view = view;
 		this.bookingSession = session;
 		// (Hoặc DatCho_BUS.getInstance() nếu là Singleton)
@@ -247,10 +249,12 @@ public class BanVe1Controller {
 		});
 
 		this.buoc3Controller.setOnConfirmListener(() -> {
-			// Tất cả đã xong (Buoc1+2+3) -> Báo cho PanelBanVe
 			if (onPanel1CompleteListener != null) {
 				onPanel1CompleteListener.run();
 			}
+//			if (wizardView != null) {
+//				wizardView.showPanel("step2");
+//			}
 		});
 
 		// Lắng nghe sự kiện "Hủy" từ Buoc 3

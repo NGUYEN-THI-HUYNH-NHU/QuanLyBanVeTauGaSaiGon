@@ -39,7 +39,7 @@ public class Ve_BUS {
 		List<VeSession> dsVeVe = bookingSession.getReturnSelected();
 
 		for (VeSession v : dsVeDi) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getGheID();
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
 			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
 					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
@@ -48,7 +48,7 @@ public class Ve_BUS {
 			v.setVe(ve);
 		}
 		for (VeSession v : dsVeVe) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + "-" + v.getGheID();
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
 			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
 					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),

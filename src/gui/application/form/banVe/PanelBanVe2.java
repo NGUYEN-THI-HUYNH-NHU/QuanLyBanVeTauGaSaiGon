@@ -13,27 +13,38 @@ package gui.application.form.banVe;
  */
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 public class PanelBanVe2 extends JPanel {
 
 	private final PanelBuoc4 panelBuoc4;
 	private final PanelBuoc5 panelBuoc5;
+	private JPanel pnlNav;
+	private JButton btnPrev;
+	private JPanel centerPanel;
 
 	public PanelBanVe2() {
 		setLayout(new BorderLayout(8, 8));
 
-		// 1. Khởi tạo các panel con
+		centerPanel = new JPanel(new BorderLayout());
+
 		panelBuoc4 = new PanelBuoc4();
 		panelBuoc5 = new PanelBuoc5();
 
-		// 2. Thêm vào layout
-		add(panelBuoc4, BorderLayout.NORTH);
-		add(panelBuoc5, BorderLayout.CENTER);
-	}
+		centerPanel.add(panelBuoc4, BorderLayout.NORTH);
+		centerPanel.add(panelBuoc5, BorderLayout.CENTER);
 
-	// --- Getters cho Controller ---
+		add(centerPanel, BorderLayout.CENTER);
+
+		pnlNav = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		btnPrev = new JButton("Quay lại");
+		pnlNav.add(btnPrev);
+
+		add(pnlNav, BorderLayout.SOUTH);
+	}
 
 	public PanelBuoc4 getPanelBuoc4() {
 		return panelBuoc4;
@@ -41,5 +52,9 @@ public class PanelBanVe2 extends JPanel {
 
 	public PanelBuoc5 getPanelBuoc5() {
 		return panelBuoc5;
+	}
+
+	public JButton getBtnPrev() {
+		return btnPrev;
 	}
 }

@@ -69,7 +69,7 @@ public class PanelDoanTau extends JPanel {
 		scr.getHorizontalScrollBar().setUnitIncrement(16);
 
 		add(scr, BorderLayout.CENTER);
-		setPreferredSize(new Dimension(10, 70));
+		setPreferredSize(new Dimension(10, 80));
 
 		// load ảnh gốc một lần
 		try {

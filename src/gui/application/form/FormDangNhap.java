@@ -143,7 +143,7 @@ public class FormDangNhap extends JPanel {
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
-				ungDung.showGiaoDienChinh(new PanelBanVe(nhanVien));
+				ungDung.showGiaoDienChinh(new PanelBanVe());
 			} else {
 				ungDung.showGiaoDienChinh(new Dashboard());
 			}

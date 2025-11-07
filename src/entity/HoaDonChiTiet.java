@@ -20,7 +20,7 @@ public class HoaDonChiTiet {
 	private String hoaDonChiTietID;
 	private HoaDon hoaDon;
 	private Ve ve;
-	private PhieuDungPhongChoVIP phieuDungPhongVIP;
+	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private String tenDichVu;
 	private LoaiDichVu loaiDichVu;
 	private String donViTinh;
@@ -28,7 +28,7 @@ public class HoaDonChiTiet {
 	private double donGia;
 	private double thanhTien;
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, PhieuDungPhongChoVIP phieuDungPhongVIP,
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, PhieuDungPhongVIP phieuDungPhongVIP,
 			String tenDichVu, LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
 		super();
 		this.hoaDonChiTietID = hoaDonChiTietID;
@@ -57,7 +57,7 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongChoVIP phieuDungPhongVIP,
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP,
 			String tenDichVu, LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
 		super();
 		this.hoaDonChiTietID = hoaDonChiTietID;
@@ -71,7 +71,7 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
-	public PhieuDungPhongChoVIP getPhieuDungPhongVIP() {
+	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
 		return phieuDungPhongVIP;
 	}
 
@@ -79,7 +79,7 @@ public class HoaDonChiTiet {
 		return loaiDichVu;
 	}
 
-	public void setPhieuDungPhongVIP(PhieuDungPhongChoVIP phieuDungPhongVIP) {
+	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.phieuDungPhongVIP = phieuDungPhongVIP;
 	}
 

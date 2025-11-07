@@ -67,7 +67,7 @@ public class PanelSoDoCho extends JPanel {
 	private static final String SEAT_SIZE_CONSTRAINTS = String.format("w %d!, h %d!", SEAT_WIDTH, SEAT_HEIGHT);
 
 	// Kích thước viewport (có thể điều chỉnh)
-	private static final int VIEWPORT_HEIGHT = 160;
+	private static final int VIEWPORT_HEIGHT = 200;
 	private static final int VIEWPORT_WIDTH = 500;
 
 	public PanelSoDoCho() {

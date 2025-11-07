@@ -23,9 +23,9 @@ public class DichVuPhongChoVIP {
 	private LocalDate ngayCoHieuLuc;
 	private LocalDate ngayHetHieuLuc;
 	private boolean trangThai;
-	
+
 	public DichVuPhongChoVIP(String dichVuPhongChoVIPID, double gia, String moTa, LocalDate ngayCoHieuLuc,
-							 LocalDate ngayHetHieuLuc, boolean trangThai) {
+			LocalDate ngayHetHieuLuc, boolean trangThai) {
 		super();
 		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
 		this.gia = gia;
@@ -33,6 +33,11 @@ public class DichVuPhongChoVIP {
 		this.ngayCoHieuLuc = ngayCoHieuLuc;
 		this.ngayHetHieuLuc = ngayHetHieuLuc;
 		this.trangThai = trangThai;
+	}
+
+	public DichVuPhongChoVIP(String dichVuPhongChoVIPID) {
+		super();
+		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
 	}
 
 	public String getDichVuPhongChoVIPID() {
@@ -60,16 +65,15 @@ public class DichVuPhongChoVIP {
 	}
 
 	public void setDichVuPhongChoVIPID(String dichVuPhongChoVIPID) {
-		if(dichVuPhongChoVIPID != null && !dichVuPhongChoVIPID.isEmpty()){
+		if (dichVuPhongChoVIPID != null && !dichVuPhongChoVIPID.isEmpty()) {
 			this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
-		}
-		else {
+		} else {
 			throw new IllegalArgumentException("DichVuPhongChoVIPID không được để trống!");
 		}
 	}
 
 	public void setGia(double gia) {
-		if(gia < 0) {
+		if (gia < 0) {
 			throw new IllegalArgumentException("Giá không được âm!");
 		}
 		this.gia = gia;
@@ -80,14 +84,14 @@ public class DichVuPhongChoVIP {
 	}
 
 	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
-		if(ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
+		if (ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
 			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
 		}
 		this.ngayCoHieuLuc = ngayCoHieuLuc;
 	}
 
 	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
-		if(ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
+		if (ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
 			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
 		}
 		this.ngayHetHieuLuc = ngayHetHieuLuc;
@@ -99,14 +103,18 @@ public class DichVuPhongChoVIP {
 
 	@Override
 	public String toString() {
-		return dichVuPhongChoVIPID + ";" + gia + ";" + moTa
-				+ ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";" + trangThai;
+		return dichVuPhongChoVIPID + ";" + gia + ";" + moTa + ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";"
+				+ trangThai;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DichVuPhongChoVIP that = (DichVuPhongChoVIP) o;
 		return Objects.equals(dichVuPhongChoVIPID, that.dichVuPhongChoVIPID);
 	}

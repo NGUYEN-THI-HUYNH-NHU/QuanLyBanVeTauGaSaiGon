@@ -35,7 +35,7 @@ public class HoaDonChiTiet_DAO {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
 			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
-			if (hoaDonChiTiet.getVe().getVeID() != null) {
+			if (hoaDonChiTiet.getVe() != null) {
 				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
 				ps.setNull(4, 0);
 			} else {

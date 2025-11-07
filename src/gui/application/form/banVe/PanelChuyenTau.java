@@ -44,20 +44,21 @@ public class PanelChuyenTau extends JPanel {
 	private JPanel selectedCard = null;
 	private PanelBuoc2Controller controller;
 
-	private Color hoverBg = new Color(230, 240, 255, 120); // nhẹ, sẽ overlay trên ảnh (nếu muốn)
+	private Color hoverBg = new Color(230, 240, 255, 120);
 	private Border normalBorder = new RoundedBorder(20, new Color(200, 200, 200), 2, true, new Color(230, 230, 230));
 	private Border selectedBorder = new RoundedBorder(20, new Color(30, 120, 220), 2, true, new Color(30, 150, 220));
 
 	public PanelChuyenTau() {
 		setBorder(new TitledBorder("Chuyến tàu có sẵn"));
 		setLayout(new BorderLayout(8, 0));
-		setPreferredSize(new Dimension(10, 115));
+		setPreferredSize(new Dimension(10, 140));
 
 		flowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+
 		scroll = new JScrollPane(flowPanel, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
-		// Tăng tốc độ cuộn (tùy chọn)
+		// Tăng tốc độ cuộn
 		scroll.getVerticalScrollBar().setUnitIncrement(16);
 		scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
@@ -133,7 +134,7 @@ public class PanelChuyenTau extends JPanel {
 				String.format("Đặt: %d  Trống: %d", /* c.getBookedSeatsCount() */ 0, /* c.getAvailableSeatsCount() */0),
 				SwingConstants.CENTER);
 		lblCho.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
-		lblCho.setBackground(new Color(255, 255, 255, 200)); // hơi mờ để đọc được trên ảnh
+		lblCho.setBackground(new Color(255, 255, 255, 200));
 		lblCho.setFont(fontLbl);
 		gbc.gridy = 3;
 		gbc.insets = new Insets(1, 6, 0, 6);

@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.PhieuGiuChoChiTiet;
 import entity.Ve;
 
@@ -43,6 +44,7 @@ public class VeSession {
 	private KhachHang hanhKhach;
 	private PhieuGiuChoChiTiet pgcct;
 	private Ve ve;
+	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private boolean isHanhKhachMoi = true;
 
 	public VeSession(String chuyenID, String tenTau, String tenGaDi, String gaDiID, String tenGaDen, String gaDenID,
@@ -230,5 +232,13 @@ public class VeSession {
 
 	public void setPhongChoVIP(int phongChoVIP) {
 		this.phongChoVIP = phongChoVIP;
+	}
+
+	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
+		return phieuDungPhongVIP;
+	}
+
+	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
 	}
 }

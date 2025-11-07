@@ -21,12 +21,14 @@ import javax.swing.JOptionPane;
 import bus.DatCho_BUS;
 import bus.HoaDon_BUS;
 import bus.KhachHang_BUS;
+import bus.PhieuDungPhongVIP_BUS;
 import bus.ThanhToan_BUS;
 import bus.Ve_BUS;
 import entity.DonDatCho;
 import entity.GiaoDichThanhToan;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import entity.type.LoaiDoiTuong;
 import gui.application.PdfTicketExporter;
@@ -38,13 +40,14 @@ import gui.application.PdfTicketExporter;
  * cho Wizard (PanelBanVe) khi thanh toán hoàn tất.
  */
 public class BanVe2Controller {
-
+	private final PanelBanVe wizardView;
 	private final PanelBanVe2 view;
 	private final PanelBuoc4 p4;
 	private final PanelBuoc5 p5;
 
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 	private final Ve_BUS veBUS = new Ve_BUS();
+	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
@@ -54,7 +57,9 @@ public class BanVe2Controller {
 	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
 
-	public BanVe2Controller(PanelBanVe2 view, BookingSession session) {
+	public BanVe2Controller(PanelBanVe wizardView, PanelBanVe2 view, BookingSession session) {
+		this.wizardView = wizardView;
+
 		this.view = view;
 		this.bookingSession = session;
 
@@ -63,10 +68,6 @@ public class BanVe2Controller {
 
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
-	}
-
-	public void addPaymentSuccessListener(Runnable listener) {
-		this.onPaymentSuccessListener = listener;
 	}
 
 	/**
@@ -144,6 +145,10 @@ public class BanVe2Controller {
 			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, bookingSession);
 			veBUS.themCacVe(dsVe);
 
+			// Lưu các phiếu dùng phòng VIP
+			List<PhieuDungPhongVIP> dsPhieu = phieuDungPhongChoVIPBUS.taoCacPhieuDungPhongChoVIP(bookingSession);
+			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(dsPhieu);
+
 			// Lưu hóa đơn
 			HoaDon hoaDon = hoaDonBUS.taoHoaDon(bookingSession);
 			hoaDonBUS.themHoaDon(hoaDon);
@@ -176,8 +181,12 @@ public class BanVe2Controller {
 				exporter.exportTicketsToPdf(bookingSession);
 
 				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
-				if (onPaymentSuccessListener != null) {
-					onPaymentSuccessListener.run();
+				if (wizardView != null) {
+					// Cho panelBuoc6 load data ở đây nếu cần
+					// wizardView.getPanelBuoc6().loadCompletionData(bookingSession);
+
+					// Yêu cầu PanelBanVe chuyển sang card "complete"
+					wizardView.showPanel("complete");
 				}
 			} else {
 				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",
