@@ -38,9 +38,12 @@ public class HoaDonChiTiet_DAO {
 			if (hoaDonChiTiet.getVe() != null) {
 				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
 				ps.setNull(4, 0);
-			} else {
+			} else if (hoaDonChiTiet.getPhieuDungPhongVIP() != null) {
 				ps.setNull(3, 0);
 				ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
+			} else {
+				ps.setNull(3, 0);
+				ps.setNull(4, 0);
 			}
 			ps.setString(5, hoaDonChiTiet.getTenDichVu());
 			ps.setString(6, hoaDonChiTiet.getLoaiDichVu().toString());

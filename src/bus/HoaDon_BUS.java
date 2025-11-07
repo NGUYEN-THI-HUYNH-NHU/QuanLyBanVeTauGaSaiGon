@@ -21,6 +21,7 @@ import entity.GiaoDichThanhToan;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.type.LoaiDichVu;
+import entity.type.LoaiDoiTuong;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
@@ -53,41 +54,29 @@ public class HoaDon_BUS {
 	 */
 	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(BookingSession bookingSession, GiaoDichThanhToan giaoDichThanhToan) {
 		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
-//		List<VeSession> dsVeDi = bookingSession.getOutboundSelected();
-//		List<VeSession> dsVeVe = bookingSession.getReturnSelected();
-//		int i;
-//		for (i = 0; i < dsVeDi.size(); i++) {
-//			String hdctID = bookingSession.getHoaDon().getHoaDonID() + "-" + (i + 1);
-//			HoaDonChiTiet hdct = new HoaDonChiTiet(hdctID, bookingSession.getHoaDon(), dsVeDi.get(i).getVe(),
-//					"Vé HK: " + dsVeDi.get(i).toString(), LoaiDichVu.VE_BAN, "Vé", 1, dsVeDi.get(i).getGia(),
-//					dsVeDi.get(i).getGia());
-//			if (dsVeDi.get(i).getPhongChoVIP() > 0) {
-//				
-//			}
-//			dsHoaDonChiTiet.add(hdct);
-//		}
-//		for (int j = 0; j < dsVeVe.size(); j++) {
-//			String hdctID = bookingSession.getHoaDon().getHoaDonID() + "-" + (i + j + 1);
-//			HoaDonChiTiet hdct = new HoaDonChiTiet(hdctID, bookingSession.getHoaDon(), dsVeVe.get(j).getVe(),
-//					"Vé HK: " + dsVeVe.get(j).toString(), LoaiDichVu.VE_BAN, "Vé", 1, dsVeVe.get(j).getGia(),
-//					dsVeVe.get(j).getGia());
-//			dsHoaDonChiTiet.add(hdct);
-//		}
-//		return dsHoaDonChiTiet;
 		List<VeSession> dsVe = bookingSession.getAllSelectedTickets();
 		int stt = 0;
-		for (int i = 0; i < dsVe.size(); i++) {
+		for (VeSession ve : dsVe) {
 			String hdctVeID = bookingSession.getHoaDon().getHoaDonID() + "-" + (++stt);
-			HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, bookingSession.getHoaDon(), dsVe.get(i).getVe(),
-					"Vé HK: " + dsVe.get(i).toString(), LoaiDichVu.VE_BAN, "Vé", 1, dsVe.get(i).getGia(),
-					dsVe.get(i).getGia() - dsVe.get(i).getGiam() - dsVe.get(i).getGiamDoiTuong());
+			HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, bookingSession.getHoaDon(), ve.getVe(),
+					"Vé HK: " + ve.toString(), LoaiDichVu.VE_BAN, "Vé", 1, ve.getGia(), ve.getGia());
 			dsHoaDonChiTiet.add(hdctVe);
-			if (dsVe.get(i).getPhieuDungPhongVIP() != null) {
+
+			if (ve.getPhieuDungPhongVIP() != null) {
 				String hdctPhieuID = bookingSession.getHoaDon().getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, bookingSession.getHoaDon(),
-						dsVe.get(i).getPhieuDungPhongVIP(), "Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP,
-						"Phiếu", 1, dsVe.get(i).getPhongChoVIP(), dsVe.get(i).getPhongChoVIP());
+						ve.getPhieuDungPhongVIP(), "Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP, "Phiếu",
+						1, ve.getPhongChoVIP(), ve.getPhongChoVIP());
 				dsHoaDonChiTiet.add(hdctPhieu);
+			}
+
+			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				String hdctGiamDTID = bookingSession.getHoaDon().getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, bookingSession.getHoaDon(),
+						"Giảm giá đối tượng trẻ em", LoaiDichVu.KHUYEN_MAI, "", 1, ve.getGiamDoiTuong(),
+						ve.getGiamDoiTuong());
+				dsHoaDonChiTiet.add(hdctGiamDT);
+
 			}
 		}
 		return dsHoaDonChiTiet;

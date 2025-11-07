@@ -118,21 +118,24 @@ public class BanVe2Controller {
 		JButton payButtonQR = p5.getBtnXacNhanVaInQR();
 
 		ActionListener paymentListener = e -> {
-			// TODO: Gọi BUS để thực hiện lưu CSDL (lưu Vé, Hóa đơn, Giao dịch...)
 			boolean isThanhToanTienMat = true;
-			if (payButtonQR.isSelected()) {
-				isThanhToanTienMat = false;
-			}
-
+			// TODO: xu ly lay ma giao dich
+			String maGiaoDich = null;
 			// Lưu thông tin thanh toán
 			double tongTien = p5.getTongThanhToan();
 			double tienNhan = p5.getTienKhachDua();
 			double tienHoan = tienNhan - tongTien;
-			// TODO: xu ly lay ma giao dich
-			String maGiaoDich = "GDTEST";
 			boolean trangThai = true;
-			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, maGiaoDich, tongTien,
-					isThanhToanTienMat, trangThai);
+			GiaoDichThanhToan giaoDichThanhToan = null;
+			if (payButtonQR.isSelected()) {
+				isThanhToanTienMat = false;
+				maGiaoDich = "GDTEST";
+				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, maGiaoDich, tongTien, isThanhToanTienMat,
+						trangThai);
+			} else {
+				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, tongTien, isThanhToanTienMat, trangThai);
+			}
+
 			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
 			bookingSession.setGiaoDichThanhToan(giaoDichThanhToan);
 
@@ -161,16 +164,15 @@ public class BanVe2Controller {
 			// Giả sử lưu thành công
 			boolean saveSuccess = true;
 
-			for (VeSession v : bookingSession.getOutboundSelected()) {
+			for (VeSession v : bookingSession.getAllSelectedTickets()) {
 				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(v.getHanhKhach().getSoGiayTo()) == null) {
 					khachHangBUS.themKhachHang(v.getHanhKhach());
 				}
 			}
-			for (VeSession v : bookingSession.getReturnSelected()) {
-				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(v.getHanhKhach().getSoGiayTo()) == null) {
-					khachHangBUS.themKhachHang(v.getHanhKhach());
-				}
-			}
+
+			// Set lại trạng thái phiếu giữ chỗ/ phiếu giữ chỗ chi tiết
+			datChoBUS.capNhatPhieuGiuCho(bookingSession);
+			datChoBUS.capNhatCacPhieuGiuChoChiTiet(bookingSession);
 
 			if (saveSuccess) {
 				// a. Vô hiệu hóa PanelBuoc5

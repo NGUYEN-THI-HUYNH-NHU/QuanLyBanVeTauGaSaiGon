@@ -42,7 +42,7 @@ public class VeSession {
 	private int giamDoiTuong;
 	private final LocalDateTime thoiDiemHetHan;
 	private KhachHang hanhKhach;
-	private PhieuGiuChoChiTiet pgcct;
+	private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
 	private Ve ve;
 	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private boolean isHanhKhachMoi = true;
@@ -186,12 +186,12 @@ public class VeSession {
 				formatter.format(getGia()));
 	}
 
-	public PhieuGiuChoChiTiet getPgcct() {
-		return pgcct;
+	public PhieuGiuChoChiTiet getPhieuGiuChoChiTiet() {
+		return phieuGiuChoChiTiet;
 	}
 
-	public void setPgcct(PhieuGiuChoChiTiet pgcct) {
-		this.pgcct = pgcct;
+	public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
+		this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
 	}
 
 	public Ve getVe() {
@@ -241,4 +241,5 @@ public class VeSession {
 	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.phieuDungPhongVIP = phieuDungPhongVIP;
 	}
+
 }

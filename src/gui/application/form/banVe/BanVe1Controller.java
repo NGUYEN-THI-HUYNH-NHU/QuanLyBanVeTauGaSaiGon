@@ -200,7 +200,8 @@ public class BanVe1Controller {
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(veSession.getPgcct().getPhieuGiuChoChiTietID());
+						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
+								veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
 
 					} catch (Exception e) {
 						errorMessage = e.getMessage();
@@ -288,7 +289,7 @@ public class BanVe1Controller {
 					for (int i = 0; i < veTrongGio.size(); i++) {
 						VeSession v = veTrongGio.get(i);
 
-						if (v.getPgcct() == null) {
+						if (v.getPhieuGiuChoChiTiet() == null) {
 							PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v, i + 1);
 
 							if (pgcct == null) {
@@ -296,7 +297,7 @@ public class BanVe1Controller {
 								return false;
 							}
 							datChoBUS.themPhieuGiuChoChiTiet(pgcct);
-							v.setPgcct(pgcct);
+							v.setPhieuGiuChoChiTiet(pgcct);
 						}
 					}
 

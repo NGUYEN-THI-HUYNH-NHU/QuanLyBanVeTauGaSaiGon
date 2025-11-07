@@ -35,9 +35,14 @@ public class HoaDon_DAO {
 			ps.setString(3, hoaDon.getNhanVien().getNhanVienID());
 			ps.setTimestamp(4, java.sql.Timestamp.valueOf(hoaDon.getThoiDiemTao()));
 			ps.setDouble(5, hoaDon.getTongTien());
-			ps.setString(6, hoaDon.getMaGD());
+			if (hoaDon.getMaGD() != null) {
+				ps.setString(6, hoaDon.getMaGD());
+				ps.setDouble(8, 0);
+			} else {
+				ps.setNull(6, 0);
+				ps.setDouble(8, hoaDon.getTienHoan());
+			}
 			ps.setDouble(7, hoaDon.getTienNhan());
-			ps.setDouble(8, hoaDon.getTienHoan());
 			ps.setBoolean(9, hoaDon.isThanhToanTienMat());
 			ps.setBoolean(10, hoaDon.isTrangThai());
 
