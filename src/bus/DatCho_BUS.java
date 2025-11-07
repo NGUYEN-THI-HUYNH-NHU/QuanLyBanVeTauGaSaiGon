@@ -132,4 +132,24 @@ public class DatCho_BUS {
 	public boolean themDonDatCho(DonDatCho donDatCho) {
 		return ddcDAO.createDonDatCho(donDatCho);
 	}
+
+	/**
+	 * @param bookingSession
+	 */
+	public boolean capNhatPhieuGiuCho(BookingSession bookingSession) {
+		if (bookingSession.getPhieuGiuCho() != null) {
+			return pgcDAO.updateTrangThai(bookingSession.getPhieuGiuCho().getPhieuGiuChoID(),
+					TrangThaiPhieuGiuCho.XAC_NHAN.toString());
+		}
+		System.out.println("DatCho_BUS: Phiếu giữ chỗ null");
+		return false;
+	}
+
+	/**
+	 * @param bookingSession
+	 */
+	public boolean capNhatCacPhieuGiuChoChiTiet(BookingSession bookingSession) {
+		return pgcctDAO.updateTrangThaiByPhieuGiuChoID(bookingSession.getPhieuGiuCho().getPhieuGiuChoID(),
+				TrangThaiPhieuGiuCho.XAC_NHAN.toString());
+	}
 }

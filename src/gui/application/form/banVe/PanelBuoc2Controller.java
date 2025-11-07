@@ -393,7 +393,7 @@ public class PanelBuoc2Controller {
 
 		bookingSession.removeVeSession(v);
 
-		datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPgcct().getPhieuGiuChoChiTietID());
+		datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
 		if (bookingSession.getOutboundSelectedTickets().size() == 0
 				&& bookingSession.getReturnSelectedTickets().size() == 0) {
 			datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());

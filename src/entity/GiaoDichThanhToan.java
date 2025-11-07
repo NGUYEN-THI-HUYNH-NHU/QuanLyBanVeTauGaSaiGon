@@ -8,12 +8,20 @@ public class GiaoDichThanhToan {
 	private boolean isThanhToanTienMat;
 	private boolean trangThai;
 
-	public GiaoDichThanhToan(double tienNhan, double tienHoan, String maGD, double tongTien, boolean isThanhToanTienMat,
+	public GiaoDichThanhToan(double tienNhan, double tienHoan, double tongTien, boolean isThanhToanTienMat,
 			boolean trangThai) {
 		super();
 		this.tienNhan = tienNhan;
 		this.tienHoan = tienHoan;
-		this.maGD = maGD;
+		this.tongTien = tongTien;
+		this.isThanhToanTienMat = isThanhToanTienMat;
+		this.trangThai = trangThai;
+	}
+
+	public GiaoDichThanhToan(double tienNhan, String maGD, double tongTien, boolean isThanhToanTienMat,
+			boolean trangThai) {
+		super();
+		this.tienNhan = tienNhan;
 		this.tongTien = tongTien;
 		this.isThanhToanTienMat = isThanhToanTienMat;
 		this.trangThai = trangThai;
