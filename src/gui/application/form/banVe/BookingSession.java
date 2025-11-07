@@ -159,6 +159,14 @@ public class BookingSession {
 		return tripIndex == 0 ? getOutboundSelectedTickets() : getReturnSelectedTickets();
 	}
 
+	public List<VeSession> getAllSelectedTickets() {
+		List<VeSession> allSelectedTickets = new ArrayList<VeSession>();
+		allSelectedTickets.addAll(getOutboundSelectedTickets());
+		allSelectedTickets.addAll(getReturnSelectedTickets());
+		return allSelectedTickets;
+
+	}
+
 	/**
 	 * Thêm ticket theo tripIndex
 	 */

@@ -1,20 +1,28 @@
 package gui.application.form.banVe;
+
 /*
  * @(#) PanelBanVe1Controller.java  1.0  [10:42:48 AM] Oct 22, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 22, 2025
  * @version: 1.0
  */
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import bus.DatCho_BUS;
 import entity.Chuyen;
@@ -30,11 +38,15 @@ public class BanVe1Controller {
 	private final PanelBuoc2 p2;
 	private final PanelBuoc3 p3;
 
+	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
+	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
+
 	private final BookingSession bookingSession;
 
 	// Các sub-controller
 	private final PanelBuoc1Controller buoc1Controller;
-	private final PanelBuoc2Controller buoc2Controller;
+	private final PanelBuoc2Controller buoc2ControllerDi;
+	private final PanelBuoc2Controller buoc2ControllerVe;
 	private final PanelBuoc3Controller buoc3Controller;
 
 	private final DatCho_BUS datChoBUS;
@@ -58,12 +70,22 @@ public class BanVe1Controller {
 
 		this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
 
-		this.buoc2Controller = new PanelBuoc2Controller(p2.getPanelChieuLabel(), p2.getPanelChuyenTau(),
-				p2.getPanelDoanTau(), p2.getPanelSoDoCho(), p2.getPanelGioVe());
+		// Lấy các panel con từ PanelBuoc2
+		PanelChuyen panelChieuDi = p2.getPanelChieuDi();
+		PanelChuyen panelChieuVe = p2.getPanelChieuVe();
+		PanelGioVe panelGioVe = p2.getPanelGioVe(); // Giỏ vé dùng chung
 
-		this.buoc2Controller.setBookingSession(this.bookingSession);
+		this.buoc2ControllerDi = new PanelBuoc2Controller(panelChieuDi.getPanelChieuLabel(),
+				panelChieuDi.getPanelChuyenTau(), panelChieuDi.getPanelDoanTau(), panelChieuDi.getPanelSoDoCho());
+		this.buoc2ControllerDi.setBookingSession(this.bookingSession);
+
+		this.buoc2ControllerVe = new PanelBuoc2Controller(panelChieuVe.getPanelChieuLabel(),
+				panelChieuVe.getPanelChuyenTau(), panelChieuVe.getPanelDoanTau(), panelChieuVe.getPanelSoDoCho());
+		this.buoc2ControllerVe.setBookingSession(this.bookingSession);
 
 		this.buoc3Controller = new PanelBuoc3Controller(view.getPanelBuoc3(), this.bookingSession);
+
+		panelGioVe.setMediator(this);
 
 		initMediatorLogic();
 	}
@@ -77,18 +99,43 @@ public class BanVe1Controller {
 			public void onSearchSuccess(List<Chuyen> outboundResults, List<Chuyen> returnResults,
 					SearchCriteria criteria) {
 
-				// 2. Lưu cả criteria và CẢ HAI danh sách kết quả vào session
+				// 1. Lưu criteria và kết quả vào session
 				bookingSession.setOutboundCriteria(criteria);
 				bookingSession.setOutboundResults(outboundResults);
-				bookingSession.setReturnResults(returnResults); // <-- Thêm dòng này
+				bookingSession.setReturnResults(returnResults);
 
-				// 3. Kích hoạt Bước 2
+				// 2. Kích hoạt Bước 2
 				view.setBuoc2Enabled(true);
 				view.setBuoc3Enabled(false);
 
-				// 4. CHỈ hiển thị danh sách CHIỀU ĐI (outboundResults) lên PanelBuoc2
-				// Chúng ta truyền tripIndex = 0 để Buoc2Controller biết đây là chiều đi.
-				buoc2Controller.displayChuyenList(criteria, outboundResults, 0);
+				// 3. Xử lý vé khứ hồi
+				if (criteria.isKhuHoi() && returnResults != null && !returnResults.isEmpty()) {
+					// CÓ VÉ VỀ
+					bookingSession.setReturnResults(returnResults);
+					p2.showReturnTab(true); // Hiển thị tab "Chiều về"
+
+					// Tạo criteria cho chiều về (đảo ngược ga)
+					SearchCriteria criteriaVe = new SearchCriteria.Builder().tenGaDi(criteria.getGaDenName())
+							.gaDiId(criteria.getGaDenId()).tenGaDen(criteria.getGaDiName())
+							.gaDenId(criteria.getGaDiId()).ngayDi(criteria.getNgayVe()).build();
+					bookingSession.setReturnCriteria(criteriaVe);
+					// Bơm data vào cả 2 controller
+					buoc2ControllerDi.displayChuyenList(criteria, outboundResults, 0);
+					buoc2ControllerVe.displayChuyenList(criteriaVe, returnResults, 1);
+
+				} else {
+					// CHỈ CÓ VÉ ĐI
+					bookingSession.setReturnResults(null);
+					bookingSession.setReturnCriteria(null);
+					p2.showReturnTab(false); // Ẩn tab "Chiều về"
+
+					// Chỉ bơm data vào controller "Chiều đi"
+					buoc2ControllerDi.displayChuyenList(criteria, outboundResults, 0);
+				}
+
+				// 4. Mặc định chọn tab "Chiều đi" và refresh giỏ vé
+				p2.getTabbedPane().setSelectedIndex(0);
+				refreshGioVe();
 			}
 
 			@Override
@@ -98,38 +145,52 @@ public class BanVe1Controller {
 				bookingSession.setReturnResults(null);
 				view.setBuoc2Enabled(false);
 				view.setBuoc3Enabled(false);
+				refreshGioVe();
 			}
 		});
 
-		// Lắng nghe sự kiện từ Buoc2 (Chọn ghế VÀ Bấm Mua vé)
-		this.buoc2Controller.addSeatSelectedListener(new SeatSelectedListener() {
+		p2.getTabbedPane().addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				// Khi người dùng đổi tab (đi <-> về)
+				int selectedIndex = p2.getTabbedPane().getSelectedIndex();
+
+//				// Cập nhật giỏ vé để hiển thị vé của tab tương ứng
+//				p2.getPanelGioVe().refresh(bookingSession.getSelectedTicketsForTrip(selectedIndex));
+
+				// (Quan trọng) Cập nhật index cho CẢ HAI controller
+				// để chúng biết tab nào đang active
+				buoc2ControllerDi.setCurrentTripIndex(selectedIndex);
+				buoc2ControllerVe.setCurrentTripIndex(selectedIndex);
+			}
+		});
+
+		// === Lắng nghe sự kiện từ CẢ 2 CONTROLLER ===
+		// 1. Gắn MỘT listener duy nhất cho nút Mua Vé
+		p2.getPanelGioVe().addBuyButtonListener(e -> {
+			handleMuaVe();
+		});
+
+		// 2. Lắng nghe sự kiện CHỌN GHẾ từ cả 2 controller
+		SeatSelectedListener seatSelectOnlyListener = new SeatSelectedListener() {
 			@Override
 			public void onSeatSelected(VeSession ticket) {
-				// (Chưa cần làm gì khi chỉ chọn 1 ghế,
-				// vì logic mới là chờ bấm "Mua vé")
+				// Khi 1 ghế được chọn (từ controllerDi hoặc Ve)
+				// 1. Đăng ký timer cho nó
+				startCountdownForVe(ticket);
+				// 2. Refresh lại giỏ vé (View)
+				refreshGioVe();
 			}
-
-			@Override
-			public void onMuaVeClicked() {
-				view.setBuoc1Enabled(false);
-				view.setBuoc2Enabled(false);
-				// Lấy danh sách vé từ giỏ hàng (session)
-				final List<VeSession> veTrongGio = bookingSession
-						.getSelectedTicketsForTrip(buoc2Controller.getCurrentTripIndex());
-
-				if (veTrongGio == null || veTrongGio.isEmpty()) {
-					JOptionPane.showMessageDialog(view, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
-							JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-
-				// Gọi BUS trong luồng nền (SwingWorker) để tránh đơ UI
-				goiBusGiuCho(veTrongGio);
-			}
-		});
+		};
+		this.buoc2ControllerDi.addSeatSelectedListener(seatSelectOnlyListener);
+		this.buoc2ControllerVe.addSeatSelectedListener(seatSelectOnlyListener);
 
 		// Lắng nghe sự kiện từ Buoc3 (Bấm nút xóa hàng vé)
 		this.buoc3Controller.setOnDeleteListener(veSession -> {
+			// Tìm xem vé này thuộc controller nào (đi hay về)
+			final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
+					&& bookingSession.getReturnSelectedTickets().contains(veSession)) ? buoc2ControllerVe
+							: buoc2ControllerDi;
 			// 1. Gọi BUS để xóa phiếu giữ chỗ chi tiết TRONG DB
 			new SwingWorker<Boolean, Void>() {
 				private String errorMessage = "Lỗi không xác định khi xóa phiếu.";
@@ -151,30 +212,24 @@ public class BanVe1Controller {
 					try {
 						Boolean deleteSuccess = get();
 						if (deleteSuccess) {
-
-							buoc2Controller.refreshSeatOnDelete(veSession);
-
-							// 2. SAU KHI DB ĐÃ XÓA THÀNH CÔNG
-							// Gọi Buoc2Controller để xóa vé khỏi session (client-side)
-							if (buoc2Controller != null) {
-								// onRemoveVe sẽ tự động refresh PanelGioVe VÀ PanelSoDoCho
-								buoc2Controller.onRemoveVe(veSession);
-//								buoc2Controller.handleSeatDeselection(new Toa(veSession.getToaID()),
-//										new Ghe(veSession.getGheID(), veSession.getSoGhe()));
+							// 1. Gọi onRemoveVe 1 LẦN (để xóa khỏi session và refresh SoDoCho)
+							if (correctController != null) {
+								correctController.onRemoveVe(veSession);
 							}
-
-							// Nếu không còn vé nào trong giỏ thì xóa Phiếu giữ chỗ
-							if (bookingSession.getOutboundSelectedTickets().size() == 0
-									&& bookingSession.getReturnSelectedTickets().size() == 0) {
+							// 2. Dừng timer (logic đã chuyển về đây)
+							stopCountdownForVe(veSession);
+							// 3. Refresh giỏ vé (Mediator tự làm)
+							refreshGioVe();
+							// 4. Xóa PGC nếu giỏ rỗng (Giữ nguyên)
+							if (bookingSession.getAllSelectedTickets().isEmpty()) {
 								if (bookingSession.getPhieuGiuCho() != null) {
 									datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
 								}
-
 							}
 
-							// 3. Tải lại dữ liệu cho bảng của Buoc3
-							if (p3 != null && bookingSession != null && buoc2Controller != null) {
-								p3.initFromBookingSession(bookingSession, buoc2Controller.getCurrentTripIndex());
+							// 5. Tải lại bảng Buoc3 (Giữ nguyên)
+							if (p3 != null) {
+								p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
 							}
 
 						} else {
@@ -216,7 +271,6 @@ public class BanVe1Controller {
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
-					// === 4. GỌI BUS TẠI ĐÂY ===
 					PhieuGiuCho pgc = datChoBUS.taoPhieuGiuCho();
 					if (pgc != null) {
 						datChoBUS.themPhieuGiuCho(pgc);
@@ -227,13 +281,19 @@ public class BanVe1Controller {
 
 					bookingSession.setPhieuGiuCho(pgc);
 
-					for (VeSession v : veTrongGio) {
-						PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v);
-						if (pgcct == null) {
-							return false;
+					for (int i = 0; i < veTrongGio.size(); i++) {
+						VeSession v = veTrongGio.get(i);
+
+						if (v.getPgcct() == null) {
+							PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v, i + 1);
+
+							if (pgcct == null) {
+								errorMessage = "Không thể tạo PGCCT cho vé " + v.getSoGhe();
+								return false;
+							}
+							datChoBUS.themPhieuGiuChoChiTiet(pgcct);
+							v.setPgcct(pgcct);
 						}
-						datChoBUS.themPhieuGiuChoChiTiet(pgcct);
-						v.setPgcct(pgcct);
 					}
 
 					return true;
@@ -250,9 +310,7 @@ public class BanVe1Controller {
 					if (success) {
 						// 5. THÀNH CÔNG: Hiển thị PanelBuoc3
 						view.setBuoc3Enabled(true);
-						p3.initFromBookingSession(bookingSession, buoc2Controller.getCurrentTripIndex());
-
-						// (Bạn có thể thêm logic cuộn màn hình xuống p3 nếu cần)
+						p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
 
 					} else {
 						// 6. THẤT BẠI: Hiển thị lỗi
@@ -260,7 +318,6 @@ public class BanVe1Controller {
 								JOptionPane.ERROR_MESSAGE);
 
 						// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
-						// buoc2Controller.refreshCurrentSeats();
 					}
 				} catch (Exception e) {
 					// Lỗi của chính SwingWorker
@@ -269,5 +326,131 @@ public class BanVe1Controller {
 				}
 			}
 		}.execute();
+	}
+
+	/**
+	 * Hàm mới: Xử lý khi bấm nút "Mua vé" (thay thế seatListenerChinh)
+	 */
+	private void handleMuaVe() {
+		view.setBuoc1Enabled(false);
+		view.setBuoc2Enabled(false);
+
+		// Kiểm tra logic khứ hồi
+		if (bookingSession.isRoundTrip() && (bookingSession.getOutboundSelectedTickets().isEmpty()
+				|| bookingSession.getReturnSelectedTickets().isEmpty())) {
+			int choice = JOptionPane.showConfirmDialog(view,
+					"Bạn chưa chọn vé cho cả 2 chiều. Bạn có muốn tiếp tục không?", "Xác nhận khứ hồi",
+					JOptionPane.YES_NO_OPTION);
+			if (choice == JOptionPane.NO_OPTION) {
+				view.setBuoc2Enabled(true);
+				return;
+			}
+		}
+
+		// Lấy TẤT CẢ vé (logic cũ đã đúng)
+		List<VeSession> allTickets = bookingSession.getAllSelectedTickets();
+
+		// Kiểm tra giỏ vé trống
+		if (allTickets.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
+					JOptionPane.WARNING_MESSAGE);
+			view.setBuoc2Enabled(true); // Mở lại Bước 2
+			return;
+		}
+
+		goiBusGiuCho(allTickets);
+	}
+
+	/**
+	 * Hàm mới: Xử lý khi bấm nút "Xóa" (trash) TỪ GIỎ VÉ
+	 */
+	public void handleGioVeRemove(VeSession v) {
+		if (v == null) {
+			return;
+		}
+
+		// 1. Tìm controller đúng
+		final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
+				&& bookingSession.getReturnSelectedTickets().contains(v)) ? buoc2ControllerVe : buoc2ControllerDi;
+
+		// 2. Cập nhật Model (xóa khỏi session)
+		// (onRemoveVe của controller sẽ làm việc này)
+		if (correctController != null) {
+			correctController.onRemoveVe(v); // Sẽ refresh SoDoCho
+		}
+
+		// 3. Dừng timer
+		stopCountdownForVe(v);
+
+		// 4. Refresh Giỏ vé (View)
+		refreshGioVe();
+	}
+
+	/**
+	 * Hàm mới: Refresh giỏ vé (tập trung)
+	 */
+	public void refreshGioVe() {
+		if (p2 != null && p2.getPanelGioVe() != null && bookingSession != null) {
+			p2.getPanelGioVe().refresh(bookingSession.getAllSelectedTickets());
+		}
+	}
+
+	public void registerCountdownLabelForVe(VeSession v, JLabel lbl) {
+		countdownLabels.put(v.toString(), lbl);
+		if (!countdownTimers.containsKey(v.toString())) {
+			startCountdownForVe(v);
+		}
+	}
+
+	private void stopCountdownForVe(VeSession v) {
+		if (v == null) {
+			return;
+		}
+		Timer old = countdownTimers.remove(v.toString());
+		if (old != null) {
+			old.stop();
+		}
+		countdownLabels.remove(v.toString());
+	}
+
+	private void startCountdownForVe(VeSession v) {
+		String id = v.toString();
+		stopCountdownForVe(v); // Dừng timer cũ (nếu có)
+
+		final LocalDateTime thoiDiemHetHan = v.getThoiDiemHetHan();
+		Timer timer = new Timer(1000, e -> {
+			long s = ChronoUnit.SECONDS.between(LocalDateTime.now(), thoiDiemHetHan);
+			JLabel label = countdownLabels.get(id);
+			if (label != null) {
+				label.setText(formatSeconds(s));
+			}
+			if (s <= 0) {
+				((Timer) e.getSource()).stop();
+				countdownTimers.remove(id);
+				countdownLabels.remove(id);
+
+				// (Tìm controller đúng để gọi release)
+				final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
+						&& bookingSession.getReturnSelectedTickets().contains(v)) ? buoc2ControllerVe
+								: buoc2ControllerDi;
+
+				if (correctController != null) {
+					correctController.releaseHoldAndRemoveVe(v);
+					refreshGioVe();
+				}
+			}
+		});
+		timer.setInitialDelay(0);
+		timer.start();
+		countdownTimers.put(id, timer);
+	}
+
+	private String formatSeconds(long s) {
+		if (s <= 0) {
+			return "00:00";
+		}
+		long m = s / 60;
+		long sec = s % 60;
+		return String.format("%02d:%02d", m, sec);
 	}
 }

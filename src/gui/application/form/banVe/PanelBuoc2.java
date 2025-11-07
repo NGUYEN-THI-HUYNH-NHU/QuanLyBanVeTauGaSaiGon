@@ -13,105 +13,73 @@ package gui.application.form.banVe;
  */
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.List;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.TitledBorder;
 
-import entity.Chuyen;
-
 public class PanelBuoc2 extends JPanel {
-	private PanelChieuLabel panelChieuLabel;
-	private PanelChuyenTau panelChuyenTau;
-	private PanelDoanTau panelDoanTau;
-	private PanelSoDoCho panelSoDoCho;
 	private PanelGioVe panelGioVe;
-	private JPanel centerPanel;
 
-	private PanelBuoc2Controller controller;
-//	private JPanel pnlChuThich;
+	private JTabbedPane tabbedPane;
+	private PanelChuyen panelChieuDi;
+	private PanelChuyen panelChieuVe;
 
 	public PanelBuoc2() {
 		setLayout(new BorderLayout(2, 0));
 		setBorder(new TitledBorder(""));
 		setPreferredSize(new Dimension(0, 400));
 
-//		pnlChuThich = new JPanel();
-//		pnlChuThich.setPreferredSize(new Dimension(10, 20));
-////        ImageIcon iconTrong = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
-////        ImageIcon iconDay = new ImageIcon(getClass().getResource("/gui/icon/png/toa-tau.png"));
-//		ImageIcon iconDangChon = new ImageIcon(getClass().getResource("/gui/icon/png/chu-thich.png"));
-//		JLabel muc1 = new JLabel("", iconDangChon, JLabel.CENTER);
-//		pnlChuThich.add(muc1);
-
-		panelChieuLabel = new PanelChieuLabel();
-		panelChuyenTau = new PanelChuyenTau();
-		panelDoanTau = new PanelDoanTau();
-		panelSoDoCho = new PanelSoDoCho();
 		panelGioVe = new PanelGioVe();
-
-		centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-		centerPanel.setPreferredSize(getPreferredSize());
-		centerPanel.add(panelChieuLabel);
-		centerPanel.add(panelChuyenTau);
-		centerPanel.add(panelDoanTau);
-		centerPanel.add(panelSoDoCho);
-//		centerPanel.add(pnlChuThich);
-
-		add(centerPanel, BorderLayout.CENTER);
 		add(panelGioVe, BorderLayout.EAST);
 
-		controller = new PanelBuoc2Controller(panelChieuLabel, panelChuyenTau, panelDoanTau, panelSoDoCho, panelGioVe);
-		panelChuyenTau.setController(controller);
-		panelDoanTau.setController(controller);
-		panelSoDoCho.setController(controller);
-		panelGioVe.setController(controller);
-	}
+		panelChieuDi = new PanelChuyen();
+		panelChieuVe = new PanelChuyen();
 
-	public PanelChieuLabel getPanelChieuLabel() {
-		return panelChieuLabel;
-	}
+		// 3. Khởi tạo JTabbedPane
+		tabbedPane = new JTabbedPane();
+		tabbedPane.addTab(" Chiều đi ", panelChieuDi);
+		tabbedPane.addTab(" Chiều về ", panelChieuVe);
 
-	public PanelChuyenTau getPanelChuyenTau() {
-		return panelChuyenTau;
-	}
-
-	public PanelDoanTau getPanelDoanTau() {
-		return panelDoanTau;
-	}
-
-	public PanelSoDoCho getPanelSoDoCho() {
-		return panelSoDoCho;
+		// 4. Thêm JTabbedPane và PanelGioVe vào layout
+		add(tabbedPane, BorderLayout.CENTER);
+		add(panelGioVe, BorderLayout.EAST);
 	}
 
 	public PanelGioVe getPanelGioVe() {
 		return panelGioVe;
 	}
 
-	public void enter(SearchCriteria criteria, List<Chuyen> results, int tripIndex, BookingSession session) {
-		System.out.println(
-				"PanelBuoc2.enter called: criteria=" + criteria + " tripIndex=" + tripIndex + " session=" + session);
-		controller.setBookingSession(session);
-		controller.setCurrentTripIndex(tripIndex);
-		controller.displayChuyenList(criteria, results, tripIndex);
+	/**
+	 * Phương thức này được BanVe1Controller gọi để ẩn/hiện tab "Chiều về"
+	 */
+	public void showReturnTab(boolean show) {
+		// Tạm thời tắt tab "Chiều về"
+		// (Chúng ta dùng setEnabledAt để giữ vị trí, hoặc removeTab/addTab)
+		if (tabbedPane.getTabCount() > 1) {
+			tabbedPane.setEnabledAt(1, show);
+			if (!show) {
+				tabbedPane.setSelectedIndex(0); // Quay về tab 1 nếu đang ẩn tab 2
+			}
+		}
+	}
+
+	public JTabbedPane getTabbedPane() {
+		return tabbedPane;
+	}
+
+	public PanelChuyen getPanelChieuDi() {
+		return panelChieuDi;
+	}
+
+	public PanelChuyen getPanelChieuVe() {
+		return panelChieuVe;
 	}
 
 	public void setComponentsEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-
-		if (panelChieuLabel != null) {
-			panelChieuLabel.setEnabled(enabled);
-		}
-		if (panelChuyenTau != null) {
-			panelChuyenTau.setEnabled(enabled);
-		}
-		if (panelDoanTau != null) {
-			panelDoanTau.setEnabled(enabled);
-		}
-		if (panelSoDoCho != null) {
-			panelSoDoCho.setEnabled(enabled);
+		if (tabbedPane != null) {
+			tabbedPane.setEnabled(enabled);
 		}
 		if (panelGioVe != null) {
 			panelGioVe.setEnabled(enabled);

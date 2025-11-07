@@ -7,17 +7,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.Timer;
 
 import bus.Chuyen_BUS;
 import bus.DatCho_BUS;
@@ -32,13 +28,10 @@ public class PanelBuoc2Controller {
 	private final PanelChuyenTau panelChuyenTau;
 	private final PanelDoanTau panelDoanTau;
 	private final PanelSoDoCho panelSoDoCho;
-	private final PanelGioVe panelGioVe;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 
-	private final Map<String, Timer> countdownTimers = new ConcurrentHashMap<>();
-	private final Map<String, JLabel> countdownLabels = new ConcurrentHashMap<>();
 	private final List<SeatSelectedListener> seatSelectedListeners = new ArrayList<>();
 
 	private BookingSession bookingSession;
@@ -49,8 +42,6 @@ public class PanelBuoc2Controller {
 
 	public interface SeatSelectedListener {
 		void onSeatSelected(VeSession v);
-
-		void onMuaVeClicked();
 	}
 
 	public void addSeatSelectedListener(SeatSelectedListener listener) {
@@ -60,26 +51,15 @@ public class PanelBuoc2Controller {
 	}
 
 	public PanelBuoc2Controller(PanelChieuLabel chieuLabel, PanelChuyenTau chuyenTau, PanelDoanTau doanTau,
-			PanelSoDoCho soDoCho, PanelGioVe gioVe) {
+			PanelSoDoCho soDoCho) {
 		this.panelChieuLabel = chieuLabel;
 		this.panelChuyenTau = chuyenTau;
 		this.panelDoanTau = doanTau;
 		this.panelSoDoCho = soDoCho;
-		this.panelGioVe = gioVe;
 
 		panelChuyenTau.setController(this);
 		panelDoanTau.setController(this);
 		panelSoDoCho.setController(this);
-		panelGioVe.setController(this);
-
-		panelGioVe.addBuyButtonListener(e -> {
-			for (SeatSelectedListener listener : seatSelectedListeners) {
-				try {
-					listener.onMuaVeClicked();
-				} catch (Throwable ignore) {
-				}
-			}
-		});
 	}
 
 	public void setBookingSession(BookingSession s) {
@@ -126,7 +106,6 @@ public class PanelBuoc2Controller {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
-		panelGioVe.refresh(getBookingSession().getOutboundSelectedTickets());
 	}
 
 	public void onChuyenSelected(Chuyen c) {
@@ -317,13 +296,10 @@ public class PanelBuoc2Controller {
 				try {
 					VeSession v = get();
 					if (v != null) {
-						panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(tripIndex));
-
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
 						}
 
-						startCountdownForVe(v);
 						panelSoDoCho.setCurrentToa(toa);
 					} else {
 						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi tạo vé).");
@@ -367,57 +343,6 @@ public class PanelBuoc2Controller {
 		}
 	}
 
-	// start a swing timer updating corresponding JLabel; label may be registered by
-	// panelGioVe
-	public void registerCountdownLabelForVe(VeSession v, JLabel lbl) {
-		countdownLabels.put(v.toString(), lbl);
-		// if a timer already exists, reuse (otherwise create)
-		if (!countdownTimers.containsKey(v.toString())) {
-			startCountdownForVe(v);
-		}
-	}
-
-	private void startCountdownForVe(VeSession v) {
-		String id = v.toString();
-		Timer old = countdownTimers.remove(id);
-		if (old != null) {
-			old.stop();
-		}
-
-		// Lấy thời điểm hết hạn thực tế từ vé
-		final LocalDateTime thoiDiemHetHan = v.getThoiDiemHetHan();
-
-		Timer timer = new Timer(1000, e -> {
-			// Tính số giây còn lại bằng cách so sánh giờ hiện tại với giờ hết hạn
-			long s = ChronoUnit.SECONDS.between(LocalDateTime.now(), thoiDiemHetHan);
-
-			JLabel label = countdownLabels.get(id);
-			if (label != null) {
-				label.setText(formatSeconds(s));
-			}
-
-			// Tự động xóa vé
-			if (s <= 0) {
-				((Timer) e.getSource()).stop();
-				countdownTimers.remove(id);
-				countdownLabels.remove(id);
-				releaseHoldAndRemoveVe(v);
-			}
-		});
-		timer.setInitialDelay(0);
-		timer.start();
-		countdownTimers.put(id, timer);
-	}
-
-	private String formatSeconds(long s) {
-		if (s <= 0) {
-			return "00:00";
-		}
-		long m = s / 60;
-		long sec = s % 60;
-		return String.format("%02d:%02d", m, sec);
-	}
-
 	// user clicked trash icon or timer expired -> remove ticket
 	public void onRemoveVe(VeSession v) {
 		if (v == null || bookingSession == null) {
@@ -432,22 +357,11 @@ public class PanelBuoc2Controller {
 			removed = bookingSession.removeReturnTicket(v);
 		}
 
-		Timer t = countdownTimers.remove(v.toString());
-		if (t != null) {
-			t.stop();
-		}
-		countdownLabels.remove(v.toString());
-
-		// Refresh giỏ vé của trip HIỆN TẠI
-		panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(currentTripIndex));
-
 		// Luôn refresh sơ đồ ghế để cập nhật màu sắc
 		if (selectedToa != null) {
 			refreshSeatOnDelete(v);
 		}
 	}
-
-	// Trong PanelBuoc2Controller.java
 
 	/**
 	 * Hàm này được gọi khi một vé bị xóa TỪ BẤT CỨ ĐÂU. Nó kiểm tra và cập nhật lại
@@ -469,15 +383,13 @@ public class PanelBuoc2Controller {
 		// Nếu không (vé bị xóa ở toa khác/chuyến khác), thì không làm gì cả.
 	}
 
-	private void releaseHoldAndRemoveVe(VeSession v) {
+	public void releaseHoldAndRemoveVe(VeSession v) {
 		if (v == null || bookingSession == null) {
 			return;
 		}
 
 		boolean removedOutbound = bookingSession.removeOutboundTicket(v);
 		boolean removedReturn = bookingSession.removeReturnTicket(v);
-
-		countdownLabels.remove(v.toString());
 
 		bookingSession.removeVeSession(v);
 
@@ -486,9 +398,6 @@ public class PanelBuoc2Controller {
 				&& bookingSession.getReturnSelectedTickets().size() == 0) {
 			datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
 		}
-
-		// Refresh giỏ vé của trip HIỆN TẠI
-		panelGioVe.refresh(bookingSession.getSelectedTicketsForTrip(currentTripIndex));
 
 		SwingUtilities.invokeLater(
 				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));

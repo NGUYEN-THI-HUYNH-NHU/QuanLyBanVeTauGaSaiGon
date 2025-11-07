@@ -111,7 +111,7 @@ public class WizardController {
 				SwingUtilities.invokeLater(() -> {
 					try {
 						System.out.println("Wizard.goToStep -> step=2 tripIndex=" + tripIndex + " session=" + s);
-						panel2.enter(criteria, results, tripIndex, s);
+//						panel2.enter(criteria, results, tripIndex, s);
 					} catch (Throwable t) {
 						System.err.println("WizardController: error while calling PanelBuoc2.enter: " + t.getMessage());
 						t.printStackTrace();

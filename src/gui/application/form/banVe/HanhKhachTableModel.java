@@ -17,7 +17,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 public class HanhKhachTableModel extends AbstractTableModel {
-	private final String[] cols = { "Hành khách", "Vé", "Giá", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" };
+	private final String[] cols = { "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng",
+			"Khuyến mãi", "Thành tiền", "" };
 	private final List<PassengerRow> rows = new ArrayList<>();
 
 	@Override
@@ -36,6 +37,20 @@ public class HanhKhachTableModel extends AbstractTableModel {
 	}
 
 	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		if (columnIndex == 3) {
+			return Boolean.class;
+		}
+		if (columnIndex == 0) {
+			return PassengerRow.class;
+		}
+		if (columnIndex == 2 || columnIndex == 4 || columnIndex == 5 || columnIndex == 6 || columnIndex == 7) {
+			return Double.class;
+		}
+		return Object.class;
+	}
+
+	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		PassengerRow p = rows.get(rowIndex);
 		switch (columnIndex) {
@@ -46,12 +61,17 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		case 2:
 			return p.getVeSession().getGia();
 		case 3:
-			return p.getVeSession().getGiamDoiTuong();
+			return p.getVeSession().getPhongChoVIP() > 0;
 		case 4:
-			return p.getVeSession().getGiam();
+			return p.getVeSession().getPhongChoVIP();
 		case 5:
-			return p.getVeSession().getGia() - p.getVeSession().getGiam() - p.getVeSession().getGiamDoiTuong();
+			return p.getVeSession().getGiamDoiTuong();
 		case 6:
+			return p.getVeSession().getGiam();
+		case 7:
+			return p.getVeSession().getGia() + p.getVeSession().getPhongChoVIP() - p.getVeSession().getGiam()
+					- p.getVeSession().getGiamDoiTuong();
+		case 8:
 			return "Xóa";
 		default:
 			return null;
@@ -60,7 +80,7 @@ public class HanhKhachTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == 0 || columnIndex == 6;
+		return columnIndex == 0 || columnIndex == 6 || columnIndex == 3;
 	}
 
 	@Override
@@ -72,6 +92,20 @@ public class HanhKhachTableModel extends AbstractTableModel {
 			p.setType(src.getType());
 			p.setIdNumber(src.getIdNumber());
 			fireTableRowsUpdated(rowIndex, rowIndex);
+		}
+		if (columnIndex == 3) {
+			// Nhận giá trị true/false từ JCheckBox
+			Boolean isSelected = (Boolean) aValue;
+
+			if (isSelected) {
+				p.getVeSession().setPhongChoVIP(20000);
+			} else {
+				p.getVeSession().setPhongChoVIP(0);
+			}
+
+			// Thông báo cho bảng cập nhật lại các ô bị ảnh hưởng (Giá dịch vụ & Thành tiền)
+			fireTableCellUpdated(rowIndex, 4);
+			fireTableCellUpdated(rowIndex, 7);
 		}
 	}
 

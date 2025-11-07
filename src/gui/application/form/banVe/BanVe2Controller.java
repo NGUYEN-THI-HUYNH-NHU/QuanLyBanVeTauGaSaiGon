@@ -5,13 +5,13 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.event.ActionListener;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 22, 2025
  * @version: 1.0
  */
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,15 +94,14 @@ public class BanVe2Controller {
 
 		for (VeSession ve : allTickets) {
 			tongTienVe += ve.getGia();
+			dichVu += ve.getPhongChoVIP();
+			khuyenMai += ve.getGiam();
 
 			// Giảm giá đối tượng ở đây
 			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
 				ve.setGiamDoiTuong((int) (Math.round((ve.getGia() * 0.25) / 1000) * 1000));
 				giamGiaDT += ve.getGiamDoiTuong();
 			}
-			// TODO: khuyenMai += ve.getGiam()
-			khuyenMai = 0;
-
 		}
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
@@ -124,6 +123,7 @@ public class BanVe2Controller {
 				isThanhToanTienMat = false;
 			}
 
+			// Lưu thông tin thanh toán
 			double tongTien = p5.getTongThanhToan();
 			double tienNhan = p5.getTienKhachDua();
 			double tienHoan = tienNhan - tongTien;
@@ -132,33 +132,39 @@ public class BanVe2Controller {
 			boolean trangThai = true;
 			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, maGiaoDich, tongTien,
 					isThanhToanTienMat, trangThai);
+			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
 			bookingSession.setGiaoDichThanhToan(giaoDichThanhToan);
 
-			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
-
+			// Lưu đơn đặt chỗ
 			DonDatCho donDatCho = datChoBUS.taoDonDatCho(bookingSession);
-			if (donDatCho != null) {
-				datChoBUS.themDonDatCho(donDatCho);
-				bookingSession.setDonDatCho(donDatCho);
-				// Lưu các vé
-				List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, bookingSession);
-				veBUS.themCacVe(dsVe);
-				// Lưu hóa đơn và hóa đơn chi tiết
-				HoaDon hoaDon = hoaDonBUS.taoHoaDon(bookingSession);
-				bookingSession.setHoaDon(hoaDon);
+			datChoBUS.themDonDatCho(donDatCho);
+			bookingSession.setDonDatCho(donDatCho);
 
-				hoaDonBUS.themHoaDon(hoaDon);
-				List<HoaDonChiTiet> dsHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(bookingSession, giaoDichThanhToan);
-				hoaDonBUS.themCacHoaDonChiTiet(dsHoaDonChiTiet);
-			}
+			// Lưu các vé
+			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, bookingSession);
+			veBUS.themCacVe(dsVe);
+
+			// Lưu hóa đơn
+			HoaDon hoaDon = hoaDonBUS.taoHoaDon(bookingSession);
+			hoaDonBUS.themHoaDon(hoaDon);
+			bookingSession.setHoaDon(hoaDon);
+
+			// Lưu hóa đơn chi tiết
+			List<HoaDonChiTiet> dsHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(bookingSession, giaoDichThanhToan);
+			hoaDonBUS.themCacHoaDonChiTiet(dsHoaDonChiTiet);
+
 			// Giả sử lưu thành công
 			boolean saveSuccess = true;
 
 			for (VeSession v : bookingSession.getOutboundSelected()) {
-				khachHangBUS.themKhachHang(v.getHanhKhach());
+				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(v.getHanhKhach().getSoGiayTo()) == null) {
+					khachHangBUS.themKhachHang(v.getHanhKhach());
+				}
 			}
 			for (VeSession v : bookingSession.getReturnSelected()) {
-				khachHangBUS.themKhachHang(v.getHanhKhach());
+				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(v.getHanhKhach().getSoGiayTo()) == null) {
+					khachHangBUS.themKhachHang(v.getHanhKhach());
+				}
 			}
 
 			if (saveSuccess) {
