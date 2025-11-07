@@ -1,90 +1,1009 @@
 package gui.application.form.thongKe;
 
-import javax.swing.*;
-import java.awt.*;
+import dao.ThongKeVe_DAO;
+import dao.ThongKeVe_DAO.ThongKeVeChiTietItem;
+// Import JFreeChart
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.data.category.DefaultCategoryDataset;
+// Import Apache POI
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.BorderStyle;
+// org.apache.poi.ss.usermodel.Font đã được bạn xử lý ở bước trước
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+// Import Swing, AWT, Calendar
 import com.toedter.calendar.JDateChooser;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+// Import IO và Util
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.sql.SQLException; // <<< THÊM MỚI
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List; // <<< THÊM MỚI
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+
+/**
+ * Panel hiển thị thống kê vé theo thời gian.
+ * ĐÃ NÂNG CẤP: Thêm bộ lọc Tuyến (Tất cả / Theo Ga đi - Ga đến).
+ */
 public class PanelThongKeVe extends JPanel {
-    private final JDateChooser tuNgay = new JDateChooser();
-    private final JDateChooser denNgay = new JDateChooser();
-    private final JComboBox<String> cbTuyen = new JComboBox<>(new String[]{"Tất cả", "Bắc - Nam", "Nam - Bắc"});
-    private final JComboBox<String> cbTrangThai = new JComboBox<>(new String[]{"Tất cả", "Đã dùng", "Hoàn", "Đổi", "Còn hiệu lực"});
+
+    // ===== DAO =====
+    private final ThongKeVe_DAO thongKeVeDAO;
+
+    // Logger
+    private static final Logger LOGGER = Logger.getLogger(PanelThongKeVe.class.getName());
+
+    // ===== Định dạng =====
+    private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+    private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
+
+    // ===== Các thành phần lọc =====
+    private final JComboBox<String> cbLoaiThoiGian;
+    private final JDateChooser tuNgay;
+    private final JDateChooser denNgay;
+    private final JComboBox<String> cbTuThang;
+    private final JComboBox<String> cbDenThang;
+    private final JComboBox<Integer> cbTuNamThang;
+    private final JComboBox<Integer> cbDenNamThang;
+    private final JComboBox<Integer> cbTuNam;
+    private final JComboBox<Integer> cbDenNam;
+    private final JPanel filterSwitcher;
+    private static final String CARD_TATCA = "CARD_TATCA";
+    private static final String CARD_NGAY = "CARD_NGAY";
+    private static final String CARD_THANG = "CARD_THANG";
+    private static final String CARD_NAM = "CARD_NAM";
+
+    // <<< THÀNH PHẦN LỌC TUYẾN MỚI >>>
+    private final JComboBox<String> cbLoaiTuyen;
+    private final JComboBox<String> cbGaDi;
+    private final JComboBox<String> cbGaDen;
+    private final JPanel panelGaDiDen; // Panel chứa 2 cb ga
+
+    private final JButton btnTimKiem;
+
+    // ===== Các JLabel chứa giá trị trên card =====
+    private final JLabel lblTongSoVeBanValue;
+    private final JLabel lblTongVeConHieuLucValue;
+    private final JLabel lblTongVeDaDungValue;
+    private final JLabel lblTongVeDaDoiValue;
+    private final JLabel lblTongVeHoanValue;
+    private final JLabel lblTongTienVeValue;
+
+    // ===== Biểu đồ & Bảng =====
+    private final JPanel chartPanelContainer;
+    private final JTable tableChiTiet;
+    private final DefaultTableModel chiTietTableModel;
+
+    // ===== Thành phần Panel Chi Tiết =====
+    private final JLabel lblChiTietTitle;
+    private final JButton btnExportExcel;
+
+    // ===== Lớp chứa kết quả thống kê =====
+    private static class ThongKeVeResult {
+        int tongSoVeBan, tongVeConHieuLuc, tongVeDaDung, tongVeDaDoi, tongVeHoan;
+        double tongTienVe;
+        Map<String, ThongKeVeChiTietItem> thongKeVeChiTietTheoThoiGian;
+    }
 
     public PanelThongKeVe() {
-        setLayout(new BorderLayout(10, 10));
+        this.thongKeVeDAO = new ThongKeVe_DAO();
+
+        // Khởi tạo components thời gian
+        cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
+        tuNgay = new JDateChooser();
+        denNgay = new JDateChooser();
+        cbTuThang = new JComboBox<>();
+        cbDenThang = new JComboBox<>();
+        cbTuNamThang = new JComboBox<>();
+        cbDenNamThang = new JComboBox<>();
+        cbTuNam = new JComboBox<>();
+        cbDenNam = new JComboBox<>();
+        filterSwitcher = new JPanel(new CardLayout());
+
+        // <<< KHỞI TẠO COMPONENTS TUYẾN MỚI >>>
+        cbLoaiTuyen = new JComboBox<>(new String[]{"Tất cả", "Theo Ga đi/đến"});
+        cbGaDi = new JComboBox<>();
+        cbGaDen = new JComboBox<>();
+        panelGaDiDen = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); // Panel chứa 2 cb ga
+
+        btnTimKiem = new JButton("Tìm kiếm");
+
+        // Khởi tạo labels
+        lblTongSoVeBanValue = createValueLabel("...");
+        lblTongVeConHieuLucValue = createValueLabel("...");
+        lblTongVeDaDungValue = createValueLabel("...");
+        lblTongVeDaDoiValue = createValueLabel("...");
+        lblTongVeHoanValue = createValueLabel("...");
+        lblTongTienVeValue = createValueLabel("...");
+
+        // --- Cấu hình Layout chính ---
+        setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
+        setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // ===== Bộ lọc =====
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        filterPanel.setBackground(Color.WHITE);
-        filterPanel.add(new JLabel("Từ ngày:"));
-        tuNgay.setDateFormatString("dd/MM/yyyy");
-        tuNgay.setDate(new Date());
-        filterPanel.add(tuNgay);
+        // ===== Khu vực NORTH: Thanh lọc và Cards =====
+        JPanel topPanel = new JPanel(new BorderLayout(0, 15));
+        topPanel.setOpaque(false);
 
-        filterPanel.add(new JLabel("Đến ngày:"));
-        denNgay.setDateFormatString("dd/MM/yyyy");
-        denNgay.setDate(new Date());
-        filterPanel.add(denNgay);
+        // --- Thanh lọc ---
+        topPanel.add(buildFilterBar(), BorderLayout.NORTH);
 
-        filterPanel.add(new JLabel("Tuyến:"));
-        filterPanel.add(cbTuyen);
+        // --- Cards tổng quan ---
+        JPanel infoWrapper = new JPanel(new GridLayout(2, 3, 15, 15));
+        infoWrapper.setOpaque(false);
+        infoWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        infoWrapper.add(createCard("Tổng số vé bán", lblTongSoVeBanValue, new Color(52, 152, 219)));
+        infoWrapper.add(createCard("Vé còn hiệu lực", lblTongVeConHieuLucValue, new Color(46, 204, 113)));
+        infoWrapper.add(createCard("Vé đã dùng", lblTongVeDaDungValue, new Color(155, 89, 182)));
+        infoWrapper.add(createCard("Vé hoàn", lblTongVeHoanValue, new Color(231, 76, 60)));
+        infoWrapper.add(createCard("Vé đổi", lblTongVeDaDoiValue, new Color(243, 156, 18)));
+        infoWrapper.add(createCard("Tổng tiền vé", lblTongTienVeValue, new Color(39, 174, 96)));
 
-        filterPanel.add(new JLabel("Trạng thái vé:"));
-        filterPanel.add(cbTrangThai);
+        topPanel.add(infoWrapper, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
 
-        JButton btnLoc = new JButton("Lọc");
-        btnLoc.setBackground(new Color(231, 76, 60));
-        btnLoc.setForeground(Color.WHITE);
-        filterPanel.add(btnLoc);
 
-        add(filterPanel, BorderLayout.NORTH);
-
-        // ===== Khu tổng quan vé =====
-        JPanel summaryPanel = new JPanel(new GridLayout(1, 4, 15, 15));
-        summaryPanel.setBackground(Color.WHITE);
-        summaryPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        summaryPanel.add(createCard("Tổng số vé bán", "12.350", new Color(52, 152, 219)));
-        summaryPanel.add(createCard("Vé hoàn", "300", new Color(231, 76, 60)));
-        summaryPanel.add(createCard("Vé đổi", "120", new Color(241, 196, 15)));
-        summaryPanel.add(createCard("Vé còn hiệu lực", "11.930", new Color(46, 204, 113)));
-
-        add(summaryPanel, BorderLayout.CENTER);
-
-        // ===== Biểu đồ + Chi tiết =====
+        // ===== Khu vực CENTER: Tabs biểu đồ & chi tiết =====
         JTabbedPane tab = new JTabbedPane();
-        tab.addTab("Biểu đồ thống kê vé", taoPanelBieuDo());
-        tab.addTab("Chi tiết vé", taoPanelChiTiet());
-        add(tab, BorderLayout.SOUTH);
+        tab.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+        chartPanelContainer = taoPanelTongQuan();
+
+        // --- Tạo Table Model ---
+        String[] columnNames = {
+                "STT", "Thời Gian", "Vé bán", "Vé còn hiệu lực", "Vé đã dùng",
+                "Vé đổi", "Vé hoàn", "Tổng tiền vé (VNĐ)"
+        };
+        chiTietTableModel = new DefaultTableModel(columnNames, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return switch (columnIndex) {
+                    case 0, 2, 3, 4, 5, 6 -> Integer.class;
+                    case 7 -> Double.class;
+                    default -> String.class;
+                };
+            }
+        };
+        tableChiTiet = new JTable(chiTietTableModel);
+        setupTableDetails();
+
+        // --- Tạo Panel Chi Tiết ---
+        lblChiTietTitle = new JLabel("Báo cáo thống kê chi tiết", JLabel.CENTER);
+        lblChiTietTitle.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        lblChiTietTitle.setBorder(new EmptyBorder(5, 0, 10, 0));
+
+        btnExportExcel = new JButton("Xuất Excel");
+        btnExportExcel.setBackground(new Color(33, 115, 70));
+        btnExportExcel.setForeground(Color.WHITE);
+        btnExportExcel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnExportExcel.setEnabled(false);
+        btnExportExcel.addActionListener(this::exportTableToExcel);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(btnExportExcel);
+
+        JPanel panelChiTietContainer = taoPanelChiTiet(lblChiTietTitle, tableChiTiet, bottomPanel);
+
+        tab.addTab("Tổng quan", chartPanelContainer);
+        tab.addTab("Chi tiết", panelChiTietContainer);
+
+        add(tab, BorderLayout.CENTER);
+
+        // ===== Load dữ liệu ban đầu =====
+        loadComboBoxesData(); // <<< TẢI DỮ LIỆU CHO COMBOBOX GA
+        SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    private JPanel taoPanelBieuDo() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Color.WHITE);
-        JLabel lbl = new JLabel("📊 Khu vực biểu đồ vé (sẽ hiển thị biểu đồ sau)", SwingConstants.CENTER);
-        lbl.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-        p.add(lbl, BorderLayout.CENTER);
-        return p;
+    /**
+     * Xây dựng panel lọc, sử dụng GridBagLayout.
+     * ĐÃ THÊM: Bộ lọc Tuyến (Tất cả / Theo Ga đi - Ga đến).
+     */
+    private JPanel buildFilterBar() {
+        JPanel bar = new JPanel();
+        bar.setOpaque(false);
+        bar.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        // === Hàng 0: Lọc thời gian ===
+        gbc.gridx = 0; gbc.gridy = 0;
+        bar.add(new JLabel("Loại thời gian:"), gbc);
+
+        gbc.gridx = 1;
+        cbLoaiThoiGian.setPreferredSize(new Dimension(100, 30));
+        bar.add(cbLoaiThoiGian, gbc);
+
+        gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        filterSwitcher.setOpaque(false);
+        filterSwitcher.add(buildTatCaFilter(), CARD_TATCA);
+        filterSwitcher.add(buildNgayFilter(), CARD_NGAY);
+        filterSwitcher.add(buildThangFilter(), CARD_THANG);
+        filterSwitcher.add(buildNamFilter(), CARD_NAM);
+        filterSwitcher.setPreferredSize(new Dimension(450, 30));
+        bar.add(filterSwitcher, gbc);
+
+        // === Nút Tìm kiếm (Nằm bên phải, cao 2 hàng) ===
+        btnTimKiem.setBackground(new Color(103, 194, 103));
+        btnTimKiem.setForeground(Color.WHITE);
+        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 14));
+        btnTimKiem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnTimKiem.setPreferredSize(new Dimension(120, 40));
+
+        gbc.gridx = 3; gbc.gridy = 0; // Cột 3, Hàng 0
+        gbc.gridheight = 2; // <<< NÚT CAO 2 HÀNG
+        gbc.fill = GridBagConstraints.VERTICAL; // Lấp đầy theo chiều dọc
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(5, 15, 5, 5);
+        bar.add(btnTimKiem, gbc);
+
+        // Reset
+        gbc.gridheight = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        // === Hàng 1: Lọc Tuyến (MỚI) ===
+        gbc.gridx = 0; gbc.gridy = 1;
+        bar.add(new JLabel("Lọc tuyến:"), gbc);
+
+        gbc.gridx = 1;
+        cbLoaiTuyen.setPreferredSize(new Dimension(100, 30));
+        bar.add(cbLoaiTuyen, gbc);
+
+        // Panel con cho Ga đi / Ga đến
+        panelGaDiDen.setOpaque(false);
+        panelGaDiDen.add(new JLabel("Ga đi:"));
+        cbGaDi.setPreferredSize(new Dimension(150, 30));
+        panelGaDiDen.add(cbGaDi);
+        panelGaDiDen.add(new JLabel("Ga đến:"));
+        cbGaDen.setPreferredSize(new Dimension(150, 30));
+        panelGaDiDen.add(cbGaDen);
+
+        gbc.gridx = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        bar.add(panelGaDiDen, gbc);
+
+        // === Gắn sự kiện (Di chuyển từ constructor) ===
+        cbLoaiThoiGian.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                CardLayout cl = (CardLayout) filterSwitcher.getLayout();
+                cl.show(filterSwitcher, (String) e.getItem());
+            }
+        });
+
+        // <<< SỰ KIỆN MỚI CHO LỌC TUYẾN >>>
+        cbLoaiTuyen.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                boolean enableGaFilter = e.getItem().equals("Theo Ga đi/đến");
+                cbGaDi.setEnabled(enableGaFilter);
+                cbGaDen.setEnabled(enableGaFilter);
+            }
+        });
+
+        btnTimKiem.addActionListener(e -> xuLyThongKe());
+
+        // Cài đặt trạng thái ban đầu
+        cbGaDi.setEnabled(false);
+        cbGaDen.setEnabled(false);
+
+        return bar;
     }
 
-    private JPanel taoPanelChiTiet() {
-        JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Color.WHITE);
-        String[] columns = {"Mã vé", "Tuyến", "Ngày khởi hành", "Giá vé", "Trạng thái"};
-        Object[][] data = {};
-        JTable table = new JTable(data, columns);
-        p.add(new JScrollPane(table), BorderLayout.CENTER);
-        return p;
+    /**
+     * Tải dữ liệu cho các JComboBox (ví dụ: danh sách ga) từ DAO.
+     */
+    private void loadComboBoxesData() {
+        try {
+            List<String> tenGaList = thongKeVeDAO.getDanhSachTenGa();
+            // Thêm "Tất cả" hoặc một lựa chọn mặc định nếu cần,
+            // nhưng ở đây ta chỉ cần load danh sách
+
+            // Xóa item cũ (nếu có)
+            cbGaDi.removeAllItems();
+            cbGaDen.removeAllItems();
+
+            if (tenGaList.isEmpty()) {
+                LOGGER.warning("Không tìm thấy ga nào trong CSDL.");
+                cbGaDi.addItem("Không tìm thấy ga");
+                cbGaDen.addItem("Không tìm thấy ga");
+            } else {
+                for (String tenGa : tenGaList) {
+                    cbGaDi.addItem(tenGa);
+                    cbGaDen.addItem(tenGa);
+                }
+            }
+            // TODO: Đặt ga đi và ga đến mặc định nếu muốn
+            // Ví dụ: cbGaDi.setSelectedItem("Sài Gòn");
+            // Ví dụ: cbGaDen.setSelectedItem("Hà Nội");
+
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi tải danh sách ga", e);
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách ga: " + e.getMessage(), "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+            cbGaDi.addItem("Lỗi CSDL");
+            cbGaDen.addItem("Lỗi CSDL");
+        }
     }
 
-    private JPanel createCard(String title, String value, Color color) {
-        JPanel card = new JPanel(new BorderLayout());
-        JLabel lbl = new JLabel("<html><center>" + title + "<br><b>" + value + "</b></center></html>", SwingConstants.CENTER);
-        lbl.setForeground(Color.WHITE);
-        lbl.setFont(new Font("Times New Roman", Font.BOLD, 15));
+
+    // ===== Hàm tạo JLabel cho giá trị trên card =====
+    private JLabel createValueLabel(String initialText) {
+        JLabel label = new JLabel(initialText, SwingConstants.CENTER);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        return label;
+    }
+
+    // ===== Hàm tạo Card =====
+    private JPanel createCard(String title, JLabel valueLabel, Color color) {
+        JPanel card = new JPanel(new BorderLayout(0, 5));
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+
         card.setBackground(color);
-        card.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        card.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
+        card.add(titleLabel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
         return card;
     }
-}
+
+    // --- Hàm cấu hình JTable ---
+    private void setupTableDetails() {
+        tableChiTiet.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+        tableChiTiet.setRowHeight(28);
+        JTableHeader header = tableChiTiet.getTableHeader();
+        header.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        header.setBackground(new Color(230, 230, 230));
+        header.setOpaque(true);
+        header.setReorderingAllowed(false);
+        tableChiTiet.setGridColor(new Color(220, 220, 220));
+        tableChiTiet.setSelectionBackground(new Color(184, 207, 229));
+        tableChiTiet.setSelectionForeground(Color.BLACK);
+        tableChiTiet.setShowGrid(true);
+        tableChiTiet.setShowVerticalLines(true);
+        tableChiTiet.setAutoCreateRowSorter(true);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Number) {
+                    DecimalFormat df = new DecimalFormat("#,##0 ₫");
+                    value = df.format(value);
+                }
+                setHorizontalAlignment(JLabel.RIGHT);
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        };
+        DefaultTableCellRenderer integerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value instanceof Number) {
+                    value = integerFormatter.format(value);
+                }
+                setHorizontalAlignment(JLabel.RIGHT);
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        };
+
+
+        TableColumnModel columnModel = tableChiTiet.getColumnModel();
+        columnModel.getColumn(0).setPreferredWidth(40);
+        columnModel.getColumn(0).setCellRenderer(centerRenderer);
+        columnModel.getColumn(1).setPreferredWidth(100);
+        columnModel.getColumn(1).setCellRenderer(centerRenderer);
+        for (int i = 2; i <= 6; i++) {
+            columnModel.getColumn(i).setPreferredWidth(90);
+            columnModel.getColumn(i).setCellRenderer(integerRenderer);
+        }
+        columnModel.getColumn(7).setPreferredWidth(140);
+        columnModel.getColumn(7).setCellRenderer(currencyRenderer);
+    }
+
+
+    // ================== HÀM XỬ LÝ CHÍNH ==================
+
+    private void xuLyThongKe() {
+        // --- 1. LẤY GIÁ TRỊ TỪ CÁC BỘ LỌC ---
+
+        // Lấy lọc thời gian
+        String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
+        if (loaiThoiGian == null) loaiThoiGian = "Tất cả";
+
+        // Lấy lọc tuyến (MỚI)
+        String loaiTuyen = (String) cbLoaiTuyen.getSelectedItem();
+        String tenGaDi = (String) cbGaDi.getSelectedItem();
+        String tenGaDen = (String) cbGaDen.getSelectedItem();
+
+        LocalDate fromLocalDate, toLocalDate;
+        String titleLoai = loaiThoiGian;
+        String titleChart = loaiThoiGian;
+
+        // 2. Xử lý khoảng thời gian
+        try {
+            switch (loaiThoiGian) {
+                case "Theo ngày":
+                    Date utilFromDateNgay = tuNgay.getDate();
+                    Date utilToDateNgay = denNgay.getDate();
+                    if (!kiemTraKhoangNgayHopLe(utilFromDateNgay, utilToDateNgay)) return;
+                    fromLocalDate = utilFromDateNgay.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    toLocalDate = utilToDateNgay.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    titleLoai = String.format("ngày (từ %s đến %s)",
+                            fromLocalDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            toLocalDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    titleChart = "ngày";
+                    break;
+                case "Theo tháng":
+                    // ... (giữ nguyên logic của bạn) ...
+                    int fm = cbTuThang.getSelectedIndex() + 1; int fy = (Integer) cbTuNamThang.getSelectedItem();
+                    int tm = cbDenThang.getSelectedIndex() + 1; int ty = (Integer) cbDenNamThang.getSelectedItem();
+                    fromLocalDate = LocalDate.of(fy, fm, 1);
+                    toLocalDate = LocalDate.of(ty, tm, LocalDate.of(ty, tm, 1).lengthOfMonth());
+                    if (toLocalDate.isBefore(fromLocalDate)) {
+                        JOptionPane.showMessageDialog(this, "⚠️ Thời điểm kết thúc phải ≥ thời điểm bắt đầu (tháng/năm).", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    titleLoai = String.format("tháng (từ %d/%d đến %d/%d)", fm, fy, tm, ty);
+                    titleChart = "tháng";
+                    break;
+                case "Theo năm":
+                    // ... (giữ nguyên logic của bạn) ...
+                    int startYear = (Integer) cbTuNam.getSelectedItem(); int endYear = (Integer) cbDenNam.getSelectedItem();
+                    fromLocalDate = LocalDate.of(startYear, 1, 1);
+                    toLocalDate = LocalDate.of(endYear, 12, 31);
+                    if (toLocalDate.isBefore(fromLocalDate)) {
+                        JOptionPane.showMessageDialog(this, "⚠️ Năm kết thúc phải ≥ năm bắt đầu.", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    titleLoai = String.format("năm (từ %d đến %d)", startYear, endYear);
+                    titleChart = "năm";
+                    break;
+                default: // "Tất cả"
+                    fromLocalDate = LocalDate.of(2000, 1, 1);
+                    toLocalDate = LocalDate.now();
+                    titleLoai = "tất cả (thống kê theo năm)";
+                    titleChart = "Tất cả (theo năm)";
+                    loaiThoiGian = "Tất cả"; // 'loai' cho DAO
+                    break;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xử lý thông tin lọc thời gian: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            LOGGER.log(Level.SEVERE, "Lỗi khi lấy thông tin lọc thời gian", ex);
+            return;
+        }
+
+        // --- 3. Hiển thị loading ---
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        lblTongSoVeBanValue.setText("...");
+        lblTongVeConHieuLucValue.setText("...");
+        lblTongVeDaDungValue.setText("...");
+        lblTongVeDaDoiValue.setText("...");
+        lblTongVeHoanValue.setText("...");
+        lblTongTienVeValue.setText("...");
+        capNhatChartRong("🔄 Đang tải dữ liệu...");
+        chiTietTableModel.setRowCount(0);
+
+        // 4. Tạo và thực thi SwingWorker
+        final LocalDate finalFrom = fromLocalDate;
+        final LocalDate finalTo = toLocalDate;
+        final String finalDaoLoai = loaiThoiGian;
+        final String finalTitleLoai = titleLoai;
+        final String finalChartTitle = titleChart;
+        // <<< THÊM THAM SỐ LỌC TUYẾN >>>
+        final String finalLoaiTuyen = loaiTuyen;
+        final String finalTenGaDi = tenGaDi;
+        final String finalTenGaDen = tenGaDen;
+
+        SwingWorker<ThongKeVeResult, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ThongKeVeResult doInBackground() throws Exception {
+                ThongKeVeResult result = new ThongKeVeResult();
+
+                // Lấy dữ liệu chi tiết (với bộ lọc tuyến)
+                result.thongKeVeChiTietTheoThoiGian = thongKeVeDAO.getThongKeVeChiTietTheoThoiGian(
+                        finalDaoLoai, finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+
+                // Lấy dữ liệu tổng quan cho cards (với bộ lọc tuyến)
+                result.tongSoVeBan = thongKeVeDAO.getTongSoVeBanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+                result.tongVeConHieuLuc = thongKeVeDAO.getTongVeConHieuLucTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+                result.tongVeDaDung = thongKeVeDAO.getTongVeDaDungTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+                result.tongVeDaDoi = thongKeVeDAO.getTongVeDaDoiTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+                result.tongVeHoan = thongKeVeDAO.getTongVeHoanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+                result.tongTienVe = thongKeVeDAO.getTongTienVeTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen);
+
+                return result;
+            }
+
+            @Override
+            protected void done() {
+                setCursor(Cursor.getDefaultCursor());
+                try {
+                    ThongKeVeResult result = get();
+                    // CẬP NHẬT CARD
+                    lblTongSoVeBanValue.setText(integerFormatter.format(result.tongSoVeBan));
+                    lblTongVeConHieuLucValue.setText(integerFormatter.format(result.tongVeConHieuLuc));
+                    lblTongVeDaDungValue.setText(integerFormatter.format(result.tongVeDaDung));
+                    lblTongVeDaDoiValue.setText(integerFormatter.format(result.tongVeDaDoi));
+                    lblTongVeHoanValue.setText(integerFormatter.format(result.tongVeHoan));
+                    lblTongTienVeValue.setText(currencyFormatter.format(result.tongTienVe));
+
+                    // CẬP NHẬT BIỂU ĐỒ VÀ BẢNG CHI TIẾT
+                    capNhatChartVaTable(result.thongKeVeChiTietTheoThoiGian, finalChartTitle, finalTitleLoai);
+
+                } catch (InterruptedException | ExecutionException ex) {
+                    handleLoadingError(ex, "Lỗi khi thực hiện thống kê");
+                } catch (Exception ex) {
+                    handleLoadingError(ex, "Lỗi không xác định khi cập nhật UI");
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    /**
+     * Cập nhật cả biểu đồ và bảng chi tiết dựa trên dữ liệu Map chi tiết.
+     */
+    private void capNhatChartVaTable(Map<String, ThongKeVeChiTietItem> data, String chartTitle, String reportTitle) {
+        lblChiTietTitle.setText("Báo cáo thống kê vé chi tiết theo " + reportTitle.toLowerCase());
+
+        if (data == null || data.isEmpty()) {
+            capNhatChartRong("📉 Không có dữ liệu vé trong khoảng đã chọn");
+            capNhatBangRong();
+            btnExportExcel.setEnabled(false);
+        } else {
+            // --- Cập nhật Biểu đồ (Vé bán và Vé hoàn/đổi) ---
+            DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+            final String seriesVeBan = "Vé bán";
+            final String seriesVeHoanDoi = "Vé hoàn/đổi";
+
+            data.forEach((thoiGian, item) -> {
+                dataset.addValue(item.tongSoVeBan, seriesVeBan, thoiGian);
+                dataset.addValue(item.tongVeHoan + item.tongVeDaDoi, seriesVeHoanDoi, thoiGian);
+            });
+
+            JFreeChart barChart = ChartFactory.createBarChart(
+                    "Số lượng vé theo " + chartTitle.toLowerCase(),
+                    "Thời gian", "Số lượng vé", dataset,
+                    PlotOrientation.VERTICAL, true, true, false);
+
+            // Tùy chỉnh Plot
+            CategoryPlot plot = barChart.getCategoryPlot();
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setRangeGridlinePaint(Color.GRAY);
+            plot.setOutlineVisible(false);
+            plot.setInsets(new RectangleInsets(10, 5, 5, 10));
+
+            // Tùy chỉnh trục Y
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setUpperMargin(0.15);
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+            // Tùy chỉnh Renderer (cột)
+            BarRenderer renderer = (BarRenderer) plot.getRenderer();
+            renderer.setSeriesPaint(0, new Color(52, 152, 219));
+            renderer.setSeriesPaint(1, new Color(231, 76, 60));
+            renderer.setDrawBarOutline(false);
+            renderer.setItemMargin(0.2);
+            renderer.setShadowVisible(false);
+            renderer.setMaximumBarWidth(0.08);
+
+            // Tùy chỉnh trục X
+            CategoryAxis domainAxis = plot.getDomainAxis();
+            if (!chartTitle.contains("năm") && dataset.getColumnCount() > 8) {
+                domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+                domainAxis.setTickLabelFont(domainAxis.getTickLabelFont().deriveFont(10f));
+            } else {
+                domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
+                domainAxis.setTickLabelFont(domainAxis.getTickLabelFont().deriveFont(11f));
+            }
+            domainAxis.setLowerMargin(0.02);
+            domainAxis.setUpperMargin(0.02);
+
+            // Tùy chỉnh Legend
+            if (barChart.getLegend() != null) {
+                barChart.getLegend().setFrame(BlockBorder.NONE);
+                barChart.getLegend().setItemFont(new Font("Times New Roman", Font.PLAIN, 12));
+                barChart.getLegend().setBorder(5, 5, 5, 5);
+            }
+
+            barChart.setBorderVisible(false);
+            barChart.setBackgroundPaint(Color.WHITE);
+            barChart.getTitle().setFont(new Font("Times New Roman", Font.BOLD, 16));
+
+            ChartPanel chartDisplayPanel = new ChartPanel(barChart);
+            chartDisplayPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            chartDisplayPanel.setBackground(Color.WHITE);
+
+            chartPanelContainer.removeAll();
+            chartPanelContainer.add(chartDisplayPanel, BorderLayout.CENTER);
+            chartPanelContainer.revalidate();
+            chartPanelContainer.repaint();
+
+            // --- Cập nhật Bảng chi tiết ---
+            chiTietTableModel.setRowCount(0);
+            int stt = 1;
+            for (Map.Entry<String, ThongKeVeChiTietItem> entry : data.entrySet()) {
+                String thoiGian = entry.getKey();
+                ThongKeVeChiTietItem item = entry.getValue();
+                chiTietTableModel.addRow(new Object[]{
+                        stt++,
+                        thoiGian,
+                        item.tongSoVeBan,
+                        item.tongVeConHieuLuc,
+                        item.tongVeDaDung,
+                        item.tongVeDaDoi,
+                        item.tongVeHoan,
+                        item.tongTienVe
+                });
+            }
+            btnExportExcel.setEnabled(true);
+        }
+    }
+
+    // --- Hàm xử lý xuất Excel ---
+    private void exportTableToExcel(ActionEvent e) {
+        if (chiTietTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Lưu báo cáo Excel");
+        String defaultFileName = "BaoCaoThongKeVe_" + LocalDate.now() + ".xlsx";
+        fileChooser.setSelectedFile(new File(defaultFileName));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            String filePath = fileToSave.getAbsolutePath();
+            if (!filePath.toLowerCase().endsWith(".xlsx")) {
+                fileToSave = new File(filePath + ".xlsx");
+            }
+
+            final File finalFileToSave = fileToSave;
+
+            try (XSSFWorkbook workbook = new XSSFWorkbook();
+                 FileOutputStream outputStream = new FileOutputStream(finalFileToSave)) {
+
+                Sheet sheet = workbook.createSheet("ChiTietThongKeVe");
+
+                // --- Tạo Style ---
+                org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+                headerFont.setBold(true);
+                headerFont.setFontHeightInPoints((short) 12);
+                CellStyle headerCellStyle = workbook.createCellStyle();
+                headerCellStyle.setFont(headerFont);
+                headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+                headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+                headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                headerCellStyle.setBorderBottom(BorderStyle.THIN);
+                headerCellStyle.setBorderTop(BorderStyle.THIN);
+                headerCellStyle.setBorderLeft(BorderStyle.THIN);
+                headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+                CellStyle titleCellStyle = workbook.createCellStyle();
+                org.apache.poi.ss.usermodel.Font titleFont = workbook.createFont();
+                titleFont.setBold(true);
+                titleFont.setFontHeightInPoints((short) 14);
+                titleCellStyle.setFont(titleFont);
+                titleCellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+                CreationHelper createHelper = workbook.getCreationHelper();
+                CellStyle currencyCellStyle = workbook.createCellStyle();
+                currencyCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0 ₫"));
+                currencyCellStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+                CellStyle integerCellStyle = workbook.createCellStyle();
+                integerCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0"));
+                integerCellStyle.setAlignment(HorizontalAlignment.RIGHT);
+
+                CellStyle centerCellStyle = workbook.createCellStyle();
+                centerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+                // --- Ghi Tiêu đề báo cáo ---
+                Row titleRow = sheet.createRow(0);
+                Cell titleCell = titleRow.createCell(0);
+                titleCell.setCellValue(lblChiTietTitle.getText());
+                titleCell.setCellStyle(titleCellStyle);
+                sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, chiTietTableModel.getColumnCount() - 1));
+
+                // --- Ghi Header bảng ---
+                Row headerRow = sheet.createRow(2);
+                for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
+                    Cell cell = headerRow.createCell(col);
+                    cell.setCellValue(chiTietTableModel.getColumnName(col).replace(" (VNĐ)", ""));
+                    cell.setCellStyle(headerCellStyle);
+                }
+
+                // --- Ghi Dữ liệu bảng ---
+                for (int row = 0; row < chiTietTableModel.getRowCount(); row++) {
+                    Row dataRow = sheet.createRow(row + 3);
+                    for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
+                        Cell cell = dataRow.createCell(col);
+                        Object value = chiTietTableModel.getValueAt(row, col);
+
+                        try {
+                            if (value instanceof Integer) {
+                                cell.setCellValue((Integer) value);
+                                cell.setCellStyle((col == 0) ? centerCellStyle : integerCellStyle);
+                            } else if (value instanceof Double) {
+                                cell.setCellValue((Double) value);
+                                cell.setCellStyle(currencyCellStyle);
+                            } else if (value instanceof String) {
+                                cell.setCellValue((String) value);
+                                cell.setCellStyle(centerCellStyle);
+                            } else if (value != null) {
+                                cell.setCellValue(value.toString());
+                            }
+                        } catch (Exception ex) {
+                            LOGGER.log(Level.WARNING, "Lỗi khi ghi dữ liệu Excel ô [" + row + "," + col + "]", ex);
+                            cell.setCellValue("Lỗi dữ liệu");
+                        }
+                    }
+                }
+
+                for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
+                    sheet.autoSizeColumn(col);
+                }
+
+                workbook.write(outputStream);
+                outputStream.close();
+
+                JOptionPane.showMessageDialog(this, "Xuất báo cáo Excel thành công!\n" + finalFileToSave.getAbsolutePath(), "Thành công", JOptionPane.INFORMATION_MESSAGE);
+
+                if (Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().open(finalFileToSave);
+                    } catch (IOException ioex) {
+                        LOGGER.log(Level.WARNING, "Không thể tự động mở file Excel.", ioex);
+                    }
+                }
+
+            } catch (Exception ex) {
+                handleLoadingError(ex, "Lỗi khi ghi file Excel");
+            }
+        }
+    }
+
+
+    /** Xử lý lỗi khi tải dữ liệu trong SwingWorker.done() */
+    private void handleLoadingError(Exception ex, String context) {
+        setCursor(Cursor.getDefaultCursor());
+        LOGGER.log(Level.SEVERE, context, ex);
+        Throwable cause = (ex instanceof ExecutionException) ? ex.getCause() : ex;
+        if (cause == null) cause = ex;
+
+        capNhatChartRong("⚠️ Lỗi khi tải dữ liệu: " + cause.getMessage());
+        capNhatBangRong();
+        JOptionPane.showMessageDialog(this, context + ":\n" + cause.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+        lblTongSoVeBanValue.setText("Lỗi");
+        lblTongVeConHieuLucValue.setText("Lỗi");
+        lblTongVeDaDungValue.setText("Lỗi");
+        lblTongVeDaDoiValue.setText("Lỗi");
+        lblTongVeHoanValue.setText("Lỗi");
+        lblTongTienVeValue.setText("Lỗi");
+    }
+
+    // ================== CÁC HÀM TIỆN ÍCH KHÁC ==================
+
+    private boolean kiemTraKhoangNgayHopLe(Date from, Date to) {
+        if (from == null || to == null) {
+            JOptionPane.showMessageDialog(this, "⚠️ Vui lòng chọn đủ ngày bắt đầu và ngày kết thúc.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        if (!isSameDay(from, to) && to.before(from)) {
+            JOptionPane.showMessageDialog(this, "⚠️ Ngày kết thúc phải ≥ ngày bắt đầu.", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isSameDay(Date d1, Date d2) {
+        if (d1 == null || d2 == null) return false;
+        Calendar cal1 = Calendar.getInstance(); cal1.setTime(d1);
+        Calendar cal2 = Calendar.getInstance(); cal2.setTime(d2);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    private void capNhatChartRong(String msg) {
+        SwingUtilities.invokeLater(() -> {
+            chartPanelContainer.removeAll();
+            JLabel l = new JLabel(msg, SwingConstants.CENTER);
+            l.setFont(new Font("Times New Roman", Font.ITALIC, 16));
+            l.setForeground(Color.GRAY);
+            chartPanelContainer.add(l, BorderLayout.CENTER);
+            chartPanelContainer.revalidate();
+            chartPanelContainer.repaint();
+        });
+    }
+
+    private void capNhatBangRong() {
+        SwingUtilities.invokeLater(() -> chiTietTableModel.setRowCount(0));
+    }
+
+    // --- Tạo Panel lọc con cho CardLayout ---
+    private JPanel buildTatCaFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p.setOpaque(false);
+        JLabel lbl = new JLabel("Hiển thị dữ liệu theo năm");
+        lbl.setFont(new Font("Times New Roman", Font.ITALIC, 14));
+        lbl.setForeground(Color.GRAY);
+        p.add(lbl);
+        p.setPreferredSize(new Dimension(300, 30));
+        return p;
+    }
+
+    private JPanel buildNgayFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        p.setOpaque(false);
+        tuNgay.setDateFormatString("dd/MM/yyyy");
+        denNgay.setDateFormatString("dd/MM/yyyy");
+        tuNgay.setPreferredSize(new Dimension(130, 28));
+        denNgay.setPreferredSize(new Dimension(130, 28));
+        tuNgay.setDate(new Date());
+        denNgay.setDate(new Date());
+        addDateConstraint(tuNgay, denNgay);
+        p.add(new JLabel("Từ:"));
+        p.add(tuNgay);
+        p.add(new JLabel("Đến:"));
+        p.add(denNgay);
+        return p;
+    }
+
+    private JPanel buildThangFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        p.setOpaque(false);
+        if (cbTuThang.getItemCount() == 0) {
+            for (int i = 1; i <= 12; i++) {
+                cbTuThang.addItem("Tháng " + i);
+                cbDenThang.addItem("Tháng " + i);
+            }
+            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+            for (int y = 2020; y <= currentYear + 5; y++) {
+                cbTuNamThang.addItem(y);
+                cbDenNamThang.addItem(y);
+            }
+            Calendar now = Calendar.getInstance();
+            cbTuThang.setSelectedIndex(now.get(Calendar.MONTH));
+            cbDenThang.setSelectedIndex(now.get(Calendar.MONTH));
+            cbTuNamThang.setSelectedItem(now.get(Calendar.YEAR));
+            cbDenNamThang.setSelectedItem(now.get(Calendar.YEAR));
+        }
+        Dimension monthDim = new Dimension(90, 28);
+        Dimension yearDim = new Dimension(75, 28);
+        cbTuThang.setPreferredSize(monthDim);
+        cbDenThang.setPreferredSize(monthDim);
+        cbTuNamThang.setPreferredSize(yearDim);
+        cbDenNamThang.setPreferredSize(yearDim);
+
+        p.add(new JLabel("Từ:"));
+        p.add(cbTuThang);
+        p.add(cbTuNamThang);
+        p.add(new JLabel("Đến:"));
+        p.add(cbDenThang);
+        p.add(cbDenNamThang);
+        return p;
+    }
+
+    private JPanel buildNamFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        p.setOpaque(false);
+        if (cbTuNam.getItemCount() == 0) {
+            int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+            for (int y = 2020; y <= currentYear + 5; y++) {
+                cbTuNam.addItem(y);
+                cbDenNam.addItem(y);
+            }
+            cbTuNam.setSelectedItem(currentYear);
+            cbDenNam.setSelectedItem(currentYear);
+        }
+        Dimension yearDim = new Dimension(90, 28);
+        cbTuNam.setPreferredSize(yearDim);
+        cbDenNam.setPreferredSize(yearDim);
+
+        p.add(new JLabel("Từ năm:"));
+        p.add(cbTuNam);
+        p.add(new JLabel("Đến năm:"));
+        p.add(cbDenNam);
+        return p;
+    }
+
+    // Ràng buộc JDateChooser
+    private void addDateConstraint(com.toedter.calendar.JDateChooser from, com.toedter.calendar.JDateChooser to) {
+        PropertyChangeListener sync = new PropertyChangeListener() {
+            private boolean adjusting = false;
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (!"date".equals(evt.getPropertyName()) || adjusting) return;
+                Date f = from.getDate();
+                Date t = to.getDate();
+                if (f == null || t == null) return;
+
+                if (!isSameDay(f, t) && t.before(f)) {
+                    adjusting = true;
+                    to.setDate(f);
+                    adjusting = false;
+                }
+            }
+        };
+        from.addPropertyChangeListener("date", sync);
+        to.addPropertyChangeListener("date", sync);
+    }
+
+    // --- Tạo Panel Tab ---
+    private JPanel taoPanelTongQuan() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
+        JLabel placeholder = new JLabel("📊 Chọn bộ lọc và nhấn Tìm kiếm", SwingConstants.CENTER);
+        placeholder.setFont(new Font("Times New Roman", Font.ITALIC, 16));
+        placeholder.setForeground(Color.GRAY);
+        panel.add(placeholder, BorderLayout.CENTER);
+        return panel;
+    }
+
+    // Hàm tạo Panel Chi Tiết với Tiêu đề và Nút Export
+    private JPanel taoPanelChiTiet(JLabel titleLabel, JTable table, JPanel bottomPanel) {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
+        panel.add(titleLabel, BorderLayout.NORTH);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        return panel;
+    }
+
+} // Kết thúc lớp PanelThongKeVe
