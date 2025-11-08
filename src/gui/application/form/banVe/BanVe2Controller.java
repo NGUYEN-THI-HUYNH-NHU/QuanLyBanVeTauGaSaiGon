@@ -57,6 +57,10 @@ public class BanVe2Controller {
 	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
 
+	public void addPanel2PaymentSuccessListener(Runnable listener) {
+		this.onPaymentSuccessListener = listener;
+	}
+
 	public BanVe2Controller(PanelBanVe wizardView, PanelBanVe2 view, BookingSession session) {
 		this.wizardView = wizardView;
 
@@ -184,11 +188,9 @@ public class BanVe2Controller {
 
 				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
 				if (wizardView != null) {
-					// Cho panelBuoc6 load data ở đây nếu cần
-					// wizardView.getPanelBuoc6().loadCompletionData(bookingSession);
-
-					// Yêu cầu PanelBanVe chuyển sang card "complete"
-					wizardView.showPanel("complete");
+					if (onPaymentSuccessListener != null) {
+						onPaymentSuccessListener.run();
+					}
 				}
 			} else {
 				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",

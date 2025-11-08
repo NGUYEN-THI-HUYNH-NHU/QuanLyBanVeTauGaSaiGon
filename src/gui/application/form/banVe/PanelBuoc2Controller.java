@@ -1,8 +1,21 @@
 package gui.application.form.banVe;
+/*
+ * @(#) PanelBuoc2Controller.java  1.0  [12:53:22 PM] Sep 29, 2025
+ *
+ * Copyright (c) 2025 IUH. All rights reserved.
+ */
+
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 29, 2025
+ * @version: 1.0
+ */
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +55,8 @@ public class PanelBuoc2Controller {
 
 	public interface SeatSelectedListener {
 		void onSeatSelected(VeSession v);
+
+		void onSeatDeselected(VeSession v);
 	}
 
 	public void addSeatSelectedListener(SeatSelectedListener listener) {
@@ -88,7 +103,6 @@ public class PanelBuoc2Controller {
 
 	public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens, int tripIndex) {
 		if (criteria == null || chuyens == null || chuyens.isEmpty()) {
-			// Có thể ẩn hoặc xóa trắng panel
 			return;
 		}
 
@@ -99,7 +113,9 @@ public class PanelBuoc2Controller {
 		String gaDenName = criteria.getGaDenName();
 
 		this.chuyenList = chuyens;
-		panelChieuLabel.setText(gaDiName + " - " + gaDenName + ": " + chuyens.get(0).getNgayDi());
+		String chieu = (tripIndex == 0) ? "[Chiều đi] " : "[Chiều về] ";
+		panelChieuLabel.setText(chieu + gaDiName + " - " + gaDenName + ": "
+				+ chuyens.get(0).getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 		panelChuyenTau.showChuyenList(chuyens);
 
 		if (chuyens != null && !chuyens.isEmpty()) {
@@ -333,8 +349,10 @@ public class PanelBuoc2Controller {
 				&& v.getToaID().equals(currentToaID) && v.getSoGhe() == currentSoGhe).findFirst().orElse(null);
 
 		if (veToRemove != null) {
-			// 4. Gọi onRemoveVe với ĐÚNG đối tượng đã tìm thấy
-			onRemoveVe(veToRemove);
+			// Báo cho BanVe1Controller
+			for (SeatSelectedListener listener : seatSelectedListeners) {
+				listener.onSeatDeselected(veToRemove);
+			}
 		} else {
 			// Lỗi: Không tìm thấy vé để xóa
 			if (selectedToa != null) {
@@ -372,15 +390,7 @@ public class PanelBuoc2Controller {
 		if (veSessionBiXoa == null) {
 			return;
 		}
-
-		// Kiểm tra xem vé vừa bị xóa có nằm trên SƠ ĐỒ đang hiển thị không
-		if (selectedToa != null && selectedChuyen != null && veSessionBiXoa.getToaID().equals(selectedToa.getToaID())
-				&& veSessionBiXoa.getChuyenID().equals(selectedChuyen.getChuyenID())) {
-			// Có, vé này nằm trên sơ đồ đang xem.
-			// Yêu cầu PanelSoDoCho cập nhật MỘT nút (false = bỏ chọn)
-			panelSoDoCho.updateSeatVisual(veSessionBiXoa.getSoGhe(), false);
-		}
-		// Nếu không (vé bị xóa ở toa khác/chuyến khác), thì không làm gì cả.
+		panelSoDoCho.updateSeatVisual(veSessionBiXoa.getSoGhe(), false);
 	}
 
 	public void releaseHoldAndRemoveVe(VeSession v) {

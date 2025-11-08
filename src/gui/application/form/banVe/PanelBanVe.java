@@ -82,6 +82,10 @@ public class PanelBanVe extends JPanel {
 
 		// TODO: Có thể thêm listener cho banVe2Controller.addPaymentSuccessListener để
 		// gọi showPanel("complete") khi thanh toán xong)
+		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
+			panelBuoc6.loadCompletionData(bookingSession);
+			showPanel("complete");
+		});
 	}
 
 	/**

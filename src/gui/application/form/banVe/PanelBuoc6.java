@@ -7,6 +7,7 @@ package gui.application.form.banVe;
 
 import java.awt.BorderLayout;
 
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -19,9 +20,38 @@ import javax.swing.JTextArea;
  */
 
 public class PanelBuoc6 extends JPanel {
-    public PanelBuoc6() {
-        setLayout(new BorderLayout());
-        add(new JLabel("Bước 4: Xác nhận thông tin vé"), BorderLayout.NORTH);
-        add(new JTextArea("Thông tin vé sẽ hiển thị ở đây"), BorderLayout.CENTER);
-    }
+	private JLabel lbl;
+	private JTextArea area;
+
+	public PanelBuoc6() {
+		setLayout(new BorderLayout());
+		add(lbl = new JLabel("Bước 4: Xác nhận thông tin vé"), BorderLayout.NORTH);
+		add(area = new JTextArea("Thông tin vé sẽ hiển thị ở đây"), BorderLayout.CENTER);
+		area.setLayout(new BoxLayout(area, BoxLayout.Y_AXIS));
+	}
+
+	/**
+	 * @param bookingSession
+	 */
+	public void loadCompletionData(BookingSession bookingSession) {
+		for (VeSession v : bookingSession.getAllSelectedTickets()) {
+			area.add(new JLabel(v.prettyString()));
+		}
+	}
+
+	public JLabel getLbl() {
+		return lbl;
+	}
+
+	public JTextArea getArea() {
+		return area;
+	}
+
+	public void setLbl(JLabel lbl) {
+		this.lbl = lbl;
+	}
+
+	public void setArea(JTextArea area) {
+		this.area = area;
+	}
 }

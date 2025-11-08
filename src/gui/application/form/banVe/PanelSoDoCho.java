@@ -62,6 +62,10 @@ public class PanelSoDoCho extends JPanel {
 	// Lưu trữ các nút ghế để dễ truy cập (tùy chọn)
 	private final Map<Integer, JButton> seatButtonMap = new HashMap<>();
 
+	private static final JButton btnTrong = new JButton();
+	private static final JButton btnChiem = new JButton();
+	private static final JButton btnBan = new JButton();
+
 	private static final int SEAT_WIDTH = 24;
 	private static final int SEAT_HEIGHT = 24;
 	private static final String SEAT_SIZE_CONSTRAINTS = String.format("w %d!, h %d!", SEAT_WIDTH, SEAT_HEIGHT);
@@ -94,6 +98,13 @@ public class PanelSoDoCho extends JPanel {
 		// Tăng tốc độ cuộn
 		scroll.getVerticalScrollBar().setUnitIncrement(16);
 		scroll.getHorizontalScrollBar().setUnitIncrement(16);
+
+		btnTrong.setBackground(UIManager.getColor("Button.background"));
+		btnTrong.setForeground(UIManager.getColor("Button.foreground"));
+		btnChiem.setBackground(Color.GRAY);
+		btnChiem.setForeground(Color.DARK_GRAY);
+		btnBan.setBackground(new Color(220, 53, 53));
+		btnBan.setForeground(Color.WHITE);
 
 		add(pnlNorth, BorderLayout.NORTH);
 		add(scroll, BorderLayout.CENTER);
@@ -169,7 +180,7 @@ public class PanelSoDoCho extends JPanel {
 		} else {
 			b.setBackground(UIManager.getColor("Button.background"));
 			b.setForeground(UIManager.getColor("Button.foreground"));
-			b.setOpaque(false);
+			b.setOpaque(true);
 			b.setEnabled(true);
 		}
 		// Yêu cầu Swing vẽ lại chỉ nút này
@@ -269,6 +280,7 @@ public class PanelSoDoCho extends JPanel {
 	// --- HÀM TẠO NÚT GHẾ CHUNG ---
 	private JButton createSeatButton(Ghe g, boolean isSelectedInSession, String tooltipPrice, boolean priceCalculated) {
 		JButton b = new JButton(String.valueOf(g.getSoGhe()));
+		b.setOpaque(true);
 		b.setMargin(new Insets(0, 0, 0, 0));
 		b.setFocusPainted(false);
 		b.setFont(new Font(getFont().getFamily(), Font.PLAIN, 10));
@@ -291,22 +303,18 @@ public class PanelSoDoCho extends JPanel {
 			b.setBackground(new Color(40, 167, 69));
 			b.setForeground(Color.WHITE);
 			b.setEnabled(true);
-			b.setOpaque(true);
 		} else if (status == TrangThaiGhe.DA_BAN) {
-			b.setBackground(new Color(220, 53, 53));
-			b.setForeground(Color.WHITE);
+			b.setBackground(btnBan.getBackground());
+			b.setForeground(btnBan.getForeground());
 			b.setEnabled(false);
-			b.setOpaque(true);
 		} else if (status == TrangThaiGhe.BI_CHIEM) {
 			b.setBackground(Color.GRAY);
 			b.setForeground(Color.WHITE);
 			b.setEnabled(false);
-			b.setOpaque(true);
 		} else {
-			b.setBackground(UIManager.getColor("Button.background"));
+			b.setBackground(Color.WHITE);
 			b.setForeground(UIManager.getColor("Button.foreground"));
 			b.setEnabled(true);
-			b.setOpaque(false);
 		}
 
 		b.addActionListener(e -> {

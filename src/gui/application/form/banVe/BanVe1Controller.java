@@ -176,11 +176,30 @@ public class BanVe1Controller {
 		// 2. Lắng nghe sự kiện CHỌN GHẾ từ cả 2 controller
 		SeatSelectedListener seatSelectOnlyListener = new SeatSelectedListener() {
 			@Override
-			public void onSeatSelected(VeSession ticket) {
+			public void onSeatSelected(VeSession veSession) {
 				// Khi 1 ghế được chọn (từ controllerDi hoặc Ve)
 				// 1. Đăng ký timer cho nó
-				startCountdownForVe(ticket);
+				startCountdownForVe(veSession);
 				// 2. Refresh lại giỏ vé (View)
+				refreshGioVe();
+			}
+
+			@Override
+			public void onSeatDeselected(VeSession veSession) {
+				// 1. Tìm controller đúng
+				final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
+						&& bookingSession.getReturnSelectedTickets().contains(veSession)) ? buoc2ControllerVe
+								: buoc2ControllerDi;
+
+				// 2. Cập nhật Model và PanelSoDoCho
+				if (correctController != null) {
+					correctController.onRemoveVe(veSession);
+				}
+
+				// 3. Dừng timer
+				stopCountdownForVe(veSession);
+
+				// 4. Refresh Giỏ vé (View)
 				refreshGioVe();
 			}
 		};
@@ -253,9 +272,6 @@ public class BanVe1Controller {
 			if (onPanel1CompleteListener != null) {
 				onPanel1CompleteListener.run();
 			}
-//			if (wizardView != null) {
-//				wizardView.showPanel("step2");
-//			}
 		});
 
 		// Lắng nghe sự kiện "Hủy" từ Buoc 3

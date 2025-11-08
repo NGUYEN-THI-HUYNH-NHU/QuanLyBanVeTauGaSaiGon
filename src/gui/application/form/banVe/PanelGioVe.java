@@ -43,7 +43,6 @@ public class PanelGioVe extends JPanel {
 
 		container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
-		container.setBackground(Color.WHITE);
 
 		scr = new JScrollPane(container, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -53,7 +52,6 @@ public class PanelGioVe extends JPanel {
 		lblGioVe.setIcon(new FlatSVGIcon(getClass().getResource("/gui/icon/svg/shopping-cart.svg")));
 		lblGioVe.setFont(lblGioVe.getFont().deriveFont(Font.BOLD, 16f));
 		lblGioVe.setOpaque(true);
-		lblGioVe.setBackground(new Color(230, 230, 230));
 		lblGioVe.setForeground(new Color(0, 145, 212));
 		lblGioVe.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, new Color(0, 130, 196)));
 
