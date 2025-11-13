@@ -241,8 +241,18 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	}
 
 	/**
-	 * Trả về danh sách các VeHoanRow (chứa cả phí,...) đã chọn
+	 * Yêu cầu model thông báo cho JTable rằng một dòng đã thay đổi. JTable sẽ đọc
+	 * lại dữ liệu từ model cho dòng đó và vẽ lại.
 	 */
+	public void refreshRow(VeHoanRow row) {
+		int rowIndex = model.getRowIndex(row);
+		if (rowIndex != -1) {
+			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
+			row.setSelected(false);
+			model.fireTableRowsUpdated(rowIndex, rowIndex);
+		}
+	}
+
 	public List<VeHoanRow> getSelectedVeHoanRows() {
 		return model.getSelectedRows();
 	}
@@ -254,5 +264,4 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		// TODO Auto-generated method stub
 
 	}
-
 }

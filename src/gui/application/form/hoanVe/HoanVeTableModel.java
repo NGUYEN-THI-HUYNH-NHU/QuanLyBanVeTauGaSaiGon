@@ -14,6 +14,7 @@ package gui.application.form.hoanVe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -32,6 +33,8 @@ public class HoanVeTableModel extends AbstractTableModel {
 	public static final int COL_CHON = 7;
 
 	private List<VeHoanRow> rows;
+
+	private Consumer<VeHoanRow> rowSelectionListener;
 
 	public HoanVeTableModel() {
 		this.rows = new ArrayList<>();
@@ -112,8 +115,10 @@ public class HoanVeTableModel extends AbstractTableModel {
 			row.setSelected((Boolean) aValue);
 			fireTableCellUpdated(rowIndex, columnIndex); // Thông báo cell này thay đổi
 
-			// Có thể phát một sự kiện ở đây để Controller lắng nghe
-			// (ví dụ: tính lại tổng tiền hoàn)
+			// Phát sự kiện để HoanVeBuoc3Controller bắt
+			if (rowSelectionListener != null) {
+				rowSelectionListener.accept(row);
+			}
 		}
 	}
 
@@ -128,5 +133,20 @@ public class HoanVeTableModel extends AbstractTableModel {
 			}
 		}
 		return selected;
+	}
+
+	public void setRowSelectionListener(Consumer<VeHoanRow> listener) {
+		this.rowSelectionListener = listener;
+	}
+
+	public int getRowIndex(VeHoanRow rowToFind) {
+		return rows.indexOf(rowToFind);
+	}
+
+	public void removeRow(int rowIndex) {
+		if (rowIndex >= 0 && rowIndex < rows.size()) {
+			rows.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
 	}
 }

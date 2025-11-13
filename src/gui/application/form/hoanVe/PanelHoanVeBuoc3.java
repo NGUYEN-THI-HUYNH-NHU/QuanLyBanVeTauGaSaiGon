@@ -18,6 +18,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -57,15 +58,15 @@ public class PanelHoanVeBuoc3 extends JPanel {
 	}
 
 	private void setupTable() {
-		table.setRowHeight(70);
+		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(HoanVeTableModel.COL_CHON));
 		table.removeColumn(table.getColumnModel().getColumn(HoanVeTableModel.COL_THONG_TIN_PHI));
 		table.removeColumn(table.getColumnModel().getColumn(HoanVeTableModel.COL_LOAI_HOAN));
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(0).setMinWidth(150);
 		table.getColumnModel().getColumn(1).setMinWidth(150);
+		table.getColumnModel().getColumn(5).setMaxWidth(50);
 
 		// === Áp dụng Renderer ===
 		// 1. Renderer cho tiền (căn phải, định dạng)
@@ -112,10 +113,28 @@ public class PanelHoanVeBuoc3 extends JPanel {
 	}
 
 	/**
+	 * @param row
+	 */
+	public void removeRow(VeHoanRow row) {
+		int rowIndex = model.getRowIndex(row);
+		if (rowIndex != -1) {
+			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
+			row.setSelected(false);
+			model.removeRow(rowIndex);
+		}
+	}
+
+	/**
 	 * @param enabled
 	 */
 	public void setComponentsEnabled(boolean enabled) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void addRowSelectionListener(Consumer<VeHoanRow> listener) {
+		if (model != null) {
+			model.setRowSelectionListener(listener);
+		}
 	}
 }

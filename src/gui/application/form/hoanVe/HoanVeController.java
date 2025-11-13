@@ -19,6 +19,7 @@ import entity.Ve;
 import gui.application.form.hoanVe.HoanVeBuoc1Controller.SearchListener;
 import gui.application.form.hoanVe.HoanVeBuoc2Controller.ContinueListener;
 import gui.application.form.hoanVe.HoanVeBuoc3Controller.ConfirmListener;
+import gui.application.form.hoanVe.HoanVeBuoc3Controller.RowSelectionChangeListener;
 
 public class HoanVeController {
 	private final PanelHoanVe view;
@@ -93,7 +94,19 @@ public class HoanVeController {
 			}
 		});
 
+		this.p3Controller.addRowSelectionChangeListener(new RowSelectionChangeListener() {
+			@Override
+			public void onRowSelectionChanged(VeHoanRow row) {
+				// Yêu cầu Controller 2 cập nhật lại View 2
+				// Dữ liệu trong model của P2 đã tự động cập nhật
+				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
+				listRowHoan.remove(row);
+				p2Controller.refreshRowDisplay(row);
+			}
+		});
+
 		this.p3Controller.addConfirmListener(new ConfirmListener() {
+
 			@Override
 			public void onConfirm() {
 				// Bắt đầu xử lý nghiệp vụ hoàn vé (gọi BUS)

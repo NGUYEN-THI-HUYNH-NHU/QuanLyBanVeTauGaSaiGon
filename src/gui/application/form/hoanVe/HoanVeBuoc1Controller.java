@@ -77,9 +77,6 @@ public class HoanVeBuoc1Controller {
 					if (donDatCho != null) {
 						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
 						KhachHang khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
-						System.out.println(donDatCho);
-						System.out.println(danhSachVe);
-						System.out.println(khachHang);
 						searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
 					} else {
 						// Xử lý khi tra cứu thành công nhưng không tìm thấy kết quả
@@ -89,7 +86,7 @@ public class HoanVeBuoc1Controller {
 								JOptionPane.INFORMATION_MESSAGE));
 
 						if (searchListener != null) {
-							searchListener.onSearchFailure(); // Báo cho mediator biết là thất bại
+							searchListener.onSearchFailure();
 						}
 					}
 				} catch (Exception ex) {

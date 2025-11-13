@@ -56,4 +56,8 @@ public class HoanVeBuoc2Controller {
 	public void addContinueListener(ContinueListener listener) {
 		this.continueListener = listener;
 	}
+
+	public void refreshRowDisplay(VeHoanRow row) {
+		panel.refreshRow(row);
+	}
 }
