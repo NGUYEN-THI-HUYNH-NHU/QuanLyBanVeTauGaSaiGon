@@ -65,7 +65,7 @@ public class PanelBuoc1Controller {
 	private static final int DEBOUNCE_MS = 300;
 
 	// Interface để BanVe1Controller (Mediator) lắng nghe
-	public interface SearchListener {
+	protected interface SearchListener {
 		void onSearchSuccess(List<Chuyen> outboundResults, List<Chuyen> returnResults, SearchCriteria criteria);
 
 		void onSearchFailure();

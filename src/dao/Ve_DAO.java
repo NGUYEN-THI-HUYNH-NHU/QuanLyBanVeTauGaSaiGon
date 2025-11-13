@@ -7,9 +7,23 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import connectDB.ConnectDB;
+import entity.Chuyen;
+import entity.DonDatCho;
+import entity.Ga;
+import entity.Ghe;
+import entity.KhachHang;
+import entity.Tau;
+import entity.Toa;
 import entity.Ve;
+import entity.type.HangToa;
+import entity.type.LoaiDoiTuong;
+import entity.type.TrangThaiVe;
 
 /*
  * @description
@@ -30,17 +44,6 @@ public class Ve_DAO {
 		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
-//			System.out.println(veID);
-//			System.out.println(veSession.getHanhKhach().getKhachHangID());
-//			System.out.println(donDatChoID);
-//			System.out.println(veSession.getChuyenID());
-//			System.out.println(veSession.getGheID());
-//			System.out.println(veSession.getGaDiID());
-//			System.out.println(veSession.getGaDenID());
-//			System.out
-//					.println(java.sql.Timestamp.valueOf(LocalDateTime.of(veSession.getNgayDi(), veSession.getGioDi())));
-//			System.out.println(veSession.getGia());
-//			System.out.println(TrangThaiVe.DA_BAN.toString());
 
 			ps.setString(1, ve.getVeID());
 			ps.setString(2, ve.getKhachHang().getKhachHangID());
@@ -59,6 +62,48 @@ public class Ve_DAO {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param donDatChoID
+	 * @return
+	 */
+	public List<Ve> getVeByDonDatChoID(String donDatChoID) {
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, V.gaDenID, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID\r\n"
+				+ "WHERE donDatChoID = ?";
+		Connection con = connectDB.getConnection();
+		PreparedStatement pstmt = null;
+		ResultSet resultSet = null;
+		List<Ve> dsVe = new ArrayList<Ve>();
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, donDatChoID);
+			resultSet = pstmt.executeQuery();
+			if (resultSet.next()) {
+				Ve ve = new Ve();
+				ve.setVeID(resultSet.getString("veID"));
+				ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+						LoaiDoiTuong.valueOf(resultSet.getString("loaiDoiTuongID")), resultSet.getString("soGiayTo")));
+				ve.setDonDatCho(new DonDatCho(donDatChoID));
+				ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+				ve.setGhe(new Ghe(resultSet.getString("gheID"),
+						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+						resultSet.getInt("soGhe")));
+				ve.setGaDi(new Ga(resultSet.getString("gaDiID")));
+				ve.setGaDen(new Ga(resultSet.getString("gaDenID")));
+				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+				ve.setNgayGioDi(t.toLocalDateTime());
+				ve.setGia(resultSet.getDouble("gia"));
+				ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+
+				dsVe.add(ve);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dsVe;
 	}
 
 //	public boolean updateVe(Ve ve) {
@@ -144,131 +189,5 @@ public class Ve_DAO {
 //			e.printStackTrace();
 //		}
 //		return list;
-//	}
-//
-//	/* ======= Nghiệp vụ bán vé / giữ chỗ ======= */
-//
-//	/**
-//	 * Tìm các ghế còn trống cho chuyến và đoạn (thuTuGaDi..thuTuGaDen) Logic: chọn
-//	 * ghế của các toa thuộc tàu của chuyenId và đảm bảo không có vé hiện thời có
-//	 * trạng thái chiếm chỗ trùng chồng lấp đoạn.
-//	 */
-//	public List<Ghe> timGheConTrong(String chuyenID, int thuTuGaDiMoi, int thuTuGaDenMoi) {
-//		String sql = "" + "SELECT g.* FROM Ghe g " + "JOIN Toa t ON g.toaID = t.toaID "
-//				+ "JOIN Tau tau ON t.tauID = tau.tauID " + "JOIN Chuyen c ON c.tauID = tau.tauID "
-//				+ "WHERE c.chuyenID = ? " + "AND NOT EXISTS (" + "  SELECT 1 FROM Ve v "
-//				+ "  WHERE v.gheID = g.gheID AND v.chuyenID = ? AND v.trangThai IN ('BOOKED','RESERVED','CONFIRMED','USED')"
-//				+ "    AND (? < v.thuTuGaDen AND ? > v.thuTuGaDi) " + ")";
-//		List<Ghe> ds = new ArrayList<>();
-//		try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-//			ps.setString(1, chuyenID);
-//			ps.setString(2, chuyenID);
-//			ps.setInt(3, thuTuGaDenMoi); // new_end > existing_start -> parameter order aligns with condition
-//			ps.setInt(4, thuTuGaDiMoi); // new_start < existing_end
-//			try (ResultSet rs = ps.executeQuery()) {
-//				while (rs.next()) {
-//					Ghe g = new Ghe();
-//					g.setGheID(rs.getString("gheID"));
-//					g.setToaID(rs.getString("toaID"));
-//					g.setSoGhe(rs.getString("soGhe"));
-//					g.setTrangThai(rs.getBoolean("trangThai"));
-//					ds.add(g);
-//				}
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return ds;
-//	}
-//
-//	/**
-//	 * Xác nhận vé: chuyển từ DonDatCho -> Ve (thanh toán xong) Tạo vé (Ve) cho từng
-//	 * DonDatChoChiTiet, cập nhật trạng thái DonDatCho
-//	 */
-//	public boolean xacNhanVeTuDonDatCho(String donDatChoID, String nhanVienThanhToanID) {
-//		DonDatCho_DAO rdao = new DonDatCho_DAO();
-//		DonDatCho dd = rdao.findById(donDatChoID);
-//		if (dd == null) {
-//			return false;
-//		}
-//		DonDatChoChiTiet_DAO ctDao = new DonDatChoChiTiet_DAO();
-//		List<DonDatChoChiTiet> ds = ctDao.findByDonDatChoId(donDatChoID);
-//		if (ds.isEmpty()) {
-//			return false;
-//		}
-//
-//		try (Connection c = db.getConnection()) {
-//			c.setAutoCommit(false);
-//			Ve_DAO veDao = new Ve_DAO();
-//			HoaDon_DAO hdDao = new HoaDon_DAO();
-//			// Tạo hóa đơn trước (simple)
-//			HoaDon hd = new HoaDon();
-//			hd.setHoaDonID("HD_" + System.currentTimeMillis());
-//			hd.setKhachHangID(dd.getKhachHangID());
-//			hd.setNhanVienID(nhanVienThanhToanID);
-//			hd.setThoiDiemTao(LocalDateTime.now());
-//			hd.setTamTinh(dd.getTongTien());
-//			hd.setTongTien(dd.getTongTien());
-//			hd.setTrangThai(true);
-//			if (!hdDao.insert(hd)) {
-//				c.rollback();
-//				c.setAutoCommit(true);
-//				return false;
-//			}
-//
-//			// Tạo vé + chi tiết hóa đơn
-//			for (DonDatChoChiTiet ct : ds) {
-//				Ve v = new Ve();
-//				v.setVeID("VE_" + System.currentTimeMillis() + "_" + ct.getGheID());
-//				v.setDonDatChoID(donDatChoID);
-//				v.setChuyenID(dd.getChuyenID());
-//				v.setGheID(ct.getGheID());
-//				v.setHanhKhachID(ct.getHanhKhachID());
-//				v.setThuTuGaDi(ct.getThuTuGaDi());
-//				v.setThuTuGaDen(ct.getThuTuGaDen());
-//				v.setGia(ct.getGia());
-//				v.setTrangThai("BOOKED");
-//				v.setThoiDiemBan(LocalDateTime.now());
-//				if (!veDao.insert(v)) {
-//					c.rollback();
-//					c.setAutoCommit(true);
-//					return false;
-//				}
-//
-//				// thêm chi tiết hóa đơn liên kết vé: HoaDonChiTiet_DAO
-//				HoaDonChiTiet_DAO hdcDao = new HoaDonChiTiet_DAO();
-//				HoaDonChiTiet hdc = new HoaDonChiTiet();
-//				hdc.setHoaDonChiTietID("HDC_" + System.currentTimeMillis());
-//				hdc.setHoaDonID(hd.getHoaDonID());
-//				hdc.setLoaiDichVu("VEXE");
-//				hdc.setMatHangID("VE");
-//				hdc.setTenMatHang("Vé " + v.getVeID());
-//				hdc.setDonGia(v.getGia());
-//				hdc.setSoLuong(1);
-//				hdc.setTienNhan(v.getGia());
-//				hdc.setThue(0);
-//				hdc.setVeID(v.getVeID());
-//				if (!hdcDao.insert(hdc)) {
-//					c.rollback();
-//					c.setAutoCommit(true);
-//					return false;
-//				}
-//			}
-//
-//			// cập nhật DonDatCho trạng thái -> CONFIRMED
-//			dd.setTrangThaiDatChoID("CONFIRMED");
-//			if (!rdao.update(dd)) {
-//				c.rollback();
-//				c.setAutoCommit(true);
-//				return false;
-//			}
-//
-//			c.commit();
-//			c.setAutoCommit(true);
-//			return true;
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			return false;
-//		}
 //	}
 }

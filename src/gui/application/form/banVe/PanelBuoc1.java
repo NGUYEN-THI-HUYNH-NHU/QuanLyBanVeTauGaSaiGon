@@ -13,7 +13,6 @@ package gui.application.form.banVe;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,6 +31,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
 
@@ -53,16 +54,14 @@ public class PanelBuoc1 extends JPanel {
 
 		// lblTieuDe
 		JLabel lblTieuDe = new JLabel("Thông tin hành trình", SwingConstants.CENTER);
-		lblTieuDe.setPreferredSize(new Dimension(10, 20));
-		lblTieuDe.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, new Color(0, 130, 196)));
+		lblTieuDe.setIcon(new FlatSVGIcon(getClass().getResource("/gui/icon/svg/map-search.svg")));
 		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
-		lblTieuDe.setBackground(new Color(230, 230, 230));
-		lblTieuDe.setForeground(new Color(0, 145, 212));
 		lblTieuDe.setOpaque(true);
+		lblTieuDe.setForeground(new Color(0, 145, 212));
+		lblTieuDe.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, new Color(0, 130, 196)));
 
 		// Form
 		pnlTimKiem = new JPanel(new GridBagLayout());
-		pnlTimKiem.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 5, 10, 5);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -72,8 +71,8 @@ public class PanelBuoc1 extends JPanel {
 		gbc.gridy = 0;
 		pnlTimKiem.add(new JLabel("Ga đi:"), gbc);
 		gbc.gridx = 1;
-		txtGaDi = new JTextField(4);
-		txtGaDi.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đi...");
+		txtGaDi = new JTextField();
+		txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ga đi");
 		pnlTimKiem.add(txtGaDi, gbc);
 
 		// Ga đến
@@ -81,8 +80,8 @@ public class PanelBuoc1 extends JPanel {
 		gbc.gridy = 1;
 		pnlTimKiem.add(new JLabel("Ga đến:"), gbc);
 		gbc.gridx = 1;
-		txtGaDen = new JTextField(4);
-		txtGaDen.putClientProperty("FlatClientProperties.PLACEHOLDER_TEXT", "Nhập ga đến...");
+		txtGaDen = new JTextField();
+		txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ga đến");
 		pnlTimKiem.add(txtGaDen, gbc);
 
 		// Loại hành trình
@@ -91,7 +90,6 @@ public class PanelBuoc1 extends JPanel {
 		pnlTimKiem.add(new JLabel("Loại vé:"), gbc);
 		gbc.gridx = 1;
 		JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		radioPanel.setBackground(new Color(245, 245, 245));
 		radMotChieu = new JRadioButton("Một chiều", true);
 		radKhuHoi = new JRadioButton("Khứ hồi");
 		ButtonGroup group = new ButtonGroup();
@@ -124,16 +122,9 @@ public class PanelBuoc1 extends JPanel {
 		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
 		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
 
-		// Nút tìm kiếm
-		gbc.gridx = 0;
-		gbc.gridy = 5;
-		gbc.gridwidth = 2;
-		gbc.anchor = GridBagConstraints.CENTER;
-		btnTimKiem = new JButton("Tìm chuyến tàu");
-		pnlTimKiem.add(btnTimKiem, gbc);
-
 		add(lblTieuDe, BorderLayout.NORTH);
 		add(pnlTimKiem, BorderLayout.CENTER);
+		add(btnTimKiem = new JButton("Tìm chuyến tàu"), BorderLayout.SOUTH);
 
 		// ----- Gắn sự kiện (Event Handling) -----
 		// 1. Logic nội tại của View

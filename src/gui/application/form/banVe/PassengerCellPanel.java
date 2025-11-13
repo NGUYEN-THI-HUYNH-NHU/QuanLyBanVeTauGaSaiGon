@@ -25,6 +25,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import entity.KhachHang;
 import entity.type.LoaiDoiTuong;
 
@@ -44,6 +46,10 @@ public class PassengerCellPanel extends JPanel {
 	public PassengerCellPanel() {
 		setLayout(new GridBagLayout());
 		setOpaque(true);
+
+		txtTen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ và Tên");
+		txtID.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "CCCD/Hộ chiếu");
+		cbType.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Loại đối tượng");
 
 		// layout
 		GridBagConstraints gbc = new GridBagConstraints();

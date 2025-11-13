@@ -73,4 +73,12 @@ public class Ve_BUS {
 
 	}
 
+	/**
+	 * @param donDatChoID
+	 * @return
+	 */
+	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID) {
+		return veDAO.getVeByDonDatChoID(donDatChoID);
+	}
+
 }
