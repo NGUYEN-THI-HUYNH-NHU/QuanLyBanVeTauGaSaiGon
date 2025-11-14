@@ -55,6 +55,14 @@ public class HoanVe1Controller {
 		initMediatorLogic();
 	}
 
+	public KhachHang getNguoiMua() {
+		return this.nguoiMua;
+	}
+
+	public List<VeHoanRow> getListRowHoan() {
+		return this.listRowHoan;
+	}
+
 	private void initMediatorLogic() {
 
 		// Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
@@ -121,8 +129,6 @@ public class HoanVe1Controller {
 				if (onPanel1CompleteListener != null) {
 					onPanel1CompleteListener.run();
 				}
-
-				// ... (Gọi SwingWorker để thực hiện hoàn vé) ...
 			}
 		});
 	}

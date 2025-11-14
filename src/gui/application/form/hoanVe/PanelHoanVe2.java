@@ -1,8 +1,4 @@
 package gui.application.form.hoanVe;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
 /*
  * @(#) PanelHoanVe2.java  1.0  [3:21:43 PM] Nov 13, 2025
  *
@@ -15,19 +11,46 @@ import javax.swing.JPanel;
  * @date: Nov 13, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 public class PanelHoanVe2 extends JPanel {
-
+	private final PanelHoanVeBuoc4 panelHoanVeBuoc4;
+	private final PanelHoanVeBuoc5 panelHoanVeBuoc5;
+	private JPanel pnlNav;
 	private JButton btnPrev;
 
 	public PanelHoanVe2() {
-		btnPrev = new JButton("Trở về");
+		setLayout(new BorderLayout(8, 8));
 
+		JPanel centerPanel = new JPanel(new BorderLayout());
+
+		panelHoanVeBuoc4 = new PanelHoanVeBuoc4();
+		panelHoanVeBuoc5 = new PanelHoanVeBuoc5();
+
+		centerPanel.add(panelHoanVeBuoc4, BorderLayout.NORTH);
+		centerPanel.add(panelHoanVeBuoc5, BorderLayout.CENTER);
+
+		add(centerPanel, BorderLayout.CENTER);
+
+		pnlNav = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		btnPrev = new JButton("Quay lại");
+		pnlNav.add(btnPrev);
+
+		add(pnlNav, BorderLayout.SOUTH);
 	}
 
-	/**
-	 * @return
-	 */
+	public PanelHoanVeBuoc4 getPanelHoanVeBuoc4() {
+		return panelHoanVeBuoc4;
+	}
+
+	public PanelHoanVeBuoc5 getPanelHoanVeBuoc5() {
+		return panelHoanVeBuoc5;
+	}
+
 	public JButton getBtnPrev() {
 		return btnPrev;
 	}

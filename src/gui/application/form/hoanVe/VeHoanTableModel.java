@@ -18,9 +18,9 @@ import java.util.function.Consumer;
 
 import javax.swing.table.AbstractTableModel;
 
-public class HoanVeTableModel extends AbstractTableModel {
+public class VeHoanTableModel extends AbstractTableModel {
 	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Loại hoàn vé", "Lệ phí",
-			"Tiền hoàn", "Thông tin phí", "Chọn" };
+			"Tiền hoàn", "Thông tin phí", "Lý do hoàn", "Chọn" };
 
 	// (Column indices)
 	public static final int COL_TEN = 0;
@@ -30,13 +30,14 @@ public class HoanVeTableModel extends AbstractTableModel {
 	public static final int COL_LE_PHI = 4;
 	public static final int COL_TIEN_HOAN = 5;
 	public static final int COL_THONG_TIN_PHI = 6;
-	public static final int COL_CHON = 7;
+	public static final int COL_LY_DO = 7;
+	public static final int COL_CHON = 8;
 
 	private List<VeHoanRow> rows;
 
 	private Consumer<VeHoanRow> rowSelectionListener;
 
-	public HoanVeTableModel() {
+	public VeHoanTableModel() {
 		this.rows = new ArrayList<>();
 	}
 
@@ -79,7 +80,7 @@ public class HoanVeTableModel extends AbstractTableModel {
 	// Quan trọng: Chỉ cho phép sửa cột Checkbox
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == COL_CHON;
+		return columnIndex == COL_CHON || columnIndex == COL_LY_DO;
 	}
 
 	@Override
@@ -100,6 +101,8 @@ public class HoanVeTableModel extends AbstractTableModel {
 			return row.getTienHoanLai();
 		case COL_THONG_TIN_PHI:
 			return row.getThongTinPhiHoan();
+		case COL_LY_DO:
+			return row.getLyDo();
 		case COL_CHON:
 			return row.isSelected();
 		default:
@@ -119,6 +122,10 @@ public class HoanVeTableModel extends AbstractTableModel {
 			if (rowSelectionListener != null) {
 				rowSelectionListener.accept(row);
 			}
+		} else if (columnIndex == COL_LY_DO) {
+			VeHoanRow row = rows.get(rowIndex);
+			row.setLyDo((String) aValue);
+			fireTableCellUpdated(rowIndex, columnIndex);
 		}
 	}
 

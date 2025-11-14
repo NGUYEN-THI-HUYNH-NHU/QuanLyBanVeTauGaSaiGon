@@ -41,7 +41,7 @@ public class PanelHoanVeBuoc1 extends JPanel {
 	public PanelHoanVeBuoc1() {
 		setLayout(new BorderLayout());
 		setBorder(new TitledBorder(""));
-		setPreferredSize(new Dimension(200, 250));
+		setPreferredSize(new Dimension(200, 280));
 
 		// lblTieuDe
 		JLabel lblTieuDe = new JLabel("Tra cứu đơn đặt chỗ", SwingConstants.CENTER);

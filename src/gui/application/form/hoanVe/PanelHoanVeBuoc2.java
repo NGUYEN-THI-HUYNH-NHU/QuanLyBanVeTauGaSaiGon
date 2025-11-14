@@ -45,7 +45,7 @@ import gui.tuyChinh.TextAreaRenderer;
 public class PanelHoanVeBuoc2 extends JPanel {
 	private HoanVeBuoc2Controller controller;
 
-	private HoanVeTableModel model;
+	private VeHoanTableModel model;
 	private JTable table;
 	private JButton btnTiepTuc;
 
@@ -60,13 +60,13 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		setLayout(new BorderLayout());
 		setBorder(new LineBorder(new Color(220, 220, 220)));
 
-		model = new HoanVeTableModel();
+		model = new VeHoanTableModel();
 		table = new JTable(model);
 
 		setupTable();
 
 		JScrollPane sp = new JScrollPane(table);
-		sp.setPreferredSize(new Dimension(0, 300));
+		sp.setPreferredSize(new Dimension(0, 280));
 		add(sp, BorderLayout.CENTER);
 
 		add(createNguoiMuaVePanel(), BorderLayout.NORTH);
@@ -87,11 +87,13 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private void setupTable() {
 		table.setRowHeight(80);
 
+		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
+
 		// Cấu hình độ rộng cột
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_THONG_TIN_VE).setMinWidth(150);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_THONG_TIN_PHI).setMinWidth(150);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_CHON).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setMaxWidth(50);
 
 		// === Áp dụng Renderer ===
 
@@ -118,19 +120,19 @@ public class PanelHoanVeBuoc2 extends JPanel {
 			}
 		};
 
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_TIEN_HOAN).setCellRenderer(currencyFormatRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyFormatRenderer);
 
 		TableCellRenderer textAreaRenderer = new TextAreaRenderer();
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_THONG_TIN_PHI).setCellRenderer(textAreaRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setCellRenderer(textAreaRenderer);
 		// 2. Renderer cho các cột text (căn trên)
 		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
 		topAlignRenderer.setVerticalAlignment(SwingConstants.TOP);
 
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(HoanVeTableModel.COL_LOAI_HOAN).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LOAI_HOAN).setCellRenderer(topAlignRenderer);
 	}
 
 	/**

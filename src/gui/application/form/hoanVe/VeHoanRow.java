@@ -26,6 +26,7 @@ public class VeHoanRow {
 	private double lePhiHoanVe;
 	private double tienHoanLai;
 	private String thongTinPhiHoan;
+	private String lyDo;
 	private boolean isSelected;
 
 	// Constructor (Bạn sẽ tính toán phí và điền thông tin ở đây)
@@ -43,6 +44,7 @@ public class VeHoanRow {
 		this.lePhiHoanVe = 10000.0;
 		this.loaiHoanVe = "Trả thường";
 		this.thongTinPhiHoan = "Hoàn/Đổi vé bình thường năm 2025, áp dụng phí 10.000 VNĐ/vé";
+		this.lyDo = "Không còn nhu cầu";
 
 		// 3. Tính tiền hoàn lại
 		this.tienHoanLai = this.thanhTien - this.lePhiHoanVe;
@@ -85,6 +87,14 @@ public class VeHoanRow {
 
 	public String getThongTinPhiHoan() {
 		return thongTinPhiHoan;
+	}
+
+	public String getLyDo() {
+		return lyDo;
+	}
+
+	public void setLyDo(String lyDo) {
+		this.lyDo = lyDo;
 	}
 
 	public boolean isSelected() {
