@@ -1,76 +1,94 @@
 package gui.application.form.hoanVe;
 /*
- * @(#) PanelHoanVe.java  1.0  [1:04:59 PM] Nov 9, 2025
+ * @(#) PanelHoanVE.java  1.0  [3:18:54 PM] Nov 13, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 13, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 public class PanelHoanVe extends JPanel {
-	private PanelHoanVeBuoc1 panelHoanVeBuoc1;
-	private PanelHoanVeBuoc2 panelHoanVeBuoc2;
-	private PanelHoanVeBuoc3 panelHoanVeBuoc3;
+	private CardLayout cardLayout;
+	private JPanel stepPanel;
 
-	private HoanVeController mediator;
+	// Các panel giai đoạn
+	private PanelHoanVe1 panelHoanVe1;
+	private PanelHoanVe2 panelHoanVe2;
+
+	// Các controller Mediator cho từng bước
+	private HoanVe1Controller hoanVe1Controller;
+	private HoanVe2Controller hoanVe2Controller;
 
 	public PanelHoanVe() {
 		setLayout(new BorderLayout());
+		setBackground(new Color(230, 230, 230));
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 
-		JPanel pnlNorth = new JPanel(new BorderLayout(1, 0));
+		// 1. Khởi tạo CardLayout và Panel chứa các bước
+		cardLayout = new CardLayout();
+		stepPanel = new JPanel(cardLayout);
 
-		panelHoanVeBuoc1 = new PanelHoanVeBuoc1();
-		panelHoanVeBuoc2 = new PanelHoanVeBuoc2();
-		panelHoanVeBuoc3 = new PanelHoanVeBuoc3();
+		// 2. Khởi tạo các bước
+		panelHoanVe1 = new PanelHoanVe1();
+		panelHoanVe2 = new PanelHoanVe2();
 
-		pnlNorth.add(panelHoanVeBuoc1, BorderLayout.WEST);
-		pnlNorth.add(panelHoanVeBuoc2, BorderLayout.CENTER);
+		// 3. Thêm các bước vào CardLayout
+		stepPanel.add(panelHoanVe1, "step1");
+		stepPanel.add(panelHoanVe2, "step2");
 
-		add(pnlNorth, BorderLayout.NORTH);
-		add(panelHoanVeBuoc3, BorderLayout.CENTER);
+		add(stepPanel, BorderLayout.CENTER);
 
-		panelHoanVeBuoc2.setEnabled(false);
-		panelHoanVeBuoc2.setEnabled(false);
+		// 4. Khởi tạo các Controller (Mediator)
+		hoanVe1Controller = new HoanVe1Controller(panelHoanVe1);
+		hoanVe2Controller = new HoanVe2Controller(panelHoanVe2);
 
-		mediator = new HoanVeController(this);
+		// 5. Liên kết các Controller (Logic chính)
+		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
+		hoanVe1Controller.addPanel1CompleteListener(() -> {
+			// 1. Chuẩn bị dữ liệu cho PanelHoanVe2
+			hoanVe2Controller.loadDataForConfirmation();
+			// 2. Yêu cầu PanelHoanVe chuyển card
+			showPanel("step2");
+		});
+
+		// Lắng nghe sự kiện "Quay lại" từ PanelHoanVe2
+		panelHoanVe2.getBtnPrev().addActionListener(e -> {
+			// Yêu cầu PanelHoanVe chuyển card về bước 1
+			showPanel("step1");
+		});
 	}
 
-	public PanelHoanVeBuoc1 getPanelHoanVeBuoc1() {
-		return panelHoanVeBuoc1;
+	/**
+	 * Hàm công khai để các controller gọi và chuyển Card
+	 * 
+	 * @param panelName Tên của card (ví dụ: "step1", "step2", "complete")
+	 */
+	public void showPanel(String panelName) {
+		SwingUtilities.invokeLater(() -> {
+			cardLayout.show(stepPanel, panelName);
+		});
 	}
 
-	public PanelHoanVeBuoc2 getPanelHoanVeBuoc2() {
-		return panelHoanVeBuoc2;
+	public PanelHoanVe1 getPanelHoanVe1() {
+		return panelHoanVe1;
 	}
 
-	public PanelHoanVeBuoc3 getPanelHoanVeBuoc3() {
-		return panelHoanVeBuoc3;
+	public PanelHoanVe2 getPanelHoanVe2() {
+		return panelHoanVe2;
 	}
-
-	public void setBuoc1Enabled(boolean enabled) {
-		panelHoanVeBuoc1.setComponentsEnabled(enabled);
-	}
-
-	public void setBuoc2Enabled(boolean enabled) {
-		panelHoanVeBuoc2.setComponentsEnabled(enabled);
-	}
-
-	public void setBuoc3Enabled(boolean enabled) {
-		panelHoanVeBuoc3.setComponentsEnabled(enabled);
-	}
-
 }

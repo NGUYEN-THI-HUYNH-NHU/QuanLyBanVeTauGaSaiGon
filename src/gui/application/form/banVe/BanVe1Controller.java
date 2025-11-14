@@ -32,7 +32,6 @@ import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class BanVe1Controller {
-	private final PanelBanVe wizardView;
 	private final PanelBanVe1 view;
 	private final PanelBuoc1 p1;
 	private final PanelBuoc2 p2;
@@ -53,16 +52,13 @@ public class BanVe1Controller {
 
 	private Runnable onPanel1CompleteListener;
 
-	public void addPanel1CompleteListener(Runnable listener) {
+	protected void addPanel1CompleteListener(Runnable listener) {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public BanVe1Controller(PanelBanVe wizardView, PanelBanVe1 view, BookingSession session) {
-		this.wizardView = wizardView;
-
+	public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
 		this.view = view;
 		this.bookingSession = session;
-		// (Hoặc DatCho_BUS.getInstance() nếu là Singleton)
 		this.datChoBUS = new DatCho_BUS();
 
 		// Khởi tạo các panel con
@@ -70,7 +66,7 @@ public class BanVe1Controller {
 		this.p2 = view.getPanelBuoc2();
 		this.p3 = view.getPanelBuoc3();
 
-		this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
+		this.buoc1Controller = new PanelBuoc1Controller(this.p1);
 
 		// Lấy các panel con từ PanelBuoc2
 		PanelChuyen panelChieuDi = p2.getPanelChieuDi();

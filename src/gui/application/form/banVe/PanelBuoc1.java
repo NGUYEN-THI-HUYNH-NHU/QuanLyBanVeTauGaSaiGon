@@ -127,16 +127,8 @@ public class PanelBuoc1 extends JPanel {
 		add(btnTimKiem = new JButton("Tìm chuyến tàu"), BorderLayout.SOUTH);
 
 		// ----- Gắn sự kiện (Event Handling) -----
-		// 1. Logic nội tại của View
 		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
 		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
-
-		// 2. Logic nghiệp vụ (ủy thác cho Controller)
-		btnTimKiem.addActionListener(e -> {
-			if (controller != null) {
-				controller.performSearch();
-			}
-		});
 	}
 
 	public void setController(PanelBuoc1Controller controller) {

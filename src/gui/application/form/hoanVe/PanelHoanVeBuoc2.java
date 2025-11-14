@@ -49,7 +49,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private JTable table;
 	private JButton btnTiepTuc;
 
-	// Form thông tin người mua (bên phải)
 	private JTextField txtTen;
 	private JTextField txtCccd;
 	private JTextField txtPhone;

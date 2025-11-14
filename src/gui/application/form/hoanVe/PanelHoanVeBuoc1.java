@@ -21,7 +21,6 @@ import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -81,14 +80,6 @@ public class PanelHoanVeBuoc1 extends JPanel {
 		add(lblTieuDe, BorderLayout.NORTH);
 		add(pnlTraCuu, BorderLayout.CENTER);
 		add(btnTraCuu = new JButton("Tra cứu"), BorderLayout.SOUTH);
-
-		btnTraCuu.addActionListener(e -> {
-			if (controller != null) {
-				controller.performSearch();
-			} else {
-				JOptionPane.showMessageDialog(this, "PanelHoanVeBuoc1: HoanVe1Controller null");
-			}
-		});
 	}
 
 	public JTextField getTxtMaDDC() {
@@ -105,10 +96,6 @@ public class PanelHoanVeBuoc1 extends JPanel {
 
 	public JPanel getPnlTraCuu() {
 		return pnlTraCuu;
-	}
-
-	public HoanVeBuoc1Controller getController() {
-		return controller;
 	}
 
 	public void setController(HoanVeBuoc1Controller controller) {

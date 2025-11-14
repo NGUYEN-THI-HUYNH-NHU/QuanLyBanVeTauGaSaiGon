@@ -21,8 +21,8 @@ import gui.application.form.hoanVe.HoanVeBuoc2Controller.ContinueListener;
 import gui.application.form.hoanVe.HoanVeBuoc3Controller.ConfirmListener;
 import gui.application.form.hoanVe.HoanVeBuoc3Controller.RowSelectionChangeListener;
 
-public class HoanVeController {
-	private final PanelHoanVe view;
+public class HoanVe1Controller {
+	private final PanelHoanVe1 view;
 	private final PanelHoanVeBuoc1 p1;
 	private final PanelHoanVeBuoc2 p2;
 	private final PanelHoanVeBuoc3 p3;
@@ -36,7 +36,13 @@ public class HoanVeController {
 	private KhachHang nguoiMua;
 	private List<VeHoanRow> listRowHoan;
 
-	public HoanVeController(PanelHoanVe view) {
+	private Runnable onPanel1CompleteListener;
+
+	protected void addPanel1CompleteListener(Runnable listener) {
+		this.onPanel1CompleteListener = listener;
+	}
+
+	public HoanVe1Controller(PanelHoanVe1 view) {
 		this.view = view;
 		this.p1 = view.getPanelHoanVeBuoc1();
 		this.p2 = view.getPanelHoanVeBuoc2();
@@ -112,7 +118,9 @@ public class HoanVeController {
 				// Bắt đầu xử lý nghiệp vụ hoàn vé (gọi BUS)
 				// Dùng this.listRowHoan để biết vé nào cần hoàn
 				// Dùng this.ddc, this.nguoiMua
-				System.out.println("Bắt đầu hoàn " + listRowHoan.size() + " vé.");
+				if (onPanel1CompleteListener != null) {
+					onPanel1CompleteListener.run();
+				}
 
 				// ... (Gọi SwingWorker để thực hiện hoàn vé) ...
 			}

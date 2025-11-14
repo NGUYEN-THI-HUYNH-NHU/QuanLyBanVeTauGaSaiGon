@@ -11,9 +11,16 @@ package gui.application.form.hoanVe;
  * @date: Nov 9, 2025
  * @version: 1.0
  */
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -31,14 +38,14 @@ public class HoanVeBuoc1Controller {
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
-	private SearchListener searchListener;
-
-	// Interface để HoanVeController (Mediator) lắng nghe
+	// Interface để HoanVe1Controller (Mediator) lắng nghe
 	public interface SearchListener {
 		void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang);
 
 		void onSearchFailure();
 	}
+
+	private SearchListener searchListener;
 
 	public void addSearchListener(SearchListener listener) {
 		this.searchListener = listener;
@@ -46,9 +53,47 @@ public class HoanVeBuoc1Controller {
 
 	public HoanVeBuoc1Controller(PanelHoanVeBuoc1 panel) {
 		this.panel = panel;
+		init();
+	}
+
+	private void init() {
+		// 1. Tự động focus vào ô Mã ĐĐC khi mở
 		SwingUtilities.invokeLater(() -> {
 			panel.getTxtMaDDC().requestFocusInWindow();
 		});
+
+		// 2. Gán sự kiện cho nút Tra cứu
+		panel.getBtnTraCuu().addActionListener(e -> performSearch());
+
+		// 3. Xử lý phím Enter
+		KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+
+		// --- Xử lý Enter trên txtMaDDC (chuyển focus xuống txtCCCD) ---
+		InputMap imMaDDC = panel.getTxtMaDDC().getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap amMaDDC = panel.getTxtMaDDC().getActionMap();
+
+		imMaDDC.put(enterKey, "focusNext");
+		amMaDDC.put("focusNext", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.getTxtCCCD().requestFocusInWindow();
+			}
+		});
+
+		// --- Xử lý Enter trên txtCCCD (tương tự click nút Tra cứu) ---
+		InputMap imCCCD = panel.getTxtCCCD().getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap amCCCD = panel.getTxtCCCD().getActionMap();
+
+		imCCCD.put(enterKey, "triggerSearch");
+		amCCCD.put("triggerSearch", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Kích hoạt sự kiện click của nút
+				// Nút sẽ gọi performSearch() thông qua ActionListener đã gán ở trên
+				panel.getBtnTraCuu().doClick();
+			}
+		});
+
 	}
 
 	public void performSearch() {
@@ -59,14 +104,9 @@ public class HoanVeBuoc1Controller {
 
 		new SwingWorker<DonDatCho, Void>() {
 			@Override
-			protected DonDatCho doInBackground() {
+			protected DonDatCho doInBackground() throws Exception {
 				DonDatCho donDatCho = null;
-				try {
-					donDatCho = donDatChoBUS.timDonDatChoTheoIDVaSoGiayTo(maDDC, cccd);
-				} catch (Exception ex) {
-					System.out.println("PanelHoanVe1Controller: Loi");
-					ex.printStackTrace();
-				}
+				donDatCho = donDatChoBUS.timDonDatChoTheoIDVaSoGiayTo(maDDC, cccd);
 				return donDatCho;
 			}
 
@@ -75,9 +115,16 @@ public class HoanVeBuoc1Controller {
 				try {
 					DonDatCho donDatCho = get();
 					if (donDatCho != null) {
+						// Nếu tìm thấy -> lấy vé và khách hàng
 						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
 						KhachHang khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
-						searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
+
+						panel.getBtnTraCuu().setEnabled(true);
+
+						// Báo cho Mediator (HoanVe1Controller)
+						if (searchListener != null) {
+							searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
+						}
 					} else {
 						// Xử lý khi tra cứu thành công nhưng không tìm thấy kết quả
 						panel.getBtnTraCuu().setEnabled(true);
@@ -93,7 +140,7 @@ public class HoanVeBuoc1Controller {
 					ex.printStackTrace();
 					panel.getBtnTraCuu().setEnabled(true);
 					SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(panel,
-							"Lỗi khi tìm chuyến: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
+							"Lỗi khi tìm đơn đặt chỗ: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE));
 					if (searchListener != null) {
 						searchListener.onSearchFailure();
 					}

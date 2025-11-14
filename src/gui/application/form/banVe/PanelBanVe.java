@@ -62,8 +62,8 @@ public class PanelBanVe extends JPanel {
 		add(stepPanel, BorderLayout.CENTER);
 
 		// 5. Khởi tạo các Controller (Mediator)
-		banVe1Controller = new BanVe1Controller(this, panelBanVe1, bookingSession);
-		banVe2Controller = new BanVe2Controller(this, panelBanVe2, bookingSession);
+		banVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
+		banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
 
 		// 6. Liên kết các Controller (Logic chính)
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)

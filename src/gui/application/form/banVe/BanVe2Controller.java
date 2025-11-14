@@ -40,7 +40,6 @@ import gui.application.PdfTicketExporter;
  * cho Wizard (PanelBanVe) khi thanh toán hoàn tất.
  */
 public class BanVe2Controller {
-	private final PanelBanVe wizardView;
 	private final PanelBanVe2 view;
 	private final PanelBuoc4 p4;
 	private final PanelBuoc5 p5;
@@ -61,9 +60,7 @@ public class BanVe2Controller {
 		this.onPaymentSuccessListener = listener;
 	}
 
-	public BanVe2Controller(PanelBanVe wizardView, PanelBanVe2 view, BookingSession session) {
-		this.wizardView = wizardView;
-
+	public BanVe2Controller(PanelBanVe2 view, BookingSession session) {
 		this.view = view;
 		this.bookingSession = session;
 
@@ -187,10 +184,8 @@ public class BanVe2Controller {
 				exporter.exportTicketsToPdf(bookingSession);
 
 				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
-				if (wizardView != null) {
-					if (onPaymentSuccessListener != null) {
-						onPaymentSuccessListener.run();
-					}
+				if (onPaymentSuccessListener != null) {
+					onPaymentSuccessListener.run();
 				}
 			} else {
 				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",
