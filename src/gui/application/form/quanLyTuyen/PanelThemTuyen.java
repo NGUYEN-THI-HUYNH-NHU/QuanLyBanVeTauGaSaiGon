@@ -113,7 +113,7 @@ public class PanelThemTuyen extends JPanel {
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
 
-        btnXacNhanTinhKC = new JButton("Xác Nhận");
+        btnXacNhanTinhKC = new JButton("Xác Nhận Danh Sách Các Ga Trung Gian");
         btnXacNhanTinhKC.setBackground(COLOR_ACCENT);
         btnXacNhanTinhKC.setForeground(Color.WHITE);
         pnlContent.add(btnXacNhanTinhKC, "wrap 20");

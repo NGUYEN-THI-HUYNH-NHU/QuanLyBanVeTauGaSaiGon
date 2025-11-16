@@ -9,6 +9,7 @@ package gui.application.form.quanLyTuyen;/*
  * @created : 29/09/2025
  */
 import bus.Tuyen_BUS;
+import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
@@ -74,9 +75,12 @@ public class   PanelQuanLyTuyen extends JPanel {
         //Tìm kiếm
         JPanel panelSearch = new JPanel(new MigLayout("insets 5 10 10 10, gap 10"));
         txtGaDen = new JTextField(15);
+        txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         txtGaDi = new JTextField(15);
+        txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         btnLamMoiTuyen = new JButton("(F5) Làm mới tuyến");
         txtTimKiem = new JTextField(10);
+        txtTimKiem.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mã tuyến để tìm kiếm tuyến");
 //        btnTimKiem = new JButton("Tìm kiếm");
         btnThemTuyen = new JButton("Thêm tuyến");
         btnCapNhatTuyen = new JButton("Cập nhật tuyến");
@@ -84,7 +88,8 @@ public class   PanelQuanLyTuyen extends JPanel {
 
 //        btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.35f));
         btnLamMoiTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/refresh.svg", 0.35f));
-        btnLamMoiTuyen.setBackground(new Color(240, 248, 255));
+        btnLamMoiTuyen.setBackground(new Color(36, 104, 155));
+        btnLamMoiTuyen.setForeground(Color.white);
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                         .put(KeyStroke.getKeyStroke("F5"), "lamMoiTuyenAction");
 
@@ -95,22 +100,44 @@ public class   PanelQuanLyTuyen extends JPanel {
             }
         });
         btnThemTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/add.svg", 0.35f));
-        btnThemTuyen.setBackground(new Color(240, 248, 255));
+        btnThemTuyen.setBackground(new Color(36, 104, 155));
+        btnThemTuyen.setForeground(Color.white);
         btnCapNhatTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/edit.svg", 0.35f));
-        btnCapNhatTuyen.setBackground(new Color(240, 248, 255));
+        btnCapNhatTuyen.setBackground(new Color(36, 104, 155));
+        btnCapNhatTuyen.setForeground(Color.white);
 
-        panelSearch.add(new JLabel("Ga Đi:"));
-        panelSearch.add(txtGaDi, "w 150");
 
-        panelSearch.add(new JLabel("Ga Đến:"));
-        panelSearch.add(txtGaDen, "w 150");
+       panelSearch = new JPanel(new MigLayout(
+                "insets 5 10 10 10, gap 10",
+                "[grow, push][grow, push][][][]",
+                "[]"
+        ));
 
-        panelSearch.add(new JLabel("Mã Tuyến:"));
-        panelSearch.add(txtTimKiem);
+        JPanel col1Panel = new JPanel(new MigLayout(
+                "insets 0, wrap 2, fillx",
+                "[][grow, push]",
+                "[][]"
+        ));
+        col1Panel.add(new JLabel("Ga Xuất Phát:"));
+        col1Panel.add(txtGaDi, "growx");
+        col1Panel.add(new JLabel("Ga Đích:"));
+        col1Panel.add(txtGaDen, "growx");
 
-        panelSearch.add(btnThemTuyen);
-        panelSearch.add(btnCapNhatTuyen);
-        panelSearch.add(btnLamMoiTuyen);
+        panelSearch.add(col1Panel, "grow, pushy");
+
+        JPanel col2Panel = new JPanel(new MigLayout(
+                "insets 0, wrap 2, fillx",
+                "[][grow, push]",
+                "[]"
+        ));
+        col2Panel.add(new JLabel("Mã Tuyến:"));
+        col2Panel.add(txtTimKiem, "growx");
+
+        panelSearch.add(col2Panel, "growx, pushy, top");
+
+        panelSearch.add(btnThemTuyen, "top");
+        panelSearch.add(btnCapNhatTuyen, "top");
+        panelSearch.add(btnLamMoiTuyen, "top");
 
         panelHeader.add(panelSearch, "growx");
         panelNorth.add(panelHeader, BorderLayout.NORTH);
@@ -118,7 +145,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         add(panelNorth, BorderLayout.NORTH);
 
         // --- 2. TABLE DỮ LIỆU ---
-        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến","Danh Sách Ga Trung Gian", "Khoảng Cách (km)"};
+        String[] columnNames = {"Mã Tuyến", "Ga Xuất Phát", "Ga Đích","Danh Sách Ga Trung Gian", "Khoảng Cách (km)"};
         tableModelTuyen = new DefaultTableModel(columnNames,0){
             @Override
             public boolean isCellEditable(int row, int column) {
