@@ -139,13 +139,33 @@ public class PanelThongKeVe extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
 
-        JPanel topPanel = new JPanel(new BorderLayout(0, 15));
-        topPanel.setOpaque(false);
-        topPanel.add(buildFilterBar(), BorderLayout.NORTH);
+        // ===== Khu vực NORTH: Thanh lọc và Cards =====
 
+// Panel xếp dọc để chứa: Filter -> Separator -> Card
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+        topPanel.setOpaque(false);
+
+// --- Thanh lọc ---
+        JPanel filterPanel = buildFilterBar();
+        filterPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        topPanel.add(filterPanel);
+
+// --- Separator phân chia ---
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        sep.setForeground(new Color(180, 180, 180));
+        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));   // kéo full ngang
+        sep.setAlignmentX(Component.LEFT_ALIGNMENT);
+        topPanel.add(Box.createVerticalStrut(8));
+        topPanel.add(sep);
+        topPanel.add(Box.createVerticalStrut(8));
+
+// --- Cards tổng quan ---
         JPanel infoWrapper = new JPanel(new GridLayout(2, 3, 15, 15));
         infoWrapper.setOpaque(false);
-        infoWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        infoWrapper.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+        infoWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         infoWrapper.add(createCard("Tổng số vé bán", lblTongSoVeBanValue, new Color(52, 152, 219)));
         infoWrapper.add(createCard("Vé còn hiệu lực", lblTongVeConHieuLucValue, new Color(46, 204, 113)));
         infoWrapper.add(createCard("Vé đã dùng", lblTongVeDaDungValue, new Color(155, 89, 182)));
@@ -153,8 +173,12 @@ public class PanelThongKeVe extends JPanel {
         infoWrapper.add(createCard("Vé đổi", lblTongVeDaDoiValue, new Color(243, 156, 18)));
         infoWrapper.add(createCard("Tổng tiền vé", lblTongTienVeValue, new Color(39, 174, 96)));
 
-        topPanel.add(infoWrapper, BorderLayout.CENTER);
+        topPanel.add(infoWrapper);
+
+// Đưa toàn khối topPanel vào NORTH
         add(topPanel, BorderLayout.NORTH);
+
+
 
         JTabbedPane tab = new JTabbedPane();
         tab.setFont(new Font("Times New Roman", Font.PLAIN, 14));
@@ -201,79 +225,110 @@ public class PanelThongKeVe extends JPanel {
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    // ===== buildFilterBar() =====
     private JPanel buildFilterBar() {
         JPanel bar = new JPanel(new GridBagLayout());
         bar.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 8, 5, 8);
+
+        gbc.insets = new Insets(6, 10, 6, 10);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // ===== Hàng 0: Loại thời gian =====
+        // ===== KÍCH THƯỚC CHUNG =====
+        Dimension comboSize = new Dimension(250, 32);
+
+        // ============================================================
+        //  HÀNG 0 — LOẠI THỜI GIAN + TỪ/ĐẾN (filterSwitcher)
+        // ============================================================
         gbc.gridx = 0; gbc.gridy = 0;
         bar.add(new JLabel("Loại thời gian:"), gbc);
+
         gbc.gridx = 1;
-        cbLoaiThoiGian.setPreferredSize(new Dimension(120, 32));
+        cbLoaiThoiGian.setPreferredSize(comboSize);
         bar.add(cbLoaiThoiGian, gbc);
+
         gbc.gridx = 2;
         filterSwitcher.setOpaque(false);
         filterSwitcher.add(buildTatCaFilter(), CARD_TATCA);
         filterSwitcher.add(buildNgayFilter(), CARD_NGAY);
         filterSwitcher.add(buildThangFilter(), CARD_THANG);
         filterSwitcher.add(buildNamFilter(), CARD_NAM);
+
+        filterSwitcher.setPreferredSize(new Dimension(350, 32));
         bar.add(filterSwitcher, gbc);
 
-        // ===== Hàng 1: Lọc tuyến =====
+        // ============================================================
+        //  HÀNG 1 — LỌC TUYẾN + CỘT 2 (GA ĐI/ĐẾN + LOẠI VÉ)
+        // ============================================================
         gbc.gridx = 0; gbc.gridy = 1;
         bar.add(new JLabel("Lọc tuyến:"), gbc);
-        gbc.gridx = 1;
-        cbLoaiTuyen.setPreferredSize(new Dimension(120, 32));
-        bar.add(cbLoaiTuyen, gbc);
-        gbc.gridx = 2;
-        panelGaDiDen.setLayout(new GridLayout(1, 4, 6, 0));
-        panelGaDiDen.setOpaque(false);
-        panelGaDiDen.add(new JLabel("Ga đi:"));
-        cbGaDi.setPreferredSize(new Dimension(140, 32));
-        panelGaDiDen.add(cbGaDi);
-        panelGaDiDen.add(new JLabel("Ga đến:"));
-        cbGaDen.setPreferredSize(new Dimension(140, 32));
-        panelGaDiDen.add(cbGaDen);
-        bar.add(panelGaDiDen, gbc);
 
-        // ===== Hàng 2: Nhân viên & Loại vé =====
+        gbc.gridx = 1;
+        cbLoaiTuyen.setPreferredSize(comboSize);
+        bar.add(cbLoaiTuyen, gbc);
+
+        // ===== PANEL GA ĐI – GA ĐẾN =====
+        JPanel panelGa = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        panelGa.setOpaque(false);
+
+        panelGa.add(new JLabel("Ga đi:"));
+        cbGaDi.setPreferredSize(comboSize);
+        panelGa.add(cbGaDi);
+
+        panelGa.add(new JLabel("Ga đến:"));
+        cbGaDen.setPreferredSize(comboSize);
+        panelGa.add(cbGaDen);
+
+        // ===== PANEL LOẠI VÉ =====
+        JPanel panelLoaiVe = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        panelLoaiVe.setOpaque(false);
+
+        panelLoaiVe.add(new JLabel("Loại vé (Hạng toa):"));
+        cbLoaiVe.setPreferredSize(comboSize);
+        panelLoaiVe.add(cbLoaiVe);
+
+        // ===== CỘT 2 (Ga đi – Ga đến + Loại vé) =====
+        JPanel panelCot2 = new JPanel(new GridLayout(2, 1, 0, 4));
+        panelCot2.setOpaque(false);
+        panelCot2.add(panelGa);
+        panelCot2.add(panelLoaiVe);
+
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.gridheight = 2;   // Cột 2 chiếm 2 hàng
+        bar.add(panelCot2, gbc);
+
+        gbc.gridheight = 1; // Reset
+
+        // ============================================================
+        //  HÀNG 2 — NHÂN VIÊN
+        // ============================================================
         gbc.gridx = 0; gbc.gridy = 2;
         bar.add(new JLabel("Nhân viên:"), gbc);
-        gbc.gridx = 1;
-        cbNhanVien.setPreferredSize(new Dimension(220, 32));
-        bar.add(cbNhanVien, gbc);
-        gbc.gridx = 2;
-        JPanel panelLoaiVe = new JPanel(new GridLayout(1, 2, 6, 0));
-        panelLoaiVe.setOpaque(false);
-        panelLoaiVe.add(new JLabel("Loại vé (Hạng toa):"));
-        cbLoaiVe.setPreferredSize(new Dimension(220, 32));
-        panelLoaiVe.add(cbLoaiVe);
-        bar.add(panelLoaiVe, gbc);
 
-        // ===== Hàng 3: Nút Tìm kiếm (ở góc dưới bên trái) =====
+        gbc.gridx = 1;
+        cbNhanVien.setPreferredSize(comboSize);
+        bar.add(cbNhanVien, gbc);
+
+        // ============================================================
+        //  HÀNG 3 — NÚT TÌM KIẾM
+        // ============================================================
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(10, 5, 5, 5);
 
         btnTimKiem.setText("Tìm kiếm");
-        btnTimKiem.setFont(new Font("Arial", Font.PLAIN, 13));
+        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
         btnTimKiem.setBackground(new Color(33, 150, 83));
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnTimKiem.putClientProperty("JButton.buttonType", "tool");
-        btnTimKiem.putClientProperty("JComponent.minimumHeight", 30);
-        btnTimKiem.setPreferredSize(new Dimension(120, 32));
+        btnTimKiem.setPreferredSize(new Dimension(120, 35));
         bar.add(btnTimKiem, gbc);
 
-        // ===== Sự kiện =====
+        // ============================================================
+        //  SỰ KIỆN
+        // ============================================================
         cbLoaiThoiGian.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 CardLayout cl = (CardLayout) filterSwitcher.getLayout();
@@ -287,18 +342,18 @@ public class PanelThongKeVe extends JPanel {
         });
 
         cbLoaiTuyen.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                boolean enable = e.getItem().equals("Theo Ga đi/đến");
-                cbGaDi.setEnabled(enable);
-                cbGaDen.setEnabled(enable);
-            }
+            boolean enable = e.getItem().equals("Theo Ga đi/đến");
+            cbGaDi.setEnabled(enable);
+            cbGaDen.setEnabled(enable);
         });
 
         btnTimKiem.addActionListener(e -> xuLyThongKe());
 
         ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
+
         return bar;
     }
+
 
 
     // ===== loadComboBoxesData() =====
@@ -925,8 +980,8 @@ public class PanelThongKeVe extends JPanel {
         p.setOpaque(false);
         tuNgay.setDateFormatString("dd/MM/yyyy");
         denNgay.setDateFormatString("dd/MM/yyyy");
-        tuNgay.setPreferredSize(new Dimension(130, 28));
-        denNgay.setPreferredSize(new Dimension(130, 28));
+        tuNgay.setPreferredSize(new Dimension(160, 28));
+        denNgay.setPreferredSize(new Dimension(160, 28));
         tuNgay.setDate(new Date());
         denNgay.setDate(new Date());
         addDateConstraint(tuNgay, denNgay);
@@ -956,8 +1011,8 @@ public class PanelThongKeVe extends JPanel {
             cbTuNamThang.setSelectedItem(now.get(Calendar.YEAR));
             cbDenNamThang.setSelectedItem(now.get(Calendar.YEAR));
         }
-        Dimension monthDim = new Dimension(90, 28);
-        Dimension yearDim = new Dimension(75, 28);
+        Dimension monthDim = new Dimension(120, 28);
+        Dimension yearDim = new Dimension(120, 28);
         cbTuThang.setPreferredSize(monthDim);
         cbDenThang.setPreferredSize(monthDim);
         cbTuNamThang.setPreferredSize(yearDim);
@@ -984,7 +1039,7 @@ public class PanelThongKeVe extends JPanel {
             cbTuNam.setSelectedItem(currentYear);
             cbDenNam.setSelectedItem(currentYear);
         }
-        Dimension yearDim = new Dimension(90, 28);
+        Dimension yearDim = new Dimension(120, 28);
         cbTuNam.setPreferredSize(yearDim);
         cbDenNam.setPreferredSize(yearDim);
 
