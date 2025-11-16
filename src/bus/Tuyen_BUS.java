@@ -194,7 +194,7 @@ public class Tuyen_BUS {
     /**
      * tạo mã tuyến
      */
-    public String taoMaTuyen(String gaXuatPhat, String gaDich){
+    public String taoMaTuyenCoSo(String gaXuatPhat, String gaDich){
         if(gaXuatPhat == null || gaXuatPhat.isEmpty() || gaDich == null || gaDich.isEmpty()){
             return "";
         }
@@ -206,6 +206,20 @@ public class Tuyen_BUS {
         }
         return maDi + "-" + maDen;
     }
+
+    /**
+     * Kiểm tra xem một Mã Tuyến đã tồn tại trong CSDL hay chưa
+     * @param maTuyen Ma Tuyen can kiem tra
+     * @return true nếu mã đã tồn tại, false nếu chưa.
+     */
+    public boolean kiemTraMaTuyuenDaTonTai(String maTuyen){
+        if(maTuyen == null || maTuyen.isEmpty()){
+            return false;
+        }
+        Tuyen tuyen = tuyen_dao.getTuyenByExactID(maTuyen);
+        return (tuyen != null);
+    }
+
 
     public boolean themTuyen(Tuyen tuyenMoi, List<TuyenChiTiet> dsTCT){
         if(tuyenMoi == null || dsTCT == null || dsTCT.isEmpty()){
