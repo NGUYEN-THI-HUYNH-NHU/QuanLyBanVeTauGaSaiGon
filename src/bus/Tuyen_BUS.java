@@ -10,6 +10,7 @@ package bus;/*
  */
 
 import dao.Ga_DAO;
+import dao.KhoangCachChuan_DAO;
 import dao.TuyenChiTiet_DAO;
 import dao.Tuyen_DAO;
 import entity.Tuyen;
@@ -22,11 +23,17 @@ public class Tuyen_BUS {
     private final Tuyen_DAO tuyen_dao;
     private final Ga_DAO ga_dao;
     private final TuyenChiTiet_DAO tuyenChiTietDao;
+    private final KhoangCachChuan_DAO khoangCachChuanDao;
+    private final Map<String, Map<String, Integer>> graphKhoangCachChuan;
 
     public Tuyen_BUS(){
         tuyen_dao = new Tuyen_DAO();
         ga_dao = new Ga_DAO();
         tuyenChiTietDao = new TuyenChiTiet_DAO();
+        khoangCachChuanDao = new KhoangCachChuan_DAO();
+
+        //Tải đồ thị khoảng cách vào bộ nhớ khi BUS khởi động
+        graphKhoangCachChuan = khoangCachChuanDao.getAllKhoangCachMap();
     }
 
     public List<Tuyen> getAllTuyen(){
@@ -141,7 +148,7 @@ public class Tuyen_BUS {
 
         Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
         StringBuilder sb = new StringBuilder();
-        sb.append("_________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN_________________________________\n");
+        sb.append("__________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________\n");
         sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
         sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
         sb.append("Khoảng cách từ ga xuất phát đến ga đích: ").append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");
@@ -219,6 +226,57 @@ public class Tuyen_BUS {
         }catch (Exception e){
             e.printStackTrace();
         } return themTuyenThanhCong;
+    }
+
+    /**
+     * Tính khoảng cách tổng
+     * Sử dụng thuật toán Dijkstra để tìm đường đi ngắn nhất nếu không có đoạn trực tiếp.
+     * @param gaID_Dau Ga xuất phát
+     * @param gaID_Cuoi Ga đích
+     * @return Khoảng cách tổng, hoặc -1 nếu không tìm thấy đường đi.
+     */
+    public int tinhKhoangCachTongDijsktra(String gaID_Dau, String gaID_Cuoi){
+        if(!graphKhoangCachChuan.containsKey(gaID_Dau) || !graphKhoangCachChuan.containsKey(gaID_Cuoi)){
+            return -1;
+        }
+        if(graphKhoangCachChuan.get(gaID_Dau).containsKey(gaID_Cuoi)){
+            return graphKhoangCachChuan.get(gaID_Dau).get(gaID_Cuoi);
+        }
+
+        Map<String,Integer> distances = new HashMap<>();
+        PriorityQueue<Map.Entry<String, Integer>> pq = new PriorityQueue<>(Map.Entry.comparingByValue());
+        Set<String> visited = new HashSet<>();
+
+        for(String gaID : graphKhoangCachChuan.keySet()){
+            distances.put(gaID, Integer.MAX_VALUE);
+        }
+        distances.put(gaID_Dau, 0);
+        pq.offer(new AbstractMap.SimpleEntry<>(gaID_Dau, 0));
+
+        while(!pq.isEmpty()){
+            Map.Entry<String, Integer> entry = pq.poll();
+            String u = entry.getKey();
+            if(visited.contains(u)){
+                continue;
+            }
+            visited.add(u);
+
+            if(u.equals(gaID_Cuoi)){
+                return distances.get(u);
+            }
+
+            if(graphKhoangCachChuan.get(u) == null) continue;
+
+            for(Map.Entry<String, Integer> neighbor : graphKhoangCachChuan.get(u).entrySet()){
+                String v = neighbor.getKey();
+                int weight = neighbor.getValue();
+                if(!visited.contains(v) && distances.get(u) != Integer.MAX_VALUE && distances.get(u) + weight < distances.get(v)){
+                    distances.put(v, distances.get(u) + weight);
+                    pq.offer(new AbstractMap.SimpleEntry<>(v, distances.get(v)));
+                }
+            }
+        }
+        return -1; // Không tìm thấy đường đi
     }
 
 }

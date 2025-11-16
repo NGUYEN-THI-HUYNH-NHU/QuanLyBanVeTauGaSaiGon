@@ -305,7 +305,6 @@ public class ThemTuyen_CTRL {
         int accumulatedDistance = 0;
         Ga gaTruoc = null;
         Ga gaHienTai = null;
-        boolean isLoiKhoangCach = false;
 
         for (int i = 0; i < toanBoTuyen.size(); i++) {
             gaHienTai = toanBoTuyen.get(i);
@@ -314,12 +313,8 @@ public class ThemTuyen_CTRL {
             int kcDoan = 0;
 
             if (gaTruoc != null) {
-                kcDoan = khoangCachChuanDao.getKhoangCachDoan(gaTruoc.getGaID(), gaHienTai.getGaID());
+                kcDoan = tuyenBus.tinhKhoangCachTongDijsktra(gaTruoc.getGaID(), gaHienTai.getGaID());
 
-                if (kcDoan == -1) {
-                    isLoiKhoangCach = true;
-                    break;
-                }
                 accumulatedDistance += kcDoan;
             }
 
@@ -338,15 +333,9 @@ public class ThemTuyen_CTRL {
             gaTruoc = gaHienTai;
         }
 
-        if (isLoiKhoangCach) {
-            JOptionPane.showMessageDialog(panelThemTuyen,
-                    "Lỗi: Không tìm thấy khoảng cách chuẩn giữa " + gaTruoc.getTenGa() + " và " + gaHienTai.getTenGa() + ". Vui lòng kiểm tra lại dữ liệu.",
-                    "Lỗi Dữ Liệu Tuyến", JOptionPane.ERROR_MESSAGE);
-            model.setRowCount(0);
-            panelThemTuyen.getTxtDoDaiQuangDuong().setText("Lỗi Dữ Liệu");
-        } else {
+
             panelThemTuyen.getTxtDoDaiQuangDuong().setText(String.valueOf(accumulatedDistance));
-        }
+
     }
 
     private void xuLyLuuTuyen() {
@@ -390,8 +379,6 @@ public class ThemTuyen_CTRL {
             } else {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Lưu tuyến thất bại! Vui lòng kiểm tra lại dữ liệu.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(panelThemTuyen, "Lỗi định dạng số: Khoảng cách hoặc GaID không phải là số nguyên hợp lệ.", "Lỗi Định Dạng", JOptionPane.ERROR_MESSAGE);
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(panelThemTuyen, e.getMessage(), "Lỗi Nghiệp Vụ", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
@@ -403,7 +390,7 @@ public class ThemTuyen_CTRL {
     private void xuLyHuyBo() {
         int choice = JOptionPane.showConfirmDialog(
                 panelThemTuyen,
-                "Bạn có chắc chắn muốn hủy bỏ thao tác thêm tuyến?\nMọi thay đổi chưa lưu sẽ bị mất.", // Nội dung câu hỏi
+                "Bạn có chắc chắn muốn hủy bỏ thao tác thêm tuyến?\nMọi thay đổi chưa lưu sẽ bị mất.",
                 "Xác nhận Hủy",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE

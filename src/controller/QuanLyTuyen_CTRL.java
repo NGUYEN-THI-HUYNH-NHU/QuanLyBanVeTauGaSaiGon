@@ -237,11 +237,17 @@ public class QuanLyTuyen_CTRL {
                             lst.setSelectedIndex(selectedIndex + 1);
                             lst.ensureIndexIsVisible(selectedIndex + 1);
                         }
+                        else if(txt == pnlTuyen.getTxtGaDi()){
+                            pnlTuyen.getTxtGaDen().requestFocus();
+                        }
                         break;
                     case java.awt.event.KeyEvent.VK_UP:
                         if (selectedIndex > 0) {
                             lst.setSelectedIndex(selectedIndex - 1);
                             lst.ensureIndexIsVisible(selectedIndex - 1);
+                        }
+                        else if(txt == pnlTuyen.getTxtGaDen()){
+                            pnlTuyen.getTxtGaDi().requestFocus();
                         }
                         break;
                     case java.awt.event.KeyEvent.VK_ENTER:
@@ -253,16 +259,15 @@ public class QuanLyTuyen_CTRL {
                         timKiemTuyen();
                         break;
                     case java.awt.event.KeyEvent.VK_RIGHT:
-                        if (txt == pnlTuyen.getTxtGaDi()) {
-                            pnlTuyen.getTxtGaDen().requestFocus();
-                        } else if (txt == pnlTuyen.getTxtGaDen()) {
+                         if (txt == pnlTuyen.getTxtGaDen()) {
                             pnlTuyen.getTxtTimKiem().requestFocus();
                         }
+                         else if(txt == pnlTuyen.getTxtGaDi()){
+                             pnlTuyen.getTxtTimKiem().requestFocus();
+                         }
                         break;
                     case java.awt.event.KeyEvent.VK_LEFT:
                         if (txt == pnlTuyen.getTxtTimKiem()) {
-                            pnlTuyen.getTxtGaDen().requestFocus();
-                        } else if (txt == pnlTuyen.getTxtGaDen()) {
                             pnlTuyen.getTxtGaDi().requestFocus();
                         }
                         break;
