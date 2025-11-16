@@ -5,6 +5,8 @@ package dao;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.sql.Connection;
+
 import connectDB.ConnectDB;
 import entity.GiaoDichThanhToan;
 
@@ -23,7 +25,7 @@ public class GiaoDichThanhToan_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+	public boolean createGiaoDichThanhToan(Connection conn, GiaoDichThanhToan giaoDichThanhToan) {
 		// TODO: tam thoi giao dich thanh toan bi gop voi hoa don, nen chua lam gi duoc
 		// o day. Ve sau neu tach lai se sua sau;
 		return true;

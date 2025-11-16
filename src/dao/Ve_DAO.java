@@ -106,6 +106,35 @@ public class Ve_DAO {
 		return dsVe;
 	}
 
+	/**
+	 * @param conn
+	 * @param v
+	 * @return
+	 */
+	public boolean insertVe(Connection conn, Ve ve) {
+		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+
+			ps.setString(1, ve.getVeID());
+			ps.setString(2, ve.getKhachHang().getKhachHangID());
+			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
+			ps.setString(4, ve.getChuyen().getChuyenID());
+			ps.setString(5, ve.getGhe().getGheID());
+			ps.setString(6, ve.getGaDi().getGaID());
+			ps.setString(7, ve.getGaDen().getGaID());
+			ps.setTimestamp(8, java.sql.Timestamp.valueOf(ve.getNgayGioDi()));
+			ps.setDouble(9, ve.getGia());
+			ps.setString(10, ve.getTrangThai().toString());
+
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
 //	public boolean updateVe(Ve ve) {
 //		String sql = "UPDATE Ve SET donDatChoID=?, chuyenID=?, gheID=?, hanhKhachID=?, thuTuGaDi=?, thuTuGaDen=?, gia=?, trangThai=?, ngayBan=? WHERE veID=?";
 //		try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {

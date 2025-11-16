@@ -1,5 +1,6 @@
 package bus;
 
+import java.sql.Connection;
 import java.util.List;
 
 import dao.KhachHang_DAO;
@@ -99,4 +100,7 @@ public class KhachHang_BUS {
 		return String.format("KH%03d", maxID + 1);
 	}
 
+	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) {
+		return khachHang_dao.saveOrUpdate(conn, khachHang);
+	}
 }

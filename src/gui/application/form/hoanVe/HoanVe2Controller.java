@@ -19,7 +19,6 @@ import javax.swing.JOptionPane;
 
 import bus.DatCho_BUS;
 import bus.HoaDon_BUS;
-import bus.KhachHang_BUS;
 import bus.PhieuDungPhongVIP_BUS;
 import bus.ThanhToan_BUS;
 import bus.Ve_BUS;
@@ -36,7 +35,9 @@ public class HoanVe2Controller {
 	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
-	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
+
+	private KhachHang khachHang;
+	private List<VeHoanRow> listVeHoanRow;
 
 	// Listener để báo cho wizard chính (PanelHoanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
@@ -61,6 +62,9 @@ public class HoanVe2Controller {
 	 * 
 	 */
 	public void loadDataForConfirmation(KhachHang khachHang, List<VeHoanRow> listVeHoanRow) {
+		this.khachHang = khachHang;
+		this.listVeHoanRow = listVeHoanRow;
+
 		// 1. Đặt lại trạng thái
 		p4.setComponentsEnabled(true);
 		p5.setComponentsEnabled(true);
@@ -87,14 +91,20 @@ public class HoanVe2Controller {
 	private void initMediatorLogic() {
 		// Lắng nghe nút thanh toán từ PanelBuoc5
 		JButton payButtonCash = p5.getBtnXacNhanVaInCash();
-		JButton payButtonQR = p5.getBtnXacNhanVaInQR();
 
 		ActionListener paymentListener = e -> {
 			boolean isThanhToanTienMat = true;
-			if (payButtonQR.isSelected()) {
-				isThanhToanTienMat = false;
-			}
+
 			// TODO: thuc hien luu thay doi tren DB
+//			--set lai trang thai ve thanh 'DA_HOAN'
+//			select * from Ve
+//			--tao hoa don co tienNhan = 0 va tienHoan = @tienHoan
+//			select * from HoaDon
+//			--tao cac hoa don chi tiet
+//			select * from HoaDonChiTiet
+//			--tao giao dich hoan doi 
+//			select * from GiaoDichHoanDoi
+
 			// Giả sử lưu thành công
 			boolean saveSuccess = true;
 
@@ -118,9 +128,6 @@ public class HoanVe2Controller {
 
 		if (payButtonCash != null) {
 			payButtonCash.addActionListener(paymentListener);
-		}
-		if (payButtonQR != null) {
-			payButtonQR.addActionListener(paymentListener);
 		}
 	}
 }

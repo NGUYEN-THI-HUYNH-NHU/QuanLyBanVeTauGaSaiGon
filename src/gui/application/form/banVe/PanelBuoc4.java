@@ -31,14 +31,20 @@ public class PanelBuoc4 extends JPanel {
 	public PanelBuoc4() {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Xác nhận thông tin vé"));
-		setPreferredSize(new Dimension(getWidth(), 300));
+		setPreferredSize(new Dimension(getWidth(), 350));
 
 		// 1. Khởi tạo model và table
-		model = new HanhKhachTableModel();
+// { "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }		
+		model = new HanhKhachTableModel() {
+			@Override
+			public boolean isCellEditable(int rowIndex, int columnIndex) {
+				return false;
+			}
+		};
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(250);
-		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.removeColumn(table.getColumnModel().getColumn(8));
 
 		// 2. CHỈ DÙNG Renderer (để hiển thị), KHÔNG DÙNG Editor (để không thể sửa)
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
@@ -47,8 +53,10 @@ public class PanelBuoc4 extends JPanel {
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 		table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-		table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
 		table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+		table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
+		table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
+		table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer);
 
 		JScrollPane sp = new JScrollPane(table);
 		add(sp, BorderLayout.CENTER);

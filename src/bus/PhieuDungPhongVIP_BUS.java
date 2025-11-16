@@ -5,6 +5,7 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,12 +44,13 @@ public class PhieuDungPhongVIP_BUS {
 	}
 
 	/**
+	 * @param conn
 	 * @param dsPhieu
 	 */
-	public boolean themCacPhieuDungPhongChoVIP(List<PhieuDungPhongVIP> dsPhieuDungPhongVIP) {
+	public boolean themCacPhieuDungPhongChoVIP(Connection conn, List<PhieuDungPhongVIP> dsPhieuDungPhongVIP) {
 		if (dsPhieuDungPhongVIP != null) {
 			for (PhieuDungPhongVIP phieu : dsPhieuDungPhongVIP) {
-				phieuDungPhongVIPDAO.createPhieuDungPhongVIP(phieu);
+				phieuDungPhongVIPDAO.insertPhieuDungPhongVIP(conn, phieu);
 			}
 			return true;
 		}

@@ -43,4 +43,25 @@ public class PhieuDungPhongVIP_DAO {
 			return false;
 		}
 	}
+
+	/**
+	 * @param conn
+	 * @param phieu
+	 */
+	public boolean insertPhieuDungPhongVIP(Connection conn, PhieuDungPhongVIP phieuDungPhongChoVIP) {
+		String sql = "INSERT INTO PhieuDungPhongVIP (phieuDungPhongVIPID, dichVuPhongChoVIPID, veID, trangThai) "
+				+ "VALUES (?, ?, ?, ?)";
+
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+			ps.setString(2, phieuDungPhongChoVIP.getDichVuPhongChoVIP().getDichVuPhongChoVIPID());
+			ps.setString(3, phieuDungPhongChoVIP.getVe().getVeID());
+			ps.setString(4, phieuDungPhongChoVIP.getTrangThai().toString());
+
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

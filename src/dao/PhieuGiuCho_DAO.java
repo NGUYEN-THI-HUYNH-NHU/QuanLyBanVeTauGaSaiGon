@@ -80,12 +80,12 @@ public class PhieuGiuCho_DAO {
 	 * Cập nhật trạng thái của một PhieuGiuCho. Dùng khi xác nhận (XAC_NHAN) hoặc
 	 * hủy (HET_HAN).
 	 *
+	 * @param con
 	 * @param phieuGiuChoID ID của phiếu cần cập nhật.
 	 * @param newTrangThai  Trạng thái mới ('XAC_NHAN' hoặc 'HET_HAN').
 	 * @return true nếu cập nhật thành công, false nếu thất bại.
 	 */
-	public boolean updateTrangThai(String phieuGiuChoID, String newTrangThai) {
-		Connection conn = connectDB.getConnection();
+	public boolean updateTrangThaiPhieuGiuCho(Connection conn, String phieuGiuChoID, String newTrangThai) {
 		String sql = "UPDATE PhieuGiuCho SET trangThai = ? WHERE phieuGiuChoID = ?";
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {

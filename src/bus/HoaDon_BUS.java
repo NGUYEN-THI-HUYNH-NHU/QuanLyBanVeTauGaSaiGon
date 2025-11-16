@@ -1,21 +1,22 @@
 package bus;
+
 /*
  * @(#) HoaDon_BUS.java  1.0  [1:06:29 PM] Nov 2, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import dao.HoaDonChiTiet_DAO;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Nov 2, 2025
  * @version: 1.0
  */
+import java.sql.Connection;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import dao.HoaDonChiTiet_DAO;
 import dao.HoaDon_DAO;
 import entity.GiaoDichThanhToan;
 import entity.HoaDon;
@@ -41,10 +42,11 @@ public class HoaDon_BUS {
 	}
 
 	/**
+	 * @param conn
 	 * @param bookingSession
 	 */
-	public boolean themHoaDon(HoaDon hoaDon) {
-		return hoaDonDAO.createHoaDon(hoaDon);
+	public boolean themHoaDon(Connection conn, HoaDon hoaDon) {
+		return hoaDonDAO.insertHoaDon(conn, hoaDon);
 	}
 
 	/**
@@ -83,11 +85,12 @@ public class HoaDon_BUS {
 	}
 
 	/**
+	 * @param conn
 	 * @param dsHoaDonChiTiet
 	 */
-	public void themCacHoaDonChiTiet(List<HoaDonChiTiet> dsHoaDonChiTiet) {
+	public void themCacHoaDonChiTiet(Connection conn, List<HoaDonChiTiet> dsHoaDonChiTiet) {
 		for (HoaDonChiTiet hdct : dsHoaDonChiTiet) {
-			hoaDonChiTietDAO.createHoaDonChiTiet(hdct);
+			hoaDonChiTietDAO.insertHoaDonChiTiet(conn, hdct);
 		}
 	}
 }

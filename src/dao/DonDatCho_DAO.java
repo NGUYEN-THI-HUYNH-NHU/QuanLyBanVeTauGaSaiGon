@@ -94,4 +94,25 @@ public class DonDatCho_DAO {
 		}
 		return null;
 	}
+
+	/**
+	 * @param conn
+	 * @param donDatCho
+	 * @return
+	 */
+	public boolean insertDonDatCho(Connection conn, DonDatCho donDatCho) {
+		String sql = "INSERT INTO DonDatCho (donDatChoID, nhanVienID, khachHangID, thoiDiemDatCho) VALUES (?, ?, ?, ?)";
+		PreparedStatement pstmt = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, donDatCho.getDonDatChoID());
+			pstmt.setString(2, donDatCho.getNhanVien().getNhanVienID());
+			pstmt.setString(3, donDatCho.getKhachHang().getKhachHangID());
+			pstmt.setTimestamp(4, Timestamp.valueOf(donDatCho.getThoiDiemDatCho()));
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

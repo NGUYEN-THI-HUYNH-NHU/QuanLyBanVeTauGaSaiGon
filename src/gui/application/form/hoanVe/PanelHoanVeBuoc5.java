@@ -15,7 +15,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -25,34 +24,25 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 public class PanelHoanVeBuoc5 extends JPanel {
-	private JRadioButton radTienMat, radChuyenKhoan;
+	private JRadioButton radTienMat;
 	private JLabel lblTongTienVe;
 	private JLabel lblTongPhiHoan;
 	private JLabel lblTongTienHoan;
 	private JButton btnXacNhanVaInCash;
-	private JButton btnXacNhanVaInQR;
 
 	private JPanel pnlTienHoan;
-	private JPanel pnlQRCode;
 	private JPanel pnlPaymentMethodContainer;
 	private CardLayout paymentCardLayout;
-
-	private final List<JButton> suggestionButtons = new ArrayList<>();
 
 	private DecimalFormat currencyFormat;
 
@@ -60,23 +50,19 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	private JPanel pnlChiTiet;
 
 	private static final String TIEN_MAT_CARD = "TienMat";
-	private static final String QR_CODE_CARD = "QRCode";
 
 	public PanelHoanVeBuoc5() {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Thanh Toán"));
 
-		currencyFormat = new DecimalFormat("#,### VND");
+		currencyFormat = new DecimalFormat("#,##0đ");
 
 		// Panel Phương thức thanh toán
 		JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
 		radTienMat = new JRadioButton("Tiền mặt", true);
-		radChuyenKhoan = new JRadioButton("Chuyển khoản");
 		ButtonGroup bgPayment = new ButtonGroup();
 		bgPayment.add(radTienMat);
-		bgPayment.add(radChuyenKhoan);
 		pnlPhuongThuc.add(radTienMat);
-		pnlPhuongThuc.add(radChuyenKhoan);
 		add(pnlPhuongThuc, BorderLayout.NORTH);
 
 		JPanel pnlMain = new JPanel(new GridLayout(1, 2, 10, 0));
@@ -86,10 +72,8 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		pnlPaymentMethodContainer = new JPanel(paymentCardLayout);
 
 		pnlTienHoan = createTienHoanPanel();
-		pnlQRCode = createQRCodePanel();
 
 		pnlPaymentMethodContainer.add(pnlTienHoan, TIEN_MAT_CARD);
-		pnlPaymentMethodContainer.add(pnlQRCode, QR_CODE_CARD);
 
 		pnlMain.add(pnlChiTiet);
 		pnlMain.add(pnlPaymentMethodContainer);
@@ -108,7 +92,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		pnl.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.WEST;
+		gbc.anchor = GridBagConstraints.CENTER;
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -127,7 +111,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
 		lblTongPhiHoan = new JLabel("0 VND", JLabel.RIGHT);
-		lblTongPhiHoan.setForeground(Color.GREEN);
+		lblTongPhiHoan.setForeground(Color.RED);
 		pnl.add(lblTongPhiHoan, gbc);
 
 		gbc.gridx = 0;
@@ -147,7 +131,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
 		pnl.add(totalLabel, gbc);
 
-		gbc.gridy = 3;
+		gbc.gridy = 4;
 		gbc.weighty = 1.0;
 		pnl.add(new JLabel(), gbc);
 
@@ -165,9 +149,15 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		gbc.gridy = 0;
 		pnlTienHoan.add(new JLabel("Tiền hoàn:"), gbc);
 
-		// --- Hàng 1: Nút Xác nhận (Cash version) ---
 		gbc.gridx = 0;
 		gbc.gridy = 1;
+		JLabel lblTienHoanAmount = new JLabel(tongTienHoan + "");
+		lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 18f));
+		lblTienHoanAmount.setForeground(Color.GREEN);
+		pnlTienHoan.add(lblTienHoanAmount, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
 		gbc.gridwidth = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.CENTER;
@@ -185,72 +175,16 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		return pnlTienHoan;
 	}
 
-	private JPanel createQRCodePanel() {
-		pnlQRCode = new JPanel();
-		pnlQRCode.setLayout(new BoxLayout(pnlQRCode, BoxLayout.Y_AXIS)); // Vertical layout
-		pnlQRCode.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Chuyển khoản"),
-				BorderFactory.createEmptyBorder(10, 10, 10, 10) // Padding
-		));
-
-		// --- QR Code Image (Placeholder) ---
-		// TODO: Replace with actual QR code generation
-		// For now, using a placeholder text or a sample image if you have one
-		JLabel lblQRCodePlaceholder = new JLabel(
-				"<html><center>[QR Code Image Placeholder]<br/>Quét mã để thanh toán</center></html>");
-		lblQRCodePlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
-		lblQRCodePlaceholder.setFont(lblQRCodePlaceholder.getFont().deriveFont(Font.PLAIN, 16f));
-		lblQRCodePlaceholder.setPreferredSize(new Dimension(200, 200)); // Adjust size as needed
-		lblQRCodePlaceholder.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-		lblQRCodePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRCodePlaceholder);
-
-		pnlQRCode.add(Box.createVerticalStrut(10)); // Spacer
-
-		JLabel lblQRInfo1 = new JLabel("Thanh toán vé tàu");
-		lblQRInfo1.setFont(lblQRInfo1.getFont().deriveFont(Font.BOLD, 14f));
-		lblQRInfo1.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRInfo1);
-
-		JLabel lblQRAmount = new JLabel(currencyFormat.format(tongTienHoan));
-		lblQRAmount.setFont(lblQRAmount.getFont().deriveFont(Font.BOLD, 18f));
-		lblQRAmount.setForeground(Color.RED);
-		lblQRAmount.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRAmount);
-
-		JLabel lblQRInfo2 = new JLabel("Nhà ga Sài Gòn");
-		lblQRInfo2.setFont(lblQRInfo2.getFont().deriveFont(Font.PLAIN, 12f));
-		lblQRInfo2.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRInfo2);
-
-		pnlQRCode.add(Box.createVerticalStrut(15));
-
-		btnXacNhanVaInQR = new JButton("Xác nhận hoàn vé");
-		btnXacNhanVaInQR.setFont(btnXacNhanVaInQR.getFont().deriveFont(Font.BOLD, 14f));
-		btnXacNhanVaInQR.setBackground(new Color(0, 153, 51));
-		btnXacNhanVaInQR.setForeground(Color.WHITE);
-		btnXacNhanVaInQR.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(btnXacNhanVaInQR);
-
-		pnlQRCode.add(Box.createVerticalGlue());
-
-		return pnlQRCode;
-	}
-
 	private void addInternalLogic() {
 		ActionListener paymentMethodListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (radTienMat.isSelected()) {
-					paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
-				} else if (radChuyenKhoan.isSelected()) {
-					// Update amount on QR panel before showing
-					updateQRCodePanelAmount();
-					paymentCardLayout.show(pnlPaymentMethodContainer, QR_CODE_CARD);
-				}
+				updateTienHoanAmount();
+				paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
+
 			}
 		};
 		radTienMat.addActionListener(paymentMethodListener);
-		radChuyenKhoan.addActionListener(paymentMethodListener);
 	}
 
 	public int getTongTienHoan() {
@@ -258,25 +192,21 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	}
 
 	private void setTienMatEnabled(boolean enabled) {
-
 		for (Component c : pnlTienHoan.getComponents()) {
 			if (c instanceof JTextField || c instanceof JPanel || c instanceof JButton) {
 				c.setEnabled(enabled);
 			}
 		}
-		for (JButton btn : suggestionButtons) {
-			btn.setEnabled(enabled);
-		}
 	}
 
-	private void updateQRCodePanelAmount() {
+	private void updateTienHoanAmount() {
 		// Find the JLabel responsible for displaying the amount within pnlQRCode
 		// This relies on the structure created in createQRCodePanel()
-		for (Component comp : pnlQRCode.getComponents()) {
+		for (Component comp : pnlTienHoan.getComponents()) {
 			// A bit fragile, better to store a direct reference if possible
-			if (comp instanceof JLabel && comp.getForeground() == Color.RED) {
+			if (comp instanceof JLabel && comp.getForeground() == Color.GREEN) {
 				((JLabel) comp).setText(currencyFormat.format(tongTienHoan));
-				break; // Found it
+				break;
 			}
 		}
 	}
@@ -296,7 +226,6 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	public void setComponentsEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		radTienMat.setEnabled(enabled);
-		radChuyenKhoan.setEnabled(enabled);
 
 		// Disable detail panel components
 		for (Component c : pnlChiTiet.getComponents()) {
@@ -304,15 +233,10 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		}
 
 		// Disable components within the currently visible payment card
-		if (radTienMat.isSelected()) {
-			setTienMatPanelEnabled(enabled);
-		} else {
-			setQRCodePanelEnabled(enabled);
-		}
+		setTienMatPanelEnabled(enabled);
 
 		// Disable confirm buttons specifically if panel is disabled
 		btnXacNhanVaInCash.setEnabled(enabled && radTienMat.isSelected());
-		btnXacNhanVaInQR.setEnabled(enabled && radChuyenKhoan.isSelected());
 	}
 
 	private void setTienMatPanelEnabled(boolean enabled) {
@@ -321,27 +245,11 @@ public class PanelHoanVeBuoc5 extends JPanel {
 				c.setEnabled(enabled);
 			}
 		}
-		for (JButton btn : suggestionButtons) {
-			btn.setEnabled(enabled);
-		}
-		btnXacNhanVaInCash.setEnabled(enabled);
-	}
 
-	/** Helper to enable/disable QR panel components */
-	private void setQRCodePanelEnabled(boolean enabled) {
-		for (Component c : pnlQRCode.getComponents()) {
-			if (!(c instanceof JLabel || c instanceof Box)) { // Keep labels and spacers visible
-				c.setEnabled(enabled);
-			}
-		}
-		btnXacNhanVaInQR.setEnabled(enabled);
+		btnXacNhanVaInCash.setEnabled(enabled);
 	}
 
 	public JButton getBtnXacNhanVaInCash() {
 		return btnXacNhanVaInCash;
-	}
-
-	public JButton getBtnXacNhanVaInQR() {
-		return btnXacNhanVaInQR;
 	}
 }
