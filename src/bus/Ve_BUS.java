@@ -5,6 +5,7 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.sql.Connection;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -60,17 +61,26 @@ public class Ve_BUS {
 	}
 
 	/**
+	 * @param conn
 	 * @param dsVe
 	 * @return boolean
 	 */
-	public boolean themCacVe(List<Ve> dsVe) {
+	public boolean themCacVe(Connection conn, List<Ve> dsVe) {
 		for (Ve v : dsVe) {
-			if (!veDAO.createVe(v)) {
+			if (!veDAO.insertVe(conn, v)) {
 				return false;
 			}
 		}
 		return true;
 
+	}
+
+	/**
+	 * @param donDatChoID
+	 * @return
+	 */
+	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID) {
+		return veDAO.getVeByDonDatChoID(donDatChoID);
 	}
 
 }

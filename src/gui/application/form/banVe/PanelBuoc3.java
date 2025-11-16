@@ -37,6 +37,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import gui.tuyChinh.RoundedBorder;
 
 public class PanelBuoc3 extends JPanel {
@@ -63,6 +65,7 @@ public class PanelBuoc3 extends JPanel {
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMinWidth(200);
+		table.getColumnModel().getColumn(1).setMinWidth(110);
 		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
 		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
 		table.removeColumn(table.getColumnModel().getColumn(5));
@@ -115,8 +118,8 @@ public class PanelBuoc3 extends JPanel {
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnConfirm = new JButton("Xác nhận");
 		btnCancel = new JButton("Hủy");
-		btns.add(btnCancel);
 		btns.add(btnConfirm);
+		btns.add(btnCancel);
 		south.add(btns, BorderLayout.EAST);
 
 		add(south, BorderLayout.SOUTH);
@@ -128,6 +131,9 @@ public class PanelBuoc3 extends JPanel {
 		txtTen = new JTextField(18);
 		txtCccd = new JTextField(18);
 		txtPhone = new JTextField(18);
+		txtTen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ và Tên");
+		txtCccd.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Số CCCD/Hộ chiếu");
+		txtPhone.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Số điện thoại");
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -154,9 +160,9 @@ public class PanelBuoc3 extends JPanel {
 		gbc.gridy = 4;
 		formKhachHang.add(txtTen, gbc);
 
-		// ====== row 2: Số di động * ======
+		// ====== row 2: Số điện thoại * ======
 		gbc.gridy = 5;
-		formKhachHang.add(new JLabel("<html>Số di động <font color='red'>*</font></html>"), gbc);
+		formKhachHang.add(new JLabel("<html>Số điện thoại <font color='red'>*</font></html>"), gbc);
 		gbc.gridy = 6;
 		formKhachHang.add(txtPhone, gbc);
 

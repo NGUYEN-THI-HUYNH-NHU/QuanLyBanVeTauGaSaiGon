@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.itextpdf.text.Font;
@@ -40,6 +41,7 @@ public class PanelGioVe extends JPanel {
 	public PanelGioVe() {
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(230, 400));
+		setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		container = new JPanel();
 		container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));

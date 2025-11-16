@@ -5,6 +5,7 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.sql.Connection;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -129,27 +130,28 @@ public class DatCho_BUS {
 		return new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
 	}
 
-	public boolean themDonDatCho(DonDatCho donDatCho) {
-		return ddcDAO.createDonDatCho(donDatCho);
+	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) {
+		return ddcDAO.insertDonDatCho(conn, donDatCho);
 	}
 
 	/**
-	 * @param bookingSession
+	 * @param conn
+	 * @param phieuGiuCho
+	 * @param xacNhan
 	 */
-	public boolean capNhatPhieuGiuCho(BookingSession bookingSession) {
-		if (bookingSession.getPhieuGiuCho() != null) {
-			return pgcDAO.updateTrangThai(bookingSession.getPhieuGiuCho().getPhieuGiuChoID(),
-					TrangThaiPhieuGiuCho.XAC_NHAN.toString());
-		}
-		System.out.println("DatCho_BUS: Phiếu giữ chỗ null");
-		return false;
+	public boolean capNhatPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho,
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+		return pgcDAO.updateTrangThaiPhieuGiuCho(conn, phieuGiuCho.getPhieuGiuChoID(), trangThaiPhieuGiuCho.toString());
 	}
 
 	/**
-	 * @param bookingSession
+	 * @param conn
+	 * @param phieuGiuCho
+	 * @param trangThaiPhieuGiuCho
 	 */
-	public boolean capNhatCacPhieuGiuChoChiTiet(BookingSession bookingSession) {
-		return pgcctDAO.updateTrangThaiByPhieuGiuChoID(bookingSession.getPhieuGiuCho().getPhieuGiuChoID(),
-				TrangThaiPhieuGiuCho.XAC_NHAN.toString());
+	public boolean capNhatCacPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho phieuGiuCho,
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+		return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(conn, phieuGiuCho.getPhieuGiuChoID(),
+				trangThaiPhieuGiuCho.toString());
 	}
 }

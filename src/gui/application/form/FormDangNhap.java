@@ -33,6 +33,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import controller.DangNhap_Ctrl;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
@@ -71,9 +73,11 @@ public class FormDangNhap extends JPanel {
 		lblTitle.setFont(new Font("", Font.BOLD, 24));
 		pnlLogin.add(lblTenDangNhap = new JLabel("Tên đăng nhập"));
 		pnlLogin.add(txtTenDangNhap = new JTextField());
+		txtTenDangNhap.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Tên đăng nhập");
 		txtTenDangNhap.requestFocusInWindow();
 		pnlLogin.add(lblMatKhau = new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
+		txtMatKhau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mật khẩu");
 		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu?", JLabel.RIGHT));
 		lblQuenMK.setForeground(new Color(7, 43, 143));
 		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
@@ -129,8 +133,8 @@ public class FormDangNhap extends JPanel {
 	}
 
 	private void dangNhap() {
-		String tenDangNhap = txtTenDangNhap.getText().trim();
-		String matKhau = new String(txtMatKhau.getText().trim());
+		String tenDangNhap = txtTenDangNhap.getText();
+		String matKhau = txtMatKhau.getText();
 		NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
 		UngDung ungDung = UngDung.getInstance();
 

@@ -197,8 +197,8 @@ public class PhieuGiuChoChiTiet_DAO {
 	 * @param newTrangThai  Trạng thái mới ('XAC_NHAN', 'HET_GIU')
 	 * @return true nếu cập nhật thành công
 	 */
-	public boolean updateTrangThaiByPhieuGiuChoID(String phieuGiuChoID, String newTrangThai) {
-		Connection conn = connectDB.getConnection();
+	public boolean updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(Connection conn, String phieuGiuChoID,
+			String newTrangThai) {
 		String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ? WHERE phieuGiuChoID = ?";
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {

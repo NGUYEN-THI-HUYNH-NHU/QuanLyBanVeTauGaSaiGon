@@ -78,6 +78,14 @@ public class KhachHang {
 		super();
 	}
 
+	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.soGiayTo = soGiayTo;
+	}
+
 	public String getKhachHangID() {
 		return khachHangID;
 	}
