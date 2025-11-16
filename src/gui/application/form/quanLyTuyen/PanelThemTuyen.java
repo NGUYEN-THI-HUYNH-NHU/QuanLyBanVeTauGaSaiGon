@@ -10,6 +10,7 @@ package gui.application.form.quanLyTuyen;
  * @created : 23/10/2025
  */
 
+import com.formdev.flatlaf.FlatClientProperties;
 import controller.ThemTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
@@ -24,9 +25,9 @@ public class PanelThemTuyen extends JPanel {
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JComboBox<String> cmbGaXuatPhat;
-    private JComboBox<String> cmbGaDich;
-    private JComboBox<String> cmbGaTrungGian;
+    private JTextField txtGaXuatPhat;
+    private JTextField txtGaDich;
+    private JTextField txtGaTrungGian;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -73,27 +74,29 @@ public class PanelThemTuyen extends JPanel {
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        cmbGaXuatPhat = new JComboBox<>();
-        cmbGaXuatPhat.setEditable(true);
-        cmbGaDich = new JComboBox<>();
-        cmbGaDich.setEditable(true);
+        txtGaXuatPhat = new JTextField();
+        txtGaDich = new JTextField();
+        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
+        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
         pnlContent.add(new JLabel("Ga Xuất Phát:"), "w 100%");
-        pnlContent.add(cmbGaXuatPhat,"growx");
+        pnlContent.add(txtGaXuatPhat,"growx");
         pnlContent.add(new JLabel("Ga Đích:"));
-        pnlContent.add(cmbGaDich,"growx, wrap 20");
+        pnlContent.add(txtGaDich,"growx, wrap 20");
 
         txtMaTuyen = new JTextField();
+        txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mã Tuyến được tạo tự động!");
         txtDoDaiQuangDuong = new JTextField();
-        txtDoDaiQuangDuong.setEditable(false); // khoảng cách tính tư động
+        txtDoDaiQuangDuong.setEditable(false);
+        txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
         pnlContent.add(new JLabel("Mã Tuyến:"));
         pnlContent.add(txtMaTuyen, "growx");
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        cmbGaTrungGian = new JComboBox<>();
-        cmbGaTrungGian.setEditable(true);
+        txtGaTrungGian = new JTextField();
+        txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
-        pnlContent.add(cmbGaTrungGian, "growx");
+        pnlContent.add(txtGaTrungGian, "growx");
 
         ppGaXuatPhat = new JPopupMenu();
         listGaXuatPhat = new JList<>();
@@ -113,7 +116,7 @@ public class PanelThemTuyen extends JPanel {
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
 
-        btnXacNhanTinhKC = new JButton("Xác Nhận Danh Sách Các Ga Trung Gian");
+        btnXacNhanTinhKC = new JButton("Xác Nhận Danh Sách Các Ga");
         btnXacNhanTinhKC.setBackground(COLOR_ACCENT);
         btnXacNhanTinhKC.setForeground(Color.WHITE);
         pnlContent.add(btnXacNhanTinhKC, "wrap 20");
@@ -165,9 +168,6 @@ public class PanelThemTuyen extends JPanel {
         this.add(pnlAction, BorderLayout.SOUTH);
     }
 
-    public JComboBox<String> getCmbGaXuatPhat() {
-        return cmbGaXuatPhat;
-    }
 
     public NhanVien getNhanVienThucHien() {
         return nhanVienThucHien;
@@ -177,40 +177,16 @@ public class PanelThemTuyen extends JPanel {
         return pnlGaTrungGianDaChon;
     }
 
-    public JComboBox<String> getCmbGaDich() {
-        return cmbGaDich;
+    public JTextField getTxtGaXuatPhat() {
+        return txtGaXuatPhat;
     }
 
-    public JComboBox<String> getCmbGaTrungGian() {
-        return cmbGaTrungGian;
+    public JTextField getTxtGaDich() {
+        return txtGaDich;
     }
 
-    public JButton getBtnLuu() {
-        return btnLuu;
-    }
-
-    public JButton getBtnHuy() {
-        return btnHuy;
-    }
-
-    public JTextField getTxtMaTuyen() {
-        return txtMaTuyen;
-    }
-
-    public JTextField getTxtDoDaiQuangDuong() {
-        return txtDoDaiQuangDuong;
-    }
-
-    public JTextArea getTxtMoTa() {
-        return txtMoTa;
-    }
-
-    public DefaultTableModel getModelGaChiTiet() {
-        return modelGaChiTiet;
-    }
-
-    public JTable getTblGaChiTiet() {
-        return tblGaChiTiet;
+    public JTextField getTxtGaTrungGian() {
+        return txtGaTrungGian;
     }
 
     public JPopupMenu getPpGaXuatPhat() {
@@ -237,6 +213,38 @@ public class PanelThemTuyen extends JPanel {
         return listGaTrungGian;
     }
 
+    public JButton getBtnLuu() {
+        return btnLuu;
+    }
+
+    public JButton getBtnHuy() {
+        return btnHuy;
+    }
+
+    public JButton getBtnXacNhanTinhKC() {
+        return btnXacNhanTinhKC;
+    }
+
+    public JTextField getTxtMaTuyen() {
+        return txtMaTuyen;
+    }
+
+    public JTextField getTxtDoDaiQuangDuong() {
+        return txtDoDaiQuangDuong;
+    }
+
+    public JTextArea getTxtMoTa() {
+        return txtMoTa;
+    }
+
+    public DefaultTableModel getModelGaChiTiet() {
+        return modelGaChiTiet;
+    }
+
+    public JTable getTblGaChiTiet() {
+        return tblGaChiTiet;
+    }
+
     public Color getCOLOR_PRIMARY_BG() {
         return COLOR_PRIMARY_BG;
     }
@@ -256,10 +264,4 @@ public class PanelThemTuyen extends JPanel {
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
     }
-
-    public JButton getBtnXacNhanTinhKC() {
-        return btnXacNhanTinhKC;
-    }
-
-
 }

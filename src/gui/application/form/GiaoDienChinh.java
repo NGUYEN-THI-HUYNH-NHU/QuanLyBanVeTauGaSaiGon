@@ -224,4 +224,15 @@ public class GiaoDienChinh extends JLayeredPane {
 			}
 		}
 	}
+
+	/**
+	 * Lấy combonent (Panel) đang được hiển thị trong bùng nội dung (panelBody).
+	 * @return Component đang hiển thị, hoặc null nếu không có gì.
+	 */
+	public Component getHienThiPanel(){
+		if(panelBody != null && panelBody.getComponentCount() > 0){
+			return panelBody.getComponent(0);
+		}
+		return null;
+	}
 }
