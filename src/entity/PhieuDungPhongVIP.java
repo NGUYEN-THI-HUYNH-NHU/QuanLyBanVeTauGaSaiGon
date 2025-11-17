@@ -31,6 +31,10 @@ public class PhieuDungPhongVIP {
 		this.trangThai = trangThai;
 	}
 
+	public PhieuDungPhongVIP() {
+		super();
+	}
+
 	public TrangThaiPDPVIP getTrangThai() {
 		return trangThai;
 	}
@@ -56,22 +60,24 @@ public class PhieuDungPhongVIP {
 	}
 
 	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
-		if(phieuDungPhongChoVIPID == null || phieuDungPhongChoVIPID.isEmpty()) {
+		if (phieuDungPhongChoVIPID == null || phieuDungPhongChoVIPID.isEmpty()) {
 			throw new IllegalArgumentException("PhieuDungPhongChoVIPID không được để trống!");
 		}
 		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
 	}
 
-
 	public void setDichVuPhongChoVIP(DichVuPhongChoVIP dichVuPhongChoVIP) {
 		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		PhieuDungPhongVIP that = (PhieuDungPhongVIP) o;
 		return Objects.equals(getPhieuDungPhongChoVIPID(), that.getPhieuDungPhongChoVIPID());
 	}

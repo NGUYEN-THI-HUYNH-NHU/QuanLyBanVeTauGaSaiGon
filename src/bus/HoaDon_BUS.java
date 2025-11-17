@@ -18,17 +18,23 @@ import java.util.List;
 
 import dao.HoaDonChiTiet_DAO;
 import dao.HoaDon_DAO;
-import entity.GiaoDichThanhToan;
+import dao.PhieuDungPhongVIP_DAO;
+import entity.DonDatCho;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
+import entity.KhachHang;
+import entity.NhanVien;
+import entity.PhieuDungPhongVIP;
 import entity.type.LoaiDichVu;
 import entity.type.LoaiDoiTuong;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import gui.application.form.hoanVe.VeHoanRow;
 
 public class HoaDon_BUS {
 	private final HoaDon_DAO hoaDonDAO = new HoaDon_DAO();
 	private final HoaDonChiTiet_DAO hoaDonChiTietDAO = new HoaDonChiTiet_DAO();
+	private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
 
 	public HoaDon taoHoaDon(BookingSession bookingSession) {
 		String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID();
@@ -37,6 +43,22 @@ public class HoaDon_BUS {
 				bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
 				bookingSession.getGiaoDichThanhToan().getTienNhan(),
 				bookingSession.getGiaoDichThanhToan().getTienHoan(), true, true);
+
+		return hoaDon;
+	}
+
+	public HoaDon taoHoaDonHoanVe(DonDatCho donDatCho, KhachHang khachHang, NhanVien nhanVien, double tongTienHoan) {
+		HoaDon hoaDon = new HoaDon();
+		hoaDon.setHoaDonID("HDHV-" + donDatCho.getDonDatChoID().substring(4));
+		hoaDon.setKhachHang(khachHang);
+		hoaDon.setNhanVien(nhanVien);
+		hoaDon.setThoiDiemTao(LocalDateTime.now());
+		hoaDon.setTongTien(-tongTienHoan);
+		hoaDon.setMaGD(null);
+		hoaDon.setTienNhan(0);
+		hoaDon.setTienHoan(tongTienHoan);
+		hoaDon.setThanhToanTienMat(true);
+		hoaDon.setTrangThai(true);
 
 		return hoaDon;
 	}
@@ -54,7 +76,7 @@ public class HoaDon_BUS {
 	 * @param bookingSession
 	 * @return
 	 */
-	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(BookingSession bookingSession, GiaoDichThanhToan giaoDichThanhToan) {
+	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(BookingSession bookingSession) {
 		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
 		List<VeSession> dsVe = bookingSession.getAllSelectedTickets();
 		int stt = 0;
@@ -81,6 +103,30 @@ public class HoaDon_BUS {
 
 			}
 		}
+		return dsHoaDonChiTiet;
+	}
+
+	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(Connection conn, HoaDon hoaDon, List<VeHoanRow> listVeHoanRow) {
+		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
+		int stt = 0;
+
+		for (VeHoanRow r : listVeHoanRow) {
+			String hdctVeID = hoaDon.getHoaDonID() + "-" + (++stt);
+			HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, r.getVe(),
+					"Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVu.VE_HOAN, "Vé", 1, -r.getVe().getGia(),
+					-r.getVe().getGia());
+			dsHoaDonChiTiet.add(hdctVe);
+
+			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, r.getVe().getVeID());
+			if (phieu != null) {
+				String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
+						"Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVu.PHIEU_HOAN, "Phiếu", 1, -200000,
+						-200000);
+				dsHoaDonChiTiet.add(hdctPhieu);
+			}
+		}
+
 		return dsHoaDonChiTiet;
 	}
 

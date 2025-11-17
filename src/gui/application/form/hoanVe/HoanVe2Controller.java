@@ -16,26 +16,20 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
-import bus.DatCho_BUS;
-import bus.HoaDon_BUS;
-import bus.PhieuDungPhongVIP_BUS;
-import bus.ThanhToan_BUS;
-import bus.Ve_BUS;
+import bus.HoanVe_BUS;
+import entity.DonDatCho;
 import entity.KhachHang;
-import gui.application.PdfTicketExporter;
 
 public class HoanVe2Controller {
 	private final PanelHoanVe2 view;
 	private final PanelHoanVeBuoc4 p4;
 	private final PanelHoanVeBuoc5 p5;
 
-	private final DatCho_BUS datChoBUS = new DatCho_BUS();
-	private final Ve_BUS veBUS = new Ve_BUS();
-	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
-	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
-	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+	private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
 
+	private DonDatCho donDatCho;
 	private KhachHang khachHang;
 	private List<VeHoanRow> listVeHoanRow;
 
@@ -61,7 +55,8 @@ public class HoanVe2Controller {
 	 * liệu từ session, tính toán và đổ vào Buoc4, Buoc5.
 	 * 
 	 */
-	public void loadDataForConfirmation(KhachHang khachHang, List<VeHoanRow> listVeHoanRow) {
+	public void loadDataForConfirmation(DonDatCho donDatCho, KhachHang khachHang, List<VeHoanRow> listVeHoanRow) {
+		this.donDatCho = donDatCho;
 		this.khachHang = khachHang;
 		this.listVeHoanRow = listVeHoanRow;
 
@@ -89,41 +84,55 @@ public class HoanVe2Controller {
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
-		// Lắng nghe nút thanh toán từ PanelBuoc5
 		JButton payButtonCash = p5.getBtnXacNhanVaInCash();
 
 		ActionListener paymentListener = e -> {
-			boolean isThanhToanTienMat = true;
-
-			// TODO: thuc hien luu thay doi tren DB
-//			--set lai trang thai ve thanh 'DA_HOAN'
-//			select * from Ve
-//			--tao hoa don co tienNhan = 0 va tienHoan = @tienHoan
-//			select * from HoaDon
-//			--tao cac hoa don chi tiet
-//			select * from HoaDonChiTiet
-//			--tao giao dich hoan doi 
-//			select * from GiaoDichHoanDoi
-
-			// Giả sử lưu thành công
-			boolean saveSuccess = true;
-
-			if (saveSuccess) {
-				// a. Vô hiệu hóa PanelBuoc5
-				p5.setComponentsEnabled(false);
-
-				// Xuất file pdf
-				PdfTicketExporter exporter = new PdfTicketExporter();
-//				exporter.exportTicketsToPdf(bookingSession);
-
-				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
-				if (onPaymentSuccessListener != null) {
-					onPaymentSuccessListener.run();
-				}
-			} else {
-				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",
-						JOptionPane.ERROR_MESSAGE);
+			if (this.khachHang == null || this.listVeHoanRow == null || this.listVeHoanRow.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Dữ liệu hoàn vé không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				return;
 			}
+
+			double tongTienHoan = p5.getTongTienHoan();
+
+			// Tạo SwingWorker để xử lý DB (tránh đơ UI)
+			new SwingWorker<Boolean, Void>() {
+				@Override
+				protected Boolean doInBackground() throws Exception {
+					try {
+						return hoanVeBUS.thucHienHoanVe(donDatCho, khachHang, listVeHoanRow, tongTienHoan);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						return false;
+					}
+				}
+
+				@Override
+				protected void done() {
+					try {
+						boolean saveSuccess = get();
+						if (saveSuccess) {
+							// a. Vô hiệu hóa PanelBuoc5
+							p5.setComponentsEnabled(false);
+
+							// b. Xuất PDF (Nếu cần)
+							// PdfTicketExporter exporter = new PdfTicketExporter();
+							// exporter.exportReturnReceipt(currentKhachHang, currentListVeHoan);
+
+							// c. Báo hoàn tất
+							if (onPaymentSuccessListener != null) {
+								onPaymentSuccessListener.run();
+							}
+							JOptionPane.showMessageDialog(view, "Hoàn vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin hoàn vé vào CSDL!", "Lỗi",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}.execute();
 		};
 
 		if (payButtonCash != null) {

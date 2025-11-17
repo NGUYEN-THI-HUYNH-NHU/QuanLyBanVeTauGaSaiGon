@@ -23,6 +23,7 @@ import javax.swing.UIManager;
 
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
+import entity.DonDatCho;
 import entity.KhachHang;
 
 public class PanelHoanVe extends JPanel {
@@ -64,9 +65,10 @@ public class PanelHoanVe extends JPanel {
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
 		hoanVe1Controller.addPanel1CompleteListener(() -> {
 			// 1. Chuẩn bị dữ liệu cho PanelHoanVe2
+			DonDatCho donDatCho = hoanVe1Controller.getDonDatCho();
 			KhachHang khachHang = hoanVe1Controller.getNguoiMua();
 			List<VeHoanRow> listVeHoanRow = hoanVe1Controller.getListRowHoan();
-			hoanVe2Controller.loadDataForConfirmation(khachHang, listVeHoanRow);
+			hoanVe2Controller.loadDataForConfirmation(donDatCho, khachHang, listVeHoanRow);
 			// 2. Yêu cầu PanelHoanVe chuyển card
 			showPanel("step2");
 		});

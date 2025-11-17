@@ -111,7 +111,7 @@ public class PassengerCellPanel extends JPanel {
 				// Cập nhật View (các trường) từ Model vừa sửa
 				setData(currentRowData);
 			} else {
-				// Không tìm thấy, đảm bảo VeSession không giữ khách cũ
+				// Không tìm thấy, set hành khách là null để controller thêm hành khách mới
 				currentRowData.getVeSession().setHanhKhach(null);
 			}
 		}

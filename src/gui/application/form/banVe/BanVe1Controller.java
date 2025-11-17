@@ -27,7 +27,6 @@ import javax.swing.event.ChangeListener;
 import bus.DatCho_BUS;
 import entity.Chuyen;
 import entity.PhieuGiuCho;
-import entity.PhieuGiuChoChiTiet;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
@@ -281,65 +280,40 @@ public class BanVe1Controller {
 	 * Hàm này thực hiện gọi BUS trong luồng nền
 	 */
 	private void goiBusGiuCho(List<VeSession> veTrongGio) {
-
-		new SwingWorker<Boolean, Void>() {
+		new SwingWorker<PhieuGiuCho, Void>() {
 			private String errorMessage = "Lỗi không xác định";
 
 			@Override
-			protected Boolean doInBackground() throws Exception {
+			protected PhieuGiuCho doInBackground() throws Exception {
 				try {
-					PhieuGiuCho pgc = datChoBUS.taoPhieuGiuCho();
-					if (pgc != null) {
-						datChoBUS.themPhieuGiuCho(pgc);
-					} else {
-						JOptionPane.showMessageDialog(view, "BanVe1Controller: Không thể tạo phiếu giữ chỗ");
-						return false;
-					}
-
-					bookingSession.setPhieuGiuCho(pgc);
-
-					for (int i = 0; i < veTrongGio.size(); i++) {
-						VeSession v = veTrongGio.get(i);
-
-						if (v.getPhieuGiuChoChiTiet() == null) {
-							PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v, i + 1);
-
-							if (pgcct == null) {
-								errorMessage = "Không thể tạo PGCCT cho vé " + v.getSoGhe();
-								return false;
-							}
-							datChoBUS.themPhieuGiuChoChiTiet(pgcct);
-							v.setPhieuGiuChoChiTiet(pgcct);
-						}
-					}
-
-					return true;
+					return datChoBUS.thucHienGiuCho(veTrongGio);
 				} catch (Exception e) {
+					// Lấy lỗi nghiệp vụ (ví dụ: "Ghế bị chiếm)
 					errorMessage = e.getMessage();
-					return false;
+					return null;
 				}
 			}
 
 			@Override
 			protected void done() {
 				try {
-					Boolean success = get();
-					if (success) {
-						// 5. THÀNH CÔNG: Hiển thị PanelBuoc3
+					PhieuGiuCho pgc = get();
+					if (pgc != null) {
+						bookingSession.setPhieuGiuCho(pgc);
+
 						view.setBuoc3Enabled(true);
 						p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
 
 					} else {
-						// 6. THẤT BẠI: Hiển thị lỗi
 						JOptionPane.showMessageDialog(view, "Không thể giữ chỗ: \n" + errorMessage, "Lỗi giữ chỗ",
 								JOptionPane.ERROR_MESSAGE);
-
 						// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
 					}
 				} catch (Exception e) {
-					// Lỗi của chính SwingWorker
+					// Lỗi của chính SwingWorker hoặc lỗi logic
 					JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + e.getMessage(), "Lỗi",
 							JOptionPane.ERROR_MESSAGE);
+					// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
 				}
 			}
 		}.execute();

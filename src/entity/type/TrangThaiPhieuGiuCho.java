@@ -13,7 +13,7 @@ package entity.type;
  */
 
 public enum TrangThaiPhieuGiuCho {
-	DANG_GIU("Đang giữ chỗ"), HET_HAN("Hết hạn giữ chỗ"), XAC_NHAN("Đã xác nhận");
+	DANG_GIU("Đang giữ chỗ"), HET_HAN("Hết hạn giữ chỗ"), XAC_NHAN("Đã xác nhận"), HET_GIU("Đã hủy do hoàn/đổi vé");
 
 	private final String description;
 

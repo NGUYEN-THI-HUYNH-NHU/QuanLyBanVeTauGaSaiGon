@@ -15,6 +15,7 @@ import entity.PhieuDungPhongVIP;
 import entity.type.TrangThaiPDPVIP;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import gui.application.form.hoanVe.VeHoanRow;
 
 /*
  * @description
@@ -55,6 +56,22 @@ public class PhieuDungPhongVIP_BUS {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @param conn
+	 * @param listVeHoanRow
+	 * @param daHoan
+	 */
+	public void capNhatTrangThaiPhieuDungPhongChoVIP(Connection conn, List<VeHoanRow> listVeHoanRow,
+			TrangThaiPDPVIP trangThai) {
+		for (VeHoanRow r : listVeHoanRow) {
+			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, r.getVe().getVeID());
+			if (phieu != null) {
+				phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(conn, phieu.getPhieuDungPhongChoVIPID(),
+						trangThai);
+			}
+		}
 	}
 
 }

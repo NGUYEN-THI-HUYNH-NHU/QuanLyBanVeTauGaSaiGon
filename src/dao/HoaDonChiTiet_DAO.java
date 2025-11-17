@@ -68,16 +68,8 @@ public class HoaDonChiTiet_DAO {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
 			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
-			if (hoaDonChiTiet.getVe() != null) {
-				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
-				ps.setNull(4, 0);
-			} else if (hoaDonChiTiet.getPhieuDungPhongVIP() != null) {
-				ps.setNull(3, 0);
-				ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
-			} else {
-				ps.setNull(3, 0);
-				ps.setNull(4, 0);
-			}
+			ps.setString(3, hoaDonChiTiet.getVe().getVeID());
+			ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
 			ps.setString(5, hoaDonChiTiet.getTenDichVu());
 			ps.setString(6, hoaDonChiTiet.getLoaiDichVu().toString());
 			ps.setString(7, hoaDonChiTiet.getDonViTinh());
@@ -86,7 +78,9 @@ public class HoaDonChiTiet_DAO {
 			ps.setDouble(10, hoaDonChiTiet.getThanhTien());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
+		} catch (
+
+		SQLException e) {
 			e.printStackTrace();
 			return false;
 		}

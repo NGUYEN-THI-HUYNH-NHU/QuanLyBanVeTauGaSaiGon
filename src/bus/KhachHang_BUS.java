@@ -103,4 +103,10 @@ public class KhachHang_BUS {
 	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) {
 		return khachHang_dao.saveOrUpdate(conn, khachHang);
 	}
+
+	// Cập nhật loại khách hàng
+	public boolean capNhatLoaiKhachHang(KhachHang kh) {
+		return khachHang_dao.capNhatLoaiKhachHang(kh);
+	}
+
 }

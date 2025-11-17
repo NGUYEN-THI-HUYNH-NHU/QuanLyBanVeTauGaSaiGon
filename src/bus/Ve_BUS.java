@@ -25,6 +25,7 @@ import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import gui.application.form.hoanVe.VeHoanRow;
 
 public class Ve_BUS {
 	private final Ve_DAO veDAO = new Ve_DAO();
@@ -83,4 +84,22 @@ public class Ve_BUS {
 		return veDAO.getVeByDonDatChoID(donDatChoID);
 	}
 
+	/**
+	 * @param donDatChoID
+	 * @param trangThai
+	 * @return
+	 */
+	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
+		return veDAO.getVeByDonDatChoID(donDatChoID, trangThai);
+	}
+
+	/**
+	 * @param conn
+	 * @param listVeHoanRow
+	 */
+	public void capNhatTrangThaiVe(Connection conn, List<VeHoanRow> listVeHoanRow, TrangThaiVe trangThai) {
+		for (VeHoanRow r : listVeHoanRow) {
+			veDAO.updateTrangThaiVe(conn, r.getVe().getVeID(), trangThai);
+		}
+	}
 }

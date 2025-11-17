@@ -41,6 +41,10 @@ public class HoaDon {
 		this.trangThai = trangThai;
 	}
 
+	public HoaDon() {
+		super();
+	}
+
 	public String getHoaDonID() {
 		return hoaDonID;
 	}
