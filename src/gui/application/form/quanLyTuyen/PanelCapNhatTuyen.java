@@ -11,7 +11,7 @@ package gui.application.form.quanLyTuyen;
  */
 
 import com.formdev.flatlaf.FlatClientProperties;
-import controller.ThemTuyen_CTRL;
+import controller.CapNhatTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
 
@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 
-public class PanelThemTuyen extends JPanel {
+public class PanelCapNhatTuyen extends JPanel {
     private final NhanVien nhanVienThucHien;
 
     private JPanel pnlGaTrungGianDaChon;
@@ -54,12 +54,12 @@ public class PanelThemTuyen extends JPanel {
     private final Color COLOR_DANGER = new Color(220, 80, 80);
     private final Color COLOR_TABLE_BG = new Color(240, 245, 250);
 
-    public PanelThemTuyen(NhanVien nhanVien){
+    public PanelCapNhatTuyen(NhanVien nhanVien){
         this.nhanVienThucHien = nhanVien;
         this.setBackground(COLOR_PRIMARY_BG);
         setLayout(new BorderLayout());
         initComponents();
-        new ThemTuyen_CTRL(this);
+        new CapNhatTuyen_CTRL(this);
     }
 
     public void initComponents(){
@@ -69,15 +69,15 @@ public class PanelThemTuyen extends JPanel {
         pnlContent.setBorder(BorderFactory.createLineBorder(COLOR_BORDER, 1));
 
         // --- 1. Tiêu đề --- //
-        JLabel lblTieuDe = new JLabel("THÊM TUYẾN MỚI");
+        JLabel lblTieuDe = new JLabel("CẬP NHẬT THÔNG TIN TUYẾN");
         lblTieuDe.setFont(new Font("Times New Roman", Font.BOLD, 24));
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
         txtGaXuatPhat = new JTextField();
         txtGaDich = new JTextField();
-        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
-        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
+        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn cập nhật");
+        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn cập nhật");
         pnlContent.add(new JLabel("Ga Xuất Phát:"), "w 100%");
         pnlContent.add(txtGaXuatPhat,"growx");
         pnlContent.add(new JLabel("Ga Đích:"));
@@ -85,7 +85,6 @@ public class PanelThemTuyen extends JPanel {
 
         txtMaTuyen = new JTextField();
         txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mã Tuyến được tạo tự động!");
-        txtMaTuyen.setEditable(false);
         txtDoDaiQuangDuong = new JTextField();
         txtDoDaiQuangDuong.setEditable(false);
         txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
@@ -96,7 +95,7 @@ public class PanelThemTuyen extends JPanel {
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
         txtGaTrungGian = new JTextField();
-        txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
+        txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn cập nhật");
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
         pnlContent.add(txtGaTrungGian, "growx");
 
@@ -158,7 +157,7 @@ public class PanelThemTuyen extends JPanel {
 
         JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlAction.setOpaque(false);
-        btnLuu = new JButton("Lưu Tuyến");
+        btnLuu = new JButton("Cập Nhật Tuyến");
         btnHuy = new JButton("Hủy Bỏ");
         btnLuu.setBackground(COLOR_ACCENT);
         btnLuu.setForeground(Color.WHITE);

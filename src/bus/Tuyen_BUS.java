@@ -192,6 +192,16 @@ public class Tuyen_BUS {
     }
 
     /**
+     * Lấy danh sách TuyenChiTiet của một tuyến.
+     * Dùng để tải dữ liệu lên form cập nhật
+     * @param tuyenID Mã tuyến cần lấy chi tiết.
+     * @return List<TuyenChiTiet> danh sách chi tiết tuyến.
+     */
+    public List<TuyenChiTiet> getDanhSachTuyenChiTiet(String tuyenID){
+        return tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
+    }
+
+    /**
      * tạo mã tuyến
      */
     public String taoMaTuyenCoSo(String gaXuatPhat, String gaDich){
@@ -240,6 +250,31 @@ public class Tuyen_BUS {
         }catch (Exception e){
             e.printStackTrace();
         } return themTuyenThanhCong;
+    }
+
+    public boolean capNhatTuyen(Tuyen tuyenCapNhat, List<TuyenChiTiet> dsChiTietMoi){
+        if(tuyenCapNhat == null || dsChiTietMoi == null || dsChiTietMoi.size() < 2){
+            return false;
+        }
+        String tuyenID = tuyenCapNhat.getTuyenID();
+        try{
+            boolean updateTuyen = tuyen_dao.capNhatTuyen(tuyenCapNhat);
+            if(!updateTuyen){
+                return false;
+            }
+            boolean xoaChiTietCu = tuyenChiTietDao.xoaChiTietTheoTuyenID(tuyenID);
+            if(!xoaChiTietCu){
+                return false;
+            }
+            boolean themChiTietMoi = tuyenChiTietDao.themDanhSachChiTiet(dsChiTietMoi);
+            if(!themChiTietMoi){
+                return false;
+            }
+            return true;
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /**
