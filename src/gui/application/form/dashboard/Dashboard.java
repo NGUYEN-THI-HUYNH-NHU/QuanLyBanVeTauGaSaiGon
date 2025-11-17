@@ -7,6 +7,8 @@ import dao.Dashboard_DAO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter; // Thêm import
+import java.awt.event.MouseEvent; // Thêm import
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Arc2D;
@@ -25,7 +27,8 @@ import java.util.Set;
 
 /**
  * Giao diện Dashboard quản lý bán vé tàu hỏa.
- * [CẬP NHẬT] - Đã xóa icon 'i' khỏi các thẻ KPI.
+ * [CẬP NHẬT] - Thêm MouseListener cho KpiCard Doanh Thu.
+ * - Thêm biến lưu bộ lọc ngày.
  */
 public class Dashboard extends JPanel {
 
@@ -41,7 +44,7 @@ public class Dashboard extends JPanel {
             new Color(168, 85, 247), new Color(217, 70, 239)
     };
     private final DecimalFormat formatter = new DecimalFormat("#,##0");
-    private final DecimalFormat percentFormatter = new DecimalFormat("#,##0.0'%'"); // Format %
+    private final DecimalFormat percentFormatter = new DecimalFormat("#,##0.0'%'");
 
     // --- (Khai báo DAO và Components) ---
     private Dashboard_DAO dashboardDAO;
@@ -52,6 +55,10 @@ public class Dashboard extends JPanel {
     private StackedBarChartPanel stackedBarChart;
     private TopPromotionChartPanel topPromotionChart;
     private JButton btnToday, btnWeek, btnMonth, btnYear, btnAll;
+
+    // [THÊM MỚI] Biến lưu trữ bộ lọc ngày hiện tại
+    private LocalDate currentStartDate = null;
+    private LocalDate currentEndDate = null;
 
 
     public Dashboard() {
@@ -130,7 +137,7 @@ public class Dashboard extends JPanel {
 
     /**
      * B. Tạo Lưới Nội dung Chính (KPIs và Biểu đồ)
-     * (Không đổi)
+     * [THAY ĐỔI] Thêm MouseListener cho kpiRevenue
      */
     private JPanel createMainGrid() {
         JPanel mainGrid = new JPanel(new GridBagLayout());
@@ -141,11 +148,22 @@ public class Dashboard extends JPanel {
         // --- HÀNG 1: 4 Thẻ KPI ---
         gbc.gridy = 0;
         gbc.weightx = 1.0;
-        gbc.weighty = 0.0; // Không co giãn chiều cao
+        gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         kpiRevenue = new KpiCard("TỔNG DOANH THU", "...", "+0%", CHART_COLORS[1]);
+
+        // [THÊM MỚI] Thêm sự kiện click
+        kpiRevenue.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Đổi con trỏ khi di chuột
+        kpiRevenue.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openDoanhThuChiTietWindow(); // Gọi hàm mở cửa sổ chi tiết
+            }
+        });
+
         gbc.gridx = 0; mainGrid.add(kpiRevenue, gbc);
+
         kpiTicketsSold = new KpiCard("SỐ VÉ ĐÃ BÁN", "...", "+0%", CHART_COLORS[0]);
         gbc.gridx = 1; mainGrid.add(kpiTicketsSold, gbc);
         kpiOccupancy = new KpiCard("TỶ LỆ LẤP ĐẦY", "...", "0/0", CHART_COLORS[2]);
@@ -155,7 +173,7 @@ public class Dashboard extends JPanel {
 
         // --- HÀNG 2: Layout theo yêu cầu ---
         gbc.gridy = 1;
-        gbc.weighty = 0.5; // Co giãn 50%
+        gbc.weighty = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
 
         revenueChart = new RevenueOverTimeChartPanel(new LinkedHashMap<>());
@@ -167,7 +185,7 @@ public class Dashboard extends JPanel {
 
         // --- HÀNG 3: Layout theo yêu cầu ---
         gbc.gridy = 2;
-        gbc.weighty = 0.5; // Co giãn 50%
+        gbc.weighty = 0.5;
         gbc.fill = GridBagConstraints.BOTH;
 
         stackedBarChart = new StackedBarChartPanel(new LinkedHashMap<>());
@@ -180,9 +198,13 @@ public class Dashboard extends JPanel {
 
     /**
      * C. Tải tất cả dữ liệu từ DAO và cập nhật UI.
-     * (Không đổi)
+     * [THAY ĐỔI] Cập nhật biến currentStartDate/endDate
      */
     private void loadDashboardData(LocalDate startDate, LocalDate endDate) {
+
+        // [THÊM MỚI] Lưu lại bộ lọc hiện tại
+        this.currentStartDate = startDate;
+        this.currentEndDate = endDate;
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
@@ -205,23 +227,16 @@ public class Dashboard extends JPanel {
      * (Không đổi)
      */
     private void updateKpiCards(LocalDate startDate, LocalDate endDate) {
-        // KPI 1: Doanh thu
         double revenue = dashboardDAO.getKpiTotalRevenue(startDate, endDate);
         kpiRevenue.setData(formatter.format(revenue) + " VND", "+0%");
-
-        // KPI 2: Số vé bán
         int ticketsSold = dashboardDAO.getKpiTicketsSold(startDate, endDate);
         kpiTicketsSold.setData(formatter.format(ticketsSold), "+0%");
-
-        // KPI 3: Tỷ lệ lấp đầy
         int totalSeats = dashboardDAO.getTotalAvailableSeats(startDate, endDate);
         double occupancyRate = (totalSeats > 0) ? ((double)ticketsSold / totalSeats) * 100.0 : 0.0;
         kpiOccupancy.setData(
                 percentFormatter.format(occupancyRate),
                 String.format("%s/%s vé", formatter.format(ticketsSold), formatter.format(totalSeats))
         );
-
-        // KPI 4: Tỷ lệ đổi trả
         int totalRefunds = dashboardDAO.getTotalRefundsAndExchanges(startDate, endDate);
         double refundRate = (ticketsSold > 0) ? ((double)totalRefunds / ticketsSold) * 100.0 : 0.0;
         kpiRefundRate.setData(
@@ -232,14 +247,17 @@ public class Dashboard extends JPanel {
 
     /**
      * Lớp nội bộ để xử lý sự kiện nhấn nút lọc
-     * (Không đổi)
+     * [THAY ĐỔI] Cập nhật biến currentStartDate/endDate
      */
     private class FilterActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             LocalDate now = LocalDate.now();
-            LocalDate startDate = null, endDate = null;
+
+            LocalDate startDate = null;
+            LocalDate endDate = null;
+
             if (source == btnToday) {
                 startDate = now; endDate = now;
             } else if (source == btnWeek) {
@@ -249,19 +267,42 @@ public class Dashboard extends JPanel {
             } else if (source == btnYear) {
                 startDate = now.withDayOfYear(1); endDate = now.with(TemporalAdjusters.lastDayOfYear());
             } else if (source == btnAll) {
-                // startDate và endDate là null
+                // Để startDate và endDate là null
             }
+
+            // Tải dữ liệu (hàm này cũng sẽ tự động lưu bộ lọc)
             loadDashboardData(startDate, endDate);
         }
+    }
+
+    /**
+     * [HÀM MỚI] Mở cửa sổ chi tiết Doanh Thu
+     */
+    private void openDoanhThuChiTietWindow() {
+        System.out.println("Mở chi tiết doanh thu với bộ lọc: " + currentStartDate + " đến " + currentEndDate);
+
+        // 1. Tạo Form chi tiết và truyền bộ lọc ngày
+        Form_ChiTiet_DoanhThu detailForm = new Form_ChiTiet_DoanhThu(currentStartDate, currentEndDate);
+
+        // 2. Tạo một JDialog (cửa sổ popup)
+        // (Lấy cửa sổ cha (JFrame) từ panel này)
+        Window parentWindow = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(parentWindow, "Báo Cáo Chi Tiết Doanh Thu", Dialog.ModalityType.MODELESS); // Modeless để không khóa dashboard
+
+        // 3. Đặt nội dung cho JDialog
+        dialog.setContentPane(detailForm);
+        dialog.setSize(900, 700); // Kích thước cửa sổ chi tiết
+        dialog.setLocationRelativeTo(parentWindow); // Hiển thị ở giữa màn hình cha
+        dialog.setVisible(true);
     }
 
 
     // =========================================================================
     // CÁC LỚP NỘI BỘ (PANEL VÀ CHART)
-    // [THAY ĐỔI] Xóa 6 dòng vẽ icon trong KpiCard.paintComponent
+    // (Toàn bộ code từ KpiCard đến StackedBarChartPanel giữ nguyên)
     // =========================================================================
 
-    // Lớp BasePanel (Không đổi)
+    // Lớp BasePanel
     static class BasePanel extends JPanel {
         protected final DecimalFormat formatter = new DecimalFormat("#,##0");
         public BasePanel() {
@@ -291,7 +332,7 @@ public class Dashboard extends JPanel {
         }
     }
 
-    // Lớp KpiCard (Đã xóa Icon)
+    // Lớp KpiCard (Đã xóa Icon, đã thu nhỏ)
     static class KpiCard extends BasePanel {
         private String title, value, subtext;
         private Color accentColor;
@@ -312,17 +353,8 @@ public class Dashboard extends JPanel {
             g2d.setFont(new Font("Segoe UI", Font.BOLD, 14)); g2d.setColor(TEXT_MUTED); g2d.drawString(title, 25, 35);
             g2d.setFont(new Font("Segoe UI", Font.BOLD, 28)); g2d.setColor(TEXT_COLOR); g2d.drawString(value, 25, 70);
             g2d.setFont(new Font("Segoe UI", Font.PLAIN, 12)); g2d.setColor(accentColor); g2d.drawString(subtext, 25, 95);
-
-            // [ĐÃ XÓA THEO YÊU CẦU]
-            // g2d.setColor(accentColor);
-            // g2d.fillOval(getWidth() - 60, 30, 30, 30);
-            // g2d.setColor(PANEL_COLOR);
-            // g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
-            // g2d.drawString("i", getWidth() - 50, 52);
         }
     }
-
-    // ... (Các lớp biểu đồ còn lại: RevenueOverTimeChartPanel, Top5RevenueChartPanel, CustomerTypeChartPanel, StackedBarChartPanel, TopPromotionChartPanel giữ nguyên) ...
 
     // Lớp RevenueOverTimeChartPanel
     static class RevenueOverTimeChartPanel extends BasePanel {
