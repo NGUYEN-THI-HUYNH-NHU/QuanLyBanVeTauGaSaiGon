@@ -26,12 +26,14 @@ import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class PanelHoanVeBuoc5 extends JPanel {
 	private JRadioButton radTienMat;
@@ -92,10 +94,10 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		pnl.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.anchor = GridBagConstraints.CENTER;
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.WEST;
 		pnl.add(new JLabel("Tổng tiền vé:"), gbc);
 		gbc.gridx = 1;
 		gbc.weightx = 1.0;
@@ -116,20 +118,26 @@ public class PanelHoanVeBuoc5 extends JPanel {
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
-		gbc.anchor = GridBagConstraints.WEST;
-		pnl.add(new JLabel("Tổng tiền hoàn:"), gbc);
-		gbc.gridx = 1;
-		gbc.anchor = GridBagConstraints.EAST;
-		lblTongTienHoan = new JLabel("0 VND");
-		lblTongTienHoan.setForeground(Color.GREEN);
-		pnl.add(lblTongTienHoan, gbc);
+		gbc.weighty = 1.0;
+		pnl.add(Box.createVerticalGlue(), gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weighty = 1.0;
+		pnl.add(Box.createVerticalGlue(), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
 		gbc.anchor = GridBagConstraints.WEST;
-		JLabel totalLabel = new JLabel("Tổng tiền hoàn:");
-		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
-		pnl.add(totalLabel, gbc);
+		JLabel lblTongTienHoanChu;
+		pnl.add(lblTongTienHoanChu = new JLabel("Tổng tiền hoàn:"), gbc);
+		lblTongTienHoanChu.setFont(getFont().deriveFont(Font.BOLD, 14f));
+		gbc.gridx = 1;
+		gbc.anchor = GridBagConstraints.EAST;
+		lblTongTienHoan = new JLabel("0 VND");
+		lblTongTienHoan.setForeground(Color.GREEN);
+		lblTongTienHoan.setFont(lblTongTienHoan.getFont().deriveFont(Font.BOLD, 14f));
+		pnl.add(lblTongTienHoan, gbc);
 
 		gbc.gridy = 4;
 		gbc.weighty = 1.0;
@@ -141,36 +149,40 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	private JPanel createTienHoanPanel() {
 		pnlTienHoan = new JPanel(new GridBagLayout());
 		pnlTienHoan.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
+
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.CENTER;
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		pnlTienHoan.add(new JLabel("Tiền hoàn:"), gbc);
+		gbc.weighty = 1.0;
+		pnlTienHoan.add(Box.createVerticalGlue(), gbc);
 
-		gbc.gridx = 0;
+		// --- Tiêu đề ---
 		gbc.gridy = 1;
-		JLabel lblTienHoanAmount = new JLabel(tongTienHoan + "");
+		gbc.weighty = 0;
+		pnlTienHoan.add(new JLabel("Tiền hoàn:", SwingConstants.CENTER), gbc);
+
+		// --- Số tiền ---
+		gbc.gridy = 2;
+		JLabel lblTienHoanAmount = new JLabel(tongTienHoan + "", SwingConstants.CENTER);
 		lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 18f));
 		lblTienHoanAmount.setForeground(Color.GREEN);
 		pnlTienHoan.add(lblTienHoanAmount, gbc);
 
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-		gbc.insets = new Insets(15, 5, 5, 5);
+		// --- Nút ---
+		gbc.gridy = 3;
 		btnXacNhanVaInCash = new JButton("Xác nhận hoàn vé");
 		btnXacNhanVaInCash.setFont(btnXacNhanVaInCash.getFont().deriveFont(Font.BOLD, 14f));
 		btnXacNhanVaInCash.setBackground(new Color(0, 153, 51));
 		btnXacNhanVaInCash.setForeground(Color.WHITE);
 		pnlTienHoan.add(btnXacNhanVaInCash, gbc);
 
-		gbc.gridy = 3;
+		gbc.gridy = 4;
 		gbc.weighty = 1.0;
-		pnlTienHoan.add(new JLabel(), gbc);
+		pnlTienHoan.add(Box.createVerticalGlue(), gbc);
 
 		return pnlTienHoan;
 	}

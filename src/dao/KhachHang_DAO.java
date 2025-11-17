@@ -65,6 +65,21 @@ public class KhachHang_DAO {
 		}
 	}
 
+	// Cập nhật loại khách hàng
+	public boolean capNhatLoaiKhachHang(KhachHang khachHang) {
+		String sql = " UPDATE KhachHang SET loaiKhachHangID = ? WHERE khachHangID = ?";
+		try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, khachHang.getLoaiKhachHang().toString());
+			pstmt.setString(2, khachHang.getKhachHangID());
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 	// Tìm khách hàng theo sdt
 	public KhachHang timKhachHangTheoSDT(String sdt) {
 		String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
@@ -170,5 +185,4 @@ public class KhachHang_DAO {
 			return false;
 		}
 	}
-
 }

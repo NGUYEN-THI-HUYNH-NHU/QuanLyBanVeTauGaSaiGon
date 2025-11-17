@@ -27,7 +27,7 @@ import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
-public class ThanhToan_BUS {
+public class BanVe_BUS {
 	private final GiaoDichThanhToan_DAO gdttDAO = new GiaoDichThanhToan_DAO();
 
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
@@ -69,12 +69,12 @@ public class ThanhToan_BUS {
 			datChoBUS.themDonDatCho(conn, donDatCho);
 			session.setDonDatCho(donDatCho);
 
-			// 4. Tạo và Lưu Hóa Đơn (Phải có trước Hóa Đơn Chi Tiết và Giao Dịch TT)
+			// 4. Tạo và Lưu Hóa đơn
 			HoaDon hoaDon = hoaDonBUS.taoHoaDon(session);
 			hoaDonBUS.themHoaDon(conn, hoaDon);
 			session.setHoaDon(hoaDon);
 
-			// 5. Cập nhật HoaDonID cho GiaoDichThanhToan và Lưu
+			// 5. Lưu GiaoDichThanhToan
 			GiaoDichThanhToan gdtt = session.getGiaoDichThanhToan();
 			luuThongTinThanhToan(conn, gdtt);
 
@@ -87,8 +87,8 @@ public class ThanhToan_BUS {
 			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
 			// 8. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
-			List<HoaDonChiTiet> dsHDCT = hoaDonBUS.taoCacHoaDonChiTiet(session, gdtt);
-			hoaDonBUS.themCacHoaDonChiTiet(conn, dsHDCT);
+			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(session);
+			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
 			// 9. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
 			datChoBUS.capNhatPhieuGiuCho(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
@@ -115,6 +115,7 @@ public class ThanhToan_BUS {
 			if (conn != null) {
 				try {
 					conn.setAutoCommit(true);
+					conn.close();
 				} catch (SQLException ex) {
 					ex.printStackTrace();
 				}

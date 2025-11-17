@@ -19,7 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import bus.ThanhToan_BUS;
+import bus.BanVe_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
 import gui.application.PdfTicketExporter;
@@ -35,7 +35,7 @@ public class BanVe2Controller {
 	private final PanelBuoc4 p4;
 	private final PanelBuoc5 p5;
 
-	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
+	private final BanVe_BUS banVeBUS = new BanVe_BUS();
 
 	private final BookingSession bookingSession;
 
@@ -136,7 +136,7 @@ public class BanVe2Controller {
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-						return thanhToanBUS.xacNhanThanhToanVaLuuVe(bookingSession);
+						return banVeBUS.xacNhanThanhToanVaLuuVe(bookingSession);
 					} catch (Exception ex) {
 						errorMessage = ex.getMessage();
 						ex.printStackTrace();

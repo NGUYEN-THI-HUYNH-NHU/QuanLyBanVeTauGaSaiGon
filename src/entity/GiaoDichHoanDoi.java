@@ -14,20 +14,37 @@ package entity;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import entity.type.LoaiGiaoDich;
+
 public class GiaoDichHoanDoi {
 	private String giaoDichHoanDoiID;
 	private NhanVien nhanVien;
 	private HoaDon hoaDon;
 	private Ve veGoc;
 	private Ve veMoi;
-	private String loaiGiaoDich;
+	private LoaiGiaoDich loaiGiaoDich;
 	private String lyDo;
 	private LocalDateTime thoiDiemGiaoDich;
 	private double phiHoanDoi;
 	private double soTienChenhLech;
 
+	public GiaoDichHoanDoi(String giaoDichHoanDoiID, NhanVien nhanVien, HoaDon hoaDon, Ve veGoc,
+			LoaiGiaoDich loaiGiaoDich, String lyDo, LocalDateTime thoiDiemGiaoDich, double phiHoanDoi,
+			double soTienChenhLech) {
+		super();
+		this.giaoDichHoanDoiID = giaoDichHoanDoiID;
+		this.nhanVien = nhanVien;
+		this.hoaDon = hoaDon;
+		this.veGoc = veGoc;
+		this.loaiGiaoDich = loaiGiaoDich;
+		this.lyDo = lyDo;
+		this.thoiDiemGiaoDich = thoiDiemGiaoDich;
+		this.phiHoanDoi = phiHoanDoi;
+		this.soTienChenhLech = soTienChenhLech;
+	}
+
 	public GiaoDichHoanDoi(String giaoDichHoanDoiID, NhanVien nhanVien, HoaDon hoaDon, Ve veGoc, Ve veMoi,
-			String loaiGiaoDich, String lyDo, LocalDateTime thoiDiemGiaoDich, double phiHoanDoi,
+			LoaiGiaoDich loaiGiaoDich, String lyDo, LocalDateTime thoiDiemGiaoDich, double phiHoanDoi,
 			double soTienChenhLech) {
 		super();
 		this.giaoDichHoanDoiID = giaoDichHoanDoiID;
@@ -62,7 +79,7 @@ public class GiaoDichHoanDoi {
 		return veMoi;
 	}
 
-	public String getLoaiGiaoDich() {
+	public LoaiGiaoDich getLoaiGiaoDich() {
 		return loaiGiaoDich;
 	}
 
@@ -81,11 +98,11 @@ public class GiaoDichHoanDoi {
 	public double getSoTienChenhLech() {
 		return soTienChenhLech;
 	}
-	
+
 	public void setGiaoDichHoanDoiID(String giaoDichHoanDoiID) {
-		if(giaoDichHoanDoiID != null && !giaoDichHoanDoiID.trim().isEmpty()) {
+		if (giaoDichHoanDoiID != null && !giaoDichHoanDoiID.trim().isEmpty()) {
 			this.giaoDichHoanDoiID = giaoDichHoanDoiID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Giao dịch hoàn đổi vé ID không được để trống!");
 		}
 	}
@@ -102,7 +119,7 @@ public class GiaoDichHoanDoi {
 		this.veMoi = veMoi;
 	}
 
-	public void setLoaiGiaoDich(String loaiGiaoDich) {
+	public void setLoaiGiaoDich(LoaiGiaoDich loaiGiaoDich) {
 		this.loaiGiaoDich = loaiGiaoDich;
 	}
 
@@ -111,8 +128,9 @@ public class GiaoDichHoanDoi {
 	}
 
 	public void setThoiDiemGiaoDich(LocalDateTime thoiDiemGiaoDich) {
-		if(thoiDiemGiaoDich == null || thoiDiemGiaoDich.isAfter(LocalDateTime.now())) {
-			throw new IllegalArgumentException("Ngày yêu cầu không được rỗng và phải là ngày trong quá khứ hoặc ngày hiện tại");
+		if (thoiDiemGiaoDich == null || thoiDiemGiaoDich.isAfter(LocalDateTime.now())) {
+			throw new IllegalArgumentException(
+					"Ngày yêu cầu không được rỗng và phải là ngày trong quá khứ hoặc ngày hiện tại");
 		}
 		this.thoiDiemGiaoDich = thoiDiemGiaoDich;
 	}
@@ -126,27 +144,30 @@ public class GiaoDichHoanDoi {
 	}
 
 	public void setNhanVien(NhanVien nhanVien) {
-		if(nhanVien != null) {
+		if (nhanVien != null) {
 			this.nhanVien = nhanVien;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Nhân viên không được rỗng");
 		}
 	}
-	
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		GiaoDichHoanDoi that = (GiaoDichHoanDoi) o;
 		return Objects.equals(getGiaoDichHoanDoiID(), that.getGiaoDichHoanDoiID());
 	}
 
 	@Override
 	public String toString() {
-		return giaoDichHoanDoiID + ";" + nhanVien.getNhanVienID() + ";"
-				+ hoaDon.getHoaDonID() + veGoc.getVeID() + ";" + veMoi.getVeID() + ";" + loaiGiaoDich + ";" + lyDo
-				+ ";" + thoiDiemGiaoDich + ";" + phiHoanDoi + ";" + soTienChenhLech;
+		return giaoDichHoanDoiID + ";" + nhanVien.getNhanVienID() + ";" + hoaDon.getHoaDonID() + veGoc.getVeID() + ";"
+				+ veMoi.getVeID() + ";" + loaiGiaoDich + ";" + lyDo + ";" + thoiDiemGiaoDich + ";" + phiHoanDoi + ";"
+				+ soTienChenhLech;
 	}
 
 	@Override

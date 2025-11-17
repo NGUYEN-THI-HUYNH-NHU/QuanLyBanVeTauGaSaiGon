@@ -161,37 +161,52 @@ public class PanelBuoc3Controller {
 		}
 
 		// 3. Cập nhật Model (BookingSession)
-
-		// 3a. Cập nhật Khách hàng (Người Mua)
+		// 3a. Cập nhật thông tin Hành Khách vào từng VeSession
+		for (PassengerRow row : rows) {
+			VeSession ve = row.getVeSession();
+			KhachHang hanhKhach = ve.getHanhKhach();
+			if (hanhKhach == null) {
+				// Không tìm thấy -> Tạo hành khách mới
+				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), null, null,
+						row.getIdNumber(), null, row.getType(), LoaiKhachHang.HANH_KHACH);
+				ve.setHanhKhach(hanhKhach);
+				System.err.println(hanhKhach);
+				khachHangBUS.themKhachHang(hanhKhach);
+				System.out.println("Tạo hành khách mới: " + hanhKhach);
+			}
+			// (Nếu tìm thấy, nó đã được gán vào VeSession, không cần làm gì)
+		}
+		// 3b. Cập nhật Khách hàng (Người Mua)
 		KhachHang nguoiMua = bookingSession.getKhachHang();
 		if (nguoiMua == null) {
 			// Không tìm thấy (hoặc không nhập) -> Tạo khách hàng mới
-			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, cmndNguoiMua,
-					LoaiKhachHang.KHACH_HANG);
-			bookingSession.setKhachHang(nguoiMua);
-			khachHangBUS.themKhachHang(nguoiMua);
-			System.out.println("Tạo người mua mới: " + nguoiMua);
+			boolean isHanhKhach = false;
+			for (PassengerRow row : rows) {
+				// Nếu khách hàng cũng là hành khách thì cập nhật loại khách hàng
+				if (cmndNguoiMua.equalsIgnoreCase(row.getVeSession().getHanhKhach().getKhachHangID())) {
+					row.getVeSession().getHanhKhach().setLoaiKhachHang(LoaiKhachHang.HANH_KHACH_KHACH_HANG);
+					row.getVeSession().getHanhKhach().setSoDienThoai(phoneNguoiMua);
+					nguoiMua = row.getVeSession().getHanhKhach();
+					bookingSession.setKhachHang(nguoiMua);
+					khachHangBUS.capNhatKhachHang(nguoiMua);
+					isHanhKhach = true;
+					System.out.println("Cập nhật hành khách: " + nguoiMua);
+					break;
+				}
+			}
+			// Nếu khách hàng khác hành khách
+			if (!isHanhKhach) {
+				nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, null,
+						cmndNguoiMua, null, null, LoaiKhachHang.KHACH_HANG);
+				bookingSession.setKhachHang(nguoiMua);
+				khachHangBUS.themKhachHang(nguoiMua);
+				System.out.println("Tạo người mua mới: " + nguoiMua);
+			}
 		} else {
 			// Tìm thấy -> Cập nhật lại thông tin (nếu người dùng sửa)
 			nguoiMua.setHoTen(tenNguoiMua);
 			nguoiMua.setSoDienThoai(phoneNguoiMua);
 			System.out.println("Cập nhật người mua: " + nguoiMua);
-		}
-
-		// 3b. Cập nhật thông tin Hành Khách vào từng VeSession
-		for (PassengerRow row : rows) {
-			VeSession ve = row.getVeSession();
-			KhachHang hanhKhach = ve.getHanhKhach();
-
-			if (hanhKhach == null) {
-				// Không tìm thấy -> Tạo hành khách mới
-				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), row.getType(),
-						row.getIdNumber(), LoaiKhachHang.HANH_KHACH);
-				// TODO: Gọi khachHangBUS.themKhachHang(hanhKhach)
-				ve.setHanhKhach(hanhKhach);
-				System.out.println("Tạo hành khách mới: " + hanhKhach);
-			}
-			// (Nếu tìm thấy, nó đã được gán vào VeSession, không cần làm gì)
 		}
 
 		System.out.println("BookingSession đã được cập nhật.");

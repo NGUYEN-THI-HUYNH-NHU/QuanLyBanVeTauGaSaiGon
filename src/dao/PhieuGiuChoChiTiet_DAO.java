@@ -26,6 +26,8 @@ import entity.Ga;
 import entity.Ghe;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
+import entity.Ve;
+import entity.type.TrangThaiPhieuGiuCho;
 
 public class PhieuGiuChoChiTiet_DAO {
 
@@ -40,6 +42,8 @@ public class PhieuGiuChoChiTiet_DAO {
 	/**
 	 * Phương thức kiểm tra xung đột đã được cập nhật. Nhận đầu vào là thông tin từ
 	 * "vé session".
+	 * 
+	 * @param conn2
 	 *
 	 * @param chuyenID ID của chuyến (đã có)
 	 * @param tenGaDi  Tên ga đi (ví dụ: 'Sài Gòn')
@@ -48,43 +52,39 @@ public class PhieuGiuChoChiTiet_DAO {
 	 * @param soGhe    Số thứ tự của ghế (ví dụ: 5)
 	 * @return true nếu CÓ XUNG ĐỘT (bị chiếm), false nếu GHẾ TRỐNG.
 	 */
-	public boolean checkConflict(String chuyenID, String tenGaDi, String tenGaDen, int soToa, int soGhe) {
-		Connection conn = connectDB.getConnection();
-
+	public boolean checkConflict(Connection conn, String chuyenID, String tenGaDi, String tenGaDen, int soToa,
+			int soGhe) {
 		String sqlCheck = "-- 1. Khai báo tham số từ session\n" + "DECLARE @chuyenID VARCHAR(50) = ?;\n"
 				+ "DECLARE @tenGaDi NVARCHAR(255) = ?;\n" + "DECLARE @tenGaDen NVARCHAR(255) = ?;\n"
-				+ "DECLARE @soToa INT = ?; -- THAY ĐỔI: Dùng soToa\n" + "DECLARE @soGhe INT = ?;\n"
-				+ "DECLARE @holdMinutes INT = ?;\n" + "\n" + "-- 2. Truy vấn các ID cần thiết từ thông tin session\n"
+				+ "DECLARE @soToa INT = ?;\n" + "DECLARE @soGhe INT = ?;\n" + "DECLARE @holdMinutes INT = ?;\n" + "\n"
+				+ "-- 2. Truy vấn các ID cần thiết từ thông tin session\n"
 				+ "DECLARE @gaDiID VARCHAR(50), @gaDenID VARCHAR(50), @gheID VARCHAR(50);\n"
 				+ "DECLARE @thuTuGaDi_Moi INT, @thuTuGaDen_Moi INT;\n" + "\n"
 				+ "SELECT @gaDiID = gaID FROM Ga WHERE tenGa = @tenGaDi;\n"
-				+ "SELECT @gaDenID = gaID FROM Ga WHERE tenGa = @tenGaDen;\n" + "\n"
-				+ "-- THAY ĐỔI: Tìm GheID dựa trên ChuyenID -> TauID -> ToaID -> GheID\n" + "SELECT @gheID = g.gheID\n"
+				+ "SELECT @gaDenID = gaID FROM Ga WHERE tenGa = @tenGaDen;\n" + "\n" + "SELECT @gheID = g.gheID\n"
 				+ "FROM Ghe g\n" + "JOIN Toa t ON g.toaID = t.toaID\n" + "JOIN Chuyen c ON t.tauID = c.tauID\n"
 				+ "WHERE c.chuyenID = @chuyenID\n" + "  AND t.soToa = @soToa\n" + "  AND g.soGhe = @soGhe;\n" + "\n"
 				+ "IF @gheID IS NULL OR @gaDiID IS NULL OR @gaDenID IS NULL\n" + "BEGIN\n"
 				+ "    RAISERROR('Không tìm thấy thông tin Ga ID hoặc Ghế ID từ dữ liệu đầu vào.', 16, 1);\n"
-				+ "    RETURN;\n" + "END\n" + "\n" + "-- 3. Lấy thứ tự của ga đi/ga đến MỚI (Logic này giữ nguyên)\n"
+				+ "    RETURN;\n" + "END\n" + "\n" + "-- 3. Lấy thứ tự của ga đi/ga đến MỚI\n"
 				+ "SELECT @thuTuGaDi_Moi = thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDiID;\n"
 				+ "SELECT @thuTuGaDen_Moi = thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDenID;\n"
 				+ "\n" + "IF @thuTuGaDi_Moi IS NULL OR @thuTuGaDen_Moi IS NULL\n" + "BEGIN\n"
 				+ "    RAISERROR('Không tìm thấy thông tin ga đi/ga đến trong lịch trình của chuyến.', 16, 1);\n"
-				+ "    RETURN;\n" + "END\n" + "\n" + "-- 4. Phần logic kiểm tra xung đột (Giữ nguyên)\n"
-				+ "-- 4.1. Kiểm tra Vé đã bán (Ve)\n" + "SELECT v.veID\n" + "FROM Ve v\n"
-				+ "JOIN ChuyenGa cgDi ON v.chuyenID = cgDi.chuyenID AND v.gaDiID = cgDi.gaID\n"
+				+ "    RETURN;\n" + "END\n" + "\n" + "-- 4. Phần logic kiểm tra xung đột\n" + "SELECT v.veID\n"
+				+ "FROM Ve v\n" + "JOIN ChuyenGa cgDi ON v.chuyenID = cgDi.chuyenID AND v.gaDiID = cgDi.gaID\n"
 				+ "JOIN ChuyenGa cgDen ON v.chuyenID = cgDen.chuyenID AND v.gaDenID = cgDen.gaID\n"
-				+ "WHERE v.chuyenID = @chuyenID\n" + "  AND v.gheID = @gheID\n" // Dùng @gheID đã truy vấn được
+				+ "WHERE v.chuyenID = @chuyenID\n" + "  AND v.gheID = @gheID\n"
 				+ "  AND v.trangThai IN ('DA_BAN', 'DA_DUNG')\n" + "  AND cgDi.thuTu < @thuTuGaDen_Moi\n"
 				+ "  AND cgDen.thuTu > @thuTuGaDi_Moi\n" + "\n" + "UNION ALL\n" + "\n"
-				+ "-- 4.2. Kiểm tra Phiếu giữ chỗ (PhieuGiuChoChiTiet) đang giữ và còn hạn\n"
 				+ "SELECT pgcct.phieuGiuChoChiTietID\n" + "FROM PhieuGiuChoChiTiet pgcct\n"
 				+ "JOIN PhieuGiuCho pgc ON pgcct.phieuGiuChoID = pgc.phieuGiuChoID\n"
 				+ "JOIN ChuyenGa cgDi ON pgcct.chuyenID = cgDi.chuyenID AND pgcct.gaDiID = cgDi.gaID\n"
 				+ "JOIN ChuyenGa cgDen ON pgcct.chuyenID = cgDen.chuyenID AND pgcct.gaDenID = cgDen.gaID\n"
-				+ "WHERE pgcct.chuyenID = @chuyenID\n" + "  AND pgcct.gheID = @gheID\n" // Dùng @gheID đã truy vấn được
+				+ "WHERE pgcct.chuyenID = @chuyenID\n" + "  AND pgcct.gheID = @gheID\n"
 				+ "  AND pgcct.trangThai = 'DANG_GIU'\n" + "  AND pgc.trangThai = 'DANG_GIU'\n"
 				+ "  AND pgc.thoiDiemTao > DATEADD(minute, -@holdMinutes, SYSUTCDATETIME())\n"
-				+ "  AND cgDi.thuTu < @thuTuGaDen_Moi\n" + "  AND cgDen.thuTu > @thuTuGaDi_Moi;";
+				+ "  AND cgDi.thuTu < @thuTuGaDen_Moi\n";
 
 		try (PreparedStatement ps = conn.prepareStatement(sqlCheck)) {
 			ps.setString(1, chuyenID);
@@ -108,12 +108,13 @@ public class PhieuGiuChoChiTiet_DAO {
 	 * Thêm một chi tiết giữ chỗ vào CSDL (Khi nhân viên chọn ghế). Hàm này chỉ
 	 * INSERT, không kiểm tra logic. Tầng BUS phải gọi checkConflict() trước khi gọi
 	 * hàm này.
+	 * 
+	 * @param conn2
 	 *
-	 * @param ct Đối tượng PhieuGiuChoChiTiet đã có đầy đủ thông tin
+	 * @param ct    Đối tượng PhieuGiuChoChiTiet đã có đầy đủ thông tin
 	 * @return true nếu INSERT thành công
 	 */
-	public boolean createPhieuGiuChoChiTiet(PhieuGiuChoChiTiet ct) {
-		Connection conn = connectDB.getConnection();
+	public boolean createPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet ct) {
 		String sql = "INSERT INTO PhieuGiuChoChiTiet (phieuGiuChoChiTietID, phieuGiuChoID, chuyenID, gheID, gaDiID, gaDenID, thoiDiemGiuCho, trangThai) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, SYSUTCDATETIME(), 'DANG_GIU')";
 
@@ -127,7 +128,7 @@ public class PhieuGiuChoChiTiet_DAO {
 
 			return ps.executeUpdate() > 0;
 		} catch (SQLException e) {
-			e.printStackTrace(); // Lỗi có thể do trùng PK hoặc FK (phieuGiuChoID) không tồn tại
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -247,6 +248,29 @@ public class PhieuGiuChoChiTiet_DAO {
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, phieuGiuChoID);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
+	 * @param conn
+	 * @param ve
+	 * @param daHuy
+	 */
+	public boolean updateTrangThaiPhieuGiuChoChiTietByVe(Connection conn, Ve ve, TrangThaiPhieuGiuCho trangThai) {
+		String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ? " + "WHERE chuyenID = ? " + "AND gheID = ? "
+				+ "AND gaDiID = ? " + "AND gaDenID = ? " + "AND trangThai = 'XAC_NHAN'";
+
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, trangThai.toString());
+			ps.setString(2, ve.getChuyen().getChuyenID());
+			ps.setString(3, ve.getGhe().getGheID());
+			ps.setString(4, ve.getGaDi().getGaID());
+			ps.setString(5, ve.getGaDen().getGaID());
+
 			return ps.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -30,8 +30,7 @@ public class PhieuGiuCho_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createPhieuGiuCho(PhieuGiuCho pgc) {
-		Connection conn = connectDB.getConnection();
+	public boolean createPhieuGiuCho(Connection conn, PhieuGiuCho pgc) {
 		String sql = "INSERT INTO PhieuGiuCho (phieuGiuChoID, nhanVienID, thoiDiemTao, trangThai)"
 				+ "VALUES (?, ?, SYSUTCDATETIME(), ?)";
 

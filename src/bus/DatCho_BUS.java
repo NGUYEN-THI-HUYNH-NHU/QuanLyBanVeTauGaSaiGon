@@ -5,18 +5,20 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.sql.Connection;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 29, 2025
  * @version: 1.0
  */
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import connectDB.ConnectDB;
 import dao.DonDatCho_DAO;
 import dao.Ghe_DAO;
 import dao.PhieuGiuChoChiTiet_DAO;
@@ -48,22 +50,11 @@ public class DatCho_BUS {
 		return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
 	}
 
-	public boolean themPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
-		return pgcDAO.createPhieuGiuCho(phieuGiuCho);
+	public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) {
+		return pgcDAO.createPhieuGiuCho(conn, phieuGiuCho);
 	}
 
-//	public List<PhieuGiuChoChiTiet> themPhieuGiuChoChiTiet(PhieuGiuCho pgc, List<VeSession> veTrongGio) {
-//		List<PhieuGiuChoChiTiet> dsPgcct = new ArrayList<PhieuGiuChoChiTiet>();
-//		for (VeSession v : veTrongGio) {
-//			PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(pgc, v);
-//			if (pgcctDAO.createPhieuGiuChoChiTiet(pgcct)) {
-//				dsPgcct.add(pgcct);
-//			}
-//		}
-//		return dsPgcct;
-//	}
-
-	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v, int soThuTu) {
+	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
 		String chuyenID = v.getChuyenID();
 		String tenGaDi = v.getTenGaDi();
 		String tenGaDen = v.getTenGaDen();
@@ -71,7 +62,7 @@ public class DatCho_BUS {
 		int soGhe = v.getSoGhe();
 		LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
-		if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
+		if (!pgcctDAO.checkConflict(conn, chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
 			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
 			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
 					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
@@ -81,8 +72,8 @@ public class DatCho_BUS {
 		return null;
 	}
 
-	public boolean themPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
-		return pgcctDAO.createPhieuGiuChoChiTiet(phieuGiuChoChiTiet);
+	public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
+		return pgcctDAO.createPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
 	}
 
 	public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
@@ -153,5 +144,70 @@ public class DatCho_BUS {
 			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
 		return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(conn, phieuGiuCho.getPhieuGiuChoID(),
 				trangThaiPhieuGiuCho.toString());
+	}
+
+	/**
+	 * Thực hiện toàn bộ nghiệp vụ giữ chỗ trong một transaction duy nhất. Sẽ tạo
+	 * PGC cha, rồi tạo các PGC con.
+	 * 
+	 * @param veTrongGio Danh sách vé session cần giữ
+	 * @return PhieuGiuCho (đã kèm các chi tiết) nếu thành công
+	 * @throws Exception nếu có lỗi (ví dụ: ghế bị trùng)
+	 */
+	public PhieuGiuCho thucHienGiuCho(List<VeSession> veTrongGio) throws Exception {
+		Connection conn = null;
+		PhieuGiuCho pgc = null; // Khai báo ở ngoài để return
+
+		try {
+			// 1. Lấy kết nối VÀ BẮT ĐẦU TRANSACTION
+			conn = ConnectDB.getInstance().getConnection();
+			conn.setAutoCommit(false);
+
+			// 2. TẠO VÀ THÊM PHIẾU CHA
+			pgc = taoPhieuGiuCho();
+			if (pgc == null || !themPhieuGiuCho(conn, pgc)) {
+				throw new Exception("Không thể tạo phiếu giữ chỗ cha trong CSDL.");
+			}
+			// 3. TẠO VÀ THÊM CÁC CHI TIẾT
+			for (int i = 0; i < veTrongGio.size(); i++) {
+				VeSession v = veTrongGio.get(i);
+				PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(conn, pgc, v, i + 1);
+
+				if (pgcct == null) {
+					throw new Exception("Ghế " + v.getSoGhe() + " (Toa " + v.getSoToa() + ") đã bị người khác chọn.");
+				}
+
+				if (!themPhieuGiuChoChiTiet(conn, pgcct)) {
+					throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getSoGhe());
+				}
+				v.setPhieuGiuChoChiTiet(pgcct);
+			}
+
+			// 4. COMMIT
+			conn.commit();
+			return pgc;
+
+		} catch (Exception e) {
+			// 5. ROLLBACK
+			if (conn != null) {
+				try {
+					conn.rollback();
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+			}
+			throw e;
+
+		} finally {
+			// 6. LUÔN LUÔN ĐÓNG KẾT NỐI
+			try {
+				if (conn != null) {
+					conn.setAutoCommit(true);
+					conn.close();
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 }

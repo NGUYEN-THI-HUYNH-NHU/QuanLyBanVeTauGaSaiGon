@@ -52,7 +52,12 @@ public class HoanVe1Controller {
 		this.p1.setController(this.p1Controller);
 		this.p2Controller = new HoanVeBuoc2Controller(this.p2);
 		this.p3Controller = new HoanVeBuoc3Controller(this.p3);
+
 		initMediatorLogic();
+	}
+
+	public DonDatCho getDonDatCho() {
+		return this.ddc;
 	}
 
 	public KhachHang getNguoiMua() {
