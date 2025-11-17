@@ -14,6 +14,8 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -22,12 +24,16 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;
+    private BufferedImage backgroundImage;
 
     private JTextField txtGaDi;
     private JTextField txtGaDen;
@@ -54,6 +60,8 @@ public class   PanelQuanLyTuyen extends JPanel {
 
         this.tuyen_bus = new Tuyen_BUS();
         this.nhanVienThucHien = nhanVien;
+
+        loadAndBlurBackground("img/nenTauLua.jpg");
 
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
@@ -238,6 +246,33 @@ public class   PanelQuanLyTuyen extends JPanel {
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
             btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        }
+    }
+
+    private void loadAndBlurBackground(String imagePath){
+        try{
+            BufferedImage originalImage = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource(imagePath)));
+            if(originalImage != null){
+                BlurFilter blurFilter = new BlurFilter();
+                blurFilter.setRadius(10.0f);
+
+                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+                blurFilter.filter(originalImage, backgroundImage);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+            backgroundImage = null;
+        }catch (Exception e){
+            e.printStackTrace();
+            backgroundImage = null;
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+        if(backgroundImage != null){
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 
