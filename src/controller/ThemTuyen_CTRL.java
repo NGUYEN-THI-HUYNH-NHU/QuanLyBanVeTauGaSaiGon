@@ -89,6 +89,7 @@ public class ThemTuyen_CTRL {
                () -> xuLyChonGaTrungGian()
        );
 
+       panelThemTuyen.getBtnXacNhanTinhKC().addActionListener(e -> capNhatDanhSachVaTinhKC());
        panelThemTuyen.getBtnHuy().addActionListener(e -> xuLyHuyBo());
        panelThemTuyen.getBtnLuu().addActionListener(e -> xuLyLuuTuyen());
 
@@ -275,7 +276,7 @@ public class ThemTuyen_CTRL {
         DefaultTableModel model = panelThemTuyen.getModelGaChiTiet();
         model.setRowCount(0);
 
-        String tenGaDi = (String) panelThemTuyen.getTxtGaTrungGian().getText().trim();
+        String tenGaDi = (String) panelThemTuyen.getTxtGaXuatPhat().getText().trim();
         String tenGaDen = (String) panelThemTuyen.getTxtGaDich().getText().trim();
 
         if ( tenGaDi.isEmpty() || tenGaDen.isEmpty()) {
