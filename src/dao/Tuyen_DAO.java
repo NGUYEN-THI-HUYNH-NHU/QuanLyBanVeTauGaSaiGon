@@ -154,6 +154,20 @@ public class Tuyen_DAO {
         }
     }
 
+    public boolean capNhatTuyen(Tuyen tuyenCapNhat){
+        String sql = "UPDATE Tuyen SET moTa = ? WHERE tuyenID = ?";
+        try(Connection con = connectDB.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, tuyenCapNhat.getMoTa());
+            pstmt.setString(2, tuyenCapNhat.getTuyenID());
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     /**
      * Lấy tuyến theo mã tuyến chính xác (không dùng like)
      * Dùng để kiểm tra xem mã đã tồn tại hay chưa.

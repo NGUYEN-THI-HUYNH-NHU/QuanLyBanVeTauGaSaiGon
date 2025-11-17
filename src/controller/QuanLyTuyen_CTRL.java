@@ -15,6 +15,7 @@ import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
+import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
@@ -42,7 +43,7 @@ public class QuanLyTuyen_CTRL {
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
         this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
-        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener());
+        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
         pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
         PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
@@ -76,6 +77,13 @@ public class QuanLyTuyen_CTRL {
         @Override
         public void actionPerformed(ActionEvent e) {
             hienThiManHinhThemTuyen();
+        }
+    }
+
+    private class CapNhatTuyenListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhCapNhatTuyen();
         }
     }
 
@@ -174,6 +182,11 @@ public class QuanLyTuyen_CTRL {
     private void hienThiManHinhThemTuyen(){
         PanelThemTuyen panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
         UngDung.showGiaoDienChinh(panelThemTuyen);
+    }
+
+    private void hienThiManHinhCapNhatTuyen(){
+        PanelCapNhatTuyen panelCapNhatTuyen = new PanelCapNhatTuyen(pnlTuyen.getNhanVienThucHien());
+        UngDung.showGiaoDienChinh(panelCapNhatTuyen);
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,

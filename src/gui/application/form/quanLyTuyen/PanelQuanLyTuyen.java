@@ -224,9 +224,10 @@ public class   PanelQuanLyTuyen extends JPanel {
          }
     }
 
-    public void addListeners( ActionListener timKiemListener,ActionListener lamMoiListener, ActionListener themTuyenListener){
+    public void addListeners( ActionListener timKiemListener,ActionListener lamMoiListener, ActionListener themTuyenListener, ActionListener capNhatTuyenListener){
         btnLamMoiTuyen.addActionListener(lamMoiListener);
         btnThemTuyen.addActionListener(themTuyenListener);
+        btnCapNhatTuyen.addActionListener(capNhatTuyenListener);
     }
 
     public void setMauBTN() {
