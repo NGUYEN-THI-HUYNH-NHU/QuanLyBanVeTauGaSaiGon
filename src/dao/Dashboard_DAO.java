@@ -7,302 +7,348 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Lớp DAO (Data Access Object) chịu trách nhiệm truy vấn dữ liệu
- * cho Dashboard từ CSDL SQL Server.
+ * Data Access Object (DAO) để lấy dữ liệu cho Dashboard.
+ * [CẬP NHẬT] Thêm 2 hàm mới cho KPI Tỷ lệ lấp đầy và Tỷ lệ đổi trả.
  */
 public class Dashboard_DAO {
 
+    // ... (Các hàm getKpiTotalRevenue, getKpiTicketsSold, getKpiUniqueCustomers không đổi) ...
+
     /**
-     * Lấy tổng doanh thu từ các hóa đơn được lập trong ngày hôm nay.
-     * @return Tổng doanh thu (double).
+     * [KPI 1] Lấy tổng doanh thu từ vé bán trong một khoảng thời gian.
      */
-    public double getTongDoanhThuHomNay() {
-        double tongDoanhThu = 0;
-        String sql = "SELECT SUM(TongTien) FROM HoaDon " +
-                "WHERE CAST(NgayLapHoaDon AS DATE) = CAST(GETDATE() AS DATE)";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                tongDoanhThu = rs.getDouble(1);
+    public double getKpiTotalRevenue(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT SUM(v.gia) AS TongDoanhThu " +
+                        "FROM Ve v " +
+                        "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getDouble("TongDoanhThu");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return tongDoanhThu;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0.0;
     }
 
     /**
-     * Lấy tổng số vé đã bán (vé thuộc các hóa đơn) trong ngày hôm nay.
-     * @return Tổng số vé (int).
+     * [KPI 2] Lấy tổng số vé đã bán trong một khoảng thời gian.
      */
-    public int getSoVeDaBanHomNay() {
-        int soVe = 0;
-        String sql = "SELECT COUNT(v.VeTauID) FROM VeTau v " +
-                "JOIN HoaDon h ON v.HoaDonID = h.HoaDonID " +
-                "WHERE CAST(h.NgayLapHoaDon AS DATE) = CAST(GETDATE() AS DATE)";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                soVe = rs.getInt(1);
+    public int getKpiTicketsSold(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(veID) AS SoVeBan " +
+                        "FROM Ve " +
+                        "WHERE trangThai IN ('DA_BAN', 'DA_DUNG')");
+        if (startDate != null) sql.append(" AND thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND thoiDiemBan < ?");
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("SoVeBan");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return soVe;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
     }
 
     /**
-     * Lấy tỷ lệ vé đã bị hủy (trạng thái 'DA_HUY') trong tổng số vé được tạo hôm nay.
-     * @return Tỷ lệ hủy vé (double, ví dụ: 3.5).
+     * [KPI 3 - CŨ] Lấy số lượng khách hàng duy nhất đã mua vé.
+     * (Hàm này không còn được dùng ở KPI, nhưng vẫn hữu ích)
      */
-    public double getTyLeHuyVeHomNay() {
-        double tyLe = 0;
-        String sql = "SELECT " +
-                "    SUM(CASE WHEN v.trangThai = N'DA_HUY' THEN 1 ELSE 0 END) AS SoVeHuy, " +
-                "    COUNT(v.VeTauID) AS TongSoVe " +
-                "FROM VeTau v JOIN HoaDon h ON v.HoaDonID = h.HoaDonID " +
-                "WHERE CAST(h.NgayLapHoaDon AS DATE) = CAST(GETDATE() AS DATE)";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                int soVeHuy = rs.getInt("SoVeHuy");
-                int tongSoVe = rs.getInt("TongSoVe");
-                if (tongSoVe > 0) {
-                    tyLe = (double) soVeHuy * 100.0 / tongSoVe;
-                }
+    public int getKpiUniqueCustomers(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(DISTINCT khachHangID) AS SoKhachHang " +
+                        "FROM Ve " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND thoiDiemBan < ?");
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("SoKhachHang");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return tyLe;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
     }
 
     /**
-     * Lấy tỷ lệ lấp đầy trung bình cho các chuyến tàu khởi hành hôm nay.
-     * (Số vé đã bán) / (Tổng số ghế của các chuyến khởi hành hôm nay)
-     * @return Tỷ lệ lấp đầy (double, ví dụ: 88.0).
+     * [KPI 4 - CŨ] Lấy tuyến có doanh thu cao nhất.
+     * (Hàm này không còn được dùng ở KPI, nhưng vẫn hữu ích)
      */
-    public double getTyLeDayTBHomNay() {
-        double tyLe = 0;
-        String sql = "WITH SoVeBan AS ( " +
-                "    SELECT COUNT(v.VeTauID) AS TongSoVeBan " +
-                "    FROM VeTau v " +
-                "    JOIN LichTrinh lt ON v.LichTrinhID = lt.LichTrinhID " +
-                "    WHERE CAST(lt.ThoiGianDi AS DATE) = CAST(GETDATE() AS DATE) AND v.trangThai != N'DA_HUY' " +
-                "), TongGhe AS ( " +
-                "    SELECT COUNT(g.GheID) AS TongSoGhe " +
-                "    FROM ChuyenTau ct " +
-                "    JOIN LichTrinh lt ON ct.LichTrinhID = lt.LichTrinhID " +
-                "    JOIN Tau t ON ct.TauID = t.TauID " +
-                "    JOIN Toa toa ON t.TauID = toa.TauID " +
-                "    JOIN Ghe g ON toa.ToaID = g.ToaID " +
-                "    WHERE CAST(lt.ThoiGianDi AS DATE) = CAST(GETDATE() AS DATE) " +
-                ") " +
-                "SELECT CAST(ISNULL(sv.TongSoVeBan, 0) * 100.0 / NULLIF(tg.TongSoGhe, 0) AS DECIMAL(10, 2)) " +
-                "FROM SoVeBan sv, TongGhe tg";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                tyLe = rs.getDouble(1);
+    public Map<String, Double> getKpiTopRevenueRoute(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT TOP 1 (t.moTa + ' (' + tau.tenTau + ')') AS TenTuyen, SUM(v.gia) AS TongDoanhThu " +
+                        "FROM Ve v " +
+                        "JOIN Chuyen c ON v.chuyenID = c.chuyenID " +
+                        "JOIN Tuyen t ON c.tuyenID = t.tuyenID " +
+                        "JOIN Tau tau ON c.tauID = tau.tauID " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        sql.append(" GROUP BY t.moTa, tau.tenTau ORDER BY TongDoanhThu DESC");
+        Map<String, Double> result = new HashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) result.put(rs.getString("TenTuyen"), rs.getDouble("TongDoanhThu"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return tyLe;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
     }
 
-    /**
-     * Lấy số ngày đặt vé trung bình trước ngày khởi hành.
-     * Tính toán dựa trên các vé đặt trong vòng 1 năm qua.
-     * @return Số ngày trung bình (double).
-     */
-    public double getNgayDatVeTrungBinh() {
-        double avgDays = 0;
-        String sql = "SELECT AVG(CAST(DATEDIFF(day, v.NgayDatVe, lt.ThoiGianDi) AS FLOAT)) " +
-                "FROM VeTau v JOIN LichTrinh lt ON v.LichTrinhID = lt.LichTrinhID " +
-                "WHERE v.NgayDatVe > DATEADD(year, -1, GETDATE()) AND lt.ThoiGianDi > v.NgayDatVe";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                avgDays = rs.getDouble(1);
+    // ... (Các hàm getRevenueOverTime, getTop5RevenueTrips, ... không đổi) ...
+    public Map<LocalDate, Double> getRevenueOverTime(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT CAST(v.thoiDiemBan AS DATE) AS Ngay, SUM(v.gia) AS DoanhThu " +
+                        "FROM Ve v " +
+                        "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        sql.append(" GROUP BY CAST(v.thoiDiemBan AS DATE) ORDER BY Ngay");
+        Map<LocalDate, Double> result = new LinkedHashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) result.put(rs.getDate("Ngay").toLocalDate(), rs.getDouble("DoanhThu"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return avgDays;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
     }
-
-    /**
-     * Lấy doanh thu theo tuyến, sắp xếp giảm dần, giới hạn bởi 'limit'.
-     * @param limit Số lượng tuyến hàng đầu muốn lấy.
-     * @return Map<String, Double> (Tên tuyến, Tổng doanh thu).
-     */
-    public Map<String, Double> getDoanhThuTheoTuyen(int limit) {
-        Map<String, Double> data = new LinkedHashMap<>(); // Giữ thứ tự
-        String sql = "SELECT TOP (?) (g1.TenGa + ' - ' + g2.TenGa) AS TenTuyen, SUM(v.GiaVe) AS DoanhThu " +
-                "FROM VeTau v " +
-                "JOIN LichTrinh lt ON v.LichTrinhID = lt.LichTrinhID " +
-                "JOIN Ga g1 ON lt.GaDiID = g1.GaID " +
-                "JOIN Ga g2 ON lt.GaDenID = g2.GaID " +
-                "WHERE v.trangThai != N'DA_HUY' " +
-                "GROUP BY (g1.TenGa + ' - ' + g2.TenGa) " +
-                "ORDER BY DoanhThu DESC";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, limit);
-            try (ResultSet rs = ps.executeQuery()) {
+    public Map<String, Double> getTop5RevenueTrips(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT TOP 5 (t.moTa + ' (' + tau.tenTau + ')') AS TenChuyen, SUM(v.gia) AS TongDoanhThu " +
+                        "FROM Ve v " +
+                        "JOIN Chuyen c ON v.chuyenID = c.chuyenID " +
+                        "JOIN Tuyen t ON c.tuyenID = t.tuyenID " +
+                        "JOIN Tau tau ON c.tauID = tau.tauID " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        sql.append(" GROUP BY t.moTa, tau.tenTau ORDER BY TongDoanhThu DESC");
+        Map<String, Double> result = new LinkedHashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) result.put(rs.getString("TenChuyen"), rs.getDouble("TongDoanhThu"));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+    public Map<String, Integer> getCustomerTypeDistribution(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT ldt.moTa, COUNT(DISTINCT v.khachHangID) AS SoLuong " +
+                        "FROM Ve v " +
+                        "JOIN KhachHang kh ON v.khachHangID = kh.khachHangID " +
+                        "JOIN LoaiDoiTuong ldt ON kh.loaiDoiTuongID = ldt.loaiDoiTuongID " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        sql.append(" GROUP BY ldt.moTa");
+        Map<String, Integer> result = new HashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) result.put(rs.getString("moTa"), rs.getInt("SoLuong"));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+    public Map<LocalDate, Map<String, Integer>> getTicketsBySeatTypeOverTime(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT CAST(v.thoiDiemBan AS DATE) AS Ngay, ht.moTa AS LoaiGhe, COUNT(v.veID) AS SoLuong " +
+                        "FROM Ve v " +
+                        "JOIN Ghe g ON v.gheID = g.gheID " +
+                        "JOIN Toa t ON g.toaID = t.toaID " +
+                        "JOIN HangToa ht ON t.hangToaID = ht.hangToaID " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND v.thoiDiemBan >= ?");
+        if (endDate != null) sql.append(" AND v.thoiDiemBan < ?");
+        sql.append(" GROUP BY CAST(v.thoiDiemBan AS DATE), ht.moTa ");
+        sql.append(" ORDER BY Ngay, LoaiGhe");
+        Map<LocalDate, Map<String, Integer>> result = new LinkedHashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    data.put(rs.getString("TenTuyen"), rs.getDouble("DoanhThu"));
+                    LocalDate ngay = rs.getDate("Ngay").toLocalDate();
+                    String loaiGhe = rs.getString("LoaiGhe");
+                    int soLuong = rs.getInt("SoLuong");
+                    result.putIfAbsent(ngay, new HashMap<>());
+                    result.get(ngay).put(loaiGhe, soLuong);
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+    public Map<String, Integer> getTop5Promotions(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT TOP 5 km.maKhuyenMai, COUNT(sdkm.suDungKhuyenMaiID) AS SoLanSuDung " +
+                        "FROM SuDungKhuyenMai sdkm " +
+                        "JOIN KhuyenMai km ON sdkm.khuyenMaiID = km.khuyenMaiID " +
+                        "JOIN HoaDonChiTiet hdct ON sdkm.hoaDonChiTietID = hdct.hoaDonChiTietID " +
+                        "JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND hd.thoiDiemTao >= ?");
+        if (endDate != null) sql.append(" AND hd.thoiDiemTao < ?");
+        sql.append(" GROUP BY km.maKhuyenMai ORDER BY SoLanSuDung DESC");
+        Map<String, Integer> result = new LinkedHashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) result.put(rs.getString("maKhuyenMai"), rs.getInt("SoLanSuDung"));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+    public Map<String, Integer> getEmployeeStats() {
+        String sql = "SELECT vtnv.moTa, COUNT(nv.nhanVienID) AS SoLuong " +
+                "FROM NhanVien nv " +
+                "JOIN VaiTroNhanVien vtnv ON nv.vaiTroNhanVienID = vtnv.vaiTroNhanVienID " +
+                "WHERE nv.isHoatDong = 1 " +
+                "GROUP BY vtnv.moTa";
+        Map<String, Integer> result = new HashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) result.put(rs.getString("moTa"), rs.getInt("SoLuong"));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+    public Map<String, Integer> getRefundExchangeStats(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT loaiGiaoDich, COUNT(giaoDichHoanDoiID) AS SoLuong " +
+                        "FROM GiaoDichHoanDoi " +
+                        "WHERE 1=1");
+        if (startDate != null) sql.append(" AND thoiDiemGiaoDich >= ?");
+        if (endDate != null) sql.append(" AND thoiDiemGiaoDich < ?");
+        sql.append(" GROUP BY loaiGiaoDich");
+        Map<String, Integer> result = new HashMap<>();
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (startDate != null) pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            if (endDate != null) pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String loaiGD = rs.getString("loaiGiaoDich");
+                    String tenHienThi = loaiGD.equals("HOAN_VE") ? "Hoàn Vé" : "Đổi Vé";
+                    result.put(tenHienThi, rs.getInt("SoLuong"));
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return result;
+    }
+
+    // =========================================================================
+    // [HÀM MỚI] Cho KPI Tỷ Lệ Lấp Đầy
+    // =========================================================================
+    public int getTotalAvailableSeats(LocalDate startDate, LocalDate endDate) {
+        // Tính toán đơn giản: Tổng sức chứa của tất cả các chuyến đã chạy
+        StringBuilder sql = new StringBuilder(
+                "SELECT SUM(t.sucChua) AS TongSoGhe " +
+                        "FROM Chuyen c " +
+                        "JOIN Tau tau ON c.tauID = tau.tauID " +
+                        "JOIN Toa t ON t.tauID = tau.tauID " +
+                        "WHERE 1=1");
+
+        // Lọc theo ngayDi của bảng Chuyen
+        if (startDate != null) {
+            sql.append(" AND c.ngayDi >= ?");
+        }
+        if (endDate != null) {
+            // Dùng <= cho endDate vì ngayDi là kiểu DATE
+            sql.append(" AND c.ngayDi <= ?");
+        }
+
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setObject(paramIndex++, startDate);
+            }
+            if (endDate != null) {
+                pstmt.setObject(paramIndex++, endDate);
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("TongSoGhe");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return data;
+        return 0;
     }
 
-    /**
-     * Lấy số lượng vé bán ra theo Hạng toa trong 5 ngày gần nhất.
-     * @return Map<LocalDate, Map<String, Integer>> (Ngày, Map<Tên Hạng Toa, Số Lượng>).
-     */
-    public Map<LocalDate, Map<String, Integer>> getVeTheoLoaiGhe5NgayQua() {
-        Map<LocalDate, Map<String, Integer>> data = new LinkedHashMap<>();
-        String sql = "SELECT CAST(h.NgayLapHoaDon AS DATE) AS Ngay, ht.tenHangToa, COUNT(v.VeTauID) AS SoLuong " +
-                "FROM VeTau v " +
-                "JOIN Ghe g ON v.GheID = g.GheID " +
-                "JOIN Toa t ON g.ToaID = t.ToaID " +
-                "JOIN HangToa ht ON t.HangToaID = ht.HangToaID " +
-                "JOIN HoaDon h ON v.HoaDonID = h.HoaDonID " +
-                "WHERE h.NgayLapHoaDon >= DATEADD(day, -4, CAST(GETDATE() AS DATE)) AND v.trangThai != N'DA_HUY' " +
-                "GROUP BY CAST(h.NgayLapHoaDon AS DATE), ht.tenHangToa " +
-                "ORDER BY Ngay ASC, ht.tenHangToa ASC";
+    // =========================================================================
+    // [HÀM MỚI] Cho KPI Tỷ Lệ Đổi Trả
+    // =========================================================================
+    public int getTotalRefundsAndExchanges(LocalDate startDate, LocalDate endDate) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT COUNT(giaoDichHoanDoiID) AS SoLuong " +
+                        "FROM GiaoDichHoanDoi " +
+                        "WHERE 1=1");
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        if (startDate != null) {
+            sql.append(" AND thoiDiemGiaoDich >= ?");
+        }
+        if (endDate != null) {
+            sql.append(" AND thoiDiemGiaoDich < ?");
+        }
 
-            while (rs.next()) {
-                LocalDate ngay = rs.getDate("Ngay").toLocalDate();
-                String tenHangToa = rs.getString("tenHangToa");
-                int soLuong = rs.getInt("SoLuong");
+        try (Connection conn = ConnectDB.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 
-                // Đảm bảo có một map cho ngày đó
-                data.putIfAbsent(ngay, new HashMap<>());
-                // Thêm dữ liệu vào map của ngày
-                data.get(ngay).put(tenHangToa, soLuong);
+            int paramIndex = 1;
+            if (startDate != null) {
+                pstmt.setObject(paramIndex++, startDate.atStartOfDay());
+            }
+            if (endDate != null) {
+                pstmt.setObject(paramIndex++, endDate.plusDays(1).atStartOfDay());
+            }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("SoLuong");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return data;
-    }
-
-    /**
-     * Lấy doanh thu VÀ số lượng vé theo tháng, trong 12 tháng gần nhất.
-     * @return Map<String, double[]> (Tháng "yyyy-MM", [DoanhThu, SoVe]).
-     */
-    public Map<String, double[]> getDoanhThuVaSoVeTheoThang() {
-        Map<String, double[]> data = new LinkedHashMap<>();
-        String sql = "SELECT FORMAT(h.NgayLapHoaDon, 'yyyy-MM') AS Thang, SUM(h.TongTien) AS TongDoanhThu, COUNT(v.VeTauID) AS TongSoVe " +
-                "FROM HoaDon h " +
-                "JOIN VeTau v ON h.HoaDonID = v.HoaDonID " +
-                "WHERE h.NgayLapHoaDon >= DATEADD(year, -1, GETDATE()) AND v.trangThai != N'DA_HUY' " +
-                "GROUP BY FORMAT(h.NgayLapHoaDon, 'yyyy-MM') " +
-                "ORDER BY Thang ASC";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                String thang = rs.getString("Thang");
-                double[] values = new double[2];
-                values[0] = rs.getDouble("TongDoanhThu");
-                values[1] = rs.getDouble("TongSoVe");
-                data.put(thang, values);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
-    /**
-     * Lấy tổng số vé đã bán theo từng loại ghế (Hạng toa).
-     * @return Map<String, Integer> (Tên Hạng Toa, Tổng số vé).
-     */
-    public Map<String, Integer> getSoVeTheoLoaiGhe() {
-        Map<String, Integer> data = new LinkedHashMap<>();
-        String sql = "SELECT ht.tenHangToa, COUNT(v.VeTauID) AS SoLuong " +
-                "FROM VeTau v " +
-                "JOIN Ghe g ON v.GheID = g.GheID " +
-                "JOIN Toa t ON g.ToaID = t.ToaID " +
-                "JOIN HangToa ht ON t.HangToaID = ht.HangToaID " +
-                "WHERE v.trangThai != N'DA_HUY' " +
-                "GROUP BY ht.tenHangToa " +
-                "ORDER BY SoLuong DESC";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                data.put(rs.getString("tenHangToa"), rs.getInt("SoLuong"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
-    /**
-     * Lấy số lượng vé khuyến mãi (có KhuyenMaiID) theo tháng, trong 12 tháng qua.
-     * @return Map<String, Integer> (Tháng "yyyy-MM", Số vé KM).
-     */
-    public Map<String, Integer> getSoVeKhuyenMaiTheoThang() {
-        Map<String, Integer> data = new LinkedHashMap<>();
-        String sql = "SELECT FORMAT(h.NgayLapHoaDon, 'yyyy-MM') AS Thang, COUNT(v.VeTauID) AS SoLuongKM " +
-                "FROM VeTau v " +
-                "JOIN HoaDon h ON v.HoaDonID = h.HoaDonID " +
-                "WHERE v.KhuyenMaiID IS NOT NULL AND v.trangThai != N'DA_HUY' " +
-                "AND h.NgayLapHoaDon >= DATEADD(year, -1, GETDATE()) " +
-                "GROUP BY FORMAT(h.NgayLapHoaDon, 'yyyy-MM') " +
-                "ORDER BY Thang ASC";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                data.put(rs.getString("Thang"), rs.getInt("SoLuongKM"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-
-            e.printStackTrace();
-        }
-        return data;
+        return 0;
     }
 }
