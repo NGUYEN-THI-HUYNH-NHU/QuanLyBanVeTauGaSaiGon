@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeBuoc3Controller.java  1.0  [3:07:04 PM] Nov 9, 2025
+ * @(#) DoiVeBuoc3Controller.java  1.0  [5:55:26 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,7 +8,7 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
 import java.util.List;
@@ -16,29 +16,29 @@ import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
-public class HoanVeBuoc3Controller {
+public class DoiVeBuoc3Controller {
 
-	private final PanelHoanVeBuoc3 panel;
+	private final PanelDoiVeBuoc3 panel;
 
 	protected interface RowSelectionChangeListener {
-		void onRowSelectionChanged(VeHoanRow row);
+		void onRowSelectionChanged(VeDoiRow row);
 	}
 
 	private RowSelectionChangeListener selectionChangeListener;
 
-	protected interface ConfirmListener {
+	public interface ConfirmListener {
 		void onConfirm();
 	}
 
 	private ConfirmListener confirmListener;
 
-	public HoanVeBuoc3Controller(PanelHoanVeBuoc3 panel) {
+	public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel) {
 		this.panel = panel;
 
 		// Lắng nghe thay đổi trên row
-		this.panel.addRowSelectionListener(new Consumer<VeHoanRow>() {
+		this.panel.addRowSelectionListener(new Consumer<VeDoiRow>() {
 			@Override
-			public void accept(VeHoanRow row) {
+			public void accept(VeDoiRow row) {
 				// Báo sự kiện này lên cho Mediator
 				if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận bỏ chọn hoàn vé này?", "Lưu ý",
 						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -60,9 +60,9 @@ public class HoanVeBuoc3Controller {
 	}
 
 	/**
-	 * Được gọi bởi HoanVeController (Mediator) để hiển thị dữ liệu
+	 * Được gọi bởi DoiVeController (Mediator) để hiển thị dữ liệu
 	 */
-	public void displayConfirmationData(List<VeHoanRow> selectedRows) {
+	public void displayConfirmationData(List<VeDoiRow> selectedRows) {
 		panel.displayConfirmation(selectedRows);
 	}
 

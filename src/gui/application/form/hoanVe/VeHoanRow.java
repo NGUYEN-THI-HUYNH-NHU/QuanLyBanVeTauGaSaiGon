@@ -11,10 +11,9 @@ package gui.application.form.hoanVe;
  * @date: Nov 13, 2025
  * @version: 1.0
  */
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-/**
- * Lớp POJO đại diện cho một dòng trong bảng chọn vé để hoàn.
- */
 import entity.Ve;
 
 public class VeHoanRow {
@@ -22,38 +21,74 @@ public class VeHoanRow {
 	private String hanhKhach;
 	private String thongTinVe;
 	private double thanhTien;
-	private String loaiHoanVe;
 	private double lePhiHoanVe;
-	private double tienHoanLai;
+	private double tienHoan;
 	private String thongTinPhiHoan;
 	private String lyDo;
 	private boolean isSelected;
 
+	private String thoiGianConLai;
+	private boolean isDuDieuKien;
+	private String lyDoKhongDuDieuKien;
 	// Constructor (Bạn sẽ tính toán phí và điền thông tin ở đây)
+
 	public VeHoanRow(Ve ve) {
 		this.ve = ve;
 
-		// 1. Lấy thông tin cơ bản
 		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
 				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
 		this.thanhTien = ve.getGia();
 		this.thongTinVe = ve.thongTinVeHoan();
 
-		// 2. Tính toán phí hoàn
-		// Đây là nghiệp vụ quan trọng, bạn cần định nghĩa rõ
-		this.lePhiHoanVe = 10000.0;
-		this.loaiHoanVe = "Trả thường";
-		this.thongTinPhiHoan = "Hoàn/Đổi vé bình thường năm 2025, áp dụng phí 10.000 VNĐ/vé";
+		calcThoiGianConLaiVaPhiHoan();
+
 		this.lyDo = "Không còn nhu cầu";
 
-		// 3. Tính tiền hoàn lại
-		this.tienHoanLai = this.thanhTien - this.lePhiHoanVe;
-		if (this.tienHoanLai < 0) {
-			this.tienHoanLai = 0;
-		}
-
-		// 4. Mặc định là không chọn
 		this.isSelected = false;
+	}
+
+	private void calcThoiGianConLaiVaPhiHoan() {
+		LocalDateTime gioTauChay = ve.getNgayGioDi();
+		LocalDateTime now = LocalDateTime.now();
+
+		Duration duration = Duration.between(now, gioTauChay);
+		long seconds = duration.getSeconds();
+
+		if (seconds <= 0) {
+			thoiGianConLai = "Đã khởi hành";
+			isDuDieuKien = false;
+			lyDoKhongDuDieuKien = "Tàu đã khởi hành, không thể hoàn vé.";
+			lePhiHoanVe = 0;
+			thongTinPhiHoan = "Không thể hoàn vé.";
+			tienHoan = 0;
+		} else {
+			long hours = seconds / 3600;
+			long minutes = (seconds % 3600) / 60;
+			thoiGianConLai = String.format("%dg %02dp", hours, minutes);
+
+			// Quy định: Phải trước 4 tiếng
+			if (hours >= 4) {
+				isDuDieuKien = true;
+				lyDoKhongDuDieuKien = "";
+				if (hours >= 24) {
+					lePhiHoanVe = thanhTien * 0.2;
+					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 20% giá vé";
+				} else {
+					lePhiHoanVe = thanhTien * 0.1;
+					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 10% giá vé";
+				}
+				if (lePhiHoanVe < 10000) {
+					lePhiHoanVe = 10000;
+				}
+				tienHoan = thanhTien - lePhiHoanVe;
+			} else {
+				isDuDieuKien = false;
+				lyDoKhongDuDieuKien = "Thời gian còn lại dưới 4 giờ (Quy định hoàn vé).";
+				lePhiHoanVe = 0;
+				thongTinPhiHoan = "Không đủ điều kiện hoàn vé.";
+				tienHoan = 0;
+			}
+		}
 	}
 
 	// Getters và Setters
@@ -73,16 +108,12 @@ public class VeHoanRow {
 		return thanhTien;
 	}
 
-	public String getLoaiHoanVe() {
-		return loaiHoanVe;
-	}
-
 	public double getLePhiHoanVe() {
 		return lePhiHoanVe;
 	}
 
-	public double getTienHoanLai() {
-		return tienHoanLai;
+	public double getTienHoan() {
+		return tienHoan;
 	}
 
 	public String getThongTinPhiHoan() {
@@ -103,5 +134,17 @@ public class VeHoanRow {
 
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+
+	public String getThoiGianConLai() {
+		return thoiGianConLai;
+	}
+
+	public boolean isDuDieuKien() {
+		return isDuDieuKien;
+	}
+
+	public String getLyDoKhongDuDieuKien() {
+		return lyDoKhongDuDieuKien;
 	}
 }

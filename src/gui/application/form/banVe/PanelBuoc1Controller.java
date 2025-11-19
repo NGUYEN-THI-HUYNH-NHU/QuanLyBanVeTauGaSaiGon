@@ -21,6 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -185,18 +186,18 @@ public class PanelBuoc1Controller {
 					if (gaDiId == null || gaDiId.trim().isEmpty()) {
 						String name = criteria.getGaDiName();
 						if (name != null && !name.trim().isEmpty()) {
-							Ga g = chuyenBUS.timGaTheoTenGa(name);
-							if (g != null) {
-								gaDiId = g.getGaID();
+							Ga ga = chuyenBUS.timGaTheoTenGa(name);
+							if (ga != null) {
+								gaDiId = ga.getGaID();
 							}
 						}
 					}
 					if (gaDenId == null || gaDenId.trim().isEmpty()) {
 						String name = criteria.getGaDenName();
 						if (name != null && !name.trim().isEmpty()) {
-							Ga g = chuyenBUS.timGaTheoTenGa(name);
-							if (g != null) {
-								gaDenId = g.getGaID();
+							Ga ga = chuyenBUS.timGaTheoTenGa(name);
+							if (ga != null) {
+								gaDenId = ga.getGaID();
 							}
 						}
 					}
@@ -212,7 +213,8 @@ public class PanelBuoc1Controller {
 					}
 
 					bundle.outboundTrips = chuyenBUS.timChuyenTheoGaDiGaDenNgayDi(gaDiId, gaDenId, ngayDi);
-
+					bundle.outboundTrips.removeIf(c -> !LocalDateTime.now().plusHours(4)
+							.isBefore(LocalDateTime.of(c.getNgayDi(), c.getGioDi())));
 					/* Chieu ve neu chon khu hoi */
 					if (criteria.isKhuHoi() && criteria.getNgayVe() != null) {
 						// Đảo ngược ga đi và ga đến

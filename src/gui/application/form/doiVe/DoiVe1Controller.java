@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeController.java  1.0  [2:51:17 PM] Nov 9, 2025
+ * @(#) DoiVe1Controller.java  1.0  [5:31:37 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,36 +8,33 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
 import java.util.List;
 
-import bus.HoanVe_BUS;
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.Ve;
-import gui.application.form.hoanVe.HoanVeBuoc1Controller.SearchListener;
-import gui.application.form.hoanVe.HoanVeBuoc2Controller.ContinueListener;
-import gui.application.form.hoanVe.HoanVeBuoc3Controller.ConfirmListener;
-import gui.application.form.hoanVe.HoanVeBuoc3Controller.RowSelectionChangeListener;
+import gui.application.form.doiVe.DoiVeBuoc1Controller.SearchListener;
+import gui.application.form.doiVe.DoiVeBuoc2Controller.ContinueListener;
+import gui.application.form.doiVe.DoiVeBuoc3Controller.ConfirmListener;
+import gui.application.form.doiVe.DoiVeBuoc3Controller.RowSelectionChangeListener;
 
-public class HoanVe1Controller {
-	private final PanelHoanVe1 view;
-	private final PanelHoanVeBuoc1 p1;
-	private final PanelHoanVeBuoc2 p2;
-	private final PanelHoanVeBuoc3 p3;
+public class DoiVe1Controller {
+	private final PanelDoiVe1 view;
+	private final PanelDoiVeBuoc1 p1;
+	private final PanelDoiVeBuoc2 p2;
+	private final PanelDoiVeBuoc3 p3;
 
-	private final HoanVeBuoc1Controller p1Controller;
-	private final HoanVeBuoc2Controller p2Controller;
-	private final HoanVeBuoc3Controller p3Controller;
-
-	private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
+	private final DoiVeBuoc1Controller p1Controller;
+	private final DoiVeBuoc2Controller p2Controller;
+	private final DoiVeBuoc3Controller p3Controller;
 
 	private DonDatCho ddc;
 	private List<Ve> listVe;
 	private KhachHang nguoiMua;
-	private List<VeHoanRow> listRowHoan;
+	private List<VeDoiRow> listRowHoan;
 
 	private Runnable onPanel1CompleteListener;
 
@@ -45,16 +42,16 @@ public class HoanVe1Controller {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public HoanVe1Controller(PanelHoanVe1 view) {
+	public DoiVe1Controller(PanelDoiVe1 view) {
 		this.view = view;
-		this.p1 = view.getPanelHoanVeBuoc1();
-		this.p2 = view.getPanelHoanVeBuoc2();
-		this.p3 = view.getPanelHoanVeBuoc3();
+		this.p1 = view.getPanelDoiVeBuoc1();
+		this.p2 = view.getPanelDoiVeBuoc2();
+		this.p3 = view.getPanelDoiVeBuoc3();
 
-		this.p1Controller = new HoanVeBuoc1Controller(this.p1);
+		this.p1Controller = new DoiVeBuoc1Controller(this.p1);
 		this.p1.setController(this.p1Controller);
-		this.p2Controller = new HoanVeBuoc2Controller(this.p2);
-		this.p3Controller = new HoanVeBuoc3Controller(this.p3);
+		this.p2Controller = new DoiVeBuoc2Controller(this.p2);
+		this.p3Controller = new DoiVeBuoc3Controller(this.p3);
 
 		initMediatorLogic();
 	}
@@ -67,7 +64,7 @@ public class HoanVe1Controller {
 		return this.nguoiMua;
 	}
 
-	public List<VeHoanRow> getListRowHoan() {
+	public List<VeDoiRow> getListRowHoan() {
 		return this.listRowHoan;
 	}
 
@@ -101,7 +98,7 @@ public class HoanVe1Controller {
 		this.p2Controller.addContinueListener(new ContinueListener() {
 
 			@Override
-			public void onContinue(List<VeHoanRow> selectedRows) {
+			public void onContinue(List<VeDoiRow> selectedRows) {
 				// 1. Lưu trạng thái các vé được chọn
 				listRowHoan = selectedRows;
 
@@ -118,7 +115,7 @@ public class HoanVe1Controller {
 
 		this.p3Controller.addRowSelectionChangeListener(new RowSelectionChangeListener() {
 			@Override
-			public void onRowSelectionChanged(VeHoanRow row) {
+			public void onRowSelectionChanged(VeDoiRow row) {
 				// Yêu cầu Controller 2 cập nhật lại View 2
 				// Dữ liệu trong model của P2 đã tự động cập nhật
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')

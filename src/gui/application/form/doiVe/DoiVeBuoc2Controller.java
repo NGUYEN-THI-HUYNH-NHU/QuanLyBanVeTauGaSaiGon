@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeBuoc2Controller.java  1.0  [3:06:46 PM] Nov 9, 2025
+ * @(#) DoiVeBuoc2Controller.java  1.0  [5:33:04 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,7 +8,7 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
 import java.util.List;
@@ -16,21 +16,21 @@ import java.util.List;
 import entity.KhachHang;
 import entity.Ve;
 
-public class HoanVeBuoc2Controller {
-	private PanelHoanVeBuoc2 panel;
+public class DoiVeBuoc2Controller {
+	private PanelDoiVeBuoc2 panel;
 
 	protected interface ContinueListener {
-		void onContinue(List<VeHoanRow> selectedRows);
+		void onContinue(List<VeDoiRow> selectedRows);
 	}
 
 	private ContinueListener continueListener;
 
-	public HoanVeBuoc2Controller(PanelHoanVeBuoc2 panel) {
+	public DoiVeBuoc2Controller(PanelDoiVeBuoc2 panel) {
 		this.panel = panel;
 
 		this.panel.getBtnTiepTuc().addActionListener(e -> {
 			// Lấy danh sách các dòng được chọn từ View
-			List<VeHoanRow> selected = panel.getSelectedVeHoanRows();
+			List<VeDoiRow> selected = panel.getSelectedVeDoiRows();
 
 			if (selected.isEmpty()) {
 				// (Thông báo lỗi nếu chưa chọn vé nào)
@@ -57,7 +57,7 @@ public class HoanVeBuoc2Controller {
 		this.continueListener = listener;
 	}
 
-	public void refreshRowDisplay(VeHoanRow row) {
+	public void refreshRowDisplay(VeDoiRow row) {
 		panel.refreshRow(row);
 	}
 }

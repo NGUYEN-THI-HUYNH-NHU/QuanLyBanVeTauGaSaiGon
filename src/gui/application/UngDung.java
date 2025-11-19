@@ -10,11 +10,13 @@ package gui.application;/*
 						* @created : 25/09/2025
 						*/
 
-import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Component;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
@@ -40,16 +42,15 @@ public class UngDung extends JFrame {
 		setSize(900, 600);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setContentPane(formDangNhap);
 
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				xuLyThoatChuongTrinh();
-			}
-		});
+//		this.addWindowListener(new WindowAdapter() {
+//			@Override
+//			public void windowClosing(WindowEvent e) {
+//				xuLyThoatChuongTrinh();
+//			}
+//		});
 	}
 
 	public static UngDung getInstance() {
@@ -102,31 +103,22 @@ public class UngDung extends JFrame {
 	/**
 	 * Xử lý logic khi người dùng nhất nút "X" để thoát.
 	 */
-	private void xuLyThoatChuongTrinh(){
+	private void xuLyThoatChuongTrinh() {
 		Component panelHienTai = null;
-		if(giaoDienChinh != null){
+		if (giaoDienChinh != null) {
 			panelHienTai = giaoDienChinh.getHienThiPanel();
 		}
-		if(panelHienTai instanceof PanelThemTuyen){
-			int choice = JOptionPane.showConfirmDialog(
-					this,
+		if (panelHienTai instanceof PanelThemTuyen) {
+			int choice = JOptionPane.showConfirmDialog(this,
 					"Bạn có chắc chắn muốn thoát không?\n Mọi thay đổi chưa lưu (Thêm Tuyên) sẽ bị mất.",
-					"Xác nhận thoát",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE
-			);
-			if(choice == JOptionPane.YES_OPTION){
+					"Xác nhận thoát", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (choice == JOptionPane.YES_OPTION) {
 				System.exit(0);
 			}
-		}else{
-			int choice = JOptionPane.showConfirmDialog(
-					this,
-					"Bạn có chắc chắn muốn thoát ứng dụng không?",
-					"Xác nhận thoát",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE
-			);
-			if(choice == JOptionPane.YES_OPTION){
+		} else {
+			int choice = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát ứng dụng không?",
+					"Xác nhận thoát", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (choice == JOptionPane.YES_OPTION) {
 				System.exit(0);
 			}
 		}

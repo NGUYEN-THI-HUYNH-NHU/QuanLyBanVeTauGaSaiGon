@@ -31,9 +31,9 @@ public class KhachHang_DAO {
 			pstmt.setString(1, kh.getKhachHangID());
 			pstmt.setString(2, kh.getHoTen());
 			pstmt.setString(3, kh.getSoDienThoai());
-			pstmt.setString(4, kh.getEmail());
+			pstmt.setString(4, kh.getEmail() == null || kh.getEmail().isBlank() ? null : kh.getEmail());
 			pstmt.setString(5, kh.getSoGiayTo());
-			pstmt.setString(6, kh.getDiaChi());
+			pstmt.setString(6, kh.getDiaChi() == null || kh.getDiaChi().isBlank() ? null : kh.getDiaChi());
 			pstmt.setString(7, kh.getLoaiDoiTuong() != null ? kh.getLoaiDoiTuong().name() : null);
 			pstmt.setString(8, kh.getLoaiKhachHang() != null ? kh.getLoaiKhachHang().name() : null);
 

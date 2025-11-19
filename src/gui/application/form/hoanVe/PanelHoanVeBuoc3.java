@@ -68,12 +68,11 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		table.setRowHeight(80);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LOAI_HOAN));
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(0).setMinWidth(150);
 		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(6).setMaxWidth(50);
+		table.getColumnModel().getColumn(7).setMaxWidth(50);
 
 		// === Áp dụng Renderer ===
 		// 1. Renderer cho tiền (căn phải, định dạng)
@@ -110,6 +109,7 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		table.getColumnModel().getColumn(0).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(1).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(5).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(6).setCellRenderer(topAlignRenderer);
 	}
 
 	public void displayConfirmation(List<VeHoanRow> selectedRows) {
