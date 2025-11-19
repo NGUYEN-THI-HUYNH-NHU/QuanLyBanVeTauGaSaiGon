@@ -20,7 +20,6 @@ import java.util.List;
 
 import connectDB.ConnectDB;
 import dao.DonDatCho_DAO;
-import dao.Ghe_DAO;
 import dao.PhieuGiuChoChiTiet_DAO;
 import dao.PhieuGiuCho_DAO;
 import entity.Chuyen;
@@ -39,7 +38,6 @@ public class DatCho_BUS {
 	private final PhieuGiuCho_DAO pgcDAO = new PhieuGiuCho_DAO();
 	private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
 	private final DonDatCho_DAO ddcDAO = new DonDatCho_DAO();
-	private final Ghe_DAO gheDAO = new Ghe_DAO();
 
 	public PhieuGiuCho taoPhieuGiuCho() {
 		NhanVien nv = AuthService.getInstance().getCurrentUser();
@@ -187,6 +185,46 @@ public class DatCho_BUS {
 			conn.commit();
 			return pgc;
 
+		} catch (Exception e) {
+			// 5. ROLLBACK
+			if (conn != null) {
+				try {
+					conn.rollback();
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+			}
+			throw e;
+
+		} finally {
+			// 6. LUÔN LUÔN ĐÓNG KẾT NỐI
+			try {
+				if (conn != null) {
+					conn.setAutoCommit(true);
+					conn.close();
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	public void hoaTacGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
+		Connection conn = null;
+
+		try {
+			// 1. Lấy kết nối VÀ BẮT ĐẦU TRANSACTION
+			conn = ConnectDB.getInstance().getConnection();
+			conn.setAutoCommit(false);
+
+			// 2. Xóa các phiếu giữ chỗ chi tiết
+			pgcctDAO.deletePhieuGiuChoChiTietByPgcID(conn, phieuGiuCho.getPhieuGiuChoID());
+
+			// 3. Xóa phiếu giữ chỗ
+			pgcDAO.deletePhieuGiuChoByID(phieuGiuCho.getPhieuGiuChoID());
+
+			// 4. COMMIT
+			conn.commit();
 		} catch (Exception e) {
 			// 5. ROLLBACK
 			if (conn != null) {

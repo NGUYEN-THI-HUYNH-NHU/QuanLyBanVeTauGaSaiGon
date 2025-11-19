@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) HoanVeTableModel.java  1.0  [11:26:23 AM] Nov 13, 2025
+ * @(#) VeDoiTableModel.java  1.0  [11:26:23 AM] Nov 13, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -18,35 +18,33 @@ import java.util.function.Consumer;
 
 import javax.swing.table.AbstractTableModel;
 
-public class VeHoanTableModel extends AbstractTableModel {
-	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Lệ phí", "Tiền hoàn",
-			"Thông tin phí", "Lý do hoàn", "TG còn lại", "Chọn" };
+public class VeDoiTableModel extends AbstractTableModel {
+	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Loại đổi vé", "Lệ phí",
+			"Thông tin phí", "Lý do đổi", "Chọn" };
 
-	// (Column indices)
 	public static final int COL_TEN = 0;
 	public static final int COL_THONG_TIN_VE = 1;
 	public static final int COL_THANH_TIEN = 2;
-	public static final int COL_LE_PHI = 3;
-	public static final int COL_TIEN_HOAN = 4;
+	public static final int COL_LOAI_DOI = 3;
+	public static final int COL_LE_PHI = 4;
 	public static final int COL_THONG_TIN_PHI = 5;
 	public static final int COL_LY_DO = 6;
-	public static final int COL_TG_CON_LAI = 7;
-	public static final int COL_CHON = 8;
+	public static final int COL_CHON = 7;
 
-	private List<VeHoanRow> rows;
+	private List<VeDoiRow> rows;
 
-	private Consumer<VeHoanRow> rowSelectionListener;
+	private Consumer<VeDoiRow> rowSelectionListener;
 
-	public VeHoanTableModel() {
+	public VeDoiTableModel() {
 		this.rows = new ArrayList<>();
 	}
 
-	public void setRows(List<VeHoanRow> rows) {
+	public void setRows(List<VeDoiRow> rows) {
 		this.rows = new ArrayList<>(rows);
 		fireTableDataChanged(); // Thông báo cho JTable cập nhật
 	}
 
-	public List<VeHoanRow> getRows() {
+	public List<VeDoiRow> getRows() {
 		return rows;
 	}
 
@@ -71,7 +69,7 @@ public class VeHoanTableModel extends AbstractTableModel {
 		if (columnIndex == COL_CHON) {
 			return Boolean.class;
 		}
-		if (columnIndex == COL_THANH_TIEN || columnIndex == COL_LE_PHI || columnIndex == COL_TIEN_HOAN) {
+		if (columnIndex == COL_THANH_TIEN || columnIndex == COL_LE_PHI) {
 			return Double.class;
 		}
 		return String.class;
@@ -80,16 +78,12 @@ public class VeHoanTableModel extends AbstractTableModel {
 	// Quan trọng: Chỉ cho phép sửa cột Checkbox
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		if (columnIndex == COL_CHON || columnIndex == COL_LY_DO) {
-			return rows.get(rowIndex).isDuDieuKien();
-		}
-
-		return false;
+		return columnIndex == COL_CHON || columnIndex == COL_LY_DO;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		VeHoanRow row = rows.get(rowIndex);
+		VeDoiRow row = rows.get(rowIndex);
 		switch (columnIndex) {
 		case COL_TEN:
 			return row.getHanhKhach();
@@ -97,16 +91,14 @@ public class VeHoanTableModel extends AbstractTableModel {
 			return row.getThongTinVe();
 		case COL_THANH_TIEN:
 			return row.getThanhTien();
+		case COL_LOAI_DOI:
+			return row.getLoaiDoiVe();
 		case COL_LE_PHI:
-			return row.getLePhiHoanVe();
-		case COL_TIEN_HOAN:
-			return row.getTienHoan();
+			return row.getLePhiDoiVe();
 		case COL_THONG_TIN_PHI:
-			return row.getThongTinPhiHoan();
+			return row.getThongTinPhiDoi();
 		case COL_LY_DO:
 			return row.getLyDo();
-		case COL_TG_CON_LAI:
-			return row.getThoiGianConLai();
 		case COL_CHON:
 			return row.isSelected();
 		default:
@@ -118,16 +110,16 @@ public class VeHoanTableModel extends AbstractTableModel {
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if (columnIndex == COL_CHON) {
-			VeHoanRow row = rows.get(rowIndex);
+			VeDoiRow row = rows.get(rowIndex);
 			row.setSelected((Boolean) aValue);
 			fireTableCellUpdated(rowIndex, columnIndex); // Thông báo cell này thay đổi
 
-			// Phát sự kiện để HoanVeBuoc3Controller bắt
+			// Phát sự kiện để DoiVeBuoc3Controller bắt
 			if (rowSelectionListener != null) {
 				rowSelectionListener.accept(row);
 			}
 		} else if (columnIndex == COL_LY_DO) {
-			VeHoanRow row = rows.get(rowIndex);
+			VeDoiRow row = rows.get(rowIndex);
 			row.setLyDo((String) aValue);
 			fireTableCellUpdated(rowIndex, columnIndex);
 		}
@@ -136,9 +128,9 @@ public class VeHoanTableModel extends AbstractTableModel {
 	/**
 	 * Helper để lấy các dòng đã được chọn
 	 */
-	public List<VeHoanRow> getSelectedRows() {
-		List<VeHoanRow> selected = new ArrayList<>();
-		for (VeHoanRow row : rows) {
+	public List<VeDoiRow> getSelectedRows() {
+		List<VeDoiRow> selected = new ArrayList<>();
+		for (VeDoiRow row : rows) {
 			if (row.isSelected()) {
 				selected.add(row);
 			}
@@ -146,11 +138,11 @@ public class VeHoanTableModel extends AbstractTableModel {
 		return selected;
 	}
 
-	public void setRowSelectionListener(Consumer<VeHoanRow> listener) {
+	public void setRowSelectionListener(Consumer<VeDoiRow> listener) {
 		this.rowSelectionListener = listener;
 	}
 
-	public int getRowIndex(VeHoanRow rowToFind) {
+	public int getRowIndex(VeDoiRow rowToFind) {
 		return rows.indexOf(rowToFind);
 	}
 

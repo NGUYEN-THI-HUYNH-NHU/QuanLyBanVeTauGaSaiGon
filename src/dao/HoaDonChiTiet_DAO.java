@@ -68,8 +68,16 @@ public class HoaDonChiTiet_DAO {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
 			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
-			ps.setString(3, hoaDonChiTiet.getVe().getVeID());
-			ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
+			if (hoaDonChiTiet.getVe() != null) {
+				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
+				ps.setNull(4, 0);
+			} else if (hoaDonChiTiet.getPhieuDungPhongVIP() != null) {
+				ps.setNull(3, 0);
+				ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
+			} else {
+				ps.setNull(3, 0);
+				ps.setNull(4, 0);
+			}
 			ps.setString(5, hoaDonChiTiet.getTenDichVu());
 			ps.setString(6, hoaDonChiTiet.getLoaiDichVu().toString());
 			ps.setString(7, hoaDonChiTiet.getDonViTinh());

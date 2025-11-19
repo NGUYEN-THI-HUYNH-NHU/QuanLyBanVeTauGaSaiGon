@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeBuoc2.java  1.0  [2:47:14 PM] Nov 9, 2025
+ * @(#) PanelDoiVeBuoc2.java  1.0  [5:27:30 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,7 +8,7 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
 import java.awt.BorderLayout;
@@ -20,8 +20,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,10 +42,10 @@ import entity.KhachHang;
 import entity.Ve;
 import gui.tuyChinh.TextAreaRenderer;
 
-public class PanelHoanVeBuoc2 extends JPanel {
-	private HoanVeBuoc2Controller controller;
+public class PanelDoiVeBuoc2 extends JPanel {
+	private DoiVeBuoc2Controller controller;
 
-	private VeHoanTableModel model;
+	private VeDoiTableModel model;
 	private JTable table;
 	private JButton btnTiepTuc;
 
@@ -58,31 +56,12 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
-	public PanelHoanVeBuoc2() {
+	public PanelDoiVeBuoc2() {
 		setLayout(new BorderLayout());
 		setBorder(new LineBorder(new Color(220, 220, 220)));
 
-		model = new VeHoanTableModel();
-		table = new JTable(model) {
-			@Override
-			public String getToolTipText(MouseEvent e) {
-				String tip = null;
-				Point p = e.getPoint();
-				int rowIndex = rowAtPoint(p);
-				int colIndex = columnAtPoint(p);
-				int realRowIndex = convertRowIndexToModel(rowIndex);
-
-				if (realRowIndex >= 0) {
-					VeHoanRow row = model.getRows().get(realRowIndex);
-					// Nếu không đủ điều kiện, hiển thị lý do khi hover vào bất kỳ ô nào của dòng đó
-					// Hoặc chỉ khi hover vào cột Checkbox (tùy bạn chọn)
-					if (!row.isDuDieuKien()) {
-						tip = row.getLyDoKhongDuDieuKien();
-					}
-				}
-				return tip;
-			}
-		};
+		model = new VeDoiTableModel();
+		table = new JTable(model);
 
 		setupTable();
 
@@ -108,13 +87,15 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private void setupTable() {
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
 
 		// Cấu hình độ rộng cột
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(150);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setMinWidth(120);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(150);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE).setMinWidth(150);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(150);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
+
+		// === Áp dụng Renderer ===
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
 		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
@@ -135,108 +116,22 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
-
-				applyRowStyle(label, table, row);
 				return label;
 			}
 		};
 
-		// 2. RENDERER CHO CỘT THỜI GIAN
-		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
 
-				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		TableCellRenderer textAreaRenderer = new TextAreaRenderer();
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setCellRenderer(textAreaRenderer);
+		// 2. Renderer cho các cột text (căn trên)
+		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
+		topAlignRenderer.setVerticalAlignment(SwingConstants.TOP);
 
-				// Lấy row model để check logic riêng của cột này
-				int modelRow = table.convertRowIndexToModel(row);
-				VeHoanRow dataRow = model.getRows().get(modelRow);
-
-				// Logic riêng: Tô màu đỏ chữ cảnh báo
-				if (!dataRow.isDuDieuKien()) {
-					c.setForeground(Color.RED);
-					setFont(getFont().deriveFont(Font.BOLD));
-				}
-
-				applyRowStyle(c, table, row);
-				return c;
-			}
-		};
-		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-		// --- 3. RENDERER CHO CÁC CỘT TEXT (HỌ TÊN, THÔNG TIN VÉ) ---
-		// Phải chuyển sang Anonymous Class để nhúng logic tô màu nền
-		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				// Căn lề trên
-				setVerticalAlignment(SwingConstants.TOP);
-
-				// ÁP DỤNG STYLE XÁM
-				applyRowStyle(c, table, row);
-
-				return c;
-			}
-		};
-
-		// --- 4. RENDERER CHO CỘT TEXT AREA (THÔNG TIN PHÍ) ---
-		// Chúng ta cần bọc nó lại để áp dụng màu nền
-		TableCellRenderer originalTextAreaRenderer = new TextAreaRenderer();
-
-		TableCellRenderer wrappedTextAreaRenderer = new TableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				// Lấy component gốc từ TextAreaRenderer của bạn
-				Component c = originalTextAreaRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus,
-						row, column);
-
-				// ÁP DỤNG STYLE XÁM
-				applyRowStyle(c, table, row);
-
-				return c;
-			}
-		};
-
-		// Cột Thời gian
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
-		// Cột Tiền
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyFormatRenderer);
-		// Cột Text Area (Thông tin phí)
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setCellRenderer(wrappedTextAreaRenderer);
-		// Cột Text thường (Tên, Thông tin vé)
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
-	}
-
-	/**
-	 * Phương thức chung để tô màu nền cho dòng dựa trên điều kiện hoàn vé.
-	 */
-	private void applyRowStyle(Component c, JTable table, int row) {
-		int modelRow = table.convertRowIndexToModel(row);
-		VeHoanRow dataRow = model.getRows().get(modelRow);
-
-		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(new Color(240, 240, 240));
-			if (c.getForeground() != Color.RED) {
-				c.setForeground(Color.GRAY);
-			}
-		} else {
-			// TRẠNG THÁI BÌNH THƯỜNG
-			// Quan trọng: Phải reset lại màu nếu dòng đủ điều kiện
-			// Nếu dòng đang được chọn -> dùng màu selection của bảng
-			// Nếu không -> dùng màu trắng mặc định
-			if (table.isRowSelected(row)) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
-			}
-		}
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LOAI_DOI).setCellRenderer(topAlignRenderer);
 	}
 
 	/**
@@ -299,7 +194,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	}
 
 	/**
-	 * Phương thức này được gọi bởi HoanVeBuoc2Controller để đổ dữ liệu vào view.
+	 * Phương thức này được gọi bởi DoiVeBuoc2Controller để đổ dữ liệu vào view.
 	 */
 	public void showDonDatCho(List<Ve> listVe, KhachHang khachHang) {
 		// 1. Cập nhật form thông tin người mua
@@ -316,10 +211,10 @@ public class PanelHoanVeBuoc2 extends JPanel {
 
 		// 2. Cập nhật bảng
 		if (listVe != null && !listVe.isEmpty()) {
-			List<VeHoanRow> rows = new ArrayList<>();
+			List<VeDoiRow> rows = new ArrayList<>();
 			for (Ve ve : listVe) {
-				// Logic tính toán phí nằm trong constructor của VeHoanRow
-				rows.add(new VeHoanRow(ve));
+				// Logic tính toán phí nằm trong constructor của VeDoiRow
+				rows.add(new VeDoiRow(ve));
 			}
 			model.setRows(rows);
 		} else {
@@ -337,9 +232,9 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	 * Trả về danh sách các Vé gốc (entity) đã được chọn để hoàn.
 	 */
 	public List<Ve> getSelectedVe() {
-		List<VeHoanRow> selectedRows = model.getSelectedRows();
+		List<VeDoiRow> selectedRows = model.getSelectedRows();
 		List<Ve> selectedVe = new ArrayList<>();
-		for (VeHoanRow row : selectedRows) {
+		for (VeDoiRow row : selectedRows) {
 			selectedVe.add(row.getVe());
 		}
 		return selectedVe;
@@ -349,7 +244,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	 * Yêu cầu model thông báo cho JTable rằng một dòng đã thay đổi. JTable sẽ đọc
 	 * lại dữ liệu từ model cho dòng đó và vẽ lại.
 	 */
-	public void refreshRow(VeHoanRow row) {
+	public void refreshRow(VeDoiRow row) {
 		int rowIndex = model.getRowIndex(row);
 		if (rowIndex != -1) {
 			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
@@ -358,7 +253,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		}
 	}
 
-	public List<VeHoanRow> getSelectedVeHoanRows() {
+	public List<VeDoiRow> getSelectedVeDoiRows() {
 		return model.getSelectedRows();
 	}
 

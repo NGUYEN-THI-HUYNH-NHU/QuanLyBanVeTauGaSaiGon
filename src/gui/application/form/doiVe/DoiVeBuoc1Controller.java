@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeBuoc1Controller.java  1.0  [1:09:40 PM] Nov 9, 2025
+ * @(#) DoiVeBuoc1Controller.java  1.0  [5:29:47 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,9 +8,10 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 9, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
@@ -32,14 +33,14 @@ import entity.KhachHang;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 
-public class HoanVeBuoc1Controller {
-	private final PanelHoanVeBuoc1 panel;
+public class DoiVeBuoc1Controller {
+	private final PanelDoiVeBuoc1 panel;
 
 	private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
-	// Interface để HoanVe1Controller (Mediator) lắng nghe
+	// Interface để DoiVe1Controller (Mediator) lắng nghe
 	protected interface SearchListener {
 		void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang);
 
@@ -52,7 +53,7 @@ public class HoanVeBuoc1Controller {
 		this.searchListener = listener;
 	}
 
-	public HoanVeBuoc1Controller(PanelHoanVeBuoc1 panel) {
+	public DoiVeBuoc1Controller(PanelDoiVeBuoc1 panel) {
 		this.panel = panel;
 		init();
 	}
@@ -122,7 +123,7 @@ public class HoanVeBuoc1Controller {
 
 						panel.getBtnTraCuu().setEnabled(true);
 
-						// Báo cho Mediator (HoanVe1Controller)
+						// Báo cho Mediator (DoiVe1Controller)
 						if (searchListener != null) {
 							searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
 						}

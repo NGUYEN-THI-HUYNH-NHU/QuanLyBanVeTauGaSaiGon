@@ -36,6 +36,7 @@ import gui.application.form.NhanVien.QuanLyNhanVien;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
+import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
@@ -102,7 +103,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 3 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe());
-//				case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe());
 				default -> action.cancel();
 				}
 			}
@@ -111,6 +112,7 @@ public class GiaoDienChinh extends JLayeredPane {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+				default -> action.cancel();
 				}
 			}
 
@@ -232,10 +234,11 @@ public class GiaoDienChinh extends JLayeredPane {
 
 	/**
 	 * Lấy combonent (Panel) đang được hiển thị trong bùng nội dung (panelBody).
+	 * 
 	 * @return Component đang hiển thị, hoặc null nếu không có gì.
 	 */
-	public Component getHienThiPanel(){
-		if(panelBody != null && panelBody.getComponentCount() > 0){
+	public Component getHienThiPanel() {
+		if (panelBody != null && panelBody.getComponentCount() > 0) {
 			return panelBody.getComponent(0);
 		}
 		return null;

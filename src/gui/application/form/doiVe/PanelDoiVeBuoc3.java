@@ -1,6 +1,6 @@
-package gui.application.form.hoanVe;
+package gui.application.form.doiVe;
 /*
- * @(#) PanelHoanVeBuoc4.java  1.0  [2:15:18 PM] Nov 14, 2025
+ * @(#) PanelDoiVeBuoc3.java  1.0  [5:27:38 PM] Nov 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,17 +8,21 @@ package gui.application.form.hoanVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 14, 2025
+ * @date: Nov 17, 2025
  * @version: 1.0
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,35 +32,48 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-public class PanelHoanVeBuoc4 extends JPanel {
-	private VeHoanTableModel model;
+public class PanelDoiVeBuoc3 extends JPanel {
+	private VeDoiTableModel model;
 	private JTable table;
+	private JButton btnXacNhan;
 	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
-	public PanelHoanVeBuoc4() {
+	public PanelDoiVeBuoc3() {
 		setLayout(new BorderLayout());
 		setBorder(new LineBorder(new Color(220, 220, 220)));
 
-		model = new VeHoanTableModel();
+		model = new VeDoiTableModel();
 		table = new JTable(model);
 
 		setupTable();
 
 		JScrollPane sp = new JScrollPane(table);
-		sp.setPreferredSize(new Dimension(0, 350));
+		sp.setPreferredSize(new Dimension(0, 300));
 		add(sp, BorderLayout.CENTER);
+
+		JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btnXacNhan = new JButton("Xác nhận");
+		south.add(btnXacNhan);
+
+		add(south, BorderLayout.SOUTH);
 	}
 
 	private void setupTable() {
+		String[] lyDoHoan = { "Không còn nhu cầu", "Thay đổi kế hoạch", "Lý do cá nhân", "Trùng vé", "Khác" };
+		JComboBox<String> cbLyDoHoan = new JComboBox<>(lyDoHoan);
+		DefaultCellEditor cellEditor = new DefaultCellEditor(cbLyDoHoan);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setCellEditor(cellEditor);
+
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LOAI_DOI));
 
-		// Cấu hình độ rộng cột
+		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(0).setMinWidth(150);
 		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(7).setMaxWidth(50);
+		table.getColumnModel().getColumn(5).setMaxWidth(50);
 
 		// === Áp dụng Renderer ===
 		// 1. Renderer cho tiền (căn phải, định dạng)
@@ -84,7 +101,6 @@ public class PanelHoanVeBuoc4 extends JPanel {
 
 		table.getColumnModel().getColumn(2).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(3).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(currencyFormatRenderer);
 
 		// 2. Renderer cho các cột text (căn trên)
 		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
@@ -92,18 +108,21 @@ public class PanelHoanVeBuoc4 extends JPanel {
 
 		table.getColumnModel().getColumn(0).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(1).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(5).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(6).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(4).setCellRenderer(topAlignRenderer);
 	}
 
-	public void displayConfirmation(List<VeHoanRow> selectedRows) {
+	public void displayConfirmation(List<VeDoiRow> selectedRows) {
 		model.setRows(selectedRows);
+	}
+
+	public JButton getBtnXacNhan() {
+		return btnXacNhan;
 	}
 
 	/**
 	 * @param row
 	 */
-	public void removeRow(VeHoanRow row) {
+	public void removeRow(VeDoiRow row) {
 		int rowIndex = model.getRowIndex(row);
 		if (rowIndex != -1) {
 			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
@@ -120,16 +139,9 @@ public class PanelHoanVeBuoc4 extends JPanel {
 
 	}
 
-	public void addRowSelectionListener(Consumer<VeHoanRow> listener) {
+	public void addRowSelectionListener(Consumer<VeDoiRow> listener) {
 		if (model != null) {
 			model.setRowSelectionListener(listener);
 		}
-	}
-
-	/**
-	 * @param listVeHoanRow
-	 */
-	public void hienThiThongTin(List<VeHoanRow> listVeHoanRow) {
-		model.setRows(listVeHoanRow);
 	}
 }
