@@ -127,19 +127,33 @@ public class Ga_BUS {
         List<Ga> allGa = ga_dao.getAllGa();
 
         List<Map<String,Object>> gaData = new ArrayList<>();
+        for(Ga ga : allGa){
+            int kcxp = kcxpMap.getOrDefault(ga.getGaID(), Integer.MAX_VALUE);
+
+            Map<String,Object> data = new LinkedHashMap<>();
+            data.put("Ga", ga);
+            data.put("KhoangCachXuatPhat", kcxp);
+            gaData.add(data);
+        }
+
+        gaData.sort((a,b) -> Integer.compare((Integer)a.get("KhoangCachXuatPhat"), (Integer)b.get("KhoangCachXuatPhat")));
         List<Object[]> dsGaBang = new ArrayList<>();
         List<Ga> gaSortedList = gaData.stream().map(data -> (Ga) data.get("Ga")).collect(Collectors.toList());
         for(int i=0; i< gaSortedList.size(); i++){
             Ga gaHienTai = gaSortedList.get(i);
             String khoangCach2Ga = "-";
+            int kcxpGaHienTai = (int) gaData.get(i).get("KhoangCachXuatPhat");
             if(i == 0 && gaHienTai.getGaID().equals("SGO")){
                 khoangCach2Ga = "0 Km";
             }
             if(i< gaSortedList.size() -1){
                 Ga gaSau = gaSortedList.get(i+1);
-                int kcSegment = khoangCachChuanDao.getKhoangCachDoan(gaHienTai.getGaID(),gaSau.getGaID());
-                if(kcSegment > 0){
-                    khoangCach2Ga = kcSegment + " Km";
+                int kcxpOfNextGa = (i + 1 < gaData.size()) ? (int) gaData.get(i + 1).get("KhoangCacgXuatPhat") : Integer.MAX_VALUE;
+                if(kcxpGaHienTai != Integer.MAX_VALUE && kcxpOfNextGa != Integer.MAX_VALUE) {
+                    int kcSegment = khoangCachChuanDao.getKhoangCachDoan(gaHienTai.getGaID(),gaSau.getGaID());
+                    if(kcSegment > 0){
+                        khoangCach2Ga = kcSegment + " Km";
+                }
                 }
             }
 
