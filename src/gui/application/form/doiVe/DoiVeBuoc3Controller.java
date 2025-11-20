@@ -20,20 +20,23 @@ public class DoiVeBuoc3Controller {
 
 	private final PanelDoiVeBuoc3 panel;
 
+	private final ExchangeSession exchangeSession;
+
 	protected interface RowSelectionChangeListener {
 		void onRowSelectionChanged(VeDoiRow row);
 	}
 
-	private RowSelectionChangeListener selectionChangeListener;
-
-	public interface ConfirmListener {
+	protected interface ConfirmListener {
 		void onConfirm();
 	}
 
 	private ConfirmListener confirmListener;
 
-	public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel) {
+	private RowSelectionChangeListener selectionChangeListener;
+
+	public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel, ExchangeSession exchangeSession) {
 		this.panel = panel;
+		this.exchangeSession = exchangeSession;
 
 		// Lắng nghe thay đổi trên row
 		this.panel.addRowSelectionListener(new Consumer<VeDoiRow>() {
@@ -52,6 +55,9 @@ public class DoiVeBuoc3Controller {
 
 		// Lắng nghe nút xác nhận
 		this.panel.getBtnXacNhan().addActionListener(e -> {
+			List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
+			exchangeSession.setListVeCuCanDoi(listVeDoiRow);
+			System.out.println(listVeDoiRow.get(0).getVe());
 			// Báo sự kiện này lên cho Mediator
 			if (confirmListener != null) {
 				confirmListener.onConfirm();

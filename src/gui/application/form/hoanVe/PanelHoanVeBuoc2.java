@@ -227,15 +227,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 			if (c.getForeground() != Color.RED) {
 				c.setForeground(Color.GRAY);
 			}
-		} else {
-			// TRẠNG THÁI BÌNH THƯỜNG
-			// Quan trọng: Phải reset lại màu nếu dòng đủ điều kiện
-			// Nếu dòng đang được chọn -> dùng màu selection của bảng
-			// Nếu không -> dùng màu trắng mặc định
-			if (table.isRowSelected(row)) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
-			}
 		}
 	}
 

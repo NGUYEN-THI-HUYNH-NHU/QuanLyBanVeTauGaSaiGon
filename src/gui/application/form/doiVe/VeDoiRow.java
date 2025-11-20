@@ -1,7 +1,7 @@
 package gui.application.form.doiVe;
 
 /*
- * @(#) VeDoiRow.java  1.0  [11:23:41 AM] Nov 13, 2025
+ * @(#) veDoiRow.java  1.0  [11:23:41 AM] Nov 13, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -17,12 +17,10 @@ import java.time.LocalDateTime;
 import entity.Ve;
 
 public class VeDoiRow {
-	private Ve veDoi;
-	private Ve veMoi;
+	private Ve ve;
 	private String hanhKhach;
 	private String loaiDoiVe;
 	private double lePhiDoiVe;
-	private double tienChenhLech;
 	private String thongTinPhiDoi;
 	private String lyDo;
 	private boolean isSelected;
@@ -31,13 +29,11 @@ public class VeDoiRow {
 	private boolean isDuDieuKien;
 	private String lyDoKhongDuDieuKien;
 
-	public VeDoiRow(Ve veDoi) {
-		this.veDoi = veDoi;
+	public VeDoiRow(Ve ve) {
+		this.ve = ve;
 
-		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>",
-				veDoi.getKhachHang().getHoTen(), veDoi.getKhachHang().getLoaiDoiTuong().getDescription(),
-				veDoi.getKhachHang().getSoGiayTo());
-		this.tienChenhLech = 0;
+		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
+				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
 		calcThoiGianConLaiVaPhiDoi();
 
 		this.lyDo = "Không còn nhu cầu";
@@ -46,7 +42,7 @@ public class VeDoiRow {
 	}
 
 	private void calcThoiGianConLaiVaPhiDoi() {
-		LocalDateTime gioTauChay = veDoi.getNgayGioDi();
+		LocalDateTime gioTauChay = ve.getNgayGioDi();
 		LocalDateTime now = LocalDateTime.now();
 
 		Duration duration = Duration.between(now, gioTauChay);
@@ -78,16 +74,8 @@ public class VeDoiRow {
 		}
 	}
 
-	public Ve getVeDoi() {
-		return veDoi;
-	}
-
-	public Ve getVeMoi() {
-		return veMoi;
-	}
-
-	public void setVeMoi(Ve veMoi) {
-		this.veMoi = veMoi;
+	public Ve getVe() {
+		return ve;
 	}
 
 	public String getHanhKhach() {
@@ -100,14 +88,6 @@ public class VeDoiRow {
 
 	public double getLePhiDoiVe() {
 		return lePhiDoiVe;
-	}
-
-	public double getTienChenhLech() {
-		return tienChenhLech;
-	}
-
-	public void setTienChenhLech(double tienChenhLech) {
-		this.tienChenhLech = tienChenhLech;
 	}
 
 	public String getThongTinPhiDoi() {

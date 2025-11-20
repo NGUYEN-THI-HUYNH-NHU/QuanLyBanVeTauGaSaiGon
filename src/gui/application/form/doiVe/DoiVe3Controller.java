@@ -5,8 +5,6 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import gui.application.form.banVe.BookingSession;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -18,9 +16,9 @@ public class DoiVe3Controller {
 
 	/**
 	 * @param panelDoiVe3
-	 * @param bookingSession
+	 * @param exchangeSession
 	 */
-	public DoiVe3Controller(PanelDoiVe3 panelDoiVe3, BookingSession bookingSession) {
+	public DoiVe3Controller(PanelDoiVe3 panelDoiVe3, ExchangeSession exchangeSession) {
 		// TODO Auto-generated constructor stub
 	}
 

@@ -87,16 +87,13 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	private void setupTable() {
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_MOI));
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_TIEN_VE_MOI - 1));
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_CHENH_LECH - 2));
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO - 3));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
 
 		// Cấu hình độ rộng cột
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(150);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 3).setMinWidth(100);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 4).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(100);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
 		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
@@ -183,13 +180,12 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		};
 
 		// Cột Thời gian
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI - 4).setCellRenderer(timeRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
 		// Cột Tiền
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
 		// Cột Text Area (Thông tin phí)
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 3)
-				.setCellRenderer(wrappedTextAreaRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setCellRenderer(wrappedTextAreaRenderer);
 		// Cột Text thường (Tên, Thông tin vé)
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setCellRenderer(topAlignRenderer);
@@ -206,11 +202,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 			c.setBackground(new Color(240, 240, 240));
 			if (c.getForeground() != Color.RED) {
 				c.setForeground(Color.GRAY);
-			}
-		} else {
-			if (table.isRowSelected(row)) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
 			}
 		}
 	}
@@ -316,7 +307,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		List<VeDoiRow> selectedRows = model.getSelectedRows();
 		List<Ve> selectedVe = new ArrayList<>();
 		for (VeDoiRow row : selectedRows) {
-			selectedVe.add(row.getVeDoi());
+			selectedVe.add(row.getVe());
 		}
 		return selectedVe;
 	}

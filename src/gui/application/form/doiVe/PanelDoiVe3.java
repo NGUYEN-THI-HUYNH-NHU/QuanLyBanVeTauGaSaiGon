@@ -16,4 +16,12 @@ import javax.swing.JPanel;
 
 public class PanelDoiVe3 extends JPanel {
 
+	/**
+	 * @param doiVeBuoc6Controller
+	 */
+	public void setController(DoiVeBuoc6Controller doiVeBuoc6Controller) {
+		// TODO Auto-generated method stub
+
+	}
+
 }
