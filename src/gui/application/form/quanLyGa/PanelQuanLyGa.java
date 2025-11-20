@@ -1,42 +1,42 @@
-//package gui.application.form.quanLyGa;/*
-// * @ (#) PanelQuanLyGa.java   1.0     20/11/2025
-//package gui.application.form.quanLyGa;
-//
-//
-///**
-// * @description :
-// * @author : Vy, Pham Kha Vy
-// * @version 1.0
-// * @created : 20/11/2025
-// */
-//
-//import bus.Ga_BUS;
-//import entity.NhanVien;
-//import net.miginfocom.swing.MigLayout;
-//
-//import javax.swing.*;
-//import javax.swing.table.DefaultTableCellRenderer;
-//import javax.swing.table.DefaultTableModel;
-//import javax.swing.table.JTableHeader;
-//import java.awt.*;
-//import java.util.List;
-//
-//public class PanelQuanLyGa extends JPanel {
-//    private final NhanVien nhanVienThucHien;
-//    private final Ga_BUS gaBus;
-//
-//    private JTextField txtTimKiem;
-//
-//    private JTable tableGa;
-//    private DefaultTableModel tableModelGa;
-//
-//    public PanelQuanLyGa(NhanVien nhanVien){
-//        this.nhanVienThucHien = nhanVien;
-//        this.gaBus = new Ga_BUS();
-//        setLayout(new BorderLayout());
+package gui.application.form.quanLyGa;/*
+ * @ (#) PanelQuanLyGa.java   1.0     20/11/2025
+package gui.application.form.quanLyGa;
+
+
+/**
+ * @description :
+ * @author : Vy, Pham Kha Vy
+ * @version 1.0
+ * @created : 20/11/2025
+ */
+
+import bus.Ga_BUS;
+import entity.NhanVien;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import java.awt.*;
+import java.util.List;
+
+public class PanelQuanLyGa extends JPanel {
+    private final NhanVien nhanVienThucHien;
+    private final Ga_BUS gaBus;
+
+    private JTextField txtTimKiem;
+
+    private JTable tableGa;
+    private DefaultTableModel tableModelGa;
+
+    public PanelQuanLyGa(NhanVien nhanVien){
+        this.nhanVienThucHien = nhanVien;
+        this.gaBus = new Ga_BUS();
+        setLayout(new BorderLayout());
 //        initComponents();
-//    }
-//
+    }
+
 //    public void initComponents() {
 //        JPanel panelNorth = new JPanel(new BorderLayout());
 //        JPanel panelHeader = new JPanel(new MigLayout("wrap 1, fillx, insets 10 10 5 10"));
@@ -143,4 +143,4 @@
 //        }
 //        tableGa.getColumnModel().getColumn(1).setPreferredWidth(150);
 //    }
-//}
+}
