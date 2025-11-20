@@ -132,6 +132,8 @@ public class CapNhatTuyen_CTRL {
         if(ketQua.isEmpty()){
             JOptionPane.showMessageDialog(panelCapNhatTuyen, "Không tìm thấy tuyến nào giữa ga " + tenGaDi + " và ga " + tenGaDen, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             panelCapNhatTuyen.getTxtMaTuyen().setText("");
+            panelCapNhatTuyen.getTxtGaXuatPhat().setText("");
+            panelCapNhatTuyen.getTxtGaDich().setText("");
         }else if(ketQua.size() == 1){
             taiDuLieuTuyen(ketQua.get(0).getTuyenID());
         }else{
@@ -148,6 +150,9 @@ public class CapNhatTuyen_CTRL {
         List<TuyenChiTiet> dsChiTiet = tuyenBus.getDanhSachTuyenChiTiet(maTuyen);
         if(dsChiTiet == null || dsChiTiet.size() <2){
             JOptionPane.showMessageDialog(panelCapNhatTuyen, "Không tìm thấy tuyến với mã: " + maTuyen, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            panelCapNhatTuyen.getTxtMaTuyen().setText("");
+            panelCapNhatTuyen.getTxtGaXuatPhat().setText("");
+            panelCapNhatTuyen.getTxtGaDich().setText("");
             return;
         }
 
