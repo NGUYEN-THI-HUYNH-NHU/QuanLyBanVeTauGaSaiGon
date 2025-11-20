@@ -68,12 +68,29 @@ public class CapNhatTuyen_CTRL {
 
     private void thietLapListener(){
         JTextField txtMaTuyen = panelCapNhatTuyen.getTxtMaTuyen();
+        JTextField txtGaXuatPhat = panelCapNhatTuyen.getTxtGaXuatPhat();
+        JTextField txtGaDich = panelCapNhatTuyen.getTxtGaDich();
+
+        Runnable actionMaTuyen = () -> {
+            taiDuLieuTuyen();
+            chuyenFocusSauKhiChon(txtMaTuyen);
+        };
+
+        Runnable actionGaChinhXP = () -> {
+            timVaTaiTuyenTheoGa();
+            chuyenFocusSauKhiChon(txtGaXuatPhat);
+        };
+
+        Runnable actionGaChinhDich = () -> {
+            timVaTaiTuyenTheoGa();
+            chuyenFocusSauKhiChon(txtGaDich);
+        };
         taoPopGoiY(
                 panelCapNhatTuyen.getTxtGaXuatPhat(),
                 panelCapNhatTuyen.getPpGaXuatPhat(),
                 panelCapNhatTuyen.getListGaXuatPhat(),
                 gaBus::timTenGaChoGoiY,
-                this::timVaTaiTuyenTheoGa
+                actionGaChinhXP
         );
 
         taoPopGoiY(
@@ -81,7 +98,7 @@ public class CapNhatTuyen_CTRL {
                 panelCapNhatTuyen.getPpGaDich(),
                 panelCapNhatTuyen.getListGaDich(),
                 gaBus::timTenGaChoGoiY,
-                this::timVaTaiTuyenTheoGa
+                actionGaChinhDich
         );
 
         taoPopGoiY(
@@ -89,18 +106,30 @@ public class CapNhatTuyen_CTRL {
                 panelCapNhatTuyen.getPpGaTrungGian(),
                 panelCapNhatTuyen.getListGaTrungGian(),
                 tuyenBus::timIDTuyenChoGoiY,
-                this::taiDuLieuTuyen
+                actionMaTuyen
         );
 
         txtMaTuyen.addActionListener(e -> taiDuLieuTuyen());
-        txtMaTuyen.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                if(!txtMaTuyen.getText().trim().isEmpty()){
-                    taiDuLieuTuyen();
-                }
-            }
-        });
+//        txtMaTuyen.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusLost(FocusEvent e) {
+//                if(!txtMaTuyen.getText().trim().isEmpty()){
+//                    taiDuLieuTuyen();
+//                }
+//            }
+//        });
+//        txtGaXuatPhat.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusLost(FocusEvent e) {
+//                actionGaChinhXP.run();
+//            }
+//        });
+//        txtGaDich.addFocusListener(new FocusAdapter() {
+//            @Override
+//            public void focusLost(FocusEvent e) {
+//                actionGaChinhDich.run();
+//            }
+//        });
 
         taoPopGoiY(
                 panelCapNhatTuyen.getTxtGaTrungGian(),
@@ -129,13 +158,11 @@ public class CapNhatTuyen_CTRL {
 
         List<Tuyen> ketQua = tuyenBus.timTuyenTheoGa(tenGaDi, tenGaDen);
 
-        if(ketQua.isEmpty()){
+        if(ketQua.isEmpty()) {
             JOptionPane.showMessageDialog(panelCapNhatTuyen, "Không tìm thấy tuyến nào giữa ga " + tenGaDi + " và ga " + tenGaDen, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             panelCapNhatTuyen.getTxtMaTuyen().setText("");
-            panelCapNhatTuyen.getTxtGaXuatPhat().setText("");
-            panelCapNhatTuyen.getTxtGaDich().setText("");
-        }else if(ketQua.size() == 1){
-            taiDuLieuTuyen(ketQua.get(0).getTuyenID());
+            panelCapNhatTuyen.getTxtMoTa().setText("");
+            capNhatDanhSachVaTinhKC();
         }else{
             taiDuLieuTuyen(ketQua.get(0).getTuyenID());
         }
@@ -246,6 +273,21 @@ public class CapNhatTuyen_CTRL {
         pp.removeAll();
         pp.add(new JScrollPane(lst));
         txt.getDocument().addDocumentListener(new DocumentListener() {
+            private void handleDocumentChange(){
+                String input = txt.getText().trim();
+                if(input.isEmpty()){
+                    if(txt == panelCapNhatTuyen.getTxtMaTuyen() ||
+                    txt == panelCapNhatTuyen.getTxtGaDich() ||
+                    txt == panelCapNhatTuyen.getTxtGaXuatPhat()){
+                        resetForm();
+                    }
+                    pp.setVisible(false);
+                    return;
+                }
+                if(!dangChonTuPopup){
+                    hienThiGoiY(txt, lst, pp, timKiem);
+                }
+            }
             @Override
             public void insertUpdate(DocumentEvent e) {
                 if(!dangChonTuPopup){
@@ -430,14 +472,14 @@ public class CapNhatTuyen_CTRL {
             });
             gaTruoc = gaHienTai;
         }
-        if(isLoiKhoangCach){
-            JOptionPane.showMessageDialog(panelCapNhatTuyen, "LỖI: Không tìm thấy đường đi hoặc khoảng cách chuẩn giữa " +
-                    (gaTruoc != null ? gaTruoc.getTenGa() : "N/A" + " và " + (gaHienTai != null ? gaHienTai.getTenGa() : "N/A")), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            model.setRowCount(0);
-            panelCapNhatTuyen.getTxtDoDaiQuangDuong().setText("0");
-        }else{
+//        if(isLoiKhoangCach){
+//            JOptionPane.showMessageDialog(panelCapNhatTuyen, "LỖI: Không tìm thấy đường đi hoặc khoảng cách chuẩn giữa " +
+//                    (gaTruoc != null ? gaTruoc.getTenGa() : "N/A" + " và " + (gaHienTai != null ? gaHienTai.getTenGa() : "N/A")), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            model.setRowCount(0);
+//            panelCapNhatTuyen.getTxtDoDaiQuangDuong().setText("0");
+//        else{
             panelCapNhatTuyen.getTxtDoDaiQuangDuong().setText(String.valueOf(accumulatedDistance));
-        }
+//        }
     }
 
     private void xuLyHuyBo(){
@@ -452,6 +494,31 @@ public class CapNhatTuyen_CTRL {
             PanelQuanLyTuyen panelQuanLyTuyen = new PanelQuanLyTuyen(panelCapNhatTuyen.getNhanVienThucHien());
             UngDung.showGiaoDienChinh(panelQuanLyTuyen);
         }
+    }
+
+    private void chuyenFocusSauKhiChon(JTextField sourceField){
+        if(sourceField == panelCapNhatTuyen.getTxtGaXuatPhat()) {
+            panelCapNhatTuyen.getTxtGaDich().requestFocusInWindow();
+        } else if (sourceField == panelCapNhatTuyen.getTxtGaDich()) {
+            panelCapNhatTuyen.getTxtGaTrungGian().requestFocusInWindow();
+        }else if (sourceField == panelCapNhatTuyen.getTxtMaTuyen()){
+            panelCapNhatTuyen.getTxtGaTrungGian().requestFocusInWindow();
+        }
+    }
+
+    private void resetForm(){
+        panelCapNhatTuyen.getTxtMaTuyen().setText("");
+        panelCapNhatTuyen.getTxtGaXuatPhat().setText("");
+        panelCapNhatTuyen.getTxtGaDich().setText("");
+        panelCapNhatTuyen.getTxtGaTrungGian().setText("");
+        panelCapNhatTuyen.getTxtMoTa().setText("");
+        panelCapNhatTuyen.getTxtDoDaiQuangDuong().setText("0");
+        panelCapNhatTuyen.getPnlGaTrungGianDaChon().removeAll();
+        panelCapNhatTuyen.getPnlGaTrungGianDaChon().revalidate();
+        panelCapNhatTuyen.getPnlGaTrungGianDaChon().repaint();
+        panelCapNhatTuyen.getModelGaChiTiet().setRowCount(0);
+        dsGaDaChon.clear();
+        tuyenHienTai = null;
     }
 
 }

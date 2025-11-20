@@ -24,6 +24,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -137,7 +138,10 @@ public class QuanLyTuyen_CTRL {
         String tuyenID = table.getValueAt(modelRow, 0).toString();
         String thongTinChung = tuyen_bus.getChiTietTuyen(tuyenID);
         List<Object[]> dsGaTrungGian = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen),"Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
+
+        Window owner = SwingUtilities.getWindowAncestor(pnlTuyen);
+        JDialog dialog = new JDialog((Frame) owner, "Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
+        dialog.setResizable(false);
         dialog.setLayout(new BorderLayout());
 
         JTextArea txtThongTinCHung = new JTextArea(thongTinChung);
@@ -156,6 +160,13 @@ public class QuanLyTuyen_CTRL {
         detailTable.setShowGrid(true);
         detailTable.setShowHorizontalLines(true);
         detailTable.setShowVerticalLines(true);
+        JTableHeader hd = detailTable.getTableHeader();
+//        hd.setOpaque(false);
+        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        hd.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        hd.setBackground(new Color(36, 104, 155));
+        hd.setForeground(Color.white);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();// căn phait cho cột khoảng cách
         rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -174,9 +185,10 @@ public class QuanLyTuyen_CTRL {
         dialog.add(southPanel, BorderLayout.SOUTH);
 
         dialog.pack();
-        dialog.setSize(600, 600);
+        dialog.setSize(800, 600);
         dialog.setLocationRelativeTo(pnlTuyen);
         dialog.setVisible(true);
+
     }
 
     private void hienThiManHinhThemTuyen(){

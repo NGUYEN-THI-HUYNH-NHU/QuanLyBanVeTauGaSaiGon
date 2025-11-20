@@ -65,12 +65,20 @@ public class ThemTuyen_CTRL {
     }
 
     private void thietLapListener(){
+        Runnable actionXP = () -> {
+            capNhatMaTuyen();
+            chuyenFocusSauKhiChon(panelThemTuyen.getTxtGaXuatPhat());
+        };
+         Runnable actionDen = () -> {
+             capNhatMaTuyen();
+             chuyenFocusSauKhiChon(panelThemTuyen.getTxtGaDich());
+         };
        taoPopGoiY(
                panelThemTuyen.getTxtGaXuatPhat(),
                 panelThemTuyen.getPpGaXuatPhat(),
                 panelThemTuyen.getListGaXuatPhat(),
                 gaBus::timTenGaChoGoiY,
-               this::capNhatMaTuyen
+               actionXP
        );
 
        taoPopGoiY(
@@ -78,7 +86,7 @@ public class ThemTuyen_CTRL {
                 panelThemTuyen.getPpGaDich(),
                 panelThemTuyen.getListGaDich(),
                 gaBus::timTenGaChoGoiY,
-                this::capNhatMaTuyen
+                actionDen
        );
 
        taoPopGoiY(
@@ -86,7 +94,7 @@ public class ThemTuyen_CTRL {
                 panelThemTuyen.getPpGaTrungGian(),
                 panelThemTuyen.getListGaTrungGian(),
                 gaBus::timTenGaChoGoiY,
-               () -> xuLyChonGaTrungGian()
+               this::xuLyChonGaTrungGian
        );
 
        panelThemTuyen.getBtnXacNhanTinhKC().addActionListener(e -> capNhatDanhSachVaTinhKC());
@@ -413,6 +421,15 @@ public class ThemTuyen_CTRL {
         if (choice == JOptionPane.YES_OPTION) {
             PanelQuanLyTuyen panelQuanLy = new PanelQuanLyTuyen(panelThemTuyen.getNhanVienThucHien());
             UngDung.showGiaoDienChinh(panelQuanLy);
+        }
+    }
+
+    private void chuyenFocusSauKhiChon(JTextField sourceField){
+        if(sourceField == panelThemTuyen.getTxtGaXuatPhat()) {
+            panelThemTuyen.getTxtGaDich().requestFocusInWindow();
+        } else if (sourceField == panelThemTuyen.getTxtGaDich()) {
+            panelThemTuyen.getTxtGaTrungGian().requestFocusInWindow();
+
         }
     }
 }

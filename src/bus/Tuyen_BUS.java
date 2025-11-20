@@ -148,7 +148,7 @@ public class Tuyen_BUS {
 
         Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
         StringBuilder sb = new StringBuilder();
-        sb.append("__________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________\n");
+        sb.append("__________________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________________________\n");
         sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
         sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
         sb.append("Khoảng cách từ ga xuất phát đến ga đích: ").append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");

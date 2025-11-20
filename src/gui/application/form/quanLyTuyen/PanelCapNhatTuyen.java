@@ -84,6 +84,7 @@ public class PanelCapNhatTuyen extends JPanel {
         pnlContent.add(txtGaDich,"growx, wrap 20");
 
         txtMaTuyen = new JTextField();
+        txtMaTuyen.setEditable(true);
         txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập Mã Tuyến để cập nhật");
         txtDoDaiQuangDuong = new JTextField();
         txtDoDaiQuangDuong.setEditable(false);
@@ -168,6 +169,7 @@ public class PanelCapNhatTuyen extends JPanel {
 
         this.add(pnlAction, BorderLayout.SOUTH);
     }
+
 
 
     public NhanVien getNhanVienThucHien() {
