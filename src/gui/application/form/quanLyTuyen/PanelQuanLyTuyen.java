@@ -63,7 +63,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         this.tuyen_bus = new Tuyen_BUS();
         this.nhanVienThucHien = nhanVien;
 
-        loadAndBlurBackground("img/nenTauLua.jpg");
+//        loadAndBlurBackground("img/nenTauLua.jpg");
 
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
@@ -77,7 +77,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         // --- 1. HEADER PANEL ---
         JPanel panelHeader = new JPanel();
         panelHeader.setLayout(new MigLayout("wrap 1, fillx, insets 10 10 5 10"));
-        panelHeader.setOpaque(false);
+//        panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Times New Roman", Font.BOLD, 24));
         title.setForeground(new Color(30,41,58));
@@ -85,20 +85,20 @@ public class   PanelQuanLyTuyen extends JPanel {
 
         //Tìm kiếm
         JPanel panelSearch = new JPanel(new MigLayout("insets 5 10 10 10, gap 10"));
-        panelSearch.setOpaque(false);
+//        panelSearch.setOpaque(false);
         Color translucentWhite = new Color(255,255,255,180);
         txtGaDen = new JTextField(15);
         txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         txtGaDen.setBackground(translucentWhite);
-        txtGaDen.setOpaque(false);
+//        txtGaDen.setOpaque(false);
         txtGaDi = new JTextField(15);
         txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         txtGaDen.setBackground(translucentWhite);
-        txtGaDi.setOpaque(false);
+//        txtGaDi.setOpaque(false);
         btnLamMoiTuyen = new JButton("(F5) Làm mới tuyến");
         txtTimKiem = new JTextField(10);
         txtTimKiem.setBackground(translucentWhite);
-        txtTimKiem.setOpaque(false);
+//        txtTimKiem.setOpaque(false);
         txtTimKiem.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mã tuyến để tìm kiếm tuyến");
 //        btnTimKiem = new JButton("Tìm kiếm");
         btnThemTuyen = new JButton("Thêm tuyến");
@@ -131,14 +131,14 @@ public class   PanelQuanLyTuyen extends JPanel {
                 "[grow, push][grow, push][][][]",
                 "[]"
         ));
-       panelSearch.setOpaque(false);
+//       panelSearch.setOpaque(false);
 
         JPanel col1Panel = new JPanel(new MigLayout(
                 "insets 0, wrap 2, fillx",
                 "[][grow, push]",
                 "[][]"
         ));
-        col1Panel.setOpaque(false);
+//        col1Panel.setOpaque(false);
         col1Panel.add(new JLabel("Ga Xuất Phát:"));
         col1Panel.add(txtGaDi, "growx");
         col1Panel.add(new JLabel("Ga Đích:"));
@@ -176,10 +176,10 @@ public class   PanelQuanLyTuyen extends JPanel {
         };
         tableTuyen = new JTable(tableModelTuyen);
         tableTuyen.setRowHeight(28);
-        tableTuyen.setOpaque(false);
+//        tableTuyen.setOpaque(false);
 
         JTableHeader hd = tableTuyen.getTableHeader();
-        hd.setOpaque(false);
+//        hd.setOpaque(false);
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         hd.setFont(new Font("Times New Roman", Font.BOLD, 16));
@@ -197,7 +197,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
 
         scrollPane = new JScrollPane(tableTuyen);
-        scrollPane.setOpaque(false);
+//        scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -268,24 +268,24 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
     }
 
-    private void loadAndBlurBackground(String imagePath){
-        try{
-            BufferedImage originalImage = ImageIO.read(new File(imagePath));
-            if(originalImage != null){
-               GaussianFilter blurFilter = new GaussianFilter();
-                blurFilter.setRadius(10.0f);
-
-                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
-                blurFilter.filter(originalImage, backgroundImage);
-            }
-        }catch (IOException e){
-            System.err.println("Lỗi: Không thể tải file ảnh. Đường dẫn có đúng không?: " + imagePath);
-            backgroundImage = null;
-        }catch (Exception e){
-            System.err.println("Lỗi khi làm mờ ảnh: " + e.getMessage());
-            backgroundImage = null;
-        }
-    }
+//    private void loadAndBlurBackground(String imagePath){
+//        try{
+//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+//            if(originalImage != null){
+//               GaussianFilter blurFilter = new GaussianFilter();
+//                blurFilter.setRadius(10.0f);
+//
+//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+//                blurFilter.filter(originalImage, backgroundImage);
+//            }
+//        }catch (IOException e){
+//            System.err.println("Lỗi: Không thể tải file ảnh. Đường dẫn có đúng không?: " + imagePath);
+//            backgroundImage = null;
+//        }catch (Exception e){
+//            System.err.println("Lỗi khi làm mờ ảnh: " + e.getMessage());
+//            backgroundImage = null;
+//        }
+//    }
 
     @Override
     protected void paintComponent(Graphics g){

@@ -56,7 +56,7 @@ public class PanelCapNhatTuyen extends JPanel {
 
     public PanelCapNhatTuyen(NhanVien nhanVien){
         this.nhanVienThucHien = nhanVien;
-        this.setBackground(COLOR_PRIMARY_BG);
+//        this.setBackground(COLOR_PRIMARY_BG);
         setLayout(new BorderLayout());
         initComponents();
         new CapNhatTuyen_CTRL(this);
@@ -141,7 +141,7 @@ public class PanelCapNhatTuyen extends JPanel {
         tblGaChiTiet.setShowHorizontalLines(true);
         tblGaChiTiet.setShowVerticalLines(true);
         tblGaChiTiet.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tblGaChiTiet.setBackground(COLOR_TABLE_BG);
+//        tblGaChiTiet.setBackground(COLOR_TABLE_BG);
         tblGaChiTiet.setGridColor(COLOR_BORDER);
         JTableHeader header = tblGaChiTiet.getTableHeader();
         header.setBackground(COLOR_ACCENT);

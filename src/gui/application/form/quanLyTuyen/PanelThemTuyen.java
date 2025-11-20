@@ -68,13 +68,13 @@ public class PanelThemTuyen extends JPanel {
         setLayout(new BorderLayout());
         initComponents();
         new ThemTuyen_CTRL(this);
-        loadAndBlurBackground("img/nenTauLua.jpg");
+//        loadAndBlurBackground("img/nenTauLua.jpg");
     }
 
     public void initComponents(){
         JPanel pnlContent = new JPanel(new MigLayout("wrap 4, fillx, insets 20 20 5 20","[120, left][250, grow][120, right][250, grow]","[]")); //layout lưới 4 cột, fill ngang
-        this.setOpaque(false);
-        pnlContent.setOpaque(false);
+//        this.setOpaque(false);
+//        pnlContent.setOpaque(false);
 
         pnlContent.setBorder(BorderFactory.createLineBorder(COLOR_BORDER, 1));
 
@@ -85,10 +85,10 @@ public class PanelThemTuyen extends JPanel {
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
         txtGaXuatPhat = new JTextField();
-        txtGaXuatPhat.setOpaque(false);
+//        txtGaXuatPhat.setOpaque(false);
         txtGaXuatPhat.setBackground(COLOR_TEXT_BG);
         txtGaDich = new JTextField();
-        txtGaDich.setOpaque(false);
+//        txtGaDich.setOpaque(false);
         txtGaDich.setBackground(COLOR_TEXT_BG);
         txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
         txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
@@ -105,7 +105,7 @@ public class PanelThemTuyen extends JPanel {
         txtDoDaiQuangDuong.setEditable(false);
         txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
         txtDoDaiQuangDuong.setEditable(false);
-        txtDoDaiQuangDuong.setOpaque(false);
+//        txtDoDaiQuangDuong.setOpaque(false);
         txtDoDaiQuangDuong.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Mã Tuyến:"));
         pnlContent.add(txtMaTuyen, "growx");
@@ -114,7 +114,7 @@ public class PanelThemTuyen extends JPanel {
 
         txtGaTrungGian = new JTextField();
         txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
-        txtGaTrungGian.setOpaque(false);
+//        txtGaTrungGian.setOpaque(false);
         txtGaTrungGian.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
         pnlContent.add(txtGaTrungGian, "growx");
@@ -132,10 +132,10 @@ public class PanelThemTuyen extends JPanel {
         ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
 
         pnlGaTrungGianDaChon = new JPanel(new FlowLayout(FlowLayout.LEFT,5,5));
-        pnlGaTrungGianDaChon.setOpaque(false);
+//        pnlGaTrungGianDaChon.setOpaque(false);
         pnlGaTrungGianDaChon.setBorder(BorderFactory.createTitledBorder("Danh Sách Ga Trung Gian Đã Chọn:"));
         JScrollPane scrollPane = new JScrollPane(pnlGaTrungGianDaChon);
-        scrollPane.getViewport().setOpaque(false);
+//        scrollPane.getViewport().setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
 
@@ -146,11 +146,11 @@ public class PanelThemTuyen extends JPanel {
 
         txtMoTa = new JTextArea(3,20);
         txtMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        txtMoTa.setOpaque(false);
+//        txtMoTa.setOpaque(false);
         txtMoTa.setBackground(COLOR_TEXT_BG);
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
-        scrollMoTa.setOpaque(false);
-        scrollMoTa.getViewport().setOpaque(false);
+//        scrollMoTa.setOpaque(false);
+//        scrollMoTa.getViewport().setOpaque(false);
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
         pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
 
@@ -162,7 +162,7 @@ public class PanelThemTuyen extends JPanel {
             }
         };
         tblGaChiTiet = new JTable(modelGaChiTiet);
-        tblGaChiTiet.setOpaque(false);
+//        tblGaChiTiet.setOpaque(false);
         tblGaChiTiet.setRowHeight(25);
         tblGaChiTiet.setShowGrid(true);
         tblGaChiTiet.setShowHorizontalLines(true);
@@ -188,11 +188,11 @@ public class PanelThemTuyen extends JPanel {
         header.setBackground(new Color(30,41,58));
 
         JPanel pnlTable = new JPanel(new BorderLayout());
-        pnlTable.setOpaque(false);
+//        pnlTable.setOpaque(false);
         pnlTable.setBorder(BorderFactory.createTitledBorder("Thứ Tự và Khoảng Cách Các Ga Từ Ga Xuất Phát của các Ga trên Tuyến"));
 
         JScrollPane tableScrollPane = new JScrollPane(tblGaChiTiet);
-        tableScrollPane.setOpaque(false);
+//        tableScrollPane.setOpaque(false);
         tableScrollPane.getViewport().setOpaque(false);
         pnlTable.add(tableScrollPane, BorderLayout.CENTER);
         pnlContent.add(pnlTable, "span 4, grow, push,height 200, wrap 0");
@@ -224,20 +224,20 @@ public class PanelThemTuyen extends JPanel {
         ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
     }
 
-    private void loadAndBlurBackground(String imagePath){
-        try{
-            BufferedImage originalImage = ImageIO.read(new File(imagePath));
-            if(originalImage != null){
-                GaussianFilter blurFilter = new GaussianFilter();
-                blurFilter.setRadius(10.0f);
-
-                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
-                blurFilter.filter(originalImage, backgroundImage);
-            }
-        }catch (IOException e){
-            backgroundImage = null;
-        }
-    }
+//    private void loadAndBlurBackground(String imagePath){
+//        try{
+//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+//            if(originalImage != null){
+//                GaussianFilter blurFilter = new GaussianFilter();
+//                blurFilter.setRadius(10.0f);
+//
+//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+//                blurFilter.filter(originalImage, backgroundImage);
+//            }
+//        }catch (IOException e){
+//            backgroundImage = null;
+//        }
+//    }
 
     @Override
     protected  void paintComponent(Graphics g){
