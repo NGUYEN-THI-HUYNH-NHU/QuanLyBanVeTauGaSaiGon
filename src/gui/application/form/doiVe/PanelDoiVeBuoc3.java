@@ -67,13 +67,27 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI));
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LOAI_DOI));
+//		public static final int COL_TEN = 0;
+//		public static final int COL_THONG_TIN_VE_DOI = 1;
+//		public static final int COL_THANH_TIEN = 2;
+//		public static final int COL_LE_PHI = 3;
+////		public static final int COL_THONG_TIN_VE_MOI = 4;
+////		public static final int COL_TIEN_VE_MOI = 5;
+////		public static final int COL_CHENH_LECH = 6;
+//		public static final int COL_THONG_TIN_PHI = 7; 4
+////		public static final int COL_LY_DO = 8;
+//		public static final int COL_TG_CON_LAI = 9; 5
+//		public static final int COL_CHON = 10; 6
+
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_MOI));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_TIEN_VE_MOI - 1));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_CHENH_LECH - 2));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 3));
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(0).setMinWidth(150);
 		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(5).setMaxWidth(50);
+		table.getColumnModel().getColumn(6).setMaxWidth(50);
 
 		// === Áp dụng Renderer ===
 		// 1. Renderer cho tiền (căn phải, định dạng)

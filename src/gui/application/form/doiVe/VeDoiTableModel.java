@@ -19,17 +19,20 @@ import java.util.function.Consumer;
 import javax.swing.table.AbstractTableModel;
 
 public class VeDoiTableModel extends AbstractTableModel {
-	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Loại đổi vé", "Lệ phí",
-			"Thông tin phí", "Lý do đổi", "Chọn" };
+	private final String[] columnNames = { "Hành khách", "Thông tin vé đổi", "Thành tiền", "Lệ phí", "Thông tin vé mới",
+			"Tiền vé mới", "Chênh lệch", "Thông tin phí", "Lý do đổi", "TG còn lại", "Chọn" };
 
 	public static final int COL_TEN = 0;
-	public static final int COL_THONG_TIN_VE = 1;
+	public static final int COL_THONG_TIN_VE_DOI = 1;
 	public static final int COL_THANH_TIEN = 2;
-	public static final int COL_LOAI_DOI = 3;
-	public static final int COL_LE_PHI = 4;
-	public static final int COL_THONG_TIN_PHI = 5;
-	public static final int COL_LY_DO = 6;
-	public static final int COL_CHON = 7;
+	public static final int COL_LE_PHI = 3;
+	public static final int COL_THONG_TIN_VE_MOI = 4;
+	public static final int COL_TIEN_VE_MOI = 5;
+	public static final int COL_CHENH_LECH = 6;
+	public static final int COL_THONG_TIN_PHI = 7;
+	public static final int COL_LY_DO = 8;
+	public static final int COL_TG_CON_LAI = 9;
+	public static final int COL_CHON = 10;
 
 	private List<VeDoiRow> rows;
 
@@ -69,7 +72,8 @@ public class VeDoiTableModel extends AbstractTableModel {
 		if (columnIndex == COL_CHON) {
 			return Boolean.class;
 		}
-		if (columnIndex == COL_THANH_TIEN || columnIndex == COL_LE_PHI) {
+		if (columnIndex == COL_THANH_TIEN || columnIndex == COL_LE_PHI || columnIndex == COL_TIEN_VE_MOI
+				|| columnIndex == COL_CHENH_LECH) {
 			return Double.class;
 		}
 		return String.class;
@@ -87,18 +91,24 @@ public class VeDoiTableModel extends AbstractTableModel {
 		switch (columnIndex) {
 		case COL_TEN:
 			return row.getHanhKhach();
-		case COL_THONG_TIN_VE:
-			return row.getThongTinVe();
+		case COL_THONG_TIN_VE_DOI:
+			return row.getVeDoi().thongTinVeDoi();
 		case COL_THANH_TIEN:
-			return row.getThanhTien();
-		case COL_LOAI_DOI:
-			return row.getLoaiDoiVe();
+			return row.getVeDoi().getGia();
 		case COL_LE_PHI:
 			return row.getLePhiDoiVe();
+		case COL_THONG_TIN_VE_MOI:
+			return row.getVeMoi().thongTinVeDoi();
+		case COL_TIEN_VE_MOI:
+			return row.getVeMoi().getGia();
+		case COL_CHENH_LECH:
+			return row.getVeMoi().getGia() + row.getLePhiDoiVe() - row.getVeDoi().getGia();
 		case COL_THONG_TIN_PHI:
 			return row.getThongTinPhiDoi();
 		case COL_LY_DO:
 			return row.getLyDo();
+		case COL_TG_CON_LAI:
+			return row.getThoiGianConLai();
 		case COL_CHON:
 			return row.isSelected();
 		default:

@@ -87,15 +87,16 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	private void setupTable() {
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_MOI));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_TIEN_VE_MOI - 1));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_CHENH_LECH - 2));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO - 3));
 
 		// Cấu hình độ rộng cột
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
-
-		// === Áp dụng Renderer ===
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(150);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 3).setMinWidth(100);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 4).setMaxWidth(50);
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
 		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
@@ -116,22 +117,102 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
+
+				applyRowStyle(label, table, row);
 				return label;
 			}
 		};
 
+		// 2. RENDERER CHO CỘT THỜI GIAN
+		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+
+				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+				// Lấy row model để check logic riêng của cột này
+				int modelRow = table.convertRowIndexToModel(row);
+				VeDoiRow dataRow = model.getRows().get(modelRow);
+
+				// Logic riêng: Tô màu đỏ chữ cảnh báo
+				if (!dataRow.isDuDieuKien()) {
+					c.setForeground(Color.RED);
+					setFont(getFont().deriveFont(Font.BOLD));
+				}
+
+				applyRowStyle(c, table, row);
+				return c;
+			}
+		};
+		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+		// --- 3. RENDERER CHO CÁC CỘT TEXT (HỌ TÊN, THÔNG TIN VÉ) ---
+		// Phải chuyển sang Anonymous Class để nhúng logic tô màu nền
+		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+				// Căn lề trên
+				setVerticalAlignment(SwingConstants.TOP);
+
+				// ÁP DỤNG STYLE XÁM
+				applyRowStyle(c, table, row);
+				return c;
+			}
+		};
+
+		// --- 4. RENDERER CHO CỘT TEXT AREA (THÔNG TIN PHÍ) ---
+		// Chúng ta cần bọc nó lại để áp dụng màu nền
+		TableCellRenderer originalTextAreaRenderer = new TextAreaRenderer();
+
+		TableCellRenderer wrappedTextAreaRenderer = new TableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				// Lấy component gốc từ TextAreaRenderer của bạn
+				Component c = originalTextAreaRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus,
+						row, column);
+
+				// ÁP DỤNG STYLE XÁM
+				applyRowStyle(c, table, row);
+				return c;
+			}
+		};
+
+		// Cột Thời gian
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI - 4).setCellRenderer(timeRenderer);
+		// Cột Tiền
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
-
-		TableCellRenderer textAreaRenderer = new TextAreaRenderer();
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setCellRenderer(textAreaRenderer);
-		// 2. Renderer cho các cột text (căn trên)
-		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
-		topAlignRenderer.setVerticalAlignment(SwingConstants.TOP);
-
+		// Cột Text Area (Thông tin phí)
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 3)
+				.setCellRenderer(wrappedTextAreaRenderer);
+		// Cột Text thường (Tên, Thông tin vé)
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_LOAI_DOI).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setCellRenderer(topAlignRenderer);
+	}
+
+	/**
+	 * Phương thức chung để tô màu nền cho dòng dựa trên điều kiện đổi vé.
+	 */
+	private void applyRowStyle(Component c, JTable table, int row) {
+		int modelRow = table.convertRowIndexToModel(row);
+		VeDoiRow dataRow = model.getRows().get(modelRow);
+
+		if (!dataRow.isDuDieuKien()) {
+			c.setBackground(new Color(240, 240, 240));
+			if (c.getForeground() != Color.RED) {
+				c.setForeground(Color.GRAY);
+			}
+		} else {
+			if (table.isRowSelected(row)) {
+				c.setBackground(table.getSelectionBackground());
+				c.setForeground(table.getSelectionForeground());
+			}
+		}
 	}
 
 	/**
@@ -235,7 +316,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		List<VeDoiRow> selectedRows = model.getSelectedRows();
 		List<Ve> selectedVe = new ArrayList<>();
 		for (VeDoiRow row : selectedRows) {
-			selectedVe.add(row.getVe());
+			selectedVe.add(row.getVeDoi());
 		}
 		return selectedVe;
 	}
