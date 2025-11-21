@@ -21,8 +21,6 @@ import entity.Ve;
 import gui.application.form.banVe.VeSession;
 
 public class MappingVeTableModel extends AbstractTableModel {
-
-	// Định nghĩa các cột
 	public static final int COL_STT = 0;
 	public static final int COL_HANH_KHACH = 1;
 	public static final int COL_VE_CU_INFO = 2;
@@ -144,14 +142,36 @@ public class MappingVeTableModel extends AbstractTableModel {
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if (columnIndex == COL_CHON_VE_MOI) {
-			MappingRow row = rows.get(rowIndex);
-			if (aValue instanceof VeSession) {
-				row.setVeMoi((VeSession) aValue);
+			MappingRow currentRow = rows.get(rowIndex);
+			VeSession newSelectedVe = (VeSession) aValue; // Giá trị mới được chọn (có thể là null)
+			// LOGIC THÔNG MINH: Kiểm tra xem vé này đã được dòng nào khác chọn chưa
+			if (newSelectedVe != null) {
+				for (int i = 0; i < rows.size(); i++) {
+					// Không kiểm tra dòng chính nó
+					if (i == rowIndex) {
+						continue;
+					}
 
-				// Khi thay đổi vé mới, các cột sau sẽ bị ảnh hưởng:
-				// Info vé mới, Giá vé mới, Chênh lệch
-				fireTableRowsUpdated(rowIndex, rowIndex);
+					MappingRow otherRow = rows.get(i);
+					VeSession otherVe = otherRow.getVeMoi();
+
+					// Nếu tìm thấy dòng khác đang giữ vé này
+					if (otherVe != null && otherVe.equals(newSelectedVe)) {
+						// 1. Gỡ vé khỏi dòng kia (Set về null)
+						otherRow.setVeMoi(null);
+						// 2. Thông báo cập nhật giao diện dòng kia
+						fireTableRowsUpdated(i, i);
+						break; // Mỗi vé chỉ xuất hiện 1 lần nên break luôn
+					}
+				}
 			}
+
+			// Cập nhật cho dòng hiện tại
+			currentRow.setVeMoi(newSelectedVe);
+
+			// Thông báo cập nhật giao diện dòng hiện tại
+			fireTableRowsUpdated(rowIndex, rowIndex);
+
 		}
 	}
 

@@ -57,7 +57,6 @@ public class DoiVeBuoc3Controller {
 		this.panel.getBtnXacNhan().addActionListener(e -> {
 			List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
 			exchangeSession.setListVeCuCanDoi(listVeDoiRow);
-			System.out.println(listVeDoiRow.get(0).getVe());
 			// Báo sự kiện này lên cho Mediator
 			if (confirmListener != null) {
 				confirmListener.onConfirm();

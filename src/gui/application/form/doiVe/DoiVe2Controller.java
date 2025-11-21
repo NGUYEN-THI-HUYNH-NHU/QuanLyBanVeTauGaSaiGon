@@ -54,6 +54,12 @@ public class DoiVe2Controller {
 		this.onPanel2CompleteListener = listener;
 	}
 
+	private Runnable onPanel2ReturnListener;
+
+	protected void addPanel2ReturnListener(Runnable listener) {
+		this.onPanel2ReturnListener = listener;
+	}
+
 	public DoiVe2Controller(PanelDoiVe2 view, ExchangeSession session) {
 		this.view = view;
 		this.exchangeSession = session;
@@ -182,8 +188,8 @@ public class DoiVe2Controller {
 									datChoBUS.xoaPhieuGiuCho(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
 								}
 							}
-//
-//							// 5. Tải lại bảng Buoc6
+
+							// 5. Tải lại bảng Buoc6
 							if (p6 != null) {
 								p6.initFromBookingSession(exchangeSession);
 							}
@@ -211,6 +217,9 @@ public class DoiVe2Controller {
 		// Lắng nghe sự kiện "Hủy" từ Buoc 6
 		this.buoc6Controller.setOnCancelListener(() -> {
 			view.setBuoc6Enabled(false);
+			if (onPanel2ReturnListener != null) {
+				onPanel2ReturnListener.run();
+			}
 		});
 	}
 
@@ -265,17 +274,19 @@ public class DoiVe2Controller {
 		view.setBuoc5Enabled(false);
 
 		// Lấy TẤT CẢ vé
-		List<VeSession> allTickets = exchangeSession.getListVeMoiDangChon();
+		List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
+		int soLuongVeDoi = exchangeSession.getListVeCuCanDoi().size();
 
-		// Kiểm tra giỏ vé trống
-		if (allTickets.isEmpty()) {
-			JOptionPane.showMessageDialog(view, "Giỏ vé trống. Vui lòng chọn ít nhất 1 vé.", "Lỗi",
+		// Kiểm tra giỏ vé không tương ứng với số lượng vé cần đổi
+		if (listVeMoi.size() < soLuongVeDoi) {
+			JOptionPane.showMessageDialog(view,
+					String.format("Vui lòng chọn số lượng vé tương ứng với số vé cần đổi ~ %d vé", soLuongVeDoi), "Lỗi",
 					JOptionPane.WARNING_MESSAGE);
 			view.setBuoc5Enabled(true);
 			return;
 		}
 
-		goiBusGiuCho(allTickets);
+		goiBusGiuCho(listVeMoi);
 	}
 
 	/**

@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Consumer;
@@ -98,6 +99,35 @@ public class PanelHoanVeBuoc3 extends JPanel {
 			}
 		};
 
+		// RENDERER CHO CỘT THỜI GIAN
+		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+
+				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+				// Lấy row model để check logic riêng của cột này
+				int modelRow = table.convertRowIndexToModel(row);
+				VeHoanRow dataRow = model.getRows().get(modelRow);
+
+				// Logic riêng: Tô màu đỏ chữ cảnh báo
+				if (!dataRow.isDuDieuKien()) {
+					c.setForeground(Color.RED);
+					setFont(getFont().deriveFont(Font.BOLD));
+				} else {
+					c.setForeground(Color.GREEN);
+					setFont(getFont().deriveFont(Font.BOLD));
+				}
+
+				applyRowStyle(c, table, row);
+				return c;
+			}
+		};
+		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+		table.getColumnModel().getColumn(6).setCellRenderer(timeRenderer);
+
 		table.getColumnModel().getColumn(2).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(3).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(4).setCellRenderer(currencyFormatRenderer);
@@ -109,7 +139,21 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		table.getColumnModel().getColumn(0).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(1).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(5).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(6).setCellRenderer(topAlignRenderer);
+	}
+
+	/**
+	 * Phương thức chung để tô màu nền cho dòng dựa trên điều kiện hoàn vé.
+	 */
+	private void applyRowStyle(Component c, JTable table, int row) {
+		int modelRow = table.convertRowIndexToModel(row);
+		VeHoanRow dataRow = model.getRows().get(modelRow);
+
+		if (!dataRow.isDuDieuKien()) {
+			c.setBackground(new Color(240, 240, 240));
+			if (c.getForeground() != Color.RED) {
+				c.setForeground(Color.GRAY);
+			}
+		}
 	}
 
 	public void displayConfirmation(List<VeHoanRow> selectedRows) {

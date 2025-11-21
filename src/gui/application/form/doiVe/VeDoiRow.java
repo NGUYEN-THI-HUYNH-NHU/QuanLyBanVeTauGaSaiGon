@@ -60,7 +60,7 @@ public class VeDoiRow {
 			thoiGianConLai = String.format("%dg %02dp", hours, minutes);
 
 			// Quy định: Phải trước 24 tiếng
-			if (hours >= 24) {
+			if (hours >= 4) {
 				isDuDieuKien = true;
 				lyDoKhongDuDieuKien = "";
 				lePhiDoiVe = 20000;

@@ -40,16 +40,12 @@ public class VeMoiRenderer extends DefaultListCellRenderer {
 	public static void formatLabel(JLabel lbl, Object value) {
 		if (value instanceof VeSession) {
 			VeSession v = (VeSession) value;
-			// Format: Toa 1 - Số 5 (Giường nằm K6) - 150.000đ
-			String text = String.format("Toa %d - Số %d (%s) - %sđ", v.getSoToa(), v.getSoGhe(), v.getHangToa(), // Hoặc
-																													// v.getHangToa().getDescription()
-																													// tùy
-																													// enum
-					df.format(v.getGia()));
+			String text = String.format("<html>Toa %s - %s<br/>Chỗ %s<br/>Giá: <b>%s</b></html>", v.getSoToa(),
+					v.getHangToa(), v.getSoGhe(), df.format(v.getGia()));
 			lbl.setText(text);
 			lbl.setToolTipText(v.prettyString()); // Tooltip chi tiết
 		} else if (value == null) {
-			lbl.setText("Chọn vé mới...");
+			lbl.setText("Chọn vé mới");
 		} else {
 			lbl.setText(value.toString());
 		}

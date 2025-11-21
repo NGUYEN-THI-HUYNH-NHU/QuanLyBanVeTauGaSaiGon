@@ -136,6 +136,9 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				if (!dataRow.isDuDieuKien()) {
 					c.setForeground(Color.RED);
 					setFont(getFont().deriveFont(Font.BOLD));
+				} else {
+					c.setForeground(Color.GREEN);
+					setFont(getFont().deriveFont(Font.BOLD));
 				}
 
 				applyRowStyle(c, table, row);

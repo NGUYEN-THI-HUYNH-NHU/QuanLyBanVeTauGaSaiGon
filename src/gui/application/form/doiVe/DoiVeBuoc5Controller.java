@@ -1,8 +1,15 @@
 package gui.application.form.doiVe;
 /*
- * @(#) PanelBuoc2Controller.java  1.0  [12:53:22 PM] Sep 29, 2025
+ * @(#) DoiVeBuoc5Controller.java  1.0  [12:53:22 AM] Nov 20, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
+ */
+
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Nov 20, 2025
+ * @version: 1.0
  */
 
 import java.time.LocalDate;
@@ -72,8 +79,8 @@ public class DoiVeBuoc5Controller {
 		this.exchangeSession = ExchangeSession.getInstance();
 	}
 
-	public void setExchangeSession(ExchangeSession s) {
-		this.exchangeSession = s;
+	public void setExchangeSession(ExchangeSession exchangeSession) {
+		this.exchangeSession = exchangeSession;
 	}
 
 	public SearchCriteria getCurrentTripCriteria() {
@@ -334,7 +341,6 @@ public class DoiVeBuoc5Controller {
 
 		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, hangToa, soToa,
 				gheID, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
-
 	}
 
 	public Set<Integer> getSelectedSoGhe(Toa currentToa) {

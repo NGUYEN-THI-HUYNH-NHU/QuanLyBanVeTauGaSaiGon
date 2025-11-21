@@ -1,14 +1,19 @@
 package gui.application.form.doiVe;
 /*
- * @(#) PanelBuoc3Controller.java  1.0  [8:06:26 PM] Oct 26, 2025
+ * @(#) DoiVeBuoc6Controller.java  1.0  [8:06:26 PM] Nov 20, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Nov 20, 2025
+ * @version: 1.0
+ */
+
 import java.util.List;
 import java.util.function.Consumer;
-
-import javax.swing.JOptionPane;
 
 import bus.DatCho_BUS;
 import gui.application.form.banVe.VeSession;
@@ -36,28 +41,7 @@ public class DoiVeBuoc6Controller {
 	// Gắn listener vào các nút của View
 	private void attachListeners() {
 		view.getConfirmButton().addActionListener(e -> handleConfirm());
-		view.setPassengerDeleteListener(row -> {
-			handleDelete(row);
-		});
-	}
-
-	private void handleDelete(MappingRow row) {
-		if (row == null) {
-			return;
-		}
-
-		VeSession veSession = row.getVeMoi();
-
-		// Hiển thị xác nhận
-		int choice = JOptionPane.showConfirmDialog(view, "Bạn có chắc muốn xóa vé:\n" + veSession.prettyString(),
-				"Xác nhận xóa vé", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-		if (choice == JOptionPane.YES_OPTION) {
-			// Nếu người dùng đồng ý, báo cho DoiVe2Controller
-			if (onDeleteListener != null) {
-				onDeleteListener.accept(veSession);
-			}
-		}
+		view.getCancelButton().addActionListener(e -> handleCancel());
 	}
 
 	/**
@@ -67,15 +51,15 @@ public class DoiVeBuoc6Controller {
 		// 1. Lấy dữ liệu thô từ View
 		List<MappingRow> rows = view.getMappingRows();
 
+		if (rows.size() == 0) {
+			return;
+		}
+
 		// 2. Cập nhật Model (ExchangeSession)
-		// 2a. Cập nhật thông tin Hành Khách vào từng VeSession mới
 		for (MappingRow row : rows) {
 			VeSession ve = row.getVeMoi();
 			ve.setHanhKhach(row.getVeCu().getVe().getKhachHang());
 		}
-		// 2b. Cập nhật Khách hàng (Người Mua)
-
-		System.out.println("ExchangeSession đã được cập nhật.");
 
 		// 4. Báo cho Controller cha
 		if (onConfirmListener != null) {
@@ -87,11 +71,14 @@ public class DoiVeBuoc6Controller {
 	 * Xử lý logic khi bấm "Hủy"
 	 */
 	private void handleCancel() {
-		// 1. Gọi BUS để hủy phiếu giữ chỗ
-		datChoBUS.xoaPhieuGiuChoChiTietByPgcID(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
+		if (exchangeSession.getPhieuGiuCho() != null) {
 
-		// 2. Nếu sau khi xóa mà không còn vé nào thì xóa luôn Phiếu giữ chỗ
-		datChoBUS.xoaPhieuGiuCho(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
+			// 1. Gọi BUS để hủy phiếu giữ chỗ chi tiết
+			datChoBUS.xoaPhieuGiuChoChiTietByPgcID(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
+
+			// 2. Nếu sau khi xóa mà không còn vé nào thì xóa luôn Phiếu giữ chỗ
+			datChoBUS.xoaPhieuGiuCho(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
+		}
 
 		// 3. Báo cho Controller cha biết
 		if (onCancelListener != null) {

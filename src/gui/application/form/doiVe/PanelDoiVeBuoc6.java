@@ -15,7 +15,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -28,9 +27,10 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	private JTable table;
 	private MappingVeTableModel model;
 	private VeMoiCellEditor veMoiEditor;
+	private final JButton btnCancel;
 	private JButton btnConfirm;
 
-	private Consumer<MappingRow> deleteListener;
+	private DoiVeBuoc6Controller controller;
 
 	public PanelDoiVeBuoc6() {
 		setLayout(new BorderLayout());
@@ -38,6 +38,11 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		table = new JTable(model);
 
 		table.setRowHeight(110);
+		table.getColumnModel().getColumn(0).setMaxWidth(30);
+		table.getColumnModel().getColumn(1).setMinWidth(150);
+		table.getColumnModel().getColumn(2).setMinWidth(150);
+		table.getColumnModel().getColumn(5).setMinWidth(150);
+		table.getColumnModel().getColumn(6).setMinWidth(150);
 
 		/// Áp dụng Renderer cho cột để hiển thị đẹp ngay cả khi không click vào
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI)
@@ -46,8 +51,9 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
 		JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		btnConfirm = new JButton("Xác nhận");
-		pnlSouth.add(btnConfirm);
+
+		pnlSouth.add(btnCancel = new JButton("Quay lại"));
+		pnlSouth.add(btnConfirm = new JButton("Xác nhận"));
 		add(pnlSouth, BorderLayout.SOUTH);
 	}
 
@@ -55,10 +61,8 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	 * Hàm này được gọi từ Controller khi có danh sách vé mới
 	 */
 	public void updateNewTicketOptions(List<VeSession> veMoiList) {
-		// Khởi tạo Editor với danh sách vé mới và tham chiếu tới Model bảng
-		veMoiEditor = new VeMoiCellEditor(veMoiList, model);
-
-		// Gán Editor cho cột
+		veMoiEditor = new VeMoiCellEditor(veMoiList);
+		// Gán Editor
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI).setCellEditor(veMoiEditor);
 	}
 
@@ -95,10 +99,6 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		return model.getRowsCopy();
 	}
 
-	public void setPassengerDeleteListener(Consumer<MappingRow> listener) {
-		this.deleteListener = listener;
-	}
-
 	/**
 	 * @param enabled
 	 */
@@ -107,12 +107,19 @@ public class PanelDoiVeBuoc6 extends JPanel {
 
 	}
 
-	public void setController(DoiVeBuoc6Controller doiVeBuoc6Controller) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public JButton getConfirmButton() {
 		return btnConfirm;
+	}
+
+	public JButton getCancelButton() {
+		return btnCancel;
+	}
+
+	public DoiVeBuoc6Controller getController() {
+		return controller;
+	}
+
+	public void setController(DoiVeBuoc6Controller controller) {
+		this.controller = controller;
 	}
 }

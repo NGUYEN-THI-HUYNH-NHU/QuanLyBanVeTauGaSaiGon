@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 import entity.Chuyen;
+import entity.DonDatCho;
+import entity.GiaoDichThanhToan;
+import entity.HoaDon;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
@@ -43,6 +46,9 @@ public class ExchangeSession {
 	private KhachHang khachHang;
 	private NhanVien nhanVien;
 	private PhieuGiuCho phieuGiuCho;
+	private GiaoDichThanhToan giaoDichThanhToan;
+	private DonDatCho donDatCho;
+	private HoaDon hoaDon;
 
 	private ExchangeSession() {
 		this.nhanVien = AuthService.getInstance().getCurrentUser();
@@ -174,5 +180,29 @@ public class ExchangeSession {
 
 	public void setNhanVien(NhanVien nhanVien) {
 		this.nhanVien = nhanVien;
+	}
+
+	public GiaoDichThanhToan getGiaoDichThanhToan() {
+		return giaoDichThanhToan;
+	}
+
+	public DonDatCho getDonDatCho() {
+		return donDatCho;
+	}
+
+	public HoaDon getHoaDon() {
+		return hoaDon;
+	}
+
+	public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+		this.giaoDichThanhToan = giaoDichThanhToan;
+	}
+
+	public void setDonDatCho(DonDatCho donDatCho) {
+		this.donDatCho = donDatCho;
+	}
+
+	public void setHoaDon(HoaDon hoaDon) {
+		this.hoaDon = hoaDon;
 	}
 }
