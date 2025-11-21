@@ -7,7 +7,7 @@ package gui.application;
 
 import javax.swing.JFrame;
 
-import gui.application.form.hoanVe.PanelHoanVe1;
+import gui.application.form.doiVe.PanelDoiVe3;
 
 /*
  * @description
@@ -23,7 +23,7 @@ public class Test extends JFrame {
 	public Test() {
 		super("Test panel");
 
-		add(new PanelHoanVe1());
+		add(new PanelDoiVe3());
 
 		setSize(1100, 760);
 		setVisible(true);

@@ -85,7 +85,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	}
 
 	private void setupTable() {
-		table.setRowHeight(80);
+		table.setRowHeight(90);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
 

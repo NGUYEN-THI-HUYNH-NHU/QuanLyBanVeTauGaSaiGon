@@ -82,7 +82,7 @@ public class PanelDoiVe extends JPanel {
 
 		// Lắng nghe sự kiện xác nhận từ PanelDoiVe2
 		doiVe2Controller.addPanel2CompleteListener(() -> {
-			doiVe3Controller.loadConfirmationData();
+			doiVe3Controller.loadDataForConfirmation();
 			showPanel("step3");
 		});
 

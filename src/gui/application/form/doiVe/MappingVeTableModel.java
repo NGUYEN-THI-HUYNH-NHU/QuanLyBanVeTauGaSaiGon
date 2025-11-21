@@ -25,14 +25,14 @@ public class MappingVeTableModel extends AbstractTableModel {
 	public static final int COL_HANH_KHACH = 1;
 	public static final int COL_VE_CU_INFO = 2;
 	public static final int COL_VE_CU_GIA = 3;
-	public static final int COL_LE_PHI = 4;
-	public static final int COL_CHON_VE_MOI = 5; // Cột ComboBox
-	public static final int COL_VE_MOI_INFO = 6;
-	public static final int COL_VE_MOI_GIA = 7;
+	public static final int COL_CHON_VE_MOI = 4; // Cột ComboBox
+	public static final int COL_VE_MOI_INFO = 5;
+	public static final int COL_VE_MOI_GIA = 6;
+	public static final int COL_LE_PHI = 7;
 	public static final int COL_CHENH_LECH = 8;
 
-	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Lệ phí đổi",
-			"Chọn vé mới", "Thông tin vé mới", "Giá vé mới", "Chênh lệch" };
+	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Chọn vé mới",
+			"Thông tin vé mới", "Giá vé mới", "Lệ phí đổi", "Chênh lệch" };
 
 	private List<MappingRow> rows;
 
@@ -120,8 +120,6 @@ public class MappingVeTableModel extends AbstractTableModel {
 			return veCuEntity.thongTinVeDoi(); // Logic hiển thị ngắn gọn vé cũ
 		case COL_VE_CU_GIA:
 			return veCuEntity.getGia();
-		case COL_LE_PHI:
-			return row.getVeCu().getLePhiDoiVe();
 		case COL_CHON_VE_MOI:
 			return row.getVeMoi(); // Trả về object VeSession để ComboBox hiển thị
 		case COL_VE_MOI_INFO:
@@ -132,6 +130,8 @@ public class MappingVeTableModel extends AbstractTableModel {
 			return "Chưa chọn vé";
 		case COL_VE_MOI_GIA:
 			return (row.getVeMoi() != null) ? (double) row.getVeMoi().getGia() : 0.0;
+		case COL_LE_PHI:
+			return row.getVeCu().getLePhiDoiVe();
 		case COL_CHENH_LECH:
 			return row.getChenhLech();
 		default:

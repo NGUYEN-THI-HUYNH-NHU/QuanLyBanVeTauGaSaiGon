@@ -5,6 +5,8 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.util.ArrayList;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -14,6 +16,8 @@ package gui.application.form.doiVe;
 
 import java.util.List;
 import java.util.function.Consumer;
+
+import javax.swing.JOptionPane;
 
 import bus.DatCho_BUS;
 import gui.application.form.banVe.VeSession;
@@ -55,13 +59,52 @@ public class DoiVeBuoc6Controller {
 			return;
 		}
 
-		// 2. Cập nhật Model (ExchangeSession)
-		for (MappingRow row : rows) {
-			VeSession ve = row.getVeMoi();
-			ve.setHanhKhach(row.getVeCu().getVe().getKhachHang());
+		// VALIDATION: Kiểm tra map 1-1
+		for (int i = 0; i < rows.size(); i++) {
+			MappingRow row = rows.get(i);
+
+			// Kiểm tra nếu chưa chọn vé mới (null)
+			if (row.getVeMoi() == null) {
+				// Lấy thông tin hành khách để thông báo rõ ràng hơn
+				String tenKhach = row.getVeCu().getVe().getKhachHang().getHoTen();
+
+				// 1. Thông báo lỗi
+				JOptionPane.showMessageDialog(view,
+						"Vui lòng chọn vé mới cho hành khách: " + tenKhach + "\n(Dòng số " + (i + 1) + ")",
+						"Chưa chọn đủ vé", JOptionPane.WARNING_MESSAGE);
+
+				// 2. Highlight và Focus vào dòng lỗi
+				view.highlightAndFocusError(i);
+
+				// 3. Ngưng xử lý
+				return;
+			}
 		}
 
-		// 4. Báo cho Controller cha
+		// Nếu tất cả hợp lệ, tiến hành cập nhật Session
+		List<VeSession> listVeMoiChinhThuc = new ArrayList<>();
+
+		for (MappingRow row : rows) {
+			VeSession veMoi = row.getVeMoi();
+			listVeMoiChinhThuc.add(veMoi);
+			// Cập nhật thông tin Hành Khách từ vé cũ sang vé mới
+			if (veMoi != null) {
+				veMoi.setHanhKhach(row.getVeCu().getVe().getKhachHang());
+			}
+		}
+
+		// Cập nhật lại ExchangeSession
+		// Xóa danh sách tạm lúc chọn ghế, thay bằng danh sách đã ghép cặp chính thức
+		exchangeSession.getListVeMoiDangChon().clear();
+
+		// Add lại để đảm bảo đúng thứ tự chính thức
+		for (VeSession v : listVeMoiChinhThuc) {
+			if (v != null) {
+				exchangeSession.getListVeMoiDangChon().add(v);
+			}
+		}
+
+		// 3. Báo cho Controller cha
 		if (onConfirmListener != null) {
 			onConfirmListener.run();
 		}

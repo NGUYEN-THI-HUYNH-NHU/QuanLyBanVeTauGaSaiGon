@@ -59,7 +59,7 @@ public class DoiVe3Controller {
 		p7.setComponentsEnabled(true);
 		p8.setComponentsEnabled(true);
 
-		// 2. Tải dữ liệu vào bảng xác nhận (Buoc4)
+		// 2. Tải dữ liệu vào bảng xác nhận (Buoc7)
 		p7.hienThiThongTin(exchangeSession);
 
 		// 3. Tính toán chi tiết thanh toán
@@ -165,13 +165,5 @@ public class DoiVe3Controller {
 		if (payButtonQR != null) {
 			payButtonQR.addActionListener(paymentListener);
 		}
-	}
-
-	/**
-	 * 
-	 */
-	public void loadConfirmationData() {
-		// TODO Auto-generated method stub
-
 	}
 }

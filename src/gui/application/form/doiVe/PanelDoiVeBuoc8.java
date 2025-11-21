@@ -262,7 +262,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		pnlQRCode.add(Box.createVerticalStrut(10)); // Spacer
 
-		JLabel lblQRInfo1 = new JLabel("Thanh toán vé tàu");
+		JLabel lblQRInfo1 = new JLabel("Thanh toán đổi vé");
 		lblQRInfo1.setFont(lblQRInfo1.getFont().deriveFont(Font.BOLD, 14f));
 		lblQRInfo1.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pnlQRCode.add(lblQRInfo1);

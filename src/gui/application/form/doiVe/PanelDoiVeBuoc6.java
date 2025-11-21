@@ -12,7 +12,9 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import gui.application.form.banVe.VeSession;
+import gui.tuyChinh.CurrencyRenderer;
+import gui.tuyChinh.TopAlignRenderer;
 
 public class PanelDoiVeBuoc6 extends JPanel {
 	private JTable table;
@@ -30,6 +34,8 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	private final JButton btnCancel;
 	private JButton btnConfirm;
 
+	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
+
 	private DoiVeBuoc6Controller controller;
 
 	public PanelDoiVeBuoc6() {
@@ -37,12 +43,7 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		model = new MappingVeTableModel();
 		table = new JTable(model);
 
-		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMaxWidth(30);
-		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(2).setMinWidth(150);
-		table.getColumnModel().getColumn(5).setMinWidth(150);
-		table.getColumnModel().getColumn(6).setMinWidth(150);
+		setUpTable();
 
 		/// Áp dụng Renderer cho cột để hiển thị đẹp ngay cả khi không click vào
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI)
@@ -55,6 +56,31 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		pnlSouth.add(btnCancel = new JButton("Quay lại"));
 		pnlSouth.add(btnConfirm = new JButton("Xác nhận"));
 		add(pnlSouth, BorderLayout.SOUTH);
+	}
+
+	private void setUpTable() {
+		table.setRowHeight(90);
+
+		table.getColumnModel().getColumn(0).setMaxWidth(30);
+		table.getColumnModel().getColumn(1).setMinWidth(150);
+		table.getColumnModel().getColumn(2).setMinWidth(150);
+		table.getColumnModel().getColumn(4).setMinWidth(150);
+		table.getColumnModel().getColumn(5).setMinWidth(150);
+
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
+
+		// Cột Tiền
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
+
+		// Cột Text thường (Tên, Thông tin vé)
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(topAlignRenderer);
 	}
 
 	/**
@@ -90,6 +116,26 @@ public class PanelDoiVeBuoc6 extends JPanel {
 			rows.add(r);
 		}
 		model.setRows(rows);
+	}
+
+	/**
+	 * Chọn dòng bị lỗi, cuộn tới đó và kích hoạt ComboBox
+	 */
+	public void highlightAndFocusError(int rowIndex) {
+		// 1. Chọn dòng (Tô đen/xanh theo theme)
+		table.setRowSelectionInterval(rowIndex, rowIndex);
+
+		// 2. Cuộn bảng tới vị trí dòng đó (nếu đang bị khuất)
+		table.scrollRectToVisible(table.getCellRect(rowIndex, 0, true));
+
+		// 3. Focus và kích hoạt Editor (ComboBox) tại cột "Chọn vé mới"
+		int colIndex = MappingVeTableModel.COL_CHON_VE_MOI;
+		table.editCellAt(rowIndex, colIndex);
+
+		Component editor = table.getEditorComponent();
+		if (editor != null) {
+			editor.requestFocusInWindow();
+		}
 	}
 
 	public List<MappingRow> getMappingRows() {
