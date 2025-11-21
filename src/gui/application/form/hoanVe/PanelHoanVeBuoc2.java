@@ -157,6 +157,9 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				if (!dataRow.isDuDieuKien()) {
 					c.setForeground(Color.RED);
 					setFont(getFont().deriveFont(Font.BOLD));
+				} else {
+					c.setForeground(Color.GREEN);
+					setFont(getFont().deriveFont(Font.BOLD));
 				}
 
 				applyRowStyle(c, table, row);
@@ -226,15 +229,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 			c.setBackground(new Color(240, 240, 240));
 			if (c.getForeground() != Color.RED) {
 				c.setForeground(Color.GRAY);
-			}
-		} else {
-			// TRẠNG THÁI BÌNH THƯỜNG
-			// Quan trọng: Phải reset lại màu nếu dòng đủ điều kiện
-			// Nếu dòng đang được chọn -> dùng màu selection của bảng
-			// Nếu không -> dùng màu trắng mặc định
-			if (table.isRowSelected(row)) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
 			}
 		}
 	}

@@ -170,8 +170,6 @@ public class PanelBuoc3Controller {
 				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), null, null,
 						row.getIdNumber(), null, row.getType(), LoaiKhachHang.HANH_KHACH);
 				ve.setHanhKhach(hanhKhach);
-				System.err.println(hanhKhach);
-				khachHangBUS.themKhachHang(hanhKhach);
 				System.out.println("Tạo hành khách mới: " + hanhKhach);
 			}
 			// (Nếu tìm thấy, nó đã được gán vào VeSession, không cần làm gì)

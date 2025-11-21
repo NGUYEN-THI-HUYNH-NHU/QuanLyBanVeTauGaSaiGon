@@ -30,7 +30,6 @@ public class VeHoanRow {
 	private String thoiGianConLai;
 	private boolean isDuDieuKien;
 	private String lyDoKhongDuDieuKien;
-	// Constructor (Bạn sẽ tính toán phí và điền thông tin ở đây)
 
 	public VeHoanRow(Ve ve) {
 		this.ve = ve;
@@ -91,7 +90,6 @@ public class VeHoanRow {
 		}
 	}
 
-	// Getters và Setters
 	public Ve getVe() {
 		return ve;
 	}

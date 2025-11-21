@@ -31,10 +31,11 @@ public class DoiVe1Controller {
 	private final DoiVeBuoc2Controller p2Controller;
 	private final DoiVeBuoc3Controller p3Controller;
 
+	private final ExchangeSession exchangeSession;
 	private DonDatCho ddc;
 	private List<Ve> listVe;
 	private KhachHang nguoiMua;
-	private List<VeDoiRow> listRowHoan;
+	private List<VeDoiRow> listRowDoi;
 
 	private Runnable onPanel1CompleteListener;
 
@@ -42,8 +43,10 @@ public class DoiVe1Controller {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public DoiVe1Controller(PanelDoiVe1 view) {
+	public DoiVe1Controller(PanelDoiVe1 view, ExchangeSession exchangeSession) {
 		this.view = view;
+		this.exchangeSession = exchangeSession;
+
 		this.p1 = view.getPanelDoiVeBuoc1();
 		this.p2 = view.getPanelDoiVeBuoc2();
 		this.p3 = view.getPanelDoiVeBuoc3();
@@ -51,7 +54,7 @@ public class DoiVe1Controller {
 		this.p1Controller = new DoiVeBuoc1Controller(this.p1);
 		this.p1.setController(this.p1Controller);
 		this.p2Controller = new DoiVeBuoc2Controller(this.p2);
-		this.p3Controller = new DoiVeBuoc3Controller(this.p3);
+		this.p3Controller = new DoiVeBuoc3Controller(this.p3, exchangeSession);
 
 		initMediatorLogic();
 	}
@@ -64,8 +67,8 @@ public class DoiVe1Controller {
 		return this.nguoiMua;
 	}
 
-	public List<VeDoiRow> getListRowHoan() {
-		return this.listRowHoan;
+	public List<VeDoiRow> getListRowDoi() {
+		return this.listRowDoi;
 	}
 
 	private void initMediatorLogic() {
@@ -78,8 +81,8 @@ public class DoiVe1Controller {
 				listVe = danhSachVe;
 				nguoiMua = khachHang;
 
-				if (listRowHoan != null) {
-					listRowHoan.clear();
+				if (listRowDoi != null) {
+					listRowDoi.clear();
 				}
 
 				view.setBuoc2Enabled(true);
@@ -100,10 +103,10 @@ public class DoiVe1Controller {
 			@Override
 			public void onContinue(List<VeDoiRow> selectedRows) {
 				// 1. Lưu trạng thái các vé được chọn
-				listRowHoan = selectedRows;
+				listRowDoi = selectedRows;
 
 				// 2. Đẩy dữ liệu vào P3 Controller
-				p3Controller.displayConfirmationData(listRowHoan);
+				p3Controller.displayConfirmationData(listRowDoi);
 
 				// 3. Kích hoạt Bước 3
 				view.setBuoc3Enabled(true);
@@ -119,7 +122,7 @@ public class DoiVe1Controller {
 				// Yêu cầu Controller 2 cập nhật lại View 2
 				// Dữ liệu trong model của P2 đã tự động cập nhật
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
-				listRowHoan.remove(row);
+				listRowDoi.remove(row);
 				p2Controller.refreshRowDisplay(row);
 			}
 		});
@@ -128,9 +131,6 @@ public class DoiVe1Controller {
 
 			@Override
 			public void onConfirm() {
-				// Bắt đầu xử lý nghiệp vụ hoàn vé (gọi BUS)
-				// Dùng this.listRowHoan để biết vé nào cần hoàn
-				// Dùng this.ddc, this.nguoiMua
 				if (onPanel1CompleteListener != null) {
 					onPanel1CompleteListener.run();
 				}

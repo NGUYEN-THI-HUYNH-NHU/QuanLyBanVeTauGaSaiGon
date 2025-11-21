@@ -5,6 +5,12 @@ package dao;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 27, 2025
+ * @version: 1.0
+ */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,13 +30,6 @@ import entity.Ve;
 import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.TrangThaiVe;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 27, 2025
- * @version: 1.0
- */
 
 public class Ve_DAO {
 	private ConnectDB connectDB = ConnectDB.getInstance();
@@ -69,8 +68,8 @@ public class Ve_DAO {
 	 * @return
 	 */
 	public List<Ve> getVeByDonDatChoID(String donDatChoID) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, V.gaDenID, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID\r\n"
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
 				+ "WHERE donDatChoID = ?";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
@@ -91,8 +90,8 @@ public class Ve_DAO {
 						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
 								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
 						resultSet.getInt("soGhe")));
-				ve.setGaDi(new Ga(resultSet.getString("gaDiID")));
-				ve.setGaDen(new Ga(resultSet.getString("gaDenID")));
+				ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+				ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
 				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
 				ve.setNgayGioDi(t.toLocalDateTime());
 				ve.setGia(resultSet.getDouble("gia"));
@@ -111,9 +110,9 @@ public class Ve_DAO {
 	 * @return
 	 */
 	public List<Ve> getVeByDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, V.gaDenID, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID\r\n"
-				+ "WHERE V.donDatChoID = ? AND V.trangThai = ?";
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
+				+ "WHERE donDatChoID = ? AND V.trangThai = ?";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
@@ -134,8 +133,8 @@ public class Ve_DAO {
 						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
 								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
 						resultSet.getInt("soGhe")));
-				ve.setGaDi(new Ga(resultSet.getString("gaDiID")));
-				ve.setGaDen(new Ga(resultSet.getString("gaDenID")));
+				ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+				ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
 				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
 				ve.setNgayGioDi(t.toLocalDateTime());
 				ve.setGia(resultSet.getDouble("gia"));

@@ -1,59 +1,79 @@
 package gui.application.form.doiVe;
+
 /*
- * @(#) VeDoiRow.java  1.0  [11:23:41 AM] Nov 13, 2025
+ * @(#) veDoiRow.java  1.0  [11:23:41 AM] Nov 13, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Nov 13, 2025
  * @version: 1.0
  */
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import entity.Ve;
 
 public class VeDoiRow {
 	private Ve ve;
 	private String hanhKhach;
-	private String thongTinVe;
-	private double thanhTien;
 	private String loaiDoiVe;
 	private double lePhiDoiVe;
-	private double tienDoiLai;
 	private String thongTinPhiDoi;
 	private String lyDo;
 	private boolean isSelected;
 
-	// Constructor (Bạn sẽ tính toán phí và điền thông tin ở đây)
+	private String thoiGianConLai;
+	private boolean isDuDieuKien;
+	private String lyDoKhongDuDieuKien;
+
 	public VeDoiRow(Ve ve) {
 		this.ve = ve;
 
-		// 1. Lấy thông tin cơ bản
 		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
 				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
-		this.thanhTien = ve.getGia();
-		this.thongTinVe = ve.thongTinVeDoi();
+		calcThoiGianConLaiVaPhiDoi();
 
-		// 2. Tính toán phí hoàn
-		// Đây là nghiệp vụ quan trọng, bạn cần định nghĩa rõ
-		this.lePhiDoiVe = 10000.0;
-		this.loaiDoiVe = "Đổi thường";
-		this.thongTinPhiDoi = "Hoàn/Đổi vé bình thường năm 2025, áp dụng phí 10.000 VNĐ/vé";
 		this.lyDo = "Không còn nhu cầu";
 
-		// 3. Tính tiền hoàn lại
-		this.tienDoiLai = this.thanhTien - this.lePhiDoiVe;
-		if (this.tienDoiLai < 0) {
-			this.tienDoiLai = 0;
-		}
-
-		// 4. Mặc định là không chọn
 		this.isSelected = false;
 	}
 
-	// Getters và Setters
+	private void calcThoiGianConLaiVaPhiDoi() {
+		LocalDateTime gioTauChay = ve.getNgayGioDi();
+		LocalDateTime now = LocalDateTime.now();
+
+		Duration duration = Duration.between(now, gioTauChay);
+		long seconds = duration.getSeconds();
+
+		if (seconds <= 0) {
+			thoiGianConLai = "Đã khởi hành";
+			isDuDieuKien = false;
+			lyDoKhongDuDieuKien = "Tàu đã khởi hành, không thể đổi vé.";
+			lePhiDoiVe = 0;
+			thongTinPhiDoi = "Không thể đổi vé.";
+		} else {
+			long hours = seconds / 3600;
+			long minutes = (seconds % 3600) / 60;
+			thoiGianConLai = String.format("%dg %02dp", hours, minutes);
+
+			// Quy định: Phải trước 24 tiếng
+			if (hours >= 4) {
+				isDuDieuKien = true;
+				lyDoKhongDuDieuKien = "";
+				lePhiDoiVe = 20000;
+				thongTinPhiDoi = "Đổi vé bình thường năm 2025, áp dụng phí 20.000VNĐ/vé";
+			} else {
+				isDuDieuKien = false;
+				lyDoKhongDuDieuKien = "Thời gian còn lại dưới 24 giờ (Quy định đổi vé).";
+				lePhiDoiVe = 0;
+				thongTinPhiDoi = "Không đủ điều kiện đổi vé.";
+			}
+		}
+	}
+
 	public Ve getVe() {
 		return ve;
 	}
@@ -62,24 +82,12 @@ public class VeDoiRow {
 		return hanhKhach;
 	}
 
-	public String getThongTinVe() {
-		return thongTinVe;
-	}
-
-	public double getThanhTien() {
-		return thanhTien;
-	}
-
 	public String getLoaiDoiVe() {
 		return loaiDoiVe;
 	}
 
 	public double getLePhiDoiVe() {
 		return lePhiDoiVe;
-	}
-
-	public double getTienDoiLai() {
-		return tienDoiLai;
 	}
 
 	public String getThongTinPhiDoi() {
@@ -100,5 +108,17 @@ public class VeDoiRow {
 
 	public void setSelected(boolean isSelected) {
 		this.isSelected = isSelected;
+	}
+
+	public String getThoiGianConLai() {
+		return thoiGianConLai;
+	}
+
+	public boolean isDuDieuKien() {
+		return isDuDieuKien;
+	}
+
+	public String getLyDoKhongDuDieuKien() {
+		return lyDoKhongDuDieuKien;
 	}
 }

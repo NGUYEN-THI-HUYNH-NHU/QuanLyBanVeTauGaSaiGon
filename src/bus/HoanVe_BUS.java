@@ -25,6 +25,7 @@ import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
 import gui.application.AuthService;
+import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.hoanVe.VeHoanRow;
 
 public class HoanVe_BUS {
@@ -97,5 +98,14 @@ public class HoanVe_BUS {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param exchangeSession
+	 * @return
+	 */
+	public Boolean thucHienHoanVe(ExchangeSession exchangeSession) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
