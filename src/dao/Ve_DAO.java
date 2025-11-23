@@ -38,31 +38,6 @@ public class Ve_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createVe(Ve ve) {
-		Connection conn = connectDB.getConnection();
-		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-
-			ps.setString(1, ve.getVeID());
-			ps.setString(2, ve.getKhachHang().getKhachHangID());
-			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
-			ps.setString(4, ve.getChuyen().getChuyenID());
-			ps.setString(5, ve.getGhe().getGheID());
-			ps.setString(6, ve.getGaDi().getGaID());
-			ps.setString(7, ve.getGaDen().getGaID());
-			ps.setTimestamp(8, java.sql.Timestamp.valueOf(ve.getNgayGioDi()));
-			ps.setDouble(9, ve.getGia());
-			ps.setString(10, ve.getTrangThai().toString());
-
-			return ps.executeUpdate() > 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
-	}
-
 	/**
 	 * @param donDatChoID
 	 * @return
@@ -153,11 +128,9 @@ public class Ve_DAO {
 	 * @param v
 	 * @return
 	 */
-	public boolean insertVe(Connection conn, Ve ve) {
+	public boolean insertVe(Connection conn, Ve ve) throws Exception {
 		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, ve.getVeID());
 			ps.setString(2, ve.getKhachHang().getKhachHangID());
 			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
@@ -170,18 +143,14 @@ public class Ve_DAO {
 			ps.setString(10, ve.getTrangThai().toString());
 
 			return ps.executeUpdate() > 0;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
-		return false;
 	}
 
 	/**
 	 * @param conn
 	 * @param veID
 	 */
-	public boolean updateTrangThaiVe(Connection conn, String veID, TrangThaiVe trangThai) {
+	public boolean updateTrangThaiVe(Connection conn, String veID, TrangThaiVe trangThai) throws Exception {
 		String sql = "UPDATE Ve SET trangThai = ? WHERE veID = ?";
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -189,9 +158,6 @@ public class Ve_DAO {
 			ps.setString(2, veID);
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }

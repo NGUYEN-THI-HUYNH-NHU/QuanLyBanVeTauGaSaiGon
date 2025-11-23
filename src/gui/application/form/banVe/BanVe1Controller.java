@@ -25,6 +25,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import bus.DatCho_BUS;
+import bus.PhieuGiuCho_BUS;
 import entity.Chuyen;
 import entity.PhieuGiuCho;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
@@ -48,6 +49,7 @@ public class BanVe1Controller {
 	private final PanelBuoc3Controller buoc3Controller;
 
 	private final DatCho_BUS datChoBUS;
+	private final PhieuGiuCho_BUS phieuGiuChoBUS;
 
 	private Runnable onPanel1CompleteListener;
 
@@ -59,6 +61,7 @@ public class BanVe1Controller {
 		this.view = view;
 		this.bookingSession = session;
 		this.datChoBUS = new DatCho_BUS();
+		this.phieuGiuChoBUS = new PhieuGiuCho_BUS();
 
 		// Khởi tạo các panel con
 		this.p1 = view.getPanelBuoc1();
@@ -428,12 +431,29 @@ public class BanVe1Controller {
 				if (correctController != null) {
 					correctController.releaseHoldAndRemoveVe(v);
 					refreshGioVe();
+
 				}
 			}
 		});
 		timer.setInitialDelay(0);
 		timer.start();
 		countdownTimers.put(id, timer);
+	}
+
+	/**
+	 * Dừng tất cả các bộ đếm ngược (Được gọi khi thanh toán thành công)
+	 */
+	public void stopAllTimers() {
+		// Duyệt qua tất cả các timer đang chạy
+		for (String key : countdownTimers.keySet()) {
+			Timer t = countdownTimers.get(key);
+			if (t != null) {
+				t.stop();
+			}
+		}
+		// Xóa sạch danh sách timer và label
+		countdownTimers.clear();
+		countdownLabels.clear();
 	}
 
 	private String formatSeconds(long s) {

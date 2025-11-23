@@ -11,6 +11,7 @@ package gui.application.form.doiVe;
  * @date: Nov 17, 2025
  * @version: 1.0
  */
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.DonDatCho;
@@ -32,10 +33,6 @@ public class DoiVe1Controller {
 	private final DoiVeBuoc3Controller p3Controller;
 
 	private final ExchangeSession exchangeSession;
-	private DonDatCho ddc;
-	private List<Ve> listVe;
-	private KhachHang nguoiMua;
-	private List<VeDoiRow> listRowDoi;
 
 	private Runnable onPanel1CompleteListener;
 
@@ -59,36 +56,28 @@ public class DoiVe1Controller {
 		initMediatorLogic();
 	}
 
-	public DonDatCho getDonDatCho() {
-		return this.ddc;
-	}
-
-	public KhachHang getNguoiMua() {
-		return this.nguoiMua;
-	}
-
-	public List<VeDoiRow> getListRowDoi() {
-		return this.listRowDoi;
-	}
-
 	private void initMediatorLogic() {
 
 		// Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
 		this.p1Controller.addSearchListener(new SearchListener() {
 			@Override
 			public void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang) {
-				ddc = donDatCho;
-				listVe = danhSachVe;
-				nguoiMua = khachHang;
+				List<VeDoiRow> listVeTimDuoc = new ArrayList<VeDoiRow>();
+				for (Ve ve : danhSachVe) {
+					listVeTimDuoc.add(new VeDoiRow(ve));
+				}
+				exchangeSession.setDonDatChoCu(donDatCho);
+				exchangeSession.setKhachHang(khachHang);
+				exchangeSession.setListVeTimDuoc(listVeTimDuoc);
 
-				if (listRowDoi != null) {
-					listRowDoi.clear();
+				if (exchangeSession.getListVeCuCanDoi() != null) {
+					exchangeSession.getListVeCuCanDoi().clear();
 				}
 
 				view.setBuoc2Enabled(true);
 				view.setBuoc3Enabled(false);
 
-				p2Controller.disPlayDonDatCho(listVe, nguoiMua);
+				p2Controller.disPlayDonDatCho(danhSachVe, khachHang);
 			}
 
 			@Override
@@ -103,10 +92,10 @@ public class DoiVe1Controller {
 			@Override
 			public void onContinue(List<VeDoiRow> selectedRows) {
 				// 1. Lưu trạng thái các vé được chọn
-				listRowDoi = selectedRows;
+				exchangeSession.setListVeCuCanDoi(selectedRows);
 
 				// 2. Đẩy dữ liệu vào P3 Controller
-				p3Controller.displayConfirmationData(listRowDoi);
+				p3Controller.displayConfirmationData(selectedRows);
 
 				// 3. Kích hoạt Bước 3
 				view.setBuoc3Enabled(true);
@@ -122,7 +111,7 @@ public class DoiVe1Controller {
 				// Yêu cầu Controller 2 cập nhật lại View 2
 				// Dữ liệu trong model của P2 đã tự động cập nhật
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
-				listRowDoi.remove(row);
+				exchangeSession.getListVeCuCanDoi().remove(row);
 				p2Controller.refreshRowDisplay(row);
 			}
 		});

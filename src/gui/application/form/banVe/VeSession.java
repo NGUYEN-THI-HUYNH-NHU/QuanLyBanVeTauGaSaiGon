@@ -36,7 +36,7 @@ public class VeSession {
 	private final String gheID;
 	private final int soGhe;
 	private final int gia;
-	private int phongChoVIP;
+	private int phiPhongChoVIP;
 	private String khuyenMaiCode;
 	private int giam;
 	private int giamDoiTuong;
@@ -226,12 +226,12 @@ public class VeSession {
 		this.giamDoiTuong = giamDoiTuong;
 	}
 
-	public int getPhongChoVIP() {
-		return phongChoVIP;
+	public int getPhiPhongChoVIP() {
+		return phiPhongChoVIP;
 	}
 
-	public void setPhongChoVIP(int phongChoVIP) {
-		this.phongChoVIP = phongChoVIP;
+	public void setPhiPhongChoVIP(int phiPhongChoVIP) {
+		this.phiPhongChoVIP = phiPhongChoVIP;
 	}
 
 	public PhieuDungPhongVIP getPhieuDungPhongVIP() {

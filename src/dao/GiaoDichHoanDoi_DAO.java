@@ -18,17 +18,19 @@ import connectDB.ConnectDB;
 import entity.GiaoDichHoanDoi;
 
 public class GiaoDichHoanDoi_DAO {
-	private final ConnectDB db = ConnectDB.getInstance();
+	private ConnectDB connectDB = ConnectDB.getInstance();
+
+	public GiaoDichHoanDoi_DAO() {
+		connectDB.connect();
+	}
 
 	/**
 	 * @param conn
 	 * @param gd
 	 */
-	public boolean insertGiaoDichHoanDoi(Connection conn, GiaoDichHoanDoi giaoDichHoanDoi) {
+	public boolean insertGiaoDichHoanDoi(Connection conn, GiaoDichHoanDoi giaoDichHoanDoi) throws Exception {
 		String sql = "INSERT INTO GiaoDichHoanDoi (giaoDichHoanDoiID, nhanVienID, hoaDonID, veGocID, veMoiID, loaiGiaoDich, lyDo, thoiDiemGiaoDich, phiHoanDoi, soTienChenhLech) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\r\n";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, giaoDichHoanDoi.getGiaoDichHoanDoiID());
 			ps.setString(2, giaoDichHoanDoi.getNhanVien().getNhanVienID());
 			ps.setString(3, giaoDichHoanDoi.getHoaDon().getHoaDonID());
@@ -41,10 +43,6 @@ public class GiaoDichHoanDoi_DAO {
 			ps.setDouble(10, giaoDichHoanDoi.getSoTienChenhLech());
 
 			return ps.executeUpdate() > 0;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
-		return false;
 	}
 }

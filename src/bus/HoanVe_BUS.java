@@ -34,7 +34,7 @@ public class HoanVe_BUS {
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
 	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
-	private final PhieuGiuChoChiTiet_BUS phieuGiuChoChiTietBUS = new PhieuGiuChoChiTiet_BUS();
+	private final PhieuGiuCho_BUS phieuGiuChoChiTietBUS = new PhieuGiuCho_BUS();
 
 	/**
 	 * @param donDatCho
@@ -67,7 +67,7 @@ public class HoanVe_BUS {
 			hoaDonBUS.themHoaDon(conn, hoaDon);
 
 			// 3. Tạo và Lưu Hóa Đơn Chi Tiết
-			List<HoaDonChiTiet> dsHDCT = hoaDonBUS.taoCacHoaDonChiTiet(conn, hoaDon, listVe);
+			List<HoaDonChiTiet> dsHDCT = hoaDonBUS.taoCacHoaDonChiTietHoanVe(conn, hoaDon, listVeHoanRow);
 			hoaDonBUS.themCacHoaDonChiTiet(conn, dsHDCT);
 
 			// 4. Tạo và lưu Giao dịch hoàn đổi

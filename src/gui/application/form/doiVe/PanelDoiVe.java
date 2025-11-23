@@ -14,13 +14,9 @@ package gui.application.form.doiVe;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Font;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 public class PanelDoiVe extends JPanel {
 	private CardLayout cardLayout;
@@ -40,7 +36,6 @@ public class PanelDoiVe extends JPanel {
 	public PanelDoiVe() {
 		setLayout(new BorderLayout());
 		setBackground(new Color(230, 230, 230));
-		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
 		cardLayout = new CardLayout();
@@ -88,10 +83,9 @@ public class PanelDoiVe extends JPanel {
 
 		// TODO: Có thể thêm listener cho doiVe2Controller.addPaymentSuccessListener để
 //		// gọi showPanel("complete") khi thanh toán xong)
-//		doiVe2Controller.addPanel2PaymentSuccessListener(() -> {
-//			panelBuoc6.loadCompletionData(exchangeSession);
-//			showPanel("complete");
-//		});
+		doiVe2Controller.addPanel2CompleteListener(() -> {
+			doiVe2Controller.stopAllTimers();
+		});
 	}
 
 	/**

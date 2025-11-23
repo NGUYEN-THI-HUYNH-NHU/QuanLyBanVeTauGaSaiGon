@@ -20,7 +20,6 @@ import javax.swing.SwingWorker;
 
 import bus.DoiVe_BUS;
 import entity.GiaoDichThanhToan;
-import gui.application.PdfTicketExporter;
 import gui.application.form.banVe.VeSession;
 
 public class DoiVe3Controller {
@@ -135,9 +134,13 @@ public class DoiVe3Controller {
 						boolean saveSuccess = get();
 
 						if (saveSuccess) {
-							// a. Xuất file pdf
-							PdfTicketExporter exporter = new PdfTicketExporter();
+//							// a. Xuất file pdf
+//							PdfTicketExporter exporter = new PdfTicketExporter();
 //							exporter.exportTicketsToPdf(exchangeSession);
+
+							JOptionPane.showMessageDialog(view, "Đổi vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+							p8.setComponentsEnabled(true);
 
 							// b. Báo cho wizard chính (PanelBanVe) biết
 							if (onPaymentSuccessListener != null) {

@@ -100,7 +100,7 @@ public class KhachHang_BUS {
 		return String.format("KH%03d", maxID + 1);
 	}
 
-	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) {
+	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) throws Exception {
 		return khachHang_dao.saveOrUpdate(conn, khachHang);
 	}
 

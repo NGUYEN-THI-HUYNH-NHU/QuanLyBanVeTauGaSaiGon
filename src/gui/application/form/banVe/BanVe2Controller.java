@@ -82,7 +82,7 @@ public class BanVe2Controller {
 
 		for (VeSession ve : allTickets) {
 			tongTienVe += ve.getGia();
-			dichVu += ve.getPhongChoVIP();
+			dichVu += ve.getPhiPhongChoVIP();
 			khuyenMai += ve.getGiam();
 
 			// Giảm giá đối tượng ở đây
@@ -136,7 +136,7 @@ public class BanVe2Controller {
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-						return banVeBUS.xacNhanThanhToanVaLuuVe(bookingSession);
+						return banVeBUS.thucHienBanVe(bookingSession);
 					} catch (Exception ex) {
 						errorMessage = ex.getMessage();
 						ex.printStackTrace();

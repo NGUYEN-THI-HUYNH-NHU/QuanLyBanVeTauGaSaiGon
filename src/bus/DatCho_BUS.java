@@ -48,8 +48,8 @@ public class DatCho_BUS {
 		return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
 	}
 
-	public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) {
-		return pgcDAO.createPhieuGiuCho(conn, phieuGiuCho);
+	public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) throws Exception {
+		return pgcDAO.insertPhieuGiuCho(conn, phieuGiuCho);
 	}
 
 	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
@@ -70,8 +70,8 @@ public class DatCho_BUS {
 		return null;
 	}
 
-	public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
-		return pgcctDAO.createPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
+	public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) throws Exception {
+		return pgcctDAO.insertPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
 	}
 
 	public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
@@ -119,7 +119,7 @@ public class DatCho_BUS {
 		return new DonDatCho(ddcID, nhanVien, khachHang, now);
 	}
 
-	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) {
+	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) throws Exception {
 		return ddcDAO.insertDonDatCho(conn, donDatCho);
 	}
 
@@ -129,7 +129,7 @@ public class DatCho_BUS {
 	 * @param xacNhan
 	 */
 	public boolean capNhatPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho,
-			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
 		return pgcDAO.updateTrangThaiPhieuGiuCho(conn, phieuGiuCho.getPhieuGiuChoID(), trangThaiPhieuGiuCho.toString());
 	}
 
@@ -139,7 +139,7 @@ public class DatCho_BUS {
 	 * @param trangThaiPhieuGiuCho
 	 */
 	public boolean capNhatCacPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho phieuGiuCho,
-			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
 		return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(conn, phieuGiuCho.getPhieuGiuChoID(),
 				trangThaiPhieuGiuCho.toString());
 	}

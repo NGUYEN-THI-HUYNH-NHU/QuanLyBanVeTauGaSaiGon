@@ -5,13 +5,13 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.sql.Connection;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 27, 2025
  * @version: 1.0
  */
+import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class Ve_BUS {
 	public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
 		List<Ve> dsVe = new ArrayList<Ve>();
 		List<VeSession> dsVeMoi = exchangeSession.getListVeMoiDangChon();
-		DonDatCho donDatCho = exchangeSession.getDonDatCho();
+		DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
 
 		for (VeSession v : dsVeMoi) {
 			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
@@ -89,7 +89,7 @@ public class Ve_BUS {
 	 * @param dsVe
 	 * @return boolean
 	 */
-	public boolean themCacVe(Connection conn, List<Ve> dsVe) {
+	public boolean themCacVe(Connection conn, List<Ve> dsVe) throws Exception {
 		for (Ve v : dsVe) {
 			if (!veDAO.insertVe(conn, v)) {
 				return false;
@@ -121,10 +121,9 @@ public class Ve_BUS {
 	 * @param listVeHoanRow
 	 * @param trangThai
 	 */
-	public void capNhatTrangThaiVe(Connection conn, List<Ve> listVe, TrangThaiVe trangThai) {
+	public void capNhatTrangThaiVe(Connection conn, List<Ve> listVe, TrangThaiVe trangThai) throws Exception {
 		for (Ve ve : listVe) {
 			veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
 		}
 	}
-
 }

@@ -25,18 +25,22 @@ import entity.HoaDonChiTiet;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuDungPhongVIP;
-import entity.Ve;
 import entity.type.LoaiDichVu;
 import entity.type.LoaiDoiTuong;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
+import gui.application.form.hoanVe.VeHoanRow;
 
 public class HoaDon_BUS {
 	private final HoaDon_DAO hoaDonDAO = new HoaDon_DAO();
 	private final HoaDonChiTiet_DAO hoaDonChiTietDAO = new HoaDonChiTiet_DAO();
 	private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
 
+	/**
+	 * @param bookingSession
+	 * @return
+	 */
 	public HoaDon taoHoaDon(BookingSession bookingSession) {
 		String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID();
 		LocalDateTime now = LocalDateTime.now();
@@ -52,8 +56,8 @@ public class HoaDon_BUS {
 	 * @param exchangeSession
 	 * @return
 	 */
-	public HoaDon taoHoaDon(ExchangeSession exchangeSession) {
-		String hdID = "HD-" + exchangeSession.getDonDatCho().getDonDatChoID();
+	public HoaDon taoHoaDonDoiVe(ExchangeSession exchangeSession) {
+		String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getDonDatChoID();
 		LocalDateTime now = LocalDateTime.now();
 		HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
 				exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
@@ -63,6 +67,13 @@ public class HoaDon_BUS {
 		return hoaDon;
 	}
 
+	/**
+	 * @param donDatCho
+	 * @param khachHang
+	 * @param nhanVien
+	 * @param tongTienHoan
+	 * @return
+	 */
 	public HoaDon taoHoaDonHoanVe(DonDatCho donDatCho, KhachHang khachHang, NhanVien nhanVien, double tongTienHoan) {
 		HoaDon hoaDon = new HoaDon();
 		hoaDon.setHoaDonID("HDHV-" + donDatCho.getDonDatChoID().substring(4));
@@ -80,19 +91,11 @@ public class HoaDon_BUS {
 	}
 
 	/**
-	 * @param conn
-	 * @param bookingSession
-	 */
-	public boolean themHoaDon(Connection conn, HoaDon hoaDon) {
-		return hoaDonDAO.insertHoaDon(conn, hoaDon);
-	}
-
-	/**
 	 * @param hoaDon
 	 * @param listVeMoi
 	 * @return
 	 */
-	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(HoaDon hoaDon, List<VeSession> listVeMoi) {
+	public List<HoaDonChiTiet> taoCacHoaDonChiTietBanVe(HoaDon hoaDon, List<VeSession> listVeMoi) {
 		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
 		int stt = 0;
 		for (VeSession ve : listVeMoi) {
@@ -104,9 +107,92 @@ public class HoaDon_BUS {
 			if (ve.getPhieuDungPhongVIP() != null) {
 				String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, ve.getPhieuDungPhongVIP(),
-						"Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP, "Phiếu", 1, ve.getPhongChoVIP(),
-						ve.getPhongChoVIP());
+						"Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP, "Phiếu", 1, ve.getPhiPhongChoVIP(),
+						ve.getPhiPhongChoVIP());
 				dsHoaDonChiTiet.add(hdctPhieu);
+			}
+
+			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				String hdctGiamDTID = hoaDon.getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, hoaDon, "Giảm giá đối tượng trẻ em",
+						LoaiDichVu.KHUYEN_MAI, "", 1, -ve.getGiamDoiTuong(), -ve.getGiamDoiTuong());
+				dsHoaDonChiTiet.add(hdctGiamDT);
+
+			}
+		}
+		return dsHoaDonChiTiet;
+	}
+
+	public List<HoaDonChiTiet> taoCacHoaDonChiTietHoanVe(Connection conn, HoaDon hoaDon,
+			List<VeHoanRow> listVeHoanRow) {
+		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
+		int stt = 0;
+
+		for (VeHoanRow row : listVeHoanRow) {
+			String hdctVeID = hoaDon.getHoaDonID() + "-" + (++stt);
+			HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, row.getVe(),
+					"Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVu.VE_HOAN, "Vé", 1, -row.getVe().getGia(),
+					-row.getVe().getGia());
+			dsHoaDonChiTiet.add(hdctVe);
+
+			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, row.getVe().getVeID());
+			if (phieu != null) {
+				String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
+						"Hủy phiếu dùng phòng chờ VIP theo hoàn vé", LoaiDichVu.PHIEU_HOAN, "Phiếu", 1, -20000,
+						-200000);
+				dsHoaDonChiTiet.add(hdctPhieu);
+			}
+
+			String hdctLePhiID = hoaDon.getHoaDonID() + "-" + (++stt);
+			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, "Lệ phí hoàn vé",
+					LoaiDichVu.LE_PHI_HOAN_VE, 1, row.getLePhiHoanVe(), row.getLePhiHoanVe());
+			dsHoaDonChiTiet.add(hdctLePhi);
+		}
+
+		return dsHoaDonChiTiet;
+	}
+
+	/**
+	 * @param hoaDon
+	 * @param listVeMoi
+	 * @return
+	 */
+	public List<HoaDonChiTiet> taoCacHoaDonChiTietDoiVe(Connection conn, HoaDon hoaDon, List<VeSession> listVeMoi) {
+		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
+		int stt = 0;
+		for (VeSession ve : listVeMoi) {
+			// Dòng vé đổi
+			String hdctVeDoiID = hoaDon.getHoaDonID() + "-" + (++stt);
+			HoaDonChiTiet hdctVeDoi = new HoaDonChiTiet(hdctVeDoiID, hoaDon, ve.getVe(),
+					"Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVu.VE_DOI, "Vé", 1, -ve.getGia(),
+					-ve.getGia());
+			dsHoaDonChiTiet.add(hdctVeDoi);
+
+			PhieuDungPhongVIP phieu = ve.getPhieuDungPhongVIP();
+			if (phieu != null) {
+				if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(conn, phieu.getPhieuDungPhongChoVIPID()) != null) {
+					String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
+					HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
+							"Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP, "Phiếu", 1,
+							ve.getPhiPhongChoVIP(), ve.getPhiPhongChoVIP());
+					dsHoaDonChiTiet.add(hdctPhieu);
+				}
+			}
+
+			String hdctVeMoiID = hoaDon.getHoaDonID() + "-" + (++stt);
+			HoaDonChiTiet hdctVeMoi = new HoaDonChiTiet(hdctVeMoiID, hoaDon, ve.getVe(), "Vé HK: " + ve.toString(),
+					LoaiDichVu.VE_BAN, "Vé", 1, ve.getGia(), ve.getGia());
+			dsHoaDonChiTiet.add(hdctVeMoi);
+
+			if (phieu != null) {
+				if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(conn, phieu.getPhieuDungPhongChoVIPID()) == null) {
+					String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
+					HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
+							"Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVu.PHONG_VIP, "Phiếu", 1,
+							ve.getPhiPhongChoVIP(), ve.getPhiPhongChoVIP());
+					dsHoaDonChiTiet.add(hdctPhieu);
+				}
 			}
 
 			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
@@ -120,34 +206,19 @@ public class HoaDon_BUS {
 		return dsHoaDonChiTiet;
 	}
 
-	public List<HoaDonChiTiet> taoCacHoaDonChiTiet(Connection conn, HoaDon hoaDon, List<Ve> listVe) {
-		List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
-		int stt = 0;
-
-		for (Ve ve : listVe) {
-			String hdctVeID = hoaDon.getHoaDonID() + "-" + (++stt);
-			HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, ve, "Điều chỉnh giảm theo BB trả vé số: 2177975",
-					LoaiDichVu.VE_HOAN, "Vé", 1, -ve.getGia(), -ve.getGia());
-			dsHoaDonChiTiet.add(hdctVe);
-
-			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, ve.getVeID());
-			if (phieu != null) {
-				String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
-				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
-						"Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVu.PHIEU_HOAN, "Phiếu", 1, -200000,
-						-200000);
-				dsHoaDonChiTiet.add(hdctPhieu);
-			}
-		}
-
-		return dsHoaDonChiTiet;
+	/**
+	 * @param conn
+	 * @param bookingSession
+	 */
+	public boolean themHoaDon(Connection conn, HoaDon hoaDon) throws Exception {
+		return hoaDonDAO.insertHoaDon(conn, hoaDon);
 	}
 
 	/**
 	 * @param conn
 	 * @param dsHoaDonChiTiet
 	 */
-	public void themCacHoaDonChiTiet(Connection conn, List<HoaDonChiTiet> dsHoaDonChiTiet) {
+	public void themCacHoaDonChiTiet(Connection conn, List<HoaDonChiTiet> dsHoaDonChiTiet) throws Exception {
 		for (HoaDonChiTiet hdct : dsHoaDonChiTiet) {
 			hoaDonChiTietDAO.insertHoaDonChiTiet(conn, hdct);
 		}

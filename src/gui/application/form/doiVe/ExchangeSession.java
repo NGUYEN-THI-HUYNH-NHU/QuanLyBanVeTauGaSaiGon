@@ -31,6 +31,7 @@ public class ExchangeSession {
 	private static ExchangeSession instance;
 
 	// --- DỮ LIỆU VÉ CŨ (Input từ Giai đoạn 1) ---
+	private List<VeDoiRow> listVeTimDuoc = new ArrayList<>();
 	private List<VeDoiRow> listVeCuCanDoi = new ArrayList<>();
 
 	// --- DỮ LIỆU VÉ MỚI (Xử lý ở Giai đoạn 2) ---
@@ -47,7 +48,8 @@ public class ExchangeSession {
 	private NhanVien nhanVien;
 	private PhieuGiuCho phieuGiuCho;
 	private GiaoDichThanhToan giaoDichThanhToan;
-	private DonDatCho donDatCho;
+	private DonDatCho donDatChoCu;
+	private DonDatCho donDatChoMoi;
 	private HoaDon hoaDon;
 
 	private ExchangeSession() {
@@ -66,6 +68,13 @@ public class ExchangeSession {
 	}
 
 	// --- Getters & Setters ---
+	public List<VeDoiRow> getListVeTimDuoc() {
+		return listVeTimDuoc;
+	}
+
+	public void setListVeTimDuoc(List<VeDoiRow> listVeTimDuoc) {
+		this.listVeTimDuoc = listVeTimDuoc;
+	}
 
 	public List<VeDoiRow> getListVeCuCanDoi() {
 		return listVeCuCanDoi;
@@ -186,8 +195,12 @@ public class ExchangeSession {
 		return giaoDichThanhToan;
 	}
 
-	public DonDatCho getDonDatCho() {
-		return donDatCho;
+	public DonDatCho getDonDatChoCu() {
+		return donDatChoCu;
+	}
+
+	public DonDatCho getDonDatChoMoi() {
+		return donDatChoMoi;
 	}
 
 	public HoaDon getHoaDon() {
@@ -198,8 +211,12 @@ public class ExchangeSession {
 		this.giaoDichThanhToan = giaoDichThanhToan;
 	}
 
-	public void setDonDatCho(DonDatCho donDatCho) {
-		this.donDatCho = donDatCho;
+	public void setDonDatChoCu(DonDatCho donDatChoCu) {
+		this.donDatChoCu = donDatChoCu;
+	}
+
+	public void setDonDatChoMoi(DonDatCho donDatChoMoi) {
+		this.donDatChoMoi = donDatChoMoi;
 	}
 
 	public void setHoaDon(HoaDon hoaDon) {

@@ -71,7 +71,7 @@ public class GiaoDichHoanDoi_BUS {
 	 * @param conn
 	 * @param dsGdhd
 	 */
-	public void themCacGiaoDichHoanDoi(Connection conn, List<GiaoDichHoanDoi> dsGdhd) {
+	public void themCacGiaoDichHoanDoi(Connection conn, List<GiaoDichHoanDoi> dsGdhd) throws Exception {
 		for (GiaoDichHoanDoi gd : dsGdhd) {
 			giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(conn, gd);
 		}

@@ -278,7 +278,7 @@ public class DoiVe2Controller {
 		int soLuongVeDoi = exchangeSession.getListVeCuCanDoi().size();
 
 		// Kiểm tra giỏ vé không tương ứng với số lượng vé cần đổi
-		if (listVeMoi.size() < soLuongVeDoi) {
+		if (listVeMoi.size() != soLuongVeDoi) {
 			JOptionPane.showMessageDialog(view,
 					String.format("Vui lòng chọn số lượng vé tương ứng với số vé cần đổi ~ %d vé", soLuongVeDoi), "Lỗi",
 					JOptionPane.WARNING_MESSAGE);
@@ -362,6 +362,22 @@ public class DoiVe2Controller {
 		timer.setInitialDelay(0);
 		timer.start();
 		countdownTimers.put(id, timer);
+	}
+
+	/**
+	 * Dừng tất cả các bộ đếm ngược (Được gọi khi thanh toán thành công)
+	 */
+	public void stopAllTimers() {
+		// Duyệt qua tất cả các timer đang chạy
+		for (String key : countdownTimers.keySet()) {
+			Timer t = countdownTimers.get(key);
+			if (t != null) {
+				t.stop();
+			}
+		}
+		// Xóa sạch danh sách timer và label
+		countdownTimers.clear();
+		countdownLabels.clear();
 	}
 
 	private String formatSeconds(long s) {

@@ -58,12 +58,11 @@ public class HoaDon_DAO {
 	 * @param hoaDon
 	 * @return
 	 */
-	public boolean insertHoaDon(Connection conn, HoaDon hoaDon) {
+	public boolean insertHoaDon(Connection conn, HoaDon hoaDon) throws Exception {
 		String sql = "INSERT INTO HoaDon (hoaDonID, khachHangID, nhanVienID, thoiDiemTao, tongTien, maGD, tienNhan, tienHoan, isThanhToanTienMat, trangThai) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, hoaDon.getHoaDonID());
 			ps.setString(2, hoaDon.getKhachHang().getKhachHangID());
 			ps.setString(3, hoaDon.getNhanVien().getNhanVienID());
@@ -81,9 +80,6 @@ public class HoaDon_DAO {
 			ps.setBoolean(10, hoaDon.isTrangThai());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }

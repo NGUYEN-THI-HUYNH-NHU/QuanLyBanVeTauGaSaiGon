@@ -13,7 +13,7 @@ package entity.type;
  */
 
 public enum TrangThaiPDPVIP {
-	DA_BAN("Phiếu chưa sử dụng"), DA_DUNG("Phiếu đã sử dụng"), HET_HAN("Phiếu hết hạn"),
+	CHUA_DUNG("Phiếu chưa sử dụng"), DA_DUNG("Phiếu đã sử dụng"), HET_HAN("Phiếu hết hạn"),
 	DA_HUY("Phiếu đã hoàn theo vé hoàn");
 
 	private final String description;

@@ -14,14 +14,10 @@ package gui.application.form.hoanVe;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 import entity.DonDatCho;
 import entity.KhachHang;
@@ -41,7 +37,6 @@ public class PanelHoanVe extends JPanel {
 	public PanelHoanVe() {
 		setLayout(new BorderLayout());
 		setBackground(new Color(230, 230, 230));
-		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
 		cardLayout = new CardLayout();

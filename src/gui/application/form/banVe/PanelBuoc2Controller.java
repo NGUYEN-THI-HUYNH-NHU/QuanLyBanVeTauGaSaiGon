@@ -416,7 +416,7 @@ public class PanelBuoc2Controller {
 		if (selectedToa != null && v.getToaID().equals(selectedToa.getToaID()) && (removedOutbound || removedReturn)) {
 			// Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
 			if (selectedChuyen != null && v.getChuyenID().equals(selectedChuyen.getChuyenID())) {
-				panelSoDoCho.updateSeatVisual(v.getSoGhe(), false);
+				refreshSeatOnDelete(v);
 			}
 		}
 	}

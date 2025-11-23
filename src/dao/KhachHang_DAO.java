@@ -162,7 +162,7 @@ public class KhachHang_DAO {
 	 * @param conn
 	 * @param khachHang
 	 */
-	public boolean saveOrUpdate(Connection conn, KhachHang khachHang) {
+	public boolean saveOrUpdate(Connection conn, KhachHang khachHang) throws Exception {
 		if (timKhachHangTheoSoGiayTo(khachHang.getSoGiayTo()) != null) {
 			return false;
 		}
@@ -180,9 +180,6 @@ public class KhachHang_DAO {
 			pstmt.setString(8, khachHang.getLoaiKhachHang() != null ? khachHang.getLoaiKhachHang().name() : null);
 
 			return pstmt.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }
