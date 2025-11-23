@@ -65,7 +65,7 @@ public class BanVe_BUS {
 			}
 
 			// 3. Tạo và Lưu Đơn Đặt Chỗ
-			DonDatCho donDatCho = datChoBUS.taoDonDatCho(session);
+			DonDatCho donDatCho = datChoBUS.taoDonDatCho(session.getNhanVien(), session.getKhachHang());
 			datChoBUS.themDonDatCho(conn, donDatCho);
 			session.setDonDatCho(donDatCho);
 
@@ -79,7 +79,7 @@ public class BanVe_BUS {
 			luuThongTinThanhToan(conn, gdtt);
 
 			// 6. Tạo và Lưu Vé (Batch Insert)
-			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, session);
+			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(session);
 			veBUS.themCacVe(conn, dsVe);
 
 			// 7. Tạo và Lưu Phiếu VIP (Batch Insert)
@@ -87,7 +87,8 @@ public class BanVe_BUS {
 			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
 			// 8. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
-			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(session);
+			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(session.getHoaDon(),
+					session.getAllSelectedTickets());
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
 			// 9. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)

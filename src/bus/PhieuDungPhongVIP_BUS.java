@@ -5,6 +5,12 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Nov 7, 2025
+ * @version: 1.0
+ */
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +18,11 @@ import java.util.List;
 import dao.PhieuDungPhongVIP_DAO;
 import entity.DichVuPhongChoVIP;
 import entity.PhieuDungPhongVIP;
+import entity.Ve;
 import entity.type.TrangThaiPDPVIP;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
-import gui.application.form.hoanVe.VeHoanRow;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Nov 7, 2025
- * @version: 1.0
- */
+import gui.application.form.doiVe.ExchangeSession;
 
 public class PhieuDungPhongVIP_BUS {
 	private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
@@ -37,7 +37,24 @@ public class PhieuDungPhongVIP_BUS {
 		for (VeSession v : dsVe) {
 			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
 			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
-					TrangThaiPDPVIP.DA_DUNG);
+					TrangThaiPDPVIP.DA_BAN);
+			v.setPhieuDungPhongVIP(phieu);
+			dsPhieu.add(phieu);
+		}
+		return dsPhieu;
+	}
+
+	/**
+	 * @param exchangeSession
+	 * @return
+	 */
+	public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(ExchangeSession exchangeSession) {
+		List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
+		List<VeSession> dsVe = exchangeSession.getListVeMoiDangChon();
+		for (VeSession v : dsVe) {
+			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
+			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
+					TrangThaiPDPVIP.DA_BAN);
 			v.setPhieuDungPhongVIP(phieu);
 			dsPhieu.add(phieu);
 		}
@@ -60,18 +77,16 @@ public class PhieuDungPhongVIP_BUS {
 
 	/**
 	 * @param conn
-	 * @param listVeHoanRow
+	 * @param listVe
 	 * @param daHoan
 	 */
-	public void capNhatTrangThaiPhieuDungPhongChoVIP(Connection conn, List<VeHoanRow> listVeHoanRow,
-			TrangThaiPDPVIP trangThai) {
-		for (VeHoanRow r : listVeHoanRow) {
-			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, r.getVe().getVeID());
+	public void capNhatPhieuDungPhongChoVIP(Connection conn, List<Ve> listVe, TrangThaiPDPVIP trangThai) {
+		for (Ve ve : listVe) {
+			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, ve.getVeID());
 			if (phieu != null) {
 				phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(conn, phieu.getPhieuDungPhongChoVIPID(),
 						trangThai);
 			}
 		}
 	}
-
 }

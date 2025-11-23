@@ -25,7 +25,7 @@ import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
-import gui.application.form.hoanVe.VeHoanRow;
+import gui.application.form.doiVe.ExchangeSession;
 
 public class Ve_BUS {
 	private final Ve_DAO veDAO = new Ve_DAO();
@@ -35,10 +35,11 @@ public class Ve_BUS {
 	 * @param bookingSession
 	 * @return List<Ve>
 	 */
-	public List<Ve> taoCacVeVaThemVaoBookingSession(DonDatCho donDatCho, BookingSession bookingSession) {
+	public List<Ve> taoCacVeVaThemVaoBookingSession(BookingSession bookingSession) {
 		List<Ve> dsVe = new ArrayList<Ve>();
 		List<VeSession> dsVeDi = bookingSession.getOutboundSelected();
 		List<VeSession> dsVeVe = bookingSession.getReturnSelected();
+		DonDatCho donDatCho = bookingSession.getDonDatCho();
 
 		for (VeSession v : dsVeDi) {
 			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
@@ -58,6 +59,28 @@ public class Ve_BUS {
 			dsVe.add(ve);
 			v.setVe(ve);
 		}
+		return dsVe;
+	}
+
+	/**
+	 * @param exchangeSession
+	 * @return
+	 */
+	public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
+		List<Ve> dsVe = new ArrayList<Ve>();
+		List<VeSession> dsVeMoi = exchangeSession.getListVeMoiDangChon();
+		DonDatCho donDatCho = exchangeSession.getDonDatCho();
+
+		for (VeSession v : dsVeMoi) {
+			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
+			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
+					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
+					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
+					TrangThaiVe.DA_BAN);
+			dsVe.add(ve);
+			v.setVe(ve);
+		}
+
 		return dsVe;
 	}
 
@@ -96,10 +119,12 @@ public class Ve_BUS {
 	/**
 	 * @param conn
 	 * @param listVeHoanRow
+	 * @param trangThai
 	 */
-	public void capNhatTrangThaiVe(Connection conn, List<VeHoanRow> listVeHoanRow, TrangThaiVe trangThai) {
-		for (VeHoanRow r : listVeHoanRow) {
-			veDAO.updateTrangThaiVe(conn, r.getVe().getVeID(), trangThai);
+	public void capNhatTrangThaiVe(Connection conn, List<Ve> listVe, TrangThaiVe trangThai) {
+		for (Ve ve : listVe) {
+			veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
 		}
 	}
+
 }

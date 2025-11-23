@@ -15,8 +15,8 @@ import java.sql.Connection;
 import java.util.List;
 
 import dao.PhieuGiuChoChiTiet_DAO;
+import entity.Ve;
 import entity.type.TrangThaiPhieuGiuCho;
-import gui.application.form.hoanVe.VeHoanRow;
 
 public class PhieuGiuChoChiTiet_BUS {
 	private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
@@ -26,11 +26,9 @@ public class PhieuGiuChoChiTiet_BUS {
 	 * @param listVeHoanRow
 	 * @param daHuy
 	 */
-	public void huyCacPhieuGiuChoChiTiet(Connection conn, List<VeHoanRow> listVeHoanRow,
-			TrangThaiPhieuGiuCho trangThai) {
-		for (VeHoanRow r : listVeHoanRow) {
-			pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(conn, r.getVe(), TrangThaiPhieuGiuCho.HET_GIU);
+	public void huyCacPhieuGiuChoChiTiet(Connection conn, List<Ve> listVe, TrangThaiPhieuGiuCho trangThai) {
+		for (Ve ve : listVe) {
+			pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(conn, ve, trangThai);
 		}
 	}
-
 }

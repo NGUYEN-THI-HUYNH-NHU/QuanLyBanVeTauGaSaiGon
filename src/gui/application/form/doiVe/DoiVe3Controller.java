@@ -18,7 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import bus.HoanVe_BUS;
+import bus.DoiVe_BUS;
 import entity.GiaoDichThanhToan;
 import gui.application.PdfTicketExporter;
 import gui.application.form.banVe.VeSession;
@@ -28,7 +28,7 @@ public class DoiVe3Controller {
 	private final PanelDoiVeBuoc7 p7;
 	private final PanelDoiVeBuoc8 p8;
 
-	private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
+	private final DoiVe_BUS doiVeBUS = new DoiVe_BUS();
 
 	private final ExchangeSession exchangeSession;
 
@@ -121,7 +121,7 @@ public class DoiVe3Controller {
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-						return hoanVeBUS.thucHienHoanVe(exchangeSession);
+						return doiVeBUS.thucHienDoiVe(exchangeSession);
 					} catch (Exception ex) {
 						errorMessage = ex.getMessage();
 						ex.printStackTrace();

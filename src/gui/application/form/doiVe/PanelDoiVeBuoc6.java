@@ -14,7 +14,6 @@ package gui.application.form.doiVe;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +33,6 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	private final JButton btnCancel;
 	private JButton btnConfirm;
 
-	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
-
 	private DoiVeBuoc6Controller controller;
 
 	public PanelDoiVeBuoc6() {
@@ -44,10 +41,6 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		table = new JTable(model);
 
 		setUpTable();
-
-		/// Áp dụng Renderer cho cột để hiển thị đẹp ngay cả khi không click vào
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI)
-				.setCellRenderer(VeMoiRenderer.getTableCellRenderer());
 
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -81,6 +74,10 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(topAlignRenderer);
+
+		/// Áp dụng Renderer cho cột để hiển thị đẹp ngay cả khi không click vào
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI)
+				.setCellRenderer(VeMoiRenderer.getTableCellRenderer());
 	}
 
 	/**
@@ -122,7 +119,7 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	 * Chọn dòng bị lỗi, cuộn tới đó và kích hoạt ComboBox
 	 */
 	public void highlightAndFocusError(int rowIndex) {
-		// 1. Chọn dòng (Tô đen/xanh theo theme)
+		// 1. Chọn dòng
 		table.setRowSelectionInterval(rowIndex, rowIndex);
 
 		// 2. Cuộn bảng tới vị trí dòng đó (nếu đang bị khuất)

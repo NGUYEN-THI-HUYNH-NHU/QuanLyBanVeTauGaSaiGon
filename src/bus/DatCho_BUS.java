@@ -26,12 +26,12 @@ import entity.Chuyen;
 import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
+import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
-import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class DatCho_BUS {
@@ -110,13 +110,13 @@ public class DatCho_BUS {
 		return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
 	}
 
-	public DonDatCho taoDonDatCho(BookingSession bookingSession) {
+	public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHang khachHang) {
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
 
 		String ddcID = "DDC-" + now.format(formatter).toString();
 
-		return new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
+		return new DonDatCho(ddcID, nhanVien, khachHang, now);
 	}
 
 	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) {

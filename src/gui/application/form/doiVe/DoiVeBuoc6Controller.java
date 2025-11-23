@@ -5,15 +5,13 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.util.ArrayList;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Nov 20, 2025
  * @version: 1.0
  */
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -32,7 +30,6 @@ public class DoiVeBuoc6Controller {
 	// Listeners để báo cho Controller Mediator (BanVe1Controller)
 	private Runnable onConfirmListener;
 	private Runnable onCancelListener;
-
 	private Consumer<VeSession> onDeleteListener;
 
 	public DoiVeBuoc6Controller(PanelDoiVeBuoc6 view, ExchangeSession exchangeSession) {
