@@ -81,13 +81,13 @@ public class BanVe2Controller {
 		}
 
 		for (VeSession ve : allTickets) {
-			tongTienVe += ve.getGia();
-			dichVu += ve.getPhiPhongChoVIP();
-			khuyenMai += ve.getGiam();
+			tongTienVe += ve.getVe().getGia();
+			dichVu += ve.getPhiPhieuDungPhongChoVIP();
+			khuyenMai += ve.getGiamKM();
 
 			// Giảm giá đối tượng ở đây
-			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
-				ve.setGiamDoiTuong((int) (Math.round((ve.getGia() * 0.25) / 1000) * 1000));
+			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
 				giamGiaDT += ve.getGiamDoiTuong();
 			}
 		}

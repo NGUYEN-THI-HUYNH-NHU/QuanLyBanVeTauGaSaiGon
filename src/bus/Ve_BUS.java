@@ -13,6 +13,7 @@ package bus;
  */
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,14 +22,49 @@ import entity.Chuyen;
 import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
+import entity.KhuyenMai;
+import entity.Toa;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
+import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 
 public class Ve_BUS {
+	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
 	private final Ve_DAO veDAO = new Ve_DAO();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
+
+	public VeSession createVeSessionForSeat(Chuyen chuyen, Toa toa, Ghe ghe, SearchCriteria criteria) {
+		ghe.setToa(toa);
+
+		Ga gaDi = new Ga(criteria.getGaDiId(), criteria.getGaDiName());
+		Ga gaDen = new Ga(criteria.getGaDenId(), criteria.getGaDenName());
+
+		LocalDateTime ngayGioDi = LocalDateTime.of(chuyen.getNgayDi(), chuyen.getGioDi());
+
+		LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
+
+		int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyen.getChuyenID(), criteria.getGaDiId(), criteria.getGaDenId(),
+				chuyen.getTau().getLoaiTau().toString(), toa.getHangToa().toString());
+
+		Ve ve = new Ve();
+		ve.setChuyen(chuyen);
+		ve.setGaDi(gaDi);
+		ve.setGaDen(gaDen);
+		ve.setGhe(ghe);
+		ve.setNgayGioDi(thoiDiemHetHan);
+		ve.setNgayGioDi(ngayGioDi);
+		ve.setGia(gia);
+		ve.setTrangThai(TrangThaiVe.DA_BAN);
+
+		// TODO: tim khuyen mai
+		KhuyenMai khuyenMai = khuyenMaiBUS.timKhuyenMaiChoVe(ve);
+		int giamKM = 0;
+
+		return new VeSession(ve, khuyenMai, giamKM, thoiDiemHetHan);
+	}
 
 	/**
 	 * @param donDatCho
@@ -42,20 +78,22 @@ public class Ve_BUS {
 		DonDatCho donDatCho = bookingSession.getDonDatCho();
 
 		for (VeSession v : dsVeDi) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
-			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
-					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
-					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
-					TrangThaiVe.DA_BAN);
+			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
+					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+			Ve ve = v.getVe();
+			ve.setVeID(veID);
+			ve.setDonDatCho(donDatCho);
+
 			dsVe.add(ve);
 			v.setVe(ve);
 		}
 		for (VeSession v : dsVeVe) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
-			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
-					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
-					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
-					TrangThaiVe.DA_BAN);
+			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
+					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+			Ve ve = v.getVe();
+			ve.setVeID(veID);
+			ve.setDonDatCho(donDatCho);
+
 			dsVe.add(ve);
 			v.setVe(ve);
 		}
@@ -72,11 +110,12 @@ public class Ve_BUS {
 		DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
 
 		for (VeSession v : dsVeMoi) {
-			String veID = "VE-" + v.getGaDiID() + v.getGaDenID() + v.getChuyenID() + "-" + v.getGheID();
-			Ve ve = new Ve(veID, v.getHanhKhach(), donDatCho, new Chuyen(v.getChuyenID()),
-					new Ghe(v.getGheID(), v.getSoGhe()), new Ga(v.getGaDiID(), v.getTenGaDi()),
-					new Ga(v.getGaDenID(), v.getTenGaDen()), LocalDateTime.of(v.getNgayDi(), v.getGioDi()), v.getGia(),
-					TrangThaiVe.DA_BAN);
+			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
+					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+			Ve ve = v.getVe();
+			ve.setVeID(veID);
+			ve.setDonDatCho(donDatCho);
+
 			dsVe.add(ve);
 			v.setVe(ve);
 		}

@@ -36,7 +36,7 @@ public class MappingRow {
 
 	// Tính tiền chênh lệch: (Giá vé mới + Phí đổi) - Giá vé cũ
 	public double getChenhLech() {
-		double giaMoi = (veMoi != null) ? veMoi.getGia() : 0;
+		double giaMoi = (veMoi != null) ? veMoi.getVe().getGia() : 0;
 		double giaCu = veCu.getVe().getGia();
 		double phi = veCu.getLePhiDoiVe();
 		return (giaMoi + phi) - giaCu;

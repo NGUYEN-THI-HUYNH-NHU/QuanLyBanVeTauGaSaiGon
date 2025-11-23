@@ -5,18 +5,7 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Nov 20, 2025
- * @version: 1.0
- */
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +19,7 @@ import javax.swing.SwingWorker;
 
 import bus.Chuyen_BUS;
 import bus.DatCho_BUS;
+import bus.Ve_BUS;
 import entity.Chuyen;
 import entity.Ghe;
 import entity.Toa;
@@ -44,6 +34,7 @@ public class DoiVeBuoc5Controller {
 	private final PanelSoDoChoDoiVe panelSoDoCho;
 
 	private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
+	private final Ve_BUS veBUS = new Ve_BUS();
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 
 	private final List<SeatSelectedListener> seatSelectedListeners = new ArrayList<>();
@@ -205,7 +196,13 @@ public class DoiVeBuoc5Controller {
 		new SwingWorker<VeSession, Void>() {
 			@Override
 			protected VeSession doInBackground() throws Exception {
-				VeSession v = createVeSessionForSeat(toa, ghe);
+				SearchCriteria criteria = exchangeSession.getCriteriaTimKiem();
+				if (criteria == null) {
+					System.err.println("createVeSessionForSeat: Không tìm thấy SearchCriteria");
+					return null;
+				}
+
+				VeSession v = veBUS.createVeSessionForSeat(selectedChuyen, toa, ghe, criteria);
 				if (v == null) {
 					return null;
 				}
@@ -251,8 +248,11 @@ public class DoiVeBuoc5Controller {
 		List<VeSession> currentTripTickets = exchangeSession.getListVeMoiDangChon();
 
 		// 3. Tìm VeSession THỰC SỰ đang có trong danh sách
-		VeSession veToRemove = currentTripTickets.stream().filter(v -> v.getChuyenID().equals(currentChuyenID)
-				&& v.getToaID().equals(currentToaID) && v.getSoGhe() == currentSoGhe).findFirst().orElse(null);
+		VeSession veToRemove = currentTripTickets.stream()
+				.filter(v -> v.getVe().getChuyen().getChuyenID().equals(currentChuyenID)
+						&& v.getVe().getGhe().getToa().getToaID().equals(currentToaID)
+						&& v.getVe().getGhe().getSoGhe() == currentSoGhe)
+				.findFirst().orElse(null);
 
 		if (veToRemove != null) {
 			// Báo cho BanVe1Controller
@@ -299,48 +299,12 @@ public class DoiVeBuoc5Controller {
 				() -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));
 
 		// Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
-		if (selectedToa != null && v.getToaID().equals(selectedToa.getToaID())) {
+		if (selectedToa != null && v.getVe().getGhe().getToa().getToaID().equals(selectedToa.getToaID())) {
 			// Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
-			if (selectedChuyen != null && v.getChuyenID().equals(selectedChuyen.getChuyenID())) {
+			if (selectedChuyen != null && v.getVe().getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())) {
 				panelSoDoCho.updateSeatVisual(v.getSoGhe(), false);
 			}
 		}
-	}
-
-	private VeSession createVeSessionForSeat(Toa toa, Ghe ghe) {
-		SearchCriteria criteria = exchangeSession.getCriteriaTimKiem();
-
-		if (criteria == null) {
-			System.err.println("createVeSessionForSeat: Không tìm thấy SearchCriteria ");
-			return null;
-		}
-
-		String chuyenID = selectedChuyen.getChuyenID();
-		String tauID = selectedChuyen.getTau().getTauID();
-
-		// Dùng criteria
-		String tenGaDi = criteria.getGaDiName();
-		String maGaDi = criteria.getGaDiId();
-		String tenGaDen = criteria.getGaDenName();
-		String maGaDen = criteria.getGaDenId();
-
-		LocalDate ngayDi = selectedChuyen.getNgayDi();
-		LocalTime gioDi = selectedChuyen.getGioDi();
-		String toaID = (toa != null) ? toa.getToaID() : null;
-		String hangToa = toa.getHangToa().toString();
-		int soToa = toa.getSoToa();
-		String gheID = ghe.getGheID();
-		int soGhe = ghe.getSoGhe();
-		LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
-
-		int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, criteria.getGaDiId(), criteria.getGaDenId(),
-				selectedChuyen.getTau().getLoaiTau().toString(), toa.getHangToa().toString());
-
-		String khuyenMaiCode = "";
-		int giam = 0;
-
-		return new VeSession(chuyenID, tauID, tenGaDi, maGaDi, tenGaDen, maGaDen, ngayDi, gioDi, toaID, hangToa, soToa,
-				gheID, soGhe, gia, khuyenMaiCode, giam, thoiDiemHetHan);
 	}
 
 	public Set<Integer> getSelectedSoGhe(Toa currentToa) {
@@ -353,7 +317,8 @@ public class DoiVeBuoc5Controller {
 
 		// Lọc từ list vé mới trong ExchangeSession
 		return exchangeSession.getListVeMoiDangChon().stream()
-				.filter(v -> currentChuyenID.equals(v.getChuyenID()) && currentToaID.equals(v.getToaID()))
+				.filter(v -> currentChuyenID.equals(v.getVe().getChuyen().getChuyenID())
+						&& currentToaID.equals(v.getVe().getGhe().getToa().getToaID()))
 				.map(VeSession::getSoGhe).collect(Collectors.toSet());
 	}
 

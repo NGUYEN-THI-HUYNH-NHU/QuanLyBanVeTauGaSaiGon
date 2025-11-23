@@ -87,10 +87,10 @@ public class PanelBuoc4 extends JPanel {
 		for (VeSession v : allTickets) {
 			// Giả sử HanhKhach đã được gán vào VeSession ở Buoc3
 			PassengerRow r = new PassengerRow(v);
-			if (v.getHanhKhach() != null) {
-				r.setFullName(v.getHanhKhach().getHoTen());
-				r.setIdNumber(v.getHanhKhach().getSoGiayTo());
-				r.setType(v.getHanhKhach().getLoaiDoiTuong());
+			if (v.getVe().getKhachHang() != null) {
+				r.setFullName(v.getVe().getKhachHang().getHoTen());
+				r.setIdNumber(v.getVe().getKhachHang().getSoGiayTo());
+				r.setType(v.getVe().getKhachHang().getLoaiDoiTuong());
 			}
 			rows.add(r);
 		}

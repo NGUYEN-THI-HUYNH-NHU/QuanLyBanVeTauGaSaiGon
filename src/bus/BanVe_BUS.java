@@ -61,7 +61,7 @@ public class BanVe_BUS {
 			// 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
 			khachHangBUS.themHoacCapNhatKhachHang(conn, session.getKhachHang());
 			for (VeSession v : session.getAllSelectedTickets()) {
-				khachHangBUS.themHoacCapNhatKhachHang(conn, v.getHanhKhach());
+				khachHangBUS.themHoacCapNhatKhachHang(conn, v.getVe().getKhachHang());
 			}
 
 			// 3. Tạo và Lưu Đơn Đặt Chỗ

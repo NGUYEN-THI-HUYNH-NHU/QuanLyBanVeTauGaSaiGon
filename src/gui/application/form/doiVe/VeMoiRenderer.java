@@ -21,6 +21,7 @@ import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import entity.Toa;
 import gui.application.form.banVe.VeSession;
 
 public class VeMoiRenderer extends DefaultListCellRenderer {
@@ -40,8 +41,9 @@ public class VeMoiRenderer extends DefaultListCellRenderer {
 	public static void formatLabel(JLabel lbl, Object value) {
 		if (value instanceof VeSession) {
 			VeSession v = (VeSession) value;
-			String text = String.format("<html>Toa %s - %s<br/>Chỗ %s<br/>Giá: <b>%s</b></html>", v.getSoToa(),
-					v.getHangToa(), v.getSoGhe(), df.format(v.getGia()));
+			Toa toa = v.getVe().getGhe().getToa();
+			String text = String.format("<html>Toa %s - %s<br/>Chỗ %s<br/>Giá: <b>%s</b></html>", toa.getSoToa(),
+					toa.getHangToa(), v.getSoGhe(), df.format(v.getVe().getGia()));
 			lbl.setText(text);
 			lbl.setToolTipText(v.prettyString()); // Tooltip chi tiết
 		} else if (value == null) {

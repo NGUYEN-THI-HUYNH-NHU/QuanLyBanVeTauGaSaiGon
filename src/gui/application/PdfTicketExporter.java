@@ -24,8 +24,7 @@ import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class PdfTicketExporter {
-	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+	private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	private final DecimalFormat currencyFormatter = new DecimalFormat("#,### VND"); // Hoặc NumberFormat
 
 	// --- Font (Quan trọng cho Tiếng Việt) ---
@@ -134,12 +133,13 @@ public class PdfTicketExporter {
 
 		contentStream.showText("Hành khách: ");
 		contentStream.setFont(fontBold, fontSize);
-		contentStream.showText(ticket.getHanhKhach() != null ? ticket.getHanhKhach().getHoTen().toUpperCase() : "N/A");
+		contentStream.showText(
+				ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getHoTen().toUpperCase() : "N/A");
 		contentStream.setFont(fontRegular, fontSize);
 		contentStream.newLine(); // Xuống dòng
 
-		contentStream.showText(
-				"Số giấy tờ: " + (ticket.getHanhKhach() != null ? ticket.getHanhKhach().getSoGiayTo() : "N/A"));
+		contentStream.showText("Số giấy tờ: "
+				+ (ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getSoGiayTo() : "N/A"));
 		contentStream.newLine();
 
 		contentStream.showText("Người mua vé: " + (nguoiMua != null ? nguoiMua.getHoTen() : "N/A"));
@@ -150,17 +150,17 @@ public class PdfTicketExporter {
 
 		// --- Thông tin chuyến đi ---
 		contentStream.setFont(fontBold, fontSize);
-		contentStream.showText("Chuyến tàu: " + ticket.getTenTau()); // Sử dụng tenTau từ VeSession
+		contentStream.showText("Chuyến tàu: " + ticket.getVe().getChuyen().getTau().getTauID());
 		contentStream.setFont(fontRegular, fontSize);
 		contentStream.newLine();
 
-		contentStream.showText("Ga đi: " + ticket.getTenGaDi() + " (" + ticket.getGioDi().format(timeFormatter) + " "
-				+ ticket.getNgayDi().format(dateFormatter) + ")");
+		contentStream.showText("Ga đi: " + ticket.getVe().getGaDi().getTenGa() + " ("
+				+ ticket.getVe().getNgayGioDi().format(dateTimeFormatter) + ")");
 		contentStream.newLine();
-		contentStream.showText("Ga đến: " + ticket.getTenGaDen()); // Bạn có thể thêm giờ đến, ngày đến nếu VeSession có
+		contentStream.showText("Ga đến: " + ticket.getVe().getGaDen().getTenGa());
 		contentStream.newLine();
 
-		contentStream.showText("Toa: " + ticket.getSoToa() + " - Chỗ: ");
+		contentStream.showText("Toa: " + ticket.getVe().getGhe().getToa().getSoToa() + " - Chỗ: ");
 		contentStream.setFont(fontBold, fontSize);
 		contentStream.showText(String.valueOf(ticket.getSoGhe()));
 		contentStream.setFont(fontRegular, fontSize);
@@ -170,8 +170,8 @@ public class PdfTicketExporter {
 
 		// --- Thông tin giá ---
 		// Chuyển đổi int sang BigDecimal nếu cần format
-		BigDecimal giaVe = new BigDecimal(ticket.getGia()); // Giả sử getGia() trả về int/double
-		BigDecimal giamGia = new BigDecimal(ticket.getGiam()); // Giả sử getGiam() trả về int/double
+		BigDecimal giaVe = new BigDecimal(ticket.getVe().getGia());
+		BigDecimal giamGia = new BigDecimal(ticket.getGiamKM());
 		BigDecimal thanhTien = giaVe.subtract(giamGia);
 
 		contentStream.showText("Giá vé: " + currencyFormatter.format(giaVe.doubleValue())); // Format

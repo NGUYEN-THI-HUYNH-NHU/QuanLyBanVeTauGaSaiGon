@@ -73,7 +73,7 @@ public class DoiVe3Controller {
 			tongPhiDoiVe += veDoi.getLePhiDoiVe();
 		}
 		for (VeSession veMoi : listVeMoi) {
-			tongTienVeMoi += veMoi.getGia();
+			tongTienVeMoi += veMoi.getVe().getGia();
 		}
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc8

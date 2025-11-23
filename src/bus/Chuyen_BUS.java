@@ -5,14 +5,14 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDate;
-import java.util.HashMap;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 28, 2025
  * @version: 1.0
  */
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class Chuyen_BUS {
 	private Ghe_DAO gheDAO;
 	private Toa_DAO toaDAO;
 	private Chuyen_DAO chuyenDAO;
-	private dao.Ga_DAO gaDAO;
+	private Ga_DAO gaDAO;
 
 	public Chuyen_BUS() {
 		gheDAO = new Ghe_DAO();

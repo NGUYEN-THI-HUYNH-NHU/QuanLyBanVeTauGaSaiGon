@@ -78,13 +78,8 @@ public class PanelDoiVe extends JPanel {
 		// Lắng nghe sự kiện xác nhận từ PanelDoiVe2
 		doiVe2Controller.addPanel2CompleteListener(() -> {
 			doiVe3Controller.loadDataForConfirmation();
-			showPanel("step3");
-		});
-
-		// TODO: Có thể thêm listener cho doiVe2Controller.addPaymentSuccessListener để
-//		// gọi showPanel("complete") khi thanh toán xong)
-		doiVe2Controller.addPanel2CompleteListener(() -> {
 			doiVe2Controller.stopAllTimers();
+			showPanel("step3");
 		});
 	}
 

@@ -24,8 +24,6 @@ import dao.PhieuGiuChoChiTiet_DAO;
 import dao.PhieuGiuCho_DAO;
 import entity.Chuyen;
 import entity.DonDatCho;
-import entity.Ga;
-import entity.Ghe;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
@@ -53,18 +51,18 @@ public class DatCho_BUS {
 	}
 
 	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
-		String chuyenID = v.getChuyenID();
-		String tenGaDi = v.getTenGaDi();
-		String tenGaDen = v.getTenGaDen();
-		int soToa = v.getSoToa();
-		int soGhe = v.getSoGhe();
+		String chuyenID = v.getVe().getChuyen().getChuyenID();
+		String tenGaDi = v.getVe().getGaDi().getTenGa();
+		String tenGaDen = v.getVe().getGaDen().getTenGa();
+		int soToa = v.getVe().getGhe().getToa().getSoToa();
+		int soGhe = v.getVe().getGhe().getSoGhe();
 		LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
 		if (!pgcctDAO.checkConflict(conn, chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
 			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
-			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
-					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
-					TrangThaiPhieuGiuCho.DANG_GIU.toString());
+			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc,
+					new Chuyen(v.getVe().getChuyen().getChuyenID()), v.getVe().getGhe(), v.getVe().getGaDi(),
+					v.getVe().getGaDen(), thoiDiemGiuCho, TrangThaiPhieuGiuCho.DANG_GIU.toString());
 			return pgcct;
 		}
 		return null;
@@ -172,11 +170,12 @@ public class DatCho_BUS {
 				PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(conn, pgc, v, i + 1);
 
 				if (pgcct == null) {
-					throw new Exception("Ghế " + v.getSoGhe() + " (Toa " + v.getSoToa() + ") đã bị người khác chọn.");
+					throw new Exception("Ghế " + v.getVe().getGhe().getSoGhe() + " (Toa "
+							+ v.getVe().getGhe().getToa().getSoToa() + ") đã bị người khác chọn.");
 				}
 
 				if (!themPhieuGiuChoChiTiet(conn, pgcct)) {
-					throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getSoGhe());
+					throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getGhe().getSoGhe());
 				}
 				v.setPhieuGiuChoChiTiet(pgcct);
 			}

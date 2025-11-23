@@ -59,18 +59,18 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		case 1:
 			return p.getVeSession().prettyString();
 		case 2:
-			return p.getVeSession().getGia();
+			return p.getVeSession().getVe().getGia();
 		case 3:
-			return p.getVeSession().getPhiPhongChoVIP() > 0;
+			return p.getVeSession().getPhiPhieuDungPhongChoVIP() > 0;
 		case 4:
-			return p.getVeSession().getPhiPhongChoVIP();
+			return p.getVeSession().getPhiPhieuDungPhongChoVIP();
 		case 5:
 			return p.getVeSession().getGiamDoiTuong();
 		case 6:
-			return p.getVeSession().getGiam();
+			return p.getVeSession().getGiamKM();
 		case 7:
-			return p.getVeSession().getGia() + p.getVeSession().getPhiPhongChoVIP() - p.getVeSession().getGiam()
-					- p.getVeSession().getGiamDoiTuong();
+			return p.getVeSession().getVe().getGia() + p.getVeSession().getPhiPhieuDungPhongChoVIP()
+					- p.getVeSession().getGiamKM() - p.getVeSession().getGiamDoiTuong();
 		case 8:
 			return "Xóa";
 		default:
@@ -98,9 +98,9 @@ public class HanhKhachTableModel extends AbstractTableModel {
 			Boolean isSelected = (Boolean) aValue;
 
 			if (isSelected) {
-				p.getVeSession().setPhiPhongChoVIP(20000);
+				p.getVeSession().setPhiPhieuDungPhongChoVIP(20000);
 			} else {
-				p.getVeSession().setPhiPhongChoVIP(0);
+				p.getVeSession().setPhiPhieuDungPhongChoVIP(0);
 			}
 
 			// Thông báo cho bảng cập nhật lại các ô bị ảnh hưởng (Giá dịch vụ & Thành tiền)

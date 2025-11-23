@@ -129,7 +129,7 @@ public class MappingVeTableModel extends AbstractTableModel {
 			}
 			return "Chưa chọn vé";
 		case COL_VE_MOI_GIA:
-			return (row.getVeMoi() != null) ? (double) row.getVeMoi().getGia() : 0.0;
+			return (row.getVeMoi() != null) ? (double) row.getVeMoi().getVe().getGia() : 0.0;
 		case COL_LE_PHI:
 			return row.getVeCu().getLePhiDoiVe();
 		case COL_CHENH_LECH:

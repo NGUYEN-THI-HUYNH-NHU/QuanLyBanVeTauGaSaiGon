@@ -164,12 +164,12 @@ public class PanelBuoc3Controller {
 		// 3a. Cập nhật thông tin Hành Khách vào từng VeSession
 		for (PassengerRow row : rows) {
 			VeSession ve = row.getVeSession();
-			KhachHang hanhKhach = ve.getHanhKhach();
+			KhachHang hanhKhach = ve.getVe().getKhachHang();
 			if (hanhKhach == null) {
 				// Không tìm thấy -> Tạo hành khách mới
 				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), null, null,
 						row.getIdNumber(), null, row.getType(), LoaiKhachHang.HANH_KHACH);
-				ve.setHanhKhach(hanhKhach);
+				ve.getVe().setKhachHang(hanhKhach);
 				System.out.println("Tạo hành khách mới: " + hanhKhach);
 			}
 			// (Nếu tìm thấy, nó đã được gán vào VeSession, không cần làm gì)
@@ -181,10 +181,10 @@ public class PanelBuoc3Controller {
 			boolean isHanhKhach = false;
 			for (PassengerRow row : rows) {
 				// Nếu khách hàng cũng là hành khách thì cập nhật loại khách hàng
-				if (cmndNguoiMua.equalsIgnoreCase(row.getVeSession().getHanhKhach().getKhachHangID())) {
-					row.getVeSession().getHanhKhach().setLoaiKhachHang(LoaiKhachHang.HANH_KHACH_KHACH_HANG);
-					row.getVeSession().getHanhKhach().setSoDienThoai(phoneNguoiMua);
-					nguoiMua = row.getVeSession().getHanhKhach();
+				if (cmndNguoiMua.equalsIgnoreCase(row.getVeSession().getVe().getKhachHang().getKhachHangID())) {
+					row.getVeSession().getVe().getKhachHang().setLoaiKhachHang(LoaiKhachHang.HANH_KHACH_KHACH_HANG);
+					row.getVeSession().getVe().getKhachHang().setSoDienThoai(phoneNguoiMua);
+					nguoiMua = row.getVeSession().getVe().getKhachHang();
 					bookingSession.setKhachHang(nguoiMua);
 					khachHangBUS.capNhatKhachHang(nguoiMua);
 					isHanhKhach = true;

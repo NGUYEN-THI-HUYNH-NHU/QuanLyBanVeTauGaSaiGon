@@ -86,7 +86,7 @@ public class DoiVeBuoc6Controller {
 			listVeMoiChinhThuc.add(veMoi);
 			// Cập nhật thông tin Hành Khách từ vé cũ sang vé mới
 			if (veMoi != null) {
-				veMoi.setHanhKhach(row.getVeCu().getVe().getKhachHang());
+				veMoi.getVe().setKhachHang(row.getVeCu().getVe().getKhachHang());
 			}
 		}
 

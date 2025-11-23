@@ -51,15 +51,7 @@ public class PassengerRow {
 		this.idNumber = idNumber;
 	}
 
-// public void setPrice(double price) { this.price = price; recalcTotal(); }
-
-// public void setDiscount(double discount) { this.discount = discount; recalcTotal(); }
-
 	public double getTotal() {
-		return veSession.getGia() - veSession.getGiam();
+		return veSession.getVe().getGia() - veSession.getGiamKM();
 	}
-
-// private void recalcTotal() {
-//     this.total = Math.max(0.0, this.price - this.discount);
-// }
 }
