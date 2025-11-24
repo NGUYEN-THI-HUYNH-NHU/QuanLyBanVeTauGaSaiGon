@@ -61,9 +61,9 @@ public class DoiVeBuoc6Controller {
 			MappingRow row = rows.get(i);
 
 			// Kiểm tra nếu chưa chọn vé mới (null)
-			if (row.getVeMoi() == null) {
+			if (row.getVeSessionMoi() == null) {
 				// Lấy thông tin hành khách để thông báo rõ ràng hơn
-				String tenKhach = row.getVeCu().getVe().getKhachHang().getHoTen();
+				String tenKhach = row.getVeDoiRow().getVe().getKhachHang().getHoTen();
 
 				// 1. Thông báo lỗi
 				JOptionPane.showMessageDialog(view,
@@ -82,11 +82,11 @@ public class DoiVeBuoc6Controller {
 		List<VeSession> listVeMoiChinhThuc = new ArrayList<>();
 
 		for (MappingRow row : rows) {
-			VeSession veMoi = row.getVeMoi();
+			VeSession veMoi = row.getVeSessionMoi();
 			listVeMoiChinhThuc.add(veMoi);
 			// Cập nhật thông tin Hành Khách từ vé cũ sang vé mới
 			if (veMoi != null) {
-				veMoi.getVe().setKhachHang(row.getVeCu().getVe().getKhachHang());
+				veMoi.getVe().setKhachHang(row.getVeDoiRow().getVe().getKhachHang());
 			}
 		}
 

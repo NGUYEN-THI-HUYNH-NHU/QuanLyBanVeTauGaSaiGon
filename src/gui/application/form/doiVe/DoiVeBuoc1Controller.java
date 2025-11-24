@@ -27,9 +27,11 @@ import javax.swing.SwingWorker;
 
 import bus.DonDatCho_BUS;
 import bus.KhachHang_BUS;
+import bus.PhieuDungPhongVIP_BUS;
 import bus.Ve_BUS;
 import entity.DonDatCho;
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 
@@ -38,11 +40,13 @@ public class DoiVeBuoc1Controller {
 
 	private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
 	private final Ve_BUS veBUS = new Ve_BUS();
+	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
 	// Interface để DoiVe1Controller (Mediator) lắng nghe
 	protected interface SearchListener {
-		void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang);
+		void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, List<PhieuDungPhongVIP> danhSachPhieu,
+				KhachHang khachHang);
 
 		void onSearchFailure();
 	}
@@ -119,13 +123,14 @@ public class DoiVeBuoc1Controller {
 					if (donDatCho != null) {
 						// Nếu tìm thấy -> lấy vé và khách hàng
 						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC, TrangThaiVe.DA_BAN);
+						List<PhieuDungPhongVIP> danhSachPhieu = phieuDungPhongVIPBUS.timCacPhieuTheoVe(danhSachVe);
 						KhachHang khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
 
 						panel.getBtnTraCuu().setEnabled(true);
 
 						// Báo cho Mediator (DoiVe1Controller)
 						if (searchListener != null) {
-							searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
+							searchListener.onSearchSuccess(donDatCho, danhSachVe, danhSachPhieu, khachHang);
 						}
 					} else {
 						// Xử lý khi tra cứu thành công nhưng không tìm thấy kết quả

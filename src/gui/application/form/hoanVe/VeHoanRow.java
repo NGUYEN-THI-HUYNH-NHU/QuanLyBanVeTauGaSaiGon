@@ -60,6 +60,7 @@ public class VeHoanRow {
 			lePhiHoanVe = 0;
 			thongTinPhiHoan = "Không thể hoàn vé.";
 			tienHoan = 0;
+			isSelected = false;
 		} else {
 			long hours = seconds / 3600;
 			long minutes = (seconds % 3600) / 60;
@@ -70,11 +71,11 @@ public class VeHoanRow {
 				isDuDieuKien = true;
 				lyDoKhongDuDieuKien = "";
 				if (hours >= 24) {
-					lePhiHoanVe = thanhTien * 0.2;
-					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 20% giá vé";
-				} else {
 					lePhiHoanVe = thanhTien * 0.1;
 					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 10% giá vé";
+				} else {
+					lePhiHoanVe = thanhTien * 0.2;
+					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 20% giá vé";
 				}
 				if (lePhiHoanVe < 10000) {
 					lePhiHoanVe = 10000;
@@ -86,6 +87,7 @@ public class VeHoanRow {
 				lePhiHoanVe = 0;
 				thongTinPhiHoan = "Không đủ điều kiện hoàn vé.";
 				tienHoan = 0;
+				isSelected = false;
 			}
 		}
 	}

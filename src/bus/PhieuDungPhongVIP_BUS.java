@@ -88,4 +88,17 @@ public class PhieuDungPhongVIP_BUS {
 			}
 		}
 	}
+
+	/**
+	 * @param danhSachVe
+	 * @return
+	 */
+	public List<PhieuDungPhongVIP> timCacPhieuTheoVe(List<Ve> danhSachVe) {
+		List<PhieuDungPhongVIP> listPhieu = new ArrayList<PhieuDungPhongVIP>();
+		for (Ve ve : danhSachVe) {
+			// listPhieu[i] = null nghĩa là danhSachVe[i] không sử dụng phiếu
+			listPhieu.add(phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID()));
+		}
+		return listPhieu;
+	}
 }

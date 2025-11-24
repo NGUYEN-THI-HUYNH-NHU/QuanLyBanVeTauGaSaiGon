@@ -51,13 +51,27 @@ public class PanelDoiVeBuoc7 extends JPanel {
 	}
 
 	private void setUpTable() {
-		table.setRowHeight(90);
+		table.setRowHeight(110);
+
+//		public static final int COL_STT = 0;
+//		public static final int COL_HANH_KHACH = 1;
+//		public static final int COL_VE_CU_INFO = 2;
+//		public static final int COL_VE_CU_GIA = 3;
+////		public static final int COL_CHON_VE_MOI = 4; // Cột ComboBox
+//		public static final int COL_VE_MOI_INFO = 5; 4
+//		public static final int COL_VE_MOI_GIA = 6; 5
+////		public static final int COL_CHON_PHIEU_VIP = 7; // Cột CheckBox
+//		public static final int COL_PHIEU_VIP_GIA = 8; 6
+//		public static final int COL_LE_PHI = 9; 7
+//		public static final int COL_CHENH_LECH = 10; 8
+
+		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI));
+		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP - 1));
 
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(150);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(150);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(150);
-		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI));
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO - 1).setMinWidth(130);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
@@ -65,8 +79,9 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		// Cột Tiền
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA - 1).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI - 1).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH - 1).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA - 2).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI - 2).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH - 2).setCellRenderer(currencyRenderer);
 
 		// Cột Text thường (Tên, Thông tin vé)
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(topAlignRenderer);

@@ -14,31 +14,33 @@ package gui.application.form.doiVe;
 import gui.application.form.banVe.VeSession;
 
 public class MappingRow {
-	private VeDoiRow veCu; // Vé cũ (Đã có thông tin lệ phí, hành khách)
-	private VeSession veMoi; // Vé mới (Có thể null nếu chưa chọn)
+	private VeDoiRow veDoiRow; // Vé cũ (Đã có thông tin lệ phí, hành khách)
+	private VeSession veSessionMoi; // Vé mới (Có thể null nếu chưa chọn)
 
-	public MappingRow(VeDoiRow veCu, VeSession veMoi) {
-		this.veCu = veCu;
-		this.veMoi = veMoi;
+	public MappingRow(VeDoiRow veDoiRow, VeSession veSessionMoi) {
+		this.veDoiRow = veDoiRow;
+		this.veSessionMoi = veSessionMoi;
 	}
 
-	public VeDoiRow getVeCu() {
-		return veCu;
+	public VeDoiRow getVeDoiRow() {
+		return veDoiRow;
 	}
 
-	public VeSession getVeMoi() {
-		return veMoi;
+	public VeSession getVeSessionMoi() {
+		return veSessionMoi;
 	}
 
-	public void setVeMoi(VeSession veMoi) {
-		this.veMoi = veMoi;
+	public void setVeSessionMoi(VeSession veSessionMoi) {
+		this.veSessionMoi = veSessionMoi;
 	}
 
-	// Tính tiền chênh lệch: (Giá vé mới + Phí đổi) - Giá vé cũ
+	// Tính tiền chênh lệch: (Giá vé mới + Phí đổi + Giá phiếu dùng phòng chờ VIP
+	// (nếu có)) - Giá vé cũ
 	public double getChenhLech() {
-		double giaMoi = (veMoi != null) ? veMoi.getVe().getGia() : 0;
-		double giaCu = veCu.getVe().getGia();
-		double phi = veCu.getLePhiDoiVe();
-		return (giaMoi + phi) - giaCu;
+		double giaMoi = (veSessionMoi != null) ? veSessionMoi.getVe().getGia() : 0;
+		double giaPhieu = (veSessionMoi != null) ? veSessionMoi.getPhiPhieuDungPhongChoVIP() : 0;
+		double giaCu = veDoiRow.getVe().getGia();
+		double phi = veDoiRow.getLePhiDoiVe();
+		return (giaMoi + phi + giaPhieu) - giaCu;
 	}
 }

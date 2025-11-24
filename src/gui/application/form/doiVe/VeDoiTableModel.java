@@ -78,7 +78,11 @@ public class VeDoiTableModel extends AbstractTableModel {
 	// Quan trọng: Chỉ cho phép sửa cột Checkbox
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == COL_CHON || columnIndex == COL_LY_DO;
+		if (columnIndex == COL_CHON || columnIndex == COL_LY_DO) {
+			return rows.get(rowIndex).isDuDieuKien();
+		}
+
+		return false;
 	}
 
 	@Override
@@ -88,7 +92,7 @@ public class VeDoiTableModel extends AbstractTableModel {
 		case COL_TEN:
 			return row.getHanhKhach();
 		case COL_THONG_TIN_VE_DOI:
-			return row.getVe().thongTinVeDoi();
+			return row.getVe().thongTinVeDoi(row.getPhieuDungPhongVIP());
 		case COL_THANH_TIEN:
 			return row.getVe().getGia();
 		case COL_LE_PHI:

@@ -84,8 +84,7 @@ public class DoiVe_BUS {
 			phieuDungPhongVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
 			// 6. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
-			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietDoiVe(conn, hoaDon,
-					exchangeSession.getListVeMoiDangChon());
+			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietDoiVe(conn, hoaDon, exchangeSession);
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
 			// 7. Cập nhật Phiếu Giữ Chỗ cho vé mới (sau khi mọi thứ thành công)

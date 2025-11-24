@@ -49,6 +49,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	private JRadioButton radTienMat, radChuyenKhoan;
 	private JLabel lblTongTienVeCu;
 	private JLabel lblTongTienVeMoi;
+	private JLabel lblTongTienDichVu;
 	private JLabel lblTongPhiDoiVe;
 	private JLabel lblTongThanhToan;
 	private JTextField txtTienKhachDua;
@@ -146,6 +147,17 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		gbc.gridx = 0;
 		gbc.gridy = 2;
+		gbc.weightx = 0;
+		gbc.anchor = GridBagConstraints.WEST;
+		pnl.add(new JLabel("Tổng tiền dịch vụ:"), gbc);
+		gbc.gridx = 1;
+		gbc.anchor = GridBagConstraints.EAST;
+		lblTongTienDichVu = new JLabel("0 VND", JLabel.RIGHT);
+		lblTongTienDichVu.setForeground(Color.RED);
+		pnl.add(lblTongTienDichVu, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
 		gbc.anchor = GridBagConstraints.WEST;
 		pnl.add(new JLabel("Tổng phí đổi vé:"), gbc);
 		gbc.gridx = 1;
@@ -155,12 +167,12 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		pnl.add(lblTongPhiDoiVe, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
+		gbc.gridy = 4;
 		gbc.weighty = 1.0;
 		pnl.add(Box.createVerticalGlue(), gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 4;
+		gbc.gridy = 5;
 		gbc.anchor = GridBagConstraints.WEST;
 		JLabel totalLabel = new JLabel("Tổng thanh toán:");
 		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
@@ -173,7 +185,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		lblTongThanhToan.setForeground(Color.RED);
 		pnl.add(lblTongThanhToan, gbc);
 
-		gbc.gridy = 5;
+		gbc.gridy = 6;
 		gbc.weighty = 1.0;
 		pnl.add(new JLabel(), gbc);
 
@@ -499,8 +511,8 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		}
 	}
 
-	public void setChiTietThanhToan(int tongTienVeCu, int tongTienVeMoi, int tongPhiDoiVe) {
-		this.tongThanhToan = tongTienVeMoi + tongPhiDoiVe - tongTienVeCu;
+	public void setChiTietThanhToan(int tongTienVeCu, int tongTienVeMoi, int tongTienDichVu, int tongPhiDoiVe) {
+		this.tongThanhToan = tongTienVeMoi + tongPhiDoiVe + tongTienDichVu - tongTienVeCu;
 
 		if (this.tongThanhToan < 0) {
 			this.tongThanhToan = 0;
@@ -508,6 +520,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		lblTongTienVeCu.setText(currencyFormat.format(tongTienVeCu));
 		lblTongTienVeMoi.setText(currencyFormat.format(tongTienVeMoi));
+		lblTongTienDichVu.setText(currencyFormat.format(tongTienDichVu));
 		lblTongPhiDoiVe.setText(currencyFormat.format(tongPhiDoiVe));
 		lblTongThanhToan.setText(currencyFormat.format(this.tongThanhToan));
 

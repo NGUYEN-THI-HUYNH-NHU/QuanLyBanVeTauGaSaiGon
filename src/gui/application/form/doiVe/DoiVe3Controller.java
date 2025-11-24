@@ -34,7 +34,7 @@ public class DoiVe3Controller {
 	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
 
-	public void addPanel2PaymentSuccessListener(Runnable listener) {
+	public void addPanel3PaymentSuccessListener(Runnable listener) {
 		this.onPaymentSuccessListener = listener;
 	}
 
@@ -64,6 +64,7 @@ public class DoiVe3Controller {
 		// 3. Tính toán chi tiết thanh toán
 		int tongTienVeCu = 0;
 		int tongTienVeMoi = 0;
+		int tongTienDichVu = 0;
 		int tongPhiDoiVe = 0;
 
 		List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
@@ -74,10 +75,11 @@ public class DoiVe3Controller {
 		}
 		for (VeSession veMoi : listVeMoi) {
 			tongTienVeMoi += veMoi.getVe().getGia();
+			tongTienDichVu += veMoi.getPhiPhieuDungPhongChoVIP();
 		}
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc8
-		p8.setChiTietThanhToan(tongTienVeCu, tongTienVeMoi, tongPhiDoiVe);
+		p8.setChiTietThanhToan(tongTienVeCu, tongTienVeMoi, tongTienDichVu, tongPhiDoiVe);
 	}
 
 	/**

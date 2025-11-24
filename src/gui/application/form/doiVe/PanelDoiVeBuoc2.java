@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -39,6 +40,7 @@ import javax.swing.table.TableCellRenderer;
 import com.formdev.flatlaf.FlatClientProperties;
 
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import gui.tuyChinh.TextAreaRenderer;
 
@@ -182,6 +184,42 @@ public class PanelDoiVeBuoc2 extends JPanel {
 			}
 		};
 
+		// --- 5. RENDERER CHO CỘT CHECKBOX (CHỌN VÉ ĐỔI) ---
+		TableCellRenderer booleanRenderer = new TableCellRenderer() {
+			private final JCheckBox checkBox = new JCheckBox();
+			{
+				checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+				checkBox.setOpaque(true);
+			}
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+
+				// 1. Set giá trị (Checked/Unchecked)
+				if (value instanceof Boolean) {
+					checkBox.setSelected((Boolean) value);
+				}
+
+				// 2. Lấy dữ liệu dòng để kiểm tra điều kiện disable
+				int modelRow = table.convertRowIndexToModel(row);
+				VeDoiRow dataRow = model.getRows().get(modelRow);
+
+				// 3. UX: Disable visual của checkbox nếu không đủ điều kiện
+				// (Làm mờ ô vuông checkbox)
+				checkBox.setEnabled(dataRow.isDuDieuKien());
+
+				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
+				// Gọi lại hàm applyRowStyle bạn đã viết sẵn
+				applyRowStyle(checkBox, table, row);
+
+				return checkBox;
+			}
+		};
+
+		// Cột checkbox
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setCellRenderer(booleanRenderer);
+
 		// Cột Thời gian
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
 		// Cột Tiền
@@ -271,7 +309,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	/**
 	 * Phương thức này được gọi bởi DoiVeBuoc2Controller để đổ dữ liệu vào view.
 	 */
-	public void showDonDatCho(List<Ve> listVe, KhachHang khachHang) {
+	public void showDonDatCho(List<Ve> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHang khachHang) {
 		// 1. Cập nhật form thông tin người mua
 		if (khachHang != null) {
 			txtTen.setText(khachHang.getHoTen());
@@ -285,11 +323,12 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		}
 
 		// 2. Cập nhật bảng
-		if (listVe != null && !listVe.isEmpty()) {
+		if (listVe != null && !listVe.isEmpty() && listPhieu != null && !listPhieu.isEmpty()) {
 			List<VeDoiRow> rows = new ArrayList<>();
-			for (Ve ve : listVe) {
+			int soLuongVe = listVe.size();
+			for (int i = 0; i < soLuongVe; i++) {
 				// Logic tính toán phí nằm trong constructor của VeDoiRow
-				rows.add(new VeDoiRow(ve));
+				rows.add(new VeDoiRow(listVe.get(i), listPhieu.get(i)));
 			}
 			model.setRows(rows);
 		} else {

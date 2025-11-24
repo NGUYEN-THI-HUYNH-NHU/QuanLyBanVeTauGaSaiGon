@@ -123,6 +123,35 @@ public class PhieuDungPhongVIP_DAO {
 	}
 
 	/**
+	 * @param conn
+	 * @param phieuDungPhongChoVIPID
+	 * @return
+	 */
+	public PhieuDungPhongVIP getPhieuDungPhongVIPByVeID(String veID) {
+		Connection conn = connectDB.getConnection();
+		String sql = "SELECT * from PhieuDungPhongVIP WHERE veID = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, veID);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				PhieuDungPhongVIP phieu = new PhieuDungPhongVIP();
+				phieu.setPhieuDungPhongChoVIPID(rs.getString("phieuDungPhongVIPID"));
+				phieu.setDichVuPhongChoVIP(new DichVuPhongChoVIP(rs.getString("dichVuPhongChoVIPID")));
+				phieu.setVe(new Ve(rs.getString("veID")));
+				phieu.setTrangThai(TrangThaiPDPVIP.valueOf(rs.getString("trangThai")));
+				return phieu;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return null;
+	}
+
+	/**
 	 * @param phieuDungPhongChoVIPID
 	 * @param trangThai
 	 */

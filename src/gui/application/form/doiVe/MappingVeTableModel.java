@@ -28,11 +28,13 @@ public class MappingVeTableModel extends AbstractTableModel {
 	public static final int COL_CHON_VE_MOI = 4; // Cột ComboBox
 	public static final int COL_VE_MOI_INFO = 5;
 	public static final int COL_VE_MOI_GIA = 6;
-	public static final int COL_LE_PHI = 7;
-	public static final int COL_CHENH_LECH = 8;
+	public static final int COL_CHON_PHIEU_VIP = 7; // Cột CheckBox
+	public static final int COL_PHIEU_VIP_GIA = 8;
+	public static final int COL_LE_PHI = 9;
+	public static final int COL_CHENH_LECH = 10;
 
 	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Chọn vé mới",
-			"Thông tin vé mới", "Giá vé mới", "Lệ phí đổi", "Chênh lệch" };
+			"Thông tin vé mới", "Giá vé mới", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi", "Chênh lệch" };
 
 	private List<MappingRow> rows;
 
@@ -97,41 +99,49 @@ public class MappingVeTableModel extends AbstractTableModel {
 		if (columnIndex == COL_CHON_VE_MOI) {
 			return VeSession.class; // Để ComboBox render object
 		}
-		return Object.class; // Các cột khác là String hoặc Object
+		if (columnIndex == COL_CHON_PHIEU_VIP) {
+			return Boolean.class;
+		}
+
+		return String.class;
 	}
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Chỉ cho phép sửa cột Chọn vé mới (ComboBox)
-		return columnIndex == COL_CHON_VE_MOI;
+		return columnIndex == COL_CHON_VE_MOI || columnIndex == COL_CHON_PHIEU_VIP;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		MappingRow row = rows.get(rowIndex);
-		Ve veCuEntity = row.getVeCu().getVe();
+		Ve veDoi = row.getVeDoiRow().getVe();
 
 		switch (columnIndex) {
 		case COL_STT:
 			return rowIndex + 1;
 		case COL_HANH_KHACH:
-			return row.getVeCu().getHanhKhach();
+			return row.getVeDoiRow().getHanhKhach();
 		case COL_VE_CU_INFO:
-			return veCuEntity.thongTinVeDoi(); // Logic hiển thị ngắn gọn vé cũ
+			return veDoi.thongTinVeDoi(row.getVeDoiRow().getPhieuDungPhongVIP()); // Logic hiển thị ngắn gọn vé cũ
 		case COL_VE_CU_GIA:
-			return veCuEntity.getGia();
+			return veDoi.getGia();
 		case COL_CHON_VE_MOI:
-			return row.getVeMoi(); // Trả về object VeSession để ComboBox hiển thị
+			return row.getVeSessionMoi(); // Trả về object VeSession để ComboBox hiển thị
 		case COL_VE_MOI_INFO:
-			if (row.getVeMoi() != null) {
-				VeSession v = row.getVeMoi();
+			if (row.getVeSessionMoi() != null) {
+				VeSession v = row.getVeSessionMoi();
 				return v.prettyString();
 			}
 			return "Chưa chọn vé";
 		case COL_VE_MOI_GIA:
-			return (row.getVeMoi() != null) ? (double) row.getVeMoi().getVe().getGia() : 0.0;
+			return (row.getVeSessionMoi() != null) ? (double) row.getVeSessionMoi().getVe().getGia() : 0.0;
+		case COL_CHON_PHIEU_VIP:
+			return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP() > 0;
+		case COL_PHIEU_VIP_GIA:
+			return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP();
 		case COL_LE_PHI:
-			return row.getVeCu().getLePhiDoiVe();
+			return row.getVeDoiRow().getLePhiDoiVe();
 		case COL_CHENH_LECH:
 			return row.getChenhLech();
 		default:
@@ -153,12 +163,12 @@ public class MappingVeTableModel extends AbstractTableModel {
 					}
 
 					MappingRow otherRow = rows.get(i);
-					VeSession otherVe = otherRow.getVeMoi();
+					VeSession otherVe = otherRow.getVeSessionMoi();
 
 					// Nếu tìm thấy dòng khác đang giữ vé này
 					if (otherVe != null && otherVe.equals(newSelectedVe)) {
 						// 1. Gỡ vé khỏi dòng kia (Set về null)
-						otherRow.setVeMoi(null);
+						otherRow.setVeSessionMoi(null);
 						// 2. Thông báo cập nhật giao diện dòng kia
 						fireTableRowsUpdated(i, i);
 						break; // Mỗi vé chỉ xuất hiện 1 lần nên break luôn
@@ -167,11 +177,28 @@ public class MappingVeTableModel extends AbstractTableModel {
 			}
 
 			// Cập nhật cho dòng hiện tại
-			currentRow.setVeMoi(newSelectedVe);
+			currentRow.setVeSessionMoi(newSelectedVe);
 
 			// Thông báo cập nhật giao diện dòng hiện tại
 			fireTableRowsUpdated(rowIndex, rowIndex);
+			return;
 
+		}
+
+		if (columnIndex == COL_CHON_PHIEU_VIP) {
+			MappingRow currentRow = rows.get(rowIndex);
+
+			// Nhận giá trị true/false từ JCheckBox
+			Boolean isSelected = (Boolean) aValue;
+			if (isSelected) {
+				currentRow.getVeSessionMoi().setPhiPhieuDungPhongChoVIP(20000);
+			} else {
+				currentRow.getVeSessionMoi().setPhiPhieuDungPhongChoVIP(0);
+			}
+
+			// Thông báo cho bảng cập nhật lại các ô bị ảnh hưởng (Giá dịch vụ & Chênh lệch)
+			fireTableCellUpdated(rowIndex, COL_PHIEU_VIP_GIA);
+			fireTableCellUpdated(rowIndex, COL_CHENH_LECH);
 		}
 	}
 

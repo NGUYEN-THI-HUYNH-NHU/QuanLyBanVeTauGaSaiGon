@@ -14,23 +14,25 @@ package gui.application.form.doiVe;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 
 public class VeDoiRow {
 	private Ve ve;
+	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private String hanhKhach;
 	private String loaiDoiVe;
 	private double lePhiDoiVe;
 	private String thongTinPhiDoi;
 	private String lyDo;
 	private boolean isSelected;
-
 	private String thoiGianConLai;
 	private boolean isDuDieuKien;
 	private String lyDoKhongDuDieuKien;
 
-	public VeDoiRow(Ve ve) {
+	public VeDoiRow(Ve ve, PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.ve = ve;
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
 
 		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
 				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
@@ -54,13 +56,14 @@ public class VeDoiRow {
 			lyDoKhongDuDieuKien = "Tàu đã khởi hành, không thể đổi vé.";
 			lePhiDoiVe = 0;
 			thongTinPhiDoi = "Không thể đổi vé.";
+			isSelected = false;
 		} else {
 			long hours = seconds / 3600;
 			long minutes = (seconds % 3600) / 60;
 			thoiGianConLai = String.format("%dg %02dp", hours, minutes);
 
 			// Quy định: Phải trước 24 tiếng
-			if (hours >= 4) {
+			if (hours >= 24) {
 				isDuDieuKien = true;
 				lyDoKhongDuDieuKien = "";
 				lePhiDoiVe = 20000;
@@ -70,6 +73,7 @@ public class VeDoiRow {
 				lyDoKhongDuDieuKien = "Thời gian còn lại dưới 24 giờ (Quy định đổi vé).";
 				lePhiDoiVe = 0;
 				thongTinPhiDoi = "Không đủ điều kiện đổi vé.";
+				isSelected = false;
 			}
 		}
 	}
@@ -120,5 +124,13 @@ public class VeDoiRow {
 
 	public String getLyDoKhongDuDieuKien() {
 		return lyDoKhongDuDieuKien;
+	}
+
+	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
+		return phieuDungPhongVIP;
+	}
+
+	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
 	}
 }

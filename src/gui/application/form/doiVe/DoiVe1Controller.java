@@ -16,6 +16,7 @@ import java.util.List;
 
 import entity.DonDatCho;
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import gui.application.form.doiVe.DoiVeBuoc1Controller.SearchListener;
 import gui.application.form.doiVe.DoiVeBuoc2Controller.ContinueListener;
@@ -61,10 +62,12 @@ public class DoiVe1Controller {
 		// Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
 		this.p1Controller.addSearchListener(new SearchListener() {
 			@Override
-			public void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang) {
+			public void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, List<PhieuDungPhongVIP> danhSachPhieu,
+					KhachHang khachHang) {
 				List<VeDoiRow> listVeTimDuoc = new ArrayList<VeDoiRow>();
-				for (Ve ve : danhSachVe) {
-					listVeTimDuoc.add(new VeDoiRow(ve));
+				int soLuongVe = danhSachVe.size();
+				for (int i = 0; i < soLuongVe; i++) {
+					listVeTimDuoc.add(new VeDoiRow(danhSachVe.get(i), danhSachPhieu.get(i)));
 				}
 				exchangeSession.setDonDatChoCu(donDatCho);
 				exchangeSession.setKhachHang(khachHang);
@@ -77,7 +80,7 @@ public class DoiVe1Controller {
 				view.setBuoc2Enabled(true);
 				view.setBuoc3Enabled(false);
 
-				p2Controller.disPlayDonDatCho(danhSachVe, khachHang);
+				p2Controller.disPlayDonDatCho(danhSachVe, danhSachPhieu, khachHang);
 			}
 
 			@Override

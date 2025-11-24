@@ -22,7 +22,6 @@ import javax.swing.SwingWorker;
 import bus.BanVe_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
-import gui.application.PdfTicketExporter;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -150,9 +149,13 @@ public class BanVe2Controller {
 						boolean saveSuccess = get();
 
 						if (saveSuccess) {
-							// a. Xuất file pdf
-							PdfTicketExporter exporter = new PdfTicketExporter();
-							exporter.exportTicketsToPdf(bookingSession);
+//							// a. Xuất file pdf
+//							PdfTicketExporter exporter = new PdfTicketExporter();
+//							exporter.exportTicketsToPdf(bookingSession);
+							JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+							p4.setComponentsEnabled(false);
+							p5.setComponentsEnabled(false);
 
 							// b. Báo cho wizard chính (PanelBanVe) biết
 							if (onPaymentSuccessListener != null) {

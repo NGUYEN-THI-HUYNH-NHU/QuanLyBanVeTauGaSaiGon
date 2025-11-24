@@ -52,13 +52,14 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	}
 
 	private void setUpTable() {
-		table.setRowHeight(90);
+		table.setRowHeight(110);
 
-		table.getColumnModel().getColumn(0).setMaxWidth(30);
-		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(2).setMinWidth(150);
-		table.getColumnModel().getColumn(4).setMinWidth(150);
-		table.getColumnModel().getColumn(5).setMinWidth(150);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(100);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(150);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI).setMinWidth(100);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(130);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP).setMaxWidth(50);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
@@ -66,8 +67,9 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		// Cột Tiền
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 
 		// Cột Text thường (Tên, Thông tin vé)
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(topAlignRenderer);
