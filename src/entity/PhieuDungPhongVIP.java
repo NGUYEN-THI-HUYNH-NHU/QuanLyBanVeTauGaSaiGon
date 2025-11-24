@@ -35,6 +35,11 @@ public class PhieuDungPhongVIP {
 		super();
 	}
 
+	public PhieuDungPhongVIP(String phieuDungPhongVIPID) {
+		super();
+		this.phieuDungPhongChoVIPID = phieuDungPhongVIPID;
+	}
+
 	public TrangThaiPDPVIP getTrangThai() {
 		return trangThai;
 	}

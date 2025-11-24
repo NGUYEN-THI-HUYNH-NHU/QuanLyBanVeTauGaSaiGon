@@ -32,7 +32,7 @@ import com.toedter.calendar.JDateChooser;
 
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.DateTimeRenderer;
-import gui.tuyChinh.TopAlignRenderer;
+import gui.tuyChinh.LeftCenterAlignRenderer;
 
 public class PanelQuanLyHoaDon extends JPanel {
 	private JTextField txtTuKhoa;
@@ -145,7 +145,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		table = new JTable(tableModel);
 		table.setRowHeight(30);
 
-		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
+		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());

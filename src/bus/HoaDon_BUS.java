@@ -293,4 +293,12 @@ public class HoaDon_BUS {
 	public List<String> layTop10MaGD(String keyword) {
 		return hoaDonDAO.getTop10MaGD(keyword);
 	}
+
+	/**
+	 * @param hoaDonID
+	 * @return
+	 */
+	public List<HoaDonChiTiet> layCacHoaDonChiTietTheoHoaDonID(String hoaDonID) {
+		return hoaDonChiTietDAO.getHoaDonChiTietByHoaDonID(hoaDonID);
+	}
 }

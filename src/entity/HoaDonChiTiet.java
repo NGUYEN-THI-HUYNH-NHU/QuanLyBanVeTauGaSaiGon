@@ -96,6 +96,10 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
+	public HoaDonChiTiet() {
+		super();
+	}
+
 	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
 		return phieuDungPhongVIP;
 	}

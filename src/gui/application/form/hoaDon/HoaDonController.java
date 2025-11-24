@@ -19,11 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -35,6 +32,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import bus.HoaDon_BUS;
 import bus.KhachHang_BUS;
 import entity.HoaDon;
+import entity.HoaDonChiTiet;
 import entity.KhachHang;
 import entity.NhanVien;
 import gui.application.AuthService;
@@ -362,23 +360,16 @@ public class HoaDonController {
 		}
 	}
 
-	private void handleXemChiTiet(HoaDon hd) {
-		// Tạo JDialog Modal
-		JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(view),
-				"Chi tiết hóa đơn: " + hd.getHoaDonID(), true);
-		dialog.setSize(600, 700);
-		dialog.setLocationRelativeTo(view);
+	private void handleXemChiTiet(HoaDon hoaDon) {
+		// 1. Gọi BUS/DAO lấy danh sách chi tiết
+		List<HoaDonChiTiet> listCT = hoaDonBUS.layCacHoaDonChiTietTheoHoaDonID(hoaDon.getHoaDonID());
 
-		// Gọi BUS lấy chi tiết
-		// List<HoaDonChiTiet> listCT = bus.getChiTietByHoaDonID(hd.getHoaDonID());
+		// 2. Mở Modal
+		// 'view' là JPanel, ta cần lấy JFrame chứa nó để làm parent cho Modal
+		Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(view);
 
-		// Tạo UI hiển thị chi tiết (Có thể tách ra class PanelChiTietHoaDon riêng)
-		JPanel pnlDetail = new JPanel();
-		pnlDetail.add(new JLabel("Đang xem chi tiết hóa đơn của khách: " + hd.getKhachHang().getHoTen()));
-		// Thêm JTable hiển thị listCT vào đây...
-
-		dialog.add(pnlDetail);
-		dialog.setVisible(true);
+		ModalHoaDon modal = new ModalHoaDon(parentFrame, hoaDon, listCT);
+		modal.setVisible(true);
 	}
 
 	private void handleInHoaDon(HoaDon hd) {

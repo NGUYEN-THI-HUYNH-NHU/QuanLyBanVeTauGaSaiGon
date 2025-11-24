@@ -17,10 +17,11 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-public class TopAlignRenderer extends DefaultTableCellRenderer {
+public class LeftCenterAlignRenderer extends DefaultTableCellRenderer {
 
-	public TopAlignRenderer() {
-		setVerticalAlignment(SwingConstants.TOP);
+	public LeftCenterAlignRenderer() {
+		setHorizontalAlignment(SwingConstants.LEFT);
+		setVerticalAlignment(SwingConstants.CENTER);
 	}
 
 	@Override
