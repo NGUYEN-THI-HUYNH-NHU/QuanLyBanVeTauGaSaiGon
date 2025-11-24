@@ -109,4 +109,12 @@ public class KhachHang_BUS {
 		return khachHang_dao.capNhatLoaiKhachHang(kh);
 	}
 
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<KhachHang> layGoiYKhachHangChoHoaDon(String keyword) {
+		return khachHang_dao.getTop10KhachHangSuggest(keyword);
+	}
+
 }

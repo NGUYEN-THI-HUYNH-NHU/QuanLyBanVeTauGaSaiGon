@@ -182,4 +182,32 @@ public class KhachHang_DAO {
 			return pstmt.executeUpdate() > 0;
 		}
 	}
+
+	public List<KhachHang> getTop10KhachHangSuggest(String keyword) {
+		List<KhachHang> list = new ArrayList<>();
+		String sql = "SELECT TOP 10 * FROM KhachHang "
+				+ "WHERE hoTen LIKE ? OR soDienThoai LIKE ? OR soGiayTo LIKE ? OR khachHangID LIKE ?";
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			String query = "%" + keyword + "%";
+			ps.setString(1, query);
+			ps.setString(2, query);
+			ps.setString(3, query);
+			ps.setString(4, query);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					KhachHang kh = new KhachHang();
+					kh.setKhachHangID(rs.getString("khachHangID"));
+					kh.setHoTen(rs.getString("hoTen"));
+					kh.setSoDienThoai(rs.getString("soDienThoai"));
+					kh.setSoGiayTo(rs.getString("soGiayTo"));
+					list.add(kh);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
 }

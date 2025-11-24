@@ -34,7 +34,7 @@ public class FlexibleTableResizer {
 
 			TableColumn column = table.getColumnModel().getColumn(col);
 
-			int preferred = 40;
+			int preferred = 30;
 			int maxLimit = 400;
 
 			// header
@@ -84,8 +84,5 @@ public class FlexibleTableResizer {
 		Dimension d = new Dimension(viewportWidth, table.getPreferredSize().height);
 		table.setPreferredScrollableViewportSize(d);
 		table.setPreferredSize(d);
-
-		table.revalidate();
-		table.repaint();
 	}
 }
