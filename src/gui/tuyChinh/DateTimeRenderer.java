@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 public class DateTimeRenderer extends DefaultTableCellRenderer {
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm");
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,

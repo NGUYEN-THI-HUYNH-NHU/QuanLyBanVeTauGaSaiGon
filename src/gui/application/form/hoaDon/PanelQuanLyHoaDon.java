@@ -13,7 +13,6 @@ package gui.application.form.hoaDon;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.Date;
 
@@ -25,14 +24,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 
+import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.DateTimeRenderer;
+import gui.tuyChinh.TopAlignRenderer;
 
 public class PanelQuanLyHoaDon extends JPanel {
 	private JTextField txtTuKhoa;
@@ -58,82 +58,6 @@ public class PanelQuanLyHoaDon extends JPanel {
 		controller = new HoaDonController(this);
 	}
 
-//	private void initUI() {
-//		JPanel pnlTop = new JPanel();
-//		pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
-//
-//		// 1. Panel Tra Cứu
-//		JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//		pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
-//
-//		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã hóa đơn", "Mã khách hàng", "Mã giao dịch" });
-//		txtTuKhoa = new JTextField(18);
-//		btnTraCuu = new JButton("Tra cứu");
-//		btnTraCuu.setIcon(UIManager.getIcon("FileView.directoryIcon"));
-//
-//		pnlTraCuu.add(new JLabel("Tìm theo: "));
-//		pnlTraCuu.add(cboLoaiTimKiem);
-//		pnlTraCuu.add(txtTuKhoa);
-//		pnlTraCuu.add(btnTraCuu);
-//
-//		// 2. Panel Lọc
-//		JPanel pnlLoc = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-//		pnlLoc.setBorder(new TitledBorder("Bộ lọc chi tiết"));
-//
-//		// Loại hóa đơn
-//		cboLoaiHoaDon = new JComboBox<>(
-//				new String[] { "Tất cả", "Hóa đơn bán vé", "Hóa đơn hoàn vé", "Hóa đơn đổi vé" });
-//
-//		// Khách hàng (Auto-suggest UI)
-//		txtKhachHangSuggest = new JTextField(14);
-//		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT hoặc CCCD");
-//
-//		// Ngày tháng (Giả lập UI)
-//		dateChooserTuNgay = new JDateChooser();
-//		dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
-//		dateChooserTuNgay.setDate(new Date());
-//
-//		dateChooserDenNgay = new JDateChooser();
-//		dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
-//		dateChooserDenNgay.setDate(new Date());
-//
-//		// Hình thức thanh toán
-//		cboHinhThucTT = new JComboBox<>(new String[] { "Tất cả", "Tiền mặt", "Chuyển khoản" });
-//
-//		btnReset = new JButton("Làm mới");
-//		btnReset.setIcon(UIManager.getIcon("FileView.fileIcon")); // Thay bằng icon refresh
-//
-//		btnLoc = new JButton("Lọc");
-//		btnLoc.setIcon(UIManager.getIcon("FileView.floppyDriveIcon")); // Thay bằng icon cái phễu nếu có
-//		btnLoc.setBackground(new Color(0, 153, 255)); // Màu xanh nổi bật
-//		btnLoc.setForeground(Color.WHITE);
-//
-//		pnlLoc.add(new JLabel("Loại HĐ:"));
-//		pnlLoc.add(cboLoaiHoaDon);
-//		pnlLoc.add(new JLabel("Khách hàng:"));
-//		pnlLoc.add(txtKhachHangSuggest);
-//		pnlLoc.add(new JLabel("Từ ngày:"));
-//		pnlLoc.add(dateChooserTuNgay);
-//		pnlLoc.add(new JLabel("Đến ngày:"));
-//		pnlLoc.add(dateChooserDenNgay);
-//		pnlLoc.add(new JLabel("Thanh toán:"));
-//		pnlLoc.add(cboHinhThucTT);
-//		pnlLoc.add(Box.createHorizontalStrut(10));
-//		pnlLoc.add(btnLoc);
-//		pnlLoc.add(btnReset);
-//
-//		pnlTop.add(pnlTraCuu);
-//		pnlTop.add(pnlLoc);
-//
-//		tableModel = new HoaDonTableModel();
-//		table = new JTable(tableModel);
-//		table.setRowHeight(30);
-//
-//		JScrollPane scrollPane = new JScrollPane(table);
-//
-//		add(pnlTop, BorderLayout.NORTH);
-//		add(scrollPane, BorderLayout.CENTER);
-//	}
 	private void initUI() {
 		JPanel pnlTop = new JPanel();
 		pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
@@ -145,7 +69,9 @@ public class PanelQuanLyHoaDon extends JPanel {
 		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã hóa đơn", "Mã khách hàng", "Mã giao dịch" });
 		txtTuKhoa = new JTextField(18);
 		btnTraCuu = new JButton("Tra cứu");
-		btnTraCuu.setIcon(UIManager.getIcon("FileView.directoryIcon"));
+		btnTraCuu.setBackground(new Color(38, 117, 191));
+		btnTraCuu.setForeground(Color.WHITE);
+		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.6f));
 
 		pnlTraCuu.add(new JLabel("Tìm theo: "));
 		pnlTraCuu.add(cboLoaiTimKiem);
@@ -164,7 +90,8 @@ public class PanelQuanLyHoaDon extends JPanel {
 				new String[] { "Tất cả", "Hóa đơn bán vé", "Hóa đơn hoàn vé", "Hóa đơn đổi vé" });
 
 		txtKhachHangSuggest = new JTextField(14);
-		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT hoặc CCCD");
+		txtKhachHangSuggest.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ tên/SĐT/CCCD/ID");
+		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT, CCCD hoặc ID");
 
 		dateChooserTuNgay = new JDateChooser();
 		dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
@@ -195,10 +122,10 @@ public class PanelQuanLyHoaDon extends JPanel {
 		JPanel rowButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
 		btnReset = new JButton("Làm mới");
-		btnReset.setIcon(UIManager.getIcon("FileView.fileIcon"));
+		btnReset.setIcon(new FlatSVGIcon("gui/icon/svg/reset.svg", 0.8f));
 
 		btnLoc = new JButton("Lọc");
-		btnLoc.setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
+		btnLoc.setIcon(new FlatSVGIcon("gui/icon/svg/filter.svg", 0.8f));
 		btnLoc.setBackground(new Color(38, 117, 191));
 		btnLoc.setForeground(Color.WHITE);
 
@@ -218,7 +145,20 @@ public class PanelQuanLyHoaDon extends JPanel {
 		table = new JTable(tableModel);
 		table.setRowHeight(30);
 
+		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
+
+//		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(topAlignRenderer);
+//		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(topAlignRenderer);
+//		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(topAlignRenderer);
+//		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(topAlignRenderer);
+//		table.getColumnModel().getColumn(HoaDonTableModel.COL_MA_GD).setCellRenderer(topAlignRenderer);
+
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
@@ -317,36 +257,4 @@ public class PanelQuanLyHoaDon extends JPanel {
 	public JButton getBtnLoc() {
 		return btnLoc;
 	}
-
-	public static void autoResizeColumn(JTable table) {
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		for (int column = 0; column < table.getColumnCount(); column++) {
-			TableColumn tableColumn = table.getColumnModel().getColumn(column);
-			int preferredWidth = tableColumn.getMinWidth();
-			int maxWidth = 300; // giới hạn tránh quá rộng
-
-			// Fit theo tiêu đề cột
-			TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
-			Component headerComp = headerRenderer.getTableCellRendererComponent(table, tableColumn.getHeaderValue(),
-					false, false, 0, column);
-			preferredWidth = Math.max(preferredWidth, headerComp.getPreferredSize().width);
-
-			// Fit theo từng dòng
-			for (int row = 0; row < table.getRowCount(); row++) {
-				TableCellRenderer cellRenderer = table.getCellRenderer(row, column);
-				Component c = table.prepareRenderer(cellRenderer, row, column);
-				int width = c.getPreferredSize().width + table.getIntercellSpacing().width;
-				preferredWidth = Math.max(preferredWidth, width);
-
-				if (preferredWidth >= maxWidth) {
-					preferredWidth = maxWidth;
-					break;
-				}
-			}
-
-			tableColumn.setPreferredWidth(preferredWidth + 4); // padding 4px
-		}
-	}
-
 }

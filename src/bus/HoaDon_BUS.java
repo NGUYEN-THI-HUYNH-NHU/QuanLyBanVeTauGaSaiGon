@@ -14,6 +14,7 @@ package bus;
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dao.HoaDonChiTiet_DAO;
@@ -242,5 +243,54 @@ public class HoaDon_BUS {
 	 */
 	public List<HoaDon> layCacHoaDonTheoNhanVienID(NhanVien nhanVien) {
 		return hoaDonDAO.getHoaDonByNhanVien(nhanVien);
+	}
+
+	/**
+	 * @param loaiHD
+	 * @param khachHang
+	 * @param searchID
+	 * @param tuNgay
+	 * @param denNgay
+	 * @param hinhThucTT
+	 * @return
+	 */
+	public List<HoaDon> locHoaDonTheoCacTieuChi(NhanVien nhanVien, String loaiHD, String khachHang, String khachHangID,
+			Date tuNgay, Date denNgay, String hinhThucTT) {
+		return hoaDonDAO.searchHoaDonByFilter(nhanVien, loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT);
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<HoaDon> layHoaDonTheoKeyWord(NhanVien nhanVien, String keyword, String type) {
+		return hoaDonDAO.searchHoaDonByKeyword(nhanVien, keyword, type);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10HoaDonID(String keyword) {
+		return hoaDonDAO.getTop10HoaDonID(keyword);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10KhachHangID(String keyword) {
+		return hoaDonDAO.getTop10KhachHangID(keyword);
+
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10MaGD(String keyword) {
+		return hoaDonDAO.getTop10MaGD(keyword);
 	}
 }
