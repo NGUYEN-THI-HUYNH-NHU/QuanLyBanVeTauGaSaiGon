@@ -48,7 +48,7 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, bookingSession.getKhachHang(), bookingSession.getNhanVien(), now,
 				bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
 				bookingSession.getGiaoDichThanhToan().getTienNhan(),
-				bookingSession.getGiaoDichThanhToan().getTienHoan(), true, true);
+				bookingSession.getGiaoDichThanhToan().getTienHoan(), true);
 
 		return hoaDon;
 	}
@@ -63,7 +63,7 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
 				exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
 				exchangeSession.getGiaoDichThanhToan().getTienNhan(),
-				exchangeSession.getGiaoDichThanhToan().getTienHoan(), true, true);
+				exchangeSession.getGiaoDichThanhToan().getTienHoan(), true);
 
 		return hoaDon;
 	}
@@ -86,7 +86,6 @@ public class HoaDon_BUS {
 		hoaDon.setTienNhan(0);
 		hoaDon.setTienHoan(tongTienHoan);
 		hoaDon.setThanhToanTienMat(true);
-		hoaDon.setTrangThai(true);
 
 		return hoaDon;
 	}
@@ -235,5 +234,13 @@ public class HoaDon_BUS {
 		for (HoaDonChiTiet hdct : dsHoaDonChiTiet) {
 			hoaDonChiTietDAO.insertHoaDonChiTiet(conn, hdct);
 		}
+	}
+
+	/**
+	 * @param nhanVien
+	 * @return
+	 */
+	public List<HoaDon> layCacHoaDonTheoNhanVienID(NhanVien nhanVien) {
+		return hoaDonDAO.getHoaDonByNhanVien(nhanVien);
 	}
 }

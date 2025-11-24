@@ -24,10 +24,9 @@ public class HoaDon {
 	private double tienNhan;
 	private double tienHoan;
 	private boolean isThanhToanTienMat;
-	private boolean trangThai;
 
 	public HoaDon(String hoaDonID, KhachHang khachHang, NhanVien nhanVien, LocalDateTime thoiDiemTao, double tongTien,
-			String maGD, double tienNhan, double tienHoan, boolean isThanhToanTienMat, boolean trangThai) {
+			String maGD, double tienNhan, double tienHoan, boolean isThanhToanTienMat) {
 		super();
 		this.hoaDonID = hoaDonID;
 		this.khachHang = khachHang;
@@ -38,7 +37,6 @@ public class HoaDon {
 		this.tienNhan = tienNhan;
 		this.tienHoan = tienHoan;
 		this.isThanhToanTienMat = isThanhToanTienMat;
-		this.trangThai = trangThai;
 	}
 
 	public HoaDon() {
@@ -100,10 +98,6 @@ public class HoaDon {
 		return isThanhToanTienMat;
 	}
 
-	public boolean isTrangThai() {
-		return trangThai;
-	}
-
 	public void setTongTien(double tongTien) {
 		this.tongTien = tongTien;
 	}
@@ -122,10 +116,6 @@ public class HoaDon {
 
 	public void setThanhToanTienMat(boolean isThanhToanTienMat) {
 		this.isThanhToanTienMat = isThanhToanTienMat;
-	}
-
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
 	}
 
 	@Override
@@ -148,6 +138,6 @@ public class HoaDon {
 	@Override
 	public String toString() {
 		return hoaDonID + ";" + khachHang.getKhachHangID() + ";" + nhanVien.getNhanVienID() + ";" + thoiDiemTao + ";"
-				+ tongTien + ";" + maGD + ";" + tienNhan + ";" + tienHoan + ";" + isThanhToanTienMat + ";" + trangThai;
+				+ tongTien + ";" + maGD + ";" + tienNhan + ";" + tienHoan + ";" + isThanhToanTienMat;
 	}
 }

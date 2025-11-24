@@ -37,6 +37,7 @@ import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
 import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyGa.PanelQuanLyGa;
@@ -106,7 +107,7 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-//			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
+			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
 			case 14 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 
 			// UC cua QUAN_LY

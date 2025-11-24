@@ -75,6 +75,13 @@ public class KhachHang {
 		this.soGiayTo = soGiayTo;
 	}
 
+	public KhachHang(String khachHangID, String hoTen, String soGiayTo) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.soGiayTo = soGiayTo;
+	}
+
 	public String getKhachHangID() {
 		return khachHangID;
 	}
