@@ -511,11 +511,19 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             JOptionPane.showMessageDialog(this, "Ngày trong tuần không hợp lệ! Nhập 0 khi không áp dụng", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        try {
+            String txt = txtNgayTrongTuan.getText().trim();
+            if (!txt.isEmpty()) ngayTrongTuan = Integer.parseInt(txt);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Ngày trong tuần phải là số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
 
         if (!khuyenMai_ctrl.kiemTraMinGiaTriDonHang(minGiaTriDonHang)) {
             JOptionPane.showMessageDialog(this, "Min giá trị đơn hàng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
+
 
         //Kiểm tra ngày
         if (txtNgayBD.getDate() == null) {

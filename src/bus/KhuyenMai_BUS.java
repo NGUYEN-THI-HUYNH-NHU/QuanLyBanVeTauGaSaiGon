@@ -6,6 +6,7 @@ import entity.KhuyenMai;
 import entity.Tuyen;
 import java.time.LocalDate;
 import java.util.List;
+import entity.Ve;
 
 public class KhuyenMai_BUS {
     private final KhuyenMai_DAO khuyenMai_dao;
@@ -99,5 +100,10 @@ public class KhuyenMai_BUS {
     //lay danh sach tuyen
     public List<Tuyen> layDanhSachTuyen() {
         return khuyenMai_dao.layDanhSachTuyen();
+    }
+
+    public KhuyenMai timKhuyenMaiChoVe(Ve ve) {
+        // TODO Auto-generated method stub
+        return new KhuyenMai();
     }
 }
