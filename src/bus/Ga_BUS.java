@@ -11,20 +11,24 @@ package bus;
  */
 
 import dao.Ga_DAO;
+import dao.KhoangCachChuan_DAO;
+import dao.TuyenChiTiet_DAO;
 import entity.Ga;
+import entity.TuyenChiTiet;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Ga_BUS {
     private final Ga_DAO ga_dao;
+    private TuyenChiTiet_DAO tuyenChiTietDao;
+    private KhoangCachChuan_DAO khoangCachChuanDao;
 
     public Ga_BUS(){
         ga_dao = new Ga_DAO();
+        tuyenChiTietDao = new TuyenChiTiet_DAO();
+        khoangCachChuanDao = new KhoangCachChuan_DAO();
     }
 
     public List<String> timTenGaChoGoiY(String input){
@@ -112,4 +116,42 @@ public class Ga_BUS {
         }
         return ma.toString();
     }
+
+    public List<Object[]> getAllGaSortedByMainRoute(){
+        final String MAIN_ROUTE = "SGO-HNO";
+        List<TuyenChiTiet> mainRouteDetails = tuyenChiTietDao.layDanhSachTheoTuyenID(MAIN_ROUTE);
+        Map<String , Integer> kcxpMap = mainRouteDetails.stream()
+                .collect(Collectors.toMap(
+                        tct -> tct.getGa().getGaID(), TuyenChiTiet::getKhoangCachTuGaXuatPhatKm, (existing, replacement) -> existing
+                ));
+        List<Ga> allGa = ga_dao.getAllGa();
+
+        List<Map<String,Object>> gaData = new ArrayList<>();
+        List<Object[]> dsGaBang = new ArrayList<>();
+        List<Ga> gaSortedList = gaData.stream().map(data -> (Ga) data.get("Ga")).collect(Collectors.toList());
+        for(int i=0; i< gaSortedList.size(); i++){
+            Ga gaHienTai = gaSortedList.get(i);
+            String khoangCach2Ga = "-";
+            if(i == 0 && gaHienTai.getGaID().equals("SGO")){
+                khoangCach2Ga = "0 Km";
+            }
+            if(i< gaSortedList.size() -1){
+                Ga gaSau = gaSortedList.get(i+1);
+                int kcSegment = khoangCachChuanDao.getKhoangCachDoan(gaHienTai.getGaID(),gaSau.getGaID());
+                if(kcSegment > 0){
+                    khoangCach2Ga = kcSegment + " Km";
+                }
+            }
+
+            Object[] row = new Object[]{
+                    gaHienTai.getTenGa(),
+                    gaHienTai.getGaID(),
+                    khoangCach2Ga,
+                    gaHienTai.getTinhThanh()
+            };
+            dsGaBang.add(row);
+            }
+        return dsGaBang;
+    }
+
 }

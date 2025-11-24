@@ -20,7 +20,7 @@ public class Ga {
 	private boolean isGaLon;
 	private String tinhThanh;
 
-	public Ga(String gaID, boolean isGaLon, String tenGa, String tinhThanh) {
+	public Ga(String gaID, String tenGa, boolean isGaLon, String tinhThanh) {
 		super();
 		this.gaID = gaID;
 		this.tenGa = tenGa;

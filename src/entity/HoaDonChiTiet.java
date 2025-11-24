@@ -84,6 +84,18 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, String tenDichVu, LoaiDichVu loaiDichVu, int soLuong,
+			double donGia, double thanhTien) {
+		super();
+		this.hoaDonChiTietID = hoaDonChiTietID;
+		this.hoaDon = hoaDon;
+		this.tenDichVu = tenDichVu;
+		this.loaiDichVu = loaiDichVu;
+		this.soLuong = soLuong;
+		this.donGia = donGia;
+		this.thanhTien = thanhTien;
+	}
+
 	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
 		return phieuDungPhongVIP;
 	}

@@ -12,6 +12,12 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
+/**
+ * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
+ * cho cả 2 chiều (nếu có), và danh sách SelectedTicket cho mỗi chiều.
+ *
+ */
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +31,6 @@ import entity.NhanVien;
 import entity.PhieuGiuCho;
 import gui.application.AuthService;
 
-/**
- * BookingSession - lưu trạng thái phiên đặt vé. Lưu: search criteria/ results
- * cho cả 2 chiều (nếu có), và danh sách SelectedTicket cho mỗi chiều.
- *
- */
 public class BookingSession {
 	private static BookingSession instance;
 	// Outbound (chiều đi)
@@ -235,10 +236,10 @@ public class BookingSession {
 	public double getTongTienVe() {
 		double tongTienVe = 0;
 		for (VeSession v : outboundSelected) {
-			tongTienVe += v.getGia();
+			tongTienVe += v.getVe().getGia();
 		}
 		for (VeSession v : returnSelected) {
-			tongTienVe += v.getGia();
+			tongTienVe += v.getVe().getGia();
 		}
 		return tongTienVe;
 	}

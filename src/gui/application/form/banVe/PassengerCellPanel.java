@@ -25,6 +25,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import entity.KhachHang;
 import entity.type.LoaiDoiTuong;
 
@@ -44,6 +46,10 @@ public class PassengerCellPanel extends JPanel {
 	public PassengerCellPanel() {
 		setLayout(new GridBagLayout());
 		setOpaque(true);
+
+		txtTen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ và Tên");
+		txtID.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "CCCD/Hộ chiếu");
+		cbType.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Loại đối tượng");
 
 		// layout
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -100,13 +106,13 @@ public class PassengerCellPanel extends JPanel {
 				currentRowData.setFullName(kh.getHoTen());
 				currentRowData.setType(kh.getLoaiDoiTuong());
 				// Lưu entity KhachHang vào VeSession
-				currentRowData.getVeSession().setHanhKhach(kh);
+				currentRowData.getVeSession().getVe().setKhachHang(kh);
 
 				// Cập nhật View (các trường) từ Model vừa sửa
 				setData(currentRowData);
 			} else {
-				// Không tìm thấy, đảm bảo VeSession không giữ khách cũ
-				currentRowData.getVeSession().setHanhKhach(null);
+				// Không tìm thấy, set hành khách là null để controller thêm hành khách mới
+				currentRowData.getVeSession().getVe().setKhachHang(null);
 			}
 		}
 	}

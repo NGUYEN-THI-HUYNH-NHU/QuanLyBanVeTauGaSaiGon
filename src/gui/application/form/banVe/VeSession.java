@@ -6,13 +6,11 @@ package gui.application.form.banVe;
  */
 
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import entity.KhachHang;
+import entity.KhuyenMai;
 import entity.PhieuDungPhongVIP;
 import entity.PhieuGiuChoChiTiet;
 import entity.Ve;
@@ -22,128 +20,94 @@ import entity.Ve;
  * để hiển thị và để backend gọi hold/confirm sau này.
  */
 public class VeSession {
-	private final String chuyenID;
-	private final String tenTau;
-	private final String tenGaDi;
-	private final String gaDiID;
-	private final String tenGaDen;
-	private final String gaDenID;
-	private final LocalDate ngayDi;
-	private final LocalTime gioDi;
-	private final String toaID;
-	private final String hangToa;
-	private final int soToa;
-	private final String gheID;
-	private final int soGhe;
-	private final int gia;
-	private int phongChoVIP;
-	private String khuyenMaiCode;
-	private int giam;
-	private int giamDoiTuong;
-	private final LocalDateTime thoiDiemHetHan;
-	private KhachHang hanhKhach;
-	private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
 	private Ve ve;
+	private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
 	private PhieuDungPhongVIP phieuDungPhongVIP;
+	private int phiPhieuDungPhongChoVIP;
+	private KhuyenMai khuyenMaiApDung;
+	private int giamKM;
+	private int giamDoiTuong;
 	private boolean isHanhKhachMoi = true;
+	private final LocalDateTime thoiDiemHetHan;
 
-	public VeSession(String chuyenID, String tenTau, String tenGaDi, String gaDiID, String tenGaDen, String gaDenID,
-			LocalDate ngayDi, LocalTime gioDi, String toaID, String hangToa, int soToa, String gheID, int soGhe,
-			int gia, String khuyenMaiCode, int giam, LocalDateTime thoiDiemHetHan) {
+	public VeSession(Ve ve, KhuyenMai khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
 		super();
-		this.chuyenID = chuyenID;
-		this.tenTau = tenTau;
-		this.tenGaDi = tenGaDi;
-		this.gaDiID = gaDiID;
-		this.tenGaDen = tenGaDen;
-		this.gaDenID = gaDenID;
-		this.ngayDi = ngayDi;
-		this.gioDi = gioDi;
-		this.toaID = toaID;
-		this.hangToa = hangToa;
-		this.soToa = soToa;
-		this.gheID = gheID;
-		this.soGhe = soGhe;
-		this.gia = gia;
-		this.khuyenMaiCode = khuyenMaiCode;
-		this.giam = giam;
+		this.ve = ve;
+		this.khuyenMaiApDung = khuyenMaiApDung;
+		this.giamKM = giamKM;
 		this.thoiDiemHetHan = thoiDiemHetHan;
 	}
 
-	public String getHangToa() {
-		return hangToa;
-	}
-
-	public String getGaDiID() {
-		return gaDiID;
-	}
-
-	public String getGaDenID() {
-		return gaDenID;
-	}
-
-	public String getGheID() {
-		return gheID;
-	}
-
-	public String getKhuyenMaiCode() {
-		return khuyenMaiCode;
-	}
-
-	public int getGiam() {
-		return giam;
-	}
-
-	public int getGia() {
-		return gia;
-	}
-
-	public String getChuyenID() {
-		return chuyenID;
-	}
-
-	public String getTenTau() {
-		return tenTau;
-	}
-
-	public String getTenGaDi() {
-		return tenGaDi;
-	}
-
-	public String getTenGaDen() {
-		return tenGaDen;
-	}
-
-	public LocalDate getNgayDi() {
-		return ngayDi;
-	}
-
-	public LocalTime getGioDi() {
-		return gioDi;
-	}
-
-	public String getToaID() {
-		return toaID;
-	}
-
-	public int getSoToa() {
-		return soToa;
-	}
-
-	public int getSoGhe() {
-		return soGhe;
+	public int getGiamDoiTuong() {
+		return giamDoiTuong;
 	}
 
 	public LocalDateTime getThoiDiemHetHan() {
 		return thoiDiemHetHan;
 	}
 
-	public KhachHang getHanhKhach() {
-		return hanhKhach;
+	public PhieuGiuChoChiTiet getPhieuGiuChoChiTiet() {
+		return phieuGiuChoChiTiet;
 	}
 
-	public void setHanhKhach(KhachHang hanhKhach) {
-		this.hanhKhach = hanhKhach;
+	public Ve getVe() {
+		return ve;
+	}
+
+	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
+		return phieuDungPhongVIP;
+	}
+
+	public boolean isHanhKhachMoi() {
+		return isHanhKhachMoi;
+	}
+
+	public void setGiamDoiTuong(int giamDoiTuong) {
+		this.giamDoiTuong = giamDoiTuong;
+	}
+
+	public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
+		this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
+	}
+
+	public void setVe(Ve ve) {
+		this.ve = ve;
+	}
+
+	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
+		this.phieuDungPhongVIP = phieuDungPhongVIP;
+	}
+
+	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
+		this.isHanhKhachMoi = isHanhKhachMoi;
+	}
+
+	public int getPhiPhieuDungPhongChoVIP() {
+		return phiPhieuDungPhongChoVIP;
+	}
+
+	public void setPhiPhieuDungPhongChoVIP(int phiPhieuDungPhongChoVIP) {
+		this.phiPhieuDungPhongChoVIP = phiPhieuDungPhongChoVIP;
+	}
+
+	public int getGiamKM() {
+		return giamKM;
+	}
+
+	public void setGiamKM(int giamKM) {
+		this.giamKM = giamKM;
+	}
+
+	public KhuyenMai getKhuyenMaiApDung() {
+		return khuyenMaiApDung;
+	}
+
+	public void setKhuyenMaiApDung(KhuyenMai khuyenMaiApDung) {
+		this.khuyenMaiApDung = khuyenMaiApDung;
+	}
+
+	public int getSoGhe() {
+		return this.ve.getGhe().getSoGhe();
 	}
 
 	@Override
@@ -155,20 +119,25 @@ public class VeSession {
 			return false;
 		}
 		VeSession that = (VeSession) o;
-		return Objects.equals(chuyenID, that.chuyenID) && Objects.equals(tenGaDi, that.tenGaDi)
-				&& Objects.equals(tenGaDen, that.tenGaDen) && Objects.equals(soToa, that.soToa)
-				&& Objects.equals(soGhe, that.soGhe);
+		return Objects.equals(ve.getChuyen().getChuyenID(), that.ve.getChuyen().getChuyenID())
+				&& Objects.equals(ve.getGaDi().getTenGa(), that.ve.getGaDi().getTenGa())
+				&& Objects.equals(ve.getGaDen().getTenGa(), that.ve.getGaDen().getTenGa())
+				&& Objects.equals(ve.getGhe().getToa().getSoToa(), that.ve.getGhe().getToa().getSoToa())
+				&& Objects.equals(ve.getGhe().getSoGhe(), that.ve.getGhe().getSoGhe());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(chuyenID, tenGaDi, tenGaDen, soToa, soGhe);
+		return Objects.hash(ve.getChuyen().getChuyenID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
+				ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe());
 	}
 
 	@Override
 	public String toString() {
-		return tenTau + ";" + tenGaDi + ";" + tenGaDen + ";" + ngayDi.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-				+ ";" + gioDi.format(DateTimeFormatter.ofPattern("hh:mm")) + ";" + toaID + ";" + soToa + ";" + soGhe;
+		return ve.getChuyen().getTau().getTauID() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
+				+ ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ";"
+				+ ve.getGhe().getToa().getToaID() + ";" + ve.getGhe().getToa().getSoToa() + ";"
+				+ ve.getGhe().getSoGhe();
 	}
 
 	public boolean isHoldExpired() {
@@ -180,66 +149,10 @@ public class VeSession {
 
 	public String prettyString() {
 		DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
-		return String.format("<html><b>%s</b> %s - %s<br/>%s %s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
-				getTenTau(), getTenGaDi(), getTenGaDen(), getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-				getGioDi().format(DateTimeFormatter.ofPattern("HH:mm")), getHangToa(), getSoToa(), getSoGhe(),
-				formatter.format(getGia()));
+		return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
+				ve.getChuyen().getTau().getTauID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
+				ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+				ve.getGhe().getToa().getHangToa(), ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe(),
+				formatter.format(ve.getGia()));
 	}
-
-	public PhieuGiuChoChiTiet getPhieuGiuChoChiTiet() {
-		return phieuGiuChoChiTiet;
-	}
-
-	public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
-		this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
-	}
-
-	public Ve getVe() {
-		return ve;
-	}
-
-	public void setVe(Ve ve) {
-		this.ve = ve;
-	}
-
-	public boolean isHanhKhachMoi() {
-		return isHanhKhachMoi;
-	}
-
-	public void setHanhKhachMoi(boolean isHanhKhachMoi) {
-		this.isHanhKhachMoi = isHanhKhachMoi;
-	}
-
-	public void setKhuyenMaiCode(String khuyenMaiCode) {
-		this.khuyenMaiCode = khuyenMaiCode;
-	}
-
-	public void setGiam(int giam) {
-		this.giam = giam;
-	}
-
-	public int getGiamDoiTuong() {
-		return giamDoiTuong;
-	}
-
-	public void setGiamDoiTuong(int giamDoiTuong) {
-		this.giamDoiTuong = giamDoiTuong;
-	}
-
-	public int getPhongChoVIP() {
-		return phongChoVIP;
-	}
-
-	public void setPhongChoVIP(int phongChoVIP) {
-		this.phongChoVIP = phongChoVIP;
-	}
-
-	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
-		return phieuDungPhongVIP;
-	}
-
-	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
-		this.phieuDungPhongVIP = phieuDungPhongVIP;
-	}
-
 }

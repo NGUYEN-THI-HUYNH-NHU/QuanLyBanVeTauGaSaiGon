@@ -5,22 +5,23 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.util.ArrayList;
-import java.util.List;
-
-import dao.PhieuDungPhongVIP_DAO;
-import entity.DichVuPhongChoVIP;
-import entity.PhieuDungPhongVIP;
-import entity.type.TrangThaiPDPVIP;
-import gui.application.form.banVe.BookingSession;
-import gui.application.form.banVe.VeSession;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Nov 7, 2025
  * @version: 1.0
  */
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
+import dao.PhieuDungPhongVIP_DAO;
+import entity.DichVuPhongChoVIP;
+import entity.PhieuDungPhongVIP;
+import entity.Ve;
+import entity.type.TrangThaiPDPVIP;
+import gui.application.form.banVe.VeSession;
+import gui.application.form.doiVe.ExchangeSession;
 
 public class PhieuDungPhongVIP_BUS {
 	private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
@@ -29,13 +30,12 @@ public class PhieuDungPhongVIP_BUS {
 	 * @param bookingSession
 	 * @return
 	 */
-	public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(BookingSession bookingSession) {
+	public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(List<VeSession> listVeSession) {
 		List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
-		List<VeSession> dsVe = bookingSession.getAllSelectedTickets();
-		for (VeSession v : dsVe) {
+		for (VeSession v : listVeSession) {
 			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
 			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
-					TrangThaiPDPVIP.DA_DUNG);
+					TrangThaiPDPVIP.CHUA_DUNG);
 			v.setPhieuDungPhongVIP(phieu);
 			dsPhieu.add(phieu);
 		}
@@ -43,16 +43,62 @@ public class PhieuDungPhongVIP_BUS {
 	}
 
 	/**
+	 * @param exchangeSession
+	 * @return
+	 */
+	public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(ExchangeSession exchangeSession) {
+		List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
+		List<VeSession> dsVe = exchangeSession.getListVeMoiDangChon();
+		for (VeSession v : dsVe) {
+			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
+			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
+					TrangThaiPDPVIP.CHUA_DUNG);
+			v.setPhieuDungPhongVIP(phieu);
+			dsPhieu.add(phieu);
+		}
+		return dsPhieu;
+	}
+
+	/**
+	 * @param conn
 	 * @param dsPhieu
 	 */
-	public boolean themCacPhieuDungPhongChoVIP(List<PhieuDungPhongVIP> dsPhieuDungPhongVIP) {
+	public boolean themCacPhieuDungPhongChoVIP(Connection conn, List<PhieuDungPhongVIP> dsPhieuDungPhongVIP)
+			throws Exception {
 		if (dsPhieuDungPhongVIP != null) {
 			for (PhieuDungPhongVIP phieu : dsPhieuDungPhongVIP) {
-				phieuDungPhongVIPDAO.createPhieuDungPhongVIP(phieu);
+				phieuDungPhongVIPDAO.insertPhieuDungPhongVIP(conn, phieu);
 			}
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * @param conn
+	 * @param listVe
+	 * @param daHoan
+	 */
+	public void capNhatPhieuDungPhongChoVIP(Connection conn, List<Ve> listVe, TrangThaiPDPVIP trangThai) {
+		for (Ve ve : listVe) {
+			PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, ve.getVeID());
+			if (phieu != null) {
+				phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(conn, phieu.getPhieuDungPhongChoVIPID(),
+						trangThai);
+			}
+		}
+	}
+
+	/**
+	 * @param danhSachVe
+	 * @return
+	 */
+	public List<PhieuDungPhongVIP> timCacPhieuTheoVe(List<Ve> danhSachVe) {
+		List<PhieuDungPhongVIP> listPhieu = new ArrayList<PhieuDungPhongVIP>();
+		for (Ve ve : danhSachVe) {
+			// listPhieu[i] = null nghĩa là danhSachVe[i] không sử dụng phiếu
+			listPhieu.add(phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID()));
+		}
+		return listPhieu;
+	}
 }

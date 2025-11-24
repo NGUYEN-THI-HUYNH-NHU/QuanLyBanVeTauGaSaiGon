@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -24,6 +25,7 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import entity.NhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
+import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -41,6 +43,13 @@ public class UngDung extends JFrame {
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setContentPane(formDangNhap);
+
+//		this.addWindowListener(new WindowAdapter() {
+//			@Override
+//			public void windowClosing(WindowEvent e) {
+//				xuLyThoatChuongTrinh();
+//			}
+//		});
 	}
 
 	public static UngDung getInstance() {
@@ -83,10 +92,34 @@ public class UngDung extends JFrame {
 	public static void main(String args[]) {
 		FlatRobotoFont.install();
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
-		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 14));
+		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 		UIManager.put("PasswordField.showRevealButton", true);
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
 
+	}
+
+	/**
+	 * Xử lý logic khi người dùng nhất nút "X" để thoát.
+	 */
+	private void xuLyThoatChuongTrinh() {
+		Component panelHienTai = null;
+		if (giaoDienChinh != null) {
+			panelHienTai = giaoDienChinh.getHienThiPanel();
+		}
+		if (panelHienTai instanceof PanelThemTuyen) {
+			int choice = JOptionPane.showConfirmDialog(this,
+					"Bạn có chắc chắn muốn thoát không?\n Mọi thay đổi chưa lưu (Thêm Tuyên) sẽ bị mất.",
+					"Xác nhận thoát", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (choice == JOptionPane.YES_OPTION) {
+				System.exit(0);
+			}
+		} else {
+			int choice = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn thoát ứng dụng không?",
+					"Xác nhận thoát", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (choice == JOptionPane.YES_OPTION) {
+				System.exit(0);
+			}
+		}
 	}
 }

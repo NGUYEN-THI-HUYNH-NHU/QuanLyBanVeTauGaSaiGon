@@ -9,10 +9,15 @@ package gui.application.form.quanLyTuyen;/*
  * @created : 29/09/2025
  */
 import bus.Tuyen_BUS;
+import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.jhlabs.image.GaussianFilter;
 import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
+import com.jhlabs.image.BlurFilter;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -21,12 +26,16 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;
+    private BufferedImage backgroundImage;
 
     private JTextField txtGaDi;
     private JTextField txtGaDen;
@@ -54,6 +63,8 @@ public class   PanelQuanLyTuyen extends JPanel {
         this.tuyen_bus = new Tuyen_BUS();
         this.nhanVienThucHien = nhanVien;
 
+//        loadAndBlurBackground("img/nenTauLua.jpg");
+
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
 
@@ -61,11 +72,12 @@ public class   PanelQuanLyTuyen extends JPanel {
 
     public void initComponents(){
         JPanel panelNorth = new JPanel(new BorderLayout());
+        panelNorth.setOpaque(false);
 
         // --- 1. HEADER PANEL ---
         JPanel panelHeader = new JPanel();
         panelHeader.setLayout(new MigLayout("wrap 1, fillx, insets 10 10 5 10"));
-
+//        panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Times New Roman", Font.BOLD, 24));
         title.setForeground(new Color(30,41,58));
@@ -73,10 +85,21 @@ public class   PanelQuanLyTuyen extends JPanel {
 
         //Tìm kiếm
         JPanel panelSearch = new JPanel(new MigLayout("insets 5 10 10 10, gap 10"));
+//        panelSearch.setOpaque(false);
+        Color translucentWhite = new Color(255,255,255,180);
         txtGaDen = new JTextField(15);
+        txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
+        txtGaDen.setBackground(translucentWhite);
+//        txtGaDen.setOpaque(false);
         txtGaDi = new JTextField(15);
+        txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
+        txtGaDen.setBackground(translucentWhite);
+//        txtGaDi.setOpaque(false);
         btnLamMoiTuyen = new JButton("(F5) Làm mới tuyến");
         txtTimKiem = new JTextField(10);
+        txtTimKiem.setBackground(translucentWhite);
+//        txtTimKiem.setOpaque(false);
+        txtTimKiem.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mã tuyến để tìm kiếm tuyến");
 //        btnTimKiem = new JButton("Tìm kiếm");
         btnThemTuyen = new JButton("Thêm tuyến");
         btnCapNhatTuyen = new JButton("Cập nhật tuyến");
@@ -84,7 +107,8 @@ public class   PanelQuanLyTuyen extends JPanel {
 
 //        btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.35f));
         btnLamMoiTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/refresh.svg", 0.35f));
-        btnLamMoiTuyen.setBackground(new Color(240, 248, 255));
+        btnLamMoiTuyen.setBackground(new Color(36, 104, 155));
+        btnLamMoiTuyen.setForeground(Color.white);
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                         .put(KeyStroke.getKeyStroke("F5"), "lamMoiTuyenAction");
 
@@ -95,22 +119,47 @@ public class   PanelQuanLyTuyen extends JPanel {
             }
         });
         btnThemTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/add.svg", 0.35f));
-        btnThemTuyen.setBackground(new Color(240, 248, 255));
+        btnThemTuyen.setBackground(new Color(36, 104, 155));
+        btnThemTuyen.setForeground(Color.white);
         btnCapNhatTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/edit.svg", 0.35f));
-        btnCapNhatTuyen.setBackground(new Color(240, 248, 255));
+        btnCapNhatTuyen.setBackground(new Color(36, 104, 155));
+        btnCapNhatTuyen.setForeground(Color.white);
 
-        panelSearch.add(new JLabel("Ga Đi:"));
-        panelSearch.add(txtGaDi, "w 150");
 
-        panelSearch.add(new JLabel("Ga Đến:"));
-        panelSearch.add(txtGaDen, "w 150");
+       panelSearch = new JPanel(new MigLayout(
+                "insets 5 10 10 10, gap 10",
+                "[grow, push][grow, push][][][]",
+                "[]"
+        ));
+//       panelSearch.setOpaque(false);
 
-        panelSearch.add(new JLabel("Mã Tuyến:"));
-        panelSearch.add(txtTimKiem);
+        JPanel col1Panel = new JPanel(new MigLayout(
+                "insets 0, wrap 2, fillx",
+                "[][grow, push]",
+                "[][]"
+        ));
+//        col1Panel.setOpaque(false);
+        col1Panel.add(new JLabel("Ga Xuất Phát:"));
+        col1Panel.add(txtGaDi, "growx");
+        col1Panel.add(new JLabel("Ga Đích:"));
+        col1Panel.add(txtGaDen, "growx");
 
-        panelSearch.add(btnThemTuyen);
-        panelSearch.add(btnCapNhatTuyen);
-        panelSearch.add(btnLamMoiTuyen);
+        panelSearch.add(col1Panel, "grow, pushy");
+
+        JPanel col2Panel = new JPanel(new MigLayout(
+                "insets 0, wrap 2, fillx",
+                "[][grow, push]",
+                "[]"
+        ));
+        col2Panel.setOpaque(false);
+        col2Panel.add(new JLabel("Mã Tuyến:"));
+        col2Panel.add(txtTimKiem, "growx");
+
+        panelSearch.add(col2Panel, "growx, pushy, top");
+
+        panelSearch.add(btnThemTuyen, "top");
+        panelSearch.add(btnCapNhatTuyen, "top");
+        panelSearch.add(btnLamMoiTuyen, "top");
 
         panelHeader.add(panelSearch, "growx");
         panelNorth.add(panelHeader, BorderLayout.NORTH);
@@ -118,7 +167,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         add(panelNorth, BorderLayout.NORTH);
 
         // --- 2. TABLE DỮ LIỆU ---
-        String[] columnNames = {"Mã Tuyến", "Ga Đi", "Ga Đến","Danh Sách Ga Trung Gian", "Khoảng Cách (km)"};
+        String[] columnNames = {"Mã Tuyến", "Ga Xuất Phát", "Ga Đích","Danh Sách Ga Trung Gian", "Khoảng Cách (km)"};
         tableModelTuyen = new DefaultTableModel(columnNames,0){
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -127,8 +176,10 @@ public class   PanelQuanLyTuyen extends JPanel {
         };
         tableTuyen = new JTable(tableModelTuyen);
         tableTuyen.setRowHeight(28);
+//        tableTuyen.setOpaque(false);
 
         JTableHeader hd = tableTuyen.getTableHeader();
+//        hd.setOpaque(false);
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         hd.setFont(new Font("Times New Roman", Font.BOLD, 16));
@@ -146,6 +197,8 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
 
         scrollPane = new JScrollPane(tableTuyen);
+//        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
         // POPUP GỢI Ý //
@@ -168,13 +221,14 @@ public class   PanelQuanLyTuyen extends JPanel {
     }
 
     private class StripedRowRenderer extends DefaultTableCellRenderer {
-        private final Color evenColor = new Color(240, 248, 255);
-        private final Color oddColor = Color.WHITE;
+        private final Color evenColor = new Color(240, 248, 255, 200);
+        private final Color oddColor = new Color(255, 255, 255, 200);
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
                                                        boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
+            setOpaque(true);
             Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (!isSelected) {
                 if (row % 2 == 0) {
@@ -198,9 +252,10 @@ public class   PanelQuanLyTuyen extends JPanel {
          }
     }
 
-    public void addListeners( ActionListener timKiemListener,ActionListener lamMoiListener, ActionListener themTuyenListener){
+    public void addListeners( ActionListener timKiemListener,ActionListener lamMoiListener, ActionListener themTuyenListener, ActionListener capNhatTuyenListener){
         btnLamMoiTuyen.addActionListener(lamMoiListener);
         btnThemTuyen.addActionListener(themTuyenListener);
+        btnCapNhatTuyen.addActionListener(capNhatTuyenListener);
     }
 
     public void setMauBTN() {
@@ -211,6 +266,33 @@ public class   PanelQuanLyTuyen extends JPanel {
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
             btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        }
+    }
+
+//    private void loadAndBlurBackground(String imagePath){
+//        try{
+//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+//            if(originalImage != null){
+//               GaussianFilter blurFilter = new GaussianFilter();
+//                blurFilter.setRadius(10.0f);
+//
+//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+//                blurFilter.filter(originalImage, backgroundImage);
+//            }
+//        }catch (IOException e){
+//            System.err.println("Lỗi: Không thể tải file ảnh. Đường dẫn có đúng không?: " + imagePath);
+//            backgroundImage = null;
+//        }catch (Exception e){
+//            System.err.println("Lỗi khi làm mờ ảnh: " + e.getMessage());
+//            backgroundImage = null;
+//        }
+//    }
+
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+        if(backgroundImage != null){
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
         }
     }
 

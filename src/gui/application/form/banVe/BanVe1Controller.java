@@ -25,14 +25,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import bus.DatCho_BUS;
+import bus.PhieuGiuCho_BUS;
 import entity.Chuyen;
 import entity.PhieuGiuCho;
-import entity.PhieuGiuChoChiTiet;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
 public class BanVe1Controller {
-	private final PanelBanVe wizardView;
 	private final PanelBanVe1 view;
 	private final PanelBuoc1 p1;
 	private final PanelBuoc2 p2;
@@ -50,27 +49,26 @@ public class BanVe1Controller {
 	private final PanelBuoc3Controller buoc3Controller;
 
 	private final DatCho_BUS datChoBUS;
+	private final PhieuGiuCho_BUS phieuGiuChoBUS;
 
 	private Runnable onPanel1CompleteListener;
 
-	public void addPanel1CompleteListener(Runnable listener) {
+	protected void addPanel1CompleteListener(Runnable listener) {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public BanVe1Controller(PanelBanVe wizardView, PanelBanVe1 view, BookingSession session) {
-		this.wizardView = wizardView;
-
+	public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
 		this.view = view;
 		this.bookingSession = session;
-		// (Hoặc DatCho_BUS.getInstance() nếu là Singleton)
 		this.datChoBUS = new DatCho_BUS();
+		this.phieuGiuChoBUS = new PhieuGiuCho_BUS();
 
 		// Khởi tạo các panel con
 		this.p1 = view.getPanelBuoc1();
 		this.p2 = view.getPanelBuoc2();
 		this.p3 = view.getPanelBuoc3();
 
-		this.buoc1Controller = new PanelBuoc1Controller(view.getPanelBuoc1());
+		this.buoc1Controller = new PanelBuoc1Controller(this.p1);
 
 		// Lấy các panel con từ PanelBuoc2
 		PanelChuyen panelChieuDi = p2.getPanelChieuDi();
@@ -285,65 +283,40 @@ public class BanVe1Controller {
 	 * Hàm này thực hiện gọi BUS trong luồng nền
 	 */
 	private void goiBusGiuCho(List<VeSession> veTrongGio) {
-
-		new SwingWorker<Boolean, Void>() {
+		new SwingWorker<PhieuGiuCho, Void>() {
 			private String errorMessage = "Lỗi không xác định";
 
 			@Override
-			protected Boolean doInBackground() throws Exception {
+			protected PhieuGiuCho doInBackground() throws Exception {
 				try {
-					PhieuGiuCho pgc = datChoBUS.taoPhieuGiuCho();
-					if (pgc != null) {
-						datChoBUS.themPhieuGiuCho(pgc);
-					} else {
-						JOptionPane.showMessageDialog(view, "BanVe1Controller: Không thể tạo phiếu giữ chỗ");
-						return false;
-					}
-
-					bookingSession.setPhieuGiuCho(pgc);
-
-					for (int i = 0; i < veTrongGio.size(); i++) {
-						VeSession v = veTrongGio.get(i);
-
-						if (v.getPhieuGiuChoChiTiet() == null) {
-							PhieuGiuChoChiTiet pgcct = datChoBUS.taoPhieuGiuChoChiTiet(pgc, v, i + 1);
-
-							if (pgcct == null) {
-								errorMessage = "Không thể tạo PGCCT cho vé " + v.getSoGhe();
-								return false;
-							}
-							datChoBUS.themPhieuGiuChoChiTiet(pgcct);
-							v.setPhieuGiuChoChiTiet(pgcct);
-						}
-					}
-
-					return true;
+					return datChoBUS.thucHienGiuCho(veTrongGio);
 				} catch (Exception e) {
+					// Lấy lỗi nghiệp vụ (ví dụ: "Ghế bị chiếm)
 					errorMessage = e.getMessage();
-					return false;
+					return null;
 				}
 			}
 
 			@Override
 			protected void done() {
 				try {
-					Boolean success = get();
-					if (success) {
-						// 5. THÀNH CÔNG: Hiển thị PanelBuoc3
+					PhieuGiuCho pgc = get();
+					if (pgc != null) {
+						bookingSession.setPhieuGiuCho(pgc);
+
 						view.setBuoc3Enabled(true);
 						p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
 
 					} else {
-						// 6. THẤT BẠI: Hiển thị lỗi
 						JOptionPane.showMessageDialog(view, "Không thể giữ chỗ: \n" + errorMessage, "Lỗi giữ chỗ",
 								JOptionPane.ERROR_MESSAGE);
-
 						// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
 					}
 				} catch (Exception e) {
-					// Lỗi của chính SwingWorker
+					// Lỗi của chính SwingWorker hoặc lỗi logic
 					JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + e.getMessage(), "Lỗi",
 							JOptionPane.ERROR_MESSAGE);
+					// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
 				}
 			}
 		}.execute();
@@ -458,12 +431,29 @@ public class BanVe1Controller {
 				if (correctController != null) {
 					correctController.releaseHoldAndRemoveVe(v);
 					refreshGioVe();
+
 				}
 			}
 		});
 		timer.setInitialDelay(0);
 		timer.start();
 		countdownTimers.put(id, timer);
+	}
+
+	/**
+	 * Dừng tất cả các bộ đếm ngược (Được gọi khi thanh toán thành công)
+	 */
+	public void stopAllTimers() {
+		// Duyệt qua tất cả các timer đang chạy
+		for (String key : countdownTimers.keySet()) {
+			Timer t = countdownTimers.get(key);
+			if (t != null) {
+				t.stop();
+			}
+		}
+		// Xóa sạch danh sách timer và label
+		countdownTimers.clear();
+		countdownLabels.clear();
 	}
 
 	private String formatSeconds(long s) {

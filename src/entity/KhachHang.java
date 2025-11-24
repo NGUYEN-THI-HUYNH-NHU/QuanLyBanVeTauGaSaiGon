@@ -5,17 +5,16 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.util.Objects;
-
-import entity.type.LoaiDoiTuong;
-import entity.type.LoaiKhachHang;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 17, 2025
  * @version: 1.0
  */
+import java.util.Objects;
+
+import entity.type.LoaiDoiTuong;
+import entity.type.LoaiKhachHang;
 
 public class KhachHang {
 	private String khachHangID;
@@ -49,23 +48,13 @@ public class KhachHang {
 		this.diaChi = diaChi;
 	}
 
-	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo,
+	public KhachHang(String khachHangID, String hoTen, String soGiayTo, String soDienThoai, LoaiDoiTuong loaiDoiTuong,
 			LoaiKhachHang loaiKhachHang) {
 		super();
 		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.soGiayTo = soGiayTo;
 		this.loaiDoiTuong = loaiDoiTuong;
-		this.hoTen = hoTen;
-		this.soGiayTo = soGiayTo;
-		this.loaiKhachHang = loaiKhachHang;
-	}
-
-	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String soGiayTo,
-			LoaiKhachHang loaiKhachHang) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soDienThoai = soDienThoai;
-		this.soGiayTo = soGiayTo;
 		this.loaiKhachHang = loaiKhachHang;
 	}
 
@@ -76,6 +65,21 @@ public class KhachHang {
 
 	public KhachHang() {
 		super();
+	}
+
+	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.loaiDoiTuong = loaiDoiTuong;
+		this.soGiayTo = soGiayTo;
+	}
+
+	public KhachHang(String khachHangID, String hoTen, String soGiayTo) {
+		super();
+		this.khachHangID = khachHangID;
+		this.hoTen = hoTen;
+		this.soGiayTo = soGiayTo;
 	}
 
 	public String getKhachHangID() {

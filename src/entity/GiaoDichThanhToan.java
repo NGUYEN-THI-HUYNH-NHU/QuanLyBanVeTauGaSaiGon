@@ -100,4 +100,9 @@ public class GiaoDichThanhToan {
 //	public int hashCode() {
 //		return Objects.hashCode(giaoDichThanhToanID);
 //	}
+
+	/**
+	 * @param hoaDon
+	 */
+
 }

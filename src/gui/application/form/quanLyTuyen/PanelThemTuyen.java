@@ -10,23 +10,31 @@ package gui.application.form.quanLyTuyen;
  * @created : 23/10/2025
  */
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.jhlabs.image.GaussianFilter;
 import controller.ThemTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class PanelThemTuyen extends JPanel {
     private final NhanVien nhanVienThucHien;
+    private BufferedImage backgroundImage;
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JComboBox<String> cmbGaXuatPhat;
-    private JComboBox<String> cmbGaDich;
-    private JComboBox<String> cmbGaTrungGian;
+    private JTextField txtGaXuatPhat;
+    private JTextField txtGaDich;
+    private JTextField txtGaTrungGian;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -51,19 +59,22 @@ public class PanelThemTuyen extends JPanel {
     private final Color COLOR_BORDER = new Color(180, 180, 200);
     private final Color COLOR_ACCENT = new Color(30,41,58);
     private final Color COLOR_DANGER = new Color(220, 80, 80);
-    private final Color COLOR_TABLE_BG = new Color(240, 245, 250);
+    private final Color COLOR_TABLE_BG = new Color(255,255,255,180);
+    private final Color COLOR_TABLE_STRIPE = new Color(240,245,250,180);
+    private final Color COLOR_TEXT_BG =new Color(255,255,255,180);
 
     public PanelThemTuyen(NhanVien nhanVien){
         this.nhanVienThucHien = nhanVien;
-        this.setBackground(COLOR_PRIMARY_BG);
         setLayout(new BorderLayout());
         initComponents();
         new ThemTuyen_CTRL(this);
+//        loadAndBlurBackground("img/nenTauLua.jpg");
     }
 
     public void initComponents(){
         JPanel pnlContent = new JPanel(new MigLayout("wrap 4, fillx, insets 20 20 5 20","[120, left][250, grow][120, right][250, grow]","[]")); //layout lưới 4 cột, fill ngang
-        pnlContent.setOpaque(false);
+//        this.setOpaque(false);
+//        pnlContent.setOpaque(false);
 
         pnlContent.setBorder(BorderFactory.createLineBorder(COLOR_BORDER, 1));
 
@@ -73,27 +84,40 @@ public class PanelThemTuyen extends JPanel {
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        cmbGaXuatPhat = new JComboBox<>();
-        cmbGaXuatPhat.setEditable(true);
-        cmbGaDich = new JComboBox<>();
-        cmbGaDich.setEditable(true);
+        txtGaXuatPhat = new JTextField();
+//        txtGaXuatPhat.setOpaque(false);
+        txtGaXuatPhat.setBackground(COLOR_TEXT_BG);
+        txtGaDich = new JTextField();
+//        txtGaDich.setOpaque(false);
+        txtGaDich.setBackground(COLOR_TEXT_BG);
+        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
+        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
         pnlContent.add(new JLabel("Ga Xuất Phát:"), "w 100%");
-        pnlContent.add(cmbGaXuatPhat,"growx");
+        pnlContent.add(txtGaXuatPhat,"growx");
         pnlContent.add(new JLabel("Ga Đích:"));
-        pnlContent.add(cmbGaDich,"growx, wrap 20");
+        pnlContent.add(txtGaDich,"growx, wrap 20");
 
         txtMaTuyen = new JTextField();
+        txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mã Tuyến được tạo tự động!");
+        txtMaTuyen.setEditable(false);
+        txtMaTuyen.setBackground(COLOR_TEXT_BG);
         txtDoDaiQuangDuong = new JTextField();
-        txtDoDaiQuangDuong.setEditable(false); // khoảng cách tính tư động
+        txtDoDaiQuangDuong.setEditable(false);
+        txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
+        txtDoDaiQuangDuong.setEditable(false);
+//        txtDoDaiQuangDuong.setOpaque(false);
+        txtDoDaiQuangDuong.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Mã Tuyến:"));
         pnlContent.add(txtMaTuyen, "growx");
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        cmbGaTrungGian = new JComboBox<>();
-        cmbGaTrungGian.setEditable(true);
+        txtGaTrungGian = new JTextField();
+        txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
+//        txtGaTrungGian.setOpaque(false);
+        txtGaTrungGian.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
-        pnlContent.add(cmbGaTrungGian, "growx");
+        pnlContent.add(txtGaTrungGian, "growx");
 
         ppGaXuatPhat = new JPopupMenu();
         listGaXuatPhat = new JList<>();
@@ -108,19 +132,25 @@ public class PanelThemTuyen extends JPanel {
         ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
 
         pnlGaTrungGianDaChon = new JPanel(new FlowLayout(FlowLayout.LEFT,5,5));
+//        pnlGaTrungGianDaChon.setOpaque(false);
         pnlGaTrungGianDaChon.setBorder(BorderFactory.createTitledBorder("Danh Sách Ga Trung Gian Đã Chọn:"));
         JScrollPane scrollPane = new JScrollPane(pnlGaTrungGianDaChon);
+//        scrollPane.getViewport().setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
 
-        btnXacNhanTinhKC = new JButton("Xác Nhận");
+        btnXacNhanTinhKC = new JButton("Xác Nhận Danh Sách Các Ga");
         btnXacNhanTinhKC.setBackground(COLOR_ACCENT);
         btnXacNhanTinhKC.setForeground(Color.WHITE);
         pnlContent.add(btnXacNhanTinhKC, "wrap 20");
 
         txtMoTa = new JTextArea(3,20);
         txtMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+//        txtMoTa.setOpaque(false);
+        txtMoTa.setBackground(COLOR_TEXT_BG);
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
+//        scrollMoTa.setOpaque(false);
+//        scrollMoTa.getViewport().setOpaque(false);
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
         pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
 
@@ -132,20 +162,39 @@ public class PanelThemTuyen extends JPanel {
             }
         };
         tblGaChiTiet = new JTable(modelGaChiTiet);
+//        tblGaChiTiet.setOpaque(false);
         tblGaChiTiet.setRowHeight(25);
         tblGaChiTiet.setShowGrid(true);
         tblGaChiTiet.setShowHorizontalLines(true);
-        tblGaChiTiet.setShowVerticalLines(true);
-        tblGaChiTiet.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tblGaChiTiet.setBackground(COLOR_TABLE_BG);
         tblGaChiTiet.setGridColor(COLOR_BORDER);
+        tblGaChiTiet.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    if (row % 2 == 0) {
+                        c.setBackground(COLOR_TABLE_STRIPE); // Màu sọc mờ 1
+                    } else {
+                        c.setBackground(COLOR_TABLE_BG); // Màu sọc mờ 2
+                    }
+                }
+                return c;
+            }
+        });
+        tblGaChiTiet.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         JTableHeader header = tblGaChiTiet.getTableHeader();
-        header.setBackground(COLOR_ACCENT);
         header.setForeground(Color.WHITE);
+        header.setFont(header.getFont().deriveFont(Font.BOLD,12f));
+        header.setBackground(new Color(30,41,58));
 
         JPanel pnlTable = new JPanel(new BorderLayout());
+//        pnlTable.setOpaque(false);
         pnlTable.setBorder(BorderFactory.createTitledBorder("Thứ Tự và Khoảng Cách Các Ga Từ Ga Xuất Phát của các Ga trên Tuyến"));
-        pnlTable.add(new JScrollPane(tblGaChiTiet), BorderLayout.CENTER);
+
+        JScrollPane tableScrollPane = new JScrollPane(tblGaChiTiet);
+//        tableScrollPane.setOpaque(false);
+        tableScrollPane.getViewport().setOpaque(false);
+        pnlTable.add(tableScrollPane, BorderLayout.CENTER);
         pnlContent.add(pnlTable, "span 4, grow, push,height 200, wrap 0");
 
 
@@ -163,10 +212,39 @@ public class PanelThemTuyen extends JPanel {
         pnlAction.add(btnHuy);
 
         this.add(pnlAction, BorderLayout.SOUTH);
+
+        ppGaXuatPhat = new JPopupMenu();
+        listGaXuatPhat = new JList<>();
+        ppGaXuatPhat.add(new JScrollPane(listGaXuatPhat));
+        ppGaDich = new JPopupMenu();
+        listGaDich = new JList<>();
+        ppGaDich.add(new JScrollPane(listGaDich));
+        ppGaTrungGian = new JPopupMenu();
+        listGaTrungGian = new JList<>();
+        ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
     }
 
-    public JComboBox<String> getCmbGaXuatPhat() {
-        return cmbGaXuatPhat;
+//    private void loadAndBlurBackground(String imagePath){
+//        try{
+//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+//            if(originalImage != null){
+//                GaussianFilter blurFilter = new GaussianFilter();
+//                blurFilter.setRadius(10.0f);
+//
+//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
+//                blurFilter.filter(originalImage, backgroundImage);
+//            }
+//        }catch (IOException e){
+//            backgroundImage = null;
+//        }
+//    }
+
+    @Override
+    protected  void paintComponent(Graphics g){
+        super.paintComponent(g);
+        if(backgroundImage != null){
+            g.drawImage(backgroundImage, 0,0,getWidth(), getHeight(), this);
+        }
     }
 
     public NhanVien getNhanVienThucHien() {
@@ -177,40 +255,16 @@ public class PanelThemTuyen extends JPanel {
         return pnlGaTrungGianDaChon;
     }
 
-    public JComboBox<String> getCmbGaDich() {
-        return cmbGaDich;
+    public JTextField getTxtGaXuatPhat() {
+        return txtGaXuatPhat;
     }
 
-    public JComboBox<String> getCmbGaTrungGian() {
-        return cmbGaTrungGian;
+    public JTextField getTxtGaDich() {
+        return txtGaDich;
     }
 
-    public JButton getBtnLuu() {
-        return btnLuu;
-    }
-
-    public JButton getBtnHuy() {
-        return btnHuy;
-    }
-
-    public JTextField getTxtMaTuyen() {
-        return txtMaTuyen;
-    }
-
-    public JTextField getTxtDoDaiQuangDuong() {
-        return txtDoDaiQuangDuong;
-    }
-
-    public JTextArea getTxtMoTa() {
-        return txtMoTa;
-    }
-
-    public DefaultTableModel getModelGaChiTiet() {
-        return modelGaChiTiet;
-    }
-
-    public JTable getTblGaChiTiet() {
-        return tblGaChiTiet;
+    public JTextField getTxtGaTrungGian() {
+        return txtGaTrungGian;
     }
 
     public JPopupMenu getPpGaXuatPhat() {
@@ -237,6 +291,38 @@ public class PanelThemTuyen extends JPanel {
         return listGaTrungGian;
     }
 
+    public JButton getBtnLuu() {
+        return btnLuu;
+    }
+
+    public JButton getBtnHuy() {
+        return btnHuy;
+    }
+
+    public JButton getBtnXacNhanTinhKC() {
+        return btnXacNhanTinhKC;
+    }
+
+    public JTextField getTxtMaTuyen() {
+        return txtMaTuyen;
+    }
+
+    public JTextField getTxtDoDaiQuangDuong() {
+        return txtDoDaiQuangDuong;
+    }
+
+    public JTextArea getTxtMoTa() {
+        return txtMoTa;
+    }
+
+    public DefaultTableModel getModelGaChiTiet() {
+        return modelGaChiTiet;
+    }
+
+    public JTable getTblGaChiTiet() {
+        return tblGaChiTiet;
+    }
+
     public Color getCOLOR_PRIMARY_BG() {
         return COLOR_PRIMARY_BG;
     }
@@ -256,10 +342,4 @@ public class PanelThemTuyen extends JPanel {
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
     }
-
-    public JButton getBtnXacNhanTinhKC() {
-        return btnXacNhanTinhKC;
-    }
-
-
 }

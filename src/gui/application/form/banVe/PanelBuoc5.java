@@ -1,6 +1,6 @@
 package gui.application.form.banVe;
 /*
- * @(#) PanelBuoc5.java  1.0  [10:41:50 AM] Sep 28, 2025
+ * @(#) PaymentPanel.java  1.0  [10:41:50 AM] Sep 28, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -445,6 +445,12 @@ public class PanelBuoc5 extends JPanel {
 			suggestions.add(roundUp200000);
 		}
 
+		// Làm tròn lên 500.000 gần nhất
+		int roundUp500000 = (int) (Math.ceil(total / 500000.0) * 500000);
+		if (roundUp500000 > total) {
+			suggestions.add(roundUp500000);
+		}
+
 		// 3. Thêm các mệnh giá chuẩn lớn hơn total gần nhất
 		for (int denom : MENHGIAVND) {
 			if (denom > total && suggestions.size() < 6) { // Chỉ thêm nếu lớn hơn và chưa đủ 6 gợi ý
@@ -571,4 +577,7 @@ public class PanelBuoc5 extends JPanel {
 		return btnXacNhanVaInQR;
 	}
 
+	public boolean isThanhToanTienMat() {
+		return radTienMat.isSelected();
+	}
 }

@@ -16,6 +16,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KhoangCachChuan_DAO {
     private final ConnectDB connectDB;
@@ -53,4 +55,31 @@ public class KhoangCachChuan_DAO {
         return -1;
     }
 
+    /**
+     * Tải toàn bộ bảng khoảng cách chuẩn vào bộ nhớ dưới dạng Đồ thị (Graph).
+     * @return Map<String, Map<String, Integer>> (Đồ thị: GaID_Nguồn -> ( GaID_Đích -> Khoảng cách ))
+     */
+    public Map<String, Map<String, Integer>> getAllKhoangCachMap(){
+        Map<String, Map<String, Integer>> doThi = new HashMap<>();
+        String sql = "SELECT gaID_Dau, gaID_Cuoi, khoangCachKm FROM KhoangCachChuan";
+        try(Connection connection = connectDB.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()){
+                String gaID_Dau = resultSet.getString("gaID_Dau").trim();
+                String gaID_Cuoi = resultSet.getString("gaID_Cuoi").trim();
+                int khoangCachKm = resultSet.getInt("khoangCachKm");
+
+                doThi.putIfAbsent(gaID_Dau, new HashMap<>());
+                doThi.get(gaID_Dau).put(gaID_Cuoi, khoangCachKm);
+
+                doThi.putIfAbsent(gaID_Cuoi, new HashMap<>());
+                doThi.get(gaID_Cuoi).put(gaID_Dau, khoangCachKm);
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+        return doThi;
+    }
 }

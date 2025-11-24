@@ -185,4 +185,25 @@ public class Ve {
 	public int hashCode() {
 		return Objects.hashCode(getVeID());
 	}
+
+	/**
+	 * @return
+	 */
+	public String thongTinVeHoan() {
+		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
+				ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+	}
+
+	/**
+	 * @return
+	 */
+	public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
+		if (phieuDungPhongChoVIP == null) {
+			return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
+					ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+		}
+		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s<br/>Mã PDPCVIP: %s</html>",
+				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
+				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+	}
 }

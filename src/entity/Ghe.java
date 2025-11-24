@@ -46,6 +46,13 @@ public class Ghe {
 		this.gheID = gheID;
 	}
 
+	public Ghe(String gheID, Toa toa, int soGhe) {
+		super();
+		this.gheID = gheID;
+		this.toa = toa;
+		this.soGhe = soGhe;
+	}
+
 	public String getGheID() {
 		return gheID;
 	}

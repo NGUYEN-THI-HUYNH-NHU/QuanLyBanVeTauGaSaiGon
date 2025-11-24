@@ -38,23 +38,24 @@ public class Menu extends JPanel {
 	protected final int headerFullHgap = 5;
 	private final String[][] menuItems = { { "~Quản Lý~" }, // 0
 			{ "Dashboard" }, // 1
-			{ "Bán vé" }, // 2
-			{ "Quản lý vé", "Hoàn vé", "Đổi vé" }, // 3
-			{ "Quản lý hóa đơn" }, // 4
-			{ "Quản lý tuyến" }, // 5
-			{ "Quản lý chuyến" }, // 6
-			{ "Quản lý biểu giá" }, // 7
-			{ "Quản lý khuyến mãi" }, // 8
-			{ "Quản lý khách hàng" }, // 9
-			{ "Quản lý nhân viên" }, // 10
-			{ "Quản lý tài khoản" }, // 11
-			{ "~Khác~" }, // 12
-			{ "Thống kê & Báo cáo ", "Thống kê", "Báo cáo" }, // 13
-			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 14
-			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 15
-			{ "About" }, // 16
-			{ "Trợ giúp" }, // 17
-			{ "Đăng Xuất" } }; // 18
+			{ "Quản lý ga" }, // 2
+			{ "Bán vé" }, // 3
+			{ "Quản lý vé", "Hoàn vé", "Đổi vé" }, // 4
+			{ "Quản lý hóa đơn" }, // 5
+			{ "Quản lý tuyến" }, // 6
+			{ "Quản lý chuyến" }, // 7
+			{ "Quản lý biểu giá" }, // 8
+			{ "Quản lý khuyến mãi" }, // 9
+			{ "Quản lý khách hàng" }, // 10
+			{ "Quản lý nhân viên" }, // 11
+			{ "Quản lý tài khoản" }, // 12
+			{ "~Khác~" }, // 13
+			{ "Thống kê & Báo cáo " }, // 14
+			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 15
+			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 16
+			{ "About" }, // 17
+			{ "Trợ giúp" }, // 18
+			{ "Đăng Xuất" } }; // 19
 	private JLabel header;
 	private JScrollPane scroll;
 	private JPanel panelMenu;
@@ -96,13 +97,14 @@ public class Menu extends JPanel {
 			if (menuName.startsWith("~") && menuName.endsWith("~")) {
 				panelMenu.add(createTitle(menuName));
 			} else {
-				// NV: {2, 3, 4, 9, 13, 15, 16, 17, 18}
+				// NV: {3, 4, 5, 10, 14, 16, 17, 18, 19}
 				if (role.equalsIgnoreCase("NHAN_VIEN")) {
-					if (i == 1 || i == 5 || i == 6 || i == 7 || i == 8 || i == 10 || i == 11 || i == 12 || i == 14) {
+					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 10 || i == 11 || i == 12 || i == 13
+							|| i == 15) {
 						continue;
 					}
 				} else {
-					if (i == 2 || i == 3 || i == 4 || i == 9 || i == 13) {
+					if (i == 3 || i == 4 || i == 5 || i == 10 || i == 14) {
 						continue;
 					}
 				}

@@ -15,6 +15,7 @@ import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
+import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
@@ -23,6 +24,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,7 +44,7 @@ public class QuanLyTuyen_CTRL {
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
         this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
-        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener());
+        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
         pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
         PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
@@ -76,6 +78,13 @@ public class QuanLyTuyen_CTRL {
         @Override
         public void actionPerformed(ActionEvent e) {
             hienThiManHinhThemTuyen();
+        }
+    }
+
+    private class CapNhatTuyenListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhCapNhatTuyen();
         }
     }
 
@@ -129,7 +138,10 @@ public class QuanLyTuyen_CTRL {
         String tuyenID = table.getValueAt(modelRow, 0).toString();
         String thongTinChung = tuyen_bus.getChiTietTuyen(tuyenID);
         List<Object[]> dsGaTrungGian = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
-        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen),"Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
+
+        Window owner = SwingUtilities.getWindowAncestor(pnlTuyen);
+        JDialog dialog = new JDialog((Frame) owner, "Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
+        dialog.setResizable(false);
         dialog.setLayout(new BorderLayout());
 
         JTextArea txtThongTinCHung = new JTextArea(thongTinChung);
@@ -148,6 +160,13 @@ public class QuanLyTuyen_CTRL {
         detailTable.setShowGrid(true);
         detailTable.setShowHorizontalLines(true);
         detailTable.setShowVerticalLines(true);
+        JTableHeader hd = detailTable.getTableHeader();
+//        hd.setOpaque(false);
+        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
+        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        hd.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        hd.setBackground(new Color(36, 104, 155));
+        hd.setForeground(Color.white);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();// căn phait cho cột khoảng cách
         rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -166,14 +185,20 @@ public class QuanLyTuyen_CTRL {
         dialog.add(southPanel, BorderLayout.SOUTH);
 
         dialog.pack();
-        dialog.setSize(600, 600);
+        dialog.setSize(800, 600);
         dialog.setLocationRelativeTo(pnlTuyen);
         dialog.setVisible(true);
+
     }
 
     private void hienThiManHinhThemTuyen(){
         PanelThemTuyen panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
         UngDung.showGiaoDienChinh(panelThemTuyen);
+    }
+
+    private void hienThiManHinhCapNhatTuyen(){
+        PanelCapNhatTuyen panelCapNhatTuyen = new PanelCapNhatTuyen(pnlTuyen.getNhanVienThucHien());
+        UngDung.showGiaoDienChinh(panelCapNhatTuyen);
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
@@ -237,11 +262,17 @@ public class QuanLyTuyen_CTRL {
                             lst.setSelectedIndex(selectedIndex + 1);
                             lst.ensureIndexIsVisible(selectedIndex + 1);
                         }
+                        else if(txt == pnlTuyen.getTxtGaDi()){
+                            pnlTuyen.getTxtGaDen().requestFocus();
+                        }
                         break;
                     case java.awt.event.KeyEvent.VK_UP:
                         if (selectedIndex > 0) {
                             lst.setSelectedIndex(selectedIndex - 1);
                             lst.ensureIndexIsVisible(selectedIndex - 1);
+                        }
+                        else if(txt == pnlTuyen.getTxtGaDen()){
+                            pnlTuyen.getTxtGaDi().requestFocus();
                         }
                         break;
                     case java.awt.event.KeyEvent.VK_ENTER:
@@ -253,16 +284,15 @@ public class QuanLyTuyen_CTRL {
                         timKiemTuyen();
                         break;
                     case java.awt.event.KeyEvent.VK_RIGHT:
-                        if (txt == pnlTuyen.getTxtGaDi()) {
-                            pnlTuyen.getTxtGaDen().requestFocus();
-                        } else if (txt == pnlTuyen.getTxtGaDen()) {
+                         if (txt == pnlTuyen.getTxtGaDen()) {
                             pnlTuyen.getTxtTimKiem().requestFocus();
                         }
+                         else if(txt == pnlTuyen.getTxtGaDi()){
+                             pnlTuyen.getTxtTimKiem().requestFocus();
+                         }
                         break;
                     case java.awt.event.KeyEvent.VK_LEFT:
                         if (txt == pnlTuyen.getTxtTimKiem()) {
-                            pnlTuyen.getTxtGaDen().requestFocus();
-                        } else if (txt == pnlTuyen.getTxtGaDen()) {
                             pnlTuyen.getTxtGaDi().requestFocus();
                         }
                         break;

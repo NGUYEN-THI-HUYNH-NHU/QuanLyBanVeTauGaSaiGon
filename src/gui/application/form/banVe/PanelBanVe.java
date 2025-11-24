@@ -15,13 +15,9 @@ package gui.application.form.banVe;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
-import java.awt.Font;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 
 public class PanelBanVe extends JPanel {
 	private CardLayout cardLayout;
@@ -40,7 +36,6 @@ public class PanelBanVe extends JPanel {
 	public PanelBanVe() {
 		setLayout(new BorderLayout());
 		setBackground(new Color(230, 230, 230));
-		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
 		cardLayout = new CardLayout();
@@ -62,8 +57,8 @@ public class PanelBanVe extends JPanel {
 		add(stepPanel, BorderLayout.CENTER);
 
 		// 5. Khởi tạo các Controller (Mediator)
-		banVe1Controller = new BanVe1Controller(this, panelBanVe1, bookingSession);
-		banVe2Controller = new BanVe2Controller(this, panelBanVe2, bookingSession);
+		banVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
+		banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
 
 		// 6. Liên kết các Controller (Logic chính)
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
@@ -83,8 +78,10 @@ public class PanelBanVe extends JPanel {
 		// TODO: Có thể thêm listener cho banVe2Controller.addPaymentSuccessListener để
 		// gọi showPanel("complete") khi thanh toán xong)
 		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
-			panelBuoc6.loadCompletionData(bookingSession);
-			showPanel("complete");
+//			panelBuoc6.loadCompletionData(bookingSession);
+//			showPanel("complete");
+			// Dừng toàn bộ timer khi bán vé thành công
+			banVe1Controller.stopAllTimers();
 		});
 	}
 

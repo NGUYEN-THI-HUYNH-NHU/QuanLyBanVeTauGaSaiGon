@@ -1,15 +1,14 @@
 package entity;
 
-import entity.type.HangToa;
-
 import java.util.Objects;
+
+import entity.type.HangToa;
 
 /*
  * @(#) Toa.java  1.0  [10:14:42 PM] Sep 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
 
 /*
  * @description
@@ -24,7 +23,7 @@ public class Toa {
 	private HangToa hangToa;
 	private int sucChua;
 	private int soToa;
-	
+
 	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int soToa) {
 		super();
 		this.toaID = toaID;
@@ -33,17 +32,25 @@ public class Toa {
 		this.sucChua = sucChua;
 		this.soToa = soToa;
 	}
-	
+
+	public Toa(String toaID, Tau tau, HangToa hangToa, int soToa) {
+		super();
+		this.toaID = toaID;
+		this.tau = tau;
+		this.hangToa = hangToa;
+		this.soToa = soToa;
+	}
+
 	public Toa(String toaID, int soToa) {
 		super();
 		this.toaID = toaID;
 		this.soToa = soToa;
 	}
-	
+
 	public Toa() {
 		super();
 	}
-	
+
 	public Toa(String toaID) {
 		super();
 		this.toaID = toaID;
@@ -70,9 +77,9 @@ public class Toa {
 	}
 
 	public void setToaID(String toaID) {
-		if(toaID != null && !toaID.isEmpty()) {
+		if (toaID != null && !toaID.isEmpty()) {
 			this.toaID = toaID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Toa ID không được để trống!");
 		}
 	}
@@ -95,14 +102,17 @@ public class Toa {
 
 	@Override
 	public String toString() {
-		return toaID + ";" + tau + ";" + hangToa + ";" + sucChua + ";"
-				+ soToa;
+		return toaID + ";" + tau + ";" + hangToa + ";" + sucChua + ";" + soToa;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		Toa toa = (Toa) o;
 		return Objects.equals(getToaID(), toa.getToaID());
 	}

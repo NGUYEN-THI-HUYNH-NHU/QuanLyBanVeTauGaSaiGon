@@ -17,21 +17,11 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
-import bus.DatCho_BUS;
-import bus.HoaDon_BUS;
-import bus.KhachHang_BUS;
-import bus.PhieuDungPhongVIP_BUS;
-import bus.ThanhToan_BUS;
-import bus.Ve_BUS;
-import entity.DonDatCho;
+import bus.BanVe_BUS;
 import entity.GiaoDichThanhToan;
-import entity.HoaDon;
-import entity.HoaDonChiTiet;
-import entity.PhieuDungPhongVIP;
-import entity.Ve;
 import entity.type.LoaiDoiTuong;
-import gui.application.PdfTicketExporter;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -40,17 +30,11 @@ import gui.application.PdfTicketExporter;
  * cho Wizard (PanelBanVe) khi thanh toán hoàn tất.
  */
 public class BanVe2Controller {
-	private final PanelBanVe wizardView;
 	private final PanelBanVe2 view;
 	private final PanelBuoc4 p4;
 	private final PanelBuoc5 p5;
 
-	private final DatCho_BUS datChoBUS = new DatCho_BUS();
-	private final Ve_BUS veBUS = new Ve_BUS();
-	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
-	private final ThanhToan_BUS thanhToanBUS = new ThanhToan_BUS();
-	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
-	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
+	private final BanVe_BUS banVeBUS = new BanVe_BUS();
 
 	private final BookingSession bookingSession;
 
@@ -61,9 +45,7 @@ public class BanVe2Controller {
 		this.onPaymentSuccessListener = listener;
 	}
 
-	public BanVe2Controller(PanelBanVe wizardView, PanelBanVe2 view, BookingSession session) {
-		this.wizardView = wizardView;
-
+	public BanVe2Controller(PanelBanVe2 view, BookingSession session) {
 		this.view = view;
 		this.bookingSession = session;
 
@@ -98,13 +80,13 @@ public class BanVe2Controller {
 		}
 
 		for (VeSession ve : allTickets) {
-			tongTienVe += ve.getGia();
-			dichVu += ve.getPhongChoVIP();
-			khuyenMai += ve.getGiam();
+			tongTienVe += ve.getVe().getGia();
+			dichVu += ve.getPhiPhieuDungPhongChoVIP();
+			khuyenMai += ve.getGiamKM();
 
 			// Giảm giá đối tượng ở đây
-			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
-				ve.setGiamDoiTuong((int) (Math.round((ve.getGia() * 0.25) / 1000) * 1000));
+			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
 				giamGiaDT += ve.getGiamDoiTuong();
 			}
 		}
@@ -122,17 +104,17 @@ public class BanVe2Controller {
 		JButton payButtonQR = p5.getBtnXacNhanVaInQR();
 
 		ActionListener paymentListener = e -> {
-			boolean isThanhToanTienMat = true;
-			// TODO: xu ly lay ma giao dich
+			// 1. Lấy thông tin thanh toán từ View
+			boolean isThanhToanTienMat = p5.isThanhToanTienMat();
 			String maGiaoDich = null;
-			// Lưu thông tin thanh toán
 			double tongTien = p5.getTongThanhToan();
 			double tienNhan = p5.getTienKhachDua();
 			double tienHoan = tienNhan - tongTien;
 			boolean trangThai = true;
 			GiaoDichThanhToan giaoDichThanhToan = null;
-			if (payButtonQR.isSelected()) {
-				isThanhToanTienMat = false;
+
+			if (!isThanhToanTienMat) {
+				// TODO: Lấy mã giao dịch thật
 				maGiaoDich = "GDTEST";
 				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, maGiaoDich, tongTien, isThanhToanTienMat,
 						trangThai);
@@ -140,62 +122,59 @@ public class BanVe2Controller {
 				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, tongTien, isThanhToanTienMat, trangThai);
 			}
 
-			thanhToanBUS.luuThongTinThanhToan(giaoDichThanhToan);
+			// 2. Cập nhật bookingSession
 			bookingSession.setGiaoDichThanhToan(giaoDichThanhToan);
 
-			// Lưu đơn đặt chỗ
-			DonDatCho donDatCho = datChoBUS.taoDonDatCho(bookingSession);
-			datChoBUS.themDonDatCho(donDatCho);
-			bookingSession.setDonDatCho(donDatCho);
+			// Vô hiệu hóa nút để tránh bấm 2 lần
+			p5.setComponentsEnabled(false);
 
-			// Lưu các vé
-			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, bookingSession);
-			veBUS.themCacVe(dsVe);
+			// 3. Thực thi giao dịch trong SwingWorker
+			new SwingWorker<Boolean, Void>() {
+				private String errorMessage = "Lỗi không xác định";
 
-			// Lưu các phiếu dùng phòng VIP
-			List<PhieuDungPhongVIP> dsPhieu = phieuDungPhongChoVIPBUS.taoCacPhieuDungPhongChoVIP(bookingSession);
-			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(dsPhieu);
-
-			// Lưu hóa đơn
-			HoaDon hoaDon = hoaDonBUS.taoHoaDon(bookingSession);
-			hoaDonBUS.themHoaDon(hoaDon);
-			bookingSession.setHoaDon(hoaDon);
-
-			// Lưu hóa đơn chi tiết
-			List<HoaDonChiTiet> dsHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(bookingSession, giaoDichThanhToan);
-			hoaDonBUS.themCacHoaDonChiTiet(dsHoaDonChiTiet);
-
-			// Giả sử lưu thành công
-			boolean saveSuccess = true;
-
-			for (VeSession v : bookingSession.getAllSelectedTickets()) {
-				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(v.getHanhKhach().getSoGiayTo()) == null) {
-					khachHangBUS.themKhachHang(v.getHanhKhach());
-				}
-			}
-
-			// Set lại trạng thái phiếu giữ chỗ/ phiếu giữ chỗ chi tiết
-			datChoBUS.capNhatPhieuGiuCho(bookingSession);
-			datChoBUS.capNhatCacPhieuGiuChoChiTiet(bookingSession);
-
-			if (saveSuccess) {
-				// a. Vô hiệu hóa PanelBuoc5
-				p5.setComponentsEnabled(false);
-
-				// Xuất file pdf
-				PdfTicketExporter exporter = new PdfTicketExporter();
-				exporter.exportTicketsToPdf(bookingSession);
-
-				// b. Báo cho wizard chính (PanelBanVe) biết để chuyển sang bước Hoàn tất
-				if (wizardView != null) {
-					if (onPaymentSuccessListener != null) {
-						onPaymentSuccessListener.run();
+				@Override
+				protected Boolean doInBackground() throws Exception {
+					try {
+						return banVeBUS.thucHienBanVe(bookingSession);
+					} catch (Exception ex) {
+						errorMessage = ex.getMessage();
+						ex.printStackTrace();
+						return false;
 					}
 				}
-			} else {
-				JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!", "Lỗi",
-						JOptionPane.ERROR_MESSAGE);
-			}
+
+				@Override
+				protected void done() {
+					try {
+						boolean saveSuccess = get();
+
+						if (saveSuccess) {
+//							// a. Xuất file pdf
+//							PdfTicketExporter exporter = new PdfTicketExporter();
+//							exporter.exportTicketsToPdf(bookingSession);
+							JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+							p4.setComponentsEnabled(false);
+							p5.setComponentsEnabled(false);
+
+							// b. Báo cho wizard chính (PanelBanVe) biết
+							if (onPaymentSuccessListener != null) {
+								onPaymentSuccessListener.run();
+							}
+						} else {
+							// Nếu thất bại, báo lỗi và bật lại UI
+							JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!\n" + errorMessage,
+									"Lỗi", JOptionPane.ERROR_MESSAGE);
+							p5.setComponentsEnabled(true);
+						}
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi",
+								JOptionPane.ERROR_MESSAGE);
+						p5.setComponentsEnabled(true);
+					}
+				}
+			}.execute();
 		};
 
 		if (payButtonCash != null) {

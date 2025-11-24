@@ -43,7 +43,8 @@ public class PanelBuoc4 extends JPanel {
 		};
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(250);
+		table.getColumnModel().getColumn(0).setMinWidth(180);
+		table.getColumnModel().getColumn(1).setMinWidth(180);
 		table.removeColumn(table.getColumnModel().getColumn(8));
 
 		// 2. CHỈ DÙNG Renderer (để hiển thị), KHÔNG DÙNG Editor (để không thể sửa)
@@ -86,10 +87,10 @@ public class PanelBuoc4 extends JPanel {
 		for (VeSession v : allTickets) {
 			// Giả sử HanhKhach đã được gán vào VeSession ở Buoc3
 			PassengerRow r = new PassengerRow(v);
-			if (v.getHanhKhach() != null) {
-				r.setFullName(v.getHanhKhach().getHoTen());
-				r.setIdNumber(v.getHanhKhach().getSoGiayTo());
-				r.setType(v.getHanhKhach().getLoaiDoiTuong());
+			if (v.getVe().getKhachHang() != null) {
+				r.setFullName(v.getVe().getKhachHang().getHoTen());
+				r.setIdNumber(v.getVe().getKhachHang().getSoGiayTo());
+				r.setType(v.getVe().getKhachHang().getLoaiDoiTuong());
 			}
 			rows.add(r);
 		}

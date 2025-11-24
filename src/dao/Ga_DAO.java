@@ -68,8 +68,8 @@ public class Ga_DAO {
                 while (rs.next()) {
                     dsGa.add(new Ga(
                             rs.getString("gaID"),
-                            rs.getBoolean("isGaLon"),
                             rs.getString("tenGa"),
+                            rs.getBoolean("isGaLon"),
                             rs.getString("tinhThanh")
                     ));
                 }
@@ -127,7 +127,7 @@ public class Ga_DAO {
                 String tenGa = resultSet.getString("tenGa");
                 boolean isGaLon = resultSet.getBoolean("isGaLon");
                 String tinhThanh = resultSet.getString("tinhThanh");
-                gaDS.add(new Ga(gaID,isGaLon, tenGa, tinhThanh));
+                gaDS.add(new Ga(gaID,tenGa, isGaLon, tinhThanh));
             }
         }catch (SQLException e){
             e.printStackTrace();
@@ -149,7 +149,7 @@ public class Ga_DAO {
                 String tenGa = resultSet.getString("tenGa");
                 boolean isGaLon = resultSet.getBoolean("isGaLon");
                 String tinhThanh = resultSet.getString("tinhThanh");
-                return new Ga(gaID,isGaLon, tenGa, tinhThanh);
+                return new Ga(gaID,tenGa, isGaLon, tinhThanh);
             }
         } catch (SQLException e) {
             e.printStackTrace();

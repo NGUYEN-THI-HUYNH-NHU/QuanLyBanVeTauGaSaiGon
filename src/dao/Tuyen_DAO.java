@@ -9,10 +9,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Tuyen_DAO {
     private ConnectDB connectDB;
@@ -157,10 +154,39 @@ public class Tuyen_DAO {
         }
     }
 
+    public boolean capNhatTuyen(Tuyen tuyenCapNhat){
+        String sql = "UPDATE Tuyen SET moTa = ? WHERE tuyenID = ?";
+        try(Connection con = connectDB.getConnection();
+            PreparedStatement pstmt = con.prepareStatement(sql)) {
+            pstmt.setString(1, tuyenCapNhat.getMoTa());
+            pstmt.setString(2, tuyenCapNhat.getTuyenID());
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        }catch (SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-
-
-
-
-
+    /**
+     * Lấy tuyến theo mã tuyến chính xác (không dùng like)
+     * Dùng để kiểm tra xem mã đã tồn tại hay chưa.
+     * @param tuyenIDTim Mã tuyến cần tìm.
+     * @return Tuyen object nếu tìm thấy, null nếu không.
+     */
+    public Tuyen getTuyenByExactID(String tuyenIDTim) {
+        String sql = "SELECT * FROM Tuyen WHERE tuyenID = ?";
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement pstm = con.prepareStatement(sql)) {
+            pstm.setString(1, tuyenIDTim);
+            try (ResultSet rs = pstm.executeQuery()) {
+                if (rs.next()) {
+                    return new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -33,13 +33,19 @@ import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
-import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
+import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
+import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
+import gui.application.form.quanLyGa.PanelQuanLyGa;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
-import gui.application.form.thongKe.*;
+import gui.application.form.thongKe.PanelThongKe;
+import gui.application.form.thongKe.PanelThongKeDoanhThu;
+import gui.application.form.thongKe.PanelThongKeKhachHang;
+import gui.application.form.thongKe.PanelThongKeVe;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.form.troGiup.PanelTroGiup;
@@ -90,37 +96,32 @@ public class GiaoDienChinh extends JLayeredPane {
 
 	private void initMenuEvent(NhanVien nhanVien) {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
-
 			switch (index) {
 			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
-			case 2 -> UngDung.showGiaoDienChinh(new PanelBanVe());
-//			case 3 -> {
-//				switch (subIndex) {
-//					case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe(nhanVien));
-//					case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe(nhanVien));
-//					default -> action.cancel();
-//				}
-//			}
-//			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
-			case 13 -> {
+			case 3 -> UngDung.showGiaoDienChinh(new PanelBanVe());
+			case 4 -> {
 				switch (subIndex) {
-				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
-				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+				case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe());
+				default -> action.cancel();
 				}
 			}
+			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
+			case 14 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 
 			// UC cua QUAN_LY
-			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
-//			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-//			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
-			case 8 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
-			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
-			case 10 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-			case 11 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
+			case 2 -> UngDung.showGiaoDienChinh(new PanelQuanLyGa(nhanVien));
+			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+//			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
+//			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
+			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
+			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
+//			case 12 -> UngDung.showGiaoDienChinh(new Tai(nhanVien));
 
 			// UC dung chung
-			case 14 -> {
+			case 15 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
@@ -128,16 +129,16 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-			case 15 -> {
+			case 16 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
 				case 2 -> UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
 				default -> action.cancel();
 				}
 			}
-			case 16 -> UngDung.showGiaoDienChinh(new PanelAbout());
-			case 17 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
-			case 18 -> UngDung.dangXuat();
+			case 17 -> UngDung.showGiaoDienChinh(new PanelAbout());
+			case 18 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
+			case 19 -> UngDung.dangXuat();
 			default -> action.cancel();
 			}
 		});
@@ -157,7 +158,6 @@ public class GiaoDienChinh extends JLayeredPane {
 
 	public void hideMenu() {
 		menu.hideThanhPhanMenu();
-		;
 	}
 
 	public void showForm(Component component) {
@@ -224,5 +224,17 @@ public class GiaoDienChinh extends JLayeredPane {
 				panelBody.setBounds(bodyx, bodyy, bodyWidth, bodyHeight);
 			}
 		}
+	}
+
+	/**
+	 * Lấy combonent (Panel) đang được hiển thị trong bùng nội dung (panelBody).
+	 * 
+	 * @return Component đang hiển thị, hoặc null nếu không có gì.
+	 */
+	public Component getHienThiPanel() {
+		if (panelBody != null && panelBody.getComponentCount() > 0) {
+			return panelBody.getComponent(0);
+		}
+		return null;
 	}
 }

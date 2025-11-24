@@ -16,7 +16,6 @@ package dao;
  */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import connectDB.ConnectDB;
 import entity.HoaDonChiTiet;
@@ -28,11 +27,12 @@ public class HoaDonChiTiet_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
-		Connection conn = connectDB.getConnection();
+	/**
+	 * @param hdct
+	 */
+	public boolean insertHoaDonChiTiet(Connection conn, HoaDonChiTiet hoaDonChiTiet) throws Exception {
 		String sql = "INSERT INTO HoaDonChiTiet (hoaDonChiTietID, hoaDonID, veID, phieuDungPhongVIPID, tenDichVu, loaiDichVu, donViTinh, soLuong, donGia, thanhTien) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
 			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
 			if (hoaDonChiTiet.getVe() != null) {
@@ -53,9 +53,6 @@ public class HoaDonChiTiet_DAO {
 			ps.setDouble(10, hoaDonChiTiet.getThanhTien());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }
