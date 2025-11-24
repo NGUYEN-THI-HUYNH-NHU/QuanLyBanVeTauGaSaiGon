@@ -18,6 +18,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -68,22 +71,23 @@ public class TaiKhoan_DAO {
 		int n = 0;
 
 		try {
-			String sql = "INSERT INTO TaiKhoan (vaiTroTaiKhoanID, nhanVienID, tenDangNhap, matKhauHash, thoiDiemTao, trangThai) VALUES (?, ?, ?, ?, ?, ?)";
-			stmt = connectDB.getConnection().prepareStatement(sql);
-			stmt.setString(1, taiKhoan.getVaiTroTaiKhoan().getDescription());
-			stmt.setString(2, taiKhoan.getNhanVien().getNhanVienID());
-			stmt.setString(3, taiKhoan.getTenDangNhap());
-			stmt.setString(4, taiKhoan.getMatKhauHash());
-			stmt.setTimestamp(5, java.sql.Timestamp.valueOf(taiKhoan.getThoiDiemTao()));
-			stmt.setBoolean(6, taiKhoan.isHoatDong());
-			
+			String sql = "INSERT INTO TaiKhoan (taiKhoanID, vaiTroTaiKhoanID, nhanVienID, tenDangNhap, matKhauHash, thoiDiemTao, trangThai) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+			Connection con = connectDB.getConnection();
+			stmt = con.prepareStatement(sql);
+			stmt.setString(1, taiKhoan.getTaiKhoanID());
+			stmt.setString(2, taiKhoan.getVaiTroTaiKhoan().name());
+			stmt.setString(3, taiKhoan.getNhanVien().getNhanVienID());
+			stmt.setString(4, taiKhoan.getTenDangNhap());
+			stmt.setString(5, taiKhoan.getMatKhauHash());
+			stmt.setTimestamp(6, java.sql.Timestamp.valueOf(taiKhoan.getThoiDiemTao()));
+			stmt.setBoolean(7, taiKhoan.isHoatDong());
 			n = stmt.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			connectDB.close(stmt, null);
-		}
 
+		} catch (SQLException e) {
+			System.out.print("Them tai khoan that bai: " + e.getMessage());
+			e.printStackTrace();
+		}
 		return n > 0;
 	}
 
@@ -205,4 +209,169 @@ public class TaiKhoan_DAO {
 		}
 		return nhanVien;
 	}
+
+	public List<TaiKhoan> getDanhSachTaiKhoan(){
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT * FROM TaiKhoan";
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		List<TaiKhoan> dsTaiKhoan = new ArrayList<>();
+		try{
+			stmt = con.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			while(rs.next()){
+				String taiKhoanID = rs.getString(1);
+				String vaiTroStr = rs.getString(2);
+				VaiTroTaiKhoan vaiTroTaiKhoan = VaiTroTaiKhoan.valueOf(vaiTroStr);
+				String nhanVienID = rs.getString(3);
+				String tenDangNhap = rs.getString(4);
+				String matKhauHash = rs.getString(5);
+				LocalDateTime thoiDiemTao = rs.getTimestamp(6).toLocalDateTime();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				String thoiDiemTaoStr = thoiDiemTao.format(formatter);
+				boolean isHoatDong = rs.getBoolean(7);
+
+				TaiKhoan taiKhoan = new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienID), tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+				dsTaiKhoan.add(taiKhoan);
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+	}
+		return dsTaiKhoan;
+	}
+
+	public boolean kiemTraTenDangNhap(String tenDN){
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT *FROM TaiKhoan WHERE tenDangNhap = ?";
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+			stmt = con.prepareStatement(sql);
+			stmt.setString(1, tenDN);
+			rs = stmt.executeQuery();
+			if(rs.next()){
+				return true;
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public boolean capNhatTaiKhoan(TaiKhoan tkMoi){
+		Connection con = connectDB.getConnection();
+		String sql = "UPDATE TaiKhoan SET vaiTroTaiKhoanID = ?, tenDangNhap = ?, matKhauHash = ?, trangThai = ? WHERE taiKhoanID = ?";
+		try(PreparedStatement stmt = con.prepareStatement(sql)){
+			stmt.setString(1, tkMoi.getVaiTroTaiKhoan().name());
+			stmt.setString(2, tkMoi.getTenDangNhap());
+			stmt.setString(3, tkMoi.getMatKhauHash());
+			stmt.setBoolean(4, tkMoi.isHoatDong());
+			stmt.setString(5, tkMoi.getTaiKhoanID());
+
+			int n = stmt.executeUpdate();
+			return n>0;
+		}catch(SQLException e){
+			System.out.print("Cap nhat tai khoan that bai: " + e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+
+	public String taoMaTaiKhoanMoi() {
+		String maMoi = "TK001";
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT MAX(TaiKhoanID) AS maCuoi FROM TaiKhoan";
+		try(PreparedStatement stmt = con.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery()){
+			if(rs.next()){
+				String maCuoi = rs.getString("maCuoi");
+				if(maCuoi != null){
+					int so = Integer.parseInt(maCuoi.substring(2)) + 1;
+					maMoi = String.format("TK%03d", so);
+				}
+			}
+
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		return maMoi;
+	}
+
+	public String goiYTenDangNhap(String tenDN) {
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT tenDangNhap FROM TaiKhoan WHERE tenDangNhap LIKE ?";
+		try (PreparedStatement stmt = con.prepareStatement(sql)) {
+			stmt.setString(1, tenDN + "%");
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				String tenDangNhap = rs.getString(1);
+				int soThuTu = Integer.parseInt(tenDangNhap.substring(tenDN.length()));
+				soThuTu++;
+				return tenDN + soThuTu;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return tenDN;
+	}
+
+
+	//tim kiem tong hop (maNV, tenDangNhap, vaiTro, trangThai)
+	public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai){
+		Connection con = connectDB.getConnection();
+		StringBuilder sql = new StringBuilder("SELECT * FROM TaiKhoan WHERE 1=1");
+		List<TaiKhoan> dsTK = new ArrayList<>();
+
+		if(maNV != null && !maNV.isEmpty()){
+			sql.append(" AND nhanVienID LIKE ?");
+		}
+		if(tenDN != null && !tenDN.isEmpty()){
+			sql.append(" AND tenDangNhap LIKE ?");
+		}
+		if(vaiTro != null && !vaiTro.isEmpty()){
+			sql.append(" AND vaiTroTaiKhoanID = ?");
+		}
+		if(trangThai != null){
+			sql.append(" AND trangThai = ?");
+		}
+
+		try(PreparedStatement stmt = con.prepareStatement(sql.toString())){
+			int i = 1;
+			if(maNV != null && !maNV.isEmpty()){
+				stmt.setString(i++, "%" + maNV + "%");
+			}
+			if(tenDN != null && !tenDN.isEmpty()){
+				stmt.setString(i++, "%" + tenDN + "%");
+			}
+			if(vaiTro != null && !vaiTro.isEmpty()){
+				stmt.setString(i++, vaiTro);
+			}
+			if(trangThai != null){
+				stmt.setBoolean(i++, trangThai);
+			}
+
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next()){
+				String taiKhoanID = rs.getString(1);
+				VaiTroTaiKhoan vaiTroTK = VaiTroTaiKhoan.valueOf(rs.getString(2));
+				String nhanVienID = rs.getString(3);
+				String tenDangNhap = rs.getString(4);
+				String matKhauHash = rs.getString(5);
+				LocalDateTime thoiDiemTao = rs.getTimestamp(6).toLocalDateTime();
+				boolean isHoatDong = rs.getBoolean(7);
+
+				TaiKhoan taiKhoan = new TaiKhoan(taiKhoanID, vaiTroTK, nhanVien_DAO.getNhanVienVoiID(nhanVienID), tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+				dsTK.add(taiKhoan);
+			}
+			return dsTK;
+	}catch(SQLException e){
+			System.out.print("Tim kiem tong hop tai khoan that bai: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
 }

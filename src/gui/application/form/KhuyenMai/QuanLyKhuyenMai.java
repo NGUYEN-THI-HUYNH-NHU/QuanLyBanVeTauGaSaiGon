@@ -3,17 +3,19 @@ package gui.application.form.KhuyenMai;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
+import java.sql.Date;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
-
+import java.util.Locale;
 import com.toedter.calendar.JDateChooser;
 import controller.KhuyenMai_CTRL;
 import entity.DieuKienKhuyenMai;
@@ -23,12 +25,13 @@ import entity.Tuyen;
 import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.LoaiTau;
-import gui.application.form.banVe.PanelChieuLabel;
 
 
-public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener {
+
+public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVien nhanVien;
     private final KhuyenMai_CTRL khuyenMai_ctrl;
+    private final Timer autoUpdateTimer;
     private JTextField txtMaKM, txtCodeKH, txtMoTa, txtTyLeGiamGia, txtTienGiamGia, txtSoLuong, txtGioiHan, txtNgayTrongTuan, txtMinGiaTriHoaDon;
     private JCheckBox txtTrangThai, txtNgayLe;
     private JDateChooser txtNgayBD, txtNgayKT;
@@ -38,13 +41,24 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     private JComboBox<HangToa> txtHangToa;
     private JComboBox<LoaiTau> txtLoaiTau;
     private JComboBox<LoaiDoiTuong> txtLoaiDoiTuong;
-    private JComboBox<Tuyen> txtTuyen; // thay cho txtTuyenID
+    private JComboBox<Tuyen> txtTuyen;
+    private List<JComponent> allFields;
+
+
+    //màu cố định
+    private final Color COLOR_PRIMARY = new Color(30, 100, 150);
+    private final Color COLOR_ACCENT = new Color(74, 163, 208);
+    private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
+    private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
+    private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
+    private final Color COLOR_TEXT_LABEL = new Color(51, 65, 85);
 
 
     //font cố định
     private final Font titleFont = new Font("Roboto", Font.BOLD, 20);
     private final Font labelFont = new Font("Roboto", Font.PLAIN, 14);
     private final Font inputFont = new Font("Roboto", Font.PLAIN, 14);
+    private JTabbedPane tabPane;
 
 
     public QuanLyKhuyenMai(NhanVien nhanVien) {
@@ -68,6 +82,16 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtNgayKT.addMouseListener(this);
         goiYMaKhuyenMai();
 
+
+        autoUpdateTimer = new Timer(86400000 , e -> khuyenMai_ctrl.tuDongCapNhatTrangThai());
+        autoUpdateTimer.start();
+        autoUpdateTimer.setRepeats(true);
+
+        allFields = new java.util.ArrayList<>();
+        addAllFieldKey();
+
+        capNhatTrangThaiTuDong();
+
     }
 
     //panel input
@@ -77,8 +101,10 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
 
         // Tiêu đề
         JLabel lblTitle = new JLabel("QUẢN LÝ KHUYẾN MÃI");
-        lblTitle.setFont(titleFont);
-        lblTitle.setForeground(new Color(30, 100, 150));
+        lblTitle.setFont(new Font("Roboto", Font.BOLD | Font.ITALIC, 26));
+        lblTitle.setForeground(COLOR_TEXT_TITLE);
+        lblTitle.setHorizontalAlignment(JLabel.CENTER);
+
 
         panel.add(lblTitle, BorderLayout.NORTH);
         panel.add(panelInput(), BorderLayout.CENTER);
@@ -90,9 +116,11 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         JPanel panelThongTin = new JPanel(new GridBagLayout());
         panelThongTin.setBackground(Color.WHITE);
         panelThongTin.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(30, 100, 150), 1),
+                BorderFactory.createLineBorder(COLOR_PRIMARY),
                 "Thông tin khuyến mãi", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Roboto", Font.BOLD, 15)));
+                new Font("Roboto", Font.BOLD, 15),
+                        COLOR_PRIMARY));
+        panelThongTin.setBackground(COLOR_BG_PANEL);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -128,6 +156,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtNgayKT = new JDateChooser();
         txtNgayKT.setDateFormatString("yyyy-MM-dd");
         formNhapThongTin(panelThongTin, gbc, 6, "Ngày kết thúc:", txtNgayKT, inputFont);
+
         return panelThongTin;
 
     }
@@ -136,9 +165,11 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         JPanel panelDieuKien = new JPanel(new GridBagLayout());
         panelDieuKien.setBackground(Color.WHITE);
         panelDieuKien.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(30, 100, 150), 1),
+                BorderFactory.createLineBorder(COLOR_PRIMARY),
                 "Điều kiện khuyến mãi", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Roboto", Font.BOLD, 15)));
+                new Font("Roboto", Font.BOLD, 15),
+                COLOR_PRIMARY));
+        panelDieuKien.setBackground(COLOR_BG_PANEL);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
@@ -184,6 +215,14 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtMinGiaTriHoaDon = new JTextField(20);
         formNhapThongTin(panelDieuKien, gbc, 9, "Min giá trị đơn hàng:", txtMinGiaTriHoaDon, inputFont);
 
+
+        txtHangToa.setEditable(false);
+        txtLoaiTau.setEditable(false);
+        txtLoaiDoiTuong.setEditable(false);
+        txtTuyen.setEditable(false);
+
+
+
         return panelDieuKien;
     }
 
@@ -219,6 +258,40 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
 
         return mainPanel;
     }
+
+    private void addAllFieldKey() {
+        allFields.clear();
+
+
+        allFields.add(txtCodeKH);
+        allFields.add(txtMoTa);
+        allFields.add(txtTyLeGiamGia);
+        allFields.add(txtTienGiamGia);
+
+        allFields.add((JComponent) txtNgayBD.getDateEditor().getUiComponent());
+        allFields.add((JComponent) txtNgayKT.getDateEditor().getUiComponent());
+
+        // Điều kiện KM
+        allFields.add(txtSoLuong);
+        allFields.add(txtGioiHan);
+
+        allFields.add(txtTrangThai);
+
+        allFields.add((JComponent) txtTuyen.getEditor().getEditorComponent());
+        allFields.add((JComponent) txtHangToa.getEditor().getEditorComponent());
+        allFields.add((JComponent) txtLoaiTau.getEditor().getEditorComponent());
+        allFields.add((JComponent) txtLoaiDoiTuong.getEditor().getEditorComponent());
+
+        allFields.add(txtNgayTrongTuan);
+        allFields.add(txtNgayLe);
+        allFields.add(txtMinGiaTriHoaDon);
+
+        for (JComponent comp : allFields) {
+            if (comp != null)
+                comp.addKeyListener(this);
+        }
+    }
+
 
 
     // khuôn của form
@@ -258,7 +331,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         panel.setBackground(Color.WHITE);
 
         // Tạo Tab Pane
-        JTabbedPane tabPane = new JTabbedPane();
+        tabPane = new JTabbedPane();
         tabPane.setFont(new Font("Roboto", Font.BOLD, 14));
 
         String[] loaiKM = { "Tất cả","Mùa", "Lễ hội", "Đối tượng", "Tuyến", "Hạng vé", "Loại tàu", "Hạng toa", "Ngày trong tuần", "Min giá hóa đơn" };
@@ -278,6 +351,21 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         header.setBackground(new Color(30, 100, 150));
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Roboto", Font.BOLD, 14));
+
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (isSelected) {
+                    c.setBackground(new Color(173, 216, 230));
+                    c.setForeground(Color.BLACK);
+                } else {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 248, 255));
+                    c.setForeground(Color.BLACK);
+                }
+                return c;
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createTitledBorder(
@@ -300,6 +388,14 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
+    }
+    //cap nhap trang thai
+    private void capNhatTrangThaiTuDong(){
+        if(khuyenMai_ctrl.tuDongCapNhatTrangThai()){
+
+        }else{
+            System.out.print("Cập nhật trạng thái khuyến mãi thất bại!");
+        }
     }
 
     //sự kiện
@@ -372,7 +468,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         double soLuong = txtSoLuong.getText().trim().isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
         int gioiHan = txtGioiHan.getText().trim().isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
         int ngayTrongTuan = txtNgayTrongTuan.getText().trim().isEmpty() ? 0 : Integer.parseInt(txtNgayTrongTuan.getText().trim());
-        double minGiaTriDonHang = txtMinGiaTriHoaDon.getText().trim().isEmpty() ? 0 : Double.parseDouble(txtMinGiaTriHoaDon.getText().trim());
+        double minGiaTriDonHang = txtMinGiaTriHoaDon.getText().trim().isEmpty() ? 0 : parseTien(txtMinGiaTriHoaDon.getText().trim());
 
         Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
         HangToa hangToa = (HangToa) txtHangToa.getSelectedItem();
@@ -579,13 +675,13 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     }
 
     //sửa khuyến mãi
-    private boolean suaKhuyenMai(KhuyenMai km, entity.DieuKienKhuyenMai dkkm){
+    private boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm){
         return khuyenMai_ctrl.suaKhuyenMai(km, dkkm);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if (o.equals(btnAdd) || o.equals(btnEdit)) {
+        if (o.equals(btnAdd)) {
             if (!validForm()) {
                 JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng và đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -641,8 +737,9 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         int gioiHan = txtGioiHan.getText().isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
         boolean trangThai = txtTrangThai.isSelected();
 
-        LocalDate ngayBatDau = new java.sql.Date(txtNgayBD.getDate().getTime()).toLocalDate();
-        LocalDate ngayKetThuc = new java.sql.Date(txtNgayKT.getDate().getTime()).toLocalDate();
+        LocalDate ngayBatDau = new Date(txtNgayBD.getDate().getTime()).toLocalDate();
+        LocalDate ngayKetThuc = new Date(txtNgayKT.getDate().getTime()).toLocalDate();
+
 
         // Điều kiện
         Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
@@ -667,10 +764,11 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             if (themKhuyenMai(km, dkkm)) {
                 JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 resetForm();
+                return;
             } else {
                 JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            return;
         }
 
         if (o.equals(btnEdit)) {
@@ -679,12 +777,9 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             KhuyenMai km = new KhuyenMai(maKhuyenMaiHienTai, codeKH, moTa, tyLeGiamGia, tienGiamGia,
                     ngayBatDau, ngayKetThuc, soLuong, gioiHan, trangThai);
 
-            DieuKienKhuyenMai dkkm = khuyenMai_ctrl.layDieuKienKhuyenMaiTheoMaKhuyenMai(maKhuyenMaiHienTai);
-            String maDK = (dkkm != null) ? dkkm.getDieuKienID() : khuyenMai_ctrl.taoMaDieuKienKhuyenMaiTuDong();
-
-            dkkm = new DieuKienKhuyenMai(maDK, km, tuyen, loaiTau, hangToa, loaiDoiTuong,
+            String maDKHienTai = khuyenMai_ctrl.layDieuKienKhuyenMaiTheoMaKhuyenMai(maKhuyenMaiHienTai);
+            DieuKienKhuyenMai dkkm = new DieuKienKhuyenMai(maDKHienTai, km, tuyen, loaiTau, hangToa, loaiDoiTuong,
                     ngayTrongTuan != null ? ngayTrongTuan : 0, ngayLe, minGiaTriDonHang);
-            dkkm.setKhuyenMai(km);
 
             if (suaKhuyenMai(km, dkkm)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -694,6 +789,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             } else {
                 JOptionPane.showMessageDialog(this, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
+            System.out.print(minGiaTriDonHang);
             return;
         }
     }
@@ -705,7 +801,6 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             String maKhuyenMai = table.getValueAt(selectedRow, 0).toString();
             KhuyenMai km = null;
 
-            // Lấy danh sách hiện tại trong tab đang mở
             JTabbedPane tabPane = (JTabbedPane) ((JPanel) table.getParent().getParent().getParent()).getComponent(0);
             String loaiChon = tabPane.getTitleAt(tabPane.getSelectedIndex());
             List<KhuyenMai> dskm = khuyenMai_ctrl.layKhuyenMaiTheoLoai(loaiChon);
@@ -717,59 +812,35 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             }
 
             if (km != null) {
-                DieuKienKhuyenMai dkkm = khuyenMai_ctrl.layDieuKienKhuyenMaiTheoMaKhuyenMai(km.getKhuyenMaiID());
-
-                //Hiển thị thông tin khuyến mãi
                 txtMaKM.setText(km.getKhuyenMaiID());
                 txtCodeKH.setText(km.getMaKhuyenMai());
                 txtMoTa.setText(km.getMoTa());
                 txtTyLeGiamGia.setText(String.valueOf(km.getTyLeGiamGia()));
-
-
-                //Format tiền giảm giá
-                txtTienGiamGia.setText(km.getTienGiamGia() > 0 ? dinhDangTien(km.getTienGiamGia()) : "");
-                txtNgayBD.setDate(java.sql.Date.valueOf(km.getNgayBatDau()));
-                txtNgayKT.setDate(java.sql.Date.valueOf(km.getNgayKetThuc()));
-                txtSoLuong.setText(String.valueOf(km.getSoLuong()));
+                txtTienGiamGia.setText(dinhDangTien(km.getTienGiamGia()));
+                txtNgayBD.setDate(Date.valueOf(km.getNgayBatDau()));
+                txtNgayKT.setDate(Date.valueOf(km.getNgayKetThuc()));
+                txtSoLuong.setText(String.valueOf((int)km.getSoLuong()));
                 txtGioiHan.setText(String.valueOf(km.getGioiHanMoiKhachHang()));
                 txtTrangThai.setSelected(km.isTrangThai());
 
-                // Hiển thị điều kiện khuyến mãi
+                DieuKienKhuyenMai dkkm = khuyenMai_ctrl.layDieuKienKhuyenMaiTheoMaKhuyenMaiObj(km.getKhuyenMaiID());
                 if (dkkm != null) {
-
-                    //ComboBox fallback "Tất cả" nếu null
-                    txtTuyen.setSelectedItem(dkkm.getTuyen() != null ? dkkm.getTuyen() : null);
-                    txtHangToa.setSelectedItem(dkkm.getHangToa() != null ? dkkm.getHangToa() : null);
-                    txtLoaiTau.setSelectedItem(dkkm.getLoaiTau() != null ? dkkm.getLoaiTau() : null);
-                    txtLoaiDoiTuong.setSelectedItem(dkkm.getLoaiDoiTuong() != null ? dkkm.getLoaiDoiTuong() : null);
-
-                    txtNgayTrongTuan.setText(dkkm.getNgayTrongTuan() != 0
-                            ? String.valueOf(dkkm.getNgayTrongTuan()) : "");
+                    txtTuyen.setSelectedItem(dkkm.getTuyen());
+                    txtLoaiTau.setSelectedItem(dkkm.getLoaiTau());
+                    txtHangToa.setSelectedItem(dkkm.getHangToa());
+                    txtLoaiDoiTuong.setSelectedItem(dkkm.getLoaiDoiTuong());
+                    txtNgayTrongTuan.setText(dkkm.getNgayTrongTuan() > 0 ? String.valueOf(dkkm.getNgayTrongTuan()) : "");
                     txtNgayLe.setSelected(dkkm.isNgayLe());
-
-                    //Format giá trị min đơn hàng
-                    txtMinGiaTriHoaDon.setText(dkkm.getMinGiaTriDonHang() > 0
-                            ? dinhDangTien(dkkm.getMinGiaTriDonHang())
-                            : "");
+                    txtMinGiaTriHoaDon.setText(dinhDangTien(dkkm.getMinGiaTriDonHang()));
                 } else {
-                    //Nếu chưa có điều kiện, reset
                     txtTuyen.setSelectedItem(null);
-                    txtHangToa.setSelectedItem(null);
                     txtLoaiTau.setSelectedItem(null);
+                    txtHangToa.setSelectedItem(null);
                     txtLoaiDoiTuong.setSelectedItem(null);
                     txtNgayTrongTuan.setText("");
                     txtNgayLe.setSelected(false);
                     txtMinGiaTriHoaDon.setText("");
                 }
-            } else {
-                //Nếu chưa có KM hợp lệ, reset toàn bộ
-                txtTuyen.setSelectedItem(null);
-                txtHangToa.setSelectedItem(null);
-                txtLoaiTau.setSelectedItem(null);
-                txtLoaiDoiTuong.setSelectedItem(null);
-                txtNgayTrongTuan.setText("");
-                txtNgayLe.setSelected(false);
-                txtMinGiaTriHoaDon.setText("");
             }
         }
     }
@@ -816,14 +887,20 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     //parse tiền
     private double parseTien(String text) {
         if (text == null || text.trim().isEmpty()) return 0;
+
         try {
-            text = text.replace(",", "").replace("VNĐ", "").replace("₫", "").trim();
-            return Double.parseDouble(text);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Giá trị tiền không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            String cleaned = text.replaceAll("[^0-9]", "");
+
+            if (cleaned.isEmpty()) return 0;
+
+            return Double.parseDouble(cleaned);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Giá trị tiền không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return 0;
         }
     }
+
+
 
 
     //tạo jcombox tuyen
@@ -854,6 +931,25 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         return comboBox;
     }
 
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+
+            Component current = (Component) e.getSource();
+            if (current instanceof JCheckBox checkbox) {
+                checkbox.doClick();
+            }
+
+            int index = allFields.indexOf(current);
+            if (index != -1) {
+                if (index < allFields.size() - 1) {
+                    allFields.get(index + 1).requestFocus();
+                } else {
+                    btnAdd.requestFocus();
+                }
+            }
+        }
+    }
 
     @Override
     public void mousePressed(MouseEvent e) {
@@ -869,6 +965,14 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     }
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {
 
     }
 }

@@ -20,6 +20,11 @@ public class NhanVien_BUS {
          return nhanVien_dao.getAllNhanVien();
     }
 
+    //lấy nhân viên bàng mã nhân viên
+    public NhanVien layNhanVienBangMaNV(String maNV){
+        return nhanVien_dao.getNhanVienVoiID(maNV);
+    }
+
     //thêm nhân viên
     public boolean themNhanVien(NhanVien nv){
         return nhanVien_dao.themNhanVien(nv);
@@ -83,6 +88,14 @@ public class NhanVien_BUS {
     //tim kiem nhan vien
     public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVien vaiTro, Boolean isHoatDong) {
         return nhanVien_dao.timKiemNhanVien(ten, sdt, vaiTro, isHoatDong);
+    }
+    //lay vai tro nhan vien theo ma nhan vien
+    public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV){
+        NhanVien nv = nhanVien_dao.getNhanVienVoiID(maNV);
+        if (nv != null) {
+            return nv.getVaiTroNhanVien();
+        }
+        return null;
     }
 
 

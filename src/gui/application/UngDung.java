@@ -3,8 +3,7 @@ package gui.application;/*
 						package gui;
 						
 						
-						/**
-						* @description :
+						/**						* @description :
 						* @author : Vy, Pham Kha Vy
 						* @version 1.0
 						* @created : 25/09/2025

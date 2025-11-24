@@ -34,7 +34,7 @@ public class KhuyenMai_BUS {
         return khuyenMai_dao.timKiemKhuyenMai(tuKhoa, maTuyen, trangThai, tuNgay, denNgay);
     }
     //lay dieu kien khuyen mai theo ma khuyen mai
-    public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
+    public String layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
         return khuyenMai_dao.layDieuKienKhuyenMai(khuyenMaiIDString);
     }
 
@@ -75,6 +75,10 @@ public class KhuyenMai_BUS {
         }
         return ngayTrongTuan >= 1 && ngayTrongTuan <= 7;
     }
+    //Tu cap nhat trang thai
+    public boolean capNhatTrangThaiKhuyenMai() {
+        return khuyenMai_dao.tuDongCapNhatTrangThai();
+    }
 
     //tạo mã khuyến mãi tự động
     public String taoMaKhuyenMaiTuDong() {
@@ -83,6 +87,10 @@ public class KhuyenMai_BUS {
     //tao id dieu kien khuyen mai tu dong
     public String taoDieuKienKhuyenMaiTuDong() {
         return khuyenMai_dao.taoMaDieuKienTuDong();
+    }
+    //lay dieu kien  khuyen mai theo ma khuyen mai
+    public DieuKienKhuyenMai layKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
+        return khuyenMai_dao.layDieuKienKhuyenMaiTheoKhuyenMai(khuyenMaiIDString);
     }
     // lay danh khach dieu kien khuyen mai
     public List<DieuKienKhuyenMai> layDanhSachDKKM() {
