@@ -16,9 +16,16 @@ package dao;
  */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import connectDB.ConnectDB;
 import entity.HoaDonChiTiet;
+import entity.PhieuDungPhongVIP;
+import entity.Ve;
+import entity.type.LoaiDichVu;
 
 public class HoaDonChiTiet_DAO {
 	private final ConnectDB connectDB = ConnectDB.getInstance();
@@ -54,5 +61,43 @@ public class HoaDonChiTiet_DAO {
 
 			return ps.executeUpdate() > 0;
 		}
+	}
+
+	/**
+	 * @param hoaDonID
+	 * @return
+	 */
+	public List<HoaDonChiTiet> getHoaDonChiTietByHoaDonID(String hoaDonID) {
+		String sql = "SELECT  hoaDonChiTietID, veID, phieuDungPhongVIPID, tenDichVu, loaiDichVu, donViTinh, soLuong, donGia, thanhTien FROM HoaDonChiTiet WHERE hoaDonID = ?";
+		Connection conn = connectDB.getConnection();
+		List<HoaDonChiTiet> listHDCT = new ArrayList<HoaDonChiTiet>();
+		ResultSet rs = null;
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, hoaDonID);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				HoaDonChiTiet ct = new HoaDonChiTiet();
+				ct.setHoaDonChiTietID(rs.getString("hoaDonChiTietID"));
+				if (rs.getString("veID") != null) {
+					ct.setVe(new Ve(rs.getString("veID")));
+				}
+				if (rs.getString("phieuDungPhongVIPID") != null) {
+					ct.setPhieuDungPhongVIP(new PhieuDungPhongVIP(rs.getString("phieuDungPhongVIPID")));
+				}
+				ct.setTenDichVu(rs.getString("tenDichVu"));
+				ct.setLoaiDichVu(LoaiDichVu.valueOf(rs.getString("loaiDichVu")));
+				ct.setDonViTinh(rs.getString("donViTinh"));
+				ct.setSoLuong(rs.getInt("soLuong"));
+				ct.setDonGia(rs.getDouble("donGia"));
+				ct.setThanhTien(rs.getDouble("thanhTien"));
+
+				listHDCT.add(ct);
+			}
+			return listHDCT;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

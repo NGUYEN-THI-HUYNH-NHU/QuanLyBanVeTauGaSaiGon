@@ -24,7 +24,7 @@ import javax.swing.JTable;
 
 import gui.application.form.banVe.VeSession;
 import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.TopAlignRenderer;
+import gui.tuyChinh.LeftCenterAlignRenderer;
 
 public class PanelDoiVeBuoc7 extends JPanel {
 	private final MappingVeTableModel model;
@@ -74,7 +74,7 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO - 1).setMinWidth(130);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-		TopAlignRenderer topAlignRenderer = new TopAlignRenderer();
+		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
 
 		// Cột Tiền
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
