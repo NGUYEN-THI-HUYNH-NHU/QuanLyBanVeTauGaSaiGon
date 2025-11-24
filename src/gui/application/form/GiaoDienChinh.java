@@ -33,6 +33,7 @@ import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
+import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
@@ -118,7 +119,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-//			case 12 -> UngDung.showGiaoDienChinh(new Tai(nhanVien));
+			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
 
 			// UC dung chung
 			case 15 -> {
