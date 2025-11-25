@@ -31,12 +31,11 @@ public class HoaDonTableModel extends AbstractTableModel {
 	public static final int COL_TIEN_NHAN = 7;
 	public static final int COL_TIEN_HOAN = 8;
 	public static final int COL_IS_TIEN_MAT = 9;
-	public static final int COL_MA_GD = 10;
-	public static final int COL_XEM = 11;
-	public static final int COL_IN = 12;
+	public static final int COL_XEM = 10;
+	public static final int COL_IN = 11;
 
 	private final String[] columnNames = { "STT", "Hóa đơn ID", "KH ID", "Tên khách hàng", "CCCD KH", "Thời điểm tạo",
-			"Tổng tiền", "Tiền nhận", "Tiền hoàn", "Tiền mặt", "Mã GDTT", "Xem", "In" };
+			"Tổng tiền", "Tiền nhận", "Tiền hoàn", "Tiền mặt", "Xem", "In" };
 
 	private List<HoaDon> rows;
 
@@ -114,8 +113,6 @@ public class HoaDonTableModel extends AbstractTableModel {
 			return row.getTienHoan();
 		case COL_IS_TIEN_MAT:
 			return row.isThanhToanTienMat();
-		case COL_MA_GD:
-			return row.getMaGD();
 		case COL_XEM:
 			return ""; // Trả về text để renderer vẽ thành nút
 		case COL_IN:

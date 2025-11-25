@@ -37,10 +37,11 @@ import gui.tuyChinh.LeftCenterAlignRenderer;
 public class PanelQuanLyHoaDon extends JPanel {
 	private JTextField txtTuKhoa;
 	private JButton btnTraCuu;
+	private JButton btnRefresh;
 	private JComboBox<String> cboLoaiTimKiem;
 
 	private JComboBox<String> cboLoaiHoaDon;
-	private JTextField txtKhachHangSuggest; // Giả lập auto-suggest
+	private JTextField txtKhachHangSuggest;
 	private JDateChooser dateChooserTuNgay;
 	private JDateChooser dateChooserDenNgay;
 	private JComboBox<String> cboHinhThucTT;
@@ -71,12 +72,15 @@ public class PanelQuanLyHoaDon extends JPanel {
 		btnTraCuu = new JButton("Tra cứu");
 		btnTraCuu.setBackground(new Color(38, 117, 191));
 		btnTraCuu.setForeground(Color.WHITE);
-		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.6f));
+		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.8f));
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.8f));
 
 		pnlTraCuu.add(new JLabel("Tìm theo: "));
 		pnlTraCuu.add(cboLoaiTimKiem);
 		pnlTraCuu.add(txtTuKhoa);
 		pnlTraCuu.add(btnTraCuu);
+		pnlTraCuu.add(btnRefresh);
 
 		// 2. PANEL LỌC
 		JPanel pnlLoc = new JPanel();
@@ -121,7 +125,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		// --- ROW 2: Hai nút, căn phải ---
 		JPanel rowButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-		btnReset = new JButton("Làm mới");
+		btnReset = new JButton("Xóa bộ lọc");
 		btnReset.setIcon(new FlatSVGIcon("gui/icon/svg/reset.svg", 0.8f));
 
 		btnLoc = new JButton("Lọc");
@@ -143,18 +147,31 @@ public class PanelQuanLyHoaDon extends JPanel {
 		// Bảng
 		tableModel = new HoaDonTableModel();
 		table = new JTable(tableModel);
+		table.putClientProperty("JTable.stripe", true);
 		table.setRowHeight(30);
 
-		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
+		table.getColumnModel().getColumn(0).setMaxWidth(34);
+		table.getColumnModel().getColumn(1).setMinWidth(170);
+		table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		table.getColumnModel().getColumn(3).setMinWidth(150);
+		table.getColumnModel().getColumn(4).setMinWidth(96);
+		table.getColumnModel().getColumn(5).setMinWidth(116);
+		table.getColumnModel().getColumn(6).setMinWidth(76);
+		table.getColumnModel().getColumn(7).setMinWidth(76);
+		table.getColumnModel().getColumn(8).setMinWidth(76);
+		table.getColumnModel().getColumn(9).setMaxWidth(80);
+		table.getColumnModel().getColumn(10).setMaxWidth(34);
+		table.getColumnModel().getColumn(11).setMaxWidth(34);
+
+		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
 
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_MA_GD).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(leftCenterRenderer);
 
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
@@ -256,5 +273,9 @@ public class PanelQuanLyHoaDon extends JPanel {
 
 	public JButton getBtnLoc() {
 		return btnLoc;
+	}
+
+	public JButton getBtnRefresh() {
+		return btnRefresh;
 	}
 }

@@ -45,6 +45,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 
 import bus.Chuyen_BUS;
@@ -332,19 +334,19 @@ public class PanelBuoc1Controller {
 
 		private void initListeners() {
 			// Document change -> handle with debounce
-			field.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+			field.getDocument().addDocumentListener(new DocumentListener() {
 				@Override
-				public void insertUpdate(javax.swing.event.DocumentEvent e) {
+				public void insertUpdate(DocumentEvent e) {
 					handleChange();
 				}
 
 				@Override
-				public void removeUpdate(javax.swing.event.DocumentEvent e) {
+				public void removeUpdate(DocumentEvent e) {
 					handleChange();
 				}
 
 				@Override
-				public void changedUpdate(javax.swing.event.DocumentEvent e) {
+				public void changedUpdate(DocumentEvent e) {
 					handleChange();
 				}
 			});
@@ -465,7 +467,7 @@ public class PanelBuoc1Controller {
 				lastConfirmedText = null;
 				return;
 			}
-			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(txt)) {
+			if (confirmed && lastConfirmedText != null && lastConfirmedText.equalsIgnoreCase(txt)) {
 				hidePopup();
 				return;
 			}
@@ -495,14 +497,14 @@ public class PanelBuoc1Controller {
 				@Override
 				protected void done() {
 					try {
-						if (!field.getText().trim().equals(cur)) {
+						if (!field.getText().trim().equalsIgnoreCase(cur)) {
 							return; // user changed meanwhile
 						}
 						List<Ga> res = get();
 						// If this is gaDen, and selectedGaDi exists, remove it (controller ensures
 						// selectedGaDi updated externally)
 						if (field == panel.getTxtGaDen() && selectedGaDi != null && res != null) {
-							res.removeIf(g -> selectedGaDi.equals(g.getGaID()));
+							res.removeIf(g -> selectedGaDi.equalsIgnoreCase(g.getGaID()));
 						}
 						showPopup(res);
 					} catch (Exception ex) {
@@ -520,7 +522,7 @@ public class PanelBuoc1Controller {
 
 			// Don't show if confirmed and text unchanged
 			String curText = field.getText().trim();
-			if (confirmed && lastConfirmedText != null && lastConfirmedText.equals(curText)) {
+			if (confirmed && lastConfirmedText != null && lastConfirmedText.equalsIgnoreCase(curText)) {
 				return;
 			}
 
