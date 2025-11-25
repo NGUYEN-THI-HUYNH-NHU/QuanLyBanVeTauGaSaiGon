@@ -328,6 +328,14 @@ public class Tuyen_BUS {
         return -1; // Không tìm thấy đường đi
     }
 
+    /**
+     * Cung cấp đồ thị khoảng cách (Graph) đã được tải vào bộ nhớ
+     * @return Map<String, Map<String, Integer>> (Đồ thị GaID -> (GaID liền kề -> KC)
+     */
+    public Map<String, Map<String, Integer>> getGraphKhoangCachChuan(){
+        return graphKhoangCachChuan;
+    }
+
 }
 
 
