@@ -96,10 +96,6 @@ public class PanelHoanVeBuoc4 extends JPanel {
 		table.getColumnModel().getColumn(6).setCellRenderer(topAlignRenderer);
 	}
 
-	public void displayConfirmation(List<VeHoanRow> selectedRows) {
-		model.setRows(selectedRows);
-	}
-
 	/**
 	 * @param row
 	 */

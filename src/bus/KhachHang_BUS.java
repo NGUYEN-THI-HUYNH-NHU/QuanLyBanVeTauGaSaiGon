@@ -100,13 +100,21 @@ public class KhachHang_BUS {
 		return String.format("KH%03d", maxID + 1);
 	}
 
-	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) {
+	public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) throws Exception {
 		return khachHang_dao.saveOrUpdate(conn, khachHang);
 	}
 
 	// Cập nhật loại khách hàng
 	public boolean capNhatLoaiKhachHang(KhachHang kh) {
 		return khachHang_dao.capNhatLoaiKhachHang(kh);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<KhachHang> layGoiYKhachHangChoHoaDon(String keyword) {
+		return khachHang_dao.getTop10KhachHangSuggest(keyword);
 	}
 
 }

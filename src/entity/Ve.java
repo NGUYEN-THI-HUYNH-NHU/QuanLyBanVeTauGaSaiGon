@@ -197,8 +197,13 @@ public class Ve {
 	/**
 	 * @return
 	 */
-	public String thongTinVeDoi() {
-		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
-				ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+	public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
+		if (phieuDungPhongChoVIP == null) {
+			return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
+					ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+		}
+		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s<br/>Mã PDPCVIP: %s</html>",
+				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
+				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
 	}
 }

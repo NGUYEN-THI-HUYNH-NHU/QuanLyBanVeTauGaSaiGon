@@ -51,7 +51,7 @@ public class PhieuDungPhongVIP_DAO {
 	 * @param conn
 	 * @param phieu
 	 */
-	public boolean insertPhieuDungPhongVIP(Connection conn, PhieuDungPhongVIP phieuDungPhongChoVIP) {
+	public boolean insertPhieuDungPhongVIP(Connection conn, PhieuDungPhongVIP phieuDungPhongChoVIP) throws Exception {
 		String sql = "INSERT INTO PhieuDungPhongVIP (phieuDungPhongVIPID, dichVuPhongChoVIPID, veID, trangThai) "
 				+ "VALUES (?, ?, ?, ?)";
 
@@ -62,9 +62,6 @@ public class PhieuDungPhongVIP_DAO {
 			ps.setString(4, phieuDungPhongChoVIP.getTrangThai().toString());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 
@@ -76,6 +73,63 @@ public class PhieuDungPhongVIP_DAO {
 	public PhieuDungPhongVIP getPhieuDungPhongVIPByVeID(Connection conn, String veID) {
 		String sql = "SELECT P.phieuDungPhongVIPID, P.dichVuPhongChoVIPID, P.veID, P.trangThai \r\n"
 				+ "FROM PhieuDungPhongVIP P JOIN Ve V ON P.veID = V.veID \r\n" + "WHERE V.veID = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, veID);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				PhieuDungPhongVIP phieu = new PhieuDungPhongVIP();
+				phieu.setPhieuDungPhongChoVIPID(rs.getString("phieuDungPhongVIPID"));
+				phieu.setDichVuPhongChoVIP(new DichVuPhongChoVIP(rs.getString("dichVuPhongChoVIPID")));
+				phieu.setVe(new Ve(rs.getString("veID")));
+				phieu.setTrangThai(TrangThaiPDPVIP.valueOf(rs.getString("trangThai")));
+				return phieu;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return null;
+	}
+
+	/**
+	 * @param conn
+	 * @param phieuDungPhongChoVIPID
+	 * @return
+	 */
+	public PhieuDungPhongVIP getPhieuDungPhongVIPByID(Connection conn, String phieuDungPhongChoVIPID) {
+		String sql = "SELECT * from PhieuDungPhongVIP WHERE phieuDungPhongVIPID = ?";
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, phieuDungPhongChoVIPID);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				PhieuDungPhongVIP phieu = new PhieuDungPhongVIP();
+				phieu.setPhieuDungPhongChoVIPID(rs.getString("phieuDungPhongVIPID"));
+				phieu.setDichVuPhongChoVIP(new DichVuPhongChoVIP(rs.getString("dichVuPhongChoVIPID")));
+				phieu.setVe(new Ve(rs.getString("veID")));
+				phieu.setTrangThai(TrangThaiPDPVIP.valueOf(rs.getString("trangThai")));
+				return phieu;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return null;
+	}
+
+	/**
+	 * @param conn
+	 * @param phieuDungPhongChoVIPID
+	 * @return
+	 */
+	public PhieuDungPhongVIP getPhieuDungPhongVIPByVeID(String veID) {
+		Connection conn = connectDB.getConnection();
+		String sql = "SELECT * from PhieuDungPhongVIP WHERE veID = ?";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {

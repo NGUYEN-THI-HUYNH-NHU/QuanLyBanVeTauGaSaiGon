@@ -1,9 +1,8 @@
-
-
 # Ignore build output
 /classes/
-/out/
-/target/
+out/
+target/
+*.class
 
 # Ignore IntelliJ IDEA project files
 *.iml
@@ -15,5 +14,6 @@
 # Ignore OS files
 .DS_Store
 Thumbs.db
-"classes/" 
+
+# Ignore binaries
 /bin/

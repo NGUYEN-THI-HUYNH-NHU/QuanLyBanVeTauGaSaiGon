@@ -24,14 +24,12 @@ import dao.PhieuGiuChoChiTiet_DAO;
 import dao.PhieuGiuCho_DAO;
 import entity.Chuyen;
 import entity.DonDatCho;
-import entity.Ga;
-import entity.Ghe;
+import entity.KhachHang;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
 import entity.PhieuGiuChoChiTiet;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
-import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class DatCho_BUS {
@@ -48,30 +46,30 @@ public class DatCho_BUS {
 		return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
 	}
 
-	public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) {
-		return pgcDAO.createPhieuGiuCho(conn, phieuGiuCho);
+	public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) throws Exception {
+		return pgcDAO.insertPhieuGiuCho(conn, phieuGiuCho);
 	}
 
 	public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
-		String chuyenID = v.getChuyenID();
-		String tenGaDi = v.getTenGaDi();
-		String tenGaDen = v.getTenGaDen();
-		int soToa = v.getSoToa();
-		int soGhe = v.getSoGhe();
+		String chuyenID = v.getVe().getChuyen().getChuyenID();
+		String tenGaDi = v.getVe().getGaDi().getTenGa();
+		String tenGaDen = v.getVe().getGaDen().getTenGa();
+		int soToa = v.getVe().getGhe().getToa().getSoToa();
+		int soGhe = v.getVe().getGhe().getSoGhe();
 		LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
 		if (!pgcctDAO.checkConflict(conn, chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
 			String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
-			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc, new Chuyen(v.getChuyenID()),
-					new Ghe(v.getGheID()), new Ga(v.getGaDiID()), new Ga(v.getGaDenID()), thoiDiemGiuCho,
-					TrangThaiPhieuGiuCho.DANG_GIU.toString());
+			PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc,
+					new Chuyen(v.getVe().getChuyen().getChuyenID()), v.getVe().getGhe(), v.getVe().getGaDi(),
+					v.getVe().getGaDen(), thoiDiemGiuCho, TrangThaiPhieuGiuCho.DANG_GIU.toString());
 			return pgcct;
 		}
 		return null;
 	}
 
-	public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
-		return pgcctDAO.createPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
+	public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) throws Exception {
+		return pgcctDAO.insertPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
 	}
 
 	public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
@@ -110,16 +108,16 @@ public class DatCho_BUS {
 		return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
 	}
 
-	public DonDatCho taoDonDatCho(BookingSession bookingSession) {
+	public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHang khachHang) {
 		LocalDateTime now = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
 
 		String ddcID = "DDC-" + now.format(formatter).toString();
 
-		return new DonDatCho(ddcID, bookingSession.getNhanVien(), bookingSession.getKhachHang(), now);
+		return new DonDatCho(ddcID, nhanVien, khachHang, now);
 	}
 
-	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) {
+	public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) throws Exception {
 		return ddcDAO.insertDonDatCho(conn, donDatCho);
 	}
 
@@ -129,7 +127,7 @@ public class DatCho_BUS {
 	 * @param xacNhan
 	 */
 	public boolean capNhatPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho,
-			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
 		return pgcDAO.updateTrangThaiPhieuGiuCho(conn, phieuGiuCho.getPhieuGiuChoID(), trangThaiPhieuGiuCho.toString());
 	}
 
@@ -139,7 +137,7 @@ public class DatCho_BUS {
 	 * @param trangThaiPhieuGiuCho
 	 */
 	public boolean capNhatCacPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho phieuGiuCho,
-			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) {
+			TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
 		return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(conn, phieuGiuCho.getPhieuGiuChoID(),
 				trangThaiPhieuGiuCho.toString());
 	}
@@ -172,11 +170,12 @@ public class DatCho_BUS {
 				PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(conn, pgc, v, i + 1);
 
 				if (pgcct == null) {
-					throw new Exception("Ghế " + v.getSoGhe() + " (Toa " + v.getSoToa() + ") đã bị người khác chọn.");
+					throw new Exception("Ghế " + v.getVe().getGhe().getSoGhe() + " (Toa "
+							+ v.getVe().getGhe().getToa().getSoToa() + ") đã bị người khác chọn.");
 				}
 
 				if (!themPhieuGiuChoChiTiet(conn, pgcct)) {
-					throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getSoGhe());
+					throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getGhe().getSoGhe());
 				}
 				v.setPhieuGiuChoChiTiet(pgcct);
 			}

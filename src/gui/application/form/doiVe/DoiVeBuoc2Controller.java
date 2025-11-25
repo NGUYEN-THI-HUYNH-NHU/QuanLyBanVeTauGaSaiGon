@@ -14,6 +14,7 @@ package gui.application.form.doiVe;
 import java.util.List;
 
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 
 public class DoiVeBuoc2Controller {
@@ -49,8 +50,8 @@ public class DoiVeBuoc2Controller {
 	 * @param listVe
 	 * 
 	 */
-	public void disPlayDonDatCho(List<Ve> listVe, KhachHang khachHang) {
-		panel.showDonDatCho(listVe, khachHang);
+	public void disPlayDonDatCho(List<Ve> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHang khachHang) {
+		panel.showDonDatCho(listVe, listPhieu, khachHang);
 	}
 
 	public void addContinueListener(ContinueListener listener) {

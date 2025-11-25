@@ -7,7 +7,7 @@ package gui.application;
 
 import javax.swing.JFrame;
 
-import gui.application.form.doiVe.PanelDoiVeBuoc3;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 
 /*
  * @description
@@ -23,9 +23,9 @@ public class Test extends JFrame {
 	public Test() {
 		super("Test panel");
 
-		add(new PanelDoiVeBuoc3());
+		add(new PanelQuanLyHoaDon());
 
-		setSize(1280, 760);
+		setSize(1100, 760);
 		setVisible(true);
 	}
 

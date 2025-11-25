@@ -251,68 +251,16 @@ public class KhuyenMai_DAO {
 
 
 
-    //lấy danh sách khuyến mãi
-    public DieuKienKhuyenMai layDieuKienKhuyenMai(String khuyenMaiID) {
-        String sql = "SELECT * FROM DieuKienKhuyenMai WHERE khuyenMaiID = ?";
-
+    //lấy ma điều kiện khuyến mãi theo mã khuyến mãi
+    public String layDieuKienKhuyenMai(String khuyenMaiID) {
+        String sql = "SELECT dieuKienID FROM DieuKienKhuyenMai WHERE khuyenMaiID = ?";
         try (Connection con = connectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, khuyenMaiID);
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
-                //Liên kết khuyến mãi
-                KhuyenMai km = new KhuyenMai();
-                km.setKhuyenMaiID(rs.getString("khuyenMaiID"));
-
-                //Tạo điều kiện khuyến mãi
-                DieuKienKhuyenMai dk = new DieuKienKhuyenMai();
-                dk.setDieuKienID(rs.getString("dieuKienID"));
-                dk.setKhuyenMai(km);
-                dk.setNgayTrongTuan(rs.getInt("ngayTrongTuan"));
-                dk.setNgayLe(rs.getBoolean("ngayLe"));
-                dk.setMinGiaTriDonHang(rs.getDouble("minGiaTriDonHang"));
-
-                // Các trường enum
-                String tuyenID = rs.getString("tuyenID");
-                if (tuyenID != null) {
-                    Tuyen tuyen = new Tuyen();
-                    tuyen.setTuyenID(tuyenID);
-                    dk.setTuyen(tuyen);
-                }
-
-                // LoaiTau
-                String loaiTauStr = rs.getString("loaiTauID");
-                if (loaiTauStr != null) {
-                    try {
-                        dk.setLoaiTau(LoaiTau.valueOf(loaiTauStr));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println( loaiTauStr);
-                    }
-                }
-
-                // HangToa
-                String hangToaStr = rs.getString("hangToaID");
-                if (hangToaStr != null) {
-                    try {
-                        dk.setHangToa(HangToa.valueOf(hangToaStr));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println(hangToaStr);
-                    }
-                }
-
-                // LoaiDoiTuong
-                String loaiDTStr = rs.getString("loaiDoiTuongID");
-                if (loaiDTStr != null) {
-                    try {
-                        dk.setLoaiDoiTuong(LoaiDoiTuong.valueOf(loaiDTStr));
-                    } catch (IllegalArgumentException e) {
-                        System.err.println(loaiDTStr);
-                    }
-                }
-
-                return dk;
+                return rs.getString("dieuKienID");
             }
 
         } catch (SQLException e) {
@@ -374,7 +322,7 @@ public class KhuyenMai_DAO {
     //tạo mã điều kiện khuyến mãi tự động
     public String taoMaDieuKienTuDong(){
         String sql = "SELECT COUNT(*) AS soLuong FROM DieuKienKhuyenMai";
-        String maDieuKien = "DKKM";
+        String maDieuKien = "DK";
 
         try(Connection con = connectDB.getConnection();
             PreparedStatement ps = con.prepareStatement(sql)) {
@@ -458,6 +406,70 @@ public class KhuyenMai_DAO {
         return ds;
     }
 
+    //lay dieu kien khuyen mai theo ma khuyen mai
+    public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoKhuyenMai(String khuyenMaiID) {
+        String sql = "SELECT * FROM DieuKienKhuyenMai WHERE khuyenMaiID = ?";
+        DieuKienKhuyenMai dk = null;
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, khuyenMaiID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                dk = new DieuKienKhuyenMai();
+                dk.setDieuKienID(rs.getString("dieuKienID"));
+
+                KhuyenMai km = new KhuyenMai();
+                km.setKhuyenMaiID(rs.getString("khuyenMaiID"));
+                dk.setKhuyenMai(km);
+
+                String tuyenID = rs.getString("tuyenID");
+                if (tuyenID != null) {
+                    Tuyen tuyen = new Tuyen();
+                    tuyen.setTuyenID(tuyenID);
+                    dk.setTuyen(tuyen);
+                }
+
+                String loaiTauStr = rs.getString("loaiTauID");
+                if (loaiTauStr != null) {
+                    try {
+                        dk.setLoaiTau(LoaiTau.valueOf(loaiTauStr));
+                    } catch (IllegalArgumentException e) {
+                        System.err.println(loaiTauStr);
+                    }
+                }
+
+                // HangToa
+                String hangToaStr = rs.getString("hangToaID");
+                if (hangToaStr != null) {
+                    try {
+                        dk.setHangToa(HangToa.valueOf(hangToaStr));
+                    } catch (IllegalArgumentException e) {
+                        System.err.println(hangToaStr);
+                    }
+                }
+
+                // LoaiDoiTuong
+                String loaiDTStr = rs.getString("loaiDoiTuongID");
+                if (loaiDTStr != null) {
+                    try {
+                        dk.setLoaiDoiTuong(LoaiDoiTuong.valueOf(loaiDTStr));
+                    } catch (IllegalArgumentException e) {
+                        System.err.println(loaiDTStr);
+                    }
+                }
+
+                dk.setNgayTrongTuan(rs.getInt("ngayTrongTuan"));
+                dk.setNgayLe(rs.getBoolean("ngayLe"));
+                dk.setMinGiaTriDonHang(rs.getDouble("minGiaTriDonHang"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return dk;
+    }
+
     //lấy danh sách tuyến
     public List<Tuyen> layDanhSachTuyen() {
         List<Tuyen> ds = new ArrayList<>();
@@ -475,9 +487,24 @@ public class KhuyenMai_DAO {
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
-
         }
         return ds;
+    }
+
+    //tu dong cap nhat trang thai
+    public boolean tuDongCapNhatTrangThai(){
+        String sql = "UPDATE KhuyenMai SET trangThai = 0 WHERE ngayKetThuc < ?";
+        try(Connection con = connectDB.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            int row = ps.executeUpdate();
+            return row > 0;
+
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+            return false;
+        }
     }
 
 }

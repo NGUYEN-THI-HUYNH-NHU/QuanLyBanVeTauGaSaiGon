@@ -22,7 +22,6 @@ import javax.swing.SwingWorker;
 import bus.BanVe_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
-import gui.application.PdfTicketExporter;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -81,13 +80,13 @@ public class BanVe2Controller {
 		}
 
 		for (VeSession ve : allTickets) {
-			tongTienVe += ve.getGia();
-			dichVu += ve.getPhongChoVIP();
-			khuyenMai += ve.getGiam();
+			tongTienVe += ve.getVe().getGia();
+			dichVu += ve.getPhiPhieuDungPhongChoVIP();
+			khuyenMai += ve.getGiamKM();
 
 			// Giảm giá đối tượng ở đây
-			if (ve.getHanhKhach().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
-				ve.setGiamDoiTuong((int) (Math.round((ve.getGia() * 0.25) / 1000) * 1000));
+			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
 				giamGiaDT += ve.getGiamDoiTuong();
 			}
 		}
@@ -136,7 +135,7 @@ public class BanVe2Controller {
 				@Override
 				protected Boolean doInBackground() throws Exception {
 					try {
-						return banVeBUS.xacNhanThanhToanVaLuuVe(bookingSession);
+						return banVeBUS.thucHienBanVe(bookingSession);
 					} catch (Exception ex) {
 						errorMessage = ex.getMessage();
 						ex.printStackTrace();
@@ -150,9 +149,13 @@ public class BanVe2Controller {
 						boolean saveSuccess = get();
 
 						if (saveSuccess) {
-							// a. Xuất file pdf
-							PdfTicketExporter exporter = new PdfTicketExporter();
-							exporter.exportTicketsToPdf(bookingSession);
+//							// a. Xuất file pdf
+//							PdfTicketExporter exporter = new PdfTicketExporter();
+//							exporter.exportTicketsToPdf(bookingSession);
+							JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+							p4.setComponentsEnabled(false);
+							p5.setComponentsEnabled(false);
 
 							// b. Báo cho wizard chính (PanelBanVe) biết
 							if (onPaymentSuccessListener != null) {

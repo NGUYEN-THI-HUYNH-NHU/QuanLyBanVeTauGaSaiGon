@@ -24,30 +24,6 @@ public class DonDatCho_DAO {
 		connectDB.connect();
 	}
 
-	/**
-	 * @param ddcID
-	 * @param nvID
-	 * @param khID
-	 * @param now
-	 * @return
-	 */
-	public boolean createDonDatCho(DonDatCho donDatCho) {
-		String sql = "INSERT INTO DonDatCho (donDatChoID, nhanVienID, khachHangID, thoiDiemDatCho) VALUES (?, ?, ?, ?)";
-		Connection con = connectDB.getConnection();
-		PreparedStatement pstmt = null;
-		try {
-			pstmt = con.prepareStatement(sql);
-			pstmt.setString(1, donDatCho.getDonDatChoID());
-			pstmt.setString(2, donDatCho.getNhanVien().getNhanVienID());
-			pstmt.setString(3, donDatCho.getKhachHang().getKhachHangID());
-			pstmt.setTimestamp(4, Timestamp.valueOf(donDatCho.getThoiDiemDatCho()));
-			return pstmt.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	public boolean deleteDonDatCho(String donDatChoID) {
 		String sql = "DELETE FROM DonDatCho WHERE donDatChoID = ?";
 		Connection con = connectDB.getConnection();
@@ -100,19 +76,14 @@ public class DonDatCho_DAO {
 	 * @param donDatCho
 	 * @return
 	 */
-	public boolean insertDonDatCho(Connection conn, DonDatCho donDatCho) {
+	public boolean insertDonDatCho(Connection conn, DonDatCho donDatCho) throws Exception {
 		String sql = "INSERT INTO DonDatCho (donDatChoID, nhanVienID, khachHangID, thoiDiemDatCho) VALUES (?, ?, ?, ?)";
-		PreparedStatement pstmt = null;
-		try {
-			pstmt = conn.prepareStatement(sql);
+		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, donDatCho.getDonDatChoID());
 			pstmt.setString(2, donDatCho.getNhanVien().getNhanVienID());
 			pstmt.setString(3, donDatCho.getKhachHang().getKhachHangID());
 			pstmt.setTimestamp(4, Timestamp.valueOf(donDatCho.getThoiDiemDatCho()));
 			return pstmt.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }

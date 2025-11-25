@@ -33,15 +33,16 @@ import entity.NhanVien;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
+import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
 import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyGa.PanelQuanLyGa;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
-import gui.application.form.thongKe.PanelBaoCao;
 import gui.application.form.thongKe.PanelThongKe;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
 import gui.application.form.thongKe.PanelThongKeKhachHang;
@@ -107,14 +108,8 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-//			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon(nhanVien));
-			case 14 -> {
-				switch (subIndex) {
-				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
-				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
-				default -> action.cancel();
-				}
-			}
+			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
+			case 14 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 
 			// UC cua QUAN_LY
 			case 2 -> UngDung.showGiaoDienChinh(new PanelQuanLyGa(nhanVien));
@@ -124,7 +119,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-//			case 12 -> UngDung.showGiaoDienChinh(new Tai(nhanVien));
+			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
 
 			// UC dung chung
 			case 15 -> {

@@ -243,6 +243,7 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
     }
 
+
     public void capNhatBang(List<Object[]> dsTuyen){
          tableModelTuyen.setRowCount(0);
 

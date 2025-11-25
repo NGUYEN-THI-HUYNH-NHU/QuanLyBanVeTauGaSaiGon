@@ -13,46 +13,39 @@ package gui.application.form.doiVe;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.itextpdf.text.Font;
 import com.toedter.calendar.JDateChooser;
-
-import gui.application.form.banVe.PanelBuoc1Controller;
 
 public class PanelDoiVeBuoc4 extends JPanel {
 	private JTextField txtGaDi;
 	private JTextField txtGaDen;
 	private JDateChooser dateChooserNgayDi;
-	private JDateChooser dateChooserNgayVe;
-	private JRadioButton radMotChieu;
-	private JRadioButton radKhuHoi;
 	private JButton btnTimKiem;
 	private JPanel pnlTimKiem;
 
-	private PanelBuoc1Controller controller;
+	private DoiVeBuoc4Controller controller;
 
 	public PanelDoiVeBuoc4() {
 		setLayout(new BorderLayout());
 		setBorder(new TitledBorder(""));
+		setPreferredSize(new Dimension(200, 0));
 
 		// lblTieuDe
 		JLabel lblTieuDe = new JLabel("Thông tin hành trình", SwingConstants.CENTER);
@@ -73,8 +66,10 @@ public class PanelDoiVeBuoc4 extends JPanel {
 		gbc.gridy = 0;
 		pnlTimKiem.add(new JLabel("Ga đi:"), gbc);
 		gbc.gridx = 1;
+		gbc.weightx = 1;
 		txtGaDi = new JTextField();
-		txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ga đi");
+		txtGaDi.setEditable(false);
+		txtGaDi.putClientProperty(FlatClientProperties.STYLE, "background: #F0F0F0;");
 		pnlTimKiem.add(txtGaDi, gbc);
 
 		// Ga đến
@@ -83,62 +78,33 @@ public class PanelDoiVeBuoc4 extends JPanel {
 		pnlTimKiem.add(new JLabel("Ga đến:"), gbc);
 		gbc.gridx = 1;
 		txtGaDen = new JTextField();
-		txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Ga đến");
+		txtGaDen.setEditable(false);
+		txtGaDen.putClientProperty(FlatClientProperties.STYLE, "background: #F0F0F0;");
 		pnlTimKiem.add(txtGaDen, gbc);
-
-		// Loại hành trình
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		pnlTimKiem.add(new JLabel("Loại vé:"), gbc);
-		gbc.gridx = 1;
-		JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		radMotChieu = new JRadioButton("Một chiều", true);
-		radKhuHoi = new JRadioButton("Khứ hồi");
-		ButtonGroup group = new ButtonGroup();
-		group.add(radMotChieu);
-		group.add(radKhuHoi);
-		radioPanel.add(radMotChieu);
-		radioPanel.add(radKhuHoi);
-		pnlTimKiem.add(radioPanel, gbc);
 
 		// Ngày đi
 		gbc.gridx = 0;
-		gbc.gridy = 3;
+		gbc.gridy = 2;
 		pnlTimKiem.add(new JLabel("Ngày đi:"), gbc);
 		gbc.gridx = 1;
 		dateChooserNgayDi = new JDateChooser();
 		dateChooserNgayDi.setDateFormatString("dd/MM/yyyy");
 		dateChooserNgayDi.setDate(new java.util.Date());
+		// Giới hạn không cho chọn ngày quá khứ
+		dateChooserNgayDi.setMinSelectableDate(new java.util.Date());
 		pnlTimKiem.add(dateChooserNgayDi, gbc);
-
-		// Ngày về
-		gbc.gridx = 0;
-		gbc.gridy = 4;
-		pnlTimKiem.add(new JLabel("Ngày về:"), gbc);
-		gbc.gridx = 1;
-		dateChooserNgayVe = new JDateChooser();
-		dateChooserNgayVe.setDateFormatString("dd/MM/yyyy");
-		dateChooserNgayVe.setEnabled(false);
-		pnlTimKiem.add(dateChooserNgayVe, gbc);
-
-		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
-		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
 
 		add(lblTieuDe, BorderLayout.NORTH);
 		add(pnlTimKiem, BorderLayout.CENTER);
-		add(btnTimKiem = new JButton("Tìm chuyến tàu"), BorderLayout.SOUTH);
-
-		// ----- Gắn sự kiện (Event Handling) -----
-		radMotChieu.addActionListener(e -> dateChooserNgayVe.setEnabled(false));
-		radKhuHoi.addActionListener(e -> dateChooserNgayVe.setEnabled(true));
+		add(btnTimKiem = new JButton("Tìm chuyến tàu mới"), BorderLayout.SOUTH);
 	}
 
-	public void setController(PanelBuoc1Controller controller) {
+	public DoiVeBuoc4Controller getController() {
+		return this.controller;
+	}
+
+	public void setController(DoiVeBuoc4Controller controller) {
 		this.controller = controller;
-	}
-
-	public PanelBuoc1Controller getController() {
-		return controller;
 	}
 
 	public JTextField getTxtGaDi() {
@@ -151,14 +117,6 @@ public class PanelDoiVeBuoc4 extends JPanel {
 
 	public JDateChooser getDateNgayDi() {
 		return dateChooserNgayDi;
-	}
-
-	public JDateChooser getDateNgayVe() {
-		return dateChooserNgayVe;
-	}
-
-	public boolean isKhuHoi() {
-		return radKhuHoi.isSelected();
 	}
 
 	public JButton getBtnTimKiem() {
@@ -178,26 +136,11 @@ public class PanelDoiVeBuoc4 extends JPanel {
 		if (d == null) {
 			return null;
 		}
-		Instant instant = d.toInstant();
-		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
-	}
-
-	public LocalDate getNgayVe() {
-		java.util.Date d = dateChooserNgayVe.getDate();
-		if (d == null) {
-			return null;
-		}
-		Instant instant = d.toInstant();
-		return instant.atZone(ZoneId.systemDefault()).toLocalDate();
+		return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
 	public void setComponentsEnabled(boolean enabled) {
-		txtGaDi.setEnabled(enabled);
-		txtGaDen.setEnabled(enabled);
 		dateChooserNgayDi.setEnabled(enabled);
-		dateChooserNgayVe.setEnabled(enabled);
-		radMotChieu.setEnabled(enabled);
-		radKhuHoi.setEnabled(enabled);
 		btnTimKiem.setEnabled(enabled);
 	}
 }

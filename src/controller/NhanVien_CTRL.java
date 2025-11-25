@@ -19,6 +19,11 @@ public class NhanVien_CTRL {
         return nhanVien_bus.layDanhSachNhanVien();
     }
 
+    //lấy nhân viên bàng mã nhân viên
+    public NhanVien layNhanVienBangMaNV(String maNV){
+        return nhanVien_bus.layNhanVienBangMaNV(maNV);
+    }
+
     //them nhân viên
     public boolean themNhanVien(entity.NhanVien nv){
         return nhanVien_bus.themNhanVien(nv);
@@ -72,5 +77,9 @@ public class NhanVien_CTRL {
         return nhanVien_bus.timKiemNhanVien(ten, sdt, vaiTro, isHoatDong);
     }
 
+    //lay vai tro nhan vien theo ma nhan vien
+    public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV){
+        return nhanVien_bus.layVaiTroNhanVienTheoMaNV(maNV);
+    }
 
 }

@@ -5,6 +5,12 @@ package dao;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Sep 27, 2025
+ * @version: 1.0
+ */
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,13 +31,6 @@ import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.TrangThaiVe;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 27, 2025
- * @version: 1.0
- */
-
 public class Ve_DAO {
 	private ConnectDB connectDB = ConnectDB.getInstance();
 
@@ -39,38 +38,13 @@ public class Ve_DAO {
 		connectDB.connect();
 	}
 
-	public boolean createVe(Ve ve) {
-		Connection conn = connectDB.getConnection();
-		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-
-			ps.setString(1, ve.getVeID());
-			ps.setString(2, ve.getKhachHang().getKhachHangID());
-			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
-			ps.setString(4, ve.getChuyen().getChuyenID());
-			ps.setString(5, ve.getGhe().getGheID());
-			ps.setString(6, ve.getGaDi().getGaID());
-			ps.setString(7, ve.getGaDen().getGaID());
-			ps.setTimestamp(8, java.sql.Timestamp.valueOf(ve.getNgayGioDi()));
-			ps.setDouble(9, ve.getGia());
-			ps.setString(10, ve.getTrangThai().toString());
-
-			return ps.executeUpdate() > 0;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
-	}
-
 	/**
 	 * @param donDatChoID
 	 * @return
 	 */
 	public List<Ve> getVeByDonDatChoID(String donDatChoID) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, V.gaDenID, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID\r\n"
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
 				+ "WHERE donDatChoID = ?";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
@@ -91,8 +65,8 @@ public class Ve_DAO {
 						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
 								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
 						resultSet.getInt("soGhe")));
-				ve.setGaDi(new Ga(resultSet.getString("gaDiID")));
-				ve.setGaDen(new Ga(resultSet.getString("gaDenID")));
+				ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+				ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
 				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
 				ve.setNgayGioDi(t.toLocalDateTime());
 				ve.setGia(resultSet.getDouble("gia"));
@@ -111,9 +85,9 @@ public class Ve_DAO {
 	 * @return
 	 */
 	public List<Ve> getVeByDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, V.gaDenID, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID\r\n"
-				+ "WHERE V.donDatChoID = ? AND V.trangThai = ?";
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
+				+ "WHERE donDatChoID = ? AND V.trangThai = ?";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
@@ -134,8 +108,8 @@ public class Ve_DAO {
 						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
 								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
 						resultSet.getInt("soGhe")));
-				ve.setGaDi(new Ga(resultSet.getString("gaDiID")));
-				ve.setGaDen(new Ga(resultSet.getString("gaDenID")));
+				ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+				ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
 				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
 				ve.setNgayGioDi(t.toLocalDateTime());
 				ve.setGia(resultSet.getDouble("gia"));
@@ -154,11 +128,9 @@ public class Ve_DAO {
 	 * @param v
 	 * @return
 	 */
-	public boolean insertVe(Connection conn, Ve ve) {
+	public boolean insertVe(Connection conn, Ve ve) throws Exception {
 		String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, ve.getVeID());
 			ps.setString(2, ve.getKhachHang().getKhachHangID());
 			ps.setString(3, ve.getDonDatCho().getDonDatChoID());
@@ -171,18 +143,14 @@ public class Ve_DAO {
 			ps.setString(10, ve.getTrangThai().toString());
 
 			return ps.executeUpdate() > 0;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
-		return false;
 	}
 
 	/**
 	 * @param conn
 	 * @param veID
 	 */
-	public boolean updateTrangThaiVe(Connection conn, String veID, TrangThaiVe trangThai) {
+	public boolean updateTrangThaiVe(Connection conn, String veID, TrangThaiVe trangThai) throws Exception {
 		String sql = "UPDATE Ve SET trangThai = ? WHERE veID = ?";
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -190,9 +158,6 @@ public class Ve_DAO {
 			ps.setString(2, veID);
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 }

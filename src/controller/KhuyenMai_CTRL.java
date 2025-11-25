@@ -35,9 +35,13 @@ public class KhuyenMai_CTRL {
         return khuyenMai_bus.timKhuyenMai(tuKhoa, maTuyen, trangThai, tuNgay, denNgay);
     }
 
-    //lay dieu kien khuyen mai theo ma khuyen mai
-    public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiID){
+    //lay ma dieu kien khuyen mai theo ma khuyen mai
+    public String layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiID){
         return khuyenMai_bus.layDieuKienKhuyenMaiTheoMaKhuyenMai(khuyenMaiID);
+    }
+    //lay dieu kien khuyen mai theo ma khuyen mai
+    public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoMaKhuyenMaiObj(String khuyenMaiID){
+        return khuyenMai_bus.layKhuyenMaiTheoMaKhuyenMai(khuyenMaiID);
     }
     //==========regex
     public boolean kiemTraCodeKhuyenMai(String code){
@@ -83,6 +87,10 @@ public class KhuyenMai_CTRL {
     //lay danh sach tuyen
     public List<Tuyen> layDanhSachTuyen(){
         return khuyenMai_bus.layDanhSachTuyen();
+    }
+    //tu dong cap nhat trang thai
+    public boolean tuDongCapNhatTrangThai(){
+        return khuyenMai_bus.capNhatTrangThaiKhuyenMai();
     }
 
 

@@ -13,6 +13,7 @@ package bus;
  */
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import connectDB.ConnectDB;
@@ -21,6 +22,7 @@ import entity.GiaoDichHoanDoi;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.KhachHang;
+import entity.Ve;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
@@ -32,7 +34,7 @@ public class HoanVe_BUS {
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
 	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
-	private final PhieuGiuChoChiTiet_BUS phieuGiuChoChiTietBUS = new PhieuGiuChoChiTiet_BUS();
+	private final PhieuGiuCho_BUS phieuGiuChoChiTietBUS = new PhieuGiuCho_BUS();
 
 	/**
 	 * @param donDatCho
@@ -50,9 +52,14 @@ public class HoanVe_BUS {
 			conn.setAutoCommit(false);
 
 			// --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
+			List<Ve> listVe = new ArrayList<Ve>();
+			for (VeHoanRow r : listVeHoanRow) {
+				listVe.add(r.getVe());
+			}
+
 			// 1. Cập nhật trạng thái vé (và phiếu dùng phòng chờ VIP nếu có)
-			veBUS.capNhatTrangThaiVe(conn, listVeHoanRow, TrangThaiVe.DA_HOAN);
-			phieuDungPhongVIPBUS.capNhatTrangThaiPhieuDungPhongChoVIP(conn, listVeHoanRow, TrangThaiPDPVIP.DA_HUY);
+			veBUS.capNhatTrangThaiVe(conn, listVe, TrangThaiVe.DA_HOAN);
+			phieuDungPhongVIPBUS.capNhatPhieuDungPhongChoVIP(conn, listVe, TrangThaiPDPVIP.DA_HUY);
 
 			// 2. Tạo hóa đơn
 			HoaDon hoaDon = hoaDonBUS.taoHoaDonHoanVe(donDatCho, khachHang, AuthService.getInstance().getCurrentUser(),
@@ -60,16 +67,16 @@ public class HoanVe_BUS {
 			hoaDonBUS.themHoaDon(conn, hoaDon);
 
 			// 3. Tạo và Lưu Hóa Đơn Chi Tiết
-			List<HoaDonChiTiet> dsHDCT = hoaDonBUS.taoCacHoaDonChiTiet(conn, hoaDon, listVeHoanRow);
+			List<HoaDonChiTiet> dsHDCT = hoaDonBUS.taoCacHoaDonChiTietHoanVe(conn, hoaDon, listVeHoanRow);
 			hoaDonBUS.themCacHoaDonChiTiet(conn, dsHDCT);
 
 			// 4. Tạo và lưu Giao dịch hoàn đổi
-			List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichHoanDoi(hoaDon,
+			List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichHoanVe(hoaDon,
 					AuthService.getInstance().getCurrentUser(), listVeHoanRow);
 			giaoDichHoanDoiBUS.themCacGiaoDichHoanDoi(conn, dsGdhd);
 
 			// 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
-			phieuGiuChoChiTietBUS.huyCacPhieuGiuChoChiTiet(conn, listVeHoanRow, TrangThaiPhieuGiuCho.HET_GIU);
+			phieuGiuChoChiTietBUS.huyCacPhieuGiuChoChiTiet(conn, listVe, TrangThaiPhieuGiuCho.HET_GIU);
 
 			// Hoàn tất giao dịch
 			conn.commit();

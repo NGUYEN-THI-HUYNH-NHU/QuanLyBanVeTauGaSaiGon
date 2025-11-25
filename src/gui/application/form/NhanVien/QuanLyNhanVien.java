@@ -1,23 +1,20 @@
 package gui.application.form.NhanVien;
-
 import com.toedter.calendar.JDateChooser;
 import controller.NhanVien_CTRL;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
-
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
-public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListener {
+public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVien nhanVienHienTai;
     private final NhanVien_CTRL nhanVien_ctrl;
 
@@ -27,6 +24,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
     private JComboBox<String> cbCaLam;
     private JRadioButton rbtnNam, rbtnNu;
     private JCheckBox chkDangHoatDong;
+    private List<JComponent> allField;
     private JDateChooser txtNgaySinh, txtNgayThamGia;
     private JLabel lblMaNVDetail, lblVaiTroDetail, lblTenNVDetail, lblGioiTinhDetail,
             lblNgaySinhDetail, lblSDTDetail, lblEmailDetail, lblDiaChiDetail,
@@ -36,7 +34,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
     private JButton btnAdd, btnEdit, btnFind, btnClean;
     private boolean isEditing = false;
 
-    //MÀU CHỦ ĐẠO
+    // màu sắc giao diện
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
     private final Color COLOR_ACCENT = new Color(74, 163, 208);
     private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
@@ -80,7 +78,6 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         btnClean.addActionListener(this);
         btnEdit.addActionListener(this);
         btnFind.addActionListener(this);
-
     }
 
     private JPanel panelInput() {
@@ -121,6 +118,24 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         group.add(rbtnNam);
         group.add(rbtnNu);
         chkDangHoatDong = new JCheckBox("Đang hoạt động", true);
+
+        allField = List.of(txtTenNV, cbVaiTro, txtNgaySinh, txtSDT,
+                txtEmail, txtDiaChi, (JComponent) txtNgayThamGia.getDateEditor().getUiComponent(), (JComponent) cbCaLam.getEditor().getEditorComponent(), rbtnNam, rbtnNu, (JComponent) chkDangHoatDong);
+
+
+        for (JComponent comp : allField) {
+            if (comp instanceof JTextField) {
+                ((JTextField) comp).addKeyListener(this);
+            } else if (comp instanceof JComboBox) {
+                ((JComboBox<?>) comp).getEditor().getEditorComponent().addKeyListener(this);
+            } else if (comp instanceof JDateChooser) {
+                ((JDateChooser) comp).getDateEditor().getUiComponent().addKeyListener(this);
+            } else if (comp instanceof JRadioButton) {
+                comp.addKeyListener(this);
+            } else if (comp instanceof JCheckBox) {
+                comp.addKeyListener(this);
+            }
+        }
 
         addField(form, gbc, "Mã nhân viên:", txtMaNV, font);
         addField(form, gbc, "Tên nhân viên:", txtTenNV, font);
@@ -276,6 +291,26 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         header.setFont(new Font("Roboto", Font.BOLD, 14));
         header.setBackground(new Color(30, 41, 58));
         header.setForeground(Color.WHITE);
+
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (!isSelected) {
+                    if (row % 2 == 0) {
+                        c.setBackground(new Color(240, 248, 255));
+                    } else {
+                        c.setBackground(Color.WHITE);
+                    }
+                } else {
+                    c.setBackground(new Color(184, 207, 229));
+                }
+                setHorizontalAlignment(SwingConstants.CENTER);
+                return c;
+            }
+        });
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -651,6 +686,25 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
             JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên phù hợp với tiêu chí đã chọn.", "Kết quả", JOptionPane.INFORMATION_MESSAGE);
         }
     }
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+
+            Component current = (Component) e.getSource();
+            if (current instanceof JCheckBox checkbox) {
+                checkbox.doClick();
+            }
+
+            int index = allField.indexOf(current);
+            if (index != -1) {
+                if (index < allField.size() - 1) {
+                    allField.get(index + 1).requestFocus();
+                } else {
+                    btnAdd.requestFocus();
+                }
+            }
+        }
+    }
 
 
     @Override public void mousePressed(MouseEvent e) {
@@ -663,6 +717,14 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
 
     }
     @Override public void mouseExited(MouseEvent e) {
+
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {
 
     }
 }

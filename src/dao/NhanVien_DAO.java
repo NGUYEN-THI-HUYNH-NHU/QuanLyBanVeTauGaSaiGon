@@ -263,7 +263,22 @@ public class NhanVien_DAO {
 		return ds;
 	}
 
+	//lay vai tro nhan vien theo ma nhan vien
+	public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV) {
+		String sql = "SELECT vaiTroNhanVienID FROM NhanVien WHERE nhanVienID = ?";
+		try (Connection con = connectionDB.getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
 
+			ps.setString(1, maNV);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				return VaiTroNhanVien.valueOf(rs.getString("vaiTroNhanVienID"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 
 }

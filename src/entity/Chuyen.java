@@ -64,6 +64,12 @@ public class Chuyen {
 		this.chuyenID = chuyenID;
 	}
 
+	public Chuyen(String chuyenID, Tau tau) {
+		super();
+		this.chuyenID = chuyenID;
+		this.tau = tau;
+	}
+
 	public String getChuyenID() {
 		return chuyenID;
 	}

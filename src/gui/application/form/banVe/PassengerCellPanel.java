@@ -106,13 +106,13 @@ public class PassengerCellPanel extends JPanel {
 				currentRowData.setFullName(kh.getHoTen());
 				currentRowData.setType(kh.getLoaiDoiTuong());
 				// Lưu entity KhachHang vào VeSession
-				currentRowData.getVeSession().setHanhKhach(kh);
+				currentRowData.getVeSession().getVe().setKhachHang(kh);
 
 				// Cập nhật View (các trường) từ Model vừa sửa
 				setData(currentRowData);
 			} else {
 				// Không tìm thấy, set hành khách là null để controller thêm hành khách mới
-				currentRowData.getVeSession().setHanhKhach(null);
+				currentRowData.getVeSession().getVe().setKhachHang(null);
 			}
 		}
 	}

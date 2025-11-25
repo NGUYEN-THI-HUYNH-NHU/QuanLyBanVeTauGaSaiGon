@@ -6,6 +6,7 @@ import entity.KhuyenMai;
 import entity.Tuyen;
 import java.time.LocalDate;
 import java.util.List;
+import entity.Ve;
 
 public class KhuyenMai_BUS {
     private final KhuyenMai_DAO khuyenMai_dao;
@@ -34,7 +35,7 @@ public class KhuyenMai_BUS {
         return khuyenMai_dao.timKiemKhuyenMai(tuKhoa, maTuyen, trangThai, tuNgay, denNgay);
     }
     //lay dieu kien khuyen mai theo ma khuyen mai
-    public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
+    public String layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
         return khuyenMai_dao.layDieuKienKhuyenMai(khuyenMaiIDString);
     }
 
@@ -75,6 +76,10 @@ public class KhuyenMai_BUS {
         }
         return ngayTrongTuan >= 1 && ngayTrongTuan <= 7;
     }
+    //Tu cap nhat trang thai
+    public boolean capNhatTrangThaiKhuyenMai() {
+        return khuyenMai_dao.tuDongCapNhatTrangThai();
+    }
 
     //tạo mã khuyến mãi tự động
     public String taoMaKhuyenMaiTuDong() {
@@ -84,6 +89,10 @@ public class KhuyenMai_BUS {
     public String taoDieuKienKhuyenMaiTuDong() {
         return khuyenMai_dao.taoMaDieuKienTuDong();
     }
+    //lay dieu kien  khuyen mai theo ma khuyen mai
+    public DieuKienKhuyenMai layKhuyenMaiTheoMaKhuyenMai(String khuyenMaiIDString) {
+        return khuyenMai_dao.layDieuKienKhuyenMaiTheoKhuyenMai(khuyenMaiIDString);
+    }
     // lay danh khach dieu kien khuyen mai
     public List<DieuKienKhuyenMai> layDanhSachDKKM() {
         return khuyenMai_dao.getAllDKKM();
@@ -91,5 +100,10 @@ public class KhuyenMai_BUS {
     //lay danh sach tuyen
     public List<Tuyen> layDanhSachTuyen() {
         return khuyenMai_dao.layDanhSachTuyen();
+    }
+
+    public KhuyenMai timKhuyenMaiChoVe(Ve ve) {
+        // TODO Auto-generated method stub
+        return new KhuyenMai();
     }
 }

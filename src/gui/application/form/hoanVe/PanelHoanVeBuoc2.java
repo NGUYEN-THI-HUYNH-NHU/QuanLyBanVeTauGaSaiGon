@@ -28,6 +28,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -157,6 +158,9 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				if (!dataRow.isDuDieuKien()) {
 					c.setForeground(Color.RED);
 					setFont(getFont().deriveFont(Font.BOLD));
+				} else {
+					c.setForeground(Color.GREEN);
+					setFont(getFont().deriveFont(Font.BOLD));
 				}
 
 				applyRowStyle(c, table, row);
@@ -202,6 +206,42 @@ public class PanelHoanVeBuoc2 extends JPanel {
 			}
 		};
 
+		// --- 5. RENDERER CHO CỘT CHECKBOX (CHỌN VÉ ĐỔI) ---
+		TableCellRenderer booleanRenderer = new TableCellRenderer() {
+			private final JCheckBox checkBox = new JCheckBox();
+			{
+				checkBox.setHorizontalAlignment(SwingConstants.CENTER);
+				checkBox.setOpaque(true);
+			}
+
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+
+				// 1. Set giá trị (Checked/Unchecked)
+				if (value instanceof Boolean) {
+					checkBox.setSelected((Boolean) value);
+				}
+
+				// 2. Lấy dữ liệu dòng để kiểm tra điều kiện disable
+				int modelRow = table.convertRowIndexToModel(row);
+				VeHoanRow dataRow = model.getRows().get(modelRow);
+
+				// 3. UX: Disable visual của checkbox nếu không đủ điều kiện
+				// (Làm mờ ô vuông checkbox)
+				checkBox.setEnabled(dataRow.isDuDieuKien());
+
+				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
+				// Gọi lại hàm applyRowStyle bạn đã viết sẵn
+				applyRowStyle(checkBox, table, row);
+
+				return checkBox;
+			}
+		};
+
+		// Cột checkbox
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setCellRenderer(booleanRenderer);
+
 		// Cột Thời gian
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
 		// Cột Tiền
@@ -226,15 +266,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 			c.setBackground(new Color(240, 240, 240));
 			if (c.getForeground() != Color.RED) {
 				c.setForeground(Color.GRAY);
-			}
-		} else {
-			// TRẠNG THÁI BÌNH THƯỜNG
-			// Quan trọng: Phải reset lại màu nếu dòng đủ điều kiện
-			// Nếu dòng đang được chọn -> dùng màu selection của bảng
-			// Nếu không -> dùng màu trắng mặc định
-			if (table.isRowSelected(row)) {
-				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
 			}
 		}
 	}

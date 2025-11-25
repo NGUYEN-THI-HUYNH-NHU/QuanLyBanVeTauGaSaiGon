@@ -11,10 +11,12 @@ package gui.application.form.doiVe;
  * @date: Nov 17, 2025
  * @version: 1.0
  */
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.DonDatCho;
 import entity.KhachHang;
+import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import gui.application.form.doiVe.DoiVeBuoc1Controller.SearchListener;
 import gui.application.form.doiVe.DoiVeBuoc2Controller.ContinueListener;
@@ -31,10 +33,7 @@ public class DoiVe1Controller {
 	private final DoiVeBuoc2Controller p2Controller;
 	private final DoiVeBuoc3Controller p3Controller;
 
-	private DonDatCho ddc;
-	private List<Ve> listVe;
-	private KhachHang nguoiMua;
-	private List<VeDoiRow> listRowHoan;
+	private final ExchangeSession exchangeSession;
 
 	private Runnable onPanel1CompleteListener;
 
@@ -42,8 +41,10 @@ public class DoiVe1Controller {
 		this.onPanel1CompleteListener = listener;
 	}
 
-	public DoiVe1Controller(PanelDoiVe1 view) {
+	public DoiVe1Controller(PanelDoiVe1 view, ExchangeSession exchangeSession) {
 		this.view = view;
+		this.exchangeSession = exchangeSession;
+
 		this.p1 = view.getPanelDoiVeBuoc1();
 		this.p2 = view.getPanelDoiVeBuoc2();
 		this.p3 = view.getPanelDoiVeBuoc3();
@@ -51,21 +52,9 @@ public class DoiVe1Controller {
 		this.p1Controller = new DoiVeBuoc1Controller(this.p1);
 		this.p1.setController(this.p1Controller);
 		this.p2Controller = new DoiVeBuoc2Controller(this.p2);
-		this.p3Controller = new DoiVeBuoc3Controller(this.p3);
+		this.p3Controller = new DoiVeBuoc3Controller(this.p3, exchangeSession);
 
 		initMediatorLogic();
-	}
-
-	public DonDatCho getDonDatCho() {
-		return this.ddc;
-	}
-
-	public KhachHang getNguoiMua() {
-		return this.nguoiMua;
-	}
-
-	public List<VeDoiRow> getListRowHoan() {
-		return this.listRowHoan;
 	}
 
 	private void initMediatorLogic() {
@@ -73,19 +62,25 @@ public class DoiVe1Controller {
 		// Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
 		this.p1Controller.addSearchListener(new SearchListener() {
 			@Override
-			public void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, KhachHang khachHang) {
-				ddc = donDatCho;
-				listVe = danhSachVe;
-				nguoiMua = khachHang;
+			public void onSearchSuccess(DonDatCho donDatCho, List<Ve> danhSachVe, List<PhieuDungPhongVIP> danhSachPhieu,
+					KhachHang khachHang) {
+				List<VeDoiRow> listVeTimDuoc = new ArrayList<VeDoiRow>();
+				int soLuongVe = danhSachVe.size();
+				for (int i = 0; i < soLuongVe; i++) {
+					listVeTimDuoc.add(new VeDoiRow(danhSachVe.get(i), danhSachPhieu.get(i)));
+				}
+				exchangeSession.setDonDatChoCu(donDatCho);
+				exchangeSession.setKhachHang(khachHang);
+				exchangeSession.setListVeTimDuoc(listVeTimDuoc);
 
-				if (listRowHoan != null) {
-					listRowHoan.clear();
+				if (exchangeSession.getListVeCuCanDoi() != null) {
+					exchangeSession.getListVeCuCanDoi().clear();
 				}
 
 				view.setBuoc2Enabled(true);
 				view.setBuoc3Enabled(false);
 
-				p2Controller.disPlayDonDatCho(listVe, nguoiMua);
+				p2Controller.disPlayDonDatCho(danhSachVe, danhSachPhieu, khachHang);
 			}
 
 			@Override
@@ -100,10 +95,10 @@ public class DoiVe1Controller {
 			@Override
 			public void onContinue(List<VeDoiRow> selectedRows) {
 				// 1. Lưu trạng thái các vé được chọn
-				listRowHoan = selectedRows;
+				exchangeSession.setListVeCuCanDoi(selectedRows);
 
 				// 2. Đẩy dữ liệu vào P3 Controller
-				p3Controller.displayConfirmationData(listRowHoan);
+				p3Controller.displayConfirmationData(selectedRows);
 
 				// 3. Kích hoạt Bước 3
 				view.setBuoc3Enabled(true);
@@ -119,7 +114,7 @@ public class DoiVe1Controller {
 				// Yêu cầu Controller 2 cập nhật lại View 2
 				// Dữ liệu trong model của P2 đã tự động cập nhật
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
-				listRowHoan.remove(row);
+				exchangeSession.getListVeCuCanDoi().remove(row);
 				p2Controller.refreshRowDisplay(row);
 			}
 		});
@@ -128,9 +123,6 @@ public class DoiVe1Controller {
 
 			@Override
 			public void onConfirm() {
-				// Bắt đầu xử lý nghiệp vụ hoàn vé (gọi BUS)
-				// Dùng this.listRowHoan để biết vé nào cần hoàn
-				// Dùng this.ddc, this.nguoiMua
 				if (onPanel1CompleteListener != null) {
 					onPanel1CompleteListener.run();
 				}

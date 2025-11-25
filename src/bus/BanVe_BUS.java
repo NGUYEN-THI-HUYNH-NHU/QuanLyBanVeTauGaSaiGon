@@ -49,7 +49,7 @@ public class BanVe_BUS {
 	 * @param session Chứa toàn bộ thông tin (vé, khách hàng, người mua, PGC...)
 	 * @return true nếu tất cả các bước thành công
 	 */
-	public boolean xacNhanThanhToanVaLuuVe(BookingSession session) throws Exception {
+	public boolean thucHienBanVe(BookingSession session) throws Exception {
 		Connection conn = null;
 		try {
 			// 1. Lấy kết nối và BẮT ĐẦU TRANSACTION
@@ -61,11 +61,11 @@ public class BanVe_BUS {
 			// 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
 			khachHangBUS.themHoacCapNhatKhachHang(conn, session.getKhachHang());
 			for (VeSession v : session.getAllSelectedTickets()) {
-				khachHangBUS.themHoacCapNhatKhachHang(conn, v.getHanhKhach());
+				khachHangBUS.themHoacCapNhatKhachHang(conn, v.getVe().getKhachHang());
 			}
 
 			// 3. Tạo và Lưu Đơn Đặt Chỗ
-			DonDatCho donDatCho = datChoBUS.taoDonDatCho(session);
+			DonDatCho donDatCho = datChoBUS.taoDonDatCho(session.getNhanVien(), session.getKhachHang());
 			datChoBUS.themDonDatCho(conn, donDatCho);
 			session.setDonDatCho(donDatCho);
 
@@ -79,15 +79,17 @@ public class BanVe_BUS {
 			luuThongTinThanhToan(conn, gdtt);
 
 			// 6. Tạo và Lưu Vé (Batch Insert)
-			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(donDatCho, session);
+			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(session);
 			veBUS.themCacVe(conn, dsVe);
 
 			// 7. Tạo và Lưu Phiếu VIP (Batch Insert)
-			List<PhieuDungPhongVIP> dsPhieu = phieuDungPhongChoVIPBUS.taoCacPhieuDungPhongChoVIP(session);
+			List<PhieuDungPhongVIP> dsPhieu = phieuDungPhongChoVIPBUS
+					.taoCacPhieuDungPhongChoVIP(session.getAllSelectedTickets());
 			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
 			// 8. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
-			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTiet(session);
+			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon(),
+					session.getAllSelectedTickets());
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
 			// 9. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
@@ -123,5 +125,4 @@ public class BanVe_BUS {
 			}
 		}
 	}
-
 }

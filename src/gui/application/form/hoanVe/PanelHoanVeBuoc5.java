@@ -122,11 +122,6 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		pnl.add(Box.createVerticalGlue(), gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalGlue(), gbc);
-
-		gbc.gridx = 0;
 		gbc.gridy = 3;
 		gbc.anchor = GridBagConstraints.WEST;
 		JLabel lblTongTienHoanChu;

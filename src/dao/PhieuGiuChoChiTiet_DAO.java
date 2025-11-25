@@ -114,7 +114,7 @@ public class PhieuGiuChoChiTiet_DAO {
 	 * @param ct    Đối tượng PhieuGiuChoChiTiet đã có đầy đủ thông tin
 	 * @return true nếu INSERT thành công
 	 */
-	public boolean createPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet ct) {
+	public boolean insertPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet ct) throws Exception {
 		String sql = "INSERT INTO PhieuGiuChoChiTiet (phieuGiuChoChiTietID, phieuGiuChoID, chuyenID, gheID, gaDiID, gaDenID, thoiDiemGiuCho, trangThai) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, SYSUTCDATETIME(), 'DANG_GIU')";
 
@@ -127,9 +127,6 @@ public class PhieuGiuChoChiTiet_DAO {
 			ps.setString(6, ct.getGaDen().getGaID());
 
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 
@@ -199,18 +196,14 @@ public class PhieuGiuChoChiTiet_DAO {
 	 * @return true nếu cập nhật thành công
 	 */
 	public boolean updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(Connection conn, String phieuGiuChoID,
-			String newTrangThai) {
+			String newTrangThai) throws Exception {
 		String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ? WHERE phieuGiuChoID = ?";
 
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, newTrangThai);
 			ps.setString(2, phieuGiuChoID);
 
-			// Sẽ trả về true nếu có ít nhất 1 dòng bị ảnh hưởng
 			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 

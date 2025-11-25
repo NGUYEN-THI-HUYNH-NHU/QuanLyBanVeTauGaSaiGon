@@ -118,12 +118,13 @@ public class HoanVe2Controller {
 							// PdfTicketExporter exporter = new PdfTicketExporter();
 							// exporter.exportReturnReceipt(currentKhachHang, currentListVeHoan);
 
+							JOptionPane.showMessageDialog(view, "Hoàn vé thành công!", "Thông báo",
+									JOptionPane.INFORMATION_MESSAGE);
+
 							// c. Báo hoàn tất
 							if (onPaymentSuccessListener != null) {
 								onPaymentSuccessListener.run();
 							}
-							JOptionPane.showMessageDialog(view, "Hoàn vé thành công!", "Thông báo",
-									JOptionPane.INFORMATION_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin hoàn vé vào CSDL!", "Lỗi",
 									JOptionPane.ERROR_MESSAGE);
