@@ -92,8 +92,11 @@ public class HoaDonController {
 		// 3. Sự kiện nút Tra Cứu
 		view.getBtnTraCuu().addActionListener(e -> handleTraCuu());
 
-		// 2. Sự kiện nút Refresh
+		// 4. Sự kiện nút Refresh
 		view.getBtnRefresh().addActionListener(e -> handleRefresh());
+
+		// 5. Sự kiện checkbox tất cả ngày
+		view.getCheckBoxTatCaNgay().addActionListener(e -> handleNgayLoc());
 
 		// 1. Gán Renderer cho cột Button
 		view.getTable().getColumnModel().getColumn(HoaDonTableModel.COL_XEM)
@@ -140,6 +143,12 @@ public class HoaDonController {
 				}
 			}
 		});
+	}
+
+	private void handleNgayLoc() {
+		boolean isSelected = view.getCheckBoxTatCaNgay().isSelected();
+		view.getDateChooserTuNgay().setEnabled(!isSelected);
+		view.getDateChooserDenNgay().setEnabled(!isSelected);
 	}
 
 	// Xử lý khi bấm nút Lọc
@@ -194,9 +203,11 @@ public class HoaDonController {
 		view.getCboLoaiHoaDon().setSelectedIndex(0);
 		view.getTxtKhachHangSuggest().setText("");
 		view.getCboHinhThucTT().setSelectedIndex(0);
-
+		view.getCheckBoxTatCaNgay().setSelected(true);
 		view.getDateChooserTuNgay().setDate(new Date());
 		view.getDateChooserDenNgay().setDate(new Date());
+		view.getDateChooserTuNgay().setEnabled(false);
+		view.getDateChooserDenNgay().setEnabled(false);
 	}
 
 	private void handleTraCuu() {
