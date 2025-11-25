@@ -26,7 +26,7 @@ public class CurrencyRenderer extends DefaultTableCellRenderer {
 	public CurrencyRenderer() {
 		this.df = new DecimalFormat("#,##0đ");
 		setHorizontalAlignment(SwingConstants.RIGHT);
-		setVerticalAlignment(SwingConstants.TOP);
+		setVerticalAlignment(SwingConstants.CENTER);
 	}
 
 	@Override

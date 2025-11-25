@@ -141,8 +141,6 @@ public class PanelSoDoCho extends JPanel {
 		lblToaInfo.setText("Toa số " + t.getSoToa() + ": "
 				+ (t.getHangToa() != null ? t.getHangToa().getDescription() : "Chưa xác định"));
 
-//		showLoadingState();
-
 		if (panelBuoc2Controller != null) {
 			new LoadSeatWorker(t).execute();
 		}
@@ -150,15 +148,8 @@ public class PanelSoDoCho extends JPanel {
 
 	public void showMessage(String text) {
 		pnlGridChoNgoi.removeAll();
-//		pnlGridChoNgoi.setLayout(new BorderLayout());
-//		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
-//		pnlGridChoNgoi.revalidate();
 		pnlGridChoNgoi.repaint();
 	}
-
-//	public void showLoadingState() {
-//		showMessage("Đang tải ...");
-//	}
 
 	/**
 	 * Cập nhật trạng thái trực quan cho MỘT nút ghế
@@ -346,7 +337,7 @@ public class PanelSoDoCho extends JPanel {
 		return b;
 	}
 
-	// Layout cho GN_K4 (Giường nằm khoang 4 - 28 ghế) - SỬA LẠI
+	// Layout cho GN_K4 (Giường nằm khoang 4 - 28 ghế)
 	private void layout_GN_K4(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
 			boolean priceCalculated) {
 		// Layout: 2 hàng (T1, T2), 7 cột khoang, mỗi khoang 2 ghế
@@ -360,9 +351,7 @@ public class PanelSoDoCho extends JPanel {
 		finalColConstraints.append(colConstraints).append("[").append(SEAT_WIDTH).append("!]"); // Cặp cuối cùng
 
 		pnlGridChoNgoi.setLayout(new MigLayout("insets 10, gapy 10, alignx center, aligny center",
-				finalColConstraints.toString(), String.format("[%d!]%d[%d!]", SEAT_HEIGHT, 15, SEAT_HEIGHT) // 2 hàng +
-																											// gap dọc
-		));
+				finalColConstraints.toString(), String.format("[%d!]%d[%d!]", SEAT_HEIGHT, 15, SEAT_HEIGHT)));
 
 		Map<Integer, Ghe> gheMap = gheList.stream().collect(Collectors.toMap(Ghe::getSoGhe, g -> g));
 

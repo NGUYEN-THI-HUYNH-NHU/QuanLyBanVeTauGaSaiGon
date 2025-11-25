@@ -13,7 +13,6 @@ package gui.application.form.banVe;
  */
 
 import java.awt.Component;
-import java.awt.Cursor;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -27,13 +26,14 @@ public class DeleteButtonRenderer extends JButton implements TableCellRenderer {
 
 	public DeleteButtonRenderer() {
 		setIcon(new FlatSVGIcon("gui/icon/svg/delete.svg", 0.5f));
-		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		setOpaque(true);
 	}
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
+		setToolTipText("Xoá vé");
+
 		// Giữ màu nền mặc định của bảng khi không được chọn
 		if (isSelected) {
 			setForeground(table.getSelectionForeground());

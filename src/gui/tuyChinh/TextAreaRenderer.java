@@ -32,7 +32,7 @@ public class TextAreaRenderer extends JTextArea implements TableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
-		setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, table.getGridColor()));
+		setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, table.getGridColor()));
 		setText(value == null ? "" : value.toString());
 
 		// Tự động chỉnh chiều cao dòng (Auto Row Height)

@@ -14,10 +14,14 @@ package gui.application.form.hoaDon;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.Date;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -37,10 +41,11 @@ import gui.tuyChinh.LeftCenterAlignRenderer;
 public class PanelQuanLyHoaDon extends JPanel {
 	private JTextField txtTuKhoa;
 	private JButton btnTraCuu;
+	private JButton btnRefresh;
 	private JComboBox<String> cboLoaiTimKiem;
 
 	private JComboBox<String> cboLoaiHoaDon;
-	private JTextField txtKhachHangSuggest; // Giả lập auto-suggest
+	private JTextField txtKhachHangSuggest;
 	private JDateChooser dateChooserTuNgay;
 	private JDateChooser dateChooserDenNgay;
 	private JComboBox<String> cboHinhThucTT;
@@ -51,6 +56,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 	private HoaDonTableModel tableModel;
 
 	private final HoaDonController controller;
+	private JCheckBox checkBoxTatCaNgay;
 
 	public PanelQuanLyHoaDon() {
 		setLayout(new BorderLayout());
@@ -62,7 +68,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		JPanel pnlTop = new JPanel();
 		pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
 
-		// 1. PANEL TRA CỨU (giữ nguyên)
+		// 1. PANEL TRA CỨU
 		JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
 
@@ -71,57 +77,111 @@ public class PanelQuanLyHoaDon extends JPanel {
 		btnTraCuu = new JButton("Tra cứu");
 		btnTraCuu.setBackground(new Color(38, 117, 191));
 		btnTraCuu.setForeground(Color.WHITE);
-		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.6f));
+		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.8f));
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.8f));
 
 		pnlTraCuu.add(new JLabel("Tìm theo: "));
 		pnlTraCuu.add(cboLoaiTimKiem);
 		pnlTraCuu.add(txtTuKhoa);
 		pnlTraCuu.add(btnTraCuu);
+		pnlTraCuu.add(btnRefresh);
 
 		// 2. PANEL LỌC
 		JPanel pnlLoc = new JPanel();
-		pnlLoc.setLayout(new BoxLayout(pnlLoc, BoxLayout.Y_AXIS));
+		pnlLoc.setLayout(new BorderLayout());
 		pnlLoc.setBorder(new TitledBorder("Bộ lọc chi tiết"));
 
-		// --- ROW 1: Tất cả các trường nằm trên 1 dòng ---
-		JPanel rowFields = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
+		JPanel pnlInput = new JPanel(new GridBagLayout());
+		pnlInput.setBackground(Color.WHITE);
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(5, 5, 5, 5);
 
+		// 1. Loại HĐ
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 0;
+		pnlInput.add(new JLabel("Loại HĐ:"), gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 0.2;
 		cboLoaiHoaDon = new JComboBox<>(
 				new String[] { "Tất cả", "Hóa đơn bán vé", "Hóa đơn hoàn vé", "Hóa đơn đổi vé" });
+		pnlInput.add(cboLoaiHoaDon, gbc);
 
+		// 2. Khách hàng
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.weightx = 0;
+		pnlInput.add(new JLabel("Khách hàng:"), gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 0;
+		gbc.weightx = 0.2;
 		txtKhachHangSuggest = new JTextField(14);
 		txtKhachHangSuggest.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ tên/SĐT/CCCD/ID");
 		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT, CCCD hoặc ID");
+		pnlInput.add(txtKhachHangSuggest, gbc);
 
+		// 3. Hình thức thanh toán
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+		gbc.weightx = 0;
+		pnlInput.add(new JLabel("Thanh toán:"), gbc);
+
+		gbc.gridx = 5;
+		gbc.gridy = 0;
+		gbc.weightx = 0.2;
+		cboHinhThucTT = new JComboBox<>(new String[] { "Tất cả", "Tiền mặt", "Chuyển khoản" });
+		pnlInput.add(cboHinhThucTT, gbc);
+
+		// 4. Checkbox Tất cả ngày
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		gbc.gridwidth = 2;
+		checkBoxTatCaNgay = new JCheckBox("Tất cả ngày");
+		checkBoxTatCaNgay.setSelected(true);
+		checkBoxTatCaNgay.setBackground(Color.WHITE);
+		pnlInput.add(checkBoxTatCaNgay, gbc);
+		gbc.gridwidth = 1;
+
+		// 5. Từ ngày
+		gbc.gridx = 2;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		pnlInput.add(new JLabel("Từ ngày:"), gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 1;
+		gbc.weightx = 0.2;
 		dateChooserTuNgay = new JDateChooser();
 		dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
 		dateChooserTuNgay.setDate(new Date());
+		dateChooserTuNgay.setEnabled(false);
+		pnlInput.add(dateChooserTuNgay, gbc);
 
+		// 6. Đến ngày
+		gbc.gridx = 4;
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		pnlInput.add(new JLabel("Đến ngày:"), gbc);
+
+		gbc.gridx = 5;
+		gbc.gridy = 1;
+		gbc.weightx = 0.2;
 		dateChooserDenNgay = new JDateChooser();
 		dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
 		dateChooserDenNgay.setDate(new Date());
+		dateChooserDenNgay.setEnabled(false);
+		pnlInput.add(dateChooserDenNgay, gbc);
 
-		cboHinhThucTT = new JComboBox<>(new String[] { "Tất cả", "Tiền mặt", "Chuyển khoản" });
+		JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+		pnlButtons.setBackground(Color.WHITE);
 
-		rowFields.add(new JLabel("Loại HĐ:"));
-		rowFields.add(cboLoaiHoaDon);
-
-		rowFields.add(new JLabel("Khách hàng:"));
-		rowFields.add(txtKhachHangSuggest);
-
-		rowFields.add(new JLabel("Từ ngày:"));
-		rowFields.add(dateChooserTuNgay);
-
-		rowFields.add(new JLabel("Đến ngày:"));
-		rowFields.add(dateChooserDenNgay);
-
-		rowFields.add(new JLabel("Thanh toán:"));
-		rowFields.add(cboHinhThucTT);
-
-		// --- ROW 2: Hai nút, căn phải ---
-		JPanel rowButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-
-		btnReset = new JButton("Làm mới");
+		btnReset = new JButton("Xóa bộ lọc");
 		btnReset.setIcon(new FlatSVGIcon("gui/icon/svg/reset.svg", 0.8f));
 
 		btnLoc = new JButton("Lọc");
@@ -129,32 +189,43 @@ public class PanelQuanLyHoaDon extends JPanel {
 		btnLoc.setBackground(new Color(38, 117, 191));
 		btnLoc.setForeground(Color.WHITE);
 
-		rowButtons.add(btnLoc);
-		rowButtons.add(btnReset);
+		pnlButtons.add(btnLoc);
+		pnlButtons.add(btnReset);
 
-		// Gộp vào panel lọc
-		pnlLoc.add(rowFields);
-		pnlLoc.add(rowButtons);
+		pnlLoc.add(pnlInput, BorderLayout.CENTER);
+		pnlLoc.add(pnlButtons, BorderLayout.SOUTH);
 
-		// Add top
 		pnlTop.add(pnlTraCuu);
 		pnlTop.add(pnlLoc);
 
 		// Bảng
 		tableModel = new HoaDonTableModel();
 		table = new JTable(tableModel);
+		table.putClientProperty("JTable.stripe", true);
 		table.setRowHeight(30);
 
-		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
+		table.getColumnModel().getColumn(0).setMaxWidth(34);
+		table.getColumnModel().getColumn(1).setMinWidth(170);
+		table.getColumnModel().getColumn(2).setPreferredWidth(70);
+		table.getColumnModel().getColumn(3).setMinWidth(150);
+		table.getColumnModel().getColumn(4).setMinWidth(96);
+		table.getColumnModel().getColumn(5).setMinWidth(116);
+		table.getColumnModel().getColumn(6).setMinWidth(76);
+		table.getColumnModel().getColumn(7).setMinWidth(76);
+		table.getColumnModel().getColumn(8).setMinWidth(76);
+		table.getColumnModel().getColumn(9).setMaxWidth(80);
+		table.getColumnModel().getColumn(10).setMaxWidth(34);
+		table.getColumnModel().getColumn(11).setMaxWidth(34);
+
+		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
 
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(topAlignRenderer);
-//		table.getColumnModel().getColumn(HoaDonTableModel.COL_MA_GD).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(leftCenterRenderer);
 
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
@@ -256,5 +327,13 @@ public class PanelQuanLyHoaDon extends JPanel {
 
 	public JButton getBtnLoc() {
 		return btnLoc;
+	}
+
+	public JButton getBtnRefresh() {
+		return btnRefresh;
+	}
+
+	public JCheckBox getCheckBoxTatCaNgay() {
+		return checkBoxTatCaNgay;
 	}
 }

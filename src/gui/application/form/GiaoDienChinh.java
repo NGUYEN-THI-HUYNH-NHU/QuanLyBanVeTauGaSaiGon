@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -30,11 +31,10 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
 
 import entity.NhanVien;
+import gui.application.AboutUsHelper;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
-import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
-import gui.application.form.about.PanelAbout;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
 import gui.application.form.doiVe.PanelDoiVe;
@@ -119,7 +119,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
+//			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
 
 			// UC dung chung
 			case 15 -> {
@@ -137,7 +137,13 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-			case 17 -> UngDung.showGiaoDienChinh(new PanelAbout());
+			case 17 -> {
+				if (JOptionPane.showConfirmDialog(this,
+						"Bạn xác nhận điều hướng sang trình duyệt để mở trang About us?", "Xác nhận",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					AboutUsHelper.openAboutUs();
+				}
+			}
 			case 18 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
 			case 19 -> UngDung.dangXuat();
 			default -> action.cancel();
