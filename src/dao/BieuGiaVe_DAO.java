@@ -14,58 +14,157 @@ package dao;
  * 
  * @version: 1.0
  */
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-//public class BieuGiaVe_DAO {
-//	private final ConnectDB db = ConnectDB.getInstance();
-//
-//	public BieuGiaVe findApplicablePrice(String tuyenID, String hangToaID, String loaiTauID, int km) {
-//		String sql = "SELECT TOP 1 * FROM BieuGiaVe WHERE tuyenApDungID = ? AND hangToaApDungID = ? AND LoaiTauApDungID = ? "
-//				+ "AND ? >= ISNULL(minKm,0) AND ? <= ISNULL(maxKm, 2147483647) AND isCoHieuLuc = 1 ORDER BY doUuTien DESC, ngayCoHieuLuc DESC";
-//		try (Connection c = db.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
-//			ps.setString(1, tuyenID);
-//			ps.setString(2, hangToaID);
-//			ps.setString(3, loaiTauID);
-//			ps.setInt(4, km);
-//			ps.setInt(5, km);
-//			try (ResultSet rs = ps.executeQuery()) {
-//				if (rs.next()) {
-//					BieuGiaVe b = new BieuGiaVe();
-//					b.setBieuGiaVeID(sql);
-//					b.setTuyenApDung(rs.getString("tuyenApDungID"));
-//					b.setHangToaApDung(rs.getString("hangToaApDungID"));
-//					b.setLoaiTauApDung(rs.getString("LoaiTauApDungID"));
-//					b.setDonGiaTrenKm(rs.getDouble("donGiaTrenKm"));
-//					b.setGiaCoBan(rs.getDouble("giaCoDinh"));
-//					b.setPhuPhiCaoDiem(rs.getDouble("phuPhiCaoDiem"));
-//					return b;
-//				}
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-//
-//	/**
-//	 * Tính giá vé cơ bản (không gồm khuyến mãi, thuế): - Nếu giá cố định != null ->
-//	 * trả giá cố định - else: donGiaTrenKm * km -> cộng phụ phí
-//	 */
-//	public double tinhGia(String tuyenID, String hangToaID, String loaiTauID, int km) {
-//		BieuGiaVe b = findApplicablePrice(tuyenID, hangToaID, loaiTauID, km);
-//		if (b == null) {
-//			return 0.0;
-//		}
-//		double base;
-//		if (b.getGiaCoBan() != null && b.getGiaCoBan() > 0) {
-//			base = b.getGiaCoBan();
-//		} else if (b.getDonGiaTrenKm() != null) {
-//			base = b.getDonGiaTrenKm() * km;
-//		} else {
-//			base = 0.0;
-//		}
-//		if (b.getPhuPhiCaoDiem() != null) {
-//			base += b.getPhuPhiCaoDiem();
-//		}
-//		return base;
-//	}
-//}
+import connectDB.ConnectDB;
+import entity.BieuGiaVe;
+import entity.Tuyen;
+import entity.type.HangToa;
+import entity.type.LoaiTau;
+
+public class BieuGiaVe_DAO {
+	private final ConnectDB connectDB = ConnectDB.getInstance();
+
+	// Helper: Chuyển đổi Date SQL sang LocalDate
+	private LocalDate toLocalDate(Date date) {
+		return (date != null) ? date.toLocalDate() : null;
+	}
+
+	// Helper: Chuyển đổi LocalDate sang Date SQL
+	private Date toSqlDate(LocalDate date) {
+		return (date != null) ? Date.valueOf(date) : null;
+	}
+
+	public List<BieuGiaVe> getAllBieuGia() {
+		List<BieuGiaVe> list = new ArrayList<>();
+		String sql = "SELECT * FROM BieuGiaVe ORDER BY doUuTien DESC, ngayBatDau DESC";
+
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+			while (rs.next()) {
+				BieuGiaVe bg = new BieuGiaVe();
+				bg.setBieuGiaVeID(rs.getString("bieuGiaVeID"));
+
+				// Map các object con (Nếu null trong DB thì để object là null hoặc object rỗng
+				// tùy logic View)
+				String tuyenID = rs.getString("tuyenApDungID");
+				bg.setTuyenApDung(tuyenID != null ? new Tuyen(tuyenID) : null);
+
+				String loaiTauID = rs.getString("loaiTauApDungID");
+				bg.setLoaiTauApDung(loaiTauID != null ? LoaiTau.valueOf(loaiTauID) : null);
+
+				String hangToaID = rs.getString("hangToaApDungID");
+				bg.setHangToaApDung(hangToaID != null ? HangToa.valueOf(hangToaID) : null);
+
+				bg.setMinKm(rs.getInt("minKm"));
+				bg.setMaxKm(rs.getInt("maxKm"));
+
+				bg.setDonGiaTrenKm(rs.getObject("donGiaTrenKm") != null ? rs.getDouble("donGiaTrenKm") : 0);
+				bg.setGiaCoBan(rs.getObject("giaCoBan") != null ? rs.getDouble("giaCoBan") : 0);
+				bg.setPhuPhiCaoDiem(rs.getDouble("phuPhiCaoDiem"));
+				bg.setDoUuTien(rs.getInt("doUuTien"));
+
+				bg.setNgayBatDau(toLocalDate(rs.getDate("ngayBatDau")));
+				bg.setNgayKetThuc(toLocalDate(rs.getDate("ngayKetThuc")));
+
+				list.add(bg);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		System.out.println(list);
+		return list;
+	}
+
+	public boolean themBieuGia(BieuGiaVe bg) {
+		String sql = "INSERT INTO BieuGiaVe(bieuGiaVeID, tuyenApDungID, loaiTauApDungID, hangToaApDungID, "
+				+ "minKm, maxKm, donGiaTrenKm, giaCoBan, phuPhiCaoDiem, doUuTien, ngayBatDau, ngayKetThuc) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, bg.getBieuGiaVeID());
+
+			// Xử lý Nullable Foreign Keys
+			ps.setString(2, (bg.getTuyenApDung() != null) ? bg.getTuyenApDung().getTuyenID() : null);
+			ps.setString(3, (bg.getLoaiTauApDung() != null) ? bg.getLoaiTauApDung().toString() : null);
+			ps.setString(4, (bg.getHangToaApDung() != null) ? bg.getHangToaApDung().toString() : null);
+
+			ps.setInt(5, bg.getMinKm());
+			ps.setInt(6, bg.getMaxKm());
+
+			// Xử lý giá (1 trong 2 phải có giá trị, cái kia null)
+			if (bg.getDonGiaTrenKm() > 0) {
+				ps.setDouble(7, bg.getDonGiaTrenKm());
+				ps.setNull(8, Types.DECIMAL);
+			} else {
+				ps.setNull(7, Types.DECIMAL);
+				ps.setDouble(8, bg.getGiaCoBan());
+			}
+
+			ps.setDouble(9, bg.getPhuPhiCaoDiem());
+			ps.setInt(10, bg.getDoUuTien());
+			ps.setDate(11, toSqlDate(bg.getNgayBatDau()));
+			ps.setDate(12, toSqlDate(bg.getNgayKetThuc()));
+
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean capNhatBieuGia(BieuGiaVe bg) {
+		String sql = "UPDATE BieuGiaVe SET tuyenApDungID=?, loaiTauApDungID=?, hangToaApDungID=?, "
+				+ "minKm=?, maxKm=?, donGiaTrenKm=?, giaCoBan=?, phuPhiCaoDiem=?, doUuTien=?, "
+				+ "ngayBatDau=?, ngayKetThuc=? WHERE bieuGiaVeID=?";
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			// Tương tự như thêm mới
+			ps.setString(1, (bg.getTuyenApDung() != null) ? bg.getTuyenApDung().getTuyenID() : null);
+			ps.setString(2, (bg.getLoaiTauApDung() != null) ? bg.getLoaiTauApDung().toString() : null);
+			ps.setString(3, (bg.getHangToaApDung() != null) ? bg.getHangToaApDung().toString() : null);
+			ps.setInt(4, bg.getMinKm());
+			ps.setInt(5, bg.getMaxKm());
+
+			if (bg.getDonGiaTrenKm() > 0) {
+				ps.setDouble(6, bg.getDonGiaTrenKm());
+				ps.setNull(7, Types.DECIMAL);
+			} else {
+				ps.setNull(6, Types.DECIMAL);
+				ps.setDouble(7, bg.getGiaCoBan());
+			}
+
+			ps.setDouble(8, bg.getPhuPhiCaoDiem());
+			ps.setInt(9, bg.getDoUuTien());
+			ps.setDate(10, toSqlDate(bg.getNgayBatDau()));
+			ps.setDate(11, toSqlDate(bg.getNgayKetThuc()));
+			ps.setString(12, bg.getBieuGiaVeID());
+
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean xoaBieuGia(String id) {
+		String sql = "DELETE FROM BieuGiaVe WHERE bieuGiaVeID = ?";
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, id);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

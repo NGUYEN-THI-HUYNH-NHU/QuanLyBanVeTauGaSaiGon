@@ -36,7 +36,7 @@ import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
+import gui.application.form.bieuGia.PanelQuanLyBieuGia;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 import gui.application.form.hoanVe.PanelHoanVe;
@@ -66,7 +66,7 @@ public class GiaoDienChinh extends JLayeredPane {
 	private void init(NhanVien nhanVien) {
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setLayout(new GiaoDienChinhLayout());
-		menu = new Menu(nhanVien.getVaiTroNhanVien().toString());
+		menu = new Menu(nhanVien);
 		panelBody = new JPanel(new BorderLayout());
 		initMenuArrowIcon();
 		menuButton.putClientProperty(FlatClientProperties.STYLE,
@@ -98,7 +98,7 @@ public class GiaoDienChinh extends JLayeredPane {
 	private void initMenuEvent(NhanVien nhanVien) {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
 			switch (index) {
-			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
+//			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
 			case 3 -> UngDung.showGiaoDienChinh(new PanelBanVe());
 			case 4 -> {
@@ -115,7 +115,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 2 -> UngDung.showGiaoDienChinh(new PanelQuanLyGa(nhanVien));
 			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 //			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-//			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));

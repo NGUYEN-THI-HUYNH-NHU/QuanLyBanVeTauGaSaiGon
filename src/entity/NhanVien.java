@@ -29,11 +29,28 @@ public class NhanVien {
 	private LocalDate ngayThamGia;
 	private boolean isHoatDong;
 	private String caLam;
+	private byte[] avatar;
 
+	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, String caLam,
+			byte[] avatar) {
+		super();
+		this.nhanVienID = nhanVienID;
+		this.vaiTroNhanVien = vaiTroNhanVien;
+		this.hoTen = hoTen;
+		this.isNu = isNu;
+		this.ngaySinh = ngaySinh;
+		this.soDienThoai = soDienThoai;
+		this.email = email;
+		this.diaChi = diaChi;
+		this.ngayThamGia = ngayThamGia;
+		this.isHoatDong = isHoatDong;
+		this.caLam = caLam;
+		this.avatar = avatar;
+	}
 
-	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu,
-					LocalDate ngaySinh, String soDienThoai, String email, String diaChi,
-					LocalDate ngayThamGia, boolean isHoatDong, String caLam) {
+	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, String caLam) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
@@ -48,15 +65,15 @@ public class NhanVien {
 		this.caLam = caLam;
 	}
 
-
 	public NhanVien(String nhanVienID) {
 		super();
 		this.nhanVienID = nhanVienID;
 	}
 
-    public NhanVien() {
+	public NhanVien() {
 
-    }
+	}
+
 	public String getCaLam() {
 		return caLam;
 	}
@@ -65,7 +82,7 @@ public class NhanVien {
 		this.caLam = caLam;
 	}
 
-    public String getNhanVienID() {
+	public String getNhanVienID() {
 		return nhanVienID;
 	}
 
@@ -106,21 +123,21 @@ public class NhanVien {
 	}
 
 	public void setNhanVienID(String nhanVienID) {
-		if(nhanVienID == null || nhanVienID.isEmpty()) {
+		if (nhanVienID == null || nhanVienID.isEmpty()) {
 			throw new IllegalArgumentException("Mã nhân viên không được để trống");
 		}
 		this.nhanVienID = nhanVienID;
 	}
 
 	public void setVaiTroNhanVien(VaiTroNhanVien vaiTroNhanVien) {
-		if(vaiTroNhanVien == null) {
+		if (vaiTroNhanVien == null) {
 			throw new IllegalArgumentException("Vai trò nhân viên không được để trống");
 		}
 		this.vaiTroNhanVien = vaiTroNhanVien;
 	}
 
 	public void setHoTen(String hoTen) {
-		if(hoTen == null || hoTen.isEmpty()) {
+		if (hoTen == null || hoTen.isEmpty()) {
 			throw new IllegalArgumentException("Họ tên không được để trống");
 		}
 		this.hoTen = hoTen;
@@ -135,7 +152,7 @@ public class NhanVien {
 	}
 
 	public void setSoDienThoai(String soDienThoai) {
-		if(soDienThoai == null || soDienThoai.isEmpty()) {
+		if (soDienThoai == null || soDienThoai.isEmpty()) {
 			throw new IllegalArgumentException("Số điện thoại không được để trống");
 		}
 		this.soDienThoai = soDienThoai;
@@ -150,7 +167,7 @@ public class NhanVien {
 	}
 
 	public void setNgayThamGia(LocalDate ngayThamGia) {
-		if(ngayThamGia.isAfter(LocalDate.now())) {
+		if (ngayThamGia.isAfter(LocalDate.now())) {
 			throw new IllegalArgumentException("Ngày tham gia không được sau ngày hiện tại");
 		}
 		this.ngayThamGia = ngayThamGia;
@@ -160,17 +177,32 @@ public class NhanVien {
 		this.isHoatDong = isHoatDong;
 	}
 
+	public byte[] getAvatar() {
+		return avatar;
+	}
+
+	public void setCaLam(String caLam) {
+		this.caLam = caLam;
+	}
+
+	public void setAvatar(byte[] avatar) {
+		this.avatar = avatar;
+	}
+
 	@Override
 	public String toString() {
-		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";"
-				+ ngaySinh + ";" + soDienThoai + ";" + email + ";" + diaChi + ";"
-				+ ngayThamGia + ";" + isHoatDong + ";" + caLam;
+		return nhanVienID + ";" + vaiTroNhanVien + ";" + hoTen + isNu + ";" + ngaySinh + ";" + soDienThoai + ";" + email
+				+ ";" + diaChi + ";" + ngayThamGia + ";" + isHoatDong + ";" + caLam;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		NhanVien nhanVien = (NhanVien) o;
 		return Objects.equals(getNhanVienID(), nhanVien.getNhanVienID());
 	}

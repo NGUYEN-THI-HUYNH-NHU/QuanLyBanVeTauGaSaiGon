@@ -5,6 +5,9 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.LocalDate;
+import java.util.Objects;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -13,38 +16,42 @@ package entity;
  */
 
 import entity.type.HangToa;
-
-import java.util.Objects;
-
 import entity.type.LoaiTau;
 
 public class BieuGiaVe {
 	private String bieuGiaVeID;
-	private HangToa hangToaApDung;
+	private Tuyen tuyenApDung;
 	private LoaiTau loaiTauApDung;
+	private HangToa hangToaApDung;
 	private int minKm;
 	private int maxKm;
 	private double donGiaTrenKm;
 	private double giaCoBan;
 	private double phuPhiCaoDiem;
 	private int doUuTien;
-	private boolean isCoHieuLuc;
+	private LocalDate ngayBatDau;
+	private LocalDate ngayKetThuc;
 
-	public BieuGiaVe(){
+	public BieuGiaVe() {
 		super();
 	}
 
-	public BieuGiaVe(String bieuGiaVeID, HangToa hangToaApDungID, LoaiTau loaiTauApDungID, int minKm, int maxKm, double donGiaTrenKm, double giaCoBan, double phuPhiCaoDiem, int doUuTien, boolean isCoHieuLuc) {
+	public BieuGiaVe(String bieuGiaVeID, Tuyen tuyenApDung, LoaiTau loaiTauApDung, HangToa hangToaApDung, int minKm,
+			int maxKm, double donGiaTrenKm, double giaCoBan, double phuPhiCaoDiem, int doUuTien, LocalDate ngayBatDau,
+			LocalDate ngayKetThuc) {
+		super();
 		this.bieuGiaVeID = bieuGiaVeID;
-		this.hangToaApDung = hangToaApDungID;
-		this.loaiTauApDung = loaiTauApDungID;
+		this.tuyenApDung = tuyenApDung;
+		this.loaiTauApDung = loaiTauApDung;
+		this.hangToaApDung = hangToaApDung;
 		this.minKm = minKm;
 		this.maxKm = maxKm;
 		this.donGiaTrenKm = donGiaTrenKm;
 		this.giaCoBan = giaCoBan;
 		this.phuPhiCaoDiem = phuPhiCaoDiem;
 		this.doUuTien = doUuTien;
-		this.isCoHieuLuc = isCoHieuLuc;
+		this.ngayBatDau = ngayBatDau;
+		this.ngayKetThuc = ngayKetThuc;
 	}
 
 	public String getBieuGiaVeID() {
@@ -72,9 +79,7 @@ public class BieuGiaVe {
 	}
 
 	public void setMinKm(int minKm) {
-		if(minKm <= 0) {
-			throw new IllegalArgumentException("Số km tối thiểu phải lớn hơn 0");
-		}
+
 		this.minKm = minKm;
 	}
 
@@ -118,14 +123,6 @@ public class BieuGiaVe {
 		this.doUuTien = doUuTien;
 	}
 
-	public boolean isCoHieuLuc() {
-		return isCoHieuLuc;
-	}
-
-	public void setCoHieuLuc(boolean coHieuLuc) {
-		isCoHieuLuc = coHieuLuc;
-	}
-
 	public void setBieuGiaVeID(String bieuGiaVeID) {
 		if (bieuGiaVeID != null && !bieuGiaVeID.isEmpty()) {
 			this.bieuGiaVeID = bieuGiaVeID;
@@ -134,19 +131,44 @@ public class BieuGiaVe {
 		}
 	}
 
+	public LocalDate getNgayBatDau() {
+		return ngayBatDau;
+	}
+
+	public LocalDate getNgayKetThuc() {
+		return ngayKetThuc;
+	}
+
+	public void setNgayBatDau(LocalDate ngayBatDau) {
+		this.ngayBatDau = ngayBatDau;
+	}
+
+	public void setNgayKetThuc(LocalDate ngayKetThuc) {
+		this.ngayKetThuc = ngayKetThuc;
+	}
+
+	public Tuyen getTuyenApDung() {
+		return tuyenApDung;
+	}
+
+	public void setTuyenApDung(Tuyen tuyenApDung) {
+		this.tuyenApDung = tuyenApDung;
+	}
+
 	@Override
 	public String toString() {
-		return bieuGiaVeID + ";"
-				+ hangToaApDung + ";" + loaiTauApDung + ";" + minKm + ";" + maxKm
-				+ ";" + donGiaTrenKm + ";" + giaCoBan + ";" + phuPhiCaoDiem
-				+ ";" + doUuTien
-				+ ";" + isCoHieuLuc ;
+		return bieuGiaVeID + ";" + hangToaApDung + ";" + loaiTauApDung + ";" + minKm + ";" + maxKm + ";" + donGiaTrenKm
+				+ ";" + giaCoBan + ";" + phuPhiCaoDiem + ";" + doUuTien;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		BieuGiaVe bieuGiaVe = (BieuGiaVe) o;
 		return Objects.equals(bieuGiaVeID, bieuGiaVe.bieuGiaVeID);
 	}
