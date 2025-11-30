@@ -27,15 +27,11 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 	public static final int COL_KHOANG_CACH = 5;
 	public static final int COL_HIEU_LUC = 6;
 	public static final int COL_GIA = 7;
-
-	// Tách thành 3 cột
 	public static final int COL_XEM = 8;
 	public static final int COL_SUA = 9;
-	public static final int COL_XOA = 10;
 
 	private final String[] columnNames = { "ID", "Ưu tiên", "Tuyến", "Tàu", "Toa", "Khoảng cách", "Hiệu lực", "Giá",
-			"Xem", "Sửa", "Xóa" // Header cột
-	};
+			"Xem", "Sửa" };
 
 	private List<BieuGiaVe> rows;
 
@@ -55,7 +51,6 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 		return null;
 	}
 
-	// Các hàm setRowCount, addRow, removeRow giữ nguyên như câu trước...
 	public void setRowCount(int rowCount) {
 		if (rowCount == 0) {
 			rows.clear();
@@ -113,14 +108,10 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 		case COL_GIA:
 			return (bg.getGiaCoBan() > 0) ? String.format("Cố định: %.0f", bg.getGiaCoBan())
 					: String.format("%.0f /km", bg.getDonGiaTrenKm());
-
-		// Trả về Object để Renderer vẽ nút
 		case COL_XEM:
 			return "Xem";
 		case COL_SUA:
 			return "Sửa";
-		case COL_XOA:
-			return "Xóa";
 		default:
 			return null;
 		}

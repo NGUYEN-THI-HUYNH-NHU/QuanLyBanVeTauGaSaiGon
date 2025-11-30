@@ -40,7 +40,7 @@ public class DatCho_BUS {
 	public PhieuGiuCho taoPhieuGiuCho() {
 		NhanVien nv = AuthService.getInstance().getCurrentUser();
 		LocalDateTime now = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmm");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyHHmmss");
 		String pgcID = "PGC-" + now.format(formatter).toString();
 
 		return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
@@ -110,7 +110,7 @@ public class DatCho_BUS {
 
 	public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHang khachHang) {
 		LocalDateTime now = LocalDateTime.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy-HHmmss");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy-HHmmss");
 
 		String ddcID = "DDC-" + now.format(formatter).toString();
 

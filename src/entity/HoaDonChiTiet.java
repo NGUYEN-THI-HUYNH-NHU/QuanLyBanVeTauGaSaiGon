@@ -164,9 +164,6 @@ public class HoaDonChiTiet {
 	}
 
 	public void setVe(Ve ve) {
-		if (ve == null) {
-			throw new IllegalArgumentException("Ve không được để trống!");
-		}
 		this.ve = ve;
 	}
 
@@ -178,9 +175,6 @@ public class HoaDonChiTiet {
 	}
 
 	public void setDonViTinh(String donViTinh) {
-		if (donViTinh == null || donViTinh.isEmpty()) {
-			throw new IllegalArgumentException("DonViTinh không được để trống!");
-		}
 		this.donViTinh = donViTinh;
 	}
 

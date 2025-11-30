@@ -71,32 +71,26 @@ public class FormThongTinCaNhan extends JPanel {
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.gridwidth = 2; // Span cả 2 cột lớn
-		gbc.insets = new Insets(20, 20, 20, 20);
+		gbc.insets = new Insets(20, 20, 50, 20);
 		gbc.anchor = GridBagConstraints.CENTER;
 		pnlMain.add(lblTitle, gbc);
 
-		// --- LEFT COLUMN: AVATAR (Row 1, Col 0) ---
 		JPanel pnlAvatar = createAvatarPanel();
 
-		gbc.gridx = 0;
 		gbc.gridy = 1;
-		gbc.gridwidth = 1;
-		gbc.weightx = 0; // Không co giãn chiều ngang
-		gbc.weighty = 1.0; // Đẩy nội dung lên trên
+		gbc.weightx = 0;
+		gbc.weighty = 1.0;
 		gbc.anchor = GridBagConstraints.NORTH;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(0, 20, 20, 20); // Margin
+		gbc.insets = new Insets(0, 20, 0, 20);
 		pnlMain.add(pnlAvatar, gbc);
 
-		// --- RIGHT COLUMN: INFO FORM (Row 1, Col 1) ---
 		JPanel pnlInfo = createInfoPanel();
 
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.weightx = 1.0; // Co giãn phần form để lấp đầy khoảng trống
+		gbc.gridy = 2;
+		gbc.weightx = 1.0;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.insets = new Insets(0, 0, 20, 20);
+		gbc.insets = new Insets(0, 50, 20, 50);
 		pnlMain.add(pnlInfo, gbc);
 
 		// Wrap vào ScrollPane

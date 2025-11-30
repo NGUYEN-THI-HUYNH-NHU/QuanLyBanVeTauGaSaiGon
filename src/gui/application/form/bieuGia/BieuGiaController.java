@@ -75,13 +75,11 @@ public class BieuGiaController {
 		BieuGiaVeTableButtonRenderer btnRenderer = new BieuGiaVeTableButtonRenderer();
 		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_XEM).setCellRenderer(btnRenderer);
 		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_SUA).setCellRenderer(btnRenderer);
-		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_XOA).setCellRenderer(btnRenderer);
 
 		// Set width nhỏ cho cột nút
 		int btnWidth = 40;
 		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_XEM).setMaxWidth(btnWidth);
 		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_SUA).setMaxWidth(btnWidth);
-		view.getTable().getColumnModel().getColumn(BieuGiaVeTableModel.COL_XOA).setMaxWidth(btnWidth);
 
 		// 2. Mouse Listener (Xử lý click 3 cột)
 		view.getTable().addMouseListener(new MouseAdapter() {
@@ -99,8 +97,6 @@ public class BieuGiaController {
 					handleXemChiTiet(bg);
 				} else if (col == BieuGiaVeTableModel.COL_SUA) {
 					handleSua(bg);
-				} else if (col == BieuGiaVeTableModel.COL_XOA) {
-					handleXoa(bg);
 				}
 			}
 		});
@@ -110,8 +106,7 @@ public class BieuGiaController {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				int col = view.getTable().columnAtPoint(e.getPoint());
-				if (col == BieuGiaVeTableModel.COL_XEM || col == BieuGiaVeTableModel.COL_SUA
-						|| col == BieuGiaVeTableModel.COL_XOA) {
+				if (col == BieuGiaVeTableModel.COL_XEM || col == BieuGiaVeTableModel.COL_SUA) {
 					view.getTable().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				} else {
 					view.getTable().setCursor(Cursor.getDefaultCursor());
@@ -358,14 +353,6 @@ public class BieuGiaController {
 
 	private Frame getParentFrame() {
 		return (Frame) SwingUtilities.getWindowAncestor(view);
-	}
-
-	private void handleXoa(BieuGiaVe bg) {
-		int opt = JOptionPane.showConfirmDialog(view, "Xóa biểu giá " + bg.getBieuGiaVeID() + "?");
-		if (opt == JOptionPane.YES_OPTION) {
-			bieuGiaVeBUS.xoaBieuGia(bg.getBieuGiaVeID());
-			loadData();
-		}
 	}
 
 	private void loadData() {

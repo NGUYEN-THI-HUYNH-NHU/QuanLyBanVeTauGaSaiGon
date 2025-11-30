@@ -9,7 +9,6 @@ package gui.application;/*
 						* @created : 25/09/2025
 						*/
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -95,7 +94,6 @@ public class UngDung extends JFrame {
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 		UIManager.put("PasswordField.showRevealButton", true);
-		UIManager.put("Table.alternateRowColor", new Color(240, 248, 255));
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
 	}

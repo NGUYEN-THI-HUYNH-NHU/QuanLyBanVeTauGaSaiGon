@@ -201,7 +201,6 @@ public class PanelQuanLyHoaDon extends JPanel {
 		// Bảng
 		tableModel = new HoaDonTableModel();
 		table = new JTable(tableModel);
-		table.putClientProperty("JTable.stripe", true);
 		table.setRowHeight(30);
 
 		table.getColumnModel().getColumn(0).setMaxWidth(34);

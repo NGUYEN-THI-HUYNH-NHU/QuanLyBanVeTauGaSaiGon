@@ -20,8 +20,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +54,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private JTextField txtCccd;
 	private JTextField txtPhone;
 
-	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
 	public PanelHoanVeBuoc2() {
@@ -64,26 +61,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		setBorder(new LineBorder(new Color(220, 220, 220)));
 
 		model = new VeHoanTableModel();
-		table = new JTable(model) {
-			@Override
-			public String getToolTipText(MouseEvent e) {
-				String tip = null;
-				Point p = e.getPoint();
-				int rowIndex = rowAtPoint(p);
-				int colIndex = columnAtPoint(p);
-				int realRowIndex = convertRowIndexToModel(rowIndex);
-
-				if (realRowIndex >= 0) {
-					VeHoanRow row = model.getRows().get(realRowIndex);
-					// Nếu không đủ điều kiện, hiển thị lý do khi hover vào bất kỳ ô nào của dòng đó
-					// Hoặc chỉ khi hover vào cột Checkbox (tùy bạn chọn)
-					if (!row.isDuDieuKien()) {
-						tip = row.getLyDoKhongDuDieuKien();
-					}
-				}
-				return tip;
-			}
-		};
+		table = new JTable(model);
 
 		setupTable();
 
@@ -231,8 +209,15 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				// (Làm mờ ô vuông checkbox)
 				checkBox.setEnabled(dataRow.isDuDieuKien());
 
+				if (isSelected) {
+					checkBox.setBackground(table.getSelectionBackground());
+					checkBox.setForeground(table.getSelectionForeground());
+				} else {
+					checkBox.setBackground(table.getBackground());
+					checkBox.setForeground(table.getForeground());
+				}
+
 				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
-				// Gọi lại hàm applyRowStyle bạn đã viết sẵn
 				applyRowStyle(checkBox, table, row);
 
 				return checkBox;
@@ -383,7 +368,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	public void refreshRow(VeHoanRow row) {
 		int rowIndex = model.getRowIndex(row);
 		if (rowIndex != -1) {
-			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
 			row.setSelected(false);
 			model.fireTableRowsUpdated(rowIndex, rowIndex);
 		}

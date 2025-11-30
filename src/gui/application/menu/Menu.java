@@ -121,12 +121,11 @@ public class Menu extends JPanel {
 			} else {
 				// NV: {3, 4, 5, 10, 14, 16, 17, 18, 19}
 				if (vaiTroNhanVien == VaiTroNhanVien.NHAN_VIEN) {
-					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 10 || i == 11 || i == 12 || i == 13
-							|| i == 15) {
+					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 11 || i == 12 || i == 13 || i == 15) {
 						continue;
 					}
 				} else {
-					if (i == 3 || i == 4 || i == 5 || i == 10 || i == 14) {
+					if (i == 3 || i == 4 || i == 5 || i == 14) {
 						continue;
 					}
 				}

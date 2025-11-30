@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -51,6 +50,7 @@ public class PanelBuoc3 extends JPanel {
 	private JTextField txtTen;
 	private JTextField txtCccd;
 	private JTextField txtPhone;
+	private JLabel lblError;
 
 	private Consumer<PassengerRow> deleteListener;
 
@@ -82,15 +82,11 @@ public class PanelBuoc3 extends JPanel {
 
 		int deleteColumnIndex = 5;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
-		// 1. Áp dụng Renderer
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
-		// 2. Áp dụng Editor và truyền hành động (action)
 		deleteColumn.setCellEditor(new DeleteButtonEditor());
-		// 3. Đặt kích thước
 		deleteColumn.setPreferredWidth(40);
 		deleteColumn.setMaxWidth(40);
 
-		// 4. (QUAN TRỌNG) Bắt sự kiện click từ JTable
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -143,7 +139,7 @@ public class PanelBuoc3 extends JPanel {
 		gbc.insets = new Insets(2, 2, 6, 2);
 		JLabel lblNguoiMuaVe = new JLabel("Người mua vé", SwingConstants.CENTER);
 		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
-		lblNguoiMuaVe.setForeground(new Color(232, 75, 2));
+		lblNguoiMuaVe.setForeground(new Color(0, 145, 212));
 		formKhachHang.add(lblNguoiMuaVe, gbc);
 
 		gbc.insets = new Insets(2, 2, 2, 2);
@@ -166,12 +162,19 @@ public class PanelBuoc3 extends JPanel {
 		gbc.gridy = 6;
 		formKhachHang.add(txtPhone, gbc);
 
-		// spacer and note
+		// ====== row 3: lblError * ======
 		gbc.gridy = 7;
-		gbc.weighty = 1.0;
-		formKhachHang.add(Box.createVerticalGlue(), gbc);
+		lblError = new JLabel("");
+		lblError.setForeground(Color.RED);
+		lblError.setFont(new Font(lblError.getFont().getName(), Font.ITALIC, 11));
+		lblError.setVisible(false);
+		formKhachHang.add(lblError, gbc);
 
 		add(formKhachHang, BorderLayout.EAST);
+	}
+
+	public JLabel getLblError() {
+		return lblError;
 	}
 
 	public void setController(PanelBuoc3Controller controller) {

@@ -44,7 +44,7 @@ public class HoaDon_BUS {
 	 * @return
 	 */
 	public HoaDon taoHoaDon(BookingSession bookingSession) {
-		String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID();
+		String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID().substring(4);
 		LocalDateTime now = LocalDateTime.now();
 		HoaDon hoaDon = new HoaDon(hdID, bookingSession.getKhachHang(), bookingSession.getNhanVien(), now,
 				bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
@@ -59,7 +59,7 @@ public class HoaDon_BUS {
 	 * @return
 	 */
 	public HoaDon taoHoaDonDoiVe(ExchangeSession exchangeSession) {
-		String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getDonDatChoID();
+		String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getDonDatChoID().substring(4);
 		LocalDateTime now = LocalDateTime.now();
 		HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
 				exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
@@ -140,7 +140,7 @@ public class HoaDon_BUS {
 			if (phieu != null) {
 				String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
-						"Hủy phiếu dùng phòng chờ VIP theo vé hoàn", LoaiDichVu.PHIEU_HOAN, "Phiếu", 1, 0, 0);
+						"Hủy phiếu dùng phòng chờ VIP theo vé hoàn", LoaiDichVu.PHIEU_HUY, "Phiếu", 1, 0, 0);
 				dsHoaDonChiTiet.add(hdctPhieu);
 			}
 

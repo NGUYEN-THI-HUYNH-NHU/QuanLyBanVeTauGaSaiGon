@@ -23,16 +23,12 @@ public class BieuGiaVeTableButtonRenderer extends JButton implements TableCellRe
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
-		// Set Icon dựa vào cột
 		if (column == BieuGiaVeTableModel.COL_XEM) {
 			setIcon(new FlatSVGIcon("gui/icon/svg/view-blue.svg", 0.8f));
 			setToolTipText("Xem chi tiết");
 		} else if (column == BieuGiaVeTableModel.COL_SUA) {
 			setIcon(new FlatSVGIcon("gui/icon/svg/edit-yellow.svg", 0.8f));
 			setToolTipText("Chỉnh sửa");
-		} else if (column == BieuGiaVeTableModel.COL_XOA) {
-			setIcon(new FlatSVGIcon("gui/icon/svg/delete-red.svg", 0.8f));
-			setToolTipText("Xóa biểu giá");
 		}
 
 		setOpaque(true);

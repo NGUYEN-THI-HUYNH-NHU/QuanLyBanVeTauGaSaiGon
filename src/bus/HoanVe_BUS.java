@@ -92,7 +92,7 @@ public class HoanVe_BUS {
 				}
 			}
 			e.printStackTrace();
-			throw new Exception("Lỗi khi xử lý thanh toán: " + e.getMessage());
+			throw new Exception("Lỗi khi xử lý hoàn vé: " + e.getMessage());
 		} finally {
 			// Trả lại trạng thái AutoCommit cho kết nối
 			if (conn != null) {

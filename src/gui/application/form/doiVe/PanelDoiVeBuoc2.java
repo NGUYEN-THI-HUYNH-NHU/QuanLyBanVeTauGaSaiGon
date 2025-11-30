@@ -97,12 +97,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(100);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
 
-		// 1. Renderer cho tiền (căn phải, định dạng)
-		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
-		currencyRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-		currencyRenderer.setVerticalAlignment(SwingConstants.TOP); // Căn lên trên
-		currencyRenderer.setOpaque(true);
-
 		// Áp dụng lớp Renderer nội tuyến để định dạng
 		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
 			@Override
@@ -209,8 +203,15 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				// (Làm mờ ô vuông checkbox)
 				checkBox.setEnabled(dataRow.isDuDieuKien());
 
+				if (isSelected) {
+					checkBox.setBackground(table.getSelectionBackground());
+					checkBox.setForeground(table.getSelectionForeground());
+				} else {
+					checkBox.setBackground(table.getBackground());
+					checkBox.setForeground(table.getForeground());
+				}
+
 				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
-				// Gọi lại hàm applyRowStyle bạn đã viết sẵn
 				applyRowStyle(checkBox, table, row);
 
 				return checkBox;
@@ -277,7 +278,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		gbc.insets = new Insets(2, 2, 6, 2);
 		JLabel lblNguoiMuaVe = new JLabel("Người mua vé");
 		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
-		lblNguoiMuaVe.setForeground(new Color(232, 75, 2));
+		lblNguoiMuaVe.setForeground(new Color(0, 145, 212));
 		formKhachHang.add(lblNguoiMuaVe, gbc);
 
 		gbc.insets = new Insets(2, 30, 2, 30);
@@ -335,8 +336,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 			model.setRows(new ArrayList<>());
 		}
 	}
-
-	// === Getters cho Controller ===
 
 	public JButton getBtnTiepTuc() {
 		return btnTiepTuc;

@@ -82,6 +82,6 @@ public class BieuGiaVe_BUS {
 			// (Ở Form đã xử lý disable input, nhưng ở đây check cho chắc)
 		}
 
-		return null; // Không có lỗi
+		return null;
 	}
 }

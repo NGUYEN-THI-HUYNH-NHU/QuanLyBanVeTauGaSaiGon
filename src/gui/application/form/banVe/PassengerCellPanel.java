@@ -1,4 +1,3 @@
-
 package gui.application.form.banVe;
 /*
  * @(#) PassengerCellPanel.java  1.0  [10:13:12 PM] Oct 26, 2025
@@ -12,7 +11,8 @@ package gui.application.form.banVe;
  * @date: Oct 26, 2025
  * @version: 1.0
  */
-
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -20,10 +20,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
@@ -35,11 +38,10 @@ public class PassengerCellPanel extends JPanel {
 	private final JTextField txtID = new JTextField();
 	String[] types = { "Người lớn", "Trẻ em", "Người cao tuổi" };
 	private final JComboBox<String> cbType = new JComboBox<String>(types);
-
+	private final JLabel lblError = new JLabel();
 	private PanelBuoc3Controller controller;
 	private PassengerRow currentRowData;
 
-	// === THÊM THAM CHIẾU ĐỂ ĐIỀU HƯỚNG ===
 	private JTable table;
 	private PanelBuoc3 panelBuoc3;
 
@@ -67,6 +69,16 @@ public class PassengerCellPanel extends JPanel {
 		gbc.gridy = 2;
 		add(cbType, gbc);
 
+		gbc.gridy = 3;
+		gbc.insets = new Insets(0, 5, 2, 2);
+		lblError.setForeground(Color.RED);
+		lblError.setFont(new Font(lblError.getFont().getName(), Font.ITALIC, 11));
+		lblError.setVisible(false);
+		add(lblError, gbc);
+
+		addClearErrorListener(txtID);
+		addClearErrorListener(txtTen);
+
 		// 1. Enter trên txtID -> Tìm kiếm VÀ focus txtTen
 		txtID.addActionListener(new ActionListener() {
 			@Override
@@ -88,7 +100,88 @@ public class PassengerCellPanel extends JPanel {
 		cbType.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				handleFinalEnter();
+				if (isFullInfo()) {
+					handleFinalEnter();
+				}
+			}
+		});
+	}
+
+	private boolean isFullInfo() {
+		if (txtID.getText().trim().isEmpty()) {
+			return false;
+		}
+		if (txtTen.getText().trim().isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Hàm validate dữ liệu đầu vào
+	 * 
+	 * @return true nếu hợp lệ, false nếu có lỗi
+	 */
+	public boolean validateFields() {
+		String id = txtID.getText().trim();
+		String name = txtTen.getText().trim();
+
+		// 1. Check ID (CCCD/Hộ chiếu)
+		if (id.isEmpty()) {
+			showError("Vui lòng nhập CCCD/Hộ chiếu", txtID);
+			return false;
+		}
+		// Regex: Chỉ chấp nhận số, độ dài 9-15 (CCCD VN là 12)
+		if (!id.matches("^[0-9]{12}$")) {
+			showError("CCCD/Hộ chiếu không đúng định dạng (12 ký số)", txtID);
+			return false;
+		}
+
+		// 2. Check Tên
+		if (name.isEmpty()) {
+			showError("Vui lòng nhập họ tên", txtTen);
+			return false;
+		}
+		// Regex: Chấp nhận chữ cái unicode (tiếng Việt), khoảng trắng, dấu chấm (nếu
+		// cần)
+		// [^0-9!@#...] -> Đơn giản là không chứa số và ký tự đặc biệt cơ bản
+		if (name.matches(".*\\d.*") || name.matches(".*[!@#$%^&*()_+=<>?].*")) {
+			showError("Tên không được chứa số hoặc ký tự đặc biệt", txtTen);
+			return false;
+		}
+
+		hideError();
+		return true;
+	}
+
+	private void showError(String msg, JTextField textField) {
+		lblError.setText(msg);
+		lblError.setVisible(true);
+		textField.putClientProperty("JComponent.outline", "error");
+		textField.requestFocusInWindow();
+	}
+
+	private void hideError() {
+		lblError.setVisible(false);
+		lblError.setText("");
+	}
+
+	// Helper: Tự động ẩn lỗi khi user gõ
+	private void addClearErrorListener(JTextField txt) {
+		txt.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				hideError();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				hideError();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				hideError();
 			}
 		});
 	}
@@ -121,9 +214,15 @@ public class PassengerCellPanel extends JPanel {
 	 * Xử lý khi Enter ở trường cuối cùng (txtID)
 	 */
 	private void handleFinalEnter() {
+		// Validate trước khi cho phép nhảy dòng
+		if (!validateFields()) {
+			return;
+		}
+
 		if (table == null || panelBuoc3 == null) {
 			return;
 		}
+
 		int currentRow = table.getEditingRow();
 		if (table.getCellEditor() != null) {
 			table.getCellEditor().stopCellEditing();
@@ -145,7 +244,7 @@ public class PassengerCellPanel extends JPanel {
 
 	@Override
 	public void updateUI() {
-		super.updateUI(); // Cập nhật UI cho chính panel này (nền,...)
+		super.updateUI();
 
 		// Phải kiểm tra null vì updateUI có thể được gọi
 		// trong constructor của JPanel (trước khi txtTen được khởi tạo)

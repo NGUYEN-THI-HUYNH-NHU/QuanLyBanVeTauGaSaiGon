@@ -98,7 +98,7 @@ public class TaiKhoan_DAO {
 
 		try {
 			connection = connectDB.getConnection();
-			String sql = "UPDATE TaiKhoan SET matKhau = ? WHERE nhanVienID = ?";
+			String sql = "UPDATE TaiKhoan SET matKhauHash = ? WHERE nhanVienID = ?";
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setString(1, BCrypt.hashpw(newMatKhau, BCrypt.gensalt()));
 			preparedStatement.setString(2, nhanVienID);
@@ -373,5 +373,4 @@ public class TaiKhoan_DAO {
 		}
 		return null;
 	}
-
 }

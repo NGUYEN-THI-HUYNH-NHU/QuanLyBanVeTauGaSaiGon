@@ -35,6 +35,7 @@ import gui.application.AboutUsHelper;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
+import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.bieuGia.PanelQuanLyBieuGia;
 import gui.application.form.doiVe.PanelDoiVe;
@@ -119,7 +120,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-//			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
+			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
 
 			// UC dung chung
 			case 15 -> {

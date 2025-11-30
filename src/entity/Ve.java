@@ -71,11 +71,7 @@ public class Ve {
 	}
 
 	public void setKhachHang(KhachHang khachHang) {
-		if (khachHang != null) {
-			this.khachHang = khachHang;
-		} else {
-			throw new IllegalArgumentException("Hành khách không được rỗng!");
-		}
+		this.khachHang = khachHang;
 	}
 
 	public DonDatCho getDonDatCho() {

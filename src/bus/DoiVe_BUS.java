@@ -120,7 +120,7 @@ public class DoiVe_BUS {
 				}
 			}
 			e.printStackTrace();
-			throw new Exception("Lỗi khi xử lý thanh toán: " + e.getMessage());
+			throw new Exception("Lỗi khi xử lý đổi vé: " + e.getMessage());
 		} finally {
 			// Trả lại trạng thái AutoCommit cho kết nối
 			if (conn != null) {
