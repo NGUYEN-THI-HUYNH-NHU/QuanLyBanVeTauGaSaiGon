@@ -93,16 +93,13 @@ public class PassengerCellPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				cbType.requestFocusInWindow();
-			}
-		});
-
-		// 3. Enter trên cbType -> Nhảy dòng
-		cbType.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (isFullInfo()) {
-					handleFinalEnter();
-				}
+				// 3. Enter trên cbType -> Nhảy dòng
+				cbType.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						handleFinalEnter();
+					}
+				});
 			}
 		});
 	}
@@ -195,9 +192,9 @@ public class PassengerCellPanel extends JPanel {
 			KhachHang kh = controller.findKhachHangByID(id);
 			if (kh != null) {
 				// Tìm thấy -> Cập nhật Model của cell
-				currentRowData.setIdNumber(kh.getSoGiayTo());
-				currentRowData.setFullName(kh.getHoTen());
-				currentRowData.setType(kh.getLoaiDoiTuong());
+				currentRowData.setSoGiayTo(kh.getSoGiayTo());
+				currentRowData.setHoTen(kh.getHoTen());
+				currentRowData.setLoaiDoiTuong(kh.getLoaiDoiTuong());
 				// Lưu entity KhachHang vào VeSession
 				currentRowData.getVeSession().getVe().setKhachHang(kh);
 
@@ -237,7 +234,7 @@ public class PassengerCellPanel extends JPanel {
 			try {
 				panelBuoc3.getTxtCccdNguoiMua().requestFocusInWindow();
 			} catch (Exception e) {
-				System.err.println("Lỗi khi focus txtCccdNguoiMua: " + e.getMessage());
+				System.err.println("PassengerCellPanel: Lỗi khi focus txtCccdNguoiMua: " + e.getMessage());
 			}
 		}
 	}
@@ -275,13 +272,13 @@ public class PassengerCellPanel extends JPanel {
 			cbType.setSelectedIndex(0);
 			return;
 		}
-		txtTen.setText(p.getFullName());
-		txtID.setText(p.getIdNumber());
-		if (p.getType() == null) {
+		txtTen.setText(p.getHoTen());
+		txtID.setText(p.getSoGiayTo());
+		if (p.getLoaiDoiTuong() == null) {
 			cbType.setSelectedIndex(0);
 			return;
 		}
-		switch (p.getType()) {
+		switch (p.getLoaiDoiTuong()) {
 		case NGUOI_LON:
 			cbType.setSelectedIndex(0);
 			break;
@@ -298,10 +295,11 @@ public class PassengerCellPanel extends JPanel {
 		if (base == null) {
 			return null;
 		}
-		base.setFullName(getTxtTen().getText().trim());
-		base.setIdNumber(txtID.getText().trim());
+		base.setHoTen(getTxtTen().getText().trim());
+		base.setSoGiayTo(txtID.getText().trim());
 		int idx = cbType.getSelectedIndex();
-		base.setType(idx == 1 ? LoaiDoiTuong.TRE_EM : idx == 2 ? LoaiDoiTuong.NGUOI_CAO_TUOI : LoaiDoiTuong.NGUOI_LON);
+		base.setLoaiDoiTuong(
+				idx == 1 ? LoaiDoiTuong.TRE_EM : idx == 2 ? LoaiDoiTuong.NGUOI_CAO_TUOI : LoaiDoiTuong.NGUOI_LON);
 		return base;
 	}
 

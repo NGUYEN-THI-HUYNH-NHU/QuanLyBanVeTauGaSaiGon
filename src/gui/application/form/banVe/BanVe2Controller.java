@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import bus.BanVe_BUS;
+import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
 
@@ -35,6 +36,7 @@ public class BanVe2Controller {
 	private final PanelBuoc5 p5;
 
 	private final BanVe_BUS banVeBUS = new BanVe_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
 	private final BookingSession bookingSession;
 
@@ -52,8 +54,41 @@ public class BanVe2Controller {
 		this.p4 = view.getPanelBuoc4();
 		this.p5 = view.getPanelBuoc5();
 
+		this.p4.setKhuyenMaiProvider((veSession) -> {
+			return khuyenMaiBUS.getDanhSachKhuyenMaiPhuHop(veSession);
+		});
+
+		this.p4.addTableUpdateListener((e) -> {
+			updatePaymentInfo();
+		});
+
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
+	}
+
+	private void updatePaymentInfo() {
+		int tongTienVe = 0;
+		double giamGiaDT = 0;
+		int khuyenMai = 0;
+		int dichVu = 0;
+
+		List<VeSession> allTickets = bookingSession.getAllSelectedTickets();
+		// Hoặc dùng logic cũ để lấy allTickets
+
+		for (VeSession ve : allTickets) {
+			tongTienVe += ve.getVe().getGia();
+			dichVu += ve.getPhiPhieuDungPhongChoVIP();
+			khuyenMai += ve.getGiamKM();
+
+			// (Logic giảm đối tượng giữ nguyên)
+			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+				ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
+				giamGiaDT += ve.getGiamDoiTuong();
+			}
+		}
+
+		// Cập nhật lại UI PanelBuoc5
+		p5.setChiTietThanhToan(tongTienVe, (int) giamGiaDT, khuyenMai, dichVu);
 	}
 
 	/**
@@ -91,6 +126,8 @@ public class BanVe2Controller {
 			}
 		}
 
+		p4.hienThiThongTin(bookingSession);
+		updatePaymentInfo();
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
 		p5.setChiTietThanhToan(tongTienVe, (int) giamGiaDT, khuyenMai, dichVu);
 	}

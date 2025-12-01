@@ -1,16 +1,17 @@
 package gui.application.form.banVe;
+
 /*
  * @(#) PassengerCellEditor.java  1.0  [10:13:44 PM] Oct 26, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Oct 26, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.AbstractCellEditor;
@@ -34,8 +35,8 @@ public class PassengerCellEditor extends AbstractCellEditor implements TableCell
 		this.panel = new PassengerCellPanel();
 
 		// Kỹ thuật bọc panel
-		this.wrapperPanel = new JPanel(new java.awt.BorderLayout());
-		this.wrapperPanel.add(this.panel, java.awt.BorderLayout.CENTER);
+		this.wrapperPanel = new JPanel(new BorderLayout());
+		this.wrapperPanel.add(this.panel, BorderLayout.CENTER);
 		this.wrapperPanel.setBorder(null);
 	}
 

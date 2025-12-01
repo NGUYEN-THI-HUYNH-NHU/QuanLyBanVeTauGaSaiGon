@@ -259,4 +259,8 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	public JButton getBtnXacNhanVaInCash() {
 		return btnXacNhanVaInCash;
 	}
+
+	public JRadioButton getRadTienMat() {
+		return radTienMat;
+	}
 }

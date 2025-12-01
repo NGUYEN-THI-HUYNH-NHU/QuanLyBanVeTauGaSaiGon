@@ -1,13 +1,14 @@
-package gui.application;/*
-						* @ (#) UngDung.java   1.0     25/09/2025
-						package gui;
+package gui.application;
+/*
+@ (#) UngDung.java   1.0     25/09/2025
+package gui;
+					
 						
-						
-						/**						* @description :
-						* @author : Vy, Pham Kha Vy
-						* @version 1.0
-						* @created : 25/09/2025
-						*/
+/*** @description :
+* @author : Vy, Pham Kha Vy
+* @version 1.0
+* @created : 25/09/2025
+*/
 
 import java.awt.Component;
 import java.awt.Font;
@@ -85,6 +86,7 @@ public class UngDung extends JFrame {
 		FlatAnimatedLafChange.showSnapshot();
 		ungDung.setContentPane(ungDung.formDangNhap);
 		ungDung.formDangNhap.applyComponentOrientation(ungDung.getComponentOrientation());
+		ungDung.formDangNhap.getTxtTenDangNhap().requestFocusInWindow();
 		SwingUtilities.updateComponentTreeUI(ungDung.formDangNhap);
 		FlatAnimatedLafChange.hideSnapshotWithAnimation();
 	}
