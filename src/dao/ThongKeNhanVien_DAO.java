@@ -1,235 +1,242 @@
 package dao;
 
+import connectDB.ConnectDB;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-import connectDB.ConnectDB;
-
-/**
- * DAO thống kê cuối ca làm việc của nhân viên. ĐÃ FIX: - TIME vs DATETIME (dùng
- * LocalDateTime + Timestamp) - Đổi hinhThucThanhToan -> isThanhToanTienMat -
- * Đồng bộ đúng schema từ HeThongQuanLyBanVeTauGaSaiGon_V8.sql
- */
 public class ThongKeNhanVien_DAO {
 
-	public ThongKeNhanVien_DAO() {
-		ConnectDB.getInstance().connect();
-	}
+    public ThongKeNhanVien_DAO() {
+        ConnectDB.getInstance().connect();
+    }
 
-	// ================================
-	// HÀM TẠO DATETIME GỘP NGÀY + GIỜ
-	// ================================
-	private LocalDateTime toDateTime(LocalDate ngay, LocalTime gio) {
-		return LocalDateTime.of(ngay, gio);
-	}
+    private Timestamp createTimestamp(LocalDate date, LocalTime time) {
+        return Timestamp.valueOf(LocalDateTime.of(date, time));
+    }
 
-	private void close(ResultSet rs, PreparedStatement pst) {
-		try {
-			if (rs != null) {
-				rs.close();
-			}
-			if (pst != null) {
-				pst.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+    // ====================== TỔNG SỐ HÓA ĐƠN HOÀN THÀNH ======================
+    public int getTongSoHoaDonBanDuoc(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        int count = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-	// ================================
-	// 1. TỔNG HÓA ĐƠN HOÀN THÀNH
-	// ================================
-	public int getTongSoHoaDonBanDuoc(String maNhanVien, LocalDate ngayLamViec, LocalTime gioBatDauCa,
-			LocalTime gioKetThucCa) {
+        String sql = "SELECT COUNT(hoaDonID) FROM HoaDon " +
+                "WHERE nhanVienID = ? " +
+                "AND thoiDiemTao >= ? AND thoiDiemTao <= ? " +
+                "AND trangThai = 1";
 
-		int count = 0;
-		Connection con = ConnectDB.getInstance().getConnection();
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-		String sql = "SELECT COUNT(hoaDonID) FROM HoaDon " + "WHERE nhanVienID = ? " + "AND thoiDiemTao >= ? "
-				+ "AND thoiDiemTao <= ? ";
+        return count;
+    }
 
-		try {
-			pst = con.prepareStatement(sql);
+    // ====================== TỔNG SỐ HÓA ĐƠN ĐỔI / TRẢ ======================
+    public int getTongSoHoaDonDoiTra(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        int count = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-			LocalDateTime start = toDateTime(ngayLamViec, gioBatDauCa);
-			LocalDateTime end = toDateTime(ngayLamViec, gioKetThucCa);
+        String sql = "SELECT COUNT(hoaDonID) FROM HoaDon " +
+                "WHERE (hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%') " +
+                "AND nhanVienID = ? " +
+                "AND thoiDiemTao >= ? AND thoiDiemTao <= ? ";
 
-			pst.setString(1, maNhanVien);
-			pst.setTimestamp(2, Timestamp.valueOf(start));
-			pst.setTimestamp(3, Timestamp.valueOf(end));
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				count = rs.getInt(1);
-			}
+        return count;
+    }
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs, pst);
-		}
+    // ====================== TỔNG SỐ VÉ BÁN ======================
+    public int getTongSoVeBanDuoc(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        int soLuong = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-		return count;
-	}
+        String sql = "SELECT SUM(ct.soLuong) FROM HoaDonChiTiet ct " +
+                "JOIN HoaDon hd ON hd.hoaDonID = ct.hoaDonID " +
+                "WHERE hd.nhanVienID = ? " +
+                "AND hd.thoiDiemTao >= ? AND hd.thoiDiemTao <= ? " +
+                "AND hd.trangThai = 1";
 
-	// ================================
-	// 2. TỔNG HÓA ĐƠN ĐỔI / TRẢ
-	// ================================
-	public int getTongSoHoaDonDoiTra(String maNhanVien, LocalDate ngayLamViec, LocalTime gioBatDauCa,
-			LocalTime gioKetThucCa) {
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
+            if (rs.next()) soLuong = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-		int count = 0;
-		Connection con = ConnectDB.getInstance().getConnection();
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+        return soLuong;
+    }
 
-		String sql = "SELECT COUNT(hoaDonID) FROM HoaDon " + "WHERE hoaDonID LIKE 'HDHV%' " + "OR hoaDonID LIKE 'HDDV%'"
-				+ "AND nhanVienID = ? " + "AND thoiDiemTao >= ? " + "AND thoiDiemTao <= ? ";
+    // ====================== TỔNG TIỀN CHUYỂN KHOẢN ======================
+    public double getTongTienChuyenKhoan(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        double total = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-		try {
-			pst = con.prepareStatement(sql);
+        String sql = "SELECT SUM(CASE WHEN isThanhToanTienMat = 0 THEN tongTien ELSE 0 END) " +
+                "FROM HoaDon WHERE nhanVienID = ? " +
+                "AND thoiDiemTao >= ? AND thoiDiemTao <= ? " +
+                "AND trangThai = 1";
 
-			LocalDateTime start = toDateTime(ngayLamViec, gioBatDauCa);
-			LocalDateTime end = toDateTime(ngayLamViec, gioKetThucCa);
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
+            if (rs.next()) total = rs.getDouble(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-			pst.setString(1, maNhanVien);
-			pst.setTimestamp(2, Timestamp.valueOf(start));
-			pst.setTimestamp(3, Timestamp.valueOf(end));
+        return total;
+    }
 
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				count = rs.getInt(1);
-			}
+    // ====================== TỔNG TIỀN MẶT ======================
+    public double getTongTienMat(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        double total = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs, pst);
-		}
+        String sql = "SELECT SUM(CASE WHEN isThanhToanTienMat = 1 THEN tongTien ELSE 0 END) " +
+                "FROM HoaDon WHERE nhanVienID = ? " +
+                "AND thoiDiemTao >= ? AND thoiDiemTao <= ? " +
+                "AND trangThai = 1";
 
-		return count;
-	}
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
+            if (rs.next()) total = rs.getDouble(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-	// ================================
-	// 3. TỔNG VÉ BÁN TRONG CA
-	// ================================
-	public int getTongSoVeBanDuoc(String maNhanVien, LocalDate ngayLamViec, LocalTime gioBatDauCa,
-			LocalTime gioKetThucCa) {
+        return total;
+    }
 
-		int count = 0;
-		Connection con = ConnectDB.getInstance().getConnection();
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+    // ====================== LẤY DANH SÁCH HÓA ĐƠN (ĐÃ SỬA) ======================
+    public List<Object[]> getListHoaDonTrongCa(String maNV, LocalDate ngay, LocalTime gioBD, LocalTime gioKT) {
+        List<Object[]> list = new ArrayList<>();
 
-		String sql = "SELECT COUNT(cthd.veID) FROM HoaDonChiTiet cthd "
-				+ "JOIN HoaDon hd ON cthd.hoaDonID = hd.hoaDonID " + "WHERE hd.nhanVienID = ? "
-				+ "AND hd.thoiDiemTao >= ? " + "AND hd.thoiDiemTao <= ?";
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-		try {
-			pst = con.prepareStatement(sql);
+        // Bỏ cột trangThai khỏi SELECT list (hoặc giữ lại tùy nhu cầu, nhưng logic dưới sẽ không dùng)
+        String sql = "SELECT hoaDonID, thoiDiemTao, tongTien, isThanhToanTienMat, trangThai " +
+                "FROM HoaDon " +
+                "WHERE nhanVienID = ? " +
+                "AND thoiDiemTao >= ? AND thoiDiemTao <= ? " +
+                "ORDER BY thoiDiemTao DESC";
 
-			LocalDateTime start = toDateTime(ngayLamViec, gioBatDauCa);
-			LocalDateTime end = toDateTime(ngayLamViec, gioKetThucCa);
+        try {
+            pst = con.prepareStatement(sql);
+            pst.setString(1, maNV);
+            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            rs = pst.executeQuery();
 
-			pst.setString(1, maNhanVien);
-			pst.setTimestamp(2, Timestamp.valueOf(start));
-			pst.setTimestamp(3, Timestamp.valueOf(end));
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
 
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				count = rs.getInt(1);
-			}
+            while (rs.next()) {
+                String maHD = rs.getString(1);
+                Timestamp t = rs.getTimestamp(2);
+                double tongTien = rs.getDouble(3);
+                int isTienMat = rs.getInt(4);
+                int trangThai = rs.getInt(5); // Vẫn lấy để xác định tt
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs, pst);
-		}
+                String hinhThuc;
+                if (isTienMat == 1) hinhThuc = "Tiền mặt";
+                else hinhThuc = "Chuyển khoản";
 
-		return count;
-	}
+                String tt; // Biến trạng thái để hiển thị (thay cho cột trạng thái trong DB)
 
-	// ================================
-	// 4. TỔNG TIỀN CHUYỂN KHOẢN (isThanhToanTienMat = 0)
-	// ================================
-	public double getTongTienChuyenKhoan(String maNhanVien, LocalDate ngayLamViec, LocalTime gioBatDauCa,
-			LocalTime gioKetThucCa) {
+                // Xác định trạng thái hiển thị
+                if (maHD.startsWith("HDHV")) {
+                    tt = "Hoàn vé";
+                } else if (maHD.startsWith("HDDV")) {
+                    tt = "Đổi vé";
+                } else if (trangThai == 0) {
+                    tt = "Đổi/Trả";
+                } else {
+                    tt = "Hoàn thành";
+                }
 
-		double total = 0;
-		Connection con = ConnectDB.getInstance().getConnection();
-		PreparedStatement pst = null;
-		ResultSet rs = null;
+                // === BỎ CỘT TRẠNG THÁI KHỎI MẢNG OBJECT TRẢ VỀ ===
+                list.add(new Object[]{
+                        maHD,
+                        t != null ? t.toLocalDateTime().format(f) : "N/A",
+                        tongTien,
+                        hinhThuc,
+                        tt // Cột Trạng thái (đã xử lý) được đặt vào vị trí cột thứ 5
+                });
+            }
 
-		String sql = "SELECT SUM(tongTien) FROM HoaDon " + "WHERE nhanVienID = ? " + "AND thoiDiemTao >= ? "
-				+ "AND thoiDiemTao <= ? " + "AND isThanhToanTienMat = 0 "; // CHUYỂN KHOẢN
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close(rs, pst);
+        }
 
-		try {
-			pst = con.prepareStatement(sql);
+        return list;
+    }
 
-			LocalDateTime start = toDateTime(ngayLamViec, gioBatDauCa);
-			LocalDateTime end = toDateTime(ngayLamViec, gioKetThucCa);
-
-			pst.setString(1, maNhanVien);
-			pst.setTimestamp(2, Timestamp.valueOf(start));
-			pst.setTimestamp(3, Timestamp.valueOf(end));
-
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				total = rs.getDouble(1);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs, pst);
-		}
-
-		return total;
-	}
-
-	// ================================
-	// 5. TỔNG TIỀN MẶT (isThanhToanTienMat = 1)
-	// ================================
-	public double getTongTienMat(String maNhanVien, LocalDate ngayLamViec, LocalTime gioBatDauCa,
-			LocalTime gioKetThucCa) {
-
-		double total = 0;
-		Connection con = ConnectDB.getInstance().getConnection();
-		PreparedStatement pst = null;
-		ResultSet rs = null;
-
-		String sql = "SELECT SUM(tongTien) FROM HoaDon " + "WHERE nhanVienID = ? " + "AND thoiDiemTao >= ? "
-				+ "AND thoiDiemTao <= ? " + "AND isThanhToanTienMat = 1 "; // TIỀN MẶT
-
-		try {
-			pst = con.prepareStatement(sql);
-
-			LocalDateTime start = toDateTime(ngayLamViec, gioBatDauCa);
-			LocalDateTime end = toDateTime(ngayLamViec, gioKetThucCa);
-
-			pst.setString(1, maNhanVien);
-			pst.setTimestamp(2, Timestamp.valueOf(start));
-			pst.setTimestamp(3, Timestamp.valueOf(end));
-
-			rs = pst.executeQuery();
-			if (rs.next()) {
-				total = rs.getDouble(1);
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			close(rs, pst);
-		}
-
-		return total;
-	}
+    private void close(ResultSet rs, PreparedStatement pst) {
+        try {
+            if (rs != null) rs.close();
+            if (pst != null) pst.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
