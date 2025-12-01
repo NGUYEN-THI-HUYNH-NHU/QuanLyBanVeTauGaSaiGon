@@ -16,9 +16,22 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import entity.KhuyenMai;
+
 public class HanhKhachTableModel extends AbstractTableModel {
 	private final String[] cols = { "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng",
-			"Khuyến mãi", "Thành tiền", "" };
+			"Khuyến mãi", "Giảm KM", "Thành tiền", "" };
+
+	public static final int COL_HANH_KHACH = 0;
+	public static final int COL_VE = 1;
+	public static final int COL_GIA = 2;
+	public static final int COL_PHONG_CHO = 3;
+	public static final int COL_GIA_DV = 4;
+	public static final int COL_GIAM_DT = 5;
+	public static final int COL_KHUYEN_MAI = 6;
+	public static final int COL_GIAM_KM = 7;
+	public static final int COL_THANH_TIEN = 8;
+
 	private final List<PassengerRow> rows = new ArrayList<>();
 
 	@Override
@@ -41,10 +54,13 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		if (columnIndex == 3) {
 			return Boolean.class;
 		}
+		if (columnIndex == 6) {
+			return KhuyenMai.class;
+		}
 		if (columnIndex == 0) {
 			return PassengerRow.class;
 		}
-		if (columnIndex == 2 || columnIndex == 4 || columnIndex == 5 || columnIndex == 6 || columnIndex == 7) {
+		if (columnIndex == 2 || columnIndex == 4 || columnIndex == 5 || columnIndex == 7 || columnIndex == 8) {
 			return Double.class;
 		}
 		return Object.class;
@@ -67,11 +83,13 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		case 5:
 			return p.getVeSession().getGiamDoiTuong();
 		case 6:
-			return p.getVeSession().getGiamKM();
+			return p.getVeSession().getKhuyenMaiApDung();
 		case 7:
+			return p.getVeSession().getGiamKM();
+		case 8:
 			return p.getVeSession().getVe().getGia() + p.getVeSession().getPhiPhieuDungPhongChoVIP()
 					- p.getVeSession().getGiamKM() - p.getVeSession().getGiamDoiTuong();
-		case 8:
+		case 9:
 			return "Xóa";
 		default:
 			return null;
@@ -86,14 +104,15 @@ public class HanhKhachTableModel extends AbstractTableModel {
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		PassengerRow p = rows.get(rowIndex);
-		if (columnIndex == 0 && aValue instanceof PassengerRow) {
+		VeSession v = p.getVeSession();
+
+		if (columnIndex == COL_HANH_KHACH && aValue instanceof PassengerRow) {
 			PassengerRow src = (PassengerRow) aValue;
-			p.setFullName(src.getFullName());
-			p.setType(src.getType());
-			p.setIdNumber(src.getIdNumber());
+			p.setHoTen(src.getHoTen());
+			p.setLoaiDoiTuong(src.getLoaiDoiTuong());
+			p.setSoGiayTo(src.getSoGiayTo());
 			fireTableRowsUpdated(rowIndex, rowIndex);
-		}
-		if (columnIndex == 3) {
+		} else if (columnIndex == COL_PHONG_CHO) {
 			// Nhận giá trị true/false từ JCheckBox
 			Boolean isSelected = (Boolean) aValue;
 
@@ -104,8 +123,25 @@ public class HanhKhachTableModel extends AbstractTableModel {
 			}
 
 			// Thông báo cho bảng cập nhật lại các ô bị ảnh hưởng (Giá dịch vụ & Thành tiền)
-			fireTableCellUpdated(rowIndex, 4);
-			fireTableCellUpdated(rowIndex, 7);
+			fireTableCellUpdated(rowIndex, COL_GIA_DV);
+			fireTableCellUpdated(rowIndex, COL_THANH_TIEN);
+		} else if (columnIndex == COL_KHUYEN_MAI) {
+			KhuyenMai km = (KhuyenMai) aValue;
+			v.setKhuyenMaiApDung(km);
+
+			// TÍNH TOÁN LẠI TIỀN GIẢM KM
+			int tienGiam = 0;
+			if (km != null) {
+				if (km.getTyLeGiamGia() > 0) {
+					tienGiam = (int) (v.getVe().getGia() * (km.getTyLeGiamGia()));
+				} else if (km.getTienGiamGia() > 0) {
+					tienGiam = (int) km.getTienGiamGia();
+				}
+				// (Có thể thêm logic giới hạn tiền giảm tối đa nếu cần)
+			}
+			v.setGiamKM(tienGiam);
+			// Cập nhật cả dòng để tính lại Thành tiền
+			fireTableRowsUpdated(rowIndex, rowIndex);
 		}
 	}
 

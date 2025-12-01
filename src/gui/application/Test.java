@@ -15,15 +15,15 @@ package gui.application;
 //Dua cac panel vao day test cho tien
 import javax.swing.JFrame;
 
-import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.banVe.PanelBanVe1;
 
 public class Test {
 
 	public static void main(String[] args) {
 		// Tạo cửa sổ JFrame
 		JFrame frame = new JFrame("Test");
-		frame.add(new FormDoiMatKhau(AuthService.getInstance().getCurrentUser()));
-		frame.setSize(1100, 700);
+		frame.add(new PanelBanVe1());
+		frame.setSize(1100, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}

@@ -14,9 +14,9 @@ package gui.application.form.banVe;
 import entity.type.LoaiDoiTuong;
 
 public class PassengerRow {
-	private String fullName = "";
-	private LoaiDoiTuong type = LoaiDoiTuong.NGUOI_LON;
-	private String idNumber = "";
+	private String soGiayTo = "";
+	private String hoTen = "";
+	private LoaiDoiTuong loaiDoiTuong = LoaiDoiTuong.NGUOI_LON;
 	private final VeSession veSession;
 
 	public PassengerRow(VeSession v) {
@@ -27,28 +27,28 @@ public class PassengerRow {
 		return veSession;
 	}
 
-	public String getFullName() {
-		return fullName;
+	public String getHoTen() {
+		return hoTen;
 	}
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
+	public void setHoTen(String hoTen) {
+		this.hoTen = hoTen;
 	}
 
-	public LoaiDoiTuong getType() {
-		return type;
+	public LoaiDoiTuong getLoaiDoiTuong() {
+		return loaiDoiTuong;
 	}
 
-	public void setType(LoaiDoiTuong type) {
-		this.type = type;
+	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
+		this.loaiDoiTuong = loaiDoiTuong;
 	}
 
-	public String getIdNumber() {
-		return idNumber;
+	public String getSoGiayTo() {
+		return soGiayTo;
 	}
 
-	public void setIdNumber(String idNumber) {
-		this.idNumber = idNumber;
+	public void setSoGiayTo(String soGiayTo) {
+		this.soGiayTo = soGiayTo;
 	}
 
 	public double getTotal() {

@@ -13,7 +13,9 @@ package gui.application.form.banVe;
  */
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
@@ -182,59 +184,85 @@ public class PanelBuoc3Controller {
 		String cccdNguoiMua = view.getTxtCccdNguoiMua().getText().trim();
 		String phoneNguoiMua = view.getTxtPhoneNguoiMua().getText().trim();
 
-		// 2. Validate (Giữ nguyên)
+		// 2. Validate
 		if (!validate(cccdNguoiMua, tenNguoiMua, phoneNguoiMua)) {
 			return;
 		}
+
+		// --- DÙNG MAP ĐỂ TRÁNH TRÙNG LẶP TRONG PHIÊN XỬ LÝ ---
+		// Key: Số giấy tờ (CCCD), Value: Đối tượng KhachHang
+		Map<String, KhachHang> processedCustomers = new HashMap<>();
 
 		// 3. Cập nhật Model (BookingSession)
 		// 3a. Cập nhật thông tin Hành Khách vào từng VeSession
 		for (PassengerRow row : rows) {
 			VeSession ve = row.getVeSession();
-			KhachHang hanhKhach = ve.getVe().getKhachHang();
+			String cccdHanhKhach = row.getSoGiayTo();
+
+			// Bước 1: Kiểm tra trong Map cục bộ (đã xử lý ở vòng lặp trước chưa?)
+			KhachHang hanhKhach = processedCustomers.get(cccdHanhKhach);
+
+			// Bước 2: Nếu chưa có trong Map, kiểm tra trong CSDL
 			if (hanhKhach == null) {
-				// Không tìm thấy -> Tạo hành khách mới
-				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getFullName(), null, null,
-						row.getIdNumber(), null, row.getType(), LoaiKhachHang.HANH_KHACH);
-				ve.getVe().setKhachHang(hanhKhach);
+				hanhKhach = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccdHanhKhach);
+			}
+
+			// Bước 3: Nếu chưa có ở đâu cả -> Tạo mới
+			if (hanhKhach == null) {
+				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getHoTen(), null, null,
+						cccdHanhKhach, null, row.getLoaiDoiTuong(), LoaiKhachHang.HANH_KHACH);
 				khachHangBUS.themKhachHang(hanhKhach);
-				System.out.println("Tạo hành khách mới: " + hanhKhach);
+				System.out.println("Tạo hành khách mới: " + hanhKhach.getHoTen());
+			} else {
+				// Nếu đã có, cập nhật thông tin mới nhất từ UI (ví dụ tên có thể sửa)
+				// hanhKhach.setHoTen(row.getHoTen());
+				// khachHangBUS.capNhatKhachHang(hanhKhach);
 			}
-			// (Nếu tìm thấy, nó đã được gán vào VeSession, không cần làm gì)
+
+			// Bước 4: Lưu vào Map để dùng lại (cho vé khứ hồi hoặc cho người mua)
+			processedCustomers.put(cccdHanhKhach, hanhKhach);
+
+			// Gán vào vé
+			ve.getVe().setKhachHang(hanhKhach);
 		}
+
 		// 3b. Cập nhật Khách hàng (Người Mua)
-		KhachHang nguoiMua = bookingSession.getKhachHang();
+		// Ưu tiên 1: Lấy từ Map (nếu người mua chính là một trong các hành khách vừa
+		// nhập)
+		KhachHang nguoiMua = processedCustomers.get(cccdNguoiMua);
+
+		// Ưu tiên 2: Nếu không phải hành khách, tìm trong CSDL (khách cũ)
 		if (nguoiMua == null) {
-			// Không tìm thấy (hoặc không nhập) -> Tạo khách hàng mới
-			boolean isHanhKhach = false;
-			for (PassengerRow row : rows) {
-				// Nếu khách hàng cũng là hành khách thì cập nhật loại khách hàng
-				if (cccdNguoiMua.equalsIgnoreCase(row.getVeSession().getVe().getKhachHang().getKhachHangID())) {
-					row.getVeSession().getVe().getKhachHang().setLoaiKhachHang(LoaiKhachHang.HANH_KHACH_KHACH_HANG);
-					row.getVeSession().getVe().getKhachHang().setSoDienThoai(phoneNguoiMua);
-					nguoiMua = row.getVeSession().getVe().getKhachHang();
-					bookingSession.setKhachHang(nguoiMua);
-					khachHangBUS.capNhatKhachHang(nguoiMua);
-					isHanhKhach = true;
-					System.out.println("Cập nhật hành khách: " + nguoiMua);
-					break;
-				}
-			}
-			// Nếu khách hàng khác hành khách
-			if (!isHanhKhach) {
-				nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, null,
-						cccdNguoiMua, null, null, LoaiKhachHang.KHACH_HANG);
-				bookingSession.setKhachHang(nguoiMua);
-				khachHangBUS.themKhachHang(nguoiMua);
-				System.out.println("Tạo người mua mới: " + nguoiMua);
-			}
-		} else {
-			// Tìm thấy -> Cập nhật lại thông tin (nếu người dùng sửa)
+			nguoiMua = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccdNguoiMua);
+		}
+
+		if (nguoiMua != null) {
+			// === TRƯỜNG HỢP: NGƯỜI MUA ĐÃ TỒN TẠI (hoặc trùng với hành khách) ===
+
+			// Cập nhật thông tin người mua
 			nguoiMua.setHoTen(tenNguoiMua);
 			nguoiMua.setSoDienThoai(phoneNguoiMua);
+
+			// Logic cập nhật loại khách hàng
+			if (nguoiMua.getLoaiKhachHang() == LoaiKhachHang.HANH_KHACH) {
+				// Nếu trước đây chỉ là hành khách, giờ thành Hành khách + Người mua
+				nguoiMua.setLoaiKhachHang(LoaiKhachHang.HANH_KHACH_KHACH_HANG);
+			}
+
 			khachHangBUS.capNhatKhachHang(nguoiMua);
-			System.out.println("Cập nhật người mua: " + nguoiMua);
+			System.out.println("Cập nhật thông tin người mua: " + nguoiMua.getHoTen());
+
+		} else {
+			// === TRƯỜNG HỢP: NGƯỜI MUA MỚI TINH (Và không đi tàu) ===
+			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, null,
+					cccdNguoiMua, null, null, // Người mua đơn thuần không có đối tượng giảm giá vé
+					LoaiKhachHang.KHACH_HANG);
+			khachHangBUS.themKhachHang(nguoiMua);
+			System.out.println("Tạo người mua mới: " + nguoiMua.getHoTen());
 		}
+
+		// Lưu vào session
+		bookingSession.setKhachHang(nguoiMua);
 
 		System.out.println("BookingSession đã được cập nhật.");
 

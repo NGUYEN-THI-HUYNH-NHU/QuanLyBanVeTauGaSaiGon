@@ -78,6 +78,7 @@ public class HoanVe2Controller {
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
 		p5.setChiTietThanhToan(tongTienVe, tongPhiHoan);
+		p5.getRadTienMat().doClick();
 	}
 
 	/**

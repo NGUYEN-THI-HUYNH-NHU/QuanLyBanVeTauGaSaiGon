@@ -136,7 +136,7 @@ public class VeSession {
 	public String toString() {
 		return ve.getChuyen().getTau().getTauID() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
 				+ ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ";"
-				+ ve.getGhe().getToa().getToaID() + ";" + ve.getGhe().getToa().getSoToa() + ";"
+				+ ve.getGhe().getToa().getHangToa() + ";" + ve.getGhe().getToa().getSoToa() + ";"
 				+ ve.getGhe().getSoGhe();
 	}
 

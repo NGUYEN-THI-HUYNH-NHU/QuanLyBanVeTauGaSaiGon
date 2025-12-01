@@ -120,6 +120,15 @@ public class HoaDon_BUS {
 				dsHoaDonChiTiet.add(hdctGiamDT);
 
 			}
+
+			if (ve.getKhuyenMaiApDung() != null) {
+				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon,
+						ve.getKhuyenMaiApDung().getMaKhuyenMai() + ": " + ve.getKhuyenMaiApDung().getMoTa(),
+						LoaiDichVu.KHUYEN_MAI, "", 1, -ve.getGiamKM(), -ve.getGiamKM());
+				dsHoaDonChiTiet.add(hdctKM);
+
+			}
 		}
 		return dsHoaDonChiTiet;
 	}

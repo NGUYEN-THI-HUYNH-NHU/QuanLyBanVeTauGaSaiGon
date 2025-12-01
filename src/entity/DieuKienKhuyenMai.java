@@ -5,18 +5,17 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.HangToa;
-import entity.type.LoaiDoiTuong;
-import entity.type.LoaiTau;
-
-import java.util.Objects;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
  * @date: Sep 22, 2025
  * @version: 1.0
  */
+import java.util.Objects;
+
+import entity.type.HangToa;
+import entity.type.LoaiDoiTuong;
+import entity.type.LoaiTau;
 
 public class DieuKienKhuyenMai {
 	private String dieuKienID;
@@ -84,9 +83,9 @@ public class DieuKienKhuyenMai {
 	}
 
 	public void setDieuKienID(String dieuKienID) {
-		if(dieuKienID != null && !dieuKienID.trim().isEmpty()) {
+		if (dieuKienID != null && !dieuKienID.trim().isEmpty()) {
 			this.dieuKienID = dieuKienID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Điều kiện ID không được để trống!");
 		}
 	}
@@ -125,16 +124,18 @@ public class DieuKienKhuyenMai {
 
 	@Override
 	public String toString() {
-		return dieuKienID + ";" + khuyenMai + ";" + tuyen
-				+ ";" + loaiTau + ";" + hangToa
-				+ ";" + loaiDoiTuong + ";" + ngayTrongTuan + ";" + ngayLe
-				+ ";" + minGiaTriDonHang;
+		return dieuKienID + ";" + khuyenMai + ";" + tuyen + ";" + loaiTau + ";" + hangToa + ";" + loaiDoiTuong + ";"
+				+ ngayTrongTuan + ";" + ngayLe + ";" + minGiaTriDonHang;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DieuKienKhuyenMai that = (DieuKienKhuyenMai) o;
 		return Objects.equals(dieuKienID, that.dieuKienID);
 	}

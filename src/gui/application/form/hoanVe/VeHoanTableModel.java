@@ -22,7 +22,6 @@ public class VeHoanTableModel extends AbstractTableModel {
 	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Lệ phí", "Tiền hoàn",
 			"Thông tin phí", "Lý do hoàn", "TG còn lại", "Chọn" };
 
-	// (Column indices)
 	public static final int COL_TEN = 0;
 	public static final int COL_THONG_TIN_VE = 1;
 	public static final int COL_THANH_TIEN = 2;
