@@ -1,6 +1,8 @@
 package dao;
 
 import connectDB.ConnectDB;
+import entity.type.LoaiDichVu;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -88,15 +90,17 @@ public class ThongKeNhanVien_DAO {
 
         String sql = "SELECT SUM(ct.soLuong) FROM HoaDonChiTiet ct " +
                 "JOIN HoaDon hd ON hd.hoaDonID = ct.hoaDonID " +
-                "WHERE hd.nhanVienID = ? " +
+                "WHERE ct.loaiDichVu = ? " +
+                "AND hd.nhanVienID = ? " +
                 "AND hd.thoiDiemTao >= ? AND hd.thoiDiemTao <= ? " +
                 "AND hd.trangThai = 1";
 
         try {
             pst = con.prepareStatement(sql);
-            pst.setString(1, maNV);
-            pst.setTimestamp(2, createTimestamp(ngay, gioBD));
-            pst.setTimestamp(3, createTimestamp(ngay, gioKT));
+            pst.setString(1, LoaiDichVu.VE_BAN.toString());
+            pst.setString(2, maNV);
+            pst.setTimestamp(3, createTimestamp(ngay, gioBD));
+            pst.setTimestamp(4, createTimestamp(ngay, gioKT));
             rs = pst.executeQuery();
             if (rs.next()) soLuong = rs.getInt(1);
         } catch (SQLException e) {

@@ -2,7 +2,7 @@ package gui.application.form.thongKe;
 
 import dao.ThongKeNhanVien_DAO;
 import entity.NhanVien;
-import entity.type.VaiTroNhanVien; // <--- CẦN THÊM IMPORT NÀY
+import entity.type.VaiTroNhanVien;
 import gui.application.AuthService;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,6 +15,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.io.FileOutputStream; // Cần thiết cho xuất file
+import org.apache.poi.ss.usermodel.Workbook; // Cần thiết cho Excel
+import org.apache.poi.xssf.usermodel.XSSFWorkbook; // Cần thiết cho Excel
 
 public class PanelBaoCao extends JPanel {
 
@@ -52,23 +55,21 @@ public class PanelBaoCao extends JPanel {
     // =================================================================
 
     public PanelBaoCao() {
-        // Lấy nhân viên hiện tại từ AuthService
         NhanVien current = AuthService.getInstance().getCurrentUser();
         if (current == null) {
-            // Giả lập nhân viên sử dụng constructor 11 tham số (không có avatar)
-            // Đã sửa để khớp với constructor NhanVien(ID, VaiTro, HoTen, isNu, NgaySinh, SDT, Email, DiaChi, NgayTG, HoatDong, CaLam)
+            // Giả lập nhân viên (Đã sửa lỗi constructor)
             current = new NhanVien(
                     "NV001",
-                    null, // VaiTroNhanVien
+                    null,
                     "Nhân Viên Test",
-                    false, // isNu
-                    null,  // ngaySinh (LocalDate)
-                    "0000000000", // soDienThoai (Cần giá trị vì setter/DB không cho phép trống)
-                    null,  // email
-                    null,  // diaChi
-                    null,  // ngayThamGia (LocalDate)
-                    true,  // isHoatDong
-                    null   // caLam
+                    false,
+                    null,
+                    "0000000000",
+                    null,
+                    null,
+                    null,
+                    true,
+                    null
             );
         }
         this.nhanVien = current;
@@ -93,10 +94,8 @@ public class PanelBaoCao extends JPanel {
                        BaoCaoGiaoCaModel model, List<Object[]> hoaDonList) {
 
         this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
-        // Cần đảm bảo this.nhanVien được khởi tạo, dùng AuthService hoặc null nếu không thể
         NhanVien tempUser = AuthService.getInstance().getCurrentUser();
         if (tempUser == null) {
-            // Dùng constructor 1 tham số nếu không tìm thấy User
             tempUser = new NhanVien(null);
         }
         this.nhanVien = tempUser;
@@ -272,6 +271,9 @@ public class PanelBaoCao extends JPanel {
         btnExport.setBackground(new Color(255, 153, 51));
         btnExport.setForeground(Color.WHITE);
         btnExport.setPreferredSize(new Dimension(160, 30));
+        // THÊM SỰ KIỆN CHO NÚT EXPORT
+        btnExport.addActionListener(e -> exportToExcel());
+        pnlRightButton.add(btnExport);
 
         pnlBottom.add(pnlLeftButton, BorderLayout.WEST);
         pnlBottom.add(pnlRightButton, BorderLayout.EAST);
@@ -282,10 +284,124 @@ public class PanelBaoCao extends JPanel {
     }
 
     // =================================================================
-    // LOGIC TẢI DỮ LIỆU
+    // PHƯƠNG THỨC XUẤT FILE EXCEL (ĐÃ THÊM LẠI)
+    // =================================================================
+    private void exportToExcel() {
+        // Kiểm tra xem đã có dữ liệu trong bảng chưa
+        if (reportTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu hóa đơn để xuất.");
+            return;
+        }
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Lưu file báo cáo");
+        // Đặt tên file gợi ý theo ngày và ca làm việc
+        String defaultFileName = "BaoCaoCuoiCa_" + ngayLV.replace("/", "-") + "_" + caLV.replace(" ", "_") + ".xlsx";
+        fileChooser.setSelectedFile(new java.io.File(defaultFileName));
+
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+        if (!filePath.toLowerCase().endsWith(".xlsx")) {
+            filePath += ".xlsx";
+        }
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            // Tạo trang báo cáo chi tiết hóa đơn
+            org.apache.poi.ss.usermodel.Sheet sheet1 = workbook.createSheet("ChiTietHoaDon");
+
+            // Header cho bảng chi tiết
+            org.apache.poi.ss.usermodel.Row header1 = sheet1.createRow(0);
+            for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
+                header1.createCell(i).setCellValue(reportTableModel.getColumnName(i));
+            }
+
+            // Dữ liệu bảng chi tiết
+            for (int row = 0; row < reportTableModel.getRowCount(); row++) {
+                org.apache.poi.ss.usermodel.Row excelRow = sheet1.createRow(row + 1);
+
+                for (int col = 0; col < reportTableModel.getColumnCount(); col++) {
+                    Object value = reportTableModel.getValueAt(row, col);
+                    excelRow.createCell(col).setCellValue(value == null ? "" : value.toString());
+                }
+            }
+
+            // Tự động điều chỉnh kích thước cột cho trang chi tiết
+            for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
+                sheet1.autoSizeColumn(i);
+            }
+
+            // Tạo trang tóm tắt báo cáo (Summary)
+            org.apache.poi.ss.usermodel.Sheet sheet2 = workbook.createSheet("TongKet");
+
+            // Chuẩn bị dữ liệu tóm tắt
+            String nv = tenNV;
+            String ca = caLV;
+            String ngay = ngayLV;
+            String cashSystemText = lblTongTTHuyetThong.getText();
+            String transferSystemText = lblTongCKReport.getText();
+            String totalSystemText = lblTongThuReport.getText();
+            String cashActualText = lblTongTienMatKet.getText();
+            String totalActualText = lblTongTienHienTai.getText();
+            String differenceText = lblTongTienChenhLech.getText();
+            String ghiChu = txtGhiChuReport.getText();
+
+            // Viết dữ liệu tóm tắt
+            int rowNum = 0;
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("BÁO CÁO CUỐI CA");
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Nhân viên: " + nv);
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Ca làm việc: " + ca);
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Ngày làm việc: " + ngay);
+            rowNum++;
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("TỔNG KẾT TÀI CHÍNH:");
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng tiền mặt (Hệ thống):");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(cashSystemText);
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng tiền chuyển khoản:");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(transferSystemText);
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng doanh thu trên hệ thống (B):");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(totalSystemText);
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng tiền mặt tại két (Thực tế):");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(cashActualText);
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng doanh thu hiện tại (A):");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(totalActualText);
+
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Chênh lệnh (A - B):");
+            sheet2.getRow(rowNum - 1).createCell(1).setCellValue(differenceText);
+
+            rowNum++;
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("Ghi chú:");
+            sheet2.createRow(rowNum++).createCell(0).setCellValue(ghiChu);
+
+            sheet2.autoSizeColumn(0);
+            sheet2.autoSizeColumn(1);
+
+
+            // Ghi file
+            try (FileOutputStream fos = new FileOutputStream(filePath)) {
+                workbook.write(fos);
+            }
+
+            JOptionPane.showMessageDialog(this, "Xuất file báo cáo thành công!\n" + filePath);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi Xuất File", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // =================================================================
+    // CÁC PHƯƠNG THỨC LOGIC KHÁC (GIỮ NGUYÊN)
     // =================================================================
 
-    private void loadBaoCaoData() {
+    private void loadBaoCaoData() { /* ... giữ nguyên logic tải dữ liệu từ DAO ... */
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         final LocalDate currentDay = LocalDate.now();
@@ -335,7 +451,6 @@ public class PanelBaoCao extends JPanel {
                 try {
                     ThongKeResult result = get();
 
-                    // Cập nhật dữ liệu vào Field của Panel
                     tenNV = nhanVien.getHoTen();
                     caLV = result.caLamViecText;
                     ngayLV = result.ngayLamViecDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
@@ -368,11 +483,7 @@ public class PanelBaoCao extends JPanel {
         List<Object[]> danhSachHoaDonChiTiet;
     }
 
-    // =================================================================
-    // CÁC PHƯƠNG THỨC XỬ LÝ SỰ KIỆN VÀ CẬP NHẬT
-    // =================================================================
-
-    private void xuLyNhapTienMat() {
+    private void xuLyNhapTienMat() { /* ... giữ nguyên ... */
         Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
 
         NhapTienMat nhapTienMatDialog = new NhapTienMat(
@@ -399,7 +510,7 @@ public class PanelBaoCao extends JPanel {
         nhapTienMatDialog.setVisible(true);
     }
 
-    private void updateTable(List<Object[]> list) {
+    private void updateTable(List<Object[]> list) { /* ... giữ nguyên ... */
         if (reportTableModel == null) return;
         reportTableModel.setRowCount(0);
 
@@ -429,7 +540,7 @@ public class PanelBaoCao extends JPanel {
     }
 
 
-    public void updateSummaryPanel() {
+    public void updateSummaryPanel() { /* ... giữ nguyên ... */
         double tienMatKet = giaoCaModel.getTienMatTaiKetValue();
         double totalCurrent = tienMatKet + transferSystem;
         double difference = totalCurrent - totalSystem;
@@ -461,7 +572,7 @@ public class PanelBaoCao extends JPanel {
 
     public void updateData(String tenNV, String caLV, String ngayLV,
                            double cashSystem, double transferSystem, double totalSystem,
-                           List<Object[]> hoaDonList) {
+                           List<Object[]> hoaDonList) { /* ... giữ nguyên ... */
 
         this.tenNV = tenNV;
         this.caLV = caLV;
