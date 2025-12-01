@@ -1,386 +1,481 @@
 package gui.application.form.thongKe;
 
+import dao.ThongKeNhanVien_DAO;
+import entity.NhanVien;
+import entity.type.VaiTroNhanVien; // <--- CẦN THÊM IMPORT NÀY
+import gui.application.AuthService;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.Hashtable;
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class PanelBaoCao extends JPanel {
 
-    private final DecimalFormat df = new DecimalFormat("#,##0 VNĐ");
+    private final BaoCaoGiaoCaModel giaoCaModel;
+    private final ThongKeNhanVien_DAO thongKeNhanVienDAO;
+    private final NhanVien nhanVien;
 
-    private JLabel lblTenNhanVien, lblCaLamViec, lblNgayLamViec;
+    private final DecimalFormat currencyFormatter = new DecimalFormat("#,##0");
 
-    private double heThong_DoanhThuRong = 0;
-    // THÊM FIELD NÀY: Lưu tiền mặt thực tế sau khi nhấn Xác nhận
-    private double tienMatThucTeDaLuu = 0.0;
-    private boolean isGiaoCaConfirmed = false;
+    // =================================================================
+    // KHAI BÁO FIELD
+    // =================================================================
 
-    private Hashtable<Integer, JSpinner> spinners = new Hashtable<>();
-    private Hashtable<Integer, JLabel> labelsThanhTien = new Hashtable<>();
+    private JLabel lblNVInfo, lblCaInfo, lblNgayInfo;
 
-    private final int[] menhGiaArr = {500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000};
-    private JSpinner spnTienLeKhac;
-    private JLabel lblTongTienMatThucTe;
+    private JLabel lblTongTTHuyetThong, lblTongCKReport, lblTongThuReport;
+    private JLabel lblTongTienMatKet;
+    private JLabel lblTongTienHienTai;
+    private JLabel lblTongTienChenhLech;
+    private JLabel lblTongValue;
+    private JTextArea txtGhiChuReport;
 
-    private JLabel lblTienHeThong_SoSanh;
-    private JLabel lblTienThucTe_SoSanh;
-    private JLabel lblChenhLech;
-    private JLabel lblTrangThai;
-    private JTextArea txtGhiChu;
+    private String tenNV, caLV, ngayLV;
+    private double cashSystem, transferSystem, totalSystem;
+    private List<Object[]> hoaDonList;
 
-    private JButton btnXacNhanGiaoCa;
+    private JButton btnNhapTienMat;
+    private JButton btnExport;
 
-    // ====== CONSTRUCTOR NHẬN DỮ LIỆU TỪ PANELTHONGKE ======
-    public PanelBaoCao(String tenNV, String ca, String ngay, double doanhThuHeThong) {
-        this.heThong_DoanhThuRong = doanhThuHeThong;
+    private DefaultTableModel reportTableModel;
+    private JTable reportTable;
 
-        initComponents();
-        addEvents();
+    // =================================================================
+    // CONSTRUCTORS
+    // =================================================================
 
-        lblTenNhanVien.setText(tenNV);
-        lblCaLamViec.setText(ca);
-        lblNgayLamViec.setText(ngay);
-
-        updateDoiSoat(heThong_DoanhThuRong, 0);
-
-        // THÊM LOGIC NÀY: Tập trung vào ô tiền lẻ/khác và bôi đen nội dung
-        SwingUtilities.invokeLater(() -> {
-            JComponent editor = spnTienLeKhac.getEditor();
-            if (editor instanceof JSpinner.DefaultEditor) {
-                JFormattedTextField textField = ((JSpinner.DefaultEditor) editor).getTextField();
-                if (textField != null) {
-                    textField.selectAll(); // Bôi đen toàn bộ nội dung
-                    textField.requestFocusInWindow(); // Tập trung vào ô này
-                }
-            }
-        });
-    }
-
-    // ====== Constructor cũ để chạy test (không dùng thực tế) ======
     public PanelBaoCao() {
+        // Lấy nhân viên hiện tại từ AuthService
+        NhanVien current = AuthService.getInstance().getCurrentUser();
+        if (current == null) {
+            // Giả lập nhân viên sử dụng constructor 11 tham số (không có avatar)
+            // Đã sửa để khớp với constructor NhanVien(ID, VaiTro, HoTen, isNu, NgaySinh, SDT, Email, DiaChi, NgayTG, HoatDong, CaLam)
+            current = new NhanVien(
+                    "NV001",
+                    null, // VaiTroNhanVien
+                    "Nhân Viên Test",
+                    false, // isNu
+                    null,  // ngaySinh (LocalDate)
+                    "0000000000", // soDienThoai (Cần giá trị vì setter/DB không cho phép trống)
+                    null,  // email
+                    null,  // diaChi
+                    null,  // ngayThamGia (LocalDate)
+                    true,  // isHoatDong
+                    null   // caLam
+            );
+        }
+        this.nhanVien = current;
+        this.tenNV = nhanVien.getHoTen() != null ? nhanVien.getHoTen() : "Không xác định";
+
+        this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
+        this.giaoCaModel = new BaoCaoGiaoCaModel();
+
+        this.caLV = "Đang tải...";
+        this.ngayLV = "Đang tải...";
+        this.cashSystem = 0;
+        this.transferSystem = 0;
+        this.totalSystem = 0;
+        this.hoaDonList = new ArrayList<>();
+
         initComponents();
-        addEvents();
-        lblTenNhanVien.setText("Trần Thị B");
-        lblCaLamViec.setText("Ca 2 (16:00 - 22:00)");
-        lblNgayLamViec.setText(LocalDate.now().toString());
-        heThong_DoanhThuRong = 7300000;
-        updateDoiSoat(heThong_DoanhThuRong, 0);
+        loadBaoCaoData();
     }
+
+    public PanelBaoCao(String tenNV, String caLV, String ngayLV,
+                       double cashSystem, double transferSystem, double totalSystem,
+                       BaoCaoGiaoCaModel model, List<Object[]> hoaDonList) {
+
+        this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
+        // Cần đảm bảo this.nhanVien được khởi tạo, dùng AuthService hoặc null nếu không thể
+        NhanVien tempUser = AuthService.getInstance().getCurrentUser();
+        if (tempUser == null) {
+            // Dùng constructor 1 tham số nếu không tìm thấy User
+            tempUser = new NhanVien(null);
+        }
+        this.nhanVien = tempUser;
+
+        this.tenNV = tenNV;
+        this.caLV = caLV;
+        this.ngayLV = ngayLV;
+        this.cashSystem = cashSystem;
+        this.transferSystem = transferSystem;
+        this.totalSystem = totalSystem;
+        this.giaoCaModel = model;
+        this.hoaDonList = hoaDonList;
+
+        initComponents();
+        updateSummaryPanel();
+    }
+
+    // =================================================================
+    // CÁC PHƯƠNG THỨC UI
+    // =================================================================
 
     private void initComponents() {
-        setLayout(new BorderLayout(15, 15));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setLayout(new BorderLayout(10, 10));
         setBackground(Color.WHITE);
+        setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        add(createTitlePanel(), BorderLayout.NORTH);
+        JPanel pnlTitle = createTitlePanel();
+        JPanel pnlTableAndTotal = createTablePanel();
+        JPanel pnlSummaryAndButtons = createSummaryAndButtonPanel();
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.55);
-        splitPane.setBorder(null);
+        JPanel pnlCenter = new JPanel();
+        pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.Y_AXIS));
+        pnlCenter.setOpaque(false);
 
-        splitPane.setLeftComponent(createKiemKePanel());
-        splitPane.setRightComponent(createDoiSoatPanel());
-        add(splitPane, BorderLayout.CENTER);
+        pnlCenter.add(pnlTitle);
+        pnlCenter.add(pnlTableAndTotal);
+        pnlCenter.add(Box.createVerticalStrut(10));
+        pnlCenter.add(pnlSummaryAndButtons);
 
-        add(createButtonPanel(), BorderLayout.SOUTH);
+        add(pnlCenter, BorderLayout.CENTER);
+
+        updateTitleLabels();
+        updateTable(this.hoaDonList);
+        updateSummaryPanel();
     }
 
     private JPanel createTitlePanel() {
-        JPanel pnl = new JPanel(new GridBagLayout());
-        pnl.setOpaque(false);
+        JLabel lblTitle = new JLabel("BÁO CÁO CUỐI CA", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        JPanel pnlNVInfo = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 5));
+        pnlNVInfo.setOpaque(false);
 
-        JLabel lblTitle = new JLabel("Lập Báo Cáo Giao Ca");
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 26));
+        lblNVInfo = new JLabel("Nhân viên: " + tenNV);
+        lblCaInfo = new JLabel("Ca làm việc: " + caLV);
+        lblNgayInfo = new JLabel("Ngày làm việc: " + ngayLV);
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 4;
-        pnl.add(lblTitle, gbc);
+        pnlNVInfo.add(lblNVInfo);
+        pnlNVInfo.add(lblCaInfo);
+        pnlNVInfo.add(lblNgayInfo);
 
-        gbc.gridwidth = 1;
+        JPanel pnlContainer = new JPanel(new BorderLayout());
+        pnlContainer.setOpaque(false);
+        pnlContainer.add(lblTitle, BorderLayout.NORTH);
+        pnlContainer.add(pnlNVInfo, BorderLayout.CENTER);
 
-        gbc.gridy = 1; gbc.gridx = 0;
-        pnl.add(new JLabel("Tên nhân viên:"), gbc);
-        gbc.gridx = 1;
-        lblTenNhanVien = new JLabel("...");
-        lblTenNhanVien.setFont(new Font("Arial", Font.BOLD, 14));
-        pnl.add(lblTenNhanVien, gbc);
-
-        gbc.gridx = 2;
-        pnl.add(new JLabel("Ca làm việc:"), gbc);
-        gbc.gridx = 3;
-        lblCaLamViec = new JLabel("...");
-        lblCaLamViec.setFont(new Font("Arial", Font.BOLD, 14));
-        pnl.add(lblCaLamViec, gbc);
-
-        gbc.gridy = 2; gbc.gridx = 0;
-        pnl.add(new JLabel("Ngày làm việc:"), gbc);
-        gbc.gridx = 1;
-        lblNgayLamViec = new JLabel("...");
-        lblNgayLamViec.setFont(new Font("Arial", Font.BOLD, 14));
-        pnl.add(lblNgayLamViec, gbc);
-
-        return pnl;
+        return pnlContainer;
     }
 
-    private Component createKiemKePanel() {
-        JPanel pnl = new JPanel(new BorderLayout(10, 10));
-        pnl.setOpaque(false);
-        pnl.setBorder(new TitledBorder("Kiểm kê tiền mặt trong két"));
-
-        JPanel pnlInputs = new JPanel(new GridBagLayout());
-        pnlInputs.setOpaque(false);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        gbc.gridx = 0; gbc.gridy = 0;
-        pnlInputs.add(new JLabel("Mệnh giá"), gbc);
-        gbc.gridx = 1;
-        pnlInputs.add(new JLabel("Số lượng"), gbc);
-        gbc.gridx = 2;
-        pnlInputs.add(new JLabel("Thành tiền"), gbc);
-
-        int row = 1;
-        for (int money : menhGiaArr) {
-            gbc.gridy = row;
-
-            gbc.gridx = 0;
-            pnlInputs.add(new JLabel(String.format("%,d", money)), gbc);
-
-            gbc.gridx = 1;
-            JSpinner sp = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
-            spinners.put(money, sp);
-            pnlInputs.add(sp, gbc);
-
-            gbc.gridx = 2;
-            JLabel lblThanhTien = new JLabel(df.format(0));
-            labelsThanhTien.put(money, lblThanhTien);
-            pnlInputs.add(lblThanhTien, gbc);
-
-            row++;
-        }
-
-        gbc.gridy = row; gbc.gridx = 0;
-        pnlInputs.add(new JLabel("Tiền lẻ/khác"), gbc);
-
-        gbc.gridx = 1; gbc.gridwidth = 2;
-        spnTienLeKhac = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 10000000.0, 1000.0));
-        pnlInputs.add(spnTienLeKhac, gbc);
-
-        JPanel pnlTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlTotal.setOpaque(false);
-
-        pnlTotal.add(new JLabel("Tổng tiền mặt thực tế (B):"));
-        lblTongTienMatThucTe = new JLabel(df.format(0));
-        lblTongTienMatThucTe.setForeground(new Color(0, 102, 0));
-        lblTongTienMatThucTe.setFont(new Font("Arial", Font.BOLD, 18));
-        pnlTotal.add(lblTongTienMatThucTe);
-
-        pnl.add(new JScrollPane(pnlInputs), BorderLayout.CENTER);
-        pnl.add(pnlTotal, BorderLayout.SOUTH);
-
-        return pnl;
-    }
-
-    private JPanel createDoiSoatPanel() {
-        JPanel pnl = new JPanel(new BorderLayout());
-        pnl.setOpaque(false);
-        pnl.setBorder(new TitledBorder("Kết quả đối soát & ghi chú"));
-
-        JPanel pnlInfo = new JPanel(new GridBagLayout());
-        pnlInfo.setOpaque(false);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 10, 8, 10);
-
-        gbc.gridx = 0; gbc.gridy = 0;
-        pnlInfo.add(new JLabel("Doanh thu hệ thống (A):"), gbc);
-
-        gbc.gridx = 1;
-        lblTienHeThong_SoSanh = new JLabel("0 VNĐ");
-        lblTienHeThong_SoSanh.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTienHeThong_SoSanh.setForeground(Color.BLUE);
-        pnlInfo.add(lblTienHeThong_SoSanh, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1;
-        pnlInfo.add(new JLabel("Tiền mặt thực tế (B):"), gbc);
-
-        gbc.gridx = 1;
-        lblTienThucTe_SoSanh = new JLabel("0 VNĐ");
-        lblTienThucTe_SoSanh.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTienThucTe_SoSanh.setForeground(new Color(0, 102, 0));
-        pnlInfo.add(lblTienThucTe_SoSanh, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2;
-        pnlInfo.add(new JLabel("CHÊNH LỆCH (B - A):"), gbc);
-
-        gbc.gridx = 1;
-        lblChenhLech = new JLabel("0 VNĐ");
-        lblChenhLech.setFont(new Font("Arial", Font.BOLD, 20));
-        pnlInfo.add(lblChenhLech, gbc);
-
-        gbc.gridx = 1; gbc.gridy = 3;
-        lblTrangThai = new JLabel("(Chưa kiểm kê)");
-        lblTrangThai.setForeground(Color.GRAY);
-        pnlInfo.add(lblTrangThai, gbc);
-
-        pnl.add(pnlInfo, BorderLayout.NORTH);
-
-        // --- KHỐI CODE CHO GHI CHÚ (THÊM BORDER) ---
-        txtGhiChu = new JTextArea();
-        txtGhiChu.setLineWrap(true);
-        txtGhiChu.setWrapStyleWord(true);
-
-        // Tạo JScrollPane cho JTextArea
-        JScrollPane scrollGhiChu = new JScrollPane(txtGhiChu);
-
-        // Tạo Panel mới để bọc JScrollPane và thêm TitledBorder
-        JPanel pnlGhiChu = new JPanel(new BorderLayout());
-        pnlGhiChu.setOpaque(false);
-
-        // Thêm TitledBorder với chữ "Ghi chú" cho panel này
-        pnlGhiChu.setBorder(BorderFactory.createTitledBorder("Ghi chú"));
-
-        pnlGhiChu.add(scrollGhiChu, BorderLayout.CENTER);
-
-        pnl.add(pnlGhiChu, BorderLayout.CENTER);
-        // --- KẾT THÚC KHỐI CODE ĐÃ SỬA ĐỔI ---
-
-        return pnl;
-    }
-
-    private JPanel createButtonPanel() {
-        JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnl.setOpaque(false);
-
-        btnXacNhanGiaoCa = new JButton("Xác Nhận");
-        btnXacNhanGiaoCa.setBackground(new Color(0, 102, 51));
-        btnXacNhanGiaoCa.setForeground(Color.WHITE);
-        btnXacNhanGiaoCa.setFont(new Font("Arial", Font.BOLD, 15));
-
-        pnl.add(btnXacNhanGiaoCa);
-        return pnl;
-    }
-
-    private void addEvents() {
-        ChangeListener listener = e -> updateTongTienMat();
-
-        for (JSpinner s : spinners.values()) {
-            s.addChangeListener(listener);
-        }
-        spnTienLeKhac.addChangeListener(listener);
-
-        btnXacNhanGiaoCa.addActionListener(e -> xuLyXacNhanGiaoCa());
-    }
-
-    private void updateTongTienMat() {
-        double total = 0;
-
-        for (int money : menhGiaArr) {
-            int qty = (Integer) spinners.get(money).getValue();
-            double value = qty * money;
-
-            labelsThanhTien.get(money).setText(df.format(value));
-            total += value;
-        }
-
-        total += (Double) spnTienLeKhac.getValue();
-
-        lblTongTienMatThucTe.setText(df.format(total));
-        updateDoiSoat(heThong_DoanhThuRong, total);
-    }
-
-    private void updateDoiSoat(double A, double B) {
-        lblTienHeThong_SoSanh.setText(df.format(A));
-        lblTienThucTe_SoSanh.setText(df.format(B));
-
-        double diff = B - A;
-        lblChenhLech.setText(df.format(diff));
-
-        if (diff < 0) {
-            lblChenhLech.setForeground(Color.RED);
-            lblTrangThai.setText("(Thiếu tiền)");
-            lblTrangThai.setForeground(Color.RED);
-        } else if (diff > 0) {
-            lblChenhLech.setForeground(new Color(0, 102, 0));
-            lblTrangThai.setText("(Thừa tiền)");
-            lblTrangThai.setForeground(new Color(0, 102, 0));
-        } else {
-            lblChenhLech.setForeground(Color.BLACK);
-            lblTrangThai.setText("(Khớp)");
-            lblTrangThai.setForeground(Color.BLACK);
+    private void updateTitleLabels() {
+        if (lblNVInfo != null) {
+            lblNVInfo.setText("Nhân viên: " + tenNV);
+            lblCaInfo.setText("Ca làm việc: " + caLV);
+            lblNgayInfo.setText("Ngày làm việc: " + ngayLV);
         }
     }
 
-    private void xuLyXacNhanGiaoCa() {
-        double A = heThong_DoanhThuRong;
+    private JPanel createTablePanel() {
+        String[] columnNames = {"STT", "Mã HĐ", "Thời Điểm Tạo", "Hình Thức TT", "Trạng Thái", "Tổng Tiền"};
 
-        // Cần xóa ký tự không phải số và dấu phẩy khỏi chuỗi trước khi parse
-        // Loại bỏ ký tự VNĐ và dấu phân cách hàng nghìn
-        String rawB = lblTongTienMatThucTe.getText().replaceAll("[^\\d]", "");
-        if (rawB.isEmpty()) rawB = "0";
+        reportTableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
-        double B = Double.parseDouble(rawB);
+        reportTable = new JTable(reportTableModel);
+        reportTable.setRowHeight(25);
+        reportTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
 
-        double diff = B - A;
+        JPanel pnlTongRow = new JPanel(new BorderLayout());
+        pnlTongRow.setBackground(new Color(235, 235, 235));
+        pnlTongRow.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-        String ghiChu = txtGhiChu.getText().trim();
+        JLabel lblTongText = new JLabel("Tổng Doanh thu Hệ thống (B):");
+        lblTongText.setFont(new Font("Arial", Font.BOLD, 14));
 
-        if (diff != 0 && ghiChu.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Có chênh lệch, vui lòng nhập lý do!",
-                    "Thiếu ghi chú", JOptionPane.WARNING_MESSAGE);
-            return;
+        lblTongValue = new JLabel(currencyFormatter.format(totalSystem).replace(",", "."));
+        lblTongValue.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTongValue.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        pnlTongRow.add(lblTongText, BorderLayout.WEST);
+        pnlTongRow.add(lblTongValue, BorderLayout.EAST);
+
+        JPanel pnlTableContainer = new JPanel(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane(reportTable);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
+        pnlTableContainer.add(scrollPane, BorderLayout.CENTER);
+        pnlTableContainer.add(pnlTongRow, BorderLayout.SOUTH);
+
+        return pnlTableContainer;
+    }
+
+    private JPanel createSummaryAndButtonPanel() {
+        JPanel pnlContainer = new JPanel(new BorderLayout(0, 10));
+        pnlContainer.setOpaque(false);
+
+        JPanel pnlSummary = new JPanel(new GridLayout(6, 2, 10, 5));
+        pnlSummary.setOpaque(false);
+        pnlSummary.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        lblTongTTHuyetThong = new JLabel(currencyFormatter.format(cashSystem).replace(",", "."));
+        lblTongCKReport = new JLabel(currencyFormatter.format(transferSystem).replace(",", "."));
+        lblTongThuReport = new JLabel(currencyFormatter.format(totalSystem).replace(",", "."));
+        lblTongTienMatKet = new JLabel(currencyFormatter.format(giaoCaModel.getTienMatTaiKetValue()).replace(",", "."));
+        lblTongTienHienTai = new JLabel("0");
+        lblTongTienChenhLech = new JLabel("0");
+
+        txtGhiChuReport = new JTextArea(3, 10);
+        txtGhiChuReport.setEditable(false);
+        txtGhiChuReport.setBackground(new Color(245, 245, 245));
+
+        lblTongTienMatKet.setFont(new Font("Arial", Font.BOLD, 14));
+
+        pnlSummary.add(new JLabel("Tổng tiền mặt (Hệ thống):"));
+        pnlSummary.add(lblTongTTHuyetThong);
+        pnlSummary.add(new JLabel("Tổng tiền chuyển khoản:"));
+        pnlSummary.add(lblTongCKReport);
+        pnlSummary.add(new JLabel("Tổng doanh thu trên hệ thống (B):"));
+        pnlSummary.add(lblTongThuReport);
+        pnlSummary.add(new JLabel("Tổng tiền mặt tại két (Thực tế):"));
+        pnlSummary.add(lblTongTienMatKet);
+        pnlSummary.add(new JLabel("Tổng doanh thu hiện tại (A):"));
+        pnlSummary.add(lblTongTienHienTai);
+        pnlSummary.add(new JLabel("Chênh lệnh (A - B):"));
+        pnlSummary.add(lblTongTienChenhLech);
+
+        pnlContainer.add(pnlSummary, BorderLayout.NORTH);
+
+        JPanel pnlGhiChuContainer = new JPanel(new BorderLayout(5, 0));
+        pnlGhiChuContainer.setOpaque(false);
+        pnlGhiChuContainer.setBorder(BorderFactory.createTitledBorder("Ghi chú"));
+        pnlGhiChuContainer.add(new JScrollPane(txtGhiChuReport), BorderLayout.CENTER);
+
+        pnlContainer.add(pnlGhiChuContainer, BorderLayout.CENTER);
+
+        JPanel pnlBottom = new JPanel(new BorderLayout());
+        pnlBottom.setOpaque(false);
+        pnlBottom.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JPanel pnlLeftButton = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        btnNhapTienMat = new JButton("Nhập tiền mặt");
+        btnNhapTienMat.setBackground(new Color(70, 130, 180));
+        btnNhapTienMat.setForeground(Color.WHITE);
+        btnNhapTienMat.setPreferredSize(new Dimension(130, 30));
+        btnNhapTienMat.addActionListener(e -> xuLyNhapTienMat());
+        pnlLeftButton.add(btnNhapTienMat);
+
+        JPanel pnlRightButton = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        btnExport = new JButton("Xuất File Báo Cáo");
+        btnExport.setBackground(new Color(255, 153, 51));
+        btnExport.setForeground(Color.WHITE);
+        btnExport.setPreferredSize(new Dimension(160, 30));
+
+        pnlBottom.add(pnlLeftButton, BorderLayout.WEST);
+        pnlBottom.add(pnlRightButton, BorderLayout.EAST);
+
+        pnlContainer.add(pnlBottom, BorderLayout.SOUTH);
+
+        return pnlContainer;
+    }
+
+    // =================================================================
+    // LOGIC TẢI DỮ LIỆU
+    // =================================================================
+
+    private void loadBaoCaoData() {
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        final LocalDate currentDay = LocalDate.now();
+        final LocalTime currentTime = LocalTime.now();
+
+        String tempCaLamViecText = "Ngoài ca làm việc";
+        LocalTime tempGioBatDauCa = LocalTime.MIN;
+        LocalTime tempGioKetThucCa = LocalTime.MAX;
+
+        if (currentTime.isAfter(LocalTime.of(8, 0)) && currentTime.isBefore(LocalTime.of(16, 0))) {
+            tempCaLamViecText = "Ca 1 (08:00 - 16:00)";
+            tempGioBatDauCa = LocalTime.of(8, 0);
+            tempGioKetThucCa = LocalTime.of(16, 0).minusSeconds(1);
+        } else if (currentTime.isAfter(LocalTime.of(16, 0)) && currentTime.isBefore(LocalTime.of(22, 0))) {
+            tempCaLamViecText = "Ca 2 (16:00 - 22:00)";
+            tempGioBatDauCa = LocalTime.of(16, 0);
+            tempGioKetThucCa = LocalTime.of(22, 0).minusSeconds(1);
         }
 
-        // LƯU GIÁ TRỊ VÀO FIELD VÀ ĐÁNH DẤU ĐÃ XÁC NHẬN
-        this.tienMatThucTeDaLuu = B;
-        this.isGiaoCaConfirmed = true;
+        final String finalCaLamViecText = tempCaLamViecText;
+        final LocalTime finalGioBatDauCa = tempGioBatDauCa;
+        final LocalTime finalGioKetThucCa = tempGioKetThucCa;
+        final String finalMaNhanVien = nhanVien.getNhanVienID();
 
-        JOptionPane.showMessageDialog(this,
-                "Đã lưu báo cáo giao ca!",
-                "Thành công", JOptionPane.INFORMATION_MESSAGE);
+        SwingWorker<ThongKeResult, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ThongKeResult doInBackground() throws Exception {
+                ThongKeResult result = new ThongKeResult();
 
-        // Đóng dialog sau khi xác nhận thành công
-        Window window = SwingUtilities.getWindowAncestor(this);
-        if (window instanceof JDialog) {
-            ((JDialog) window).dispose();
+                result.tongTienChuyenKhoan = thongKeNhanVienDAO.getTongTienChuyenKhoan(
+                        finalMaNhanVien, currentDay, finalGioBatDauCa, finalGioKetThucCa);
+                result.tongTienMat = thongKeNhanVienDAO.getTongTienMat(
+                        finalMaNhanVien, currentDay, finalGioBatDauCa, finalGioKetThucCa);
+                result.danhSachHoaDonChiTiet = thongKeNhanVienDAO.getListHoaDonTrongCa(
+                        finalMaNhanVien, currentDay, finalGioBatDauCa, finalGioKetThucCa);
+
+                result.caLamViecText = finalCaLamViecText;
+                result.ngayLamViecDate = currentDay;
+                result.tongThuDuoc = result.tongTienChuyenKhoan + result.tongTienMat;
+
+                return result;
+            }
+
+            @Override
+            protected void done() {
+                setCursor(Cursor.getDefaultCursor());
+                try {
+                    ThongKeResult result = get();
+
+                    // Cập nhật dữ liệu vào Field của Panel
+                    tenNV = nhanVien.getHoTen();
+                    caLV = result.caLamViecText;
+                    ngayLV = result.ngayLamViecDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                    cashSystem = result.tongTienMat;
+                    transferSystem = result.tongTienChuyenKhoan;
+                    hoaDonList = result.danhSachHoaDonChiTiet;
+
+                    updateTitleLabels();
+                    updateTable(hoaDonList);
+                    updateSummaryPanel();
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                            PanelBaoCao.this,
+                            "Lỗi khi tải dữ liệu báo cáo: " + e.getMessage(),
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private static class ThongKeResult {
+        double tongTienChuyenKhoan;
+        double tongTienMat;
+        double tongThuDuoc;
+        String caLamViecText;
+        LocalDate ngayLamViecDate;
+        List<Object[]> danhSachHoaDonChiTiet;
+    }
+
+    // =================================================================
+    // CÁC PHƯƠNG THỨC XỬ LÝ SỰ KIỆN VÀ CẬP NHẬT
+    // =================================================================
+
+    private void xuLyNhapTienMat() {
+        Frame owner = (Frame) SwingUtilities.getWindowAncestor(this);
+
+        NhapTienMat nhapTienMatDialog = new NhapTienMat(
+                owner,
+                tenNV,
+                caLV,
+                ngayLV,
+                cashSystem
+        );
+
+        nhapTienMatDialog.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent windowEvent) {
+                if (nhapTienMatDialog.isGiaoCaConfirmed()) {
+                    giaoCaModel.setGiaoCaData(
+                            nhapTienMatDialog.getTienMatThucTeDaNhap(),
+                            nhapTienMatDialog.getGhiChuDaNhap()
+                    );
+                    updateSummaryPanel();
+                }
+            }
+        });
+
+        nhapTienMatDialog.setVisible(true);
+    }
+
+    private void updateTable(List<Object[]> list) {
+        if (reportTableModel == null) return;
+        reportTableModel.setRowCount(0);
+
+        double currentTotalSystem = 0;
+
+        if (list != null) {
+            int stt = 1;
+            for (Object[] row : list) {
+                Object[] newRow = new Object[6];
+                newRow[0] = stt++;
+                newRow[1] = row[0];
+                newRow[2] = row[1];
+                newRow[3] = row[3];
+                newRow[4] = row[4];
+                double tongTien = (double) row[2];
+                newRow[5] = currencyFormatter.format(tongTien).replace(",", ".");
+                reportTableModel.addRow(newRow);
+
+                String trangThai = (String) row[4];
+                if (trangThai != null && trangThai.equals("Hoàn thành")) {
+                    currentTotalSystem += tongTien;
+                }
+            }
         }
 
-        btnXacNhanGiaoCa.setEnabled(false);
-        btnXacNhanGiaoCa.setText("Đã xác nhận");
+        this.totalSystem = currentTotalSystem;
     }
 
-    // ==========================================================
-    // PHƯƠNG THỨC FIX LỖI: Getter để PanelThongKe truy cập
-    // ==========================================================
 
-    /**
-     * Trả về giá trị tiền mặt thực tế đã được xác nhận và lưu.
-     */
-    public double getTienMatThucTeDaNhap() {
-        return tienMatThucTeDaLuu;
+    public void updateSummaryPanel() {
+        double tienMatKet = giaoCaModel.getTienMatTaiKetValue();
+        double totalCurrent = tienMatKet + transferSystem;
+        double difference = totalCurrent - totalSystem;
+
+        if (lblTongValue != null) {
+            lblTongValue.setText(currencyFormatter.format(totalSystem).replace(",", "."));
+        }
+
+        if (lblTongTTHuyetThong != null) {
+            lblTongTTHuyetThong.setText(currencyFormatter.format(cashSystem).replace(",", "."));
+            lblTongCKReport.setText(currencyFormatter.format(transferSystem).replace(",", "."));
+            lblTongThuReport.setText(currencyFormatter.format(totalSystem).replace(",", "."));
+
+            lblTongTienMatKet.setText(currencyFormatter.format(tienMatKet).replace(",", "."));
+            lblTongTienHienTai.setText(currencyFormatter.format(totalCurrent).replace(",", "."));
+            lblTongTienChenhLech.setText(currencyFormatter.format(difference).replace(",", "."));
+            txtGhiChuReport.setText(giaoCaModel.getGhiChu());
+
+            if (Math.abs(difference) > 0.001) {
+                lblTongTienChenhLech.setForeground(difference > 0 ? new Color(0, 102, 0) : Color.RED);
+            } else {
+                lblTongTienChenhLech.setForeground(Color.BLACK);
+            }
+
+            revalidate();
+            repaint();
+        }
     }
 
-    /**
-     * Kiểm tra xem giao ca đã được xác nhận chưa.
-     */
-    public boolean isGiaoCaConfirmed() {
-        return isGiaoCaConfirmed;
-    }
+    public void updateData(String tenNV, String caLV, String ngayLV,
+                           double cashSystem, double transferSystem, double totalSystem,
+                           List<Object[]> hoaDonList) {
 
-    /**
-     * Trả về nội dung Ghi chú đã nhập sau khi xác nhận.
-     */
-    public String getGhiChuDaNhap() {
-        return isGiaoCaConfirmed ? txtGhiChu.getText().trim() : "";
+        this.tenNV = tenNV;
+        this.caLV = caLV;
+        this.ngayLV = ngayLV;
+        this.cashSystem = cashSystem;
+        this.transferSystem = transferSystem;
+        this.totalSystem = totalSystem;
+        this.hoaDonList = hoaDonList;
+
+        updateTitleLabels();
+        updateTable(this.hoaDonList);
+        updateSummaryPanel();
+
+        revalidate();
+        repaint();
     }
 }

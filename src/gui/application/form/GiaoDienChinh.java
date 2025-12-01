@@ -44,10 +44,7 @@ import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyGa.PanelQuanLyGa;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
-import gui.application.form.thongKe.PanelThongKe;
-import gui.application.form.thongKe.PanelThongKeDoanhThu;
-import gui.application.form.thongKe.PanelThongKeKhachHang;
-import gui.application.form.thongKe.PanelThongKeVe;
+import gui.application.form.thongKe.*;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.FormThongTinCaNhan;
 import gui.application.form.troGiup.PanelTroGiup;
@@ -110,7 +107,12 @@ public class GiaoDienChinh extends JLayeredPane {
 				}
 			}
 			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
-			case 14 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+            case 14 -> {
+                switch (subIndex) {
+                    case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+                    case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+                }
+            }
 
 			// UC cua QUAN_LY
 			case 2 -> UngDung.showGiaoDienChinh(new PanelQuanLyGa(nhanVien));

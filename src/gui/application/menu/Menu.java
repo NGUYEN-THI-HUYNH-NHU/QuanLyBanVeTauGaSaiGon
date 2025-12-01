@@ -61,7 +61,7 @@ public class Menu extends JPanel {
 			{ "Quản lý nhân viên" }, // 11
 			{ "Quản lý tài khoản" }, // 12
 			{ "~Khác~" }, // 13
-			{ "Thống kê & Báo cáo " }, // 14
+            { "Thống kê & Báo cáo ", "Thống kê", "Báo cáo" }, // 14
 			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 15
 			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 16
 			{ "About us" }, // 17

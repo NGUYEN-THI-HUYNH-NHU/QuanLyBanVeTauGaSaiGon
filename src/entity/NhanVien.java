@@ -5,10 +5,10 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import entity.type.VaiTroNhanVien;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import entity.type.VaiTroNhanVien;
 
 /*
  * @description
