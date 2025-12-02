@@ -19,18 +19,20 @@ import javax.swing.table.AbstractTableModel;
 import entity.KhuyenMai;
 
 public class HanhKhachTableModel extends AbstractTableModel {
-	private final String[] cols = { "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng",
+	private final String[] cols = { "STT", "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng",
 			"Khuyến mãi", "Giảm KM", "Thành tiền", "" };
 
-	public static final int COL_HANH_KHACH = 0;
-	public static final int COL_VE = 1;
-	public static final int COL_GIA = 2;
-	public static final int COL_PHONG_CHO = 3;
-	public static final int COL_GIA_DV = 4;
-	public static final int COL_GIAM_DT = 5;
-	public static final int COL_KHUYEN_MAI = 6;
-	public static final int COL_GIAM_KM = 7;
-	public static final int COL_THANH_TIEN = 8;
+	public static final int COL_STT = 0;
+	public static final int COL_HANH_KHACH = 1;
+	public static final int COL_VE = 2;
+	public static final int COL_GIA = 3;
+	public static final int COL_PHONG_CHO = 4;
+	public static final int COL_GIA_DV = 5;
+	public static final int COL_GIAM_DT = 6;
+	public static final int COL_KHUYEN_MAI = 7;
+	public static final int COL_GIAM_KM = 8;
+	public static final int COL_THANH_TIEN = 9;
+	public static final int COL_XOA = 10;
 
 	private final List<PassengerRow> rows = new ArrayList<>();
 
@@ -51,16 +53,17 @@ public class HanhKhachTableModel extends AbstractTableModel {
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		if (columnIndex == 3) {
+		if (columnIndex == COL_PHONG_CHO) {
 			return Boolean.class;
 		}
-		if (columnIndex == 6) {
+		if (columnIndex == COL_KHUYEN_MAI) {
 			return KhuyenMai.class;
 		}
-		if (columnIndex == 0) {
+		if (columnIndex == COL_HANH_KHACH) {
 			return PassengerRow.class;
 		}
-		if (columnIndex == 2 || columnIndex == 4 || columnIndex == 5 || columnIndex == 7 || columnIndex == 8) {
+		if (columnIndex == COL_GIA || columnIndex == COL_GIA_DV || columnIndex == COL_GIAM_DT
+				|| columnIndex == COL_GIAM_KM || columnIndex == COL_THANH_TIEN) {
 			return Double.class;
 		}
 		return Object.class;
@@ -71,25 +74,31 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		PassengerRow p = rows.get(rowIndex);
 		switch (columnIndex) {
 		case 0:
-			return p;
+			return rowIndex + 1;
 		case 1:
-			return p.getVeSession().prettyString();
+			return p;
 		case 2:
-			return p.getVeSession().getVe().getGia();
+			return p.getVeSession().prettyString();
 		case 3:
-			return p.getVeSession().getPhiPhieuDungPhongChoVIP() > 0;
+			return p.getVeSession().getVe().getGia();
 		case 4:
-			return p.getVeSession().getPhiPhieuDungPhongChoVIP();
+			return p.getVeSession().getPhiPhieuDungPhongChoVIP() > 0;
 		case 5:
-			return p.getVeSession().getGiamDoiTuong();
+			return p.getVeSession().getPhiPhieuDungPhongChoVIP();
 		case 6:
-			return p.getVeSession().getKhuyenMaiApDung();
+			return p.getVeSession().getGiamDoiTuong();
 		case 7:
-			return p.getVeSession().getGiamKM();
+			KhuyenMai km = p.getVeSession().getKhuyenMaiApDung();
+			if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+				return null;
+			}
+			return km;
 		case 8:
+			return p.getVeSession().getGiamKM();
+		case 9:
 			return p.getVeSession().getVe().getGia() + p.getVeSession().getPhiPhieuDungPhongChoVIP()
 					- p.getVeSession().getGiamKM() - p.getVeSession().getGiamDoiTuong();
-		case 9:
+		case 10:
 			return "Xóa";
 		default:
 			return null;
@@ -98,7 +107,7 @@ public class HanhKhachTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == 0 || columnIndex == 6 || columnIndex == 3;
+		return columnIndex == COL_HANH_KHACH || columnIndex == COL_PHONG_CHO || columnIndex == COL_KHUYEN_MAI;
 	}
 
 	@Override
@@ -128,6 +137,10 @@ public class HanhKhachTableModel extends AbstractTableModel {
 		} else if (columnIndex == COL_KHUYEN_MAI) {
 			KhuyenMai km = (KhuyenMai) aValue;
 			v.setKhuyenMaiApDung(km);
+
+			if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+				km = null;
+			}
 
 			// TÍNH TOÁN LẠI TIỀN GIẢM KM
 			int tienGiam = 0;

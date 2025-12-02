@@ -50,18 +50,19 @@ public class PanelBuoc4 extends JPanel {
 		model = new HanhKhachTableModel() {
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return columnIndex == 6;
+				return columnIndex == COL_KHUYEN_MAI;
 			}
 		};
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setPreferredWidth(180);
-		table.getColumnModel().getColumn(1).setPreferredWidth(150);
-		table.removeColumn(table.getColumnModel().getColumn(9));
+		table.getColumnModel().getColumn(0).setMaxWidth(36);
+		table.getColumnModel().getColumn(1).setPreferredWidth(180);
+		table.getColumnModel().getColumn(2).setPreferredWidth(120);
+		table.removeColumn(table.getColumnModel().getColumn(10));
 
 		// Cấu hình Cột Khuyến Mãi
 		// 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
-		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(6);
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(7);
 		khuyenMaiCol.setMinWidth(150);
 
 		cbKhuyenMai = new JComboBox<>();
@@ -69,13 +70,13 @@ public class PanelBuoc4 extends JPanel {
 		khuyenMaiCol.setCellRenderer(renderer);
 		cbKhuyenMai.setRenderer(renderer);
 
-		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
+		table.getColumnModel().getColumn(1).setCellRenderer(new PassengerCellRenderer());
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-		table.getColumnModel().getColumn(2).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(5).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(8).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(6).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(9).setCellRenderer(currencyRenderer);
 
 		JScrollPane sp = new JScrollPane(table);
 		add(sp, BorderLayout.CENTER);
@@ -85,7 +86,7 @@ public class PanelBuoc4 extends JPanel {
 		this.khuyenMaiProvider = provider;
 
 		// Khởi tạo Editor SAU KHI đã có provider (và model)
-		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(6);
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(7);
 		// Dùng class Editor mới tách
 		KhuyenMaiCellEditor editor = new KhuyenMaiCellEditor(cbKhuyenMai, provider, model);
 		khuyenMaiCol.setCellEditor(editor);

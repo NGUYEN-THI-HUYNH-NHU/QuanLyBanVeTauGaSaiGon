@@ -280,8 +280,8 @@ public class ModalHoaDon extends JDialog {
 		table.setGridColor(Color.LIGHT_GRAY);
 
 		table.getColumnModel().getColumn(0).setMaxWidth(32);
-		table.getColumnModel().getColumn(1).setPreferredWidth(120);
-		table.getColumnModel().getColumn(2).setPreferredWidth(240);
+		table.getColumnModel().getColumn(1).setPreferredWidth(110);
+		table.getColumnModel().getColumn(2).setPreferredWidth(250);
 		table.getColumnModel().getColumn(3).setMaxWidth(40);
 		table.getColumnModel().getColumn(4).setMaxWidth(40);
 		table.getColumnModel().getColumn(5).setMaxWidth(70);

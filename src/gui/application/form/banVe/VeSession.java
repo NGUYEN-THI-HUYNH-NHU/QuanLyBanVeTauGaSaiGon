@@ -13,6 +13,7 @@ import java.util.Objects;
 import entity.KhuyenMai;
 import entity.PhieuDungPhongVIP;
 import entity.PhieuGiuChoChiTiet;
+import entity.SuDungKhuyenMai;
 import entity.Ve;
 
 /**
@@ -24,8 +25,9 @@ public class VeSession {
 	private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
 	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private int phiPhieuDungPhongChoVIP;
-	private KhuyenMai khuyenMaiApDung;
+	private KhuyenMai khuyenMaiApDung = null;
 	private int giamKM;
+	private SuDungKhuyenMai suDungKhuyenMai;
 	private int giamDoiTuong;
 	private boolean isHanhKhachMoi = true;
 	private final LocalDateTime thoiDiemHetHan;
@@ -108,6 +110,14 @@ public class VeSession {
 
 	public int getSoGhe() {
 		return this.ve.getGhe().getSoGhe();
+	}
+
+	public SuDungKhuyenMai getSuDungKhuyenMai() {
+		return suDungKhuyenMai;
+	}
+
+	public void setSuDungKhuyenMai(SuDungKhuyenMai suDungKhuyenMai) {
+		this.suDungKhuyenMai = suDungKhuyenMai;
 	}
 
 	@Override

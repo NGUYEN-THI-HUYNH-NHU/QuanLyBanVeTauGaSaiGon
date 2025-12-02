@@ -333,6 +333,7 @@ public class PanelBuoc5 extends JPanel {
 					String text = txtTienKhachDua.getText().replace(".", "").replace(",", "");
 					if (text.isEmpty()) {
 						lblTienThoiLai.setText("0 đ");
+						btnXacNhanVaInCash.setEnabled(false);
 						return;
 					}
 					int tienDua = Integer.parseInt(text);

@@ -7,9 +7,9 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import connectDB.ConnectDB;
+import entity.SuDungKhuyenMai;
 
 /*
  * @description
@@ -26,18 +26,14 @@ public class SuDungKhuyenMai_DAO {
 		connectDB.connect();
 	}
 
-	public boolean themSuDungKhuyenMai(Connection conn, String sdkmID, String khuyenMaiID, String hoaDonChiTietID) {
+	public boolean themSuDungKhuyenMai(Connection conn, SuDungKhuyenMai suDungKhuyenMai) throws Exception {
 		String sql = "INSERT INTO SuDungKhuyenMai(suDungKhuyenMaiID, khuyenMaiID, hoaDonChiTietID, trangThai) VALUES(?, ?, ?, 'DA_AP_DUNG')";
 
-		try {
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			pstm.setString(1, sdkmID);
-			pstm.setString(2, khuyenMaiID);
-			pstm.setString(3, hoaDonChiTietID);
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setString(1, suDungKhuyenMai.getSuDungKhuyenMaiID());
+			pstm.setString(2, suDungKhuyenMai.getKhuyenMai().getKhuyenMaiID());
+			pstm.setString(3, suDungKhuyenMai.getHoaDonChiTiet().getHoaDonChiTietID());
 			return pstm.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 

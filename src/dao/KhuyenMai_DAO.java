@@ -492,38 +492,55 @@ public class KhuyenMai_DAO {
 		List<KhuyenMai> dsKhuyenMai = new ArrayList<>();
 		Connection con = connectDB.getConnection();
 
-		// 1. Trích xuất thông tin từ VeSession để so sánh
+		// 1. Trích xuất thông tin
 		String tuyenID = veSession.getVe().getChuyen().getTuyen().getTuyenID();
 		String loaiTauID = veSession.getVe().getChuyen().getTau().getLoaiTau().toString();
 		String hangToaID = veSession.getVe().getGhe().getToa().getHangToa().toString();
 		String loaiDoiTuongID = veSession.getVe().getKhachHang().getLoaiDoiTuong().toString();
 
-		// Giá vé dùng để so sánh minGiaTriDonHang
-		double giaVe = veSession.getVe().getGia();
+		// Thêm ID Khách hàng để kiểm tra giới hạn
+		String khachHangID = veSession.getVe().getKhachHang().getKhachHangID();
 
-		// Lấy ngày trong tuần (1 = Mon, ... 7 = Sun)
+		double giaVe = veSession.getVe().getGia();
 		int ngayTrongTuan = veSession.getVe().getNgayGioDi().getDayOfWeek().getValue();
 
-		String sql = "SELECT km.* FROM KhuyenMai km " + "JOIN DieuKienKhuyenMai dk ON km.khuyenMaiID = dk.khuyenMaiID "
-				+ "WHERE km.trangThai = 1 " + "AND km.soLuong > 0 "
-				+ "AND CAST(GETDATE() AS DATE) BETWEEN km.ngayBatDau AND km.ngayKetThuc "
-				// --- Bắt đầu so khớp điều kiện (Logic: NULL = All, Có giá trị = Phải khớp) ---
+		// Query phức hợp: Join thêm bảng SuDungKhuyenMai (thông qua HoaDonChiTiet ->
+		// HoaDon)
+		// để đếm số lần đã dùng.
+		String sql = "SELECT km.*, " + "(SELECT COUNT(*) FROM SuDungKhuyenMai sd "
+				+ " JOIN HoaDonChiTiet hdct ON sd.hoaDonChiTietID = hdct.hoaDonChiTietID "
+				+ " JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID " + " WHERE sd.khuyenMaiID = km.khuyenMaiID "
+				+ " AND hd.khachHangID = ? " // Tham số 1: KhachHangID
+				+ " AND sd.trangThai = 'DA_AP_DUNG') AS soLanDaDung " + "FROM KhuyenMai km "
+				+ "JOIN DieuKienKhuyenMai dk ON km.khuyenMaiID = dk.khuyenMaiID " + "WHERE km.trangThai = 1 "
+				+ "AND km.soLuong > 0 " + "AND CAST(GETDATE() AS DATE) BETWEEN km.ngayBatDau AND km.ngayKetThuc "
+				// Điều kiện phù hợp vé
 				+ "AND (dk.tuyenID IS NULL OR dk.tuyenID = ?) " + "AND (dk.loaiTauID IS NULL OR dk.loaiTauID = ?) "
 				+ "AND (dk.hangToaID IS NULL OR dk.hangToaID = ?) "
 				+ "AND (dk.loaiDoiTuongID IS NULL OR dk.loaiDoiTuongID = ?) "
 				+ "AND (dk.minGiaTriDonHang IS NULL OR ? >= dk.minGiaTriDonHang) "
-				+ "AND (dk.ngayTrongTuan IS NULL OR dk.ngayTrongTuan = ?) ";
-		// Lưu ý: Chưa check ngayLe vì cần bảng Lịch hoặc logic check lễ phức tạp
+				+ "AND (dk.ngayTrongTuan IS NULL OR dk.ngayTrongTuan = ?) "
+				// Điều kiện giới hạn: (gioiHan = 0 là không giới hạn) HOẶC (số lần đã dùng <
+				// giới hạn)
+				+ "AND (km.gioiHanMoiKhachHang = 0 OR " + "      (SELECT COUNT(*) FROM SuDungKhuyenMai sd "
+				+ "       JOIN HoaDonChiTiet hdct ON sd.hoaDonChiTietID = hdct.hoaDonChiTietID "
+				+ "       JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID "
+				+ "       WHERE sd.khuyenMaiID = km.khuyenMaiID " + "       AND hd.khachHangID = ? " // Tham số 8:
+																										// KhachHangID
+																										// (lặp lại)
+				+ "       AND sd.trangThai = 'DA_AP_DUNG') < km.gioiHanMoiKhachHang)";
 
 		try {
 			PreparedStatement pstm = con.prepareStatement(sql);
 			int i = 1;
+			pstm.setString(i++, khachHangID); // Cho subquery đếm lần đầu (để select ra xem chơi nếu cần)
 			pstm.setString(i++, tuyenID);
 			pstm.setString(i++, loaiTauID);
 			pstm.setString(i++, hangToaID);
 			pstm.setString(i++, loaiDoiTuongID);
 			pstm.setDouble(i++, giaVe);
 			pstm.setInt(i++, ngayTrongTuan);
+			pstm.setString(i++, khachHangID); // Cho subquery trong WHERE clause
 
 			ResultSet rs = pstm.executeQuery();
 
@@ -559,24 +576,19 @@ public class KhuyenMai_DAO {
 		return dsKhuyenMai;
 	}
 
-	public boolean giamSoLuongKhuyenMai(String khuyenMaiID) {
-		Connection con = connectDB.getConnection();
+	public boolean giamSoLuongKhuyenMai(Connection conn, String khuyenMaiID) throws Exception {
 		// Lưu ý: Kiểm tra soLuong > 0 ngay trong câu lệnh UPDATE để tránh Race
 		// Condition (nhiều người mua cùng lúc)
 		String sql = "UPDATE KhuyenMai SET soLuong = soLuong - 1 WHERE khuyenMaiID = ? AND soLuong > 0";
 
-		try {
-			PreparedStatement pstm = con.prepareStatement(sql);
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
 			pstm.setString(1, khuyenMaiID);
 			return pstm.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 
 	/**
-	 * Thao tác 2 (Validation): Kiểm tra khách hàng đã dùng mã này bao nhiêu lần
+	 * Kiểm tra khách hàng đã dùng mã này bao nhiêu lần
 	 */
 	public int demSoLanSuDungCuaKhachHang(String khuyenMaiID, String khachHangID) {
 		Connection con = connectDB.getConnection();

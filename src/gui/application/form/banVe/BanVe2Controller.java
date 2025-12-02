@@ -12,7 +12,6 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -73,7 +72,6 @@ public class BanVe2Controller {
 		int dichVu = 0;
 
 		List<VeSession> allTickets = bookingSession.getAllSelectedTickets();
-		// Hoặc dùng logic cũ để lấy allTickets
 
 		for (VeSession ve : allTickets) {
 			tongTienVe += ve.getVe().getGia();
@@ -96,40 +94,12 @@ public class BanVe2Controller {
 	 * liệu từ session, tính toán và đổ vào Buoc4, Buoc5.
 	 */
 	public void loadDataForConfirmation() {
-		// 1. Đặt lại trạng thái
 		p4.setComponentsEnabled(true);
 		p5.setComponentsEnabled(true);
 
-		// 2. Tải dữ liệu vào bảng xác nhận (Buoc4)
 		p4.hienThiThongTin(bookingSession);
 
-		// 3. Tính toán chi tiết thanh toán
-		int tongTienVe = 0;
-		double giamGiaDT = 0;
-		int khuyenMai = 0;
-		int dichVu = 0;
-
-		List<VeSession> allTickets = new ArrayList<>(bookingSession.getOutboundSelectedTickets());
-		if (bookingSession.isRoundTrip()) {
-			allTickets.addAll(bookingSession.getReturnSelectedTickets());
-		}
-
-		for (VeSession ve : allTickets) {
-			tongTienVe += ve.getVe().getGia();
-			dichVu += ve.getPhiPhieuDungPhongChoVIP();
-			khuyenMai += ve.getGiamKM();
-
-			// Giảm giá đối tượng ở đây
-			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
-				ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
-				giamGiaDT += ve.getGiamDoiTuong();
-			}
-		}
-
-		p4.hienThiThongTin(bookingSession);
 		updatePaymentInfo();
-		// 4. Đẩy chi tiết thanh toán vào Buoc5
-		p5.setChiTietThanhToan(tongTienVe, (int) giamGiaDT, khuyenMai, dichVu);
 	}
 
 	/**

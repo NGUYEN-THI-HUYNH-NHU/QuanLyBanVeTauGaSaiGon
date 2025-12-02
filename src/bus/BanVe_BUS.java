@@ -88,44 +88,19 @@ public class BanVe_BUS {
 					.taoCacPhieuDungPhongChoVIP(session.getAllSelectedTickets());
 			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
-			// 8. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
+			// 8. Gán các sử dụng khuyến mãi cho các vé áp dụng khuyến mãi
+			khuyenMaiBUS.ganDanhSachSuDungKhuyenMai(session.getAllSelectedTickets());
+
+			// 9. Tạo và Lưu Hóa Đơn Chi Tiết (khi tạo các hóa đơn chi tiết đã bao gồm gán
+			// nó cho sử dụng khuyến mãi tương ứng)
 			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon(),
 					session.getAllSelectedTickets());
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
-//			// 9.
-//			for (int i = 0; i < session.getAllSelectedTickets().size(); i++) {
-//				KhuyenMai km = session.getAllSelectedTickets().get(i).getKhuyenMaiApDung();
-//				if (km != null) {
-//					// A. Kiểm tra giới hạn khách hàng (Nếu chưa kiểm tra ở UI)
-//					int daDung = khuyenMaiBUS.demSoLanSuDungCuaKhachHang(km.getKhuyenMaiID(),
-//							session.getKhachHang().getKhachHangID());
-//					if (km.getGioiHanMoiKhachHang() > 0 && daDung >= km.getGioiHanMoiKhachHang()) {
-//						throw new Exception("Khách hàng đã vượt quá số lần sử dụng khuyến mãi này.");
-//					}
-//
-//					// B. Trừ số lượng tồn kho
-//					boolean truThanhCong = khuyenMaiBUS.giamSoLuongKhuyenMai(km.getKhuyenMaiID());
-//					if (!truThanhCong) {
-//						throw new Exception("Khuyến mãi đã hết số lượng hoặc không còn khả dụng.");
-//					}
-//
-//					// C. Ghi nhận sử dụng vào bảng SuDungKhuyenMai
-//					// Tạo ID tự động cho SuDungKM (Ví dụ: SDKM + Timestamp + Random)
-//					String sdkmID = "SDKM-"
-//							+ session.getAllSelectedTickets().get(i).getVe().getKhachHang().getKhachHangID() + "-"
-//							+ session.getAllSelectedTickets().get(i).getKhuyenMaiApDung().getKhuyenMaiID();
-//
-//					boolean ghiNhanThanhCong = suDungKhuyenMaiBUS.themSuDungKhuyenMai(sdkmID, km.getKhuyenMaiID(),
-//							listHoaDonChiTiet.get(i).getHoaDonChiTietID());
-//
-//					if (!ghiNhanThanhCong) {
-//						throw new Exception("Lỗi khi ghi nhận sử dụng khuyến mãi.");
-//					}
-//				}
-//			}
+			// 10. Lưu các sử dụng khuyến mãi (đã kèm giảm số lượng khuyến mãi tương ứng)
+			khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, session.getAllSelectedTickets());
 
-			// . Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
+			// 11. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
 			datChoBUS.capNhatPhieuGiuCho(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 			datChoBUS.capNhatCacPhieuGiuChoChiTiet(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 

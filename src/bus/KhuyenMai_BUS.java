@@ -1,17 +1,22 @@
 package bus;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
 import dao.KhuyenMai_DAO;
+import dao.SuDungKhuyenMai_DAO;
 import entity.DieuKienKhuyenMai;
 import entity.KhuyenMai;
+import entity.SuDungKhuyenMai;
 import entity.Tuyen;
 import entity.Ve;
+import entity.type.TrangThaiSDKM;
 import gui.application.form.banVe.VeSession;
 
 public class KhuyenMai_BUS {
 	private final KhuyenMai_DAO khuyenMai_dao;
+	private final SuDungKhuyenMai_DAO suDungKhuyenMaiDAO = new SuDungKhuyenMai_DAO();
 
 	public KhuyenMai_BUS() {
 		khuyenMai_dao = new KhuyenMai_DAO();
@@ -128,20 +133,23 @@ public class KhuyenMai_BUS {
 		return khuyenMai_dao.getDanhSachKhuyenMaiPhuHop(veSession);
 	}
 
-	/**
-	 * @param khuyenMaiID
-	 * @param khachHangID
-	 * @return
-	 */
-	public int demSoLanSuDungCuaKhachHang(String khuyenMaiID, String khachHangID) {
-		return khuyenMai_dao.demSoLanSuDungCuaKhachHang(khuyenMaiID, khachHangID);
+	public void ganDanhSachSuDungKhuyenMai(List<VeSession> listVeSession) {
+		for (VeSession ve : listVeSession) {
+			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+				String sdkmID = "SD-" + ve.getKhuyenMaiApDung().getKhuyenMaiID() + "-"
+						+ ve.getVe().getKhachHang().getKhachHangID();
+				ve.setSuDungKhuyenMai(
+						new SuDungKhuyenMai(sdkmID, ve.getKhuyenMaiApDung(), null, TrangThaiSDKM.DA_AP_DUNG));
+			}
+		}
 	}
 
-	/**
-	 * @param khuyenMaiID
-	 * @return
-	 */
-	public boolean giamSoLuongKhuyenMai(String khuyenMaiID) {
-		return khuyenMai_dao.giamSoLuongKhuyenMai(khuyenMaiID);
+	public void themDanhSachSuDungKhuyenMai(Connection conn, List<VeSession> listVeSession) throws Exception {
+		for (VeSession ve : listVeSession) {
+			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+				suDungKhuyenMaiDAO.themSuDungKhuyenMai(conn, ve.getSuDungKhuyenMai());
+				khuyenMai_dao.giamSoLuongKhuyenMai(conn, ve.getKhuyenMaiApDung().getKhuyenMaiID());
+			}
+		}
 	}
 }

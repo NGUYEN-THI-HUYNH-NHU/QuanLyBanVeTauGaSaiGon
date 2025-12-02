@@ -65,22 +65,23 @@ public class PanelBuoc3 extends JPanel {
 //		{ "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Giảm KM", "Thành tiền", "" }
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(200);
-		table.getColumnModel().getColumn(1).setMinWidth(110);
-		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
-		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
-		table.removeColumn(table.getColumnModel().getColumn(5));
-		table.removeColumn(table.getColumnModel().getColumn(5));
-		table.removeColumn(table.getColumnModel().getColumn(5));
-		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.getColumnModel().getColumn(0).setMaxWidth(36);
+		table.getColumnModel().getColumn(1).setMinWidth(200);
+		table.getColumnModel().getColumn(2).setMinWidth(110);
+		table.getColumnModel().getColumn(1).setCellRenderer(new PassengerCellRenderer());
+		table.getColumnModel().getColumn(1).setCellEditor(new PassengerCellEditor(this));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
 		center.setHorizontalAlignment(SwingConstants.CENTER);
-		table.getColumnModel().getColumn(2).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(5).setCellRenderer(currencyRenderer);
 
-		int deleteColumnIndex = 5;
+		int deleteColumnIndex = 6;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
 		deleteColumn.setCellEditor(new DeleteButtonEditor());

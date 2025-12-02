@@ -13,16 +13,21 @@ package entity;
  */
 import java.util.Objects;
 
+import entity.type.TrangThaiSDKM;
+
 public class SuDungKhuyenMai {
 	private String suDungKhuyenMaiID;
 	private KhuyenMai khuyenMai;
 	private HoaDonChiTiet hoaDonChiTiet;
+	private TrangThaiSDKM trangThai;
 
-	public SuDungKhuyenMai(String suDungKhuyenMaiID, KhuyenMai khuyenMai, HoaDonChiTiet hoaDonChiTiet) {
+	public SuDungKhuyenMai(String suDungKhuyenMaiID, KhuyenMai khuyenMai, HoaDonChiTiet hoaDonChiTiet,
+			TrangThaiSDKM trangThai) {
 		super();
 		this.suDungKhuyenMaiID = suDungKhuyenMaiID;
 		this.khuyenMai = khuyenMai;
 		this.hoaDonChiTiet = hoaDonChiTiet;
+		this.trangThai = trangThai;
 	}
 
 	public String getSuDungKhuyenMaiID() {
@@ -47,6 +52,14 @@ public class SuDungKhuyenMai {
 
 	public void setHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
 		this.hoaDonChiTiet = hoaDonChiTiet;
+	}
+
+	public TrangThaiSDKM getTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(TrangThaiSDKM trangThai) {
+		this.trangThai = trangThai;
 	}
 
 	@Override

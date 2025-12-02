@@ -51,12 +51,19 @@ public class KhuyenMaiRenderer extends DefaultTableCellRenderer implements ListC
 	private void renderKhuyenMai(Object value) {
 		if (value instanceof KhuyenMai) {
 			KhuyenMai km = (KhuyenMai) value;
-			if (km != null) {
+			if (km.getKhuyenMaiID() != null) {
 				setText(km.getMaKhuyenMai() + " (" + getGiamGiaString(km) + ")");
 				setToolTipText(km.getMoTa());
+				if (km.getKhuyenMaiID() != null && !km.getKhuyenMaiID().isEmpty()) {
+					setText(km.getMaKhuyenMai() + " (" + getGiamGiaString(km) + ")");
+					setToolTipText(km.getMoTa());
+				} else {
+					setText("Không áp dụng");
+					setToolTipText(null);
+				}
 			}
 		} else {
-			setText("Không áp dụng"); // Hoặc "" nếu value == null
+			setText("Không áp dụng");
 			setToolTipText(null);
 		}
 	}
@@ -65,7 +72,7 @@ public class KhuyenMaiRenderer extends DefaultTableCellRenderer implements ListC
 		if (km.getTyLeGiamGia() > 0) {
 			return String.format("-%.0f%%", km.getTyLeGiamGia() * 100);
 		} else {
-			return String.format("-%.0f VNĐ", km.getTienGiamGia());
+			return String.format("-%.0f đ", km.getTienGiamGia());
 		}
 	}
 }

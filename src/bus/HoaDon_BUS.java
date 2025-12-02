@@ -121,11 +121,12 @@ public class HoaDon_BUS {
 
 			}
 
-			if (ve.getKhuyenMaiApDung() != null) {
+			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon,
 						ve.getKhuyenMaiApDung().getMaKhuyenMai() + ": " + ve.getKhuyenMaiApDung().getMoTa(),
 						LoaiDichVu.KHUYEN_MAI, "", 1, -ve.getGiamKM(), -ve.getGiamKM());
+				ve.getSuDungKhuyenMai().setHoaDonChiTiet(hdctKM);
 				dsHoaDonChiTiet.add(hdctKM);
 
 			}
