@@ -46,7 +46,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class PanelDoiVeBuoc8 extends JPanel {
-	private JRadioButton radTienMat, radChuyenKhoan;
+	private JRadioButton radTienMat;
+	private JRadioButton radChuyenKhoan;
 	private JLabel lblTongTienVeCu;
 	private JLabel lblTongTienVeMoi;
 	private JLabel lblTongGiamKhuyenMai;
@@ -58,10 +59,20 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	private JButton btnXacNhanVaInCash;
 	private JButton btnXacNhanVaInQR;
 
-	private JPanel pnlTienDua;
 	private JPanel pnlQRCode;
 	private JPanel pnlPaymentMethodContainer;
 	private CardLayout paymentCardLayout;
+
+	private JPanel pnlTienMatContainer;
+	private CardLayout tienMatCardLayout;
+	private JPanel pnlThuTien;
+	private JPanel pnlHoanTien;
+
+	private JLabel lblSoTienHoanLaiKhach;
+	private JButton btnXacNhanHoanTien;
+
+	private static final String THU_TIEN_CARD = "ThuTien";
+	private static final String HOAN_TIEN_CARD = "HoanTien";
 
 	private JPanel pnlGoiY;
 	private final List<JButton> suggestionButtons = new ArrayList<>();
@@ -100,10 +111,10 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		paymentCardLayout = new CardLayout();
 		pnlPaymentMethodContainer = new JPanel(paymentCardLayout);
 
-		pnlTienDua = createTienDuaPanel();
+		createTienMatContainer();
 		pnlQRCode = createQRCodePanel();
 
-		pnlPaymentMethodContainer.add(pnlTienDua, TIEN_MAT_CARD);
+		pnlPaymentMethodContainer.add(pnlTienMatContainer, TIEN_MAT_CARD);
 		pnlPaymentMethodContainer.add(pnlQRCode, QR_CODE_CARD);
 
 		pnlMain.add(pnlChiTiet);
@@ -111,11 +122,55 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		add(pnlMain, BorderLayout.CENTER);
 
-		// Logic nội bộ
 		addInternalLogic();
-
-		// Show cash panel initially
 		paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
+	}
+
+	private void createTienMatContainer() {
+		tienMatCardLayout = new CardLayout();
+		pnlTienMatContainer = new JPanel(tienMatCardLayout);
+		pnlTienMatContainer.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
+
+		pnlThuTien = createThuTienPanel();
+		pnlHoanTien = createHoanTienPanel();
+
+		pnlTienMatContainer.add(pnlThuTien, THU_TIEN_CARD);
+		pnlTienMatContainer.add(pnlHoanTien, HOAN_TIEN_CARD);
+	}
+
+	private JPanel createHoanTienPanel() {
+		JPanel pnl = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.insets = new Insets(10, 10, 10, 10);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+
+		gbc.gridy = 0;
+		JLabel lblTitle = new JLabel("Số tiền cần hoàn lại cho khách:");
+		lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD, 14f));
+		pnl.add(lblTitle, gbc);
+
+		gbc.gridy = 1;
+		lblSoTienHoanLaiKhach = new JLabel("0 VND");
+		lblSoTienHoanLaiKhach.setFont(lblSoTienHoanLaiKhach.getFont().deriveFont(Font.BOLD, 24f));
+		lblSoTienHoanLaiKhach.setForeground(Color.BLUE);
+		lblSoTienHoanLaiKhach.setHorizontalAlignment(SwingConstants.CENTER);
+		pnl.add(lblSoTienHoanLaiKhach, gbc);
+
+		gbc.gridy = 2;
+		gbc.weighty = 1.0;
+		pnl.add(new JLabel(""), gbc);
+
+		gbc.gridy = 3;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		btnXacNhanHoanTien = new JButton("Xác nhận hoàn tiền");
+		btnXacNhanHoanTien.setFont(btnXacNhanHoanTien.getFont().deriveFont(Font.BOLD, 14f));
+		btnXacNhanHoanTien.setBackground(new Color(0, 153, 51));
+		btnXacNhanHoanTien.setForeground(Color.WHITE);
+		pnl.add(btnXacNhanHoanTien, gbc);
+
+		return pnl;
 	}
 
 	private JPanel createChiTietPanel() {
@@ -200,31 +255,30 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		return pnl;
 	}
 
-	private JPanel createTienDuaPanel() {
-		pnlTienDua = new JPanel(new GridBagLayout());
-		pnlTienDua.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
+	private JPanel createThuTienPanel() {
+		pnlThuTien = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		pnlTienDua.add(new JLabel("Tiền khách đưa:"), gbc);
+		pnlThuTien.add(new JLabel("Tiền khách đưa:"), gbc);
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.weightx = 1.0;
 		txtTienKhachDua = new JTextField(15);
-		pnlTienDua.add(txtTienKhachDua, gbc);
+		pnlThuTien.add(txtTienKhachDua, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.gridwidth = 2;
-		pnlTienDua.add(new JLabel("Gợi ý mệnh giá:"), gbc);
+		pnlThuTien.add(new JLabel("Gợi ý mệnh giá:"), gbc);
 
 		gbc.gridy = 2;
 		gbc.insets = new Insets(0, 5, 5, 5);
 		pnlGoiY = new JPanel(new GridLayout(2, 4, 5, 5));
-		pnlTienDua.add(pnlGoiY, gbc);
+		pnlThuTien.add(pnlGoiY, gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
@@ -233,14 +287,14 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		gbc.insets = new Insets(10, 5, 5, 5);
 		JLabel thoiLaiLabel = new JLabel("Tiền thừa:");
 		thoiLaiLabel.setFont(thoiLaiLabel.getFont().deriveFont(Font.BOLD));
-		pnlTienDua.add(thoiLaiLabel, gbc);
+		pnlThuTien.add(thoiLaiLabel, gbc);
 
 		gbc.gridx = 1;
 		gbc.weightx = 1.0;
 		lblTienThoiLai = new JLabel("0 VND");
 		lblTienThoiLai.setFont(lblTienThoiLai.getFont().deriveFont(Font.BOLD, 14f));
 		lblTienThoiLai.setForeground(Color.BLUE);
-		pnlTienDua.add(lblTienThoiLai, gbc);
+		pnlThuTien.add(lblTienThoiLai, gbc);
 		// --- Hàng 4: Nút Xác nhận (Cash version) ---
 		gbc.gridx = 0;
 		gbc.gridy = 4;
@@ -252,21 +306,20 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		btnXacNhanVaInCash.setFont(btnXacNhanVaInCash.getFont().deriveFont(Font.BOLD, 14f));
 		btnXacNhanVaInCash.setBackground(new Color(0, 153, 51));
 		btnXacNhanVaInCash.setForeground(Color.WHITE);
-		pnlTienDua.add(btnXacNhanVaInCash, gbc);
+		pnlThuTien.add(btnXacNhanVaInCash, gbc);
 
 		gbc.gridy = 5;
 		gbc.weighty = 1.0;
-		pnlTienDua.add(new JLabel(), gbc);
+		pnlThuTien.add(new JLabel(), gbc);
 
-		return pnlTienDua;
+		return pnlThuTien;
 	}
 
 	private JPanel createQRCodePanel() {
 		pnlQRCode = new JPanel();
-		pnlQRCode.setLayout(new BoxLayout(pnlQRCode, BoxLayout.Y_AXIS)); // Vertical layout
+		pnlQRCode.setLayout(new BoxLayout(pnlQRCode, BoxLayout.Y_AXIS));
 		pnlQRCode.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Chuyển khoản"),
-				BorderFactory.createEmptyBorder(10, 10, 10, 10) // Padding
-		));
+				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
 		// --- QR Code Image (Placeholder) ---
 		// TODO: Replace with actual QR code generation
@@ -376,25 +429,6 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	public int getTienKhachDua() {
 		String text = txtTienKhachDua.getText().replace(".", "").replace(",", "");
 		return Integer.parseInt(text);
-	}
-
-	private void setTienMatEnabled(boolean enabled) {
-
-		for (Component c : pnlTienDua.getComponents()) {
-			if (c instanceof JTextField || c instanceof JPanel || c instanceof JButton) {
-				c.setEnabled(enabled);
-			}
-		}
-		for (JButton btn : suggestionButtons) {
-			btn.setEnabled(enabled);
-		}
-
-		// Nếu tắt (chuyển khoản), xóa text và reset tiền thừa
-		if (!enabled) {
-			txtTienKhachDua.setText("");
-			lblTienThoiLai.setText("0 VND");
-			lblTienThoiLai.setForeground(Color.BLUE);
-		}
 	}
 
 	private List<Integer> generateSuggestions(int total) {
@@ -523,10 +557,6 @@ public class PanelDoiVeBuoc8 extends JPanel {
 			int tongPhiDoiVe) {
 		this.tongThanhToan = tongTienVeMoi + tongPhiDoiVe + tongTienDichVu - tongTienVeCu - tongGiamKhuyenMai;
 
-		if (this.tongThanhToan < 0) {
-			this.tongThanhToan = 0;
-		}
-
 		lblTongTienVeCu.setText(currencyFormat.format(tongTienVeCu));
 		lblTongTienVeMoi.setText(currencyFormat.format(tongTienVeMoi));
 		lblTongGiamKhuyenMai.setText(currencyFormat.format(tongGiamKhuyenMai));
@@ -534,10 +564,21 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		lblTongPhiDoiVe.setText(currencyFormat.format(tongPhiDoiVe));
 		lblTongThanhToan.setText(currencyFormat.format(this.tongThanhToan));
 
-		updateSuggestionButtons(generateSuggestions(this.tongThanhToan));
+		// 3. Chuyển đổi giao diện dựa trên số tiền
+		if (this.tongThanhToan >= 0) {
+			// TRƯỜNG HỢP: KHÁCH TRẢ THÊM TIỀN (Hoặc = 0)
+			tienMatCardLayout.show(pnlTienMatContainer, THU_TIEN_CARD);
+			updateSuggestionButtons(generateSuggestions(this.tongThanhToan));
+			txtTienKhachDua.setText(txtTienKhachDua.getText()); // Trigger update tiền thừa
+			lblTongThanhToan.setForeground(Color.RED);
 
-		// Cập nhật lại tiền thừa (giữ nguyên tiền khách nhập)
-		txtTienKhachDua.setText(txtTienKhachDua.getText());
+		} else {
+			// TRƯỜNG HỢP: HOÀN TIỀN CHO KHÁCH (Tổng < 0)
+			tienMatCardLayout.show(pnlTienMatContainer, HOAN_TIEN_CARD);
+			lblSoTienHoanLaiKhach.setText(currencyFormat.format(Math.abs(this.tongThanhToan)));
+			// Đổi màu label tổng để chú ý
+			lblTongThanhToan.setForeground(Color.BLUE);
+		}
 	}
 
 	public void setComponentsEnabled(boolean enabled) {
@@ -563,7 +604,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	}
 
 	private void setTienMatPanelEnabled(boolean enabled) {
-		for (Component c : pnlTienDua.getComponents()) {
+		for (Component c : pnlThuTien.getComponents()) {
 			if (!(c instanceof JLabel)) { // Keep labels visible
 				c.setEnabled(enabled);
 			}
@@ -593,6 +634,14 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 	public JButton getBtnXacNhanVaInQR() {
 		return btnXacNhanVaInQR;
+	}
+
+	public JButton getBtnXacNhanHoanTien() {
+		return btnXacNhanHoanTien;
+	}
+
+	public void setBtnXacNhanHoanTien(JButton btnXacNhanHoanTien) {
+		this.btnXacNhanHoanTien = btnXacNhanHoanTien;
 	}
 
 	public boolean isThanhToanTienMat() {

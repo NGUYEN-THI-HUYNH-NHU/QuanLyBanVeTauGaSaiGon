@@ -221,6 +221,17 @@ public class HoaDon_BUS {
 
 			}
 
+			if (listVeMoi.get(i).getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
+				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, listVeMoi.get(i).getVe(),
+						listVeMoi.get(i).getKhuyenMaiApDung().getMaKhuyenMai() + ": "
+								+ listVeMoi.get(i).getKhuyenMaiApDung().getMoTa(),
+						LoaiDichVu.KHUYEN_MAI, 1, -listVeMoi.get(i).getGiamKM(), -listVeMoi.get(i).getGiamKM());
+				listVeMoi.get(i).getSuDungKhuyenMai().setHoaDonChiTiet(hdctKM);
+				dsHoaDonChiTiet.add(hdctKM);
+
+			}
+
 			// Dòng phí đổi vé
 			String hdctLePhiID = hoaDon.getHoaDonID() + "-" + (++stt);
 			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, listVeMoi.get(i).getVe(), "Lệ phí đổi vé",

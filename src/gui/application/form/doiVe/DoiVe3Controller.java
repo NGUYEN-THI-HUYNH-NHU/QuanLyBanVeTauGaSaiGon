@@ -120,14 +120,23 @@ public class DoiVe3Controller {
 		// Lắng nghe nút thanh toán từ PanelDoiVeBuoc8
 		JButton payButtonCash = p8.getBtnXacNhanVaInCash();
 		JButton payButtonQR = p8.getBtnXacNhanVaInQR();
+		JButton refundButton = p8.getBtnXacNhanHoanTien();
 
 		ActionListener paymentListener = e -> {
 			// 1. Lấy thông tin thanh toán từ View
 			boolean isThanhToanTienMat = p8.isThanhToanTienMat();
 			String maGiaoDich = null;
 			double tongTien = p8.getTongThanhToan();
-			double tienNhan = p8.getTienKhachDua();
-			double tienHoan = tienNhan - tongTien;
+			double tienNhan = 0;
+			double tienHoan = 0;
+
+			if (tongTien >= 0) {
+				tienNhan = p8.getTienKhachDua();
+				tienHoan = tienNhan - tongTien;
+			} else {
+				tienNhan = 0;
+				tienHoan = Math.abs(tongTien);
+			}
 			boolean trangThai = true;
 			GiaoDichThanhToan giaoDichThanhToan = null;
 
@@ -200,6 +209,10 @@ public class DoiVe3Controller {
 		}
 		if (payButtonQR != null) {
 			payButtonQR.addActionListener(paymentListener);
+		}
+
+		if (refundButton != null) {
+			refundButton.addActionListener(paymentListener);
 		}
 	}
 }

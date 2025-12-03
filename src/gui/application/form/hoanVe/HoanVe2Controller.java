@@ -85,7 +85,7 @@ public class HoanVe2Controller {
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
-		JButton payButtonCash = p5.getBtnXacNhanVaInCash();
+		JButton payButtonCash = p5.getBtnXacNhanHoanVe();
 
 		ActionListener paymentListener = e -> {
 			if (this.khachHang == null || this.listVeHoanRow == null || this.listVeHoanRow.isEmpty()) {

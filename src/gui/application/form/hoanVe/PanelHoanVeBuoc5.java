@@ -40,7 +40,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	private JLabel lblTongTienVe;
 	private JLabel lblTongPhiHoan;
 	private JLabel lblTongTienHoan;
-	private JButton btnXacNhanVaInCash;
+	private JButton btnXacNhanHoanVe;
 
 	private JPanel pnlTienHoan;
 	private JPanel pnlPaymentMethodContainer;
@@ -50,6 +50,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 
 	private int tongTienHoan = 0;
 	private JPanel pnlChiTiet;
+	private JLabel lblTienHoanAmount;
 
 	private static final String TIEN_MAT_CARD = "TienMat";
 
@@ -119,7 +120,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalGlue(), gbc);
+		pnl.add(Box.createVerticalStrut(50), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;
@@ -127,16 +128,13 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		JLabel lblTongTienHoanChu;
 		pnl.add(lblTongTienHoanChu = new JLabel("Tổng tiền hoàn:"), gbc);
 		lblTongTienHoanChu.setFont(getFont().deriveFont(Font.BOLD, 14f));
+
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
 		lblTongTienHoan = new JLabel("0 VND");
-		lblTongTienHoan.setForeground(Color.GREEN);
+		lblTongTienHoan.setForeground(Color.BLUE);
 		lblTongTienHoan.setFont(lblTongTienHoan.getFont().deriveFont(Font.BOLD, 14f));
 		pnl.add(lblTongTienHoan, gbc);
-
-		gbc.gridy = 4;
-		gbc.weighty = 1.0;
-		pnl.add(new JLabel(), gbc);
 
 		return pnl;
 	}
@@ -144,40 +142,35 @@ public class PanelHoanVeBuoc5 extends JPanel {
 	private JPanel createTienHoanPanel() {
 		pnlTienHoan = new JPanel(new GridBagLayout());
 		pnlTienHoan.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
-
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.CENTER;
-
+		gbc.insets = new Insets(10, 10, 10, 10);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
+
 		gbc.gridy = 0;
-		gbc.weighty = 1.0;
-		pnlTienHoan.add(Box.createVerticalGlue(), gbc);
+		JLabel lblTitle = new JLabel("Số tiền cần hoàn lại cho khách:");
+		lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD, 14f));
+		pnlTienHoan.add(lblTitle, gbc);
 
-		// --- Tiêu đề ---
 		gbc.gridy = 1;
-		gbc.weighty = 0;
-		pnlTienHoan.add(new JLabel("Tiền hoàn:", SwingConstants.CENTER), gbc);
-
-		// --- Số tiền ---
-		gbc.gridy = 2;
-		JLabel lblTienHoanAmount = new JLabel(tongTienHoan + "", SwingConstants.CENTER);
-		lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 18f));
-		lblTienHoanAmount.setForeground(Color.GREEN);
+		lblTienHoanAmount = new JLabel(tongTienHoan + "");
+		lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 24f));
+		lblTienHoanAmount.setForeground(Color.BLUE);
+		lblTienHoanAmount.setHorizontalAlignment(SwingConstants.CENTER);
 		pnlTienHoan.add(lblTienHoanAmount, gbc);
 
-		// --- Nút ---
-		gbc.gridy = 3;
-		btnXacNhanVaInCash = new JButton("Xác nhận hoàn vé");
-		btnXacNhanVaInCash.setFont(btnXacNhanVaInCash.getFont().deriveFont(Font.BOLD, 14f));
-		btnXacNhanVaInCash.setBackground(new Color(0, 153, 51));
-		btnXacNhanVaInCash.setForeground(Color.WHITE);
-		pnlTienHoan.add(btnXacNhanVaInCash, gbc);
-
-		gbc.gridy = 4;
+		gbc.gridy = 2;
 		gbc.weighty = 1.0;
-		pnlTienHoan.add(Box.createVerticalGlue(), gbc);
+		pnlTienHoan.add(new JLabel(""), gbc);
+
+		gbc.gridy = 3;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.CENTER;
+		btnXacNhanHoanVe = new JButton("Xác nhận hoàn tiền");
+		btnXacNhanHoanVe.setFont(btnXacNhanHoanVe.getFont().deriveFont(Font.BOLD, 14f));
+		btnXacNhanHoanVe.setBackground(new Color(0, 153, 51));
+		btnXacNhanHoanVe.setForeground(Color.WHITE);
+		pnlTienHoan.add(btnXacNhanHoanVe, gbc);
 
 		return pnlTienHoan;
 	}
@@ -228,6 +221,8 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		lblTongTienVe.setText(currencyFormat.format(tongVe));
 		lblTongPhiHoan.setText(currencyFormat.format(tongPhiHoan));
 		lblTongTienHoan.setText(currencyFormat.format(this.tongTienHoan));
+
+		lblTienHoanAmount.setText(currencyFormat.format(tongTienHoan));
 	}
 
 	public void setComponentsEnabled(boolean enabled) {
@@ -243,7 +238,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		setTienMatPanelEnabled(enabled);
 
 		// Disable confirm buttons specifically if panel is disabled
-		btnXacNhanVaInCash.setEnabled(enabled && radTienMat.isSelected());
+		btnXacNhanHoanVe.setEnabled(enabled && radTienMat.isSelected());
 	}
 
 	private void setTienMatPanelEnabled(boolean enabled) {
@@ -253,11 +248,11 @@ public class PanelHoanVeBuoc5 extends JPanel {
 			}
 		}
 
-		btnXacNhanVaInCash.setEnabled(enabled);
+		btnXacNhanHoanVe.setEnabled(enabled);
 	}
 
-	public JButton getBtnXacNhanVaInCash() {
-		return btnXacNhanVaInCash;
+	public JButton getBtnXacNhanHoanVe() {
+		return btnXacNhanHoanVe;
 	}
 
 	public JRadioButton getRadTienMat() {

@@ -165,7 +165,6 @@ public class BookingSession {
 		allSelectedTickets.addAll(getOutboundSelectedTickets());
 		allSelectedTickets.addAll(getReturnSelectedTickets());
 		return allSelectedTickets;
-
 	}
 
 	/**

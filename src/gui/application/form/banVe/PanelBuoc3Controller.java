@@ -335,6 +335,9 @@ public class PanelBuoc3Controller {
 	 */
 	private void handleCancel() {
 		// 1. Gọi BUS để hủy phiếu giữ chỗ
+		if (bookingSession.getPhieuGiuCho() == null) {
+			return;
+		}
 		datChoBUS.xoaPhieuGiuChoChiTietByPgcID(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
 
 		// 2. Nếu sau khi xóa mà không còn vé nào thì xóa luôn Phiếu giữ chỗ
