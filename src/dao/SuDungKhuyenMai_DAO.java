@@ -7,9 +7,12 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.List;
 
 import connectDB.ConnectDB;
 import entity.SuDungKhuyenMai;
+import entity.Ve;
 
 /*
  * @description
@@ -37,4 +40,38 @@ public class SuDungKhuyenMai_DAO {
 		}
 	}
 
+	/**
+	 * @param conn
+	 * @param listVe
+	 * @return
+	 */
+	public int huySuDungKhuyenMaiChoListVe(Connection conn, List<Ve> listVe) throws Exception {
+		if (listVe == null || listVe.isEmpty()) {
+			return 0;
+		}
+		String sql = "UPDATE SuDungKhuyenMai " + "SET trangThai = 'DA_HUY' " + "WHERE hoaDonChiTietID IN ("
+				+ "    SELECT hoaDonChiTietID FROM HoaDonChiTiet " + "    WHERE veID = ? AND loaiDichVu = 'KHUYEN_MAI'"
+				+ ")";
+
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			for (Ve ve : listVe) {
+				pstm.setString(1, ve.getVeID());
+				pstm.addBatch();
+			}
+
+			// Thực thi toàn bộ lô lệnh cùng lúc
+			int[] results = pstm.executeBatch();
+
+			// Tính tổng số dòng đã được cập nhật (số khuyến mãi đã hủy)
+			int totalUpdated = 0;
+			for (int result : results) {
+				if (result > 0) {
+					totalUpdated += result;
+				} else if (result == Statement.SUCCESS_NO_INFO) {
+					totalUpdated++;
+				}
+			}
+			return totalUpdated;
+		}
+	}
 }

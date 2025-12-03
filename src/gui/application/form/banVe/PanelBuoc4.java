@@ -132,6 +132,14 @@ public class PanelBuoc4 extends JPanel {
 		model.setRows(rows);
 	}
 
+	public HanhKhachTableModel getModel() {
+		return model;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
 	/**
 	 * Được gọi bởi controller để bật/tắt toàn bộ panel.
 	 */

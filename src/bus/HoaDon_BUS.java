@@ -115,17 +115,18 @@ public class HoaDon_BUS {
 
 			if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
 				String hdctGiamDTID = hoaDon.getHoaDonID() + "-" + (++stt);
-				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, hoaDon, "Giảm giá đối tượng trẻ em",
-						LoaiDichVu.KHUYEN_MAI, "", 1, -ve.getGiamDoiTuong(), -ve.getGiamDoiTuong());
+				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, hoaDon, ve.getVe(),
+						"Giảm giá đối tượng trẻ em", LoaiDichVu.KHUYEN_MAI, 1, -ve.getGiamDoiTuong(),
+						-ve.getGiamDoiTuong());
 				dsHoaDonChiTiet.add(hdctGiamDT);
 
 			}
 
 			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
-				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon,
+				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, ve.getVe(),
 						ve.getKhuyenMaiApDung().getMaKhuyenMai() + ": " + ve.getKhuyenMaiApDung().getMoTa(),
-						LoaiDichVu.KHUYEN_MAI, "", 1, -ve.getGiamKM(), -ve.getGiamKM());
+						LoaiDichVu.KHUYEN_MAI, 1, -ve.getGiamKM(), -ve.getGiamKM());
 				ve.getSuDungKhuyenMai().setHoaDonChiTiet(hdctKM);
 				dsHoaDonChiTiet.add(hdctKM);
 
@@ -155,8 +156,8 @@ public class HoaDon_BUS {
 			}
 
 			String hdctLePhiID = hoaDon.getHoaDonID() + "-" + (++stt);
-			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, "Lệ phí hoàn vé", LoaiDichVu.PHI_HOAN, 1,
-					row.getLePhiHoanVe(), row.getLePhiHoanVe());
+			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, row.getVe(), "Lệ phí hoàn vé",
+					LoaiDichVu.PHI_HOAN, 1, row.getLePhiHoanVe(), row.getLePhiHoanVe());
 			dsHoaDonChiTiet.add(hdctLePhi);
 		}
 
@@ -213,8 +214,8 @@ public class HoaDon_BUS {
 			// Dòng giảm giá đối tượng trẻ em
 			if (listVeMoi.get(i).getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
 				String hdctGiamDTID = hoaDon.getHoaDonID() + "-" + (++stt);
-				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, hoaDon, "Giảm giá đối tượng trẻ em",
-						LoaiDichVu.KHUYEN_MAI, "", 1, listVeMoi.get(i).getGiamDoiTuong(),
+				HoaDonChiTiet hdctGiamDT = new HoaDonChiTiet(hdctGiamDTID, hoaDon, listVeMoi.get(i).getVe(),
+						"Giảm giá đối tượng trẻ em", LoaiDichVu.KHUYEN_MAI, 1, listVeMoi.get(i).getGiamDoiTuong(),
 						listVeMoi.get(i).getGiamDoiTuong());
 				dsHoaDonChiTiet.add(hdctGiamDT);
 
@@ -222,8 +223,8 @@ public class HoaDon_BUS {
 
 			// Dòng phí đổi vé
 			String hdctLePhiID = hoaDon.getHoaDonID() + "-" + (++stt);
-			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, "Lệ phí đổi vé", LoaiDichVu.PHI_DOI, 1,
-					listVeDoi.get(i).getLePhiDoiVe(), listVeDoi.get(i).getLePhiDoiVe());
+			HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, listVeMoi.get(i).getVe(), "Lệ phí đổi vé",
+					LoaiDichVu.PHI_DOI, 1, listVeDoi.get(i).getLePhiDoiVe(), listVeDoi.get(i).getLePhiDoiVe());
 			dsHoaDonChiTiet.add(hdctLePhi);
 		}
 		return dsHoaDonChiTiet;

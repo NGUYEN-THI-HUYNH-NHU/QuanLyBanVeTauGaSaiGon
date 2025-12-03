@@ -43,6 +43,9 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
+	/*
+	 * HoaDonChiTiet vé
+	 */
 	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
 			String donViTinh, int soLuong, double donGia, double thanhTien) {
 		super();
@@ -57,6 +60,9 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
+	/*
+	 * HoaDonChiTiet Phiếu dùng phòng chờ VIP
+	 */
 	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
 			LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
 		super();
@@ -71,24 +77,12 @@ public class HoaDonChiTiet {
 		this.thanhTien = thanhTien;
 	}
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, String tenDichVu, LoaiDichVu loaiDichVu,
-			String donViTinh, int soLuong, double donGia, double thanhTien) {
+	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+			int soLuong, double donGia, double thanhTien) {
 		super();
 		this.hoaDonChiTietID = hoaDonChiTietID;
 		this.hoaDon = hoaDon;
-		this.tenDichVu = tenDichVu;
-		this.loaiDichVu = loaiDichVu;
-		this.donViTinh = donViTinh;
-		this.soLuong = soLuong;
-		this.donGia = donGia;
-		this.thanhTien = thanhTien;
-	}
-
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, String tenDichVu, LoaiDichVu loaiDichVu, int soLuong,
-			double donGia, double thanhTien) {
-		super();
-		this.hoaDonChiTietID = hoaDonChiTietID;
-		this.hoaDon = hoaDon;
+		this.ve = ve;
 		this.tenDichVu = tenDichVu;
 		this.loaiDichVu = loaiDichVu;
 		this.soLuong = soLuong;

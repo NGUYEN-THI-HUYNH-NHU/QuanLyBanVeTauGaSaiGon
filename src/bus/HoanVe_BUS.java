@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import connectDB.ConnectDB;
 import entity.DonDatCho;
@@ -35,6 +36,7 @@ public class HoanVe_BUS {
 	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
 	private final PhieuGiuCho_BUS phieuGiuChoChiTietBUS = new PhieuGiuCho_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
 	/**
 	 * @param donDatCho
@@ -77,6 +79,15 @@ public class HoanVe_BUS {
 
 			// 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
 			phieuGiuChoChiTietBUS.huyCacPhieuGiuChoChiTiet(conn, listVe, TrangThaiPhieuGiuCho.HET_GIU);
+
+			// 6. Cập nhật các khuyến mãi đã sử dụng
+			Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVe);
+			khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVe);
+			for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
+				String kmID = entry.getKey();
+				int soLuongCanCong = entry.getValue();
+				khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
+			}
 
 			// Hoàn tất giao dịch
 			conn.commit();

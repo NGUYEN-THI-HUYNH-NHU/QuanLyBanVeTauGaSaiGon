@@ -6,12 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import connectDB.ConnectDB;
 import entity.DieuKienKhuyenMai;
 import entity.KhuyenMai;
 import entity.Tuyen;
+import entity.Ve;
 import entity.type.HangToa;
 import entity.type.LoaiDoiTuong;
 import entity.type.LoaiTau;
@@ -504,16 +508,15 @@ public class KhuyenMai_DAO {
 		double giaVe = veSession.getVe().getGia();
 		int ngayTrongTuan = veSession.getVe().getNgayGioDi().getDayOfWeek().getValue();
 
-		// Query phức hợp: Join thêm bảng SuDungKhuyenMai (thông qua HoaDonChiTiet ->
-		// HoaDon)
-		// để đếm số lần đã dùng.
+		// Join thêm bảng SuDungKhuyenMai (thông qua HoaDonChiTiet -> HoaDon) để đếm số
+		// lần đã dùng.
 		String sql = "SELECT km.*, " + "(SELECT COUNT(*) FROM SuDungKhuyenMai sd "
 				+ " JOIN HoaDonChiTiet hdct ON sd.hoaDonChiTietID = hdct.hoaDonChiTietID "
 				+ " JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID " + " WHERE sd.khuyenMaiID = km.khuyenMaiID "
-				+ " AND hd.khachHangID = ? " // Tham số 1: KhachHangID
-				+ " AND sd.trangThai = 'DA_AP_DUNG') AS soLanDaDung " + "FROM KhuyenMai km "
-				+ "JOIN DieuKienKhuyenMai dk ON km.khuyenMaiID = dk.khuyenMaiID " + "WHERE km.trangThai = 1 "
-				+ "AND km.soLuong > 0 " + "AND CAST(GETDATE() AS DATE) BETWEEN km.ngayBatDau AND km.ngayKetThuc "
+				+ " AND hd.khachHangID = ? " + " AND sd.trangThai = 'DA_AP_DUNG') AS soLanDaDung "
+				+ "FROM KhuyenMai km " + "JOIN DieuKienKhuyenMai dk ON km.khuyenMaiID = dk.khuyenMaiID "
+				+ "WHERE km.trangThai = 1 " + "AND km.soLuong > 0 "
+				+ "AND CAST(GETDATE() AS DATE) BETWEEN km.ngayBatDau AND km.ngayKetThuc "
 				// Điều kiện phù hợp vé
 				+ "AND (dk.tuyenID IS NULL OR dk.tuyenID = ?) " + "AND (dk.loaiTauID IS NULL OR dk.loaiTauID = ?) "
 				+ "AND (dk.hangToaID IS NULL OR dk.hangToaID = ?) "
@@ -525,22 +528,20 @@ public class KhuyenMai_DAO {
 				+ "AND (km.gioiHanMoiKhachHang = 0 OR " + "      (SELECT COUNT(*) FROM SuDungKhuyenMai sd "
 				+ "       JOIN HoaDonChiTiet hdct ON sd.hoaDonChiTietID = hdct.hoaDonChiTietID "
 				+ "       JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID "
-				+ "       WHERE sd.khuyenMaiID = km.khuyenMaiID " + "       AND hd.khachHangID = ? " // Tham số 8:
-																										// KhachHangID
-																										// (lặp lại)
-				+ "       AND sd.trangThai = 'DA_AP_DUNG') < km.gioiHanMoiKhachHang)";
+				+ "       WHERE sd.khuyenMaiID = km.khuyenMaiID "
+				+ "       AND hd.khachHangID = ?) < km.gioiHanMoiKhachHang)";
 
 		try {
 			PreparedStatement pstm = con.prepareStatement(sql);
 			int i = 1;
-			pstm.setString(i++, khachHangID); // Cho subquery đếm lần đầu (để select ra xem chơi nếu cần)
+			pstm.setString(i++, khachHangID);
 			pstm.setString(i++, tuyenID);
 			pstm.setString(i++, loaiTauID);
 			pstm.setString(i++, hangToaID);
 			pstm.setString(i++, loaiDoiTuongID);
 			pstm.setDouble(i++, giaVe);
 			pstm.setInt(i++, ngayTrongTuan);
-			pstm.setString(i++, khachHangID); // Cho subquery trong WHERE clause
+			pstm.setString(i++, khachHangID);
 
 			ResultSet rs = pstm.executeQuery();
 
@@ -609,5 +610,69 @@ public class KhuyenMai_DAO {
 			e.printStackTrace();
 		}
 		return 0;
+	}
+
+	/**
+	 * Lấy danh sách mã khuyến mãi và số lượng cần hoàn lại dựa trên danh sách vé.
+	 * 
+	 * @param conn
+	 * @param listVe
+	 * @return Map<String, Integer>: Key là khuyenMaiID, Value là số lượng cần cộng
+	 *         lại
+	 */
+	public Map<String, Integer> getDanhSachKhuyenMaiCanHoan(Connection conn, List<Ve> listVe) throws Exception {
+		Map<String, Integer> resultMap = new HashMap<>();
+
+		if (listVe == null || listVe.isEmpty()) {
+			return resultMap;
+		}
+
+		// Xây dựng câu query động với IN (?,?,...)
+		StringBuilder sqlBuilder = new StringBuilder();
+		sqlBuilder.append("SELECT sdk.khuyenMaiID, COUNT(*) as soLuongCanHoan ");
+		sqlBuilder.append("FROM SuDungKhuyenMai sdk ");
+		sqlBuilder.append("JOIN HoaDonChiTiet hdct ON sdk.hoaDonChiTietID = hdct.hoaDonChiTietID ");
+		sqlBuilder.append("WHERE sdk.trangThai = 'DA_AP_DUNG' ");
+		sqlBuilder.append("AND hdct.veID IN (");
+
+		// Tạo chuỗi placeholder (?,?,?) tương ứng số lượng vé
+		String placeholders = listVe.stream().map(v -> "?").collect(Collectors.joining(","));
+		sqlBuilder.append(placeholders);
+		sqlBuilder.append(") ");
+
+		// Gom nhóm để đếm số lượng cho từng mã khuyến mãi
+		sqlBuilder.append("GROUP BY sdk.khuyenMaiID");
+
+		try (PreparedStatement pstm = conn.prepareStatement(sqlBuilder.toString())) {
+			for (int i = 0; i < listVe.size(); i++) {
+				pstm.setString(i + 1, listVe.get(i).getVeID());
+			}
+
+			ResultSet rs = pstm.executeQuery();
+
+			while (rs.next()) {
+				String kmID = rs.getString("khuyenMaiID");
+				int count = rs.getInt("soLuongCanHoan");
+				resultMap.put(kmID, count);
+			}
+		}
+
+		return resultMap;
+	}
+
+	/**
+	 * @param conn
+	 * @param khuyenMaiID
+	 * @param soLuongCanCong
+	 * @return
+	 */
+	public boolean updateSoLuongKhuyenMai(Connection conn, String khuyenMaiID, int soLuongCanCong) throws Exception {
+		String sql = "UPDATE KhuyenMai SET soLuong = soLuong + ? WHERE khuyenMaiID = ?";
+		try (PreparedStatement pstm = conn.prepareStatement(sql)) {
+			pstm.setInt(1, soLuongCanCong);
+			pstm.setString(2, khuyenMaiID);
+			return pstm.executeUpdate() > 0;
+
+		}
 	}
 }

@@ -53,19 +53,6 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 			}
 		}
 
-//		Object itemToSelect = value;
-//
-//		// Kiểm tra nếu value là một "Ghost Object" (KhuyenMai nhưng ID null/rỗng)
-//		// thì chuyển nó thành null thật sự để khớp với item đầu tiên trong ComboBox
-//		if (value instanceof KhuyenMai) {
-//			KhuyenMai km = (KhuyenMai) value;
-//			if (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty()) {
-//				itemToSelect = null;
-//			}
-//		}
-//
-//		// Chọn item đã được chuẩn hóa
-//		cbKhuyenMai.setSelectedItem(itemToSelect);
 		cbKhuyenMai.setSelectedItem(value);
 
 		return super.getTableCellEditorComponent(table, value, isSelected, row, column);

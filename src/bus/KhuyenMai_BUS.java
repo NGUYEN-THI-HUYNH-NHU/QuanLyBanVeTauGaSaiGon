@@ -2,7 +2,10 @@ package bus;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import dao.KhuyenMai_DAO;
 import dao.SuDungKhuyenMai_DAO;
@@ -134,10 +137,11 @@ public class KhuyenMai_BUS {
 	}
 
 	public void ganDanhSachSuDungKhuyenMai(List<VeSession> listVeSession) {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmmss");
 		for (VeSession ve : listVeSession) {
 			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String sdkmID = "SD-" + ve.getKhuyenMaiApDung().getKhuyenMaiID() + "-"
-						+ ve.getVe().getKhachHang().getKhachHangID();
+						+ ve.getVe().getKhachHang().getKhachHangID() + "-" + LocalDateTime.now().format(dtf).toString();
 				ve.setSuDungKhuyenMai(
 						new SuDungKhuyenMai(sdkmID, ve.getKhuyenMaiApDung(), null, TrangThaiSDKM.DA_AP_DUNG));
 			}
@@ -151,5 +155,31 @@ public class KhuyenMai_BUS {
 				khuyenMai_dao.giamSoLuongKhuyenMai(conn, ve.getKhuyenMaiApDung().getKhuyenMaiID());
 			}
 		}
+	}
+
+	/**
+	 * @param conn
+	 * @param listVe
+	 */
+	public int capNhatTrangThaiSDKMCuaVe(Connection conn, List<Ve> listVe) throws Exception {
+		return suDungKhuyenMaiDAO.huySuDungKhuyenMaiChoListVe(conn, listVe);
+	}
+
+	/**
+	 * @param conn
+	 * @param listVe
+	 * @return
+	 */
+	public Map<String, Integer> layDanhSachKhuyenMaiCanHoan(Connection conn, List<Ve> listVe) throws Exception {
+		return khuyenMai_dao.getDanhSachKhuyenMaiCanHoan(conn, listVe);
+	}
+
+	/**
+	 * @param conn
+	 * @param kmID
+	 * @param soLuongCanCong
+	 */
+	public boolean congSoLuongKhuyenMai(Connection conn, String kmID, int soLuongCanCong) throws Exception {
+		return khuyenMai_dao.updateSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
 	}
 }
