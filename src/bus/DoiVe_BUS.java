@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import connectDB.ConnectDB;
 import entity.DonDatCho;
@@ -40,6 +41,7 @@ public class DoiVe_BUS {
 	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
 	private final PhieuGiuCho_BUS phieuGiuChoBUS = new PhieuGiuCho_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
 	/**
 	 * @param exchangeSession
@@ -100,10 +102,17 @@ public class DoiVe_BUS {
 			List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichDoiVe(exchangeSession);
 			giaoDichHoanDoiBUS.themCacGiaoDichHoanDoi(conn, dsGdhd);
 
-			// 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
+			// 10. Set trạng thái các phiếu giữ chỗ thành HET_GIU
 			phieuGiuChoBUS.huyCacPhieuGiuChoChiTiet(conn, listVeDoi, TrangThaiPhieuGiuCho.HET_GIU);
-			// TODO: Set trạng thái của Phiếu giữ chỗ nếu tất cả chi tiết của nó đều có
-			// trạng thái HET_GIU
+
+			// 11. Cập nhật các khuyến mãi đã sử dụng ở các vé cũ
+			Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVeDoi);
+			khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVeDoi);
+			for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
+				String kmID = entry.getKey();
+				int soLuongCanCong = entry.getValue();
+				khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
+			}
 
 			// --- KẾT THÚC GIAO DỊCH ---
 			// Hoàn tất giao dịch

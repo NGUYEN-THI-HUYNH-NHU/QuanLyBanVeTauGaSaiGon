@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import bus.DoiVe_BUS;
+import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import gui.application.form.banVe.VeSession;
 
@@ -28,11 +29,17 @@ public class DoiVe3Controller {
 	private final PanelDoiVeBuoc8 p8;
 
 	private final DoiVe_BUS doiVeBUS = new DoiVe_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
 	private final ExchangeSession exchangeSession;
 
-	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
+	// Listener để báo cho wizard chính (PanelBanVe) biết
+	private Runnable onPanel3ReturnListener;
 	private Runnable onPaymentSuccessListener;
+
+	public void addPanel3ReturnListener(Runnable listener) {
+		this.onPanel3ReturnListener = listener;
+	}
 
 	public void addPanel3PaymentSuccessListener(Runnable listener) {
 		this.onPaymentSuccessListener = listener;
@@ -45,8 +52,50 @@ public class DoiVe3Controller {
 		this.p7 = view.getPanelDoiVeBuoc7();
 		this.p8 = view.getPanelDoiVeBuoc8();
 
+		this.view.getBtnPrev().addActionListener(e -> {
+			if (onPanel3ReturnListener != null) {
+				onPanel3ReturnListener.run();
+			}
+		});
+
+		this.p7.setKhuyenMaiProvider((veSession) -> {
+			return khuyenMaiBUS.getDanhSachKhuyenMaiPhuHop(veSession);
+		});
+
+		this.p7.addTableUpdateListener((e) -> {
+			updatePaymentInfo();
+		});
+
+		this.p7.getTable()
+				.removeColumn(this.p7.getTable().getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI));
+		this.p7.getTable().removeColumn(
+				this.p7.getTable().getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP - 1));
+
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
+	}
+
+	private void updatePaymentInfo() {
+		int tongTienVeCu = 0;
+		int tongTienVeMoi = 0;
+		int tongGiamKhuyenMai = 0;
+		int tongTienDichVu = 0;
+		int tongPhiDoiVe = 0;
+
+		List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
+		List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
+		for (VeDoiRow veDoi : listVeDoi) {
+			tongTienVeCu += veDoi.getVe().getGia();
+			tongPhiDoiVe += veDoi.getLePhiDoiVe();
+		}
+		for (VeSession veMoi : listVeMoi) {
+			tongTienVeMoi += veMoi.getVe().getGia();
+			tongGiamKhuyenMai += veMoi.getGiamKM();
+			tongTienDichVu += veMoi.getPhiPhieuDungPhongChoVIP();
+		}
+
+		// Cập nhật lại UI PanelDoiVeBuoc8
+		p8.setChiTietThanhToan(tongTienVeCu, tongTienVeMoi, tongGiamKhuyenMai, tongTienDichVu, tongPhiDoiVe);
 	}
 
 	/**
@@ -61,25 +110,7 @@ public class DoiVe3Controller {
 		// 2. Tải dữ liệu vào bảng xác nhận (Buoc7)
 		p7.hienThiThongTin(exchangeSession);
 
-		// 3. Tính toán chi tiết thanh toán
-		int tongTienVeCu = 0;
-		int tongTienVeMoi = 0;
-		int tongTienDichVu = 0;
-		int tongPhiDoiVe = 0;
-
-		List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
-		List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
-		for (VeDoiRow veDoi : listVeDoi) {
-			tongTienVeCu += veDoi.getVe().getGia();
-			tongPhiDoiVe += veDoi.getLePhiDoiVe();
-		}
-		for (VeSession veMoi : listVeMoi) {
-			tongTienVeMoi += veMoi.getVe().getGia();
-			tongTienDichVu += veMoi.getPhiPhieuDungPhongChoVIP();
-		}
-
-		// 4. Đẩy chi tiết thanh toán vào Buoc8
-		p8.setChiTietThanhToan(tongTienVeCu, tongTienVeMoi, tongTienDichVu, tongPhiDoiVe);
+		updatePaymentInfo();
 	}
 
 	/**

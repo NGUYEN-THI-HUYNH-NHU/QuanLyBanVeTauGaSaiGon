@@ -18,10 +18,15 @@ import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 
+import entity.KhuyenMai;
+import gui.application.form.banVe.KhuyenMaiRenderer;
 import gui.application.form.banVe.VeSession;
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.LeftCenterAlignRenderer;
@@ -29,6 +34,15 @@ import gui.tuyChinh.LeftCenterAlignRenderer;
 public class PanelDoiVeBuoc7 extends JPanel {
 	private final MappingVeTableModel model;
 	private final JTable table;
+
+	protected interface KhuyenMaiProvider {
+		List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
+	}
+
+	private KhuyenMaiProvider khuyenMaiProvider;
+	private JComboBox cbKhuyenMai;
+
+	private TableModelListener tableUpdateListener;
 
 	public PanelDoiVeBuoc7() {
 		setLayout(new BorderLayout(8, 8));
@@ -39,7 +53,7 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		model = new MappingVeTableModel() {
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return false;
+				return columnIndex == COL_KHUYEN_MAI;
 			}
 		};
 		table = new JTable(model);
@@ -57,37 +71,62 @@ public class PanelDoiVeBuoc7 extends JPanel {
 //		public static final int COL_HANH_KHACH = 1;
 //		public static final int COL_VE_CU_INFO = 2;
 //		public static final int COL_VE_CU_GIA = 3;
-////		public static final int COL_CHON_VE_MOI = 4; // Cột ComboBox
-//		public static final int COL_VE_MOI_INFO = 5; 4
-//		public static final int COL_VE_MOI_GIA = 6; 5
-////		public static final int COL_CHON_PHIEU_VIP = 7; // Cột CheckBox
-//		public static final int COL_PHIEU_VIP_GIA = 8; 6
-//		public static final int COL_LE_PHI = 9; 7
-//		public static final int COL_CHENH_LECH = 10; 8
-
-		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI));
-		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP - 1));
+//		public static final int COL_CHON_VE_MOI = 4;
+//		public static final int COL_VE_MOI_INFO = 5;
+//		public static final int COL_VE_MOI_GIA = 6;
+//		public static final int COL_KHUYEN_MAI = 7;
+//		public static final int COL_GIAM_KM = 8;
+//		public static final int COL_CHON_PHIEU_VIP = 9;
+//		public static final int COL_PHIEU_VIP_GIA = 10;
+//		public static final int COL_LE_PHI = 11;
+//		public static final int COL_CHENH_LECH = 12;
 
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(150);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(150);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO - 1).setMinWidth(130);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(130);
+
+		// Cấu hình Cột Khuyến Mãi
+		// 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
+		khuyenMaiCol.setMinWidth(140);
+
+		cbKhuyenMai = new JComboBox<>();
+		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
+		khuyenMaiCol.setCellRenderer(renderer);
+		cbKhuyenMai.setRenderer(renderer);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
+		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
 
 		// Cột Tiền
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA - 1).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA - 2).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI - 2).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH - 2).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
 
 		// Cột Text thường (Tên, Thông tin vé)
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO - 1).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(leftCenterRenderer);
+	}
+
+	public void setKhuyenMaiProvider(KhuyenMaiProvider provider) {
+		this.khuyenMaiProvider = provider;
+
+		// Khởi tạo Editor SAU KHI đã có provider (và model)
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
+		// Dùng class Editor mới tách
+		KhuyenMaiCellEditor editor = new KhuyenMaiCellEditor(cbKhuyenMai, provider, model);
+		khuyenMaiCol.setCellEditor(editor);
+	}
+
+	// Thêm hàm để Controller đăng ký lắng nghe thay đổi
+	public void addTableUpdateListener(TableModelListener l) {
+		this.tableUpdateListener = l;
+		model.addTableModelListener(l);
 	}
 
 	/**
@@ -115,4 +154,13 @@ public class PanelDoiVeBuoc7 extends JPanel {
 			comp.setEnabled(enabled);
 		}
 	}
+
+	public MappingVeTableModel getModel() {
+		return model;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
 }

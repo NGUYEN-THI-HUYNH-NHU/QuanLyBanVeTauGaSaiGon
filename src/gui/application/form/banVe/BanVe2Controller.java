@@ -39,8 +39,13 @@ public class BanVe2Controller {
 
 	private final BookingSession bookingSession;
 
-	// Listener để báo cho wizard chính (PanelBanVe) biết khi thanh toán xong
+	// Listener để báo cho wizard chính (PanelBanVe) biết
 	private Runnable onPaymentSuccessListener;
+	private Runnable onPanel2ReturnListener;
+
+	public void addPanel2ReturnListener(Runnable listener) {
+		this.onPanel2ReturnListener = listener;
+	}
 
 	public void addPanel2PaymentSuccessListener(Runnable listener) {
 		this.onPaymentSuccessListener = listener;
@@ -52,6 +57,12 @@ public class BanVe2Controller {
 
 		this.p4 = view.getPanelBuoc4();
 		this.p5 = view.getPanelBuoc5();
+
+		this.view.getBtnPrev().addActionListener(e -> {
+			if (onPanel2ReturnListener != null) {
+				onPanel2ReturnListener.run();
+			}
+		});
 
 		this.p4.setKhuyenMaiProvider((veSession) -> {
 			return khuyenMaiBUS.getDanhSachKhuyenMaiPhuHop(veSession);

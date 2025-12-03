@@ -42,7 +42,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import gui.tuyChinh.CurrencyRenderer;
 
 public class PanelBuoc3 extends JPanel {
-	private final HanhKhachTableModel model;
+	private final VeBanTableModel model;
 	private final JTable table;
 	private final JButton btnConfirm;
 	private final JButton btnCancel;
@@ -61,7 +61,7 @@ public class PanelBuoc3 extends JPanel {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
 
-		model = new HanhKhachTableModel();
+		model = new VeBanTableModel();
 //		{ "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Giảm KM", "Thành tiền", "" }
 		table = new JTable(model);
 		table.setRowHeight(110);
@@ -207,7 +207,7 @@ public class PanelBuoc3 extends JPanel {
 		return this.txtPhone;
 	}
 
-	public HanhKhachTableModel getModel() {
+	public VeBanTableModel getModel() {
 		return model;
 	}
 

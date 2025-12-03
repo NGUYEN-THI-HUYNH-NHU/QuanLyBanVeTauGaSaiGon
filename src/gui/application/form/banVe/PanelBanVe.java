@@ -70,13 +70,10 @@ public class PanelBanVe extends JPanel {
 		});
 
 		// Lắng nghe sự kiện "Quay lại" từ PanelBanVe2
-		panelBanVe2.getBtnPrev().addActionListener(e -> {
-			// Yêu cầu PanelBanVe chuyển card về bước 1
+		banVe2Controller.addPanel2ReturnListener(() -> {
 			showPanel("step1");
 		});
 
-		// TODO: Có thể thêm listener cho banVe2Controller.addPaymentSuccessListener để
-		// gọi showPanel("complete") khi thanh toán xong)
 		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
 //			panelBuoc6.loadCompletionData(bookingSession);
 //			showPanel("complete");

@@ -1,16 +1,10 @@
-package gui.application.form.banVe;
+package gui.application.form.doiVe;
 /*
- * @(#) KhuyenMaiCellEditor.java  1.0  [10:27:05 PM] Dec 1, 2025
+ * @(#) KhuyenMaiCellEditor.java  1.0  [7:35:31 PM] Dec 3, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Dec 1, 2025
- * @version: 1.0
- */
 import java.awt.Component;
 import java.util.List;
 
@@ -19,14 +13,22 @@ import javax.swing.JComboBox;
 import javax.swing.JTable;
 
 import entity.KhuyenMai;
+import gui.application.form.banVe.VeSession;
+
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Dec 3, 2025
+ * @version: 1.0
+ */
 
 public class KhuyenMaiCellEditor extends DefaultCellEditor {
 	private final JComboBox<KhuyenMai> cbKhuyenMai;
-	private final PanelBuoc4.KhuyenMaiProvider khuyenMaiProvider;
-	private final VeBanTableModel model;
+	private final PanelDoiVeBuoc7.KhuyenMaiProvider khuyenMaiProvider;
+	private final MappingVeTableModel model;
 
-	public KhuyenMaiCellEditor(JComboBox<KhuyenMai> cbKhuyenMai, PanelBuoc4.KhuyenMaiProvider khuyenMaiProvider,
-			VeBanTableModel model) {
+	public KhuyenMaiCellEditor(JComboBox<KhuyenMai> cbKhuyenMai, PanelDoiVeBuoc7.KhuyenMaiProvider khuyenMaiProvider,
+			MappingVeTableModel model) {
 		super(cbKhuyenMai);
 		this.cbKhuyenMai = cbKhuyenMai;
 		this.khuyenMaiProvider = khuyenMaiProvider;
@@ -36,16 +38,16 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		// 1. Lấy dữ liệu dòng hiện tại
-		PassengerRow p = model.getRowAt(row);
-		VeSession v = p.getVeSession();
+		MappingRow mappingRow = model.getRowAt(row);
+		VeSession v = mappingRow.getVeSessionMoi();
 
-		// 2. Gọi Provider để lấy danh sách KM phù hợp
-		if (khuyenMaiProvider != null) {
+		// Reset ComboBox trước
+		cbKhuyenMai.removeAllItems();
+		cbKhuyenMai.addItem(null);
+
+		// 2. Chỉ load danh sách nếu đã có Vé Mới
+		if (v != null && khuyenMaiProvider != null) {
 			List<KhuyenMai> listKM = khuyenMaiProvider.getKhuyenMaiFor(v);
-
-			// 3. Cập nhật ComboBox
-			cbKhuyenMai.removeAllItems();
-			cbKhuyenMai.addItem(null);
 			if (listKM != null) {
 				for (KhuyenMai km : listKM) {
 					cbKhuyenMai.addItem(km);
@@ -53,6 +55,7 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 			}
 		}
 
+		// 3. Chọn item
 		cbKhuyenMai.setSelectedItem(value);
 
 		return super.getTableCellEditorComponent(table, value, isSelected, row, column);

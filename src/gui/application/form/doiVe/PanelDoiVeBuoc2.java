@@ -78,12 +78,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		south.add(btnTiepTuc);
 
 		add(south, BorderLayout.SOUTH);
-
-		btnTiepTuc.addActionListener(e -> {
-			if (controller != null) {
-
-			}
-		});
 	}
 
 	private void setupTable() {

@@ -18,7 +18,7 @@ import javax.swing.table.AbstractTableModel;
 
 import entity.KhuyenMai;
 
-public class HanhKhachTableModel extends AbstractTableModel {
+public class VeBanTableModel extends AbstractTableModel {
 	private final String[] cols = { "STT", "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng",
 			"Khuyến mãi", "Giảm KM", "Thành tiền", "" };
 

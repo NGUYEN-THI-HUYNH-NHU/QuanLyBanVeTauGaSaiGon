@@ -81,6 +81,11 @@ public class PanelDoiVe extends JPanel {
 			showPanel("step3");
 		});
 
+		// Lắng nghe sự kiện "Quay lại" từ PanelDoiVe2
+		doiVe3Controller.addPanel3ReturnListener(() -> {
+			showPanel("step2");
+		});
+
 		// Lắng nghe sự kiện thanh toán thành công từ PanelDoiVe3
 		doiVe3Controller.addPanel3PaymentSuccessListener(() -> {
 			doiVe2Controller.stopAllTimers();

@@ -49,6 +49,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	private JRadioButton radTienMat, radChuyenKhoan;
 	private JLabel lblTongTienVeCu;
 	private JLabel lblTongTienVeMoi;
+	private JLabel lblTongGiamKhuyenMai;
 	private JLabel lblTongTienDichVu;
 	private JLabel lblTongPhiDoiVe;
 	private JLabel lblTongThanhToan;
@@ -149,6 +150,17 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		gbc.gridy = 2;
 		gbc.weightx = 0;
 		gbc.anchor = GridBagConstraints.WEST;
+		pnl.add(new JLabel("Tổng khuyến mãi:"), gbc);
+		gbc.gridx = 1;
+		gbc.anchor = GridBagConstraints.EAST;
+		lblTongGiamKhuyenMai = new JLabel("0 VND", JLabel.RIGHT);
+		lblTongGiamKhuyenMai.setForeground(Color.GREEN);
+		pnl.add(lblTongGiamKhuyenMai, gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.weightx = 0;
+		gbc.anchor = GridBagConstraints.WEST;
 		pnl.add(new JLabel("Tổng tiền dịch vụ:"), gbc);
 		gbc.gridx = 1;
 		gbc.anchor = GridBagConstraints.EAST;
@@ -157,7 +169,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		pnl.add(lblTongTienDichVu, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 3;
+		gbc.gridy = 4;
 		gbc.anchor = GridBagConstraints.WEST;
 		pnl.add(new JLabel("Tổng phí đổi vé:"), gbc);
 		gbc.gridx = 1;
@@ -167,12 +179,12 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		pnl.add(lblTongPhiDoiVe, gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 4;
+		gbc.gridy = 5;
 		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalGlue(), gbc);
+		pnl.add(Box.createVerticalStrut(50), gbc);
 
 		gbc.gridx = 0;
-		gbc.gridy = 5;
+		gbc.gridy = 6;
 		gbc.anchor = GridBagConstraints.WEST;
 		JLabel totalLabel = new JLabel("Tổng thanh toán:");
 		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
@@ -184,10 +196,6 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		lblTongThanhToan.setFont(lblTongThanhToan.getFont().deriveFont(Font.BOLD, 14f));
 		lblTongThanhToan.setForeground(Color.RED);
 		pnl.add(lblTongThanhToan, gbc);
-
-		gbc.gridy = 6;
-		gbc.weighty = 1.0;
-		pnl.add(new JLabel(), gbc);
 
 		return pnl;
 	}
@@ -511,8 +519,9 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		}
 	}
 
-	public void setChiTietThanhToan(int tongTienVeCu, int tongTienVeMoi, int tongTienDichVu, int tongPhiDoiVe) {
-		this.tongThanhToan = tongTienVeMoi + tongPhiDoiVe + tongTienDichVu - tongTienVeCu;
+	public void setChiTietThanhToan(int tongTienVeCu, int tongTienVeMoi, int tongGiamKhuyenMai, int tongTienDichVu,
+			int tongPhiDoiVe) {
+		this.tongThanhToan = tongTienVeMoi + tongPhiDoiVe + tongTienDichVu - tongTienVeCu - tongGiamKhuyenMai;
 
 		if (this.tongThanhToan < 0) {
 			this.tongThanhToan = 0;
@@ -520,6 +529,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		lblTongTienVeCu.setText(currencyFormat.format(tongTienVeCu));
 		lblTongTienVeMoi.setText(currencyFormat.format(tongTienVeMoi));
+		lblTongGiamKhuyenMai.setText(currencyFormat.format(tongGiamKhuyenMai));
 		lblTongTienDichVu.setText(currencyFormat.format(tongTienDichVu));
 		lblTongPhiDoiVe.setText(currencyFormat.format(tongPhiDoiVe));
 		lblTongThanhToan.setText(currencyFormat.format(this.tongThanhToan));

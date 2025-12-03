@@ -29,10 +29,10 @@ import entity.KhuyenMai;
 import gui.tuyChinh.CurrencyRenderer;
 
 public class PanelBuoc4 extends JPanel {
-	private final HanhKhachTableModel model;
+	private final VeBanTableModel model;
 	private final JTable table;
 
-	public interface KhuyenMaiProvider {
+	protected interface KhuyenMaiProvider {
 		List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
 	}
 
@@ -47,7 +47,7 @@ public class PanelBuoc4 extends JPanel {
 		setPreferredSize(new Dimension(getWidth(), 350));
 
 		// 1. Khởi tạo model và table
-		model = new HanhKhachTableModel() {
+		model = new VeBanTableModel() {
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
 				return columnIndex == COL_KHUYEN_MAI;
@@ -132,7 +132,7 @@ public class PanelBuoc4 extends JPanel {
 		model.setRows(rows);
 	}
 
-	public HanhKhachTableModel getModel() {
+	public VeBanTableModel getModel() {
 		return model;
 	}
 
