@@ -122,7 +122,7 @@ public class HoaDon_BUS {
 
 			}
 
-			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, ve.getVe(),
 						ve.getKhuyenMaiApDung().getMaKhuyenMai() + ": " + ve.getKhuyenMaiApDung().getMoTa(),
@@ -221,7 +221,8 @@ public class HoaDon_BUS {
 
 			}
 
-			if (listVeMoi.get(i).getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (listVeMoi.get(i).getKhuyenMaiApDung() != null
+					&& listVeMoi.get(i).getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, listVeMoi.get(i).getVe(),
 						listVeMoi.get(i).getKhuyenMaiApDung().getMaKhuyenMai() + ": "

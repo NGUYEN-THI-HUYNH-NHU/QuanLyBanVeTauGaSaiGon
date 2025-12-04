@@ -35,6 +35,11 @@ public class HoanVe2Controller {
 
 	// Listener để báo cho wizard chính (PanelHoanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
+	private Runnable onReturnListener;
+
+	public void addPanel2ReturnListener(Runnable listener) {
+		this.onReturnListener = listener;
+	}
 
 	protected void addPanel2PaymentSuccessListener(Runnable listener) {
 		this.onPaymentSuccessListener = listener;
@@ -46,6 +51,11 @@ public class HoanVe2Controller {
 		this.p4 = view.getPanelHoanVeBuoc4();
 		this.p5 = view.getPanelHoanVeBuoc5();
 
+		this.view.getBtnPrev().addActionListener(e -> {
+			if (onReturnListener != null) {
+				onReturnListener.run();
+			}
+		});
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
 	}

@@ -26,6 +26,9 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import entity.NhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
+import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 public class UngDung extends JFrame {
@@ -122,5 +125,17 @@ public class UngDung extends JFrame {
 				System.exit(0);
 			}
 		}
+	}
+
+	public static void reloadPanelBanVe() {
+		showGiaoDienChinh(new PanelBanVe());
+	}
+
+	public static void reloadPanelHoanVe() {
+		showGiaoDienChinh(new PanelHoanVe());
+	}
+
+	public static void reloadPanelDoiVe() {
+		showGiaoDienChinh(new PanelDoiVe());
 	}
 }

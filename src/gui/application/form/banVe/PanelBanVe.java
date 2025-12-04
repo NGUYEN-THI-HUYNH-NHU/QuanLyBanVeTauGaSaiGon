@@ -19,6 +19,8 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import gui.application.UngDung;
+
 public class PanelBanVe extends JPanel {
 	private CardLayout cardLayout;
 	private JPanel stepPanel;
@@ -27,7 +29,6 @@ public class PanelBanVe extends JPanel {
 	// Các panel "bước" chính
 	private PanelBanVe1 panelBanVe1;
 	private PanelBanVe2 panelBanVe2;
-	private PanelBuoc6 panelBuoc6;
 
 	// Các controller "Mediator" cho từng bước
 	private BanVe1Controller banVe1Controller;
@@ -47,12 +48,10 @@ public class PanelBanVe extends JPanel {
 		// 3. Khởi tạo các bước
 		panelBanVe1 = new PanelBanVe1();
 		panelBanVe2 = new PanelBanVe2();
-		panelBuoc6 = new PanelBuoc6();
 
 		// 4. Thêm các bước gộp vào CardLayout
 		stepPanel.add(panelBanVe1, "step1");
 		stepPanel.add(panelBanVe2, "step2");
-		stepPanel.add(panelBuoc6, "complete");
 
 		add(stepPanel, BorderLayout.CENTER);
 
@@ -75,17 +74,17 @@ public class PanelBanVe extends JPanel {
 		});
 
 		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
-//			panelBuoc6.loadCompletionData(bookingSession);
-//			showPanel("complete");
-			// Dừng toàn bộ timer khi bán vé thành công
+			// 1. Dừng timer cũ
 			banVe1Controller.stopAllTimers();
+			// 2. Tạo lại giao diện mới hoàn toàn
+			UngDung.reloadPanelBanVe();
 		});
 	}
 
 	/**
 	 * Hàm công khai để các controller gọi và chuyển Card
 	 * 
-	 * @param panelName Tên của card (ví dụ: "step1", "step2", "complete")
+	 * @param panelName Tên của card (ví dụ: "step1", "step2")
 	 */
 	public void showPanel(String panelName) {
 		SwingUtilities.invokeLater(() -> {
@@ -99,9 +98,5 @@ public class PanelBanVe extends JPanel {
 
 	public PanelBanVe2 getPanelBanVe2() {
 		return panelBanVe2;
-	}
-
-	public PanelBuoc6 getPanelBuoc6() {
-		return panelBuoc6;
 	}
 }

@@ -20,6 +20,7 @@ import java.awt.Insets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -172,7 +173,7 @@ public class PanelBuoc1 extends JPanel {
 	}
 
 	public LocalDate getNgayDi() {
-		java.util.Date d = dateChooserNgayDi.getDate();
+		Date d = dateChooserNgayDi.getDate();
 		if (d == null) {
 			return null;
 		}
@@ -181,7 +182,7 @@ public class PanelBuoc1 extends JPanel {
 	}
 
 	public LocalDate getNgayVe() {
-		java.util.Date d = dateChooserNgayVe.getDate();
+		Date d = dateChooserNgayVe.getDate();
 		if (d == null) {
 			return null;
 		}

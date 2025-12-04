@@ -17,28 +17,26 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
+
+import gui.tuyChinh.CurrencyRenderer;
+import gui.tuyChinh.LeftCenterAlignRenderer;
 
 public class PanelDoiVeBuoc3 extends JPanel {
 	private VeDoiTableModel model;
 	private JTable table;
 	private JButton btnXacNhan;
-	// Renderer
-	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
 	public PanelDoiVeBuoc3() {
 		setLayout(new BorderLayout());
@@ -72,32 +70,8 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(0).setMinWidth(150);
-		table.getColumnModel().getColumn(1).setMinWidth(150);
+		table.getColumnModel().getColumn(1).setMinWidth(180);
 		table.getColumnModel().getColumn(6).setMaxWidth(50);
-
-		// === Áp dụng Renderer ===
-		// 1. Renderer cho tiền (căn phải, định dạng)
-		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
-		currencyRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-		currencyRenderer.setVerticalAlignment(SwingConstants.TOP);
-		currencyRenderer.setOpaque(true);
-
-		// Áp dụng lớp Renderer nội tuyến để định dạng
-		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				// Gọi super để lấy JLabel
-				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-						column);
-				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.TOP);
-				if (value instanceof Double) {
-					label.setText(df.format(value));
-				}
-				return label;
-			}
-		};
 
 		// 2. RENDERER CHO CỘT THỜI GIAN
 		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
@@ -106,52 +80,23 @@ public class PanelDoiVeBuoc3 extends JPanel {
 					boolean hasFocus, int row, int column) {
 
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				// Lấy row model để check logic riêng của cột này
-				int modelRow = table.convertRowIndexToModel(row);
-				VeDoiRow dataRow = model.getRows().get(modelRow);
-
-				// Logic riêng: Tô màu đỏ chữ cảnh báo
-				if (!dataRow.isDuDieuKien()) {
-					c.setForeground(Color.RED);
-					setFont(getFont().deriveFont(Font.BOLD));
-				} else {
-					c.setForeground(Color.GREEN);
-					setFont(getFont().deriveFont(Font.BOLD));
-				}
-
-				applyRowStyle(c, table, row);
+				setHorizontalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.CENTER);
+				c.setForeground(Color.GREEN);
+				setFont(getFont().deriveFont(Font.BOLD));
 				return c;
 			}
 		};
-		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
 		table.getColumnModel().getColumn(5).setCellRenderer(timeRenderer);
 
-		table.getColumnModel().getColumn(2).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(3).setCellRenderer(currencyFormatRenderer);
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		table.getColumnModel().getColumn(2).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
 
-		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
-		topAlignRenderer.setVerticalAlignment(SwingConstants.TOP);
-
-		table.getColumnModel().getColumn(0).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(1).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(topAlignRenderer);
-	}
-
-	/**
-	 * Phương thức chung để tô màu nền cho dòng dựa trên điều kiện đổi vé.
-	 */
-	private void applyRowStyle(Component c, JTable table, int row) {
-		int modelRow = table.convertRowIndexToModel(row);
-		VeDoiRow dataRow = model.getRows().get(modelRow);
-
-		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(new Color(240, 240, 240));
-			if (c.getForeground() != Color.RED) {
-				c.setForeground(Color.GRAY);
-			}
-		}
+		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
+		table.getColumnModel().getColumn(0).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(1).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(4).setCellRenderer(leftCenterRenderer);
 	}
 
 	public void displayConfirmation(List<VeDoiRow> selectedRows) {

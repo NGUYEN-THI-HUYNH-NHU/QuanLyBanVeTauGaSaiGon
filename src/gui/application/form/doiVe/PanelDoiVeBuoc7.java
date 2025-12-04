@@ -41,7 +41,6 @@ public class PanelDoiVeBuoc7 extends JPanel {
 
 	private KhuyenMaiProvider khuyenMaiProvider;
 	private JComboBox cbKhuyenMai;
-
 	private TableModelListener tableUpdateListener;
 
 	public PanelDoiVeBuoc7() {
@@ -49,7 +48,6 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		setBorder(BorderFactory.createTitledBorder("Xác nhận thông tin vé"));
 		setPreferredSize(new Dimension(getWidth(), 350));
 
-		// 1. Khởi tạo model và table
 		model = new MappingVeTableModel() {
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -65,31 +63,17 @@ public class PanelDoiVeBuoc7 extends JPanel {
 	}
 
 	private void setUpTable() {
-		table.setRowHeight(110);
-
-//		public static final int COL_STT = 0;
-//		public static final int COL_HANH_KHACH = 1;
-//		public static final int COL_VE_CU_INFO = 2;
-//		public static final int COL_VE_CU_GIA = 3;
-//		public static final int COL_CHON_VE_MOI = 4;
-//		public static final int COL_VE_MOI_INFO = 5;
-//		public static final int COL_VE_MOI_GIA = 6;
-//		public static final int COL_KHUYEN_MAI = 7;
-//		public static final int COL_GIAM_KM = 8;
-//		public static final int COL_CHON_PHIEU_VIP = 9;
-//		public static final int COL_PHIEU_VIP_GIA = 10;
-//		public static final int COL_LE_PHI = 11;
-//		public static final int COL_CHENH_LECH = 12;
+		table.setRowHeight(120);
 
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(150);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(150);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(130);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(130);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(160);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(120);
 
 		// Cấu hình Cột Khuyến Mãi
 		// 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
 		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
-		khuyenMaiCol.setMinWidth(140);
+		khuyenMaiCol.setMinWidth(120);
 
 		cbKhuyenMai = new JComboBox<>();
 		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();

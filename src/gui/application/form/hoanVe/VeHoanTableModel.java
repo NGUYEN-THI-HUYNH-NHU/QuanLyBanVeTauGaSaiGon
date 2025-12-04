@@ -19,18 +19,19 @@ import java.util.function.Consumer;
 import javax.swing.table.AbstractTableModel;
 
 public class VeHoanTableModel extends AbstractTableModel {
-	private final String[] columnNames = { "Hành khách", "Thông tin vé", "Thành tiền", "Lệ phí", "Tiền hoàn",
+	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé", "Thành tiền", "Lệ phí", "Tiền hoàn",
 			"Thông tin phí", "Lý do hoàn", "TG còn lại", "Chọn" };
 
-	public static final int COL_TEN = 0;
-	public static final int COL_THONG_TIN_VE = 1;
-	public static final int COL_THANH_TIEN = 2;
-	public static final int COL_LE_PHI = 3;
-	public static final int COL_TIEN_HOAN = 4;
-	public static final int COL_THONG_TIN_PHI = 5;
-	public static final int COL_LY_DO = 6;
-	public static final int COL_TG_CON_LAI = 7;
-	public static final int COL_CHON = 8;
+	public static final int COL_STT = 0;
+	public static final int COL_TEN = 1;
+	public static final int COL_THONG_TIN_VE = 2;
+	public static final int COL_THANH_TIEN = 3;
+	public static final int COL_LE_PHI = 4;
+	public static final int COL_TIEN_HOAN = 5;
+	public static final int COL_THONG_TIN_PHI = 6;
+	public static final int COL_LY_DO = 7;
+	public static final int COL_TG_CON_LAI = 8;
+	public static final int COL_CHON = 9;
 
 	private List<VeHoanRow> rows;
 
@@ -67,9 +68,13 @@ public class VeHoanTableModel extends AbstractTableModel {
 	// Quan trọng: Báo cho JTable biết cột nào là Checkbox
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
+		if (columnIndex == COL_STT) {
+			return Integer.class;
+		}
 		if (columnIndex == COL_CHON) {
 			return Boolean.class;
 		}
+
 		if (columnIndex == COL_THANH_TIEN || columnIndex == COL_LE_PHI || columnIndex == COL_TIEN_HOAN) {
 			return Double.class;
 		}
@@ -90,6 +95,8 @@ public class VeHoanTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		VeHoanRow row = rows.get(rowIndex);
 		switch (columnIndex) {
+		case COL_STT:
+			return rowIndex + 1;
 		case COL_TEN:
 			return row.getHanhKhach();
 		case COL_THONG_TIN_VE:

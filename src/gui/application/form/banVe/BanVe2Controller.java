@@ -40,8 +40,8 @@ public class BanVe2Controller {
 	private final BookingSession bookingSession;
 
 	// Listener để báo cho wizard chính (PanelBanVe) biết
-	private Runnable onPaymentSuccessListener;
 	private Runnable onPanel2ReturnListener;
+	private Runnable onPaymentSuccessListener;
 
 	public void addPanel2ReturnListener(Runnable listener) {
 		this.onPanel2ReturnListener = listener;

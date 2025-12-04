@@ -198,7 +198,7 @@ public class Ve {
 			return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
 					ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
 		}
-		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s<br/>Mã PDPCVIP: %s</html>",
+		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
 				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
 				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
 	}

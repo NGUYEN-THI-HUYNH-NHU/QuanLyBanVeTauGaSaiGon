@@ -23,7 +23,7 @@ public class Test {
 		// Tạo cửa sổ JFrame
 		JFrame frame = new JFrame("Test");
 		frame.add(new PanelDoiVe3());
-		frame.setSize(1100, 800);
+		frame.setSize(1080, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}

@@ -234,7 +234,7 @@ public class PanelBuoc2Controller {
 		loadSeatsForToa(gaDiID, gaDenID, chuyenID, toaID, callback);
 	}
 
-	public void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID,
+	private void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID,
 			Consumer<List<Ghe>> callback) {
 		new SwingWorker<List<Ghe>, Void>() {
 			@Override

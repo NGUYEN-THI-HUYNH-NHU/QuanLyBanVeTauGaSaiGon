@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
@@ -240,7 +241,7 @@ public class BanVe1Controller {
 							stopCountdownForVe(veSession);
 							// 3. Refresh giỏ vé (Mediator tự làm)
 							refreshGioVe();
-							// 4. Xóa PGC nếu giỏ rỗng (Giữ nguyên)
+							// 4. Xóa PGC nếu giỏ rỗng
 							if (bookingSession.getAllSelectedTickets().isEmpty()) {
 								if (bookingSession.getPhieuGiuCho() != null) {
 									datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
@@ -431,8 +432,22 @@ public class BanVe1Controller {
 				if (correctController != null) {
 					correctController.releaseHoldAndRemoveVe(v);
 					refreshGioVe();
-
 				}
+				// Xóa PGC nếu giỏ rỗng
+				if (bookingSession.getAllSelectedTickets().isEmpty()) {
+					if (bookingSession.getPhieuGiuCho() != null) {
+						datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
+					}
+				}
+
+				// Vì vé đã bị xóa khỏi session ở bước 1, nên ta chỉ cần
+				// bảo PanelBuoc3 load lại dữ liệu từ session là xong.
+				SwingUtilities.invokeLater(() -> {
+					if (p3 != null) {
+						// Load lại bảng dựa trên tab đang chọn (Đi hoặc Về)
+						p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
+					}
+				});
 			}
 		});
 		timer.setInitialDelay(0);

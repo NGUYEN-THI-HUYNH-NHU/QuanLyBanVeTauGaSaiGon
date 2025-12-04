@@ -87,7 +87,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 
 		// Cấu hình độ rộng cột
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(150);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(180);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(100);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
 
@@ -99,8 +99,11 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				// Gọi super để lấy JLabel
 				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
+				setHorizontalAlignment(SwingConstants.RIGHT);
+				setVerticalAlignment(SwingConstants.CENTER);
+
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.TOP);
+				label.setVerticalAlignment(SwingConstants.CENTER);
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
@@ -117,6 +120,9 @@ public class PanelDoiVeBuoc2 extends JPanel {
 					boolean hasFocus, int row, int column) {
 
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+				setHorizontalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.CENTER);
 
 				// Lấy row model để check logic riêng của cột này
 				int modelRow = table.convertRowIndexToModel(row);
@@ -135,7 +141,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				return c;
 			}
 		};
-		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// --- 3. RENDERER CHO CÁC CỘT TEXT (HỌ TÊN, THÔNG TIN VÉ) ---
 		// Phải chuyển sang Anonymous Class để nhúng logic tô màu nền
@@ -145,10 +150,9 @@ public class PanelDoiVeBuoc2 extends JPanel {
 					boolean hasFocus, int row, int column) {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-				// Căn lề trên
-				setVerticalAlignment(SwingConstants.TOP);
+				setHorizontalAlignment(SwingConstants.LEFT);
+				setVerticalAlignment(SwingConstants.CENTER);
 
-				// ÁP DỤNG STYLE XÁM
 				applyRowStyle(c, table, row);
 				return c;
 			}
