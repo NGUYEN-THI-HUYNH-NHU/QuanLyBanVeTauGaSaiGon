@@ -62,7 +62,6 @@ public class PanelBuoc3 extends JPanel {
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
 
 		model = new VeBanTableModel();
-//		{ "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Giảm KM", "Thành tiền", "" }
 		table = new JTable(model);
 		table.setRowHeight(110);
 		table.getColumnModel().getColumn(0).setMaxWidth(36);
@@ -114,6 +113,7 @@ public class PanelBuoc3 extends JPanel {
 
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnConfirm = new JButton("Xác nhận");
+		btnConfirm.putClientProperty("JButton.buttonType", "default");
 		btnCancel = new JButton("Hủy");
 		btns.add(btnConfirm);
 		btns.add(btnCancel);
@@ -166,7 +166,7 @@ public class PanelBuoc3 extends JPanel {
 		formKhachHang.add(txtPhone, gbc);
 
 		gbc.gridy = 7;
-		formKhachHang.add(Box.createVerticalStrut(20), gbc);
+		formKhachHang.add(Box.createVerticalStrut(30), gbc);
 
 		// ====== row 4: lblError * ======
 		gbc.gridy = 8;

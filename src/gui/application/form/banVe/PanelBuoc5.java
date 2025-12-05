@@ -165,6 +165,10 @@ public class PanelBuoc5 extends JPanel {
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
+		pnl.add(Box.createVerticalStrut(30), gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 5;
 		gbc.anchor = GridBagConstraints.WEST;
 		JLabel totalLabel = new JLabel("Tổng thanh toán:");
 		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
@@ -176,10 +180,6 @@ public class PanelBuoc5 extends JPanel {
 		lblTongThanhToan.setFont(lblTongThanhToan.getFont().deriveFont(Font.BOLD, 14f));
 		lblTongThanhToan.setForeground(Color.RED);
 		pnl.add(lblTongThanhToan, gbc);
-
-		gbc.gridy = 5;
-		gbc.weighty = 1.0;
-		pnl.add(new JLabel(), gbc);
 
 		return pnl;
 	}
@@ -225,7 +225,7 @@ public class PanelBuoc5 extends JPanel {
 		lblTienThoiLai.setFont(lblTienThoiLai.getFont().deriveFont(Font.BOLD, 14f));
 		lblTienThoiLai.setForeground(Color.BLUE);
 		pnlTienDua.add(lblTienThoiLai, gbc);
-		// --- Hàng 4: Nút Xác nhận (Cash version) ---
+
 		gbc.gridx = 0;
 		gbc.gridy = 4;
 		gbc.gridwidth = 2;
@@ -307,6 +307,7 @@ public class PanelBuoc5 extends JPanel {
 					updateQRCodePanelAmount();
 					paymentCardLayout.show(pnlPaymentMethodContainer, QR_CODE_CARD);
 				}
+				updateConfirmButtonsState();
 			}
 		};
 		radTienMat.addActionListener(paymentMethodListener);
@@ -579,5 +580,22 @@ public class PanelBuoc5 extends JPanel {
 
 	public boolean isThanhToanTienMat() {
 		return radTienMat.isSelected();
+	}
+
+	private void updateConfirmButtonsState() {
+		boolean isCash = radTienMat.isSelected();
+		boolean isQR = radChuyenKhoan.isSelected();
+
+		// Kiểm tra xem panel có đang bị disable toàn bộ không (dựa vào
+		// btnXacNhanVaInCash.isEnabled())
+		// Hoặc tốt nhất là dùng một biến flag riêng, nhưng ở đây ta giả định panel đang
+		// active.
+
+		btnXacNhanVaInCash.setEnabled(isCash);
+		btnXacNhanVaInQR.setEnabled(isQR);
+
+		// Cập nhật trạng thái các panel con
+		setTienMatPanelEnabled(isCash);
+		setQRCodePanelEnabled(isQR);
 	}
 }

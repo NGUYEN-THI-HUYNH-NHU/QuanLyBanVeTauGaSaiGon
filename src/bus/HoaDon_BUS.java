@@ -49,7 +49,8 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, bookingSession.getKhachHang(), bookingSession.getNhanVien(), now,
 				bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
 				bookingSession.getGiaoDichThanhToan().getTienNhan(),
-				bookingSession.getGiaoDichThanhToan().getTienHoan(), true);
+				bookingSession.getGiaoDichThanhToan().getTienHoan(),
+				bookingSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
 		return hoaDon;
 	}
@@ -64,7 +65,8 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
 				exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
 				exchangeSession.getGiaoDichThanhToan().getTienNhan(),
-				exchangeSession.getGiaoDichThanhToan().getTienHoan(), true);
+				exchangeSession.getGiaoDichThanhToan().getTienHoan(),
+				exchangeSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
 		return hoaDon;
 	}

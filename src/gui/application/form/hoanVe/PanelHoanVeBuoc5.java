@@ -120,7 +120,7 @@ public class PanelHoanVeBuoc5 extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 2;
 		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalStrut(50), gbc);
+		pnl.add(Box.createVerticalStrut(30), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 3;

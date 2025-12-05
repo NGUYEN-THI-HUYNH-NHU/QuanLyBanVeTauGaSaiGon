@@ -12,16 +12,25 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
+import gui.application.VNPayService;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -42,6 +51,10 @@ public class BanVe2Controller {
 	// Listener để báo cho wizard chính (PanelBanVe) biết
 	private Runnable onPanel2ReturnListener;
 	private Runnable onPaymentSuccessListener;
+
+	private final VNPayService vnpayService = new VNPayService(); // Khởi tạo
+
+	private String currentTokenNL = null;
 
 	public void addPanel2ReturnListener(Runnable listener) {
 		this.onPanel2ReturnListener = listener;
@@ -124,20 +137,65 @@ public class BanVe2Controller {
 		ActionListener paymentListener = e -> {
 			// 1. Lấy thông tin thanh toán từ View
 			boolean isThanhToanTienMat = p5.isThanhToanTienMat();
-			String maGiaoDich = null;
 			double tongTien = p5.getTongThanhToan();
-			double tienNhan = p5.getTienKhachDua();
-			double tienHoan = tienNhan - tongTien;
-			boolean trangThai = true;
-			GiaoDichThanhToan giaoDichThanhToan = null;
+
+			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan();
+			giaoDichThanhToan.setTongTien(tongTien);
+			giaoDichThanhToan.setThanhToanTienMat(isThanhToanTienMat);
 
 			if (!isThanhToanTienMat) {
-				// TODO: Lấy mã giao dịch thật
-				maGiaoDich = "GDTEST";
-				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, maGiaoDich, tongTien, isThanhToanTienMat,
-						trangThai);
+				String maGiaoDich = "VETAUF4" + System.currentTimeMillis();
+
+				try {
+					// A. GỌI API VNPay
+					// Nội dung thanh toán (Không dấu để tránh lỗi font)
+					String noiDung = "Thanh toan ve tau " + maGiaoDich;
+					// 1. Lấy URL
+					String checkoutUrl = vnpayService.createPaymentUrl(noiDung, maGiaoDich, tongTien);
+
+					if (checkoutUrl != null) {
+						// Mở web thanh toán
+						vnpayService.openWebpage(checkoutUrl);
+
+//						showQRCodePayment(checkoutUrl);
+
+						// Chờ khách xác nhận trên Dialog
+						int option = JOptionPane.showOptionDialog(view,
+								"Trình duyệt thanh toán đã được mở.\nVui lòng hoàn tất thanh toán trên trình duyệt sau đó bấm 'Đã thanh toán'.",
+								"Đang thanh toán qua VNPay", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
+								null, new Object[] { "Đã thanh toán xong", "Hủy bỏ" }, "Đã thanh toán xong");
+
+						if (option != JOptionPane.YES_OPTION) {
+							p5.setComponentsEnabled(true);
+							return;
+						}
+						giaoDichThanhToan.setTienNhan(tongTien);
+					} else {
+						throw new Exception("URL thanh toán trả về null.");
+					}
+
+				} catch (Exception ex) {
+					// B. XỬ LÝ KHI MẤT MẠNG HOẶC LỖI API (BACKUP PLAN)
+					ex.printStackTrace();
+
+					int confirmOffline = JOptionPane.showConfirmDialog(view,
+							"Không thể kết nối cổng thanh toán (Lỗi mạng/Server).\n"
+									+ "Bạn có muốn XÁC NHẬN THỦ CÔNG là khách đã chuyển khoản thành công không?",
+							"Lỗi kết nối Online", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+					if (confirmOffline == JOptionPane.YES_OPTION) {
+						// Coi như đã thanh toán thành công
+						// Code sẽ tiếp tục chạy xuống dưới để in vé
+					} else {
+						p5.setComponentsEnabled(true);
+						return;
+					}
+				}
 			} else {
-				giaoDichThanhToan = new GiaoDichThanhToan(tienNhan, tienHoan, tongTien, isThanhToanTienMat, trangThai);
+				double tienNhan = p5.getTienKhachDua();
+				double tienHoan = tienNhan - tongTien;
+				giaoDichThanhToan.setTienNhan(tienNhan);
+				giaoDichThanhToan.setTienHoan(tienHoan);
 			}
 
 			// 2. Cập nhật bookingSession
@@ -200,6 +258,36 @@ public class BanVe2Controller {
 		}
 		if (payButtonQR != null) {
 			payButtonQR.addActionListener(paymentListener);
+		}
+	}
+
+	// Hàm hiển thị QR
+	public void showQRCodePayment(String paymentUrl) {
+		try {
+			// 1. Tạo QR Code từ URL
+			QRCodeWriter qrCodeWriter = new QRCodeWriter();
+			BitMatrix bitMatrix = qrCodeWriter.encode(paymentUrl, BarcodeFormat.QR_CODE, 300, 300);
+
+			// 2. Chuyển thành ảnh
+			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+			ImageIcon icon = new ImageIcon(bufferedImage);
+
+			// 3. Hiển thị lên Dialog
+			JLabel label = new JLabel(icon);
+			String message = "Vui lòng quét mã QR bên dưới bằng điện thoại để thanh toán:";
+
+			// Hiển thị Dialog chứa ảnh QR
+			int option = JOptionPane.showOptionDialog(null, label, "Thanh toán qua VNPAY", JOptionPane.YES_NO_OPTION,
+					JOptionPane.PLAIN_MESSAGE, null, new Object[] { "Tôi đã thanh toán xong", "Hủy" },
+					"Tôi đã thanh toán xong");
+
+			if (option == JOptionPane.YES_OPTION) {
+				// Gọi hàm kiểm tra kết quả giao dịch ở đây
+				// checkPaymentStatus();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

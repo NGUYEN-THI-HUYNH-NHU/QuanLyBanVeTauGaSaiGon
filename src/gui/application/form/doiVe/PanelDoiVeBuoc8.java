@@ -236,7 +236,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 5;
 		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalStrut(50), gbc);
+		pnl.add(Box.createVerticalStrut(30), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 6;
