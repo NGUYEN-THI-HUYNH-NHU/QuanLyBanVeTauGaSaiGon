@@ -21,17 +21,13 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 public class VietQRService {
-
-	// --- CẤU HÌNH TÀI KHOẢN NHẬN TIỀN CỦA BẠN (TIỀN THẬT) ---
 	// Mã ngân hàng (Tra cứu tại: https://api.vietqr.io/v2/banks)
 	// Ví dụ: MB, VCB (Vietcombank), TCB (Techcombank), ACB, BIDV, v.v.
 	private static final String MY_BANK_CODE = "ICB";
-
-	// Số tài khoản thật của bạn
+	// Số tài khoản
 	private static final String MY_ACCOUNT_NUMBER = "107879609064";
-
 	// Giao diện QR: "compact" (gọn), "print" (đầy đủ), "qr_only" (chỉ mã)
-	private static final String TEMPLATE = "compact";
+	private static String TEMPLATE;
 
 	/**
 	 * Hàm tạo URL ảnh QR Code theo chuẩn VietQR
@@ -40,26 +36,24 @@ public class VietQRService {
 	 * @param content Nội dung chuyển khoản (Nên viết không dấu)
 	 * @return Đường dẫn ảnh QR
 	 */
-	public String generateQRUrl(double amount, String content) {
+	public String generateQRUrl(double amount, String content, String template) {
 		try {
-			// 1. Xử lý nội dung: Encode URL để tránh lỗi ký tự đặc biệt/dấu cách
-			// Ví dụ: "THANH TOAN VE" -> "THANH%20TOAN%20VE"
 			String encodedContent = URLEncoder.encode(content, StandardCharsets.UTF_8.toString());
-
-			// 2. Định dạng số tiền về số nguyên (VietQR không nhận số lẻ)
 			long amountInt = (long) amount;
 
-			// 3. Ghép chuỗi URL theo cấu trúc VietQR QuickLink
-			// Format:
-			// https://img.vietqr.io/image/<BANK>-<ACC>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<CONTENT>
-			String url = String.format("https://img.vietqr.io/image/%s-%s-%s.png?amount=%d&addInfo=%s", MY_BANK_CODE,
+			// Template được truyền vào thay vì cố định
+			TEMPLATE = template;
+			return String.format("https://img.vietqr.io/image/%s-%s-%s.png?amount=%d&addInfo=%s", MY_BANK_CODE,
 					MY_ACCOUNT_NUMBER, TEMPLATE, amountInt, encodedContent);
-
-			return url;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	// Giữ lại hàm cũ để tương thích (mặc định là compact)
+	public String generateQRUrl(double amount, String content) {
+		return generateQRUrl(amount, content, "compact");
 	}
 
 	/**
