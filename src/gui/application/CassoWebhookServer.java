@@ -5,6 +5,12 @@ package gui.application;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Dec 7, 2025
+ * @version: 1.0
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,40 +20,34 @@ import java.nio.charset.StandardCharsets;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Dec 7, 2025
- * @version: 1.0
- */
-
 import com.sun.net.httpserver.HttpServer;
 
 public class CassoWebhookServer {
 
 	private HttpServer server;
-	private static final int PORT = 8080; // Phải trùng với cổng chạy Ngrok
+	private static final int PORT = 8080; // Trùng với cổng chạy Ngrok
 	private OnTransactionListener listener;
 
 	public interface OnTransactionListener {
 		void onTransactionSuccess(String orderCode, float amount);
 	}
 
-	public void startServer(OnTransactionListener listener) {
+	public boolean startServer(OnTransactionListener listener) {
+		// Tắt server cũ nếu có
+		stopServer();
+
 		this.listener = listener;
 		try {
 			server = HttpServer.create(new InetSocketAddress(PORT), 0);
-
-			// Tạo endpoint khớp với link bạn điền trên Casso
 			server.createContext("/casso-handler", new WebhookHandler());
-
 			server.setExecutor(null);
 			server.start();
 			System.out.println(">> Casso Webhook Server đang chạy tại port " + PORT);
-
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.err.println("LỖI: Không thể mở cổng " + PORT + ". Đang có ứng dụng khác chiếm dụng!");
+			return false;
 		}
 	}
 
@@ -87,13 +87,6 @@ public class CassoWebhookServer {
 				os.write(response.getBytes());
 			}
 
-			// 4. Phân tích dữ liệu (Parsing JSON thủ công để tìm mã đơn hàng)
-			// JSON mẫu của Casso: { "data": [ { "description": "THANH TOAN VETAU123",
-			// "amount": 50000 ... } ] }
-
-			// Logic đơn giản: Kiểm tra xem nội dung chuyển khoản có chứa Mã Đơn Hàng không
-			// Để chắc chắn, bạn nên truyền mã đơn hàng hiện tại vào server hoặc check trong
-			// Listener
 			if (listener != null) {
 				listener.onTransactionSuccess(jsonLog, 0);
 			}
