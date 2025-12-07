@@ -52,7 +52,7 @@ public class VNPayService {
 	 * @param amount    Số tiền (VNĐ)
 	 * @return URL thanh toán
 	 */
-	public String createPaymentUrl(String orderInfo, String orderCode, double amount) {
+	public String createPaymentUrl(String orderInfo, String orderCode, double amount, String returnUrl) {
 		try {
 			String vnp_Version = "2.1.0";
 			String vnp_Command = "pay";
@@ -78,7 +78,8 @@ public class VNPayService {
 			vnp_Params.put("vnp_OrderInfo", orderInfo);
 			vnp_Params.put("vnp_OrderType", "other");
 			vnp_Params.put("vnp_Locale", "vn");
-			vnp_Params.put("vnp_ReturnUrl", VNP_RETURN_URL);
+//			vnp_Params.put("vnp_ReturnUrl", VNP_RETURN_URL);
+			vnp_Params.put("vnp_ReturnUrl", returnUrl);
 			vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
 			// Tạo ngày giờ hiện tại

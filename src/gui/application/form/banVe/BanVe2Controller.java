@@ -11,26 +11,22 @@ package gui.application.form.banVe;
  * @date: Oct 22, 2025
  * @version: 1.0
  */
+import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
-import gui.application.VNPayService;
+import gui.application.VietQRService;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -52,9 +48,7 @@ public class BanVe2Controller {
 	private Runnable onPanel2ReturnListener;
 	private Runnable onPaymentSuccessListener;
 
-	private final VNPayService vnpayService = new VNPayService(); // Khởi tạo
-
-	private String currentTokenNL = null;
+//	private final VNPayService vnpayService = new VNPayService(); // Khởi tạo
 
 	public void addPanel2ReturnListener(Runnable listener) {
 		this.onPanel2ReturnListener = listener;
@@ -135,47 +129,22 @@ public class BanVe2Controller {
 		JButton payButtonQR = p5.getBtnXacNhanVaInQR();
 
 		ActionListener paymentListener = e -> {
-			// 1. Lấy thông tin thanh toán từ View
+			// 1. Lấy thông tin cơ bản
 			boolean isThanhToanTienMat = p5.isThanhToanTienMat();
 			double tongTien = p5.getTongThanhToan();
 
-			GiaoDichThanhToan giaoDichThanhToan = new GiaoDichThanhToan();
-			giaoDichThanhToan.setTongTien(tongTien);
-			giaoDichThanhToan.setThanhToanTienMat(isThanhToanTienMat);
+			GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+			giaoDich.setTongTien(tongTien);
+			giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
 			if (!isThanhToanTienMat) {
-				String maGiaoDich = "VETAUF4" + System.currentTimeMillis();
+				// Biến cờ để kiểm soát việc lưu (tránh lưu 2 lần do cả Server và User cùng bấm)
+				final boolean[] isProcessed = { false };
 
 				try {
-					// A. GỌI API VNPay
-					// Nội dung thanh toán (Không dấu để tránh lỗi font)
-					String noiDung = "Thanh toan ve tau " + maGiaoDich;
-					// 1. Lấy URL
-					String checkoutUrl = vnpayService.createPaymentUrl(noiDung, maGiaoDich, tongTien);
-
-					if (checkoutUrl != null) {
-						// Mở web thanh toán
-						vnpayService.openWebpage(checkoutUrl);
-
-//						showQRCodePayment(checkoutUrl);
-
-						// Chờ khách xác nhận trên Dialog
-						int option = JOptionPane.showOptionDialog(view,
-								"Trình duyệt thanh toán đã được mở.\nVui lòng hoàn tất thanh toán trên trình duyệt sau đó bấm 'Đã thanh toán'.",
-								"Đang thanh toán qua VNPay", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE,
-								null, new Object[] { "Đã thanh toán xong", "Hủy bỏ" }, "Đã thanh toán xong");
-
-						if (option != JOptionPane.YES_OPTION) {
-							p5.setComponentsEnabled(true);
-							return;
-						}
-						giaoDichThanhToan.setTienNhan(tongTien);
-					} else {
-						throw new Exception("URL thanh toán trả về null.");
-					}
-
+					handleVietQRPayment();
 				} catch (Exception ex) {
-					// B. XỬ LÝ KHI MẤT MẠNG HOẶC LỖI API (BACKUP PLAN)
+					// Xử lý lỗi (Mất mạng, config sai...)
 					ex.printStackTrace();
 
 					int confirmOffline = JOptionPane.showConfirmDialog(view,
@@ -184,73 +153,25 @@ public class BanVe2Controller {
 							"Lỗi kết nối Online", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
 					if (confirmOffline == JOptionPane.YES_OPTION) {
-						// Coi như đã thanh toán thành công
-						// Code sẽ tiếp tục chạy xuống dưới để in vé
+						if (!isProcessed[0]) {
+							isProcessed[0] = true;
+							giaoDich.setTienNhan(tongTien);
+							processPaymentAndSave(giaoDich);
+						}
 					} else {
 						p5.setComponentsEnabled(true);
-						return;
 					}
 				}
+
 			} else {
 				double tienNhan = p5.getTienKhachDua();
 				double tienHoan = tienNhan - tongTien;
-				giaoDichThanhToan.setTienNhan(tienNhan);
-				giaoDichThanhToan.setTienHoan(tienHoan);
+
+				giaoDich.setTienNhan(tienNhan);
+				giaoDich.setTienHoan(tienHoan);
+
+				processPaymentAndSave(giaoDich);
 			}
-
-			// 2. Cập nhật bookingSession
-			bookingSession.setGiaoDichThanhToan(giaoDichThanhToan);
-
-			// Vô hiệu hóa nút để tránh bấm 2 lần
-			p5.setComponentsEnabled(false);
-
-			// 3. Thực thi giao dịch trong SwingWorker
-			new SwingWorker<Boolean, Void>() {
-				private String errorMessage = "Lỗi không xác định";
-
-				@Override
-				protected Boolean doInBackground() throws Exception {
-					try {
-						return banVeBUS.thucHienBanVe(bookingSession);
-					} catch (Exception ex) {
-						errorMessage = ex.getMessage();
-						ex.printStackTrace();
-						return false;
-					}
-				}
-
-				@Override
-				protected void done() {
-					try {
-						boolean saveSuccess = get();
-
-						if (saveSuccess) {
-//							// a. Xuất file pdf
-//							PdfTicketExporter exporter = new PdfTicketExporter();
-//							exporter.exportTicketsToPdf(bookingSession);
-							JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
-									JOptionPane.INFORMATION_MESSAGE);
-							p4.setComponentsEnabled(false);
-							p5.setComponentsEnabled(false);
-
-							// b. Báo cho wizard chính (PanelBanVe) biết
-							if (onPaymentSuccessListener != null) {
-								onPaymentSuccessListener.run();
-							}
-						} else {
-							// Nếu thất bại, báo lỗi và bật lại UI
-							JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!\n" + errorMessage,
-									"Lỗi", JOptionPane.ERROR_MESSAGE);
-							p5.setComponentsEnabled(true);
-						}
-					} catch (Exception ex) {
-						ex.printStackTrace();
-						JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi",
-								JOptionPane.ERROR_MESSAGE);
-						p5.setComponentsEnabled(true);
-					}
-				}
-			}.execute();
 		};
 
 		if (payButtonCash != null) {
@@ -261,33 +182,129 @@ public class BanVe2Controller {
 		}
 	}
 
-	// Hàm hiển thị QR
-	public void showQRCodePayment(String paymentUrl) {
-		try {
-			// 1. Tạo QR Code từ URL
-			QRCodeWriter qrCodeWriter = new QRCodeWriter();
-			BitMatrix bitMatrix = qrCodeWriter.encode(paymentUrl, BarcodeFormat.QR_CODE, 300, 300);
+	/**
+	 * Hàm chung để thực hiện lưu giao dịch và in vé Được gọi khi: 1. Thanh toán
+	 * tiền mặt xong. 2. Web Server nhận được tín hiệu VNPAY thành công. 3. Khách
+	 * bấm xác nhận thủ công.
+	 */
+	private void processPaymentAndSave(GiaoDichThanhToan giaoDich) {
+		bookingSession.setGiaoDichThanhToan(giaoDich);
 
-			// 2. Chuyển thành ảnh
-			BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
-			ImageIcon icon = new ImageIcon(bufferedImage);
+		// Vô hiệu hóa nút để tránh bấm nhiều lần
+		p5.setComponentsEnabled(false);
 
-			// 3. Hiển thị lên Dialog
-			JLabel label = new JLabel(icon);
-			String message = "Vui lòng quét mã QR bên dưới bằng điện thoại để thanh toán:";
+		// Thực thi giao dịch trong SwingWorker
+		new SwingWorker<Boolean, Void>() {
+			private String errorMessage = "Lỗi không xác định";
 
-			// Hiển thị Dialog chứa ảnh QR
-			int option = JOptionPane.showOptionDialog(null, label, "Thanh toán qua VNPAY", JOptionPane.YES_NO_OPTION,
-					JOptionPane.PLAIN_MESSAGE, null, new Object[] { "Tôi đã thanh toán xong", "Hủy" },
-					"Tôi đã thanh toán xong");
-
-			if (option == JOptionPane.YES_OPTION) {
-				// Gọi hàm kiểm tra kết quả giao dịch ở đây
-				// checkPaymentStatus();
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					return banVeBUS.thucHienBanVe(bookingSession);
+				} catch (Exception ex) {
+					errorMessage = ex.getMessage();
+					ex.printStackTrace();
+					return false;
+				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			@Override
+			protected void done() {
+				try {
+					boolean saveSuccess = get();
+					if (saveSuccess) {
+						// Thông báo thành công
+						JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
+								JOptionPane.INFORMATION_MESSAGE);
+						p4.setComponentsEnabled(false);
+						p5.setComponentsEnabled(false);
+
+						// Báo cho wizard chính (PanelBanVe) biết để reset hoặc chuyển trang
+						if (onPaymentSuccessListener != null) {
+							onPaymentSuccessListener.run();
+						}
+					} else {
+						JOptionPane.showMessageDialog(view, "Lỗi khi lưu dữ liệu!\n" + errorMessage, "Lỗi",
+								JOptionPane.ERROR_MESSAGE);
+						p5.setComponentsEnabled(true);
+					}
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi",
+							JOptionPane.ERROR_MESSAGE);
+					p5.setComponentsEnabled(true);
+				}
+			}
+		}.execute();
+	}
+
+	private void handleVietQRPayment() {
+		// 1. Lấy thông tin thanh toán
+		double tongTien = p5.getTongThanhToan();
+		String maGiaoDich = "VETAU_" + System.currentTimeMillis();
+		String noiDungCK = "TT " + maGiaoDich; // Nội dung ngắn gọn, không dấu
+
+		// 2. Gọi Service để lấy ảnh QR
+		VietQRService qrService = new VietQRService();
+		String qrUrl = qrService.generateQRUrl(tongTien, noiDungCK);
+
+		System.out.println("Link QR: " + qrUrl); // In ra để test nếu ảnh không hiện
+
+		// 3. Tải ảnh và hiển thị Dialog
+		// Chạy trong SwingWorker để tránh đơ giao diện khi đang tải ảnh từ mạng
+		new SwingWorker<ImageIcon, Void>() {
+			@Override
+			protected ImageIcon doInBackground() throws Exception {
+				return qrService.getQRCodeImage(qrUrl);
+			}
+
+			@Override
+			protected void done() {
+				try {
+					ImageIcon icon = get();
+					if (icon != null) {
+						// Tạo giao diện Dialog đẹp
+						JLabel lblImage = new JLabel(icon);
+						JLabel lblNote = new JLabel("<html><div style='text-align:center; width: 300px;'>"
+								+ "<b style='font-size:14px; color:blue'>QUÉT MÃ ĐỂ THANH TOÁN NGAY</b><br/>"
+								+ "Số tiền: <b style='color:red'>" + String.format("%,.0f", tongTien) + " VNĐ</b><br/>"
+								+ "<i>(Tiền sẽ về tài khoản của bạn ngay lập tức)</i>" + "</div></html>");
+						lblNote.setHorizontalAlignment(JLabel.CENTER);
+
+						JPanel panel = new JPanel(new BorderLayout());
+						panel.add(lblNote, BorderLayout.NORTH);
+						panel.add(lblImage, BorderLayout.CENTER);
+
+						// 4. Hiển thị Dialog và CHỜ XÁC NHẬN TỪ NGƯỜI DÙNG
+						Object[] options = { "Tôi đã chuyển khoản xong", "Hủy bỏ" };
+						int result = JOptionPane.showOptionDialog(view, panel, "Thanh toán VietQR - Tiền thật",
+								JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+						// 5. Xử lý kết quả
+						if (result == JOptionPane.YES_OPTION) {
+							// A. Người dùng xác nhận đã trả tiền
+							// Lưu giao dịch vào DB
+							GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+							giaoDich.setTongTien(tongTien);
+							giaoDich.setTienNhan(tongTien);
+							giaoDich.setThanhToanTienMat(false);
+
+							// Gọi hàm lưu
+							processPaymentAndSave(giaoDich);
+
+						} else {
+							// B. Người dùng hủy
+							p5.setComponentsEnabled(true);
+						}
+					} else {
+						JOptionPane.showMessageDialog(view, "Không tải được mã QR. Vui lòng kiểm tra kết nối mạng.");
+						p5.setComponentsEnabled(true);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					p5.setComponentsEnabled(true);
+				}
+			}
+		}.execute();
 	}
 }
