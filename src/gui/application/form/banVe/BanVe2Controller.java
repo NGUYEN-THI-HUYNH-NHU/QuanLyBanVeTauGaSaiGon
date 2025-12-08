@@ -23,8 +23,8 @@ import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
-import gui.application.CassoWebhookServer;
-import gui.application.VietQRService;
+import gui.application.paymenthelper.CassoWebhookServer;
+import gui.application.paymenthelper.VietQRService;
 
 /**
  * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
@@ -210,7 +210,7 @@ public class BanVe2Controller {
 					cassoServer.stopServer();
 
 					SwingUtilities.invokeLater(() -> {
-						p5.getLblQRCodeDisplay().setIcon(new ImageIcon());
+						p5.setQRCodePlaceHolder();
 						// Tắt ảnh to nếu đang mở
 						if (zoomDialog != null && zoomDialog.isVisible()) {
 							closePaymentDialog();
@@ -253,16 +253,6 @@ public class BanVe2Controller {
 				}
 			}
 		}.execute();
-
-		// NẾU KHÔNG BẬT ĐƯỢC SERVER -> DỪNG NGAY
-		if (!isServerStarted) {
-			JOptionPane.showMessageDialog(view,
-					"Lỗi hệ thống: Cổng kết nối 8080 đang bận.\nVui lòng tắt các chương trình Java khác và thử lại!",
-					"Lỗi khởi tạo", JOptionPane.ERROR_MESSAGE);
-			p5.setComponentsEnabled(true);
-			return;
-		}
-
 	}
 
 	/**

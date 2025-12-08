@@ -298,6 +298,12 @@ public class PanelBuoc5 extends JPanel {
 		}
 	}
 
+	public void setQRCodePlaceHolder() {
+		lblQRCodeDisplay.setIcon(null);
+		lblQRCodeDisplay.setText("QR Code");
+		lblQRCodeDisplay.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+	}
+
 	private void addInternalLogic() {
 		ActionListener paymentMethodListener = new ActionListener() {
 			@Override
