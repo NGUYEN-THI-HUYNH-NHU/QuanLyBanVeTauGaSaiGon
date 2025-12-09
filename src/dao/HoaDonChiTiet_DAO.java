@@ -42,10 +42,13 @@ public class HoaDonChiTiet_DAO {
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, hoaDonChiTiet.getHoaDonChiTietID());
 			ps.setString(2, hoaDonChiTiet.getHoaDon().getHoaDonID());
-			if (hoaDonChiTiet.getVe() != null) {
+			if (hoaDonChiTiet.getVe() != null && (hoaDonChiTiet.getLoaiDichVu() == LoaiDichVu.VE_BAN
+					|| hoaDonChiTiet.getLoaiDichVu() == LoaiDichVu.VE_HOAN
+					|| hoaDonChiTiet.getLoaiDichVu() == LoaiDichVu.VE_DOI)) {
 				ps.setString(3, hoaDonChiTiet.getVe().getVeID());
 				ps.setNull(4, 0);
-			} else if (hoaDonChiTiet.getPhieuDungPhongVIP() != null) {
+			} else if (hoaDonChiTiet.getPhieuDungPhongVIP() != null
+					|| hoaDonChiTiet.getLoaiDichVu() == LoaiDichVu.PHONG_VIP) {
 				ps.setNull(3, 0);
 				ps.setString(4, hoaDonChiTiet.getPhieuDungPhongVIP().getPhieuDungPhongChoVIPID());
 			} else {

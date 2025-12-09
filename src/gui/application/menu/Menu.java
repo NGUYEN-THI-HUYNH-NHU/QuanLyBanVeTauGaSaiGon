@@ -14,15 +14,26 @@ package gui.application.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
 import com.formdev.flatlaf.FlatClientProperties;
+
+import entity.NhanVien;
+import entity.type.VaiTroNhanVien;
 
 public class Menu extends JPanel {
 
@@ -50,25 +61,36 @@ public class Menu extends JPanel {
 			{ "Quản lý nhân viên" }, // 11
 			{ "Quản lý tài khoản" }, // 12
 			{ "~Khác~" }, // 13
-			{ "Thống kê & Báo cáo " }, // 14
+			{ "Thống kê & Báo cáo ", "Thống kê", "Báo cáo" }, // 14
 			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 15
 			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 16
-			{ "About" }, // 17
+			{ "About us" }, // 17
 			{ "Trợ giúp" }, // 18
 			{ "Đăng Xuất" } }; // 19
 	private JLabel header;
 	private JScrollPane scroll;
 	private JPanel panelMenu;
+	private ImageIcon avatarIcon;
+	private final int AVATAR_SIZE = 40;
 
-	public Menu(String role) {
+	public Menu(NhanVien nhanVien) {
 		setLayout(new BorderLayout());
 		putClientProperty(FlatClientProperties.STYLE,
 				"" + "border:20,2,2,2;" + "background:$Menu.background;" + "arc:10");
-		init(role);
+//		// Tạo Avatar từ byte[]
+//		if (nhanVien.getAvatar() != null) {
+//			this.avatarIcon = createCircleAvatar(nhanVien.getAvatar(), AVATAR_SIZE, AVATAR_SIZE);
+//		}
+		init(nhanVien.getVaiTroNhanVien());
 	}
 
-	private void init(String role) {
+	private void init(VaiTroNhanVien vaiTroNhanVien) {
 		header = new JLabel(headerName);
+		// Cấu hình header có icon và text
+//		if (avatarIcon != null) {
+//			header.setIcon(avatarIcon);
+//			header.setIconTextGap(10);
+//		}
 		header.putClientProperty(FlatClientProperties.STYLE,
 				"" + "font:$Menu.header.font;" + "foreground:$Menu.foreground");
 
@@ -85,30 +107,30 @@ public class Menu extends JPanel {
 						+ "thumbInsets:$Menu.scroll.thumbInsets;" + "background:$Menu.ScrollBar.background;"
 						+ "thumb:$Menu.ScrollBar.thumb");
 
-		createMenu(role);
+		createMenu(vaiTroNhanVien);
 
 		add(header, BorderLayout.NORTH);
 		add(scroll, BorderLayout.CENTER);
 	}
 
-	private void createMenu(String role) {
+	private void createMenu(VaiTroNhanVien vaiTroNhanVien) {
 		for (int i = 0; i < menuItems.length; i++) {
 			String menuName = menuItems[i][0];
 			if (menuName.startsWith("~") && menuName.endsWith("~")) {
 				panelMenu.add(createTitle(menuName));
 			} else {
 				// NV: {3, 4, 5, 10, 14, 16, 17, 18, 19}
-				if (role.equalsIgnoreCase("NHAN_VIEN")) {
-					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 10 || i == 11 || i == 12 || i == 13
-							|| i == 15) {
+				if (vaiTroNhanVien == VaiTroNhanVien.NHAN_VIEN) {
+					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 11 || i == 12 || i == 13 || i == 15) {
 						continue;
 					}
 				} else {
-					if (i == 3 || i == 4 || i == 5 || i == 10 || i == 14) {
+					if (i == 3 || i == 4 || i == 5 || i == 14) {
 						continue;
 					}
 				}
-				ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], i, suKienMenuList, role);
+				ThanhPhanMenu menuItem = new ThanhPhanMenu(this, menuItems[i], i, suKienMenuList,
+						vaiTroNhanVien.toString());
 				panelMenu.add(menuItem);
 			}
 		}
@@ -173,9 +195,15 @@ public class Menu extends JPanel {
 		if (menuFull) {
 			header.setText(headerName);
 			header.setHorizontalAlignment(getComponentOrientation().isLeftToRight() ? JLabel.LEFT : JLabel.RIGHT);
+			if (avatarIcon != null) {
+				header.setIcon(avatarIcon);
+			}
 		} else {
 			header.setText("");
 			header.setHorizontalAlignment(JLabel.CENTER);
+			if (avatarIcon != null) {
+				header.setIcon(avatarIcon);
+			}
 		}
 		for (Component com : panelMenu.getComponents()) {
 			if (com instanceof ThanhPhanMenu) {
@@ -202,5 +230,53 @@ public class Menu extends JPanel {
 
 	public int getMenuMinWidth() {
 		return menuMinWidth;
+	}
+
+	/**
+	 * Hàm chuyển đổi byte[] thành ImageIcon hình tròn
+	 * 
+	 * @param imageBytes: mảng byte ảnh từ CSDL
+	 * @param width:      chiều rộng mong muốn
+	 * @param height:     chiều cao mong muốn
+	 */
+	private ImageIcon createCircleAvatar(byte[] imageBytes, int width, int height) {
+		if (imageBytes == null || imageBytes.length == 0) {
+			// Trả về icon mặc định nếu nhân viên chưa có ảnh
+			return new ImageIcon(getClass().getResource("/path/to/default.png"));
+		}
+
+		try {
+			// 1. Chuyển byte[] thành BufferedImage
+			ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+			BufferedImage originalImg = ImageIO.read(bis);
+			if (originalImg == null) {
+				return null;
+			}
+
+			// 2. Thay đổi kích thước ảnh (Scale) cho vừa khung
+			Image scaledImg = originalImg.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+			BufferedImage bufferedScaledImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2 = bufferedScaledImg.createGraphics();
+			g2.drawImage(scaledImg, 0, 0, null);
+			g2.dispose();
+
+			// 3. Cắt ảnh thành hình tròn
+			BufferedImage circleImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g2d = circleImg.createGraphics();
+
+			// Bật khử răng cưa để hình tròn mượt mà
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			// Tạo vùng cắt hình tròn
+			g2d.setClip(new Ellipse2D.Float(0, 0, width, height));
+			g2d.drawImage(bufferedScaledImg, 0, 0, null);
+			g2d.dispose();
+
+			return new ImageIcon(circleImg);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

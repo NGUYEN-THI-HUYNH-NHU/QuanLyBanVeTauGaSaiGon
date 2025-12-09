@@ -19,12 +19,13 @@ public class Dashboard_DAO {
 
 	public double getKpiTotalRevenue(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder(
-				"SELECT SUM(v.gia) AS TongDoanhThu " + "FROM Ve v " + "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+				"SELECT SUM(v.gia) AS TongDoanhThu" + " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID"
+						+ " WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 		try (Connection conn = ConnectDB.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
@@ -48,12 +49,13 @@ public class Dashboard_DAO {
 
 	public int getKpiTicketsSold(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder(
-				"SELECT COUNT(veID) AS SoVeBan " + "FROM Ve " + "WHERE trangThai IN ('DA_BAN', 'DA_DUNG')");
+				"SELECT COUNT(veID) AS SoVeBan " + " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID"
+						+ " WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 		if (startDate != null) {
-			sql.append(" AND thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		try (Connection conn = ConnectDB.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
@@ -76,13 +78,13 @@ public class Dashboard_DAO {
 	}
 
 	public int getKpiUniqueCustomers(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder(
-				"SELECT COUNT(DISTINCT khachHangID) AS SoKhachHang " + "FROM Ve " + "WHERE 1=1");
+		StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT khachHangID) AS SoKhachHang "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID" + " WHERE 1=1");
 		if (startDate != null) {
-			sql.append(" AND thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		try (Connection conn = ConnectDB.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
@@ -107,14 +109,14 @@ public class Dashboard_DAO {
 	public Map<String, Double> getKpiTopRevenueRoute(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder(
 				"SELECT TOP 1 (t.moTa + ' (' + tau.tenTau + ')') AS TenTuyen, SUM(v.gia) AS TongDoanhThu "
-						+ "FROM Ve v " + "JOIN Chuyen c ON v.chuyenID = c.chuyenID "
-						+ "JOIN Tuyen t ON c.tuyenID = t.tuyenID " + "JOIN Tau tau ON c.tauID = tau.tauID "
-						+ "WHERE 1=1");
+						+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
+						+ "JOIN Chuyen c ON v.chuyenID = c.chuyenID " + "JOIN Tuyen t ON c.tuyenID = t.tuyenID "
+						+ "JOIN Tau tau ON c.tauID = tau.tauID " + "WHERE 1=1");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 		sql.append(" GROUP BY t.moTa, tau.tenTau ORDER BY TongDoanhThu DESC");
 		Map<String, Double> result = new HashMap<>();
@@ -139,15 +141,16 @@ public class Dashboard_DAO {
 	}
 
 	public Map<LocalDate, Double> getRevenueOverTime(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder("SELECT CAST(v.thoiDiemBan AS DATE) AS Ngay, SUM(v.gia) AS DoanhThu "
-				+ "FROM Ve v " + "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+		StringBuilder sql = new StringBuilder("SELECT CAST(d.thoiDiemDatCho AS DATE) AS Ngay, SUM(v.gia) AS DoanhThu "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID"
+				+ " WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
-		sql.append(" GROUP BY CAST(v.thoiDiemBan AS DATE) ORDER BY Ngay");
+		sql.append(" GROUP BY CAST(d.thoiDiemDatCho AS DATE) ORDER BY Ngay");
 		Map<LocalDate, Double> result = new LinkedHashMap<>();
 		try (Connection conn = ConnectDB.getInstance().getConnection();
 				PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
@@ -172,14 +175,14 @@ public class Dashboard_DAO {
 	public Map<String, Double> getTop5RevenueTrips(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder(
 				"SELECT TOP 5 (t.moTa + ' (' + tau.tenTau + ')') AS TenChuyen, SUM(v.gia) AS TongDoanhThu "
-						+ "FROM Ve v " + "JOIN Chuyen c ON v.chuyenID = c.chuyenID "
-						+ "JOIN Tuyen t ON c.tuyenID = t.tuyenID " + "JOIN Tau tau ON c.tauID = tau.tauID "
-						+ "WHERE 1=1");
+						+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
+						+ "JOIN Chuyen c ON v.chuyenID = c.chuyenID " + "JOIN Tuyen t ON c.tuyenID = t.tuyenID "
+						+ "JOIN Tau tau ON c.tauID = tau.tauID " + "WHERE 1=1");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 		sql.append(" GROUP BY t.moTa, tau.tenTau ORDER BY TongDoanhThu DESC");
 		Map<String, Double> result = new LinkedHashMap<>();
@@ -208,13 +211,14 @@ public class Dashboard_DAO {
 	 */
 	public Map<String, Integer> getCustomerTypeDistribution(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder("SELECT ldt.moTa, COUNT(DISTINCT v.khachHangID) AS SoLuong "
-				+ "FROM Ve v " + "JOIN KhachHang kh ON v.khachHangID = kh.khachHangID "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
+				+ "JOIN KhachHang kh ON v.khachHangID = kh.khachHangID "
 				+ "JOIN LoaiDoiTuong ldt ON kh.loaiDoiTuongID = ldt.loaiDoiTuongID " + "WHERE 1=1");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 		sql.append(" GROUP BY ldt.moTa");
 		Map<String, Integer> result = new HashMap<>();
@@ -243,16 +247,17 @@ public class Dashboard_DAO {
 	 */
 	public Map<LocalDate, Map<String, Integer>> getTicketsBySeatTypeOverTime(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder(
-				"SELECT CAST(v.thoiDiemBan AS DATE) AS Ngay, ht.moTa AS LoaiGhe, COUNT(v.veID) AS SoLuong "
-						+ "FROM Ve v " + "JOIN Ghe g ON v.gheID = g.gheID " + "JOIN Toa t ON g.toaID = t.toaID "
+				"SELECT CAST(d.thoiDiemDatCho AS DATE) AS Ngay, ht.moTa AS LoaiGhe, COUNT(v.veID) AS SoLuong "
+						+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
+						+ "JOIN Ghe g ON v.gheID = g.gheID " + "JOIN Toa t ON g.toaID = t.toaID "
 						+ "JOIN HangToa ht ON t.hangToaID = ht.hangToaID " + "WHERE 1=1");
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
-		sql.append(" GROUP BY CAST(v.thoiDiemBan AS DATE), ht.moTa ");
+		sql.append(" GROUP BY CAST(d.thoiDiemDatCho AS DATE), ht.moTa ");
 		sql.append(" ORDER BY Ngay, LoaiGhe");
 		Map<LocalDate, Map<String, Integer>> result = new LinkedHashMap<>();
 		try (Connection conn = ConnectDB.getInstance().getConnection();
@@ -388,15 +393,16 @@ public class Dashboard_DAO {
 	 * [DRILL-DOWN & CHART] Lấy Doanh thu theo Tuyến (Không giới hạn TOP).
 	 */
 	public Map<String, Double> getRevenueByRoute(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder("SELECT t.moTa AS TenTuyen, SUM(v.gia) AS TongDoanhThu " + "FROM Ve v "
+		StringBuilder sql = new StringBuilder("SELECT t.moTa AS TenTuyen, SUM(v.gia) AS TongDoanhThu "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
 				+ "JOIN Chuyen c ON v.chuyenID = c.chuyenID " + "JOIN Tuyen t ON c.tuyenID = t.tuyenID "
 				+ "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 
 		sql.append(" GROUP BY t.moTa ORDER BY TongDoanhThu DESC");
@@ -429,18 +435,19 @@ public class Dashboard_DAO {
 	 */
 	public Map<String, Double> getRevenueByMonth(LocalDate startDate, LocalDate endDate) {
 		StringBuilder sql = new StringBuilder("SELECT "
-				+ "   CAST(MONTH(v.thoiDiemBan) AS VARCHAR(2)) + '/' + CAST(YEAR(v.thoiDiemBan) AS VARCHAR(4)) AS ThangNam, "
-				+ "   SUM(v.gia) AS DoanhThu " + "FROM Ve v " + "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+				+ "   CAST(MONTH(d.thoiDiemDatCho) AS VARCHAR(2)) + '/' + CAST(YEAR(d.thoiDiemDatCho) AS VARCHAR(4)) AS ThangNam, "
+				+ "   SUM(v.gia) AS DoanhThu " + " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
+				+ "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 
-		sql.append(" GROUP BY YEAR(v.thoiDiemBan), MONTH(v.thoiDiemBan) ");
-		sql.append(" ORDER BY YEAR(v.thoiDiemBan), MONTH(v.thoiDiemBan)");
+		sql.append(" GROUP BY YEAR(d.thoiDiemDatCho), MONTH(d.thoiDiemDatCho) ");
+		sql.append(" ORDER BY YEAR(d.thoiDiemDatCho), MONTH(d.thoiDiemDatCho)");
 
 		Map<String, Double> result = new LinkedHashMap<>();
 		try (Connection conn = ConnectDB.getInstance().getConnection();
@@ -469,15 +476,16 @@ public class Dashboard_DAO {
 	 * [DRILL-DOWN & CHART] Lấy Top 10 Doanh thu theo Nhân Viên.
 	 */
 	public Map<String, Double> getRevenueByEmployee(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder("SELECT TOP 10 nv.hoTen, SUM(v.gia) AS TongDoanhThu " + "FROM Ve v "
+		StringBuilder sql = new StringBuilder("SELECT TOP 10 nv.hoTen, SUM(v.gia) AS TongDoanhThu "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
 				+ "JOIN DonDatCho ddc ON v.donDatChoID = ddc.donDatChoID "
 				+ "JOIN NhanVien nv ON ddc.nhanVienID = nv.nhanVienID " + "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 
 		sql.append(" GROUP BY nv.nhanVienID, nv.hoTen ORDER BY TongDoanhThu DESC");
@@ -509,15 +517,16 @@ public class Dashboard_DAO {
 	 * [DRILL-DOWN & CHART] Lấy Doanh thu theo Loại Ghế.
 	 */
 	public Map<String, Double> getRevenueBySeatType(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder("SELECT ht.moTa, SUM(v.gia) AS TongDoanhThu " + "FROM Ve v "
-				+ "JOIN Ghe g ON v.gheID = g.gheID " + "JOIN Toa t ON g.toaID = t.toaID "
-				+ "JOIN HangToa ht ON t.hangToaID = ht.hangToaID " + "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
+		StringBuilder sql = new StringBuilder("SELECT ht.moTa, SUM(v.gia) AS TongDoanhThu "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID " + "JOIN Ghe g ON v.gheID = g.gheID "
+				+ "JOIN Toa t ON g.toaID = t.toaID " + "JOIN HangToa ht ON t.hangToaID = ht.hangToaID "
+				+ "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 
 		sql.append(" GROUP BY ht.moTa ORDER BY TongDoanhThu DESC");
@@ -606,16 +615,17 @@ public class Dashboard_DAO {
 	 * [DRILL-DOWN & CHART] Lấy Cơ cấu Khách hàng (Top 2 loại).
 	 */
 	public Map<String, Integer> getCustomerSplitData(LocalDate startDate, LocalDate endDate) {
-		StringBuilder sql = new StringBuilder("SELECT lkh.moTa, COUNT(v.veID) AS SoLuong " + "FROM Ve v "
+		StringBuilder sql = new StringBuilder("SELECT lkh.moTa, COUNT(v.veID) AS SoLuong "
+				+ " FROM Ve v JOIN DonDatCho d ON v.donDatChoID = d.donDatChoID "
 				+ "JOIN KhachHang kh ON v.khachHangID = kh.khachHangID "
 				+ "JOIN LoaiKhachHang lkh ON kh.loaiKhachHangID = lkh.loaiKhachHangID "
 				+ "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG')");
 
 		if (startDate != null) {
-			sql.append(" AND v.thoiDiemBan >= ?");
+			sql.append(" AND d.thoiDiemDatCho >= ?");
 		}
 		if (endDate != null) {
-			sql.append(" AND v.thoiDiemBan < ?");
+			sql.append(" AND d.thoiDiemDatCho < ?");
 		}
 		sql.append(" GROUP BY lkh.moTa ORDER BY SoLuong DESC");
 

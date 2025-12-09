@@ -26,10 +26,8 @@ public class VeHoanRow {
 	private String thongTinPhiHoan;
 	private String lyDo;
 	private boolean isSelected;
-
 	private String thoiGianConLai;
 	private boolean isDuDieuKien;
-	private String lyDoKhongDuDieuKien;
 
 	public VeHoanRow(Ve ve) {
 		this.ve = ve;
@@ -56,9 +54,8 @@ public class VeHoanRow {
 		if (seconds <= 0) {
 			thoiGianConLai = "Đã khởi hành";
 			isDuDieuKien = false;
-			lyDoKhongDuDieuKien = "Tàu đã khởi hành, không thể hoàn vé.";
 			lePhiHoanVe = 0;
-			thongTinPhiHoan = "Không thể hoàn vé.";
+			thongTinPhiHoan = "Không thể hoàn vé (Tàu đã khởi hành, không thể hoàn vé.).";
 			tienHoan = 0;
 			isSelected = false;
 		} else {
@@ -69,7 +66,6 @@ public class VeHoanRow {
 			// Quy định: Phải trước 4 tiếng
 			if (hours >= 4) {
 				isDuDieuKien = true;
-				lyDoKhongDuDieuKien = "";
 				if (hours >= 24) {
 					lePhiHoanVe = thanhTien * 0.1;
 					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 10% giá vé";
@@ -83,9 +79,8 @@ public class VeHoanRow {
 				tienHoan = thanhTien - lePhiHoanVe;
 			} else {
 				isDuDieuKien = false;
-				lyDoKhongDuDieuKien = "Thời gian còn lại dưới 4 giờ (Quy định hoàn vé).";
 				lePhiHoanVe = 0;
-				thongTinPhiHoan = "Không đủ điều kiện hoàn vé.";
+				thongTinPhiHoan = "Không đủ điều kiện hoàn vé (Thời gian còn lại dưới 4 giờ (Quy định hoàn vé)).";
 				tienHoan = 0;
 				isSelected = false;
 			}
@@ -142,9 +137,5 @@ public class VeHoanRow {
 
 	public boolean isDuDieuKien() {
 		return isDuDieuKien;
-	}
-
-	public String getLyDoKhongDuDieuKien() {
-		return lyDoKhongDuDieuKien;
 	}
 }

@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import connectDB.ConnectDB;
 import entity.DonDatCho;
@@ -40,6 +41,7 @@ public class DoiVe_BUS {
 	private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
 	private final PhieuGiuCho_BUS phieuGiuChoBUS = new PhieuGiuCho_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
 	/**
 	 * @param exchangeSession
@@ -83,27 +85,41 @@ public class DoiVe_BUS {
 					.taoCacPhieuDungPhongChoVIP(exchangeSession.getListVeMoiDangChon());
 			phieuDungPhongVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
-			// 6. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
+			// 6. Gán các sử dụng khuyến mãi cho các vé áp dụng khuyến mãi
+			khuyenMaiBUS.ganDanhSachSuDungKhuyenMai(exchangeSession.getListVeMoiDangChon());
+
+			// 7. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
 			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietDoiVe(conn, hoaDon, exchangeSession);
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
-			// 7. Cập nhật Phiếu Giữ Chỗ cho vé mới (sau khi mọi thứ thành công)
+			// 8. Lưu các sử dụng khuyến mãi cho vé mới (đã kèm giảm số lượng khuyến mãi
+			// tương ứng)
+			khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, exchangeSession.getListVeMoiDangChon());
+
+			// 9. Cập nhật Phiếu Giữ Chỗ cho vé mới (sau khi mọi thứ thành công)
 			datChoBUS.capNhatPhieuGiuCho(conn, exchangeSession.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 			datChoBUS.capNhatCacPhieuGiuChoChiTiet(conn, exchangeSession.getPhieuGiuCho(),
 					TrangThaiPhieuGiuCho.XAC_NHAN);
 
-			// 8. Cập nhật trạng thái các vé cũ (và phiếu dùng phòng chờ VIP nếu có)
+			// 10. Cập nhật trạng thái các vé cũ (và phiếu dùng phòng chờ VIP nếu có)
 			veBUS.capNhatTrangThaiVe(conn, listVeDoi, TrangThaiVe.DA_DOI);
 			phieuDungPhongVIPBUS.capNhatPhieuDungPhongChoVIP(conn, listVeDoi, TrangThaiPDPVIP.DA_HUY);
 
-			// 9. Tạo và lưu các Giao dịch đổi vé (giao dịch hoàn đổi)
+			// 11. Tạo và lưu các Giao dịch đổi vé (giao dịch hoàn đổi)
 			List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichDoiVe(exchangeSession);
 			giaoDichHoanDoiBUS.themCacGiaoDichHoanDoi(conn, dsGdhd);
 
-			// 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
+			// 12. Set trạng thái các phiếu giữ chỗ thành HET_GIU
 			phieuGiuChoBUS.huyCacPhieuGiuChoChiTiet(conn, listVeDoi, TrangThaiPhieuGiuCho.HET_GIU);
-			// TODO: Set trạng thái của Phiếu giữ chỗ nếu tất cả chi tiết của nó đều có
-			// trạng thái HET_GIU
+
+			// 13. Cập nhật các khuyến mãi đã sử dụng ở các vé cũ
+			Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVeDoi);
+			khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVeDoi);
+			for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
+				String kmID = entry.getKey();
+				int soLuongCanCong = entry.getValue();
+				khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
+			}
 
 			// --- KẾT THÚC GIAO DỊCH ---
 			// Hoàn tất giao dịch
@@ -120,7 +136,7 @@ public class DoiVe_BUS {
 				}
 			}
 			e.printStackTrace();
-			throw new Exception("Lỗi khi xử lý thanh toán: " + e.getMessage());
+			throw new Exception("Lỗi khi xử lý đổi vé: " + e.getMessage());
 		} finally {
 			// Trả lại trạng thái AutoCommit cho kết nối
 			if (conn != null) {

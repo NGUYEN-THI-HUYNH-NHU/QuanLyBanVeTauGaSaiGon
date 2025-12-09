@@ -39,12 +39,11 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
+import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.LeftCenterAlignRenderer;
-import gui.tuyChinh.TextAreaRenderer;
 
 public class ModalHoaDon extends JDialog {
 	private final HoaDon hoaDon;
@@ -88,34 +87,35 @@ public class ModalHoaDon extends JDialog {
 
 		// Giả lập Logo
 		JLabel lblLogo = new JLabel("[LOGO ĐSVN]");
-		lblLogo.setFont(new Font("Arial", Font.BOLD, 16));
+		lblLogo.setFont(new Font(getFont().getName(), Font.BOLD, 16));
 		lblLogo.setForeground(new Color(0, 102, 204));
 
 		pLeft.add(lblLogo);
 		pLeft.add(createTextLine("Đơn vị bán hàng: CÔNG TY CỔ PHẦN VẬN TẢI ĐƯỜNG SẮT", true));
 		pLeft.add(createTextLine("Mã số thuế: 010010XXXX", false));
-		pLeft.add(createTextLine("Địa chỉ: 130 Lê Duẩn, Hà Nội", false));
-		pLeft.add(createTextLine("Điện thoại: (84-24)3942xxxx", false));
+		pLeft.add(createTextLine("Địa chỉ: 12, Nguyễn Văn Bảo", false));
+		pLeft.add(createTextLine("Điện thoại: 0389390381", false));
 
 		// Bên Phải: Thông tin hóa đơn
 		JPanel pRight = new JPanel();
 		pRight.setLayout(new BoxLayout(pRight, BoxLayout.Y_AXIS));
 		pRight.setBackground(Color.WHITE);
 
-		JLabel lblTitle = new JLabel("HÓA ĐƠN");
+		JLabel lblTitle = null;
+		if (hoaDon.getHoaDonID().startsWith("HDDV")) {
+			lblTitle = new JLabel("HÓA ĐƠN ĐỔI VÉ");
+		} else if (hoaDon.getHoaDonID().startsWith("HDHV")) {
+			lblTitle = new JLabel("HÓA ĐƠN HOÀN VÉ");
+		} else {
+			lblTitle = new JLabel("HÓA ĐƠN MUA VÉ");
+		}
 		lblTitle.setFont(new Font("Times New Roman", Font.BOLD, 18));
 		lblTitle.setForeground(Color.RED);
 		lblTitle.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-		JLabel lblSubTitle = new JLabel("(Hóa đơn điều chỉnh)");
-		lblSubTitle.setFont(new Font("Times New Roman", Font.ITALIC, 14));
-		lblSubTitle.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
 		pRight.add(lblTitle);
-		pRight.add(lblSubTitle);
 		pRight.add(Box.createVerticalStrut(5));
-		pRight.add(createRightAlignLabel("Ký hiệu: 1K25TKH"));
-		pRight.add(createRightAlignLabel("Số: " + hoaDon.getHoaDonID())); // Giả lập số hóa đơn
+		pRight.add(createRightAlignLabel("Số: " + hoaDon.getHoaDonID()));
 		pRight.add(createRightAlignLabel("Ngày: " + formatDateTime(hoaDon.getThoiDiemTao())));
 
 		p.add(pLeft, BorderLayout.WEST);
@@ -143,21 +143,15 @@ public class ModalHoaDon extends JDialog {
 		// Helper add row
 		addInfoRow(pInfo, gbc, "Họ tên người mua hàng: ", hoaDon.getKhachHang().getHoTen());
 		addInfoRow(pInfo, gbc, "Số định danh/CCCD: ", hoaDon.getKhachHang().getSoGiayTo());
-		addInfoRow(pInfo, gbc, "Địa chỉ: ", "TP. Hồ Chí Minh");
+		addInfoRow(pInfo, gbc, "Địa chỉ: ", hoaDon.getKhachHang().getDiaChi());
 		addInfoRow(pInfo, gbc, "Hình thức thanh toán: ", hoaDon.isThanhToanTienMat() ? "Tiền mặt" : "Chuyển khoản");
-
-		// Dòng tham chiếu hóa đơn cũ (Đặc trưng HĐ Điều chỉnh)
-		JLabel lblRef = new JLabel("Điều chỉnh cho hóa đơn số: [Tham chiếu từ DB nếu có]");
-		lblRef.setFont(fontRegular);
-		gbc.gridy++;
-		pInfo.add(lblRef, gbc);
 
 		// 2b. Bảng chi tiết
 		HoaDonChiTietTableModel model = new HoaDonChiTietTableModel();
 		model.setRows(listChiTiet);
 		JTable table = new JTable(model);
 		table.setEnabled(false);
-		styleTable(table); // Trang trí bảng giống in ấn
+		styleTable(table);
 
 		JScrollPane scrollTable = new JScrollPane(table);
 		scrollTable.getViewport().setBackground(Color.WHITE);
@@ -182,16 +176,16 @@ public class ModalHoaDon extends JDialog {
 		pTotal.setBackground(Color.WHITE);
 
 		// Tính tổng
-		double total = hoaDon.getTongTien();
-		double vat = total * 0.08;
-		double grandTotal = total + vat;
+		double tongTien = hoaDon.getTongTien();
+		double tienNhan = hoaDon.getTienNhan();
+		double tienHoan = hoaDon.getTienHoan();
 
-		pTotal.add(createTotalRow("Cộng tiền hàng:", total));
-		pTotal.add(createTotalRow("Tiền thuế GTGT:", vat));
-		pTotal.add(createTotalRow("Tổng cộng tiền thanh toán:", grandTotal));
+		pTotal.add(createTotalRow("Tổng tiền:", tongTien));
+		pTotal.add(createTotalRow("Tiền nhận:", tienNhan));
+		pTotal.add(createTotalRow("Tiền hoàn", tienHoan));
 
 		// Số tiền bằng chữ
-		JLabel lblTextMoney = new JLabel("Số tiền viết bằng chữ: " + docSoThanhChu(grandTotal));
+		JLabel lblTextMoney = new JLabel("Số tiền viết bằng chữ: " + docSoThanhChu(tongTien));
 		lblTextMoney.setFont(new Font("Times New Roman", Font.ITALIC, 14));
 		lblTextMoney.setBorder(new EmptyBorder(5, 0, 15, 0));
 
@@ -214,7 +208,7 @@ public class ModalHoaDon extends JDialog {
 		JLabel lblWeb = new JLabel(
 				"Tra cứu tại website: https://hoadon.vtdsvn.vn - Mã tra cứu: " + hoaDon.getHoaDonID());
 		lblWeb.setHorizontalAlignment(SwingConstants.CENTER);
-		lblWeb.setFont(new Font("Arial", Font.ITALIC, 11));
+		lblWeb.setFont(new Font(getFont().getName(), Font.ITALIC, 11));
 		p.add(lblWeb, BorderLayout.SOUTH);
 
 		return p;
@@ -261,7 +255,7 @@ public class ModalHoaDon extends JDialog {
 
 		p.add(l1);
 		p.add(l2);
-		p.add(Box.createVerticalStrut(60)); // Khoảng trống ký tên
+		p.add(Box.createVerticalStrut(60));
 		return p;
 	}
 
@@ -279,31 +273,27 @@ public class ModalHoaDon extends JDialog {
 	}
 
 	private void styleTable(JTable table) {
-		table.setRowHeight(50);
+		table.setRowHeight(30);
 		table.setFont(fontRegular);
 		table.getTableHeader().setFont(fontBold);
 		table.setShowGrid(true);
-		table.setGridColor(Color.DARK_GRAY);
+		table.setGridColor(Color.LIGHT_GRAY);
 
 		table.getColumnModel().getColumn(0).setMaxWidth(32);
-		table.getColumnModel().getColumn(1).setMinWidth(200);
-		table.getColumnModel().getColumn(2).setMinWidth(200);
+		table.getColumnModel().getColumn(1).setPreferredWidth(110);
+		table.getColumnModel().getColumn(2).setPreferredWidth(250);
 		table.getColumnModel().getColumn(3).setMaxWidth(40);
 		table.getColumnModel().getColumn(4).setMaxWidth(40);
+		table.getColumnModel().getColumn(5).setMaxWidth(70);
+		table.getColumnModel().getColumn(6).setMaxWidth(70);
 
 		// Căn phải cột tiền
-		DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-		rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		int[] moneyCols = { 3, 4, 5, 6 };
 		for (int i : moneyCols) {
-			table.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
+			table.getColumnModel().getColumn(i).setCellRenderer(currencyRenderer);
 		}
-
-		TextAreaRenderer textAreaRenderer = new TextAreaRenderer();
-
 		table.getColumnModel().getColumn(0).setCellRenderer(new LeftCenterAlignRenderer());
-		table.getColumnModel().getColumn(1).setCellRenderer(textAreaRenderer);
-		table.getColumnModel().getColumn(2).setCellRenderer(textAreaRenderer);
 
 	}
 

@@ -99,7 +99,6 @@ public class DoiVeBuoc1Controller {
 				panel.getBtnTraCuu().doClick();
 			}
 		});
-
 	}
 
 	public void performSearch() {

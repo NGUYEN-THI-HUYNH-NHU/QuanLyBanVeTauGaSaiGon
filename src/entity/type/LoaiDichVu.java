@@ -14,7 +14,7 @@ package entity.type;
 
 public enum LoaiDichVu {
 	VE_BAN("Vé bán"), VE_HOAN("Vé hoàn"), VE_DOI("Vé đổi"), PHI_HOAN("Lệ phí hoàn vé"), PHI_DOI("Lệ phí đổi vé"),
-	KHUYEN_MAI("Khuyến mãi"), PHONG_VIP("Phòng VIP"), PHIEU_HOAN("Phiếu dùng phòng VIP hoàn");
+	KHUYEN_MAI("Khuyến mãi"), PHONG_VIP("Phòng VIP"), PHIEU_HUY("Phiếu dùng phòng VIP hủy");
 
 	private final String description;
 

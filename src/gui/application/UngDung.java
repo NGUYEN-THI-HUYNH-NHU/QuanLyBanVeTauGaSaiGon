@@ -1,15 +1,15 @@
-package gui.application;/*
-						* @ (#) UngDung.java   1.0     25/09/2025
-						package gui;
+package gui.application;
+/*
+@ (#) UngDung.java   1.0     25/09/2025
+package gui;
+					
 						
-						
-						/**						* @description :
-						* @author : Vy, Pham Kha Vy
-						* @version 1.0
-						* @created : 25/09/2025
-						*/
+/*** @description :
+* @author : Vy, Pham Kha Vy
+* @version 1.0
+* @created : 25/09/2025
+*/
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -26,7 +26,11 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import entity.NhanVien;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
+import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
+import gui.application.paymenthelper.NgrokRunner;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -86,16 +90,18 @@ public class UngDung extends JFrame {
 		FlatAnimatedLafChange.showSnapshot();
 		ungDung.setContentPane(ungDung.formDangNhap);
 		ungDung.formDangNhap.applyComponentOrientation(ungDung.getComponentOrientation());
+		ungDung.formDangNhap.getTxtTenDangNhap().requestFocusInWindow();
 		SwingUtilities.updateComponentTreeUI(ungDung.formDangNhap);
 		FlatAnimatedLafChange.hideSnapshotWithAnimation();
 	}
 
 	public static void main(String args[]) {
+		NgrokRunner.startNgrok();
+
 		FlatRobotoFont.install();
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 		UIManager.put("PasswordField.showRevealButton", true);
-		UIManager.put("Table.alternateRowColor", new Color(240, 248, 255));
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
 	}
@@ -122,5 +128,17 @@ public class UngDung extends JFrame {
 				System.exit(0);
 			}
 		}
+	}
+
+	public static void reloadPanelBanVe() {
+		showGiaoDienChinh(new PanelBanVe());
+	}
+
+	public static void reloadPanelHoanVe() {
+		showGiaoDienChinh(new PanelHoanVe());
+	}
+
+	public static void reloadPanelDoiVe() {
+		showGiaoDienChinh(new PanelDoiVe());
 	}
 }

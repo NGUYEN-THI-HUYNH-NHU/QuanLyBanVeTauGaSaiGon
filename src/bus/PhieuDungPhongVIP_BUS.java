@@ -33,11 +33,13 @@ public class PhieuDungPhongVIP_BUS {
 	public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(List<VeSession> listVeSession) {
 		List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
 		for (VeSession v : listVeSession) {
-			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
-			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
-					TrangThaiPDPVIP.CHUA_DUNG);
-			v.setPhieuDungPhongVIP(phieu);
-			dsPhieu.add(phieu);
+			if (v.getPhiPhieuDungPhongChoVIP() != 0) {
+				String phieuID = "PVIP-" + v.getVe().getVeID().substring(3);
+				PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
+						TrangThaiPDPVIP.CHUA_DUNG);
+				v.setPhieuDungPhongVIP(phieu);
+				dsPhieu.add(phieu);
+			}
 		}
 		return dsPhieu;
 	}
@@ -50,11 +52,13 @@ public class PhieuDungPhongVIP_BUS {
 		List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
 		List<VeSession> dsVe = exchangeSession.getListVeMoiDangChon();
 		for (VeSession v : dsVe) {
-			String phieuID = "PDVIP-" + v.getVe().getVeID().substring(3);
-			PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
-					TrangThaiPDPVIP.CHUA_DUNG);
-			v.setPhieuDungPhongVIP(phieu);
-			dsPhieu.add(phieu);
+			if (v.getPhiPhieuDungPhongChoVIP() != 0) {
+				String phieuID = "PVIP-" + v.getVe().getVeID().substring(3);
+				PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"), v.getVe(),
+						TrangThaiPDPVIP.CHUA_DUNG);
+				v.setPhieuDungPhongVIP(phieu);
+				dsPhieu.add(phieu);
+			}
 		}
 		return dsPhieu;
 	}

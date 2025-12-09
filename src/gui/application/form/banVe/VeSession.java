@@ -13,6 +13,7 @@ import java.util.Objects;
 import entity.KhuyenMai;
 import entity.PhieuDungPhongVIP;
 import entity.PhieuGiuChoChiTiet;
+import entity.SuDungKhuyenMai;
 import entity.Ve;
 
 /**
@@ -24,8 +25,9 @@ public class VeSession {
 	private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
 	private PhieuDungPhongVIP phieuDungPhongVIP;
 	private int phiPhieuDungPhongChoVIP;
-	private KhuyenMai khuyenMaiApDung;
+	private KhuyenMai khuyenMaiApDung = null;
 	private int giamKM;
+	private SuDungKhuyenMai suDungKhuyenMai;
 	private int giamDoiTuong;
 	private boolean isHanhKhachMoi = true;
 	private final LocalDateTime thoiDiemHetHan;
@@ -110,6 +112,14 @@ public class VeSession {
 		return this.ve.getGhe().getSoGhe();
 	}
 
+	public SuDungKhuyenMai getSuDungKhuyenMai() {
+		return suDungKhuyenMai;
+	}
+
+	public void setSuDungKhuyenMai(SuDungKhuyenMai suDungKhuyenMai) {
+		this.suDungKhuyenMai = suDungKhuyenMai;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -136,7 +146,7 @@ public class VeSession {
 	public String toString() {
 		return ve.getChuyen().getTau().getTauID() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
 				+ ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ";"
-				+ ve.getGhe().getToa().getToaID() + ";" + ve.getGhe().getToa().getSoToa() + ";"
+				+ ve.getGhe().getToa().getHangToa() + ";" + ve.getGhe().getToa().getSoToa() + ";"
 				+ ve.getGhe().getSoGhe();
 	}
 

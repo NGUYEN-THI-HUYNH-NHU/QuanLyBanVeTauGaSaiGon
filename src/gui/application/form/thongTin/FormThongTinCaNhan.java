@@ -12,104 +12,312 @@ package gui.application.form.thongTin;
  * @version: 1.0
  */
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import entity.NhanVien;
-import net.miginfocom.swing.MigLayout;
-import raven.crazypanel.CrazyPanel;
 
 public class FormThongTinCaNhan extends JPanel {
-    private static final long serialVersionUID = 1L;
-    
-    private CrazyPanel pnlContainer;
-    private JLabel lblNhanVienID, lblVaiTroNhanVien, lblHoTen, lblGioiTinh, lblNgaySinh,
-                   lblSoDienThoai, lblEmail, lblDiaChi, lblNgayThamGia, lblTrangThaiHoatDong,
-                   lblTitle;
-    private JTextField txtNhanVienID, txtVaiTroNhanVien, txtHoTen, txtGioiTinh, txtNgaySinh,
-                       txtSoDienThoai, txtEmail, txtDiaChi, txtNgayThamGia, txtTrangThaiHoatDong;
+	private static final long serialVersionUID = 1L;
 
-    private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
+	// Components
+	private JLabel lblAvatar;
+	private JButton btnDoiHinh;
+	private JTextField txtNhanVienID, txtVaiTro, txtHoTen, txtGioiTinh, txtNgaySinh, txtSDT, txtEmail, txtDiaChi,
+			txtNgayThamGia, txtTrangThai;
 
-    public FormThongTinCaNhan(NhanVien nhanVien) {
-        setLayout(new BorderLayout());
-        initComponents(nhanVien);
-    }
+	private final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private NhanVien nhanVien;
+	private ThongTinCaNhanController controller;
 
-    private void initComponents(NhanVien nhanVien) {
-        pnlContainer = new CrazyPanel();
-        lblTitle = new JLabel("Thông tin cá nhân");
+	public FormThongTinCaNhan(NhanVien nhanVien) {
+		this.nhanVien = nhanVien;
 
-        txtNhanVienID = new JTextField(20);
-        txtVaiTroNhanVien = new JTextField(20);
-        txtHoTen = new JTextField(20);
-        txtGioiTinh = new JTextField(8);
-        txtNgaySinh = new JTextField(12);
-        txtSoDienThoai = new JTextField(15);
-        txtEmail = new JTextField(20);
-        txtDiaChi = new JTextField(25);
-        txtNgayThamGia = new JTextField(12);
-        txtTrangThaiHoatDong = new JTextField(12);
+		setLayout(new BorderLayout());
+		initComponents();
+		fillData();
 
-        txtNhanVienID.setText(nhanVien.getNhanVienID());
-        txtVaiTroNhanVien.setText(nhanVien.getVaiTroNhanVien() != null ? nhanVien.getVaiTroNhanVien().getDescription() : "");
-        txtHoTen.setText(nhanVien.getHoTen());
-        txtGioiTinh.setText(nhanVien.isNu() ? "Nữ" : "Nam");
-        LocalDate ngaySinh = nhanVien.getNgaySinh();
-        txtNgaySinh.setText(ngaySinh != null ? ngaySinh.format(DATE_FORMAT) : "");
-        txtSoDienThoai.setText(nhanVien.getSoDienThoai());
-        txtEmail.setText(nhanVien.getEmail());
-        txtDiaChi.setText(nhanVien.getDiaChi());
-        LocalDate ngayThamGia = nhanVien.getNgayThamGia();
-        txtNgayThamGia.setText(ngayThamGia != null ? ngayThamGia.format(DATE_FORMAT) : "");
-        txtTrangThaiHoatDong.setText(nhanVien.isHoatDong() ? "Hoạt động" : "Ngưng hoạt động");
+		this.controller = new ThongTinCaNhanController(this);
+	}
 
-        lblNhanVienID = new JLabel("Mã nhân viên:");
-        lblVaiTroNhanVien = new JLabel("Vai trò:");
-        lblHoTen = new JLabel("Họ và tên:");
-        lblGioiTinh = new JLabel("Giới tính:");
-        lblNgaySinh = new JLabel("Ngày sinh:");
-        lblSoDienThoai = new JLabel("Số điện thoại:");
-        lblEmail = new JLabel("Email:");
-        lblDiaChi = new JLabel("Địa chỉ:");
-        lblNgayThamGia = new JLabel("Ngày tham gia:");
-        lblTrangThaiHoatDong = new JLabel("Trạng thái:");
+	private void initComponents() {
+		// Main Container dùng GridBagLayout
+		JPanel pnlMain = new JPanel(new GridBagLayout());
+		pnlMain.setBackground(Color.WHITE);
+		GridBagConstraints gbc = new GridBagConstraints();
 
-        lblTitle.setFont(new Font(lblTitle.getFont().getFontName(), Font.BOLD, 22));
+		// --- TITLE (Row 0) ---
+		JLabel lblTitle = new JLabel("HỒ SƠ CÁ NHÂN");
+		lblTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 24));
+		lblTitle.setForeground(new Color(60, 60, 60));
 
-        pnlContainer.setLayout(new MigLayout(
-                "wrap 2, fillx, insets 10 20 10 20, gap 10",
-                "[right]10[fill, grow]"
-        ));
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.insets = new Insets(20, 20, 50, 20);
+		gbc.anchor = GridBagConstraints.CENTER;
+		pnlMain.add(lblTitle, gbc);
 
-        pnlContainer.add(lblTitle, "wrap, span, align left, gapbottom 10");
+		JPanel pnlAvatar = createAvatarPanel();
 
-        // Thêm cặp label + field theo đúng thứ tự
-        pnlContainer.add(lblNhanVienID); pnlContainer.add(txtNhanVienID);
-        pnlContainer.add(lblHoTen); pnlContainer.add(txtHoTen);
-        pnlContainer.add(lblGioiTinh); pnlContainer.add(txtGioiTinh);
-        pnlContainer.add(lblNgaySinh); pnlContainer.add(txtNgaySinh);
-        pnlContainer.add(lblSoDienThoai); pnlContainer.add(txtSoDienThoai);
-        pnlContainer.add(lblEmail); pnlContainer.add(txtEmail);
-        pnlContainer.add(lblDiaChi); pnlContainer.add(txtDiaChi);
-        pnlContainer.add(lblVaiTroNhanVien); pnlContainer.add(txtVaiTroNhanVien);
-        pnlContainer.add(lblNgayThamGia); pnlContainer.add(txtNgayThamGia);
-        pnlContainer.add(lblTrangThaiHoatDong); pnlContainer.add(txtTrangThaiHoatDong);
+		gbc.gridy = 1;
+		gbc.weightx = 0;
+		gbc.weighty = 1.0;
+		gbc.anchor = GridBagConstraints.NORTH;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.insets = new Insets(0, 20, 0, 20);
+		pnlMain.add(pnlAvatar, gbc);
 
-        // Wrap vào JScrollPane và thêm vào panel chính
-        JScrollPane scrollPane = new JScrollPane(pnlContainer);
-        scrollPane.setBorder(null);
-        add(scrollPane, BorderLayout.CENTER);
+		JPanel pnlInfo = createInfoPanel();
 
-        // Đặt tất cả TextField ở chế độ chỉ đọc
-        for (JTextField tf : Arrays.asList(
-                txtNhanVienID, txtVaiTroNhanVien, txtHoTen, txtGioiTinh, txtNgaySinh,
-                txtSoDienThoai, txtEmail, txtDiaChi, txtNgayThamGia, txtTrangThaiHoatDong)) {
-            tf.setEditable(false);
-        }
-    }
+		gbc.gridy = 2;
+		gbc.weightx = 1.0;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.insets = new Insets(0, 50, 20, 50);
+		pnlMain.add(pnlInfo, gbc);
+
+		// Wrap vào ScrollPane
+		JScrollPane scroll = new JScrollPane(pnlMain);
+		scroll.setBorder(null);
+		scroll.getVerticalScrollBar().setUnitIncrement(16);
+		add(scroll, BorderLayout.CENTER);
+	}
+
+	// Tách Panel Avatar ra method riêng cho gọn
+	private JPanel createAvatarPanel() {
+		JPanel p = new JPanel(new GridBagLayout());
+		p.setOpaque(false);
+		GridBagConstraints g = new GridBagConstraints();
+
+		lblAvatar = new JLabel();
+		lblAvatar.setPreferredSize(new Dimension(200, 200));
+		lblAvatar.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+		lblAvatar.setHorizontalAlignment(SwingConstants.CENTER);
+
+		btnDoiHinh = new JButton("Đổi ảnh đại diện");
+		btnDoiHinh.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnDoiHinh.setFocusPainted(false);
+
+		// Add Avatar Image
+		g.gridx = 0;
+		g.gridy = 0;
+		p.add(lblAvatar, g);
+
+		// Add Button
+		g.gridy = 1;
+		g.insets = new Insets(10, 0, 0, 0);
+		p.add(btnDoiHinh, g);
+
+		return p;
+	}
+
+	// Tách Panel Thông tin ra method riêng
+	private JPanel createInfoPanel() {
+		JPanel p = new JPanel(new GridBagLayout());
+		p.setOpaque(false);
+
+		// Init fields
+		txtNhanVienID = createReadOnlyField();
+		txtVaiTro = createReadOnlyField();
+		txtHoTen = createReadOnlyField();
+		txtGioiTinh = createReadOnlyField();
+		txtNgaySinh = createReadOnlyField();
+		txtSDT = createReadOnlyField();
+		txtEmail = createReadOnlyField();
+		txtDiaChi = createReadOnlyField();
+		txtNgayThamGia = createReadOnlyField();
+		txtTrangThai = createReadOnlyField();
+
+		// Hàng 1
+		addItem(p, "Mã nhân viên:", 0, 0);
+		addItem(p, txtNhanVienID, 1, 0);
+		addItem(p, "Vai trò:", 2, 0);
+		addItem(p, txtVaiTro, 3, 0);
+
+		// Hàng 2
+		addItem(p, "Họ và tên:", 0, 1);
+		addItem(p, txtHoTen, 1, 1);
+		addItem(p, "Giới tính:", 2, 1);
+		addItem(p, txtGioiTinh, 3, 1);
+
+		// Hàng 3
+		addItem(p, "Ngày sinh:", 0, 2);
+		addItem(p, txtNgaySinh, 1, 2);
+		addItem(p, "Số điện thoại:", 2, 2);
+		addItem(p, txtSDT, 3, 2);
+
+		// Hàng 4 (Email - Span 3 cột)
+		addItem(p, "Email:", 0, 3);
+		addFullWidthItem(p, txtEmail, 1, 3);
+
+		// Hàng 5 (Địa chỉ - Span 3 cột)
+		addItem(p, "Địa chỉ:", 0, 4);
+		addFullWidthItem(p, txtDiaChi, 1, 4);
+
+		// Hàng 6
+		addItem(p, "Ngày tham gia:", 0, 5);
+		addItem(p, txtNgayThamGia, 1, 5);
+		addItem(p, "Trạng thái:", 2, 5);
+		addItem(p, txtTrangThai, 3, 5);
+
+		// Spacer để đẩy nội dung lên trên (nếu panel form cao hơn nội dung)
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 10;
+		gbc.weighty = 1.0;
+		p.add(new JLabel(), gbc);
+
+		return p;
+	}
+
+	private void fillData() {
+		if (nhanVien == null) {
+			return;
+		}
+
+		txtNhanVienID.setText(nhanVien.getNhanVienID());
+		txtVaiTro.setText(nhanVien.getVaiTroNhanVien().toString());
+		txtHoTen.setText(nhanVien.getHoTen());
+		txtGioiTinh.setText(nhanVien.isNu() ? "Nữ" : "Nam");
+		txtNgaySinh.setText(formatDate(nhanVien.getNgaySinh()));
+		txtSDT.setText(nhanVien.getSoDienThoai());
+		txtEmail.setText(nhanVien.getEmail());
+		txtDiaChi.setText(nhanVien.getDiaChi());
+		txtNgayThamGia.setText(formatDate(nhanVien.getNgayThamGia()));
+		txtTrangThai.setText(nhanVien.isHoatDong() ? "Đang hoạt động" : "Ngưng");
+
+		hienThiAnh(nhanVien.getAvatar());
+	}
+
+	void hienThiAnh(byte[] imgData) {
+		if (imgData != null && imgData.length > 0) {
+			ImageIcon icon = new ImageIcon(imgData);
+			Image img = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+			lblAvatar.setIcon(new ImageIcon(img));
+			lblAvatar.setText("");
+		} else {
+			lblAvatar.setIcon(null);
+			lblAvatar.setText("Chưa có ảnh");
+		}
+	}
+
+	// Thêm Label hoặc Field bình thường
+	private void addItem(JPanel p, Object component, int x, int y) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = x;
+		gbc.gridy = y;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.anchor = GridBagConstraints.WEST;
+
+		if (component instanceof String) {
+			JLabel lbl = new JLabel((String) component);
+			lbl.setFont(new Font(getFont().getFontName(), Font.BOLD, 13));
+			p.add(lbl, gbc);
+		} else if (component instanceof Component) {
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 0.5;
+			p.add((Component) component, gbc);
+		}
+	}
+
+	// Thêm Field chiếm hết chiều ngang còn lại (cho Email, Địa chỉ)
+	private void addFullWidthItem(JPanel p, Component component, int x, int y) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = x;
+		gbc.gridy = y;
+		gbc.gridwidth = 3;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		p.add(component, gbc);
+	}
+
+	private String formatDate(LocalDate d) {
+		return d != null ? d.format(DATE_FORMAT) : "";
+	}
+
+	private JTextField createReadOnlyField() {
+		JTextField t = new JTextField(15);
+		t.setEditable(false);
+		t.setBackground(new Color(250, 250, 250));
+
+		return t;
+	}
+
+	public NhanVien getNhanVien() {
+		return nhanVien;
+	}
+
+	public JLabel getLblAvatar() {
+		return lblAvatar;
+	}
+
+	public JButton getBtnDoiHinh() {
+		return btnDoiHinh;
+	}
+
+	public JTextField getTxtNhanVienID() {
+		return txtNhanVienID;
+	}
+
+	public JTextField getTxtVaiTro() {
+		return txtVaiTro;
+	}
+
+	public JTextField getTxtHoTen() {
+		return txtHoTen;
+	}
+
+	public JTextField getTxtGioiTinh() {
+		return txtGioiTinh;
+	}
+
+	public JTextField getTxtNgaySinh() {
+		return txtNgaySinh;
+	}
+
+	public JTextField getTxtSDT() {
+		return txtSDT;
+	}
+
+	public JTextField getTxtEmail() {
+		return txtEmail;
+	}
+
+	public JTextField getTxtDiaChi() {
+		return txtDiaChi;
+	}
+
+	public JTextField getTxtNgayThamGia() {
+		return txtNgayThamGia;
+	}
+
+	public JTextField getTxtTrangThai() {
+		return txtTrangThai;
+	}
+
+	public DateTimeFormatter getDATE_FORMAT() {
+		return DATE_FORMAT;
+	}
+
+	public ThongTinCaNhanController getController() {
+		return controller;
+	}
 }

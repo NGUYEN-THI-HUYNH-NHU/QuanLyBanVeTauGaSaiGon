@@ -75,7 +75,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã hóa đơn", "Mã khách hàng", "Mã giao dịch" });
 		txtTuKhoa = new JTextField(18);
 		btnTraCuu = new JButton("Tra cứu");
-		btnTraCuu.setBackground(new Color(38, 117, 191));
+		btnTraCuu.setBackground(new Color(36, 104, 155));
 		btnTraCuu.setForeground(Color.WHITE);
 		btnTraCuu.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.8f));
 		btnRefresh = new JButton("Làm mới");
@@ -201,7 +201,6 @@ public class PanelQuanLyHoaDon extends JPanel {
 		// Bảng
 		tableModel = new HoaDonTableModel();
 		table = new JTable(tableModel);
-		table.putClientProperty("JTable.stripe", true);
 		table.setRowHeight(30);
 
 		table.getColumnModel().getColumn(0).setMaxWidth(34);

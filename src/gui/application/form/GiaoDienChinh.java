@@ -35,8 +35,9 @@ import gui.application.AboutUsHelper;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.QuanLyKhuyenMai;
 import gui.application.form.NhanVien.QuanLyNhanVien;
+import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
+import gui.application.form.bieuGia.PanelQuanLyBieuGia;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 import gui.application.form.hoanVe.PanelHoanVe;
@@ -44,6 +45,7 @@ import gui.application.form.khachHang.QuanLyKhachHang;
 import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
 import gui.application.form.quanLyGa.PanelQuanLyGa;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
+import gui.application.form.thongKe.PanelBaoCao;
 import gui.application.form.thongKe.PanelThongKe;
 import gui.application.form.thongKe.PanelThongKeDoanhThu;
 import gui.application.form.thongKe.PanelThongKeKhachHang;
@@ -67,7 +69,7 @@ public class GiaoDienChinh extends JLayeredPane {
 	private void init(NhanVien nhanVien) {
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		setLayout(new GiaoDienChinhLayout());
-		menu = new Menu(nhanVien.getVaiTroNhanVien().toString());
+		menu = new Menu(nhanVien);
 		panelBody = new JPanel(new BorderLayout());
 		initMenuArrowIcon();
 		menuButton.putClientProperty(FlatClientProperties.STYLE,
@@ -99,7 +101,7 @@ public class GiaoDienChinh extends JLayeredPane {
 	private void initMenuEvent(NhanVien nhanVien) {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
 			switch (index) {
-			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
+//			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
 			case 3 -> UngDung.showGiaoDienChinh(new PanelBanVe());
 			case 4 -> {
@@ -110,17 +112,24 @@ public class GiaoDienChinh extends JLayeredPane {
 				}
 			}
 			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
-			case 14 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+			case 14 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+				}
+			}
 
 			// UC cua QUAN_LY
 			case 2 -> UngDung.showGiaoDienChinh(new PanelQuanLyGa(nhanVien));
 			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+
 			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-//			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
+
 			case 9 -> UngDung.showGiaoDienChinh(new QuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new QuanLyKhachHang(nhanVien));
 			case 11 -> UngDung.showGiaoDienChinh(new QuanLyNhanVien(nhanVien));
-//			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
+			case 12 -> UngDung.showGiaoDienChinh(new QuanLyTaiKhoan(nhanVien));
 
 			// UC dung chung
 			case 15 -> {

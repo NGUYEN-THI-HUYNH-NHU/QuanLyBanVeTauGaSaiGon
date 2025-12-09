@@ -34,6 +34,8 @@ public class BanVe_BUS {
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
+	private final SuDungKhuyenMai_BUS suDungKhuyenMaiBUS = new SuDungKhuyenMai_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
 	/**
@@ -57,7 +59,6 @@ public class BanVe_BUS {
 			conn.setAutoCommit(false);
 
 			// --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
-
 			// 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
 			khachHangBUS.themHoacCapNhatKhachHang(conn, session.getKhachHang());
 			for (VeSession v : session.getAllSelectedTickets()) {
@@ -87,12 +88,19 @@ public class BanVe_BUS {
 					.taoCacPhieuDungPhongChoVIP(session.getAllSelectedTickets());
 			phieuDungPhongChoVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
-			// 8. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)
+			// 8. Gán các sử dụng khuyến mãi cho các vé áp dụng khuyến mãi
+			khuyenMaiBUS.ganDanhSachSuDungKhuyenMai(session.getAllSelectedTickets());
+
+			// 9. Tạo và Lưu Hóa Đơn Chi Tiết (khi tạo các hóa đơn chi tiết đã bao gồm gán
+			// nó cho sử dụng khuyến mãi tương ứng)
 			List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon(),
 					session.getAllSelectedTickets());
 			hoaDonBUS.themCacHoaDonChiTiet(conn, listHoaDonChiTiet);
 
-			// 9. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
+			// 10. Lưu các sử dụng khuyến mãi (đã kèm giảm số lượng khuyến mãi tương ứng)
+			khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, session.getAllSelectedTickets());
+
+			// 11. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
 			datChoBUS.capNhatPhieuGiuCho(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 			datChoBUS.capNhatCacPhieuGiuChoChiTiet(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 

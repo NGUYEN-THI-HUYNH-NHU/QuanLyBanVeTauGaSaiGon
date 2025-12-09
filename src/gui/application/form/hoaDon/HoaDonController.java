@@ -134,8 +134,6 @@ public class HoaDonController {
 				JTable table = (JTable) e.getSource();
 				int column = table.columnAtPoint(e.getPoint());
 				int row = table.rowAtPoint(e.getPoint());
-
-				// Kiểm tra nếu cột là Xem hoặc In thì hiện bàn tay
 				if (row >= 0 && (column == HoaDonTableModel.COL_XEM || column == HoaDonTableModel.COL_IN)) {
 					table.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				} else {

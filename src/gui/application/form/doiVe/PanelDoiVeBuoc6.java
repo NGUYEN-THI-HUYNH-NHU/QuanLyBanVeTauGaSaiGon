@@ -52,14 +52,14 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	}
 
 	private void setUpTable() {
-		table.setRowHeight(110);
+		table.setRowHeight(120);
 
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(100);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(150);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(130);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(160);
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI).setMinWidth(100);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(130);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP).setMaxWidth(50);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(120);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP).setPreferredWidth(70);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		LeftCenterAlignRenderer topAlignRenderer = new LeftCenterAlignRenderer();
@@ -80,6 +80,9 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		/// Áp dụng Renderer cho cột để hiển thị đẹp ngay cả khi không click vào
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI)
 				.setCellRenderer(VeMoiRenderer.getTableCellRenderer());
+
+		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI));
+		table.removeColumn(table.getColumnModel().getColumn(MappingVeTableModel.COL_GIAM_KM - 1));
 	}
 
 	/**

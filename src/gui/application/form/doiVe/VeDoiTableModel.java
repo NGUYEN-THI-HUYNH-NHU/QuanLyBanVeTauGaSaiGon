@@ -63,7 +63,7 @@ public class VeDoiTableModel extends AbstractTableModel {
 		return columnNames[column];
 	}
 
-	// Quan trọng: Báo cho JTable biết cột nào là Checkbox
+	// Báo cho JTable biết cột nào là Checkbox
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		if (columnIndex == COL_CHON) {
@@ -75,7 +75,7 @@ public class VeDoiTableModel extends AbstractTableModel {
 		return String.class;
 	}
 
-	// Quan trọng: Chỉ cho phép sửa cột Checkbox
+	// Chỉ cho phép sửa cột Checkbox
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		if (columnIndex == COL_CHON || columnIndex == COL_LY_DO) {

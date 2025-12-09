@@ -79,7 +79,9 @@ public class Ve_BUS {
 
 		for (VeSession v : dsVeDi) {
 			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+					+ v.getVe().getChuyen().getChuyenID() + "-"
+					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
+					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
 			Ve ve = v.getVe();
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
@@ -89,7 +91,9 @@ public class Ve_BUS {
 		}
 		for (VeSession v : dsVeVe) {
 			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+					+ v.getVe().getChuyen().getChuyenID() + "-"
+					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
+					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
 			Ve ve = v.getVe();
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
@@ -111,7 +115,9 @@ public class Ve_BUS {
 
 		for (VeSession v : dsVeMoi) {
 			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-" + v.getVe().getGhe().getGheID();
+					+ v.getVe().getChuyen().getChuyenID() + "-"
+					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
+					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
 			Ve ve = v.getVe();
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);

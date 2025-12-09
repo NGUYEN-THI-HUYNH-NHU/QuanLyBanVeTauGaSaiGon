@@ -11,11 +11,18 @@ package gui.application.form.doiVe;
  * @date: Nov 18, 2025
  * @version: 1.0
  */
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
 import bus.Chuyen_BUS;
@@ -47,6 +54,20 @@ public class DoiVeBuoc4Controller {
 	}
 
 	private void init() {
+		// Lấy component nhập liệu thực sự bên trong JDateChooser (JTextField)
+		JComponent editorNgayDi = panel.getDateNgayDi().getDateEditor().getUiComponent();
+		// Gán InputMap/ActionMap cho component đó
+		InputMap dateDiIM = editorNgayDi.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap dateDiAM = editorNgayDi.getActionMap();
+
+		dateDiIM.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterOnDateDi");
+		dateDiAM.put("enterOnDateDi", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				panel.getBtnTimKiem().doClick();
+			}
+		});
+
 		panel.getBtnTimKiem().addActionListener(e -> performSearch());
 	}
 

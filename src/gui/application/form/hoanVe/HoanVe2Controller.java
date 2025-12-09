@@ -35,6 +35,11 @@ public class HoanVe2Controller {
 
 	// Listener để báo cho wizard chính (PanelHoanVe) biết khi thanh toán xong
 	private Runnable onPaymentSuccessListener;
+	private Runnable onReturnListener;
+
+	public void addPanel2ReturnListener(Runnable listener) {
+		this.onReturnListener = listener;
+	}
 
 	protected void addPanel2PaymentSuccessListener(Runnable listener) {
 		this.onPaymentSuccessListener = listener;
@@ -46,6 +51,11 @@ public class HoanVe2Controller {
 		this.p4 = view.getPanelHoanVeBuoc4();
 		this.p5 = view.getPanelHoanVeBuoc5();
 
+		this.view.getBtnPrev().addActionListener(e -> {
+			if (onReturnListener != null) {
+				onReturnListener.run();
+			}
+		});
 		// Khởi tạo logic liên kết
 		initMediatorLogic();
 	}
@@ -78,13 +88,14 @@ public class HoanVe2Controller {
 
 		// 4. Đẩy chi tiết thanh toán vào Buoc5
 		p5.setChiTietThanhToan(tongTienVe, tongPhiHoan);
+		p5.getRadTienMat().doClick();
 	}
 
 	/**
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
-		JButton payButtonCash = p5.getBtnXacNhanVaInCash();
+		JButton payButtonCash = p5.getBtnXacNhanHoanVe();
 
 		ActionListener paymentListener = e -> {
 			if (this.khachHang == null || this.listVeHoanRow == null || this.listVeHoanRow.isEmpty()) {

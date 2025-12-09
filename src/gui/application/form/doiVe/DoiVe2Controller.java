@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
@@ -357,6 +358,19 @@ public class DoiVe2Controller {
 					buoc5Controller.releaseHoldAndRemoveVe(v);
 					refreshGioVe();
 				}
+
+				// Xóa PGC nếu giỏ rỗng
+				if (exchangeSession.getListVeMoiDangChon().isEmpty()) {
+					if (exchangeSession.getPhieuGiuCho() != null) {
+						datChoBUS.xoaPhieuGiuCho(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
+					}
+				}
+
+				SwingUtilities.invokeLater(() -> {
+					if (p6 != null) {
+						p6.initFromBookingSession(exchangeSession);
+					}
+				});
 			}
 		});
 		timer.setInitialDelay(0);

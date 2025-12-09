@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 
 import entity.DonDatCho;
 import entity.KhachHang;
+import gui.application.UngDung;
 
 public class PanelHoanVe extends JPanel {
 	private CardLayout cardLayout;
@@ -68,17 +69,21 @@ public class PanelHoanVe extends JPanel {
 			showPanel("step2");
 		});
 
-		// Lắng nghe sự kiện "Quay lại" từ PanelHoanVe2
-		panelHoanVe2.getBtnPrev().addActionListener(e -> {
-			// Yêu cầu PanelHoanVe chuyển card về bước 1
+		// Lắng nghe sự kiện "Quay lại" từ PanelBanVe2
+		hoanVe2Controller.addPanel2ReturnListener(() -> {
 			showPanel("step1");
+		});
+
+		hoanVe2Controller.addPanel2PaymentSuccessListener(() -> {
+			// Tạo lại giao diện mới hoàn toàn
+			UngDung.reloadPanelHoanVe();
 		});
 	}
 
 	/**
 	 * Hàm công khai để các controller gọi và chuyển Card
 	 * 
-	 * @param panelName Tên của card (ví dụ: "step1", "step2", "complete")
+	 * @param panelName Tên của card (ví dụ: "step1", "step2")
 	 */
 	public void showPanel(String panelName) {
 		SwingUtilities.invokeLater(() -> {

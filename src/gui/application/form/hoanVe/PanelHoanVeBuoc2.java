@@ -20,8 +20,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +54,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private JTextField txtCccd;
 	private JTextField txtPhone;
 
-	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
 	public PanelHoanVeBuoc2() {
@@ -64,26 +61,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		setBorder(new LineBorder(new Color(220, 220, 220)));
 
 		model = new VeHoanTableModel();
-		table = new JTable(model) {
-			@Override
-			public String getToolTipText(MouseEvent e) {
-				String tip = null;
-				Point p = e.getPoint();
-				int rowIndex = rowAtPoint(p);
-				int colIndex = columnAtPoint(p);
-				int realRowIndex = convertRowIndexToModel(rowIndex);
-
-				if (realRowIndex >= 0) {
-					VeHoanRow row = model.getRows().get(realRowIndex);
-					// Nếu không đủ điều kiện, hiển thị lý do khi hover vào bất kỳ ô nào của dòng đó
-					// Hoặc chỉ khi hover vào cột Checkbox (tùy bạn chọn)
-					if (!row.isDuDieuKien()) {
-						tip = row.getLyDoKhongDuDieuKien();
-					}
-				}
-				return tip;
-			}
-		};
+		table = new JTable(model);
 
 		setupTable();
 
@@ -107,22 +85,18 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	}
 
 	private void setupTable() {
-		table.setRowHeight(80);
+		table.setRowHeight(90);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
 
 		// Cấu hình độ rộng cột
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(170);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setMinWidth(120);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setMaxWidth(50);
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
-		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
-		currencyRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-		currencyRenderer.setVerticalAlignment(SwingConstants.TOP); // Căn lên trên
-		currencyRenderer.setOpaque(true);
-
 		// Áp dụng lớp Renderer nội tuyến để định dạng
 		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
 			@Override
@@ -132,7 +106,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.TOP);
+				label.setVerticalAlignment(SwingConstants.CENTER);
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
@@ -177,8 +151,8 @@ public class PanelHoanVeBuoc2 extends JPanel {
 					boolean hasFocus, int row, int column) {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-				// Căn lề trên
-				setVerticalAlignment(SwingConstants.TOP);
+				setHorizontalAlignment(SwingConstants.LEFT);
+				setVerticalAlignment(SwingConstants.CENTER);
 
 				// ÁP DỤNG STYLE XÁM
 				applyRowStyle(c, table, row);
@@ -231,8 +205,15 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				// (Làm mờ ô vuông checkbox)
 				checkBox.setEnabled(dataRow.isDuDieuKien());
 
+				if (isSelected) {
+					checkBox.setBackground(table.getSelectionBackground());
+					checkBox.setForeground(table.getSelectionForeground());
+				} else {
+					checkBox.setBackground(table.getBackground());
+					checkBox.setForeground(table.getForeground());
+				}
+
 				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
-				// Gọi lại hàm applyRowStyle bạn đã viết sẵn
 				applyRowStyle(checkBox, table, row);
 
 				return checkBox;
@@ -383,7 +364,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	public void refreshRow(VeHoanRow row) {
 		int rowIndex = model.getRowIndex(row);
 		if (rowIndex != -1) {
-			// Chỉ cập nhật dòng thay đổi, hiệu quả hơn fireTableDataChanged()
 			row.setSelected(false);
 			model.fireTableRowsUpdated(rowIndex, rowIndex);
 		}

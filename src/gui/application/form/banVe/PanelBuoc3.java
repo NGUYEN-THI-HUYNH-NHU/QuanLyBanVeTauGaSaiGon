@@ -39,10 +39,10 @@ import javax.swing.table.TableColumn;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-import gui.tuyChinh.RoundedBorder;
+import gui.tuyChinh.CurrencyRenderer;
 
 public class PanelBuoc3 extends JPanel {
-	private final HanhKhachTableModel model;
+	private final VeBanTableModel model;
 	private final JTable table;
 	private final JButton btnConfirm;
 	private final JButton btnCancel;
@@ -51,6 +51,7 @@ public class PanelBuoc3 extends JPanel {
 	private JTextField txtTen;
 	private JTextField txtCccd;
 	private JTextField txtPhone;
+	private JLabel lblError;
 
 	private Consumer<PassengerRow> deleteListener;
 
@@ -60,37 +61,32 @@ public class PanelBuoc3 extends JPanel {
 		setLayout(new BorderLayout(8, 8));
 		setBorder(BorderFactory.createTitledBorder("Nhập thông tin hành khách"));
 
-		model = new HanhKhachTableModel();
-//		{ "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }
+		model = new VeBanTableModel();
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(200);
-		table.getColumnModel().getColumn(1).setMinWidth(110);
-		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
-		table.getColumnModel().getColumn(0).setCellEditor(new PassengerCellEditor(this));
-		table.removeColumn(table.getColumnModel().getColumn(5));
-		table.removeColumn(table.getColumnModel().getColumn(5));
-		table.removeColumn(table.getColumnModel().getColumn(5));
+		table.getColumnModel().getColumn(0).setMaxWidth(36);
+		table.getColumnModel().getColumn(1).setMinWidth(200);
+		table.getColumnModel().getColumn(2).setMinWidth(110);
+		table.getColumnModel().getColumn(1).setCellRenderer(new PassengerCellRenderer());
+		table.getColumnModel().getColumn(1).setCellEditor(new PassengerCellEditor(this));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
+		table.removeColumn(table.getColumnModel().getColumn(6));
 
-		DefaultTableCellRenderer right = new DefaultTableCellRenderer();
-		right.setHorizontalAlignment(SwingConstants.RIGHT);
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		DefaultTableCellRenderer center = new DefaultTableCellRenderer();
 		center.setHorizontalAlignment(SwingConstants.CENTER);
-		table.getColumnModel().getColumn(2).setCellRenderer(right);
-		table.getColumnModel().getColumn(4).setCellRenderer(right);
-		table.getColumnModel().getColumn(5).setCellRenderer(right);
+		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(5).setCellRenderer(currencyRenderer);
 
-		int deleteColumnIndex = 5;
+		int deleteColumnIndex = 6;
 		TableColumn deleteColumn = table.getColumnModel().getColumn(deleteColumnIndex);
-		// 1. Áp dụng Renderer
 		deleteColumn.setCellRenderer(new DeleteButtonRenderer());
-		// 2. Áp dụng Editor và truyền hành động (action)
 		deleteColumn.setCellEditor(new DeleteButtonEditor());
-		// 3. Đặt kích thước
 		deleteColumn.setPreferredWidth(40);
 		deleteColumn.setMaxWidth(40);
 
-		// 4. (QUAN TRỌNG) Bắt sự kiện click từ JTable
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -117,6 +113,7 @@ public class PanelBuoc3 extends JPanel {
 
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnConfirm = new JButton("Xác nhận");
+		btnConfirm.putClientProperty("JButton.buttonType", "default");
 		btnCancel = new JButton("Hủy");
 		btns.add(btnConfirm);
 		btns.add(btnCancel);
@@ -126,7 +123,7 @@ public class PanelBuoc3 extends JPanel {
 
 		// FORM KHÁCH HÀNG (bên phải)
 		formKhachHang = new JPanel(new GridBagLayout());
-		formKhachHang.setBorder(new RoundedBorder(0, new Color(230, 230, 230), 1));
+		formKhachHang.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
 
 		txtTen = new JTextField(18);
 		txtCccd = new JTextField(18);
@@ -140,13 +137,15 @@ public class PanelBuoc3 extends JPanel {
 		gbc.gridx = 0;
 
 		gbc.gridy = 0;
+		gbc.gridwidth = 2;
 		gbc.insets = new Insets(2, 2, 6, 2);
 		JLabel lblNguoiMuaVe = new JLabel("Người mua vé", SwingConstants.CENTER);
 		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
-		lblNguoiMuaVe.setForeground(new Color(232, 75, 2));
+		lblNguoiMuaVe.setForeground(new Color(0, 145, 212));
 		formKhachHang.add(lblNguoiMuaVe, gbc);
 
 		gbc.insets = new Insets(2, 2, 2, 2);
+		gbc.gridwidth = 1;
 
 		// ====== row 0: CCCD/Hộ chiếu * ======
 		gbc.gridy = 1;
@@ -166,12 +165,22 @@ public class PanelBuoc3 extends JPanel {
 		gbc.gridy = 6;
 		formKhachHang.add(txtPhone, gbc);
 
-		// spacer and note
 		gbc.gridy = 7;
-		gbc.weighty = 1.0;
-		formKhachHang.add(Box.createVerticalGlue(), gbc);
+		formKhachHang.add(Box.createVerticalStrut(30), gbc);
+
+		// ====== row 4: lblError * ======
+		gbc.gridy = 8;
+		lblError = new JLabel("");
+		lblError.setForeground(Color.RED);
+		lblError.setFont(new Font(lblError.getFont().getName(), Font.ITALIC, 11));
+		lblError.setVisible(false);
+		formKhachHang.add(lblError, gbc);
 
 		add(formKhachHang, BorderLayout.EAST);
+	}
+
+	public JLabel getLblError() {
+		return lblError;
 	}
 
 	public void setController(PanelBuoc3Controller controller) {
@@ -198,7 +207,7 @@ public class PanelBuoc3 extends JPanel {
 		return this.txtPhone;
 	}
 
-	public HanhKhachTableModel getModel() {
+	public VeBanTableModel getModel() {
 		return model;
 	}
 

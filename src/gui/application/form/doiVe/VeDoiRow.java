@@ -28,7 +28,6 @@ public class VeDoiRow {
 	private boolean isSelected;
 	private String thoiGianConLai;
 	private boolean isDuDieuKien;
-	private String lyDoKhongDuDieuKien;
 
 	public VeDoiRow(Ve ve, PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.ve = ve;
@@ -53,9 +52,8 @@ public class VeDoiRow {
 		if (seconds <= 0) {
 			thoiGianConLai = "Đã khởi hành";
 			isDuDieuKien = false;
-			lyDoKhongDuDieuKien = "Tàu đã khởi hành, không thể đổi vé.";
 			lePhiDoiVe = 0;
-			thongTinPhiDoi = "Không thể đổi vé.";
+			thongTinPhiDoi = "Không thể đổi vé (Tàu đã khởi hành, không thể đổi vé).";
 			isSelected = false;
 		} else {
 			long hours = seconds / 3600;
@@ -65,14 +63,12 @@ public class VeDoiRow {
 			// Quy định: Phải trước 24 tiếng
 			if (hours >= 24) {
 				isDuDieuKien = true;
-				lyDoKhongDuDieuKien = "";
 				lePhiDoiVe = 20000;
 				thongTinPhiDoi = "Đổi vé bình thường năm 2025, áp dụng phí 20.000VNĐ/vé";
 			} else {
 				isDuDieuKien = false;
-				lyDoKhongDuDieuKien = "Thời gian còn lại dưới 24 giờ (Quy định đổi vé).";
 				lePhiDoiVe = 0;
-				thongTinPhiDoi = "Không đủ điều kiện đổi vé.";
+				thongTinPhiDoi = "Không đủ điều kiện đổi vé (Thời gian còn lại dưới 24 giờ (Quy định đổi vé)).";
 				isSelected = false;
 			}
 		}
@@ -120,10 +116,6 @@ public class VeDoiRow {
 
 	public boolean isDuDieuKien() {
 		return isDuDieuKien;
-	}
-
-	public String getLyDoKhongDuDieuKien() {
-		return lyDoKhongDuDieuKien;
 	}
 
 	public PhieuDungPhongVIP getPhieuDungPhongVIP() {

@@ -17,28 +17,26 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.Consumer;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
+
+import gui.tuyChinh.CurrencyRenderer;
+import gui.tuyChinh.LeftCenterAlignRenderer;
 
 public class PanelHoanVeBuoc3 extends JPanel {
 	private VeHoanTableModel model;
 	private JTable table;
 	private JButton btnXacNhan;
-	// Renderer
-	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
 	public PanelHoanVeBuoc3() {
 		setLayout(new BorderLayout());
@@ -66,38 +64,13 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		DefaultCellEditor cellEditor = new DefaultCellEditor(cbLyDoHoan);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellEditor(cellEditor);
 
-		table.setRowHeight(80);
-
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
+		table.setRowHeight(90);
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
-		table.getColumnModel().getColumn(0).setMinWidth(150);
-		table.getColumnModel().getColumn(1).setMinWidth(150);
-		table.getColumnModel().getColumn(7).setMaxWidth(50);
-
-		// === Áp dụng Renderer ===
-		// 1. Renderer cho tiền (căn phải, định dạng)
-		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
-		currencyRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-		currencyRenderer.setVerticalAlignment(SwingConstants.TOP);
-		currencyRenderer.setOpaque(true);
-
-		// Áp dụng lớp Renderer nội tuyến để định dạng
-		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				// Gọi super để lấy JLabel
-				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-						column);
-				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.TOP);
-				if (value instanceof Double) {
-					label.setText(df.format(value));
-				}
-				return label;
-			}
-		};
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(180);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON).setMaxWidth(50);
 
 		// RENDERER CHO CỘT THỜI GIAN
 		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
@@ -106,54 +79,27 @@ public class PanelHoanVeBuoc3 extends JPanel {
 					boolean hasFocus, int row, int column) {
 
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-				// Lấy row model để check logic riêng của cột này
-				int modelRow = table.convertRowIndexToModel(row);
-				VeHoanRow dataRow = model.getRows().get(modelRow);
-
-				// Logic riêng: Tô màu đỏ chữ cảnh báo
-				if (!dataRow.isDuDieuKien()) {
-					c.setForeground(Color.RED);
-					setFont(getFont().deriveFont(Font.BOLD));
-				} else {
-					c.setForeground(Color.GREEN);
-					setFont(getFont().deriveFont(Font.BOLD));
-				}
-
-				applyRowStyle(c, table, row);
+				setHorizontalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.CENTER);
+				c.setForeground(Color.GREEN);
+				setFont(getFont().deriveFont(Font.BOLD));
 				return c;
 			}
 		};
-		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-		table.getColumnModel().getColumn(6).setCellRenderer(timeRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 
-		table.getColumnModel().getColumn(2).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(3).setCellRenderer(currencyFormatRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(currencyFormatRenderer);
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
 
-		// 2. Renderer cho các cột text (căn trên)
-		DefaultTableCellRenderer topAlignRenderer = new DefaultTableCellRenderer();
-		topAlignRenderer.setVerticalAlignment(SwingConstants.TOP);
+		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellRenderer(leftCenterRenderer);
 
-		table.getColumnModel().getColumn(0).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(1).setCellRenderer(topAlignRenderer);
-		table.getColumnModel().getColumn(5).setCellRenderer(topAlignRenderer);
-	}
-
-	/**
-	 * Phương thức chung để tô màu nền cho dòng dựa trên điều kiện hoàn vé.
-	 */
-	private void applyRowStyle(Component c, JTable table, int row) {
-		int modelRow = table.convertRowIndexToModel(row);
-		VeHoanRow dataRow = model.getRows().get(modelRow);
-
-		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(new Color(240, 240, 240));
-			if (c.getForeground() != Color.RED) {
-				c.setForeground(Color.GRAY);
-			}
-		}
+		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
 	}
 
 	public void displayConfirmation(List<VeHoanRow> selectedRows) {

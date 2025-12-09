@@ -45,9 +45,4 @@ public class PhieuGiuCho_BUS {
 		}
 		return null;
 	}
-
-	public boolean timPhieuGiuChoByVeID(String veID) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

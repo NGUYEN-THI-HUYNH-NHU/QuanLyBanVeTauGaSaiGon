@@ -18,15 +18,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
+
+import entity.KhuyenMai;
+import gui.tuyChinh.CurrencyRenderer;
 
 public class PanelBuoc4 extends JPanel {
-	private final HanhKhachTableModel model;
+	private final VeBanTableModel model;
 	private final JTable table;
+
+	protected interface KhuyenMaiProvider {
+		List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
+	}
+
+	private KhuyenMaiProvider khuyenMaiProvider;
+	private JComboBox cbKhuyenMai;
+
+	private TableModelListener tableUpdateListener;
 
 	public PanelBuoc4() {
 		setLayout(new BorderLayout(8, 8));
@@ -34,33 +47,55 @@ public class PanelBuoc4 extends JPanel {
 		setPreferredSize(new Dimension(getWidth(), 350));
 
 		// 1. Khởi tạo model và table
-// { "Hành khách", "Vé", "Giá", "Phòng chờ", "Giá dịch vụ", "Giảm đối tượng", "Khuyến mãi", "Thành tiền", "" }		
-		model = new HanhKhachTableModel() {
+		model = new VeBanTableModel() {
 			@Override
 			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return false;
+				return columnIndex == COL_KHUYEN_MAI;
 			}
 		};
 		table = new JTable(model);
 		table.setRowHeight(110);
-		table.getColumnModel().getColumn(0).setMinWidth(180);
-		table.getColumnModel().getColumn(1).setMinWidth(180);
-		table.removeColumn(table.getColumnModel().getColumn(8));
+		table.getColumnModel().getColumn(0).setMaxWidth(36);
+		table.getColumnModel().getColumn(1).setPreferredWidth(180);
+		table.getColumnModel().getColumn(2).setPreferredWidth(120);
+		table.removeColumn(table.getColumnModel().getColumn(10));
 
-		// 2. CHỈ DÙNG Renderer (để hiển thị), KHÔNG DÙNG Editor (để không thể sửa)
-		table.getColumnModel().getColumn(0).setCellRenderer(new PassengerCellRenderer());
+		// Cấu hình Cột Khuyến Mãi
+		// 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(7);
+		khuyenMaiCol.setMinWidth(150);
 
-		// Căn giữa các cột số
-		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-		table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
-		table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
-		table.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
-		table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer);
+		cbKhuyenMai = new JComboBox<>();
+		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
+		khuyenMaiCol.setCellRenderer(renderer);
+		cbKhuyenMai.setRenderer(renderer);
+
+		table.getColumnModel().getColumn(1).setCellRenderer(new PassengerCellRenderer());
+
+		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(5).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(6).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(9).setCellRenderer(currencyRenderer);
 
 		JScrollPane sp = new JScrollPane(table);
 		add(sp, BorderLayout.CENTER);
+	}
+
+	public void setKhuyenMaiProvider(KhuyenMaiProvider provider) {
+		this.khuyenMaiProvider = provider;
+
+		// Khởi tạo Editor SAU KHI đã có provider (và model)
+		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(7);
+		// Dùng class Editor mới tách
+		KhuyenMaiCellEditor editor = new KhuyenMaiCellEditor(cbKhuyenMai, provider, model);
+		khuyenMaiCol.setCellEditor(editor);
+	}
+
+	// Thêm hàm để Controller đăng ký lắng nghe thay đổi
+	public void addTableUpdateListener(TableModelListener l) {
+		this.tableUpdateListener = l;
+		model.addTableModelListener(l);
 	}
 
 	/**
@@ -88,13 +123,21 @@ public class PanelBuoc4 extends JPanel {
 			// Giả sử HanhKhach đã được gán vào VeSession ở Buoc3
 			PassengerRow r = new PassengerRow(v);
 			if (v.getVe().getKhachHang() != null) {
-				r.setFullName(v.getVe().getKhachHang().getHoTen());
-				r.setIdNumber(v.getVe().getKhachHang().getSoGiayTo());
-				r.setType(v.getVe().getKhachHang().getLoaiDoiTuong());
+				r.setHoTen(v.getVe().getKhachHang().getHoTen());
+				r.setSoGiayTo(v.getVe().getKhachHang().getSoGiayTo());
+				r.setLoaiDoiTuong(v.getVe().getKhachHang().getLoaiDoiTuong());
 			}
 			rows.add(r);
 		}
 		model.setRows(rows);
+	}
+
+	public VeBanTableModel getModel() {
+		return model;
+	}
+
+	public JTable getTable() {
+		return table;
 	}
 
 	/**

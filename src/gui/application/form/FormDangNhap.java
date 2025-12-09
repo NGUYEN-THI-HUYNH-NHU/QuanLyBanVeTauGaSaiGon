@@ -20,28 +20,18 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
 import controller.DangNhap_Ctrl;
-import entity.NhanVien;
-import entity.type.VaiTroNhanVien;
-import gui.application.AuthService;
-import gui.application.UngDung;
-import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
 import gui.tuyChinh.RoundedBorder;
 import net.miginfocom.swing.MigLayout;
 
@@ -50,13 +40,12 @@ public class FormDangNhap extends JPanel {
 	private JTextField txtTenDangNhap;
 	private JTextField txtMatKhau;
 	private JButton btnLogin;
-	private DangNhap_Ctrl dangNhap_Ctrl;
 	private JPanel pnlLogin;
 	private JLabel lblTitle;
-	private JLabel lblTenDangNhap;
-	private JLabel lblMatKhau;
 	private Image backgroundImage;
 	private JLabel lblQuenMK;
+
+	private final DangNhap_Ctrl dangNhap_Ctrl;
 
 	public FormDangNhap() {
 		backgroundImage = new ImageIcon(getClass().getResource("/gui/icon/png/dang-nhap.png")).getImage();
@@ -71,11 +60,11 @@ public class FormDangNhap extends JPanel {
 
 		pnlLogin.add(lblTitle = new JLabel("Đăng nhập", SwingConstants.CENTER));
 		lblTitle.setFont(new Font("", Font.BOLD, 24));
-		pnlLogin.add(lblTenDangNhap = new JLabel("Tên đăng nhập"));
+		pnlLogin.add(new JLabel("Tên đăng nhập"));
 		pnlLogin.add(txtTenDangNhap = new JTextField());
 		txtTenDangNhap.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Tên đăng nhập");
 		txtTenDangNhap.requestFocusInWindow();
-		pnlLogin.add(lblMatKhau = new JLabel("Mật khẩu"));
+		pnlLogin.add(new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
 		txtMatKhau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mật khẩu");
 		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu?", JLabel.RIGHT));
@@ -89,9 +78,7 @@ public class FormDangNhap extends JPanel {
 		gbc.insets = new Insets(0, 720, 0, 0);
 		add(pnlLogin, gbc);
 
-		addEvents();
-
-		dangNhap_Ctrl = new DangNhap_Ctrl();
+		dangNhap_Ctrl = new DangNhap_Ctrl(this);
 	}
 
 	@Override
@@ -111,53 +98,21 @@ public class FormDangNhap extends JPanel {
 		g2.dispose();
 	}
 
-	private void addEvents() {
-		btnLogin.addActionListener(e -> dangNhap());
-		txtTenDangNhap.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					txtMatKhau.requestFocus();
-				}
-			}
-		});
-
-		txtMatKhau.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					dangNhap();
-				}
-			}
-		});
-	}
-
-	private void dangNhap() {
-		String tenDangNhap = txtTenDangNhap.getText();
-		String matKhau = txtMatKhau.getText();
-		NhanVien nhanVien = dangNhap_Ctrl.getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
-		UngDung ungDung = UngDung.getInstance();
-
-		if (nhanVien == null) {
-			JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
-					"Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
-			resetDangNhap();
-		} else {
-			AuthService.getInstance().setCurrentUser(nhanVien);
-			ungDung.createGiaoDienChinh(nhanVien);
-			ungDung.setContentPane(ungDung.getGiaoDienChinh());
-			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
-				ungDung.showGiaoDienChinh(new PanelBanVe());
-			} else {
-				ungDung.showGiaoDienChinh(new Dashboard());
-			}
-			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
-		}
-	}
-
 	public void resetDangNhap() {
 		txtTenDangNhap.setText("");
 		txtMatKhau.setText("");
 		txtTenDangNhap.requestFocus();
+	}
+
+	public JTextField getTxtTenDangNhap() {
+		return txtTenDangNhap;
+	}
+
+	public JTextField getTxtMatKhau() {
+		return txtMatKhau;
+	}
+
+	public JButton getBtnLogin() {
+		return btnLogin;
 	}
 }

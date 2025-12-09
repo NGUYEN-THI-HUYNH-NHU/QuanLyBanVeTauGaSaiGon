@@ -10,7 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -57,13 +56,6 @@ public class HoaDon_DAO {
 
 			return ps.executeUpdate() > 0;
 		}
-	}
-
-	public List<HoaDon> searchAndFilter(String keyword, String searchType, String loaiHoaDon, String khachHangInfo,
-			LocalDate fromDate, LocalDate toDate, String phuongThucTT) {
-
-		return null;
-
 	}
 
 	/**

@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import entity.KhuyenMai;
 import entity.Ve;
 import gui.application.form.banVe.VeSession;
 
@@ -25,16 +26,19 @@ public class MappingVeTableModel extends AbstractTableModel {
 	public static final int COL_HANH_KHACH = 1;
 	public static final int COL_VE_CU_INFO = 2;
 	public static final int COL_VE_CU_GIA = 3;
-	public static final int COL_CHON_VE_MOI = 4; // Cột ComboBox
+	public static final int COL_CHON_VE_MOI = 4;
 	public static final int COL_VE_MOI_INFO = 5;
 	public static final int COL_VE_MOI_GIA = 6;
-	public static final int COL_CHON_PHIEU_VIP = 7; // Cột CheckBox
-	public static final int COL_PHIEU_VIP_GIA = 8;
-	public static final int COL_LE_PHI = 9;
-	public static final int COL_CHENH_LECH = 10;
+	public static final int COL_KHUYEN_MAI = 7;
+	public static final int COL_GIAM_KM = 8;
+	public static final int COL_CHON_PHIEU_VIP = 9;
+	public static final int COL_PHIEU_VIP_GIA = 10;
+	public static final int COL_LE_PHI = 11;
+	public static final int COL_CHENH_LECH = 12;
 
 	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Chọn vé mới",
-			"Thông tin vé mới", "Giá vé mới", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi", "Chênh lệch" };
+			"Thông tin vé mới", "Giá vé mới", "Chọn KM", "Giảm KM", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi",
+			"Chênh lệch" };
 
 	private List<MappingRow> rows;
 
@@ -93,11 +97,15 @@ public class MappingVeTableModel extends AbstractTableModel {
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		if (columnIndex == COL_VE_CU_GIA || columnIndex == COL_LE_PHI || columnIndex == COL_VE_MOI_GIA
-				|| columnIndex == COL_CHENH_LECH) {
+				|| columnIndex == COL_GIAM_KM || columnIndex == COL_PHIEU_VIP_GIA || columnIndex == COL_CHENH_LECH) {
 			return Double.class;
 		}
 		if (columnIndex == COL_CHON_VE_MOI) {
-			return VeSession.class; // Để ComboBox render object
+			return VeSession.class;
+		}
+
+		if (columnIndex == COL_KHUYEN_MAI) {
+			return KhuyenMai.class;
 		}
 		if (columnIndex == COL_CHON_PHIEU_VIP) {
 			return Boolean.class;
@@ -108,8 +116,7 @@ public class MappingVeTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		// Chỉ cho phép sửa cột Chọn vé mới (ComboBox)
-		return columnIndex == COL_CHON_VE_MOI || columnIndex == COL_CHON_PHIEU_VIP;
+		return columnIndex == COL_CHON_VE_MOI || columnIndex == COL_KHUYEN_MAI || columnIndex == COL_CHON_PHIEU_VIP;
 	}
 
 	@Override
@@ -123,7 +130,7 @@ public class MappingVeTableModel extends AbstractTableModel {
 		case COL_HANH_KHACH:
 			return row.getVeDoiRow().getHanhKhach();
 		case COL_VE_CU_INFO:
-			return veDoi.thongTinVeDoi(row.getVeDoiRow().getPhieuDungPhongVIP()); // Logic hiển thị ngắn gọn vé cũ
+			return veDoi.thongTinVeDoi(row.getVeDoiRow().getPhieuDungPhongVIP());
 		case COL_VE_CU_GIA:
 			return veDoi.getGia();
 		case COL_CHON_VE_MOI:
@@ -136,10 +143,34 @@ public class MappingVeTableModel extends AbstractTableModel {
 			return "Chưa chọn vé";
 		case COL_VE_MOI_GIA:
 			return (row.getVeSessionMoi() != null) ? (double) row.getVeSessionMoi().getVe().getGia() : 0.0;
+		case COL_KHUYEN_MAI:
+			// 1. Kiểm tra VeSessionMoi có tồn tại không
+			VeSession vMoi = row.getVeSessionMoi();
+			if (vMoi == null) {
+				return null; // Nếu chưa chọn vé mới thì chắc chắn không có KM
+			}
+
+			// 2. Lấy KM và kiểm tra Ghost Object
+			KhuyenMai km = vMoi.getKhuyenMaiApDung();
+			if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+				return null;
+			}
+			return km;
+		case COL_GIAM_KM:
+			if (row.getVeSessionMoi() != null) {
+				return row.getVeSessionMoi().getGiamKM();
+			}
+			return 0;
 		case COL_CHON_PHIEU_VIP:
-			return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP() > 0;
+			if (row.getVeSessionMoi() != null) {
+				return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP() > 0;
+			}
+			return false;
 		case COL_PHIEU_VIP_GIA:
-			return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP();
+			if (row.getVeSessionMoi() != null) {
+				return row.getVeSessionMoi().getPhiPhieuDungPhongChoVIP();
+			}
+			return 0;
 		case COL_LE_PHI:
 			return row.getVeDoiRow().getLePhiDoiVe();
 		case COL_CHENH_LECH:
@@ -175,17 +206,33 @@ public class MappingVeTableModel extends AbstractTableModel {
 					}
 				}
 			}
-
 			// Cập nhật cho dòng hiện tại
 			currentRow.setVeSessionMoi(newSelectedVe);
-
 			// Thông báo cập nhật giao diện dòng hiện tại
 			fireTableRowsUpdated(rowIndex, rowIndex);
-			return;
+		} else if (columnIndex == COL_KHUYEN_MAI) {
+			VeSession veMoi = (VeSession) getValueAt(rowIndex, COL_CHON_VE_MOI);
+			KhuyenMai km = (KhuyenMai) aValue;
+			veMoi.setKhuyenMaiApDung(km);
 
-		}
+			if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+				km = null;
+			}
 
-		if (columnIndex == COL_CHON_PHIEU_VIP) {
+			// TÍNH TOÁN LẠI TIỀN GIẢM KM
+			int tienGiam = 0;
+			if (km != null) {
+				if (km.getTyLeGiamGia() > 0) {
+					tienGiam = (int) (veMoi.getVe().getGia() * (km.getTyLeGiamGia()));
+				} else if (km.getTienGiamGia() > 0) {
+					tienGiam = (int) km.getTienGiamGia();
+				}
+				// (Có thể thêm logic giới hạn tiền giảm tối đa nếu cần)
+			}
+			veMoi.setGiamKM(tienGiam);
+			// Cập nhật cả dòng để tính lại Thành tiền
+			fireTableRowsUpdated(rowIndex, rowIndex);
+		} else if (columnIndex == COL_CHON_PHIEU_VIP) {
 			MappingRow currentRow = rows.get(rowIndex);
 
 			// Nhận giá trị true/false từ JCheckBox
