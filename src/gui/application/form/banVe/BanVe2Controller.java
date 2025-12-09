@@ -7,6 +7,7 @@ package gui.application.form.banVe;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -126,6 +127,27 @@ public class BanVe2Controller {
 	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
 	 */
 	private void initMediatorLogic() {
+		// TẠO MỘT LISTENER CHUNG CHO VIỆC ĐỔI PHƯƠNG THỨC
+		ActionListener switchPaymentModeListener = e -> {
+			if (p5.isThanhToanTienMat()) {
+				stopPaymentServer();
+				p5.getLblQRCodeDisplay().setIcon(null);
+				p5.getLblQRCodeDisplay().setText("Đang tải mã QR...");
+				// Tắt ảnh to nếu đang mở
+				if (zoomDialog != null && zoomDialog.isVisible()) {
+					closePaymentDialog();
+				}
+			} else {
+				startPaymentListening();
+			}
+		};
+		if (p5.getRadTienMat() != null) {
+			p5.getRadTienMat().addActionListener(switchPaymentModeListener);
+		}
+		if (p5.getRadChuyenKhoan() != null) {
+			p5.getRadChuyenKhoan().addActionListener(switchPaymentModeListener);
+		}
+
 		p5.getBtnXacNhanVaInCash().addActionListener(e -> {
 			boolean isThanhToanTienMat = p5.isThanhToanTienMat();
 			double tongTien = p5.getTongThanhToan();
@@ -175,6 +197,9 @@ public class BanVe2Controller {
 	 * nhỏ (qr_only)
 	 */
 	private void startPaymentListening() {
+		// TẮT SERVER CŨ TRƯỚC
+		stopPaymentServer();
+
 		// 1. Tạo mã giao dịch (Chỉ chữ và số để tránh lỗi)
 		double tongTien = p5.getTongThanhToan();
 		currentMaGiaoDich = "VETAU" + System.currentTimeMillis();
@@ -210,7 +235,7 @@ public class BanVe2Controller {
 					cassoServer.stopServer();
 
 					SwingUtilities.invokeLater(() -> {
-						p5.setQRCodePlaceHolder();
+						p5.getLblQRCodeDisplay().setIcon(null);
 						// Tắt ảnh to nếu đang mở
 						if (zoomDialog != null && zoomDialog.isVisible()) {
 							closePaymentDialog();
@@ -351,9 +376,14 @@ public class BanVe2Controller {
 				try {
 					boolean saveSuccess = get();
 					if (saveSuccess) {
-						// Thông báo thành công
-						JOptionPane.showMessageDialog(view, "Bán vé thành công!", "Thông báo",
-								JOptionPane.INFORMATION_MESSAGE);
+						int choice = JOptionPane.showConfirmDialog(view,
+								"Bán vé thành công! Bạn có muốn in vé ngay không?", "In vé", JOptionPane.YES_NO_OPTION);
+
+						if (choice == JOptionPane.YES_OPTION) {
+							PdfTicketExporter exporter = new PdfTicketExporter();
+							exporter.exportTicketsToPdf(bookingSession);
+						}
+
 						p4.setComponentsEnabled(false);
 						p5.setComponentsEnabled(false);
 
@@ -374,5 +404,13 @@ public class BanVe2Controller {
 				}
 			}
 		}.execute();
+	}
+
+	private void stopPaymentServer() {
+		if (cassoServer != null) {
+			cassoServer.stopServer();
+			cassoServer = null; // Gán null để bộ dọn rác Java xử lý
+			System.out.println(">> Đã đóng cổng thanh toán Online.");
+		}
 	}
 }

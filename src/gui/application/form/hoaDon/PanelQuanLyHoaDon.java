@@ -201,7 +201,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		// Bảng
 		tableModel = new HoaDonTableModel();
 		table = new JTable(tableModel);
-		table.setRowHeight(30);
+		table.setRowHeight(36);
 
 		table.getColumnModel().getColumn(0).setMaxWidth(34);
 		table.getColumnModel().getColumn(1).setMinWidth(170);
@@ -212,7 +212,7 @@ public class PanelQuanLyHoaDon extends JPanel {
 		table.getColumnModel().getColumn(6).setMinWidth(76);
 		table.getColumnModel().getColumn(7).setMinWidth(76);
 		table.getColumnModel().getColumn(8).setMinWidth(76);
-		table.getColumnModel().getColumn(9).setMaxWidth(80);
+		table.getColumnModel().getColumn(9).setMinWidth(50);
 		table.getColumnModel().getColumn(10).setMaxWidth(34);
 		table.getColumnModel().getColumn(11).setMaxWidth(34);
 

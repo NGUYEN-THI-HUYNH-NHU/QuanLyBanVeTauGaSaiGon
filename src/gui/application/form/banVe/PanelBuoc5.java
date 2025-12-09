@@ -260,6 +260,7 @@ public class PanelBuoc5 extends JPanel {
 		// --- QR Code Display ---
 		lblQRCodeDisplay = new JLabel();
 		lblQRCodeDisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		lblQRCodeDisplay.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 		lblQRCodeDisplay.setPreferredSize(new Dimension(160, 160));
 		lblQRCodeDisplay.setMaximumSize(new Dimension(160, 160));
 		lblQRCodeDisplay.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -296,12 +297,6 @@ public class PanelBuoc5 extends JPanel {
 			lblQRCodeDisplay.setIcon(null);
 			lblQRCodeDisplay.setText("Lỗi tải ảnh");
 		}
-	}
-
-	public void setQRCodePlaceHolder() {
-		lblQRCodeDisplay.setIcon(null);
-		lblQRCodeDisplay.setText("QR Code");
-		lblQRCodeDisplay.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 	}
 
 	private void addInternalLogic() {
@@ -582,6 +577,10 @@ public class PanelBuoc5 extends JPanel {
 
 	public JRadioButton getRadChuyenKhoan() {
 		return radChuyenKhoan;
+	}
+
+	public JRadioButton getRadTienMat() {
+		return radTienMat;
 	}
 
 	public boolean isThanhToanTienMat() {
