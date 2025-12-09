@@ -35,13 +35,12 @@ public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;
-    private BufferedImage backgroundImage;
+    private JLabel lblTrainbanner;
 
     private JTextField txtGaDi;
     private JTextField txtGaDen;
     private JTextField txtTimKiem;
 
-//    private JButton btnTimKiem;
     private JButton btnThemTuyen;
     private JButton btnCapNhatTuyen;
     private JButton btnLamMoiTuyen;
@@ -63,8 +62,6 @@ public class   PanelQuanLyTuyen extends JPanel {
         this.tuyen_bus = new Tuyen_BUS();
         this.nhanVienThucHien = nhanVien;
 
-//        loadAndBlurBackground("img/nenTauLua.jpg");
-
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
 
@@ -74,38 +71,42 @@ public class   PanelQuanLyTuyen extends JPanel {
         JPanel panelNorth = new JPanel(new BorderLayout());
         panelNorth.setOpaque(false);
 
+        Font baseFont = new Font("Segoe UI",Font.PLAIN, 15);
+
         // --- 1. HEADER PANEL ---
         JPanel panelHeader = new JPanel();
         panelHeader.setLayout(new MigLayout("wrap 1, fillx, insets 10 10 5 10"));
-//        panelHeader.setOpaque(false);
+        panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
-        title.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         title.setForeground(new Color(30,41,58));
         panelHeader.add(title, "growx");
 
         //Tìm kiếm
-        JPanel panelSearch = new JPanel(new MigLayout("insets 5 10 10 10, gap 10"));
-//        panelSearch.setOpaque(false);
         Color translucentWhite = new Color(255,255,255,180);
         txtGaDen = new JTextField(15);
         txtGaDen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         txtGaDen.setBackground(translucentWhite);
-//        txtGaDen.setOpaque(false);
+        txtGaDen.setOpaque(false);
+        txtGaDen.setFont(baseFont);
+
         txtGaDi = new JTextField(15);
+        txtGaDi.setFont(baseFont);
         txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga để tìm kiếm tuyến");
         txtGaDen.setBackground(translucentWhite);
-//        txtGaDi.setOpaque(false);
+        txtGaDi.setOpaque(false);
+
         btnLamMoiTuyen = new JButton("(F5) Làm mới tuyến");
         txtTimKiem = new JTextField(10);
+        txtTimKiem.setFont(baseFont);
         txtTimKiem.setBackground(translucentWhite);
-//        txtTimKiem.setOpaque(false);
+        txtTimKiem.setOpaque(false);
         txtTimKiem.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mã tuyến để tìm kiếm tuyến");
-//        btnTimKiem = new JButton("Tìm kiếm");
+
         btnThemTuyen = new JButton("Thêm tuyến");
         btnCapNhatTuyen = new JButton("Cập nhật tuyến");
         setMauBTN();
 
-//        btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.35f));
         btnLamMoiTuyen.setIcon(new FlatSVGIcon("gui/icon/svg/refresh.svg", 0.35f));
         btnLamMoiTuyen.setBackground(new Color(36, 104, 155));
         btnLamMoiTuyen.setForeground(Color.white);
@@ -126,24 +127,24 @@ public class   PanelQuanLyTuyen extends JPanel {
         btnCapNhatTuyen.setForeground(Color.white);
 
 
-       panelSearch = new JPanel(new MigLayout(
+       JPanel panelSearch = new JPanel(new MigLayout(
                 "insets 5 10 10 10, gap 10",
                 "[grow, push][grow, push][][][]",
                 "[]"
         ));
-//       panelSearch.setOpaque(false);
+       panelSearch.setOpaque(false);
+
 
         JPanel col1Panel = new JPanel(new MigLayout(
                 "insets 0, wrap 2, fillx",
                 "[][grow, push]",
                 "[][]"
         ));
-//        col1Panel.setOpaque(false);
-        col1Panel.add(new JLabel("Ga Xuất Phát:"));
+        col1Panel.setOpaque(false);
+        col1Panel.add(new JLabel("Ga Xuất Phát:")).setFont(baseFont);
         col1Panel.add(txtGaDi, "growx");
-        col1Panel.add(new JLabel("Ga Đích:"));
+        col1Panel.add(new JLabel("Ga Đích:")).setFont(baseFont);
         col1Panel.add(txtGaDen, "growx");
-
         panelSearch.add(col1Panel, "grow, pushy");
 
         JPanel col2Panel = new JPanel(new MigLayout(
@@ -151,15 +152,14 @@ public class   PanelQuanLyTuyen extends JPanel {
                 "[][grow, push]",
                 "[]"
         ));
-        col2Panel.setOpaque(false);
-        col2Panel.add(new JLabel("Mã Tuyến:"));
-        col2Panel.add(txtTimKiem, "growx");
 
+        col2Panel.add(new JLabel("Mã Tuyến:")).setFont(baseFont);
+        col2Panel.add(txtTimKiem, "growx");
         panelSearch.add(col2Panel, "growx, pushy, top");
 
         panelSearch.add(btnThemTuyen, "top");
         panelSearch.add(btnCapNhatTuyen, "top");
-        panelSearch.add(btnLamMoiTuyen, "top");
+        panelSearch.add(btnLamMoiTuyen, "top, wrap 10");
 
         panelHeader.add(panelSearch, "growx");
         panelNorth.add(panelHeader, BorderLayout.NORTH);
@@ -176,13 +176,12 @@ public class   PanelQuanLyTuyen extends JPanel {
         };
         tableTuyen = new JTable(tableModelTuyen);
         tableTuyen.setRowHeight(28);
-//        tableTuyen.setOpaque(false);
+        tableTuyen.setFont(baseFont);
 
         JTableHeader hd = tableTuyen.getTableHeader();
-//        hd.setOpaque(false);
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        hd.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        hd.setFont(new Font("Segoe UI", Font.BOLD, 18));
         hd.setBackground(new Color(30,41,58));
         hd.setForeground(Color.white);
 
@@ -197,7 +196,6 @@ public class   PanelQuanLyTuyen extends JPanel {
         }
 
         scrollPane = new JScrollPane(tableTuyen);
-//        scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -265,36 +263,10 @@ public class   PanelQuanLyTuyen extends JPanel {
 
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
-            btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+            btn.setFont(btn.getFont().deriveFont(Font.BOLD, 15f));
         }
     }
 
-//    private void loadAndBlurBackground(String imagePath){
-//        try{
-//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
-//            if(originalImage != null){
-//               GaussianFilter blurFilter = new GaussianFilter();
-//                blurFilter.setRadius(10.0f);
-//
-//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
-//                blurFilter.filter(originalImage, backgroundImage);
-//            }
-//        }catch (IOException e){
-//            System.err.println("Lỗi: Không thể tải file ảnh. Đường dẫn có đúng không?: " + imagePath);
-//            backgroundImage = null;
-//        }catch (Exception e){
-//            System.err.println("Lỗi khi làm mờ ảnh: " + e.getMessage());
-//            backgroundImage = null;
-//        }
-//    }
-
-    @Override
-    protected void paintComponent(Graphics g){
-        super.paintComponent(g);
-        if(backgroundImage != null){
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
-    }
 
     public JTable getTableTuyen(){
         return tableTuyen;

@@ -152,7 +152,7 @@ public class Tuyen_BUS {
         sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
         sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
         sb.append("Khoảng cách từ ga xuất phát đến ga đích: ").append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");
-        sb.append("\n Danh sách các ga trung gian trên tuyến:\n");
+        sb.append("\n Danh sách các ga trung gian trên tuyến:");
 
         return sb.toString();
     }

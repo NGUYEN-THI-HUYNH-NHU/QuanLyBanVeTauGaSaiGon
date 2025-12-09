@@ -134,6 +134,9 @@ public class QuanLyTuyen_CTRL {
 
         if(row == -1) return;
 
+        Font baseFont = new Font("Segoe UI", Font.PLAIN, 15);
+        Font boldHeaderFont = baseFont.deriveFont(Font.BOLD, 25f);
+
         int modelRow = table.convertRowIndexToModel(row);
         String tuyenID = table.getValueAt(modelRow, 0).toString();
         String thongTinChung = tuyen_bus.getChiTietTuyen(tuyenID);
@@ -146,6 +149,8 @@ public class QuanLyTuyen_CTRL {
 
         JTextArea txtThongTinCHung = new JTextArea(thongTinChung);
         txtThongTinCHung.setEditable(false);
+        txtThongTinCHung.setFont(baseFont);
+
         txtThongTinCHung.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
         String[] columnNames = { "Tên Ga", "Loại Ga", "Khoảng cách từ ga xuất phát (km)"};
@@ -156,11 +161,13 @@ public class QuanLyTuyen_CTRL {
 
         JTable detailTable = new JTable(detailModel);
         detailTable.setFillsViewportHeight(true);
-        detailTable.setRowHeight(25);
+        detailTable.setRowHeight(30);
         detailTable.setShowGrid(true);
+        detailTable.setFont(baseFont);
         detailTable.setShowHorizontalLines(true);
         detailTable.setShowVerticalLines(true);
         JTableHeader hd = detailTable.getTableHeader();
+        hd.setFont(boldHeaderFont);
 //        hd.setOpaque(false);
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
         headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
