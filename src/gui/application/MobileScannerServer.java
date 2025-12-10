@@ -18,7 +18,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
 
@@ -45,18 +47,21 @@ public class MobileScannerServer {
 
 	public void startServer() {
 		try {
-			// Cổng 8888 (Khớp với Ngrok)
+			// Port 8080 (Khớp Ngrok)
 			server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-			// Trang chủ: Chỉ hiện Form Upload đơn giản
+			// 1. Giao diện Web Upload Ảnh (Backup)
 			server.createContext("/", new IndexHandler());
-
-			// Xử lý Upload: Nhận Form Data
 			server.createContext("/upload", new UploadHandler());
+
+			// 2. API MỚI: Nhận Text trực tiếp từ App ngoài
+			// App sẽ gọi vào: https://...ngrok.../api/scan?code=MA_VE
+			server.createContext("/api/scan", new ApiScanHandler());
 
 			server.setExecutor(null);
 			server.start();
-			System.out.println(">>> Server Mobile (HTML Form Mode) đang chạy port 8888...");
+			System.out.println(">>> Server Mobile đang chạy port 8080...");
+			System.out.println(">>> API cho App ngoài: /api/scan?code=...");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -65,6 +70,114 @@ public class MobileScannerServer {
 	public void stopServer() {
 		if (server != null) {
 			server.stop(0);
+		}
+	}
+
+	// --- XỬ LÝ LOGIC & FORMAT VĂN BẢN (KHÔNG EMOJI) ---
+	private String processTicket(String rawCode) {
+		// 1. Lấy ID
+		String veID = extractIdFlexible(rawCode);
+
+		if (veID != null && !veID.isEmpty()) {
+			// 2. Lấy thông tin từ DB
+			Ve ve = veDAO.getVeByVeID(veID);
+
+			if (ve == null) {
+				return "[ ! ] MA KHONG TON TAI\n" + "----------------------\n" + "ID: " + veID;
+			} else {
+				TrangThaiVe status = ve.getTrangThai();
+
+				// Lấy thông tin & Chuẩn hóa
+				String ngayGioDi = ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
+				String hoTen = ve.getKhachHang().getHoTen().toUpperCase();
+				String cccd = ve.getKhachHang().getSoGiayTo();
+				String tauID = ve.getGhe().getToa().getTau().getTauID();
+				int soToa = ve.getGhe().getToa().getSoToa();
+				int soGhe = ve.getGhe().getSoGhe();
+
+				// --- TRƯỜNG HỢP 1: VÉ HỢP LỆ ---
+				if (status == TrangThaiVe.DA_BAN) {
+					boolean updateSuccess = veDAO.updateTrangThaiVe(veID, TrangThaiVe.DA_DUNG);
+
+					if (updateSuccess) {
+						return "[ HOP LE - MOI QUA ]\n" + "================================\n" + "Ma ve: " + veID + "\n"
+								+ "Ngay gio di: " + veID + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd + "\n"
+								+ "Tau:   " + tauID + " | Toa: " + soToa + "\n" + "Ghe:   " + soGhe + "\n"
+								+ "================================";
+					} else {
+						return "(!) LOI CAP NHAT DATABASE";
+					}
+				}
+				// --- TRƯỜNG HỢP 2: VÉ ĐÃ DÙNG ---
+				else if (status == TrangThaiVe.DA_DUNG) {
+					return "(!) CANH BAO: VE DA DUNG\n" + "--------------------------------\n" + "Ma ve: " + veID + "\n"
+							+ "Khach: " + hoTen + "\n" + "Luu y: Ve nay da quet truoc do.";
+				}
+				// --- TRƯỜNG HỢP 3: VÉ ĐÃ HỦY ---
+				else {
+					return "[ X ] VE KHONG HOP LE\n" + "--------------------------------\n" + "Trang thai: " + status
+							+ "\n" + "Ma ve: " + veID + "\n" + "Khach: " + hoTen;
+				}
+			}
+		}
+		return "(!) LOI DINH DANG QR";
+	}
+
+	class ApiScanHandler implements HttpHandler {
+		@Override
+		public void handle(HttpExchange t) throws IOException {
+			String responseText = "LOI";
+			try {
+				// 1. Dùng getRawQuery() để lấy y nguyên những gì Shortcut gửi (kể cả ký tự lạ)
+				String rawQuery = t.getRequestURI().getRawQuery();
+				System.out.println(">> URL Query nhận được: " + rawQuery); // Debug xem iPhone gửi gì
+
+				String rawCode = null;
+
+				if (rawQuery != null) {
+					// 2. Tự tách chuỗi thủ công để an toàn nhất
+					String[] pairs = rawQuery.split("&");
+					for (String pair : pairs) {
+						// Tìm vị trí dấu = đầu tiên
+						int idx = pair.indexOf("=");
+						if (idx > 0) {
+							String key = pair.substring(0, idx);
+							// Giải mã Key (phòng trường hợp key bị encode)
+							key = URLDecoder.decode(key, StandardCharsets.UTF_8);
+
+							if ("code".equals(key)) {
+								// Lấy phần giá trị (từ sau dấu = đến hết)
+								String value = pair.substring(idx + 1);
+								// Giải mã Value (đây là bước quan trọng để biến %7B thành {)
+								rawCode = URLDecoder.decode(value, StandardCharsets.UTF_8);
+								break;
+							}
+						}
+					}
+				}
+
+				if (rawCode != null && !rawCode.isEmpty()) {
+					System.out.println(">> Mã vé giải mã được: " + rawCode);
+
+					// 3. Xử lý nghiệp vụ (Hàm này đã có sẵn logic tách ID từ JSON)
+					responseText = processTicket(rawCode);
+				} else {
+					responseText = "KHONG TIM THAY THAM SO 'CODE'";
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				responseText = "LOI SERVER: " + e.toString();
+			}
+
+			// Trả về kết quả dạng Text
+			t.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
+			byte[] bytes = responseText.getBytes(StandardCharsets.UTF_8);
+			t.sendResponseHeaders(200, bytes.length);
+			try (OutputStream os = t.getResponseBody()) {
+				os.write(bytes);
+				os.flush();
+			}
 		}
 	}
 
@@ -79,10 +192,10 @@ public class MobileScannerServer {
 
 			if (query != null && query.contains("msg=")) {
 				String rawMsg = query.split("msg=")[1];
-				String decodedMsg = java.net.URLDecoder.decode(rawMsg, StandardCharsets.UTF_8);
+				String decodedMsg = URLDecoder.decode(rawMsg, StandardCharsets.UTF_8);
 
 				if (decodedMsg.startsWith("OK")) {
-					msg = "✅ " + decodedMsg.substring(3); // Bỏ chữ OK_
+					msg = "✅ " + decodedMsg.substring(3);
 					msgClass = "valid";
 				} else {
 					msg = "❌ " + decodedMsg;
@@ -120,8 +233,8 @@ public class MobileScannerServer {
 					+ "<p><b>BƯỚC 1:</b> Chọn hoặc Chụp ảnh</p>"
 					+ "<input type='file' name='file' accept='image/*' capture='environment' required>" +
 
-					"<p><b>BƯỚC 2:</b> Bấm Gửi</p>" + "<input type='submit' value='🚀 GỬI ẢNH ĐI'>" + "</form>"
-					+ "</div>" +
+					"<p><b>BƯỚC 2:</b> Bấm Gửi</p>" + "<input type='submit' value='GỬI ẢNH ĐI'>" + "</form>" + "</div>"
+					+
 
 					"<p style='color:#666; font-size:12px'>Sử dụng công nghệ HTML Form Native.<br>Tương thích mọi thiết bị.</p>"
 					+ "</body></html>";
@@ -270,4 +383,5 @@ public class MobileScannerServer {
 		}
 		return null;
 	}
+
 }

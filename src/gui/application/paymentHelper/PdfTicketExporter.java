@@ -159,7 +159,8 @@ public class PdfTicketExporter {
 			// A. Tạo nội dung chuỗi QR
 			// Tạo chuỗi JSON thủ công
 			String qrContent = "{" + "\"id\":\"" + ticket.getVe().getVeID() + "\"," + "\"trangThai\":\"" + "TODO"
-					+ "\"," + "\"tau\":\"" + ticket.getVe().getGhe().getToa().getTau().getTauID() + "\","
+					+ "\"," + "\"tau\":\"" + ticket.getVe().getGhe().getToa().getTau().getTauID() + "\"," + "\"toa\":\""
+					+ ticket.getVe().getGhe().getToa().getSoToa() + "\"," + "\"ghe\":\"" + ticket.getSoGhe() + "\","
 					+ "\"cccd\":\"" + ticket.getVe().getKhachHang().getSoGiayTo() + "\"," + "\"hoTen\":\""
 					+ ticket.getVe().getKhachHang().getHoTen() + "\"" + "}";
 
