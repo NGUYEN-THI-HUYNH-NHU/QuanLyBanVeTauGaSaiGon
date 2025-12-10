@@ -30,7 +30,7 @@ import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
-import gui.application.paymenthelper.NgrokRunner;
+import gui.application.paymentHelper.NgrokRunner;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -104,6 +104,13 @@ public class UngDung extends JFrame {
 		UIManager.put("PasswordField.showRevealButton", true);
 		FlatMacLightLaf.setup();
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
+
+		try {
+			MobileScannerServer mobileServer = new MobileScannerServer();
+			mobileServer.startServer();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

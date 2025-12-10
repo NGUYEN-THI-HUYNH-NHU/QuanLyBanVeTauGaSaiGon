@@ -1,4 +1,4 @@
-package gui.application.paymenthelper;
+package gui.application.paymentHelper;
 /*
  * @(#) PaymentCallbackServer.java  1.0  [5:12:27 PM] Dec 5, 2025
  *

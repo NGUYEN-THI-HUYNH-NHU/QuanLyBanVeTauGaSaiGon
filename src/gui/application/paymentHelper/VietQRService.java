@@ -1,4 +1,4 @@
-package gui.application.paymenthelper;
+package gui.application.paymentHelper;
 /*
  * @(#) VietQRService.java  1.0  [5:40:47 PM] Dec 5, 2025
  *
@@ -24,6 +24,7 @@ public class VietQRService {
 	// Mã ngân hàng (Tra cứu tại: https://api.vietqr.io/v2/banks)
 	// Ví dụ: MB, VCB (Vietcombank), TCB (Techcombank), ACB, BIDV, v.v.
 	private static final String MY_BANK_CODE = "ICB";
+
 	// Số tài khoản
 	private static final String MY_ACCOUNT_NUMBER = "107879609064";
 	// Giao diện QR: "compact" (gọn), "print" (đầy đủ), "qr_only" (chỉ mã)

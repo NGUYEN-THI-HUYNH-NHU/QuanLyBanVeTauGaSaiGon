@@ -1,4 +1,4 @@
-package gui.application.paymenthelper;
+package gui.application.paymentHelper;
 /*
  * @(#) CassoWebhookServer.java  1.0  [4:27:14 PM] Dec 7, 2025
  *

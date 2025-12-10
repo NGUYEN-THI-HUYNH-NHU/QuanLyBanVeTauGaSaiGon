@@ -1,4 +1,4 @@
-package gui.application.paymenthelper;
+package gui.application.paymentHelper;
 /*
  * @(#) ConfigManager.java  1.0  [11:35:59 PM] Dec 4, 2025
  *
