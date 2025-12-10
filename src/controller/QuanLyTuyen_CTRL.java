@@ -307,7 +307,6 @@ public class QuanLyTuyen_CTRL {
             }
         });
 
-        // Ẩn popup khi mất focus
         txt.addFocusListener(new java.awt.event.FocusAdapter() {
             @Override
             public void focusLost(java.awt.event.FocusEvent e) {

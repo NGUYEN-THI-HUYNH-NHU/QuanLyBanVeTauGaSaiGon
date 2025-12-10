@@ -24,6 +24,10 @@ public class ChuyenGa {
 	private LocalDate ngayDi;
 	private LocalTime gioDi;
 
+	public ChuyenGa() {
+		super();
+	}
+
 	public ChuyenGa(Chuyen chuyen, Ga ga, int thuTu, LocalDate ngayDen, LocalTime gioDen, LocalDate ngayDi,
 			LocalTime gioDi) {
 		super();

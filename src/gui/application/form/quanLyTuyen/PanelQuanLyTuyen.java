@@ -11,13 +11,10 @@ package gui.application.form.quanLyTuyen;/*
 import bus.Tuyen_BUS;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.jhlabs.image.GaussianFilter;
 import controller.QuanLyTuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
-import com.jhlabs.image.BlurFilter;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -26,16 +23,12 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class   PanelQuanLyTuyen extends JPanel {
     private final Tuyen_BUS tuyen_bus;
 
     private final NhanVien nhanVienThucHien;
-    private JLabel lblTrainbanner;
 
     private JTextField txtGaDi;
     private JTextField txtGaDen;
@@ -177,6 +170,12 @@ public class   PanelQuanLyTuyen extends JPanel {
         tableTuyen = new JTable(tableModelTuyen);
         tableTuyen.setRowHeight(28);
         tableTuyen.setFont(baseFont);
+
+         tableTuyen.getColumnModel().getColumn(0).setPreferredWidth(100);
+         tableTuyen.getColumnModel().getColumn(1).setPreferredWidth(100);
+         tableTuyen.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tableTuyen.getColumnModel().getColumn(3).setPreferredWidth(600);
+        tableTuyen.getColumnModel().getColumn(4).setPreferredWidth(150);
 
         JTableHeader hd = tableTuyen.getTableHeader();
         DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();

@@ -28,6 +28,10 @@ public class Chuyen {
 	private int soChoDat;
 	private int soChoTrong;
 
+	private String tenChuyenHienThi;
+	private String gaDiHienThi;
+	private String gaDenHienThi;
+
 	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen,
 			LocalTime gioDen, int soChoDat, int soChoTrong) {
 		super();
@@ -111,8 +115,8 @@ public class Chuyen {
 	}
 
 	public void setNgayDi(LocalDate ngayDi) {
-		if (ngayDi == null || ngayDi.isBefore(LocalDate.now())) {
-			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
+		if (ngayDi == null) {
+			throw new IllegalArgumentException("Ngày đi không được rỗng");
 		}
 		this.ngayDi = ngayDi;
 	}
@@ -138,9 +142,6 @@ public class Chuyen {
 	}
 
 	public void setNgayDen(LocalDate ngayDen) {
-		if (ngayDen == null || ngayDen.isBefore(LocalDate.now())) {
-			throw new IllegalArgumentException("Ngày đi không được rỗng và phải là ngày trong tương lai");
-		}
 		this.ngayDen = ngayDen;
 	}
 
@@ -154,9 +155,9 @@ public class Chuyen {
 	}
 
 	public void setGioDen(LocalTime gioDen) {
-		if (gioDen == null || gioDen.isBefore(LocalTime.of(0, 0)) || gioDen.isAfter(LocalTime.of(23, 59))) {
-			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
-		}
+//		if (gioDen == null || gioDen.isBefore(LocalTime.of(0, 0)) || gioDen.isAfter(LocalTime.of(23, 59))) {
+//			throw new IllegalArgumentException("Giờ đi phải >= 0 và <= 23");
+//		}
 		this.gioDen = gioDen;
 	}
 
@@ -196,5 +197,29 @@ public class Chuyen {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(chuyenID);
+	}
+
+	public String getTenChuyenHienThi(){
+		return tenChuyenHienThi;
+	}
+
+	public void setTenChuyenHienThi(String tenChuyenHienThi) {
+		this.tenChuyenHienThi = tenChuyenHienThi;
+	}
+
+	public String getGaDiHienThi() {
+		return gaDiHienThi;
+	}
+
+	public void setGaDiHienThi(String gaDiHienThi) {
+		this.gaDiHienThi = gaDiHienThi;
+	}
+
+	public String getGaDenHienThi() {
+		return gaDenHienThi;
+	}
+
+	public void setGaDenHienThi(String gaDenHienThi) {
+		this.gaDenHienThi = gaDenHienThi;
 	}
 }
