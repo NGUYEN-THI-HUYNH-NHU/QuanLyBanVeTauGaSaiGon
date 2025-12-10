@@ -1,179 +1,206 @@
 package gui.application.form.thongKe;
 
-import dao.ThongKeKhachHang_DAO; // <<< DAO MỚI
-import dao.ThongKeKhachHang_DAO.KhachHangRFM; // <<< Lớp Item MỚI
-// JFreeChart (Pie Chart)
+import dao.ThongKeKhachHang_DAO;
+import dao.ThongKeKhachHang_DAO.KhachHangRFM;
+
+// --- JFreeChart (Biểu đồ) ---
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
-// Apache POI
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-// Swing, AWT, Calendar
-import com.toedter.calendar.JDateChooser;
 import org.jfree.data.general.DefaultPieDataset;
 
+// --- Apache POI (Xuất Excel) ---
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+// --- Swing & AWT ---
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 /**
- * Panel hiển thị thống kê Khách hàng (RFM).
+ * Panel Thống kê Khách hàng & Phân tích RFM (Recency - Frequency - Monetary).
+ * Tính năng:
+ * - Lọc theo thời gian, đối tượng.
+ * - Phân loại 5 nhóm: VIP, Thân thiết, Quay lại (2-4 lần), Mới, Ngủ đông.
+ * - Xuất Excel chuẩn định dạng .xlsx.
  */
 public class PanelThongKeKhachHang extends JPanel {
 
-    // ===== DAO =====
     private final ThongKeKhachHang_DAO thongKeKHDao;
-
-    // Logger
     private static final Logger LOGGER = Logger.getLogger(PanelThongKeKhachHang.class.getName());
 
-    // ===== Định dạng =====
+    // Định dạng dữ liệu hiển thị
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // ===== Các thành phần lọc =====
+    // ===== Components Lọc Thời Gian =====
+    private final JComboBox<String> cbLoaiThoiGian;
     private final JDateChooser tuNgay;
     private final JDateChooser denNgay;
-    private final JComboBox<String> cbKhuVuc;
-    private final JComboBox<String> cbLoaiDoiTuong;
-    private final JComboBox<String> cbPhanLoai; // (VIP, Mới,...)
-    private final JButton btnTimKiem;
+    private final JComboBox<String> cbTuThang;
+    private final JComboBox<String> cbDenThang;
+    private final JComboBox<Integer> cbTuNamThang;
+    private final JComboBox<Integer> cbDenNamThang;
+    private final JComboBox<Integer> cbTuNam;
+    private final JComboBox<Integer> cbDenNam;
+    private final JPanel filterSwitcher;
+    private static final String CARD_TATCA = "CARD_TATCA";
+    private static final String CARD_NGAY = "CARD_NGAY";
+    private static final String CARD_THANG = "CARD_THANG";
+    private static final String CARD_NAM = "CARD_NAM";
 
-    // ===== Các JLabel chứa giá trị trên card =====
+    // ===== Components Lọc Nghiệp Vụ =====
+    private final JComboBox<String> cbLoaiDoiTuong;
+    private final JComboBox<String> cbPhanLoai;
+
+    // ===== Nút bấm =====
+    private final JButton btnTimKiem;
+    private final JButton btnXoaBoLoc;
+
+    // ===== Labels Card (Thẻ hiển thị số liệu tổng) =====
     private final JLabel lblTongKhachHangValue;
     private final JLabel lblKhachHangMoiValue;
-    private final JLabel lblKhachHangQuayLaiValue;
+    private final JLabel lblKhachHangQuayLaiValue; // Target chính: 2-4 lần
     private final JLabel lblTongDoanhThuValue;
 
-    // ===== Biểu đồ & Bảng =====
-    private final JPanel chartPanelContainer; // Chứa biểu đồ tròn
+    // ===== Bảng & Biểu đồ =====
+    private final JPanel chartPanelContainer;
     private final JTable tableChiTiet;
     private final DefaultTableModel chiTietTableModel;
     private final JLabel lblChiTietTitle;
     private final JButton btnExportExcel;
 
-    // ===== Lớp chứa kết quả thống kê =====
+    // ===== Struct chứa kết quả thống kê (Dùng cho SwingWorker) =====
     private static class ThongKeKHResult {
-        Map<String, KhachHangRFM> chiTietKhachHang; // Dữ liệu chính
-        // Dữ liệu tổng hợp (tính từ chiTietKhachHang)
+        Map<String, KhachHangRFM> chiTietKhachHang;
         int tongSoKhachHang;
-        int soKhachHangMoi;
-        int soKhachHangQuayLai;
         double tongDoanhThu;
+
+        // Số lượng từng nhóm
+        long countVIP;
+        long countThanThiet;
+        long countQuayLai; // Nhóm xương sống (2-4 lần)
+        long countMoi;
+        long countNguDong;
     }
 
     public PanelThongKeKhachHang() {
         this.thongKeKHDao = new ThongKeKhachHang_DAO();
 
-        // Khởi tạo components
+        // 1. Khởi tạo Components
+        cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
         tuNgay = new JDateChooser();
         denNgay = new JDateChooser();
-        cbKhuVuc = new JComboBox<>(new String[]{"Tất cả"});
-        cbLoaiDoiTuong = new JComboBox<>(new String[]{"Tất cả"});
-        cbPhanLoai = new JComboBox<>(new String[]{"Tất cả", "VIP", "Thân thiết", "Khách mới", "Ngủ đông", "Khách quay lại"});
-        btnTimKiem = new JButton("Tìm kiếm");
+        cbTuThang = new JComboBox<>(); cbDenThang = new JComboBox<>();
+        cbTuNamThang = new JComboBox<>(); cbDenNamThang = new JComboBox<>();
+        cbTuNam = new JComboBox<>(); cbDenNam = new JComboBox<>();
+        filterSwitcher = new JPanel(new CardLayout());
 
-        // Khởi tạo labels
+        cbLoaiDoiTuong = new JComboBox<>(new String[]{"Tất cả"});
+        // Combo box lọc trạng thái khách hàng
+        cbPhanLoai = new JComboBox<>(new String[]{"Tất cả", "VIP", "Thân thiết", "Khách quay lại", "Khách mới", "Ngủ đông"});
+
+        btnTimKiem = new JButton("Tìm kiếm");
+        btnXoaBoLoc = new JButton("Xóa bộ lọc");
+        setupButtons();
+
+        // Khởi tạo label giá trị
         lblTongKhachHangValue = createValueLabel("...");
         lblKhachHangMoiValue = createValueLabel("...");
         lblKhachHangQuayLaiValue = createValueLabel("...");
         lblTongDoanhThuValue = createValueLabel("...");
 
-        // --- Cấu hình Layout chính ---
+        // 2. Layout Chính
         setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                        "THỐNG KÊ KHÁCH HÀNG",
+                        javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
+                        new Font("Arial", Font.BOLD, 16), new Color(0, 110, 185)
+                ), new EmptyBorder(5, 5, 5, 5)));
 
-        // --- Tiêu đề (TitledBorder) ---
-        javax.swing.border.Border lineBorder = BorderFactory.createLineBorder(new Color(200, 200, 200), 1);
-        javax.swing.border.Border titledBorder = BorderFactory.createTitledBorder(
-                lineBorder, "Thống kê khách hàng",
-                javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP,
-                new Font("Arial", Font.BOLD, 16), new Color(0, 110, 185)
-        );
-        setBorder(BorderFactory.createCompoundBorder(titledBorder, new EmptyBorder(5, 5, 5, 5)));
-
-        // ===== Khu vực NORTH: Thanh lọc và Cards =====
-        JPanel topPanel = new JPanel(new BorderLayout(0, 15));
+        // 3. Top Panel (Bộ lọc + Cards Thông tin)
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
 
-        // --- Thanh lọc ---
-        topPanel.add(buildFilterBar(), BorderLayout.NORTH);
+        topPanel.add(buildFilterBar()); // Thanh lọc
 
-        // --- Cards tổng quan (4 card) ---
-        JPanel infoWrapper = new JPanel(new GridLayout(1, 4, 15, 15)); // 1 hàng, 4 cột
+        JSeparator sep = new JSeparator(SwingConstants.HORIZONTAL);
+        sep.setForeground(new Color(180, 180, 180));
+        topPanel.add(Box.createVerticalStrut(10));
+        topPanel.add(sep);
+        topPanel.add(Box.createVerticalStrut(15));
+
+        // --- CARDS TỔNG QUAN ---
+        JPanel infoWrapper = new JPanel(new GridLayout(1, 4, 20, 20));
         infoWrapper.setOpaque(false);
-        infoWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        infoWrapper.add(createCard("Tổng số khách hàng (trong kỳ)", lblTongKhachHangValue, new Color(52, 152, 219)));
-        infoWrapper.add(createCard("Khách hàng mới (trong kỳ)", lblKhachHangMoiValue, new Color(46, 204, 113)));
-        infoWrapper.add(createCard("Khách hàng quay lại (trong kỳ)", lblKhachHangQuayLaiValue, new Color(155, 89, 182)));
-        infoWrapper.add(createCard("Tổng doanh thu (từ nhóm này)", lblTongDoanhThuValue, new Color(243, 156, 18)));
+        infoWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 5));
 
-        topPanel.add(infoWrapper, BorderLayout.CENTER);
+        infoWrapper.add(createCard("Tổng Khách Hàng", lblTongKhachHangValue, new Color(52, 73, 94)));
+        infoWrapper.add(createCard("Khách Hàng Mới", lblKhachHangMoiValue, new Color(46, 204, 113)));
+        infoWrapper.add(createCard("Khách Quay Lại", lblKhachHangQuayLaiValue, new Color(41, 128, 185)));
+        infoWrapper.add(createCard("Tổng Doanh Thu", lblTongDoanhThuValue, new Color(243, 156, 18)));
+
+        topPanel.add(infoWrapper);
         add(topPanel, BorderLayout.NORTH);
 
-        // ===== Khu vực CENTER: Tabs biểu đồ & chi tiết =====
+        // 4. Center Panel (Biểu đồ + Bảng)
         JTabbedPane tab = new JTabbedPane();
         tab.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+
+        // Tab 1: Biểu đồ
         chartPanelContainer = taoPanelTongQuan();
 
-        // --- Tạo Table Model ---
+        // Tab 2: Bảng chi tiết
         String[] columnNames = {
                 "Mã KH", "Tên Khách Hàng", "Khu Vực", "Loại Đối Tượng",
                 "Số Lần Mua", "Tổng Chi Tiêu (VNĐ)", "Lần Mua Cuối", "Phân Loại"
         };
+        // TableModel lưu trữ đúng kiểu dữ liệu (Double, Integer) để sort và format
         chiTietTableModel = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return switch (columnIndex) {
-                    case 4 -> Integer.class; // Số Lần Mua
-                    case 5 -> Double.class; // Tổng Chi Tiêu
-                    default -> String.class;
-                };
+            @Override public Class<?> getColumnClass(int columnIndex) {
+                if (columnIndex == 4) return Integer.class; // Số lần mua
+                if (columnIndex == 5) return Double.class;  // Tiền
+                return String.class;
             }
         };
         tableChiTiet = new JTable(chiTietTableModel);
-        setupTableDetails();
+        setupTableDetails(); // Cài đặt render màu sắc, định dạng tiền
 
-        // --- Tạo Panel Chi Tiết ---
-        lblChiTietTitle = new JLabel("Chi tiết khách hàng", JLabel.CENTER);
+        lblChiTietTitle = new JLabel("Chi tiết danh sách khách hàng", JLabel.CENTER);
         lblChiTietTitle.setFont(new Font("Times New Roman", Font.BOLD, 16));
         lblChiTietTitle.setBorder(new EmptyBorder(5, 0, 10, 0));
 
@@ -195,229 +222,164 @@ public class PanelThongKeKhachHang extends JPanel {
 
         add(tab, BorderLayout.CENTER);
 
-        // ===== Load dữ liệu ban đầu =====
+        // Load dữ liệu ban đầu
         loadComboBoxesData();
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    /**
-     * Xây dựng panel lọc, sử dụng GridBagLayout.
-     */
-    private JPanel buildFilterBar() {
-        JPanel bar = new JPanel();
-        bar.setOpaque(false);
-        bar.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.anchor = GridBagConstraints.WEST;
-
-        // === Hàng 0: Lọc thời gian ===
-        gbc.gridx = 0; gbc.gridy = 0;
-        bar.add(new JLabel("Từ ngày:"), gbc);
-        gbc.gridx = 1;
-        tuNgay.setPreferredSize(new Dimension(120, 30));
-        tuNgay.setDate(Date.from(LocalDate.now().minusMonths(6).atStartOfDay(ZoneId.systemDefault()).toInstant())); // Mặc định 6 tháng trước
-        bar.add(tuNgay, gbc);
-
-        gbc.gridx = 2;
-        bar.add(new JLabel("Đến ngày:"), gbc);
-        gbc.gridx = 3;
-        denNgay.setPreferredSize(new Dimension(120, 30));
-        denNgay.setDate(new Date()); // Mặc định hôm nay
-        bar.add(denNgay, gbc);
-
-        // === Hàng 1: Lọc nghiệp vụ ===
-        gbc.gridx = 0; gbc.gridy = 1;
-        bar.add(new JLabel("Khu vực:"), gbc);
-        gbc.gridx = 1;
-        cbKhuVuc.setPreferredSize(new Dimension(120, 30));
-        bar.add(cbKhuVuc, gbc);
-
-        gbc.gridx = 2;
-        bar.add(new JLabel("Loại đối tượng:"), gbc);
-        gbc.gridx = 3;
-        cbLoaiDoiTuong.setPreferredSize(new Dimension(120, 30));
-        bar.add(cbLoaiDoiTuong, gbc);
-
-        gbc.gridx = 4;
-        bar.add(new JLabel("Phân loại:"), gbc);
-        gbc.gridx = 5;
-        cbPhanLoai.setPreferredSize(new Dimension(120, 30));
-        bar.add(cbPhanLoai, gbc);
-
-        // === Nút Tìm kiếm ===
-        btnTimKiem.setBackground(new Color(103, 194, 103));
+    private void setupButtons() {
+        Dimension btnSize = new Dimension(120, 32);
+        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
+        btnTimKiem.setBackground(new Color(33, 150, 83));
         btnTimKiem.setForeground(Color.WHITE);
-        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 14));
-        btnTimKiem.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnTimKiem.setPreferredSize(new Dimension(120, 40));
-
-        gbc.gridx = 6; gbc.gridy = 0; // Cột cuối
-        gbc.gridheight = 2; // Cao 2 hàng
-        gbc.fill = GridBagConstraints.VERTICAL;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.weightx = 1.0; // Đẩy nút về bên phải
-        gbc.insets = new Insets(5, 15, 5, 5);
-        bar.add(btnTimKiem, gbc);
-
-        // Gắn sự kiện
+        btnTimKiem.setPreferredSize(btnSize);
         btnTimKiem.addActionListener(e -> xuLyThongKe());
 
+        btnXoaBoLoc.setFont(new Font("Arial", Font.BOLD, 13));
+        btnXoaBoLoc.setBackground(new Color(108, 117, 125));
+        btnXoaBoLoc.setForeground(Color.WHITE);
+        btnXoaBoLoc.setPreferredSize(btnSize);
+        btnXoaBoLoc.addActionListener(e -> xoaBoLoc());
+    }
+
+    // --- Các hàm dựng giao diện bộ lọc (Giữ nguyên logic cũ nhưng làm gọn) ---
+    private JPanel buildFilterBar() {
+        JPanel bar = new JPanel(new GridBagLayout());
+        bar.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 10, 6, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Hàng 1: Thời gian
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.0;
+        bar.add(new JLabel("Loại thời gian:"), gbc);
+        gbc.gridx = 1;
+        cbLoaiThoiGian.setPreferredSize(new Dimension(180, 32));
+        bar.add(cbLoaiThoiGian, gbc);
+        gbc.gridx = 2; gbc.weightx = 1.0;
+        filterSwitcher.setOpaque(false);
+        filterSwitcher.add(buildTatCaFilter(), CARD_TATCA);
+        filterSwitcher.add(buildNgayFilter(), CARD_NGAY);
+        filterSwitcher.add(buildThangFilter(), CARD_THANG);
+        filterSwitcher.add(buildNamFilter(), CARD_NAM);
+        bar.add(filterSwitcher, gbc);
+        gbc.gridx = 3; gbc.weightx = 0.0;
+        bar.add(btnXoaBoLoc, gbc);
+
+        // Hàng 2: Nghiệp vụ
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        row2.setOpaque(false);
+        row2.add(new JLabel("Loại đối tượng:"));
+        cbLoaiDoiTuong.setPreferredSize(new Dimension(150, 32));
+        row2.add(cbLoaiDoiTuong);
+        row2.add(new JLabel("Phân loại:"));
+        cbPhanLoai.setPreferredSize(new Dimension(150, 32));
+        row2.add(cbPhanLoai);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 3; gbc.weightx = 1.0; gbc.anchor = GridBagConstraints.WEST;
+        bar.add(row2, gbc);
+        gbc.gridx = 3; gbc.gridy = 1; gbc.gridwidth = 1; gbc.weightx = 0.0; gbc.anchor = GridBagConstraints.EAST;
+        bar.add(btnTimKiem, gbc);
+
+        // Sự kiện đổi loại thời gian
+        cbLoaiThoiGian.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                CardLayout cl = (CardLayout) filterSwitcher.getLayout();
+                switch ((String) e.getItem()) {
+                    case "Theo ngày" -> cl.show(filterSwitcher, CARD_NGAY);
+                    case "Theo tháng" -> cl.show(filterSwitcher, CARD_THANG);
+                    case "Theo năm" -> cl.show(filterSwitcher, CARD_NAM);
+                    default -> cl.show(filterSwitcher, CARD_TATCA);
+                }
+            }
+        });
+        ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
         return bar;
     }
 
-    /**
-     * Tải dữ liệu cho các JComboBox (Khu Vực, Loại Đối Tượng)
-     */
-    private void loadComboBoxesData() {
-        // Tải Khu Vực
-        try {
-            List<String> khuVucList = thongKeKHDao.getDanhSachKhuVuc();
-            cbKhuVuc.removeAllItems();
-            cbKhuVuc.addItem("Tất cả");
-            for (String kv : khuVucList) {
-                if (kv != null && !kv.trim().isEmpty()) {
-                    cbKhuVuc.addItem(kv);
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "Lỗi khi tải danh sách khu vực", e);
-            cbKhuVuc.addItem("Lỗi CSDL");
-        }
+    // Các hàm phụ trợ dựng Panel thời gian (Giản lược để code ngắn gọn)
+    private JPanel buildTatCaFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); p.setOpaque(false); p.add(new JLabel("Toàn bộ thời gian")); return p; }
+    private JPanel buildNgayFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false); tuNgay.setDateFormatString("dd/MM/yyyy"); denNgay.setDateFormatString("dd/MM/yyyy"); tuNgay.setDate(new Date()); denNgay.setDate(new Date()); p.add(new JLabel("Từ:")); p.add(tuNgay); p.add(new JLabel("Đến:")); p.add(denNgay); return p; }
+    private JPanel buildThangFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); p.setOpaque(false);
+        if(cbTuThang.getItemCount()==0) { for(int i=1;i<=12;i++) {cbTuThang.addItem("Tháng "+i); cbDenThang.addItem("Tháng "+i);} int y=Calendar.getInstance().get(Calendar.YEAR); for(int i=2020;i<=y+2;i++){cbTuNamThang.addItem(i); cbDenNamThang.addItem(i);} cbTuThang.setSelectedIndex(0); cbDenThang.setSelectedIndex(11); cbTuNamThang.setSelectedItem(y); cbDenNamThang.setSelectedItem(y); }
+        p.add(new JLabel("Từ:")); p.add(cbTuThang); p.add(cbTuNamThang); p.add(new JLabel("Đến:")); p.add(cbDenThang); p.add(cbDenNamThang); return p;
+    }
+    private JPanel buildNamFilter() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false);
+        if(cbTuNam.getItemCount()==0) { int y=Calendar.getInstance().get(Calendar.YEAR); for(int i=2020;i<=y+5;i++){cbTuNam.addItem(i); cbDenNam.addItem(i);} cbTuNam.setSelectedItem(y); cbDenNam.setSelectedItem(y); }
+        p.add(new JLabel("Từ năm:")); p.add(cbTuNam); p.add(new JLabel("Đến năm:")); p.add(cbDenNam); return p;
+    }
 
-        // Tải Loại Đối Tượng
+    private void loadComboBoxesData() {
         try {
             List<String> loaiDTList = thongKeKHDao.getDanhSachLoaiDoiTuong();
-            cbLoaiDoiTuong.removeAllItems();
-            cbLoaiDoiTuong.addItem("Tất cả");
-            for (String ldt : loaiDTList) {
-                if (ldt != null && !ldt.trim().isEmpty()) {
-                    cbLoaiDoiTuong.addItem(ldt);
-                }
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.WARNING, "Lỗi khi tải danh sách loại đối tượng", e);
-            cbLoaiDoiTuong.addItem("Lỗi CSDL");
-        }
+            cbLoaiDoiTuong.removeAllItems(); cbLoaiDoiTuong.addItem("Tất cả");
+            for (String ldt : loaiDTList) if (ldt != null) cbLoaiDoiTuong.addItem(ldt);
+        } catch (SQLException e) { LOGGER.log(Level.WARNING, "Lỗi tải loại đối tượng", e); }
     }
 
-    // ===== Hàm tạo JLabel cho giá trị trên card =====
-    private JLabel createValueLabel(String initialText) {
-        JLabel label = new JLabel(initialText, SwingConstants.CENTER);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        return label;
-    }
-
-    // ===== Hàm tạo Card =====
-    private JPanel createCard(String title, JLabel valueLabel, Color color) {
-        JPanel card = new JPanel(new BorderLayout(0, 5));
-        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-
-        card.setBackground(color);
-        card.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
-        card.add(titleLabel, BorderLayout.NORTH);
-        card.add(valueLabel, BorderLayout.CENTER);
-        return card;
-    }
-
-    // --- Hàm cấu hình JTable ---
-    private void setupTableDetails() {
-        tableChiTiet.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-        tableChiTiet.setRowHeight(28);
-        JTableHeader header = tableChiTiet.getTableHeader();
-        header.setFont(new Font("Times New Roman", Font.BOLD, 14));
-        header.setBackground(new Color(230, 230, 230));
-        tableChiTiet.setAutoCreateRowSorter(true); // Cho phép sắp xếp
-
-        // Căn lề
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-
-        // Định dạng tiền
-        DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                if (value instanceof Number) {
-                    value = currencyFormatter.format(value);
-                }
-                setHorizontalAlignment(JLabel.RIGHT);
-                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            }
-        };
-
-        TableColumnModel columnModel = tableChiTiet.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(80); // Mã KH
-        columnModel.getColumn(1).setPreferredWidth(150); // Tên KH
-        columnModel.getColumn(2).setPreferredWidth(100); // Khu Vực
-        columnModel.getColumn(3).setPreferredWidth(100); // Loại ĐT
-        columnModel.getColumn(4).setPreferredWidth(80); // Số Lần Mua
-        columnModel.getColumn(4).setCellRenderer(rightRenderer);
-        columnModel.getColumn(5).setPreferredWidth(120); // Tổng Chi Tiêu
-        columnModel.getColumn(5).setCellRenderer(currencyRenderer);
-        columnModel.getColumn(6).setPreferredWidth(100); // Lần Mua Cuối
-        columnModel.getColumn(6).setCellRenderer(centerRenderer);
-        columnModel.getColumn(7).setPreferredWidth(100); // Phân Loại
-        columnModel.getColumn(7).setCellRenderer(centerRenderer);
-    }
-
-
-    // ================== HÀM XỬ LÝ CHÍNH ==================
-
+    // ================== HÀM XỬ LÝ LOGIC CHÍNH ==================
     private void xuLyThongKe() {
-        // --- 1. LẤY GIÁ TRỊ TỪ CÁC BỘ LỌC ---
-        Date utilTuNgay = tuNgay.getDate();
-        Date utilDenNgay = denNgay.getDate();
-        if (!kiemTraKhoangNgayHopLe(utilTuNgay, utilDenNgay)) return;
+        // 1. Xác định khoảng thời gian
+        String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
+        LocalDate fromDate, toDate;
+        try {
+            if ("Theo ngày".equals(loaiThoiGian)) {
+                if (tuNgay.getDate() == null || denNgay.getDate() == null) return;
+                fromDate = tuNgay.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                toDate = denNgay.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } else if ("Theo tháng".equals(loaiThoiGian)) {
+                int m1 = cbTuThang.getSelectedIndex() + 1; int y1 = (Integer) cbTuNamThang.getSelectedItem();
+                int m2 = cbDenThang.getSelectedIndex() + 1; int y2 = (Integer) cbDenNamThang.getSelectedItem();
+                fromDate = LocalDate.of(y1, m1, 1);
+                toDate = LocalDate.of(y2, m2, 1).plusMonths(1).minusDays(1);
+            } else if ("Theo năm".equals(loaiThoiGian)) {
+                int y1 = (Integer) cbTuNam.getSelectedItem(); int y2 = (Integer) cbDenNam.getSelectedItem();
+                fromDate = LocalDate.of(y1, 1, 1);
+                toDate = LocalDate.of(y2, 12, 31);
+            } else {
+                fromDate = LocalDate.of(2000, 1, 1);
+                toDate = LocalDate.now();
+            }
+            if (toDate.isBefore(fromDate)) { JOptionPane.showMessageDialog(this, "Ngày kết thúc phải sau ngày bắt đầu!"); return; }
+        } catch (Exception e) { return; }
 
-        LocalDate fromLocalDate = utilTuNgay.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate toLocalDate = utilDenNgay.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        String khuVuc = (String) cbKhuVuc.getSelectedItem();
         String loaiDoiTuong = (String) cbLoaiDoiTuong.getSelectedItem();
         String phanLoai = (String) cbPhanLoai.getSelectedItem();
 
-        // --- 3. Hiển thị loading ---
+        // 2. Chạy Thread ngầm để lấy dữ liệu
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        // Reset label tạm thời
         lblTongKhachHangValue.setText("...");
         lblKhachHangMoiValue.setText("...");
         lblKhachHangQuayLaiValue.setText("...");
         lblTongDoanhThuValue.setText("...");
-        capNhatChartRong("🔄 Đang tải dữ liệu...");
-        chiTietTableModel.setRowCount(0);
 
-        // 4. Tạo và thực thi SwingWorker
+        final LocalDate finalFrom = fromDate;
+        final LocalDate finalTo = toDate;
+
         SwingWorker<ThongKeKHResult, Void> worker = new SwingWorker<>() {
             @Override
             protected ThongKeKHResult doInBackground() throws Exception {
-                ThongKeKHResult result = new ThongKeKHResult();
+                ThongKeKHResult res = new ThongKeKHResult();
+                // Gọi DAO lấy danh sách chi tiết (Đã có logic phân loại trong SQL)
+                res.chiTietKhachHang = thongKeKHDao.getThongKeKhachHang(finalFrom, finalTo, null, loaiDoiTuong, phanLoai);
 
-                // 1. Lấy dữ liệu chi tiết RFM
-                result.chiTietKhachHang = thongKeKHDao.getThongKeKhachHang(
-                        fromLocalDate, toLocalDate, khuVuc, loaiDoiTuong, phanLoai);
+                res.tongSoKhachHang = res.chiTietKhachHang.size();
+                res.tongDoanhThu = res.chiTietKhachHang.values().stream().mapToDouble(k -> k.tongChiTieu).sum();
 
-                // 2. Tính toán tổng quan từ dữ liệu chi tiết
-                result.tongSoKhachHang = result.chiTietKhachHang.size();
-                result.tongDoanhThu = result.chiTietKhachHang.values().stream()
-                        .mapToDouble(kh -> kh.tongChiTieu).sum();
+                // Đếm số lượng từng nhóm dựa trên trường 'phanLoai' trả về từ DAO
+                Map<String, Long> counts = res.chiTietKhachHang.values().stream()
+                        .collect(Collectors.groupingBy(k -> k.phanLoai, Collectors.counting()));
 
-                // Đếm khách hàng mới/cũ DỰA TRÊN KHOẢNG THỜI GIAN LỌC
-                // Khách mới: Người có ngày mua ĐẦU TIÊN nằm trong khoảng lọc
-                result.soKhachHangMoi = (int) result.chiTietKhachHang.values().stream()
-                        .filter(kh -> !kh.ngayMuaDauTien.isBefore(fromLocalDate))
-                        .count();
+                res.countMoi = counts.getOrDefault("Khách mới", 0L);
+                res.countQuayLai = counts.getOrDefault("Khách quay lại", 0L);
+                res.countThanThiet = counts.getOrDefault("Thân thiết", 0L);
+                res.countVIP = counts.getOrDefault("VIP", 0L);
+                res.countNguDong = counts.getOrDefault("Ngủ đông", 0L);
 
-                // Khách quay lại: Người có ngày mua ĐẦU TIÊN nằm TRƯỚC khoảng lọc
-                result.soKhachHangQuayLai = (int) result.chiTietKhachHang.values().stream()
-                        .filter(kh -> kh.ngayMuaDauTien.isBefore(fromLocalDate))
-                        .count();
-
-                return result;
+                return res;
             }
 
             @Override
@@ -425,255 +387,240 @@ public class PanelThongKeKhachHang extends JPanel {
                 setCursor(Cursor.getDefaultCursor());
                 try {
                     ThongKeKHResult result = get();
-
-                    // CẬP NHẬT CARD
+                    // Cập nhật Cards
                     lblTongKhachHangValue.setText(integerFormatter.format(result.tongSoKhachHang));
-                    lblKhachHangMoiValue.setText(integerFormatter.format(result.soKhachHangMoi));
-                    lblKhachHangQuayLaiValue.setText(integerFormatter.format(result.soKhachHangQuayLai));
+                    lblKhachHangMoiValue.setText(integerFormatter.format(result.countMoi));
+                    lblKhachHangQuayLaiValue.setText(integerFormatter.format(result.countQuayLai));
                     lblTongDoanhThuValue.setText(currencyFormatter.format(result.tongDoanhThu));
 
-                    // CẬP NHẬT BIỂU ĐỒ VÀ BẢNG CHI TIẾT
-                    capNhatChartVaTable(result.chiTietKhachHang, result.soKhachHangMoi, result.soKhachHangQuayLai);
+                    // Cập nhật Chart & Table
+                    capNhatChartVaTable(result);
 
-                } catch (InterruptedException | ExecutionException ex) {
-                    handleLoadingError(ex, "Lỗi khi thực hiện thống kê khách hàng");
                 } catch (Exception ex) {
-                    handleLoadingError(ex, "Lỗi không xác định khi cập nhật UI");
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(PanelThongKeKhachHang.this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
                 }
             }
         };
         worker.execute();
     }
 
-    /**
-     * Cập nhật cả biểu đồ và bảng chi tiết.
-     */
-    private void capNhatChartVaTable(Map<String, KhachHangRFM> data, int soMoi, int soQuayLai) {
-        if (data == null || data.isEmpty()) {
-            capNhatChartRong("📉 Không có dữ liệu khách hàng trong khoảng đã chọn");
-            capNhatBangRong();
-            btnExportExcel.setEnabled(false);
-        } else {
-            // --- Cập nhật Biểu đồ (Pie Chart) ---
-            DefaultPieDataset dataset = new DefaultPieDataset();
-            dataset.setValue("Khách hàng mới", soMoi);
-            dataset.setValue("Khách hàng quay lại", soQuayLai);
-
-            JFreeChart pieChart = ChartFactory.createPieChart(
-                    "Cơ cấu khách hàng Mới / Quay lại", dataset, true, true, false);
-
-            PiePlot plot = (PiePlot) pieChart.getPlot();
-            plot.setBackgroundPaint(Color.WHITE);
-            plot.setOutlineVisible(false);
-            plot.setLabelFont(new Font("Arial", Font.PLAIN, 12));
-            plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})"));
-            plot.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0} ({1})"));
-            plot.setSectionPaint("Khách hàng mới", new Color(46, 204, 113));
-            plot.setSectionPaint("Khách hàng quay lại", new Color(52, 152, 219));
-
-            if (pieChart.getLegend() != null) {
-                pieChart.getLegend().setFrame(BlockBorder.NONE);
-            }
-            pieChart.setBackgroundPaint(Color.WHITE);
-            pieChart.getTitle().setFont(new Font("Times New Roman", Font.BOLD, 16));
-
-            ChartPanel chartDisplayPanel = new ChartPanel(pieChart);
-            chartDisplayPanel.setBackground(Color.WHITE);
-
-            chartPanelContainer.removeAll();
-            chartPanelContainer.add(chartDisplayPanel, BorderLayout.CENTER);
-            chartPanelContainer.revalidate();
-            chartPanelContainer.repaint();
-
-            // --- Cập nhật Bảng chi tiết ---
-            chiTietTableModel.setRowCount(0);
-            data.values().forEach(item -> {
-                chiTietTableModel.addRow(new Object[]{
-                        item.khachHangID,
-                        item.hoTen,
-                        item.khuVuc,
-                        item.loaiDoiTuong,
-                        item.soLanMua,
-                        item.tongChiTieu,
-                        item.lanMuaCuoi.format(dateFormatter),
-                        item.phanLoai
-                });
-            });
-            btnExportExcel.setEnabled(true);
-        }
+    private void xoaBoLoc() {
+        cbLoaiThoiGian.setSelectedIndex(0);
+        tuNgay.setDate(new Date()); denNgay.setDate(new Date());
+        cbLoaiDoiTuong.setSelectedIndex(0);
+        cbPhanLoai.setSelectedIndex(0);
+        xuLyThongKe();
     }
 
-    // --- Hàm xử lý xuất Excel ---
+    private void capNhatChartVaTable(ThongKeKHResult res) {
+        // 1. Vẽ Biểu đồ tròn 5 phần
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        if (res.countMoi > 0) dataset.setValue("Mới (1 lần)", res.countMoi);
+        if (res.countQuayLai > 0) dataset.setValue("Quay lại (2-4 lần)", res.countQuayLai);
+        if (res.countThanThiet > 0) dataset.setValue("Thân thiết (>5 lần)", res.countThanThiet);
+        if (res.countVIP > 0) dataset.setValue("VIP", res.countVIP);
+        if (res.countNguDong > 0) dataset.setValue("Ngủ đông", res.countNguDong);
+
+        JFreeChart pieChart = ChartFactory.createPieChart("Cơ cấu khách hàng", dataset, true, true, false);
+        PiePlot plot = (PiePlot) pieChart.getPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setOutlineVisible(false);
+
+        // Set màu sắc nhận diện
+        plot.setSectionPaint("Mới (1 lần)", new Color(46, 204, 113));       // Xanh lá
+        plot.setSectionPaint("Quay lại (2-4 lần)", new Color(52, 152, 219)); // Xanh dương
+        plot.setSectionPaint("Thân thiết (>5 lần)", new Color(155, 89, 182)); // Tím
+        plot.setSectionPaint("VIP", new Color(241, 196, 15));              // Vàng
+        plot.setSectionPaint("Ngủ đông", new Color(149, 165, 166));        // Xám
+
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})"));
+
+        ChartPanel chartPanel = new ChartPanel(pieChart);
+        chartPanelContainer.removeAll();
+        chartPanelContainer.add(chartPanel, BorderLayout.CENTER);
+        chartPanelContainer.revalidate();
+        chartPanelContainer.repaint();
+
+        // 2. Cập nhật Bảng
+        chiTietTableModel.setRowCount(0);
+        if (res.chiTietKhachHang != null) {
+            for (KhachHangRFM kh : res.chiTietKhachHang.values()) {
+                chiTietTableModel.addRow(new Object[]{
+                        kh.khachHangID,
+                        kh.hoTen,
+                        kh.khuVuc,
+                        kh.loaiDoiTuong,
+                        kh.soLanMua,     // Integer
+                        kh.tongChiTieu,  // Double
+                        kh.lanMuaCuoi != null ? kh.lanMuaCuoi.format(dateFormatter) : "",
+                        kh.phanLoai
+                });
+            }
+        }
+        btnExportExcel.setEnabled(chiTietTableModel.getRowCount() > 0);
+    }
+
+    // ================== HÀM XUẤT EXCEL (APACHE POI) ==================
     private void exportTableToExcel(ActionEvent e) {
         if (chiTietTableModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Lưu báo cáo Excel");
-        String defaultFileName = "BaoCaoKhachHang_" + LocalDate.now() + ".xlsx";
-        fileChooser.setSelectedFile(new File(defaultFileName));
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Xuất dữ liệu khách hàng ra Excel");
+        chooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
 
-        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
-                fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
+        String timeStamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"));
+        chooser.setSelectedFile(new File("ThongKeKhachHang_" + timeStamp + ".xlsx"));
+
+        if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (!file.getName().toLowerCase().endsWith(".xlsx")) {
+                file = new File(file.getParentFile(), file.getName() + ".xlsx");
             }
 
-            final File finalFileToSave = fileToSave;
+            try (Workbook workbook = new XSSFWorkbook();
+                 FileOutputStream fos = new FileOutputStream(file)) {
 
-            try (XSSFWorkbook workbook = new XSSFWorkbook();
-                 FileOutputStream outputStream = new FileOutputStream(finalFileToSave)) {
+                Sheet sheet = workbook.createSheet("Chi Tiết Khách Hàng");
 
-                Sheet sheet = workbook.createSheet("ChiTietKhachHang");
+                // --- TẠO STYLES ---
+                CellStyle headerStyle = workbook.createCellStyle();
+                headerStyle.setFillForegroundColor(IndexedColors.DARK_TEAL.getIndex());
+                headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-                // --- Tạo Style ---
+                // SỬA LỖI TẠI ĐÂY: Chỉ định rõ Font của POI
                 org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+                headerFont.setColor(IndexedColors.WHITE.getIndex());
                 headerFont.setBold(true);
-                CellStyle headerCellStyle = workbook.createCellStyle();
-                headerCellStyle.setFont(headerFont);
-                headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
-                headerCellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-                headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                headerStyle.setFont(headerFont);
 
-                CreationHelper createHelper = workbook.getCreationHelper();
-                CellStyle currencyCellStyle = workbook.createCellStyle();
-                currencyCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0 ₫"));
-                currencyCellStyle.setAlignment(HorizontalAlignment.RIGHT);
+                headerStyle.setAlignment(HorizontalAlignment.CENTER);
+                setBorder(headerStyle);
 
-                CellStyle integerCellStyle = workbook.createCellStyle();
-                integerCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#,##0"));
-                integerCellStyle.setAlignment(HorizontalAlignment.RIGHT);
+                CellStyle currencyStyle = workbook.createCellStyle();
+                DataFormat format = workbook.createDataFormat();
+                currencyStyle.setDataFormat(format.getFormat("#,##0 \"₫\""));
+                currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
+                setBorder(currencyStyle);
 
-                CellStyle centerCellStyle = workbook.createCellStyle();
-                centerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+                CellStyle centerStyle = workbook.createCellStyle();
+                centerStyle.setAlignment(HorizontalAlignment.CENTER);
+                setBorder(centerStyle);
 
-                CellStyle leftCellStyle = workbook.createCellStyle();
-                leftCellStyle.setAlignment(HorizontalAlignment.LEFT);
+                CellStyle normalStyle = workbook.createCellStyle();
+                setBorder(normalStyle);
 
-                // --- Ghi Header bảng ---
+                // --- GHI HEADER ---
                 Row headerRow = sheet.createRow(0);
-                for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
-                    Cell cell = headerRow.createCell(col);
-                    cell.setCellValue(chiTietTableModel.getColumnName(col).replace(" (VNĐ)", ""));
-                    cell.setCellStyle(headerCellStyle);
+                for (int i = 0; i < chiTietTableModel.getColumnCount(); i++) {
+                    Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(chiTietTableModel.getColumnName(i));
+                    cell.setCellStyle(headerStyle);
                 }
 
-                // --- Ghi Dữ liệu bảng ---
-                for (int row = 0; row < chiTietTableModel.getRowCount(); row++) {
-                    Row dataRow = sheet.createRow(row + 1);
-                    for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
-                        Cell cell = dataRow.createCell(col);
-                        Object value = chiTietTableModel.getValueAt(row, col);
+                // --- GHI DATA ---
+                for (int r = 0; r < chiTietTableModel.getRowCount(); r++) {
+                    Row row = sheet.createRow(r + 1);
+                    for (int c = 0; c < chiTietTableModel.getColumnCount(); c++) {
+                        Cell cell = row.createCell(c);
+                        Object val = chiTietTableModel.getValueAt(r, c);
 
-                        if (value instanceof Integer) {
-                            cell.setCellValue((Integer) value);
-                            cell.setCellStyle(integerCellStyle);
-                        } else if (value instanceof Double) {
-                            cell.setCellValue((Double) value);
-                            cell.setCellStyle(currencyCellStyle);
-                        } else if (value instanceof String) {
-                            cell.setCellValue((String) value);
-                            cell.setCellStyle((col == 0 || col == 6 || col == 7) ? centerCellStyle : leftCellStyle); // Căn giữa Mã, Ngày, Phân loại
+                        if (val != null) {
+                            if (c == 4 && val instanceof Number) {
+                                cell.setCellValue(((Number) val).intValue());
+                                cell.setCellStyle(centerStyle);
+                            } else if (c == 5 && val instanceof Number) {
+                                cell.setCellValue(((Number) val).doubleValue());
+                                cell.setCellStyle(currencyStyle);
+                            } else if (c == 0 || c == 6) {
+                                cell.setCellValue(val.toString());
+                                cell.setCellStyle(centerStyle);
+                            } else {
+                                cell.setCellValue(val.toString());
+                                cell.setCellStyle(normalStyle);
+                            }
+                        } else {
+                            cell.setCellStyle(normalStyle);
                         }
                     }
                 }
 
-                for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
-                    sheet.autoSizeColumn(col);
+                // Auto size cột
+                for(int i=0; i<chiTietTableModel.getColumnCount(); i++) {
+                    sheet.autoSizeColumn(i);
                 }
 
-                workbook.write(outputStream);
-                outputStream.close();
+                workbook.write(fos);
+                JOptionPane.showMessageDialog(this, "Xuất file thành công!");
+                try {
+                    java.awt.Desktop.getDesktop().open(file);
+                } catch (Exception ex) {}
 
-                JOptionPane.showMessageDialog(this, "Xuất báo cáo Excel thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(finalFileToSave);
             } catch (Exception ex) {
-                handleLoadingError(ex, "Lỗi khi ghi file Excel");
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-
-    /** Xử lý lỗi khi tải dữ liệu trong SwingWorker.done() */
-    private void handleLoadingError(Exception ex, String context) {
-        setCursor(Cursor.getDefaultCursor());
-        LOGGER.log(Level.SEVERE, context, ex);
-        Throwable cause = (ex instanceof ExecutionException) ? ex.getCause() : ex;
-        if (cause == null) cause = ex;
-
-        capNhatChartRong("⚠️ Lỗi khi tải dữ liệu: " + cause.getMessage());
-        capNhatBangRong();
-        JOptionPane.showMessageDialog(this, context + ":\n" + cause.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-
-        lblTongKhachHangValue.setText("Lỗi");
-        lblKhachHangMoiValue.setText("Lỗi");
-        lblKhachHangQuayLaiValue.setText("Lỗi");
-        lblTongDoanhThuValue.setText("Lỗi");
+    private void setBorder(CellStyle style) {
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
     }
 
-    // ================== CÁC HÀM TIỆN ÍCH KHÁC ==================
+    // --- Cấu hình bảng hiển thị (Renderer) ---
+    private void setupTableDetails() {
+        tableChiTiet.setRowHeight(28);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
-    private boolean kiemTraKhoangNgayHopLe(Date from, Date to) {
-        if (from == null || to == null) {
-            JOptionPane.showMessageDialog(this, "⚠️ Vui lòng chọn đủ ngày bắt đầu và ngày kết thúc.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        if (to.before(from)) {
-            JOptionPane.showMessageDialog(this, "⚠️ Ngày kết thúc phải ≥ ngày bắt đầu.", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        return true;
-    }
+        // Căn giữa Mã, Số lần, Ngày
+        tableChiTiet.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        tableChiTiet.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
+        tableChiTiet.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
 
-    private void capNhatChartRong(String msg) {
-        SwingUtilities.invokeLater(() -> {
-            chartPanelContainer.removeAll();
-            JLabel l = new JLabel(msg, SwingConstants.CENTER);
-            l.setFont(new Font("Times New Roman", Font.ITALIC, 16));
-            l.setForeground(Color.GRAY);
-            chartPanelContainer.add(l, BorderLayout.CENTER);
-            chartPanelContainer.revalidate();
-            chartPanelContainer.repaint();
+        // Format tiền tệ
+        tableChiTiet.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
+                if(v instanceof Number) v = currencyFormatter.format(v);
+                setHorizontalAlignment(JLabel.RIGHT);
+                return super.getTableCellRendererComponent(t, v, s, f, r, c);
+            }
+        });
+
+        // Tô màu cột Phân loại
+        tableChiTiet.getColumnModel().getColumn(7).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
+                Component comp = super.getTableCellRendererComponent(t, v, s, f, r, c);
+                String val = (String) v;
+                Font font = comp.getFont();
+                comp.setFont(font.deriveFont(Font.BOLD));
+
+                if ("VIP".equals(val)) comp.setForeground(new Color(243, 156, 18)); // Vàng
+                else if ("Khách quay lại".equals(val)) comp.setForeground(new Color(41, 128, 185)); // Xanh
+                else if ("Ngủ đông".equals(val)) comp.setForeground(Color.GRAY);
+                else comp.setForeground(Color.BLACK);
+
+                setHorizontalAlignment(JLabel.CENTER);
+                return comp;
+            }
         });
     }
 
-    private void capNhatBangRong() {
-        SwingUtilities.invokeLater(() -> chiTietTableModel.setRowCount(0));
+    // --- Helpers tạo giao diện ---
+    private JPanel taoPanelTongQuan() { JPanel p = new JPanel(new BorderLayout()); p.setBackground(Color.WHITE); p.add(new JLabel("📊 Nhấn Tìm kiếm để xem biểu đồ", SwingConstants.CENTER), BorderLayout.CENTER); return p; }
+    private JPanel taoPanelChiTiet(JLabel title, JTable tbl, JPanel btm) { JPanel p = new JPanel(new BorderLayout(0, 10)); p.setBackground(Color.WHITE); p.add(title, BorderLayout.NORTH); p.add(new JScrollPane(tbl), BorderLayout.CENTER); p.add(btm, BorderLayout.SOUTH); return p; }
+    private JLabel createValueLabel(String t) { JLabel l = new JLabel(t, SwingConstants.CENTER); l.setForeground(Color.WHITE); l.setFont(new Font("Times New Roman", Font.BOLD, 26)); return l; }
+    private JPanel createCard(String t, JLabel v, Color c) {
+        JPanel p = new JPanel(new BorderLayout(0, 10));
+        JLabel tl = new JLabel(t, SwingConstants.CENTER); tl.setForeground(Color.WHITE); tl.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        p.setBackground(c); p.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+        p.add(tl, BorderLayout.NORTH); p.add(v, BorderLayout.CENTER);
+        return p;
     }
-
-    // --- Tạo Panel lọc con cho CardLayout (cho thời gian) ---
-    // (Phiên bản này không dùng CardLayout thời gian, giữ lại để tham khảo nếu cần)
-    private JPanel buildTatCaFilter() { return new JPanel(); }
-    private JPanel buildNgayFilter() { return new JPanel(); }
-    private JPanel buildThangFilter() { return new JPanel(); }
-    private JPanel buildNamFilter() { return new JPanel(); }
-
-    // --- Tạo Panel Tab ---
-    private JPanel taoPanelTongQuan() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-        JLabel placeholder = new JLabel("📊 Chọn bộ lọc và nhấn Tìm kiếm", SwingConstants.CENTER);
-        placeholder.setFont(new Font("Times New Roman", Font.ITALIC, 16));
-        placeholder.setForeground(Color.GRAY);
-        panel.add(placeholder, BorderLayout.CENTER);
-        return panel;
-    }
-
-    // Hàm tạo Panel Chi Tiết
-    private JPanel taoPanelChiTiet(JLabel titleLabel, JTable table, JPanel bottomPanel) {
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-        panel.add(titleLabel, BorderLayout.NORTH);
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
-        return panel;
-    }
-
 }
