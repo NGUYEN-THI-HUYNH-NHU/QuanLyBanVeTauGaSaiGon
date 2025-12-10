@@ -1,4 +1,4 @@
-package gui.application.paymenthelper;
+package gui.application.paymentHelper;
 /*
  * @(#) VNPayService.java  1.0  [4:20:10 PM] Dec 5, 2025
  *

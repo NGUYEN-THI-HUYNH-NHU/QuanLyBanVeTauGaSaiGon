@@ -1,18 +1,12 @@
-package gui.application.form.banVe;
+package gui.application.paymentHelper;
 /*
  * @(#) PdfTicketExporter.java  1.0  [5:39:21 PM] Dec 9, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Dec 9, 2025
- * @version: 1.0
- */
-
 import java.awt.Desktop;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +21,18 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.font.PDType0Font; // Hỗ trợ Unicode (Tiếng Việt)
-// Hoặc PDType1Font.HELVETICA nếu không cần tiếng Việt có dấu
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
+import entity.DonDatCho;
+import gui.application.form.banVe.BookingSession;
+import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 
 public class PdfTicketExporter {
@@ -38,7 +41,7 @@ public class PdfTicketExporter {
 
 	// Kích thước giấy in nhiệt K80 (80mm ~ 226 points)
 	private static final float PAGE_WIDTH = 226f;
-	private static final float PAGE_HEIGHT = 500f; // Chiều dài linh hoạt
+	private static final float PAGE_HEIGHT = 460f; // Chiều dài linh hoạt
 	private static final float MARGIN_X = 10f; // Lề an toàn
 	private static final float MARGIN_Y = 10f;
 
@@ -59,51 +62,7 @@ public class PdfTicketExporter {
 		fileChooser.setSelectedFile(new File(suggestedFileName));
 
 		if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File fileToSave = fileChooser.getSelectedFile();
-			if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
-				fileToSave = new File(fileToSave.getAbsolutePath() + ".pdf");
-			}
-
-			try (PDDocument document = new PDDocument()) {
-				// 1. Load Font
-				try {
-					InputStream fontStreamReg = getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf");
-					InputStream fontStreamBold = getClass().getResourceAsStream("/fonts/Roboto-Bold.ttf");
-
-					if (fontStreamReg == null || fontStreamBold == null) {
-						throw new IOException("Không tìm thấy file font trong /resources/fonts/");
-					}
-					fontRegular = PDType0Font.load(document, fontStreamReg);
-					fontBold = PDType0Font.load(document, fontStreamBold);
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "Lỗi font: " + e.getMessage());
-					return;
-				}
-
-				// 2. Duyệt từng vé
-				List<VeSession> tickets = session.getAllSelectedTickets();
-				for (VeSession ticket : tickets) {
-					PDPage page = new PDPage(new PDRectangle(PAGE_WIDTH, PAGE_HEIGHT));
-					document.addPage(page);
-
-					try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
-						drawTicketK80(cs, ticket);
-					}
-				}
-
-				document.save(fileToSave);
-
-				// Mở file sau khi lưu
-				if (Desktop.isDesktopSupported()) {
-					Desktop.getDesktop().open(fileToSave);
-				} else {
-					JOptionPane.showMessageDialog(null, "Xuất vé thành công!");
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Lỗi xuất PDF: " + e.getMessage());
-			}
+			processExport(fileChooser.getSelectedFile(), session.getAllSelectedTickets(), session.getDonDatCho());
 		}
 	}
 
@@ -121,61 +80,66 @@ public class PdfTicketExporter {
 		fileChooser.setSelectedFile(new File(suggestedFileName));
 
 		if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-			File fileToSave = fileChooser.getSelectedFile();
-			if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
-				fileToSave = new File(fileToSave.getAbsolutePath() + ".pdf");
+			processExport(fileChooser.getSelectedFile(), exchangeSession.getListVeMoiDangChon(),
+					exchangeSession.getDonDatChoMoi());
+		}
+	}
+
+	// Hàm xử lý chung để tránh lặp code (Refactor)
+	private void processExport(File fileToSave, List<VeSession> tickets, DonDatCho donDatCho) {
+		if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
+			fileToSave = new File(fileToSave.getAbsolutePath() + ".pdf");
+		}
+
+		try (PDDocument document = new PDDocument()) {
+			// 1. Load Font
+			try {
+				InputStream fontStreamReg = getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf");
+				InputStream fontStreamBold = getClass().getResourceAsStream("/fonts/Roboto-Bold.ttf");
+
+				if (fontStreamReg == null || fontStreamBold == null) {
+					throw new IOException("Không tìm thấy file font trong /fonts/");
+				}
+				fontRegular = PDType0Font.load(document, fontStreamReg);
+				fontBold = PDType0Font.load(document, fontStreamBold);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Lỗi font: " + e.getMessage());
+				return;
 			}
 
-			try (PDDocument document = new PDDocument()) {
-				// 1. Load Font
-				try {
-					InputStream fontStreamReg = getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf");
-					InputStream fontStreamBold = getClass().getResourceAsStream("/fonts/Roboto-Bold.ttf");
+			// 2. Duyệt từng vé
+			for (VeSession ticket : tickets) {
+				PDPage page = new PDPage(new PDRectangle(PAGE_WIDTH, PAGE_HEIGHT));
+				document.addPage(page);
 
-					if (fontStreamReg == null || fontStreamBold == null) {
-						throw new IOException("Không tìm thấy file font trong /resources/fonts/");
-					}
-					fontRegular = PDType0Font.load(document, fontStreamReg);
-					fontBold = PDType0Font.load(document, fontStreamBold);
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "Lỗi font: " + e.getMessage());
-					return;
+				try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+					// [NEW] Truyền thêm 'document' vào hàm vẽ để tạo ảnh QR
+					drawTicketK80(document, cs, ticket, donDatCho.getDonDatChoID());
 				}
-
-				// 2. Duyệt từng vé
-				List<VeSession> tickets = exchangeSession.getListVeMoiDangChon();
-				for (VeSession ticket : tickets) {
-					PDPage page = new PDPage(new PDRectangle(PAGE_WIDTH, PAGE_HEIGHT));
-					document.addPage(page);
-
-					try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
-						drawTicketK80(cs, ticket);
-					}
-				}
-
-				document.save(fileToSave);
-
-				// Mở file sau khi lưu
-				if (Desktop.isDesktopSupported()) {
-					Desktop.getDesktop().open(fileToSave);
-				} else {
-					JOptionPane.showMessageDialog(null, "Xuất vé thành công!");
-				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Lỗi xuất PDF: " + e.getMessage());
 			}
+
+			document.save(fileToSave);
+
+			if (Desktop.isDesktopSupported()) {
+				Desktop.getDesktop().open(fileToSave);
+			} else {
+				JOptionPane.showMessageDialog(null, "Xuất vé thành công!");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi xuất PDF: " + e.getMessage());
 		}
 	}
 
 	// --- HÀM VẼ CHÍNH ---
-	private void drawTicketK80(PDPageContentStream cs, VeSession ticket) throws IOException {
+	private void drawTicketK80(PDDocument document, PDPageContentStream cs, VeSession ticket, String donDatChoID)
+			throws IOException {
 		float centerX = PAGE_WIDTH / 2;
 		float y = PAGE_HEIGHT - MARGIN_Y - 10;
 
 		// 1. HEADER
-		cs.setNonStrokingColor(0, 0, 0); // Màu đen
+		cs.setNonStrokingColor(0, 0, 0);
 		drawCenteredText(cs, fontBold, 10, "CÔNG TY CỔ PHẦN VẬN TẢI", centerX, y);
 		y -= 12;
 		drawCenteredText(cs, fontBold, 10, "ĐƯỜNG SẮT SÀI GÒN", centerX, y);
@@ -187,30 +151,51 @@ public class PdfTicketExporter {
 		drawCenteredText(cs, fontRegular, 10, "BOARDING PASS", centerX, y);
 		y -= 25;
 
-		// 3. QR CODE (Placeholder - Vẽ khung vuông)
-		float qrSize = 80;
+		// 3. QR CODE (SỬ DỤNG ZXING)
+		float qrSize = 100; // Kích thước hiển thị trên PDF
 		float qrX = (PAGE_WIDTH - qrSize) / 2;
-		cs.setLineWidth(1f);
-		cs.addRect(qrX, y - qrSize, qrSize, qrSize);
-		cs.stroke();
+
+		try {
+			// A. Tạo nội dung chuỗi QR
+			// Tạo chuỗi JSON thủ công
+			String qrContent = "{" + "\"id\":\"" + ticket.getVe().getVeID() + "\"," + "\"trangThai\":\"" + "TODO"
+					+ "\"," + "\"tau\":\"" + ticket.getVe().getGhe().getToa().getTau().getTauID() + "\"," + "\"toa\":\""
+					+ ticket.getVe().getGhe().getToa().getSoToa() + "\"," + "\"ghe\":\"" + ticket.getSoGhe() + "\","
+					+ "\"cccd\":\"" + ticket.getVe().getKhachHang().getSoGiayTo() + "\"," + "\"hoTen\":\""
+					+ ticket.getVe().getKhachHang().getHoTen() + "\"" + "}";
+
+			// B. Tạo BufferedImage từ ZXing
+			BufferedImage qrImage = createQRCode(qrContent, 200, 200);
+
+			// C. Chuyển sang đối tượng ảnh của PDFBox bằng LosslessFactory [QUAN TRỌNG]
+			PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
+
+			// D. Vẽ lên PDF
+			cs.drawImage(pdImage, qrX, y - qrSize, qrSize, qrSize);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Fallback: Vẽ khung vuông nếu lỗi
+			cs.addRect(qrX, y - qrSize, qrSize, qrSize);
+			cs.stroke();
+		}
+
 		y -= (qrSize + 15);
 
-		// 4. MÃ VÉ
+		// 4. MÃ VÉ + ĐƠN ĐẶT CHỖ
 		drawCenteredText(cs, fontRegular, 9, "Mã vé/TicketID: " + ticket.getVe().getVeID(), centerX, y);
+		y -= 15;
+		drawCenteredText(cs, fontRegular, 9, "Mã đặt chỗ/BookingID: " + donDatChoID, centerX, y);
 		y -= 25;
 
-		// 5. GA ĐI - GA ĐẾN (SỬA LẠI TỌA ĐỘ CHO CHUẨN)
-		// Lề trái bắt đầu từ MARGIN_X
-		// Lề phải kết thúc tại PAGE_WIDTH - MARGIN_X
+		// 5. GA ĐI - GA ĐẾN
 		float leftX = MARGIN_X;
 		float rightX = PAGE_WIDTH - MARGIN_X;
 
-		// Dòng tiêu đề nhỏ: "Ga đi" ------ "Ga đến"
 		drawLeftText(cs, fontRegular, 9, "Ga đi", leftX, y);
 		drawRightText(cs, fontRegular, 9, "Ga đến", rightX, y);
 		y -= 15;
 
-		// Dòng tên ga lớn: "SÀI GÒN" ------ "HÀ NỘI"
 		String gaDi = ticket.getVe().getGaDi().getTenGa().toUpperCase();
 		String gaDen = ticket.getVe().getGaDen().getTenGa().toUpperCase();
 
@@ -219,13 +204,11 @@ public class PdfTicketExporter {
 		y -= 25;
 
 		// 6. THÔNG TIN CHI TIẾT
-		// Chia cột: Cột nhãn rộng khoảng 70px, cột giá trị nằm ngay sau đó
-
 		y = drawRow(cs, "Tàu/Train:", ticket.getVe().getGhe().getToa().getTau().getTauID(), y);
 		y = drawRow(cs, "Ngày đi/Date:", ticket.getVe().getNgayGioDi().format(dtfDate), y);
 		y = drawRow(cs, "Giờ đi/Time:", ticket.getVe().getNgayGioDi().format(dtfTime), y);
 
-		// Dòng Toa/Chỗ (Chia đôi)
+		// Dòng Toa/Chỗ
 		cs.beginText();
 		cs.setFont(fontBold, 9);
 		cs.newLineAtOffset(leftX, y);
@@ -234,15 +217,12 @@ public class PdfTicketExporter {
 
 		cs.beginText();
 		cs.setFont(fontBold, 9);
-		// Vẽ phần Chỗ lệch sang phải một chút (quá giữa trang)
 		cs.newLineAtOffset(centerX + 10, y);
 		cs.showText("Chỗ/Seat: " + ticket.getSoGhe());
 		cs.endText();
 		y -= 15;
 
-		// Các thông tin khác
 		y = drawRow(cs, "Loại chỗ/Class:", ticket.getVe().getGhe().getToa().getHangToa().getDescription(), y);
-
 		y = drawRow(cs, "Đối tượng:", ticket.getVe().getKhachHang().getLoaiDoiTuong().getDescription(), y);
 
 		String tenKH = ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getHoTen().toUpperCase()
@@ -250,9 +230,9 @@ public class PdfTicketExporter {
 		y = drawRow(cs, "Họ tên/Name:", tenKH, y);
 
 		String giayTo = ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getSoGiayTo() : "";
-		y = drawRow(cs, "Giấy tờ/ID:", giayTo, y);
+		y = drawRow(cs, "Số giấy tờ/ID:", giayTo, y);
 
-		// Kẻ đường ngang kết thúc
+		// Footer
 		y -= 5;
 		cs.moveTo(leftX, y);
 		cs.lineTo(rightX, y);
@@ -262,7 +242,11 @@ public class PdfTicketExporter {
 		drawCenteredText(cs, fontRegular, 8, "Vui lòng có mặt trước giờ tàu chạy 30 phút", centerX, y);
 	}
 
-	// --- CÁC HÀM HỖ TRỢ ĐÃ SỬA LỖI ---
+	private BufferedImage createQRCode(String text, int width, int height) throws Exception {
+		QRCodeWriter barcodeWriter = new QRCodeWriter();
+		BitMatrix bitMatrix = barcodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+		return MatrixToImageWriter.toBufferedImage(bitMatrix);
+	}
 
 	// 1. Vẽ text canh trái (Left Align)
 	private void drawLeftText(PDPageContentStream cs, PDType0Font font, float size, String text, float x, float y)
@@ -313,8 +297,6 @@ public class PdfTicketExporter {
 		cs.showText(label);
 		cs.endText();
 
-		// Vẽ giá trị (Thường) - Nếu giá trị quá dài bạn có thể cần logic xuống dòng,
-		// nhưng vé tàu thường ngắn
 		cs.beginText();
 		cs.setFont(fontRegular, 9);
 		cs.newLineAtOffset(valueX, y);
