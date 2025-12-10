@@ -106,6 +106,7 @@ public class PanelThongKeDoanhThu extends JPanel { // Đổi tên class
     private final Map<String, String> nhanVienMap = new HashMap<>();
 
     private final JButton btnTimKiem;
+    private final JButton btnXoaBoLoc;
 
     // ===== Các JLabel chứa giá trị trên card =====
     private final JLabel lblTongHDDaBanValue;
@@ -162,6 +163,13 @@ public class PanelThongKeDoanhThu extends JPanel { // Đổi tên class
         cbThanhToan = new JComboBox<>(new String[]{"Tất cả", "Tiền mặt", "Chuyển khoản"});
 
         btnTimKiem = new JButton("Tìm kiếm");
+        // === THÊM MỚI: Nút Xóa bộ lọc ===
+        btnXoaBoLoc = new JButton("Xóa bộ lọc");
+        btnXoaBoLoc.setFont(new Font("Arial", Font.BOLD, 13));
+        btnXoaBoLoc.setBackground(new Color(108, 117, 125)); // Màu xám (kiểu Bootstrap Secondary)
+        btnXoaBoLoc.setForeground(Color.WHITE);
+        btnXoaBoLoc.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnXoaBoLoc.addActionListener(e -> xoaBoLoc()); // Gọi hàm reset
 
         // Khởi tạo labels
         lblTongHDDaBanValue = createValueLabel("...");
@@ -380,7 +388,36 @@ public class PanelThongKeDoanhThu extends JPanel { // Đổi tên class
         btnTimKiem.setPreferredSize(new Dimension(120, 35));
         bar.add(btnTimKiem, gbc);
 
+// ... (Trong hàm buildFilterBar, tìm đoạn HÀNG 3) ...
 
+// ============================================================
+//  HÀNG 3 — CỤM NÚT (TÌM KIẾM + XÓA BỘ LỌC)
+// ============================================================
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3; // Cho phép trải rộng để chứa panel nút
+        gbc.anchor = GridBagConstraints.WEST;
+
+// Tạo Panel con để chứa 2 nút nằm ngang
+        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        panelButtons.setOpaque(false);
+
+// Setup nút Tìm kiếm (giữ nguyên style cũ của bạn)
+        btnTimKiem.setText("Tìm kiếm");
+        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
+        btnTimKiem.setBackground(new Color(33, 150, 83));
+        btnTimKiem.setForeground(Color.WHITE);
+        btnTimKiem.setPreferredSize(new Dimension(120, 35));
+
+// Setup nút Xóa bộ lọc (kích thước bằng nút tìm kiếm)
+        btnXoaBoLoc.setPreferredSize(new Dimension(120, 35));
+
+        panelButtons.add(btnTimKiem);
+        panelButtons.add(btnXoaBoLoc); // Thêm nút xám vào cạnh
+
+        bar.add(panelButtons, gbc);
+
+// ...
         // ============================================================
         //  SỰ KIỆN
         // ============================================================
@@ -1095,6 +1132,33 @@ public class PanelThongKeDoanhThu extends JPanel { // Đổi tên class
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
+    }
+    private void xoaBoLoc() {
+        // 1. Reset Loại thời gian về "Tất cả"
+        cbLoaiThoiGian.setSelectedIndex(0);
+
+        // 2. Reset ngày về hiện tại
+        tuNgay.setDate(new Date());
+        denNgay.setDate(new Date());
+
+        // 3. Reset các combo box tháng/năm về hiện tại
+        Calendar now = Calendar.getInstance();
+        cbTuThang.setSelectedIndex(now.get(Calendar.MONTH));
+        cbDenThang.setSelectedIndex(now.get(Calendar.MONTH));
+        cbTuNam.setSelectedItem(now.get(Calendar.YEAR));
+        cbDenNam.setSelectedItem(now.get(Calendar.YEAR));
+
+        // 4. Reset Tuyến, Nhân viên, Loại vé
+        cbLoaiTuyen.setSelectedIndex(0); // Về "Tất cả"
+        if (cbNhanVien.getItemCount() > 0) cbNhanVien.setSelectedIndex(0);
+        if (cbThanhToan.getItemCount() > 0) cbThanhToan.setSelectedIndex(0);
+
+        // 5. Reset Ga (nếu có)
+        if (cbGaDi.getItemCount() > 0) cbGaDi.setSelectedIndex(0);
+        if (cbGaDen.getItemCount() > 1) cbGaDen.setSelectedIndex(1); // Thường ga đến khác ga đi
+
+        // 6. Gọi lại thống kê để load lại dữ liệu mặc định
+        xuLyThongKe();
     }
 
 } // Kết thúc lớp PanelThongKeDoanhThu

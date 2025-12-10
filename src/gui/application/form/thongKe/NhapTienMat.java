@@ -1,9 +1,12 @@
 package gui.application.form.thongKe;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.text.DecimalFormat;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.HashMap;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeListener;
@@ -33,7 +36,7 @@ public class NhapTienMat extends JDialog {
     // Components hiển thị thông tin nhân viên
     private JLabel lblTenNhanVien, lblCaLamViec, lblNgayLamViec;
 
-    // ====== CONSTRUCTOR NHẬN DỮ LIỆU ======
+    // ====== CONSTRUCTOR ======
     public NhapTienMat(Frame owner, String tenNV, String ca, String ngay, double tienMatHeThong) {
         super(owner, "Lập Báo Cáo Giao Ca", true);
         this.heThong_TienMatDoanhThu = tienMatHeThong;
@@ -49,46 +52,65 @@ public class NhapTienMat extends JDialog {
         lblCaLamViec.setText(ca);
         lblNgayLamViec.setText(ngay);
 
-        // CẬP NHẬT GIAO DIỆN NGAY KHI MỞ
         updateDoiSoat(heThong_TienMatDoanhThu, 0);
 
-        // Tập trung và bôi đen ô nhập liệu (theo yêu cầu)
+        // Tập trung vào ô tiền lẻ khi mở lên (tùy chọn)
         SwingUtilities.invokeLater(() -> {
-            JComponent editor = spnTienLeKhac.getEditor();
-            if (editor instanceof JSpinner.DefaultEditor) {
-                JFormattedTextField textField = ((JSpinner.DefaultEditor) editor).getTextField();
-                if (textField != null) {
-                    textField.selectAll();
-                    textField.requestFocusInWindow();
-                }
-            }
+            spnTienLeKhac.requestFocusInWindow();
         });
     }
 
     // =======================================================
-    // GETTERS CÔNG KHAI (CHỈ ĐỊNH NGHĨA MỘT LẦN)
+    // GETTERS & SETTERS (PUBLIC)
     // =======================================================
 
-    /**
-     * Trả về giá trị tiền mặt thực tế đã được xác nhận và lưu.
-     */
     public double getTienMatThucTeDaNhap() {
         return tienMatThucTeDaLuu;
     }
 
-    /**
-     * Kiểm tra xem giao ca đã được xác nhận chưa.
-     */
     public boolean isGiaoCaConfirmed() {
         return isGiaoCaConfirmed;
     }
 
-    /**
-     * Trả về nội dung Ghi chú đã nhập sau khi xác nhận.
-     */
     public String getGhiChuDaNhap() {
         return ghiChuDaLuu;
     }
+
+    public Map<Integer, Integer> getChiTietTienMatDaNhap() {
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int money : menhGiaArr) {
+            if (spinners.containsKey(money)) {
+                JSpinner sp = spinners.get(money);
+                int soLuong = (Integer) sp.getValue();
+                if (soLuong > 0) {
+                    map.put(money, soLuong);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Nạp lại dữ liệu cũ vào form
+     */
+    public void setDuLieuCu(java.util.Map<Integer, Integer> mapCu, String ghiChuCu) {
+        if (mapCu != null) {
+            for (java.util.Map.Entry<Integer, Integer> entry : mapCu.entrySet()) {
+                int menhGia = entry.getKey();
+                int soLuong = entry.getValue();
+                if (spinners.containsKey(menhGia)) {
+                    spinners.get(menhGia).setValue(soLuong);
+                }
+            }
+        }
+        if (ghiChuCu != null) {
+            txtGhiChu.setText(ghiChuCu);
+        }
+        updateTongTienMat();
+    }
+
+    // =======================================================
+    // SETUP UI
     // =======================================================
 
     private void initComponents() {
@@ -114,7 +136,6 @@ public class NhapTienMat extends JDialog {
     private JPanel createTitlePanel() {
         JPanel pnl = new JPanel(new GridBagLayout());
         pnl.setOpaque(false);
-
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
@@ -125,7 +146,6 @@ public class NhapTienMat extends JDialog {
         pnl.add(lblTitle, gbc);
 
         gbc.gridwidth = 1;
-
         gbc.gridy = 1; gbc.gridx = 0;
         pnl.add(new JLabel("Tên nhân viên:"), gbc);
         gbc.gridx = 1;
@@ -172,7 +192,6 @@ public class NhapTienMat extends JDialog {
         int row = 1;
         for (int money : menhGiaArr) {
             gbc.gridy = row;
-
             gbc.gridx = 0;
             pnlInputs.add(new JLabel(String.format("%,d", money)), gbc);
 
@@ -191,14 +210,12 @@ public class NhapTienMat extends JDialog {
 
         gbc.gridy = row; gbc.gridx = 0;
         pnlInputs.add(new JLabel("Tiền lẻ/khác"), gbc);
-
         gbc.gridx = 1; gbc.gridwidth = 2;
         spnTienLeKhac = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 10000000.0, 1000.0));
         pnlInputs.add(spnTienLeKhac, gbc);
 
         JPanel pnlTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlTotal.setOpaque(false);
-
         pnlTotal.add(new JLabel("Tổng tiền mặt thực tế (B):"));
         lblTongTienMatThucTe = new JLabel(df.format(0));
         lblTongTienMatThucTe.setForeground(new Color(0, 102, 0));
@@ -207,7 +224,6 @@ public class NhapTienMat extends JDialog {
 
         pnl.add(new JScrollPane(pnlInputs), BorderLayout.CENTER);
         pnl.add(pnlTotal, BorderLayout.SOUTH);
-
         return pnl;
     }
 
@@ -223,7 +239,6 @@ public class NhapTienMat extends JDialog {
 
         gbc.gridx = 0; gbc.gridy = 0;
         pnlInfo.add(new JLabel("Doanh thu hệ thống (A):"), gbc);
-
         gbc.gridx = 1;
         lblTienHeThong_SoSanh = new JLabel("0 VNĐ");
         lblTienHeThong_SoSanh.setFont(new Font("Arial", Font.BOLD, 16));
@@ -232,7 +247,6 @@ public class NhapTienMat extends JDialog {
 
         gbc.gridx = 0; gbc.gridy = 1;
         pnlInfo.add(new JLabel("Tiền mặt thực tế (B):"), gbc);
-
         gbc.gridx = 1;
         lblTienThucTe_SoSanh = new JLabel("0 VNĐ");
         lblTienThucTe_SoSanh.setFont(new Font("Arial", Font.BOLD, 16));
@@ -241,7 +255,6 @@ public class NhapTienMat extends JDialog {
 
         gbc.gridx = 0; gbc.gridy = 2;
         pnlInfo.add(new JLabel("CHÊNH LỆCH (B - A):"), gbc);
-
         gbc.gridx = 1;
         lblChenhLech = new JLabel("0 VNĐ");
         lblChenhLech.setFont(new Font("Arial", Font.BOLD, 20));
@@ -257,7 +270,6 @@ public class NhapTienMat extends JDialog {
         txtGhiChu = new JTextArea();
         txtGhiChu.setLineWrap(true);
         txtGhiChu.setWrapStyleWord(true);
-
         JScrollPane scrollGhiChu = new JScrollPane(txtGhiChu);
         JPanel pnlGhiChu = new JPanel(new BorderLayout());
         pnlGhiChu.setOpaque(false);
@@ -265,47 +277,68 @@ public class NhapTienMat extends JDialog {
         pnlGhiChu.add(scrollGhiChu, BorderLayout.CENTER);
 
         pnl.add(pnlGhiChu, BorderLayout.CENTER);
-
         return pnl;
     }
 
     private JPanel createButtonPanel() {
         JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnl.setOpaque(false);
-
         btnXacNhanGiaoCa = new JButton("Xác Nhận");
         btnXacNhanGiaoCa.setBackground(new Color(0, 102, 51));
         btnXacNhanGiaoCa.setForeground(Color.WHITE);
         btnXacNhanGiaoCa.setFont(new Font("Arial", Font.BOLD, 15));
-
         pnl.add(btnXacNhanGiaoCa);
         return pnl;
     }
+
+    // =======================================================
+    // LOGIC & EVENTS
+    // =======================================================
 
     private void addEvents() {
         ChangeListener listener = e -> updateTongTienMat();
 
         for (JSpinner s : spinners.values()) {
             s.addChangeListener(listener);
+            // THÊM: Tính năng tự bôi đen cho từng spinner
+            addAutoSelectOnFocus(s);
         }
+
         spnTienLeKhac.addChangeListener(listener);
+        // THÊM: Tính năng tự bôi đen cho spinner tiền lẻ
+        addAutoSelectOnFocus(spnTienLeKhac);
 
         btnXacNhanGiaoCa.addActionListener(e -> xuLyXacNhanGiaoCa());
     }
 
+    /**
+     * Hàm hỗ trợ: Tự động bôi đen (Select All) khi JSpinner nhận Focus
+     */
+    private void addAutoSelectOnFocus(JSpinner spinner) {
+        JComponent editor = spinner.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JFormattedTextField textField = ((JSpinner.DefaultEditor) editor).getTextField();
+            textField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    // Dùng invokeLater để đảm bảo việc bôi đen xảy ra SAU KHI component nhận focus xong
+                    SwingUtilities.invokeLater(() -> {
+                        textField.selectAll();
+                    });
+                }
+            });
+        }
+    }
+
     private void updateTongTienMat() {
         double total = 0;
-
         for (int money : menhGiaArr) {
             int qty = (Integer) spinners.get(money).getValue();
             double value = qty * money;
-
             labelsThanhTien.get(money).setText(df.format(value));
             total += value;
         }
-
         total += (Double) spnTienLeKhac.getValue();
-
         lblTongTienMatThucTe.setText(df.format(total));
         updateDoiSoat(heThong_TienMatDoanhThu, total);
     }
@@ -317,7 +350,6 @@ public class NhapTienMat extends JDialog {
         double diff = B - A;
         lblChenhLech.setText(df.format(diff));
 
-        // Thiết lập màu và trạng thái cho Chênh lệch
         if (B == 0 && A != 0) {
             lblChenhLech.setForeground(Color.RED);
             lblTrangThai.setText("(Thiếu tiền)");
@@ -338,40 +370,40 @@ public class NhapTienMat extends JDialog {
     }
 
     private void xuLyXacNhanGiaoCa() {
+        // 1. TÍNH LẠI TỔNG TIỀN TRỰC TIẾP (An toàn tuyệt đối)
+        double tongTienThucTe = 0;
+        for (int money : menhGiaArr) {
+            if (spinners.containsKey(money)) {
+                Number value = (Number) spinners.get(money).getValue();
+                tongTienThucTe += value.doubleValue() * money;
+            }
+        }
+        Number tienLe = (Number) spnTienLeKhac.getValue();
+        tongTienThucTe += tienLe.doubleValue();
+
         double A = heThong_TienMatDoanhThu;
-
-        String rawB = lblTongTienMatThucTe.getText().replaceAll("[^\\d]", "");
-        if (rawB.isEmpty()) rawB = "0";
-
-        double B = Double.parseDouble(rawB);
-
+        double B = tongTienThucTe;
         double diff = B - A;
 
         String ghiChu = txtGhiChu.getText().trim();
 
-        if (diff != 0 && ghiChu.isEmpty()) {
+        if (Math.abs(diff) > 0 && ghiChu.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "Có chênh lệch, vui lòng nhập lý do!",
+                    "Có chênh lệch (" + df.format(diff) + "), vui lòng nhập lý do vào ô Ghi chú!",
                     "Thiếu ghi chú", JOptionPane.WARNING_MESSAGE);
+            txtGhiChu.requestFocus();
             return;
         }
 
-        // LƯU GIÁ TRỊ VÀO FIELD VÀ ĐÁNH DẤU ĐÃ XÁC NHẬN
+        // 2. LƯU DỮ LIỆU
         this.tienMatThucTeDaLuu = B;
         this.ghiChuDaLuu = ghiChu;
         this.isGiaoCaConfirmed = true;
 
         JOptionPane.showMessageDialog(this,
-                "Đã lưu báo cáo giao ca!",
+                "Đã xác nhận kiểm kê!",
                 "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
-        // Đóng dialog sau khi xác nhận thành công
-        Window window = SwingUtilities.getWindowAncestor(this);
-        if (window instanceof JDialog) {
-            ((JDialog) window).dispose();
-        }
-
-        btnXacNhanGiaoCa.setEnabled(false);
-        btnXacNhanGiaoCa.setText("Đã xác nhận");
+        this.dispose();
     }
 }
