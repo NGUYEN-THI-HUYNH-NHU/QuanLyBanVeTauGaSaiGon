@@ -59,7 +59,7 @@ public class PanelCapNhatTuyen extends JPanel {
 //        this.setBackground(COLOR_PRIMARY_BG);
         setLayout(new BorderLayout());
         initComponents();
-        new CapNhatTuyen_CTRL(this);
+
     }
 
     public void initComponents(){

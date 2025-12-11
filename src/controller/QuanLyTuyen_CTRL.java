@@ -15,6 +15,8 @@ import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
+import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
+import gui.application.form.quanLyChuyen.PanelThemChuyen;
 import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
@@ -26,10 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.function.Function;
 
@@ -38,6 +37,11 @@ public class QuanLyTuyen_CTRL {
     private final Tuyen_BUS tuyen_bus;
     private Ga_BUS ga_bus;
     private VaiTroNhanVien vaiTroHienTai;
+
+    private PanelThemTuyen panelThemTuyen;
+    private PanelCapNhatTuyen panelCapNhatTuyen;
+    private JDialog dialogThemTuyen;
+    private JDialog dialogCapNhatTuyen;
 
     public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, Tuyen_BUS tuyen_bus){
         this.pnlTuyen = pnlTuyen;
@@ -199,13 +203,54 @@ public class QuanLyTuyen_CTRL {
     }
 
     private void hienThiManHinhThemTuyen(){
-        PanelThemTuyen panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
-        UngDung.showGiaoDienChinh(panelThemTuyen);
+        if(dialogThemTuyen == null) {
+            panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
+            dialogThemTuyen = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen), "Thêm Tuyến Đường Sắt Mới", Dialog.ModalityType.APPLICATION_MODAL);
+
+            dialogThemTuyen.setContentPane(panelThemTuyen);
+            dialogThemTuyen.setSize(1000, 700);
+            dialogThemTuyen.setLocationRelativeTo(pnlTuyen);
+            dialogThemTuyen.setResizable(false);
+
+            new ThemTuyen_CTRL(panelThemTuyen, dialogThemTuyen);
+
+            dialogThemTuyen.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    lamMoiTuyen();
+                }
+            });
+        }
+        dialogThemTuyen.setVisible(true);
     }
 
     private void hienThiManHinhCapNhatTuyen(){
-        PanelCapNhatTuyen panelCapNhatTuyen = new PanelCapNhatTuyen(pnlTuyen.getNhanVienThucHien());
-        UngDung.showGiaoDienChinh(panelCapNhatTuyen);
+        int row = pnlTuyen.getTableTuyen().getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(pnlTuyen, "Vui lòng chọn tuyến cần cập nhật!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String maTuyen = pnlTuyen.getTableTuyen().getValueAt(row, 0).toString();
+
+        panelCapNhatTuyen = new PanelCapNhatTuyen(pnlTuyen.getNhanVienThucHien());
+
+        dialogCapNhatTuyen = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen), "Cập Nhật Tuyến Đường Sắt", Dialog.ModalityType.APPLICATION_MODAL);
+        dialogCapNhatTuyen.setContentPane(panelCapNhatTuyen);
+        dialogCapNhatTuyen.setSize(1100, 750);
+        dialogCapNhatTuyen.setLocationRelativeTo(pnlTuyen);
+        dialogCapNhatTuyen.setResizable(false);
+
+        new CapNhatTuyen_CTRL(panelCapNhatTuyen, dialogCapNhatTuyen, maTuyen);
+
+        dialogCapNhatTuyen.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                lamMoiTuyen();
+            }
+        });
+
+        dialogCapNhatTuyen.setVisible(true);
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,

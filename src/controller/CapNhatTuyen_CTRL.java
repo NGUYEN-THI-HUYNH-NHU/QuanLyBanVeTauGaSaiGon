@@ -36,14 +36,16 @@ public class CapNhatTuyen_CTRL {
     private final PanelCapNhatTuyen panelCapNhatTuyen;
     private final Tuyen_BUS tuyenBus;
     private final Ga_BUS gaBus;
+    private final JDialog dialog;
 
     private final Map<String, Ga> dsGaCoSan;
     private final List<Ga> dsGaDaChon;
 
     private Tuyen tuyenHienTai;
 
-    public CapNhatTuyen_CTRL(PanelCapNhatTuyen panelCapNhatTuyen) {
+    public CapNhatTuyen_CTRL(PanelCapNhatTuyen panelCapNhatTuyen, JDialog dialog, String tuyenID) {
         this.panelCapNhatTuyen = panelCapNhatTuyen;
+        this.dialog = dialog;
         tuyenBus = new Tuyen_BUS();
         gaBus = new Ga_BUS();
 
@@ -239,8 +241,7 @@ public class CapNhatTuyen_CTRL {
             boolean luuTuyenThanhCong = tuyenBus.capNhatTuyen(tuyenCapNhat, dsTuyenChiTiet);
             if(luuTuyenThanhCong){
                 JOptionPane.showMessageDialog(panelCapNhatTuyen, "Cập nhật tuyến thành công.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                PanelQuanLyTuyen panelQuanLyTuyen = new PanelQuanLyTuyen(panelCapNhatTuyen.getNhanVienThucHien());
-                UngDung.showGiaoDienChinh(panelQuanLyTuyen);
+                dialog.dispose();
             }else{
                 JOptionPane.showMessageDialog(panelCapNhatTuyen, "Cập nhật tuyến thất bại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
@@ -491,8 +492,7 @@ public class CapNhatTuyen_CTRL {
                 JOptionPane.WARNING_MESSAGE
         );
         if (choice == JOptionPane.YES_OPTION){
-            PanelQuanLyTuyen panelQuanLyTuyen = new PanelQuanLyTuyen(panelCapNhatTuyen.getNhanVienThucHien());
-            UngDung.showGiaoDienChinh(panelQuanLyTuyen);
+            dialog.dispose();
         }
     }
 

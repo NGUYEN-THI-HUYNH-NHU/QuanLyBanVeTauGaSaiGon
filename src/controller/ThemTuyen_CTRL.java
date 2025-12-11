@@ -35,14 +35,16 @@ import java.util.function.Function;
 public class ThemTuyen_CTRL {
     private final PanelThemTuyen panelThemTuyen;
     private final Tuyen_BUS tuyenBus;
+    private final JDialog dialog;
     private final Ga_BUS gaBus;
     private final KhoangCachChuan_DAO khoangCachChuanDao;
 
     private final Map<String, Ga> dsGaCoSan;
     private final List<Ga> dsGaDaChon;
 
-    public ThemTuyen_CTRL(PanelThemTuyen panelThemTuyen){
+    public ThemTuyen_CTRL(PanelThemTuyen panelThemTuyen, JDialog dialog){
         this.panelThemTuyen = panelThemTuyen;
+        this.dialog = dialog;
         tuyenBus = new Tuyen_BUS();
         gaBus = new Ga_BUS();
         khoangCachChuanDao = new KhoangCachChuan_DAO();
@@ -397,6 +399,7 @@ public class ThemTuyen_CTRL {
             boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoi, dsTuyenChiTiet);
             if (luuTuyenThanhCong) {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Đã lưu tuyến mới " + maTuyen + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                dialog.dispose();
                 PanelQuanLyTuyen panelQuanLy = new PanelQuanLyTuyen(panelThemTuyen.getNhanVienThucHien());
                 UngDung.showGiaoDienChinh(panelQuanLy);
             } else {
@@ -419,8 +422,7 @@ public class ThemTuyen_CTRL {
                 JOptionPane.WARNING_MESSAGE
         );
         if (choice == JOptionPane.YES_OPTION) {
-            PanelQuanLyTuyen panelQuanLy = new PanelQuanLyTuyen(panelThemTuyen.getNhanVienThucHien());
-            UngDung.showGiaoDienChinh(panelQuanLy);
+            dialog.dispose();
         }
     }
 
