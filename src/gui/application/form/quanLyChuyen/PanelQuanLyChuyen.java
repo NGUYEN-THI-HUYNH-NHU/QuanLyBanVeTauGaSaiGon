@@ -359,6 +359,27 @@ public class PanelQuanLyChuyen extends JPanel {
         });
     }
 
+    public class Validator {
+
+        public static boolean isValidMaTau(String str) {
+            return str != null && str.matches("^[A-Z]{2,4}[0-9]{1,3}$");
+        }
+
+        public static boolean isValidMaChuyen(String str) {
+            // Phần đầu là mã tàu, dấu gạch dưới, sau đó là 8 chữ số ngày tháng
+            return str != null && str.matches("^[A-Z0-9]+_\\d{8}$");
+        }
+
+        public static boolean isValidGio(String str) {
+            // 00-19 hoặc 20-23 : 00-59
+            return str != null && str.matches("^([01]\\d|2[0-3]):[0-5]\\d$");
+        }
+
+        public static boolean isValidNgay(String str) {
+            return str != null && str.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$");
+        }
+    }
+
     public NhanVien getNhanVienThucHien() {
         return nhanVienThucHien;
     }

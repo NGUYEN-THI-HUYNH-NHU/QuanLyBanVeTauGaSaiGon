@@ -823,6 +823,17 @@ public class QuanLyChuyen_CTRL {
             String gioDiStr = model.getValueAt(0,3).toString();
             LocalTime gioDi = LocalTime.parse(gioDiStr, timeFormatter);
 
+            if (!PanelQuanLyChuyen.Validator.isValidMaChuyen(maChuyen)) {
+                JOptionPane.showMessageDialog(dialogThem, "Mã chuyến không đúng định dạng (VD: SE1_20251211)!");
+                return;
+            }
+
+            if (!PanelQuanLyChuyen.Validator.isValidGio(gioDiStr)) {
+                JOptionPane.showMessageDialog(dialogThem, "Giờ đi không hợp lệ (HH:mm)!");
+                panelThemChuyen.getTxtGioDi().requestFocus();
+                return;
+            }
+
             Chuyen c = new Chuyen(maChuyen);
             c.setTuyen(new Tuyen(tuyenID));
             c.setTau(new Tau(tauID, ""));

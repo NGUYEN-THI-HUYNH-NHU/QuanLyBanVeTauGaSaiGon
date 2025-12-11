@@ -37,6 +37,7 @@ public class CapNhatTuyen_CTRL {
     private final Tuyen_BUS tuyenBus;
     private final Ga_BUS gaBus;
     private final JDialog dialog;
+    private final String tuyenID;
 
     private final Map<String, Ga> dsGaCoSan;
     private final List<Ga> dsGaDaChon;
@@ -46,6 +47,7 @@ public class CapNhatTuyen_CTRL {
     public CapNhatTuyen_CTRL(PanelCapNhatTuyen panelCapNhatTuyen, JDialog dialog, String tuyenID) {
         this.panelCapNhatTuyen = panelCapNhatTuyen;
         this.dialog = dialog;
+        this.tuyenID = tuyenID;
         tuyenBus = new Tuyen_BUS();
         gaBus = new Ga_BUS();
 
@@ -55,6 +57,7 @@ public class CapNhatTuyen_CTRL {
 
         khoiTaoDuLieuBanDau();
         thietLapListener();
+        taiDuLieuTuyen(tuyenID);
     }
 
     private void khoiTaoDuLieuBanDau(){
@@ -253,6 +256,7 @@ public class CapNhatTuyen_CTRL {
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp, Function<String, List<String>> timKiem){
+        if(!txt.isShowing()) return;
         String input = txt.getText().trim();
         if(input.isEmpty()){
             pp.setVisible(false);
@@ -265,8 +269,10 @@ public class CapNhatTuyen_CTRL {
         }
         lst.setListData(ds.toArray(new String[0]));
         lst.setVisibleRowCount(Math.min(ds.size(), 8));
-        pp.show(txt,0,txt.getHeight());
-        txt.requestFocusInWindow();
+        if(txt.isFocusOwner()){
+            pp.show(txt,0,txt.getHeight());
+            txt.requestFocusInWindow();
+        }
     }
 
     private void taoPopGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem, Runnable actionOnSelect){

@@ -134,7 +134,7 @@ public class PanelQuanLyTuyen extends JPanel {
         // --- 2. CENTER PANEL (SPLIT PANE) ---
 
         // A. Bảng Danh Sách Tuyến (LEFT)
-        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Khoảng Cách (km)"};
+        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Quãng Đường (km)"};
         tableModelTuyen = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -297,6 +297,21 @@ public class PanelQuanLyTuyen extends JPanel {
         txtGaDi.addActionListener(timKiemListener);
         txtGaDen.addActionListener(timKiemListener);
         txtTimKiem.addActionListener(timKiemListener);
+    }
+
+    public class Validator {
+
+        public static boolean isValidMaTuyen(String str) {
+            return str != null && str.matches("^[A-Z]{3,5}-[A-Z]{3,5}$");
+        }
+
+        public static boolean isValidTenGa(String str) {
+            return str != null && str.matches("^[\\p{L}\\s]+$");
+        }
+
+        public static boolean isValidKhoangCach(String str) {
+            return str != null && str.matches("^[0-9]+(\\.[0-9]{1,2})?$");
+        }
     }
 
     public Tuyen_BUS getTuyen_bus() {
