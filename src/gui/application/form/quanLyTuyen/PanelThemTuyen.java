@@ -67,8 +67,6 @@ public class PanelThemTuyen extends JPanel {
         this.nhanVienThucHien = nhanVien;
         setLayout(new BorderLayout());
         initComponents();
-        new ThemTuyen_CTRL(this);
-//        loadAndBlurBackground("img/nenTauLua.jpg");
     }
 
     public void initComponents(){

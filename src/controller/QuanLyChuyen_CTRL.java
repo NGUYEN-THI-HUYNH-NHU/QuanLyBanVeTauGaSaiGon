@@ -585,7 +585,7 @@ public class QuanLyChuyen_CTRL {
             private void update() {
                 if (timer != null && timer.isRunning()) timer.stop();
                 timer = new Timer(300, e -> SwingUtilities.invokeLater(() -> {
-                    if (txt.isFocusOwner() && pp.isVisible() == false || txt.isFocusOwner() && !txt.getText().trim().isEmpty()) {
+                    if (txt.isFocusOwner() ) {
                         hienThiGoiY(txt, lst, pp, timKiem);
                     }
                 }));
@@ -732,7 +732,8 @@ public class QuanLyChuyen_CTRL {
 
     private void setupCombo(JComboBox<String> cbo, List<String> data){
         cbo.setEditable(true);
-        cbo.setModel(new DefaultComboBoxModel<>());
+        cbo.setModel(new DefaultComboBoxModel<>(data.toArray(new String[0])));
+        cbo.setSelectedIndex(-1);
 
         JTextField txtEditor = (JTextField) cbo.getEditor().getEditorComponent();
 
