@@ -37,11 +37,26 @@ import dao.Ve_DAO;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 
-public class MobileScannerServer {
+public class AppHttpServer {
 	private HttpServer server;
 	private Ve_DAO veDAO;
 
-	public MobileScannerServer() {
+	// Interface để Controller nhận lại dữ liệu tiền về
+	public interface OnPaymentListener {
+		void onPaymentReceived(String content, float amount);
+	}
+
+	// Biến lưu listener hiện tại (chỉ có 1 màn hình bán vé được nghe tại 1 thời
+	// điểm)
+	private static OnPaymentListener currentPaymentListener;
+
+	// Hàm đăng ký listener từ Controller
+	public static void addPaymentListener(OnPaymentListener listener) {
+		currentPaymentListener = listener;
+		System.out.println(">> Đã cập nhật người nhận thông báo thanh toán.");
+	}
+
+	public AppHttpServer() {
 		veDAO = new Ve_DAO();
 	}
 
@@ -57,6 +72,9 @@ public class MobileScannerServer {
 			// 2. API MỚI: Nhận Text trực tiếp từ App ngoài
 			// App sẽ gọi vào: https://...ngrok.../api/scan?code=MA_VE
 			server.createContext("/api/scan", new ApiScanHandler());
+
+			// 3. Endpoint Nhận Tiền (Cho Casso)
+			server.createContext("/webhook/casso", new CassoHandler());
 
 			server.setExecutor(null);
 			server.start();
@@ -382,6 +400,41 @@ public class MobileScannerServer {
 			return data;
 		}
 		return null;
+	}
+
+	static class CassoHandler implements HttpHandler {
+		@Override
+		public void handle(HttpExchange t) throws IOException {
+			try {
+				// 1. Đọc JSON từ Casso gửi đến
+				String jsonResponse = new String(t.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+				System.out.println(">> Casso gửi: " + jsonResponse);
+
+				// 2. Phân tích JSON (Giả lập bóc tách)
+				// Bạn hãy copy logic parse JSON lấy 'amount' và 'description'
+				// từ file CassoWebhookServer cũ sang đây.
+				float amount = 0; // Thay bằng logic parse thực
+				String description = jsonResponse; // Thay bằng logic parse thực
+
+				// 3. BÁO VỀ CONTROLLER (QUAN TRỌNG)
+				if (currentPaymentListener != null) {
+					currentPaymentListener.onPaymentReceived(description, amount);
+				} else {
+					System.out.println(">> Có tiền về nhưng không ai đang đợi thanh toán.");
+				}
+
+				// 4. Trả lời Casso để nó không gửi lại
+				String res = "{\"error\":0, \"message\":\"Success\"}";
+				t.getResponseHeaders().set("Content-Type", "application/json");
+				t.sendResponseHeaders(200, res.length());
+				try (OutputStream os = t.getResponseBody()) {
+					os.write(res.getBytes());
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

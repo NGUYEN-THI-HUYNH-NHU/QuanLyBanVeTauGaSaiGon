@@ -37,7 +37,7 @@ public class NgrokRunner {
 
 			// Lệnh chạy: ngrok http --domain=xxx 8080
 			// Lưu ý: "ngrok.exe" giả định file này nằm ở thư mục gốc dự án
-			ProcessBuilder builder = new ProcessBuilder("ngrok", "http", "--domain=" + NGROK_DOMAIN, PORT);
+			ProcessBuilder builder = new ProcessBuilder("ngrok.exe", "http", "--domain=" + NGROK_DOMAIN, PORT);
 
 			// Tự động tắt Ngrok khi tắt App Java (Quan trọng)
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
