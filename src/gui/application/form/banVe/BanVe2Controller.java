@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -24,7 +25,7 @@ import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuong;
-import gui.application.paymentHelper.CassoWebhookServer;
+import gui.application.AppHttpServer;
 import gui.application.paymentHelper.PdfTicketExporter;
 import gui.application.paymentHelper.VietQRService;
 
@@ -47,8 +48,6 @@ public class BanVe2Controller {
 	// Listener để báo cho wizard chính (PanelBanVe) biết
 	private Runnable onPanel2ReturnListener;
 	private Runnable onPaymentSuccessListener;
-
-	private CassoWebhookServer cassoServer;
 
 	private JDialog zoomDialog; // Lưu tham chiếu để tắt dialog này từ xa
 	private String currentMaGiaoDich; // Lưu mã để ảnh to và nhỏ dùng chung 1 mã
@@ -130,18 +129,27 @@ public class BanVe2Controller {
 	private void initMediatorLogic() {
 		// TẠO MỘT LISTENER CHUNG CHO VIỆC ĐỔI PHƯƠNG THỨC
 		ActionListener switchPaymentModeListener = e -> {
+			// Chỉ chạy logic khi nguồn phát sự kiện là nút ĐANG ĐƯỢC CHỌN
+			// (Bỏ qua sự kiện của nút vừa bị Deselect)
+			AbstractButton source = (AbstractButton) e.getSource();
+			if (!source.isSelected()) {
+				return;
+			}
+
 			if (p5.isThanhToanTienMat()) {
+				// Chọn Tiền mặt -> Tắt Server
 				stopPaymentServer();
 				p5.getLblQRCodeDisplay().setIcon(null);
-				p5.getLblQRCodeDisplay().setText("Đang tải mã QR...");
-				// Tắt ảnh to nếu đang mở
+				p5.getLblQRCodeDisplay().setText("Chọn chuyển khoản để hiện QR...");
 				if (zoomDialog != null && zoomDialog.isVisible()) {
 					closePaymentDialog();
 				}
 			} else {
+				// Chọn Chuyển khoản -> Bật Server
 				startPaymentListening();
 			}
 		};
+
 		if (p5.getRadTienMat() != null) {
 			p5.getRadTienMat().addActionListener(switchPaymentModeListener);
 		}
@@ -169,16 +177,7 @@ public class BanVe2Controller {
 			}
 		});
 
-		// 1. Lắng nghe sự kiện chuyển tab (Radio Button)
-		p5.getRadChuyenKhoan().addActionListener(e -> {
-			if (p5.isThanhToanTienMat()) {
-				return;
-			}
-			// Gọi hàm bắt đầu lắng nghe và hiện QR nhỏ
-			startPaymentListening();
-		});
-
-		// 2. KHI BẤM VÀO ẢNH NHỎ -> CHỈ HIỆN ẢNH TO (KHÔNG TẠO GIAO DỊCH MỚI)
+		// KHI BẤM VÀO ẢNH NHỎ -> CHỈ HIỆN ẢNH TO (KHÔNG TẠO GIAO DỊCH MỚI)
 		if (p5.getLblQRCodeDisplay() != null) {
 			p5.getLblQRCodeDisplay().addMouseListener(new MouseAdapter() {
 				@Override
@@ -198,9 +197,6 @@ public class BanVe2Controller {
 	 * nhỏ (qr_only)
 	 */
 	private void startPaymentListening() {
-		// TẮT SERVER CŨ TRƯỚC
-		stopPaymentServer();
-
 		// 1. Tạo mã giao dịch (Chỉ chữ và số để tránh lỗi)
 		double tongTien = p5.getTongThanhToan();
 		currentMaGiaoDich = "VETAU" + System.currentTimeMillis();
@@ -215,52 +211,38 @@ public class BanVe2Controller {
 		giaoDich.setTongTien(tongTien);
 		giaoDich.setThanhToanTienMat(false);
 
-		// Khởi tạo Server lắng nghe
-		cassoServer = new CassoWebhookServer();
+		// 2. ĐĂNG KÝ LẮNG NGHE VÀO SERVER TỔNG
+		AppHttpServer.addPaymentListener((content, amount) -> {
+			// LOGIC XỬ LÝ TIỀN VỀ (Copy từ listener cũ sang)
+			System.out.println(">> Controller nhận được tin: " + content);
 
-		// 2. KHỞI CHẠY SERVER LẮNG NGHE WEBHOOK TỪ CASSO
-		boolean isServerStarted = cassoServer.startServer(new CassoWebhookServer.OnTransactionListener() {
-			@Override
-			public void onTransactionSuccess(String jsonLog, float amount) {
-				System.out.println(">> SERVER ĐÃ NHẬN TIN TỪ CASSO!");
-				System.out.println("LOG BANK: " + jsonLog);
+			String cleanLog = content.toUpperCase().replaceAll("[^A-Z0-9]", "");
+			String cleanMa = currentMaGiaoDich.toUpperCase().replaceAll("[^A-Z0-9]", "");
 
-				// Chuẩn hóa chuỗi (Biến tất cả thành chữ hoa, chỉ giữ lại chữ và số)
-				String cleanLog = jsonLog.toUpperCase().replaceAll("[^A-Z0-9]", "");
-				String cleanMa = currentMaGiaoDich.toUpperCase().replaceAll("[^A-Z0-9]", "");
+			if (cleanLog.contains(cleanMa)) {
+				System.out.println(">> KHỚP MÃ! TIỀN VỀ!");
+				isProcessed[0] = true;
 
-				// Kiểm tra
-				if (!isProcessed[0] && cleanLog.contains(cleanMa)) {
-					System.out.println(">> KHỚP MÃ! TIỀN VỀ!");
-					isProcessed[0] = true;
-					cassoServer.stopServer();
+				SwingUtilities.invokeLater(() -> {
+					p5.getLblQRCodeDisplay().setIcon(null);
+					// Tắt ảnh to nếu đang mở
+					if (zoomDialog != null && zoomDialog.isVisible()) {
+						closePaymentDialog();
+					}
 
-					SwingUtilities.invokeLater(() -> {
-						p5.getLblQRCodeDisplay().setIcon(null);
-						// Tắt ảnh to nếu đang mở
-						if (zoomDialog != null && zoomDialog.isVisible()) {
-							closePaymentDialog();
-						}
+					JOptionPane.showMessageDialog(view,
+							"ĐÃ NHẬN ĐƯỢC TIỀN! (" + String.format("%,.0f", tongTien) + " VNĐ)", "Thành công",
+							JOptionPane.INFORMATION_MESSAGE);
 
-						JOptionPane.showMessageDialog(view,
-								"ĐÃ NHẬN ĐƯỢC TIỀN! (" + String.format("%,.0f", tongTien) + " VNĐ)", "Thành công",
-								JOptionPane.INFORMATION_MESSAGE);
-
-						giaoDich.setTienNhan(tongTien);
-						processPaymentAndSave(giaoDich);
-					});
-				} else {
-					System.out.println(">> Có tin nhắn nhưng không khớp mã hoặc đã xử lý rồi.");
-				}
+					giaoDich.setTienNhan(tongTien);
+					processPaymentAndSave(giaoDich);
+				});
+				// [Quan trọng] Sau khi xong thì hủy đăng ký để tránh nhận tin rác
+				AppHttpServer.addPaymentListener(null);
 			}
 		});
 
-		if (!isServerStarted) {
-			JOptionPane.showMessageDialog(view, "Cổng 8080 đang bận!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		// 4. Tải ảnh QR NHỎ (qr_only)
+		// 3. Tải ảnh QR NHỎ (qr_only)
 		VietQRService qrService = new VietQRService();
 		String qrUrl = qrService.generateQRUrl(tongTien, currentNoiDungCK, "qr_only");
 
@@ -408,10 +390,8 @@ public class BanVe2Controller {
 	}
 
 	private void stopPaymentServer() {
-		if (cassoServer != null) {
-			cassoServer.stopServer();
-			cassoServer = null; // Gán null để bộ dọn rác Java xử lý
-			System.out.println(">> Đã đóng cổng thanh toán Online.");
-		}
+		// Thay vì tắt server, ta chỉ cần hủy đăng ký lắng nghe
+		AppHttpServer.addPaymentListener(null);
+		System.out.println(">> Đã hủy lắng nghe thanh toán (Server vẫn chạy ngầm).");
 	}
 }
