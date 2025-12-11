@@ -353,4 +353,12 @@ public class Tuyen_BUS {
 		return tuyen_dao.getTop10Tuyen(keyword);
 	}
 
+	public Tuyen getTuyenTheoMa(String maTuyen) {
+		return tuyen_dao.layTuyenTheoMa(maTuyen);
+	}
+
+	public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
+		return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen);
+	}
+
 }

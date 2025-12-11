@@ -13,6 +13,7 @@ package controller;
 import bus.Ga_BUS;
 import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
+import entity.Tuyen;
 import entity.type.VaiTroNhanVien;
 import gui.application.UngDung;
 import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
@@ -138,68 +139,33 @@ public class QuanLyTuyen_CTRL {
 
         if(row == -1) return;
 
-        Font baseFont = new Font("Segoe UI", Font.PLAIN, 15);
-        Font boldHeaderFont = baseFont.deriveFont(Font.BOLD, 25f);
-
         int modelRow = table.convertRowIndexToModel(row);
         String tuyenID = table.getValueAt(modelRow, 0).toString();
-        String thongTinChung = tuyen_bus.getChiTietTuyen(tuyenID);
-        List<Object[]> dsGaTrungGian = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
 
-        Window owner = SwingUtilities.getWindowAncestor(pnlTuyen);
-        JDialog dialog = new JDialog((Frame) owner, "Thông Tin Chi Tiết Tuyến " + tuyenID, Dialog.ModalityType.APPLICATION_MODAL); //chặn tương tác với cửa sổ chính
-        dialog.setResizable(false);
-        dialog.setLayout(new BorderLayout());
+        Tuyen tuyen = tuyen_bus.getTuyenTheoMa(tuyenID);
 
-        JTextArea txtThongTinCHung = new JTextArea(thongTinChung);
-        txtThongTinCHung.setEditable(false);
-        txtThongTinCHung.setFont(baseFont);
+        List<Object[]> dsGaChiTiet = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
 
-        txtThongTinCHung.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        if (tuyen != null) {
+            String khoangCach = table.getValueAt(modelRow, 3).toString() + " km";
 
-        String[] columnNames = { "Tên Ga", "Loại Ga", "Khoảng cách từ ga xuất phát (km)"};
-        DefaultTableModel detailModel = new DefaultTableModel(columnNames,0);
-        for(Object[] rowData : dsGaTrungGian){
-            detailModel.addRow(rowData);
+            String tenTuyen = pnlTuyen.getTableTuyen().getValueAt(row, 1) + " - " + pnlTuyen.getTableTuyen().getValueAt(row, 2);
+
+            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getTuyenID());
+            pnlTuyen.getTxtChiTietTenTuyen().setText(tenTuyen);
+            pnlTuyen.getTxtChiTietKhoangCach().setText(khoangCach);
+            pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
         }
 
-        JTable detailTable = new JTable(detailModel);
-        detailTable.setFillsViewportHeight(true);
-        detailTable.setRowHeight(30);
-        detailTable.setShowGrid(true);
-        detailTable.setFont(baseFont);
-        detailTable.setShowHorizontalLines(true);
-        detailTable.setShowVerticalLines(true);
-        JTableHeader hd = detailTable.getTableHeader();
-        hd.setFont(boldHeaderFont);
-//        hd.setOpaque(false);
-        DefaultTableCellRenderer headerRenderer = (DefaultTableCellRenderer) hd.getDefaultRenderer();
-        headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        hd.setFont(new Font("Times New Roman", Font.BOLD, 14));
-        hd.setBackground(new Color(36, 104, 155));
-        hd.setForeground(Color.white);
+        // 3. Cập nhật bảng chi tiết ga
+        DefaultTableModel modelChiTiet = pnlTuyen.getModelChiTietGa();
+        modelChiTiet.setRowCount(0);
 
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();// căn phait cho cột khoảng cách
-        rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-        detailTable.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        JScrollPane tableScrollPane = new JScrollPane(detailTable);
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(new JScrollPane(txtThongTinCHung), BorderLayout.NORTH);
-        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
-        dialog.add(mainPanel, BorderLayout.CENTER);
-        JButton btnClose = new JButton("Đóng");
-        btnClose.addActionListener(e -> dialog.dispose());
-        JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        southPanel.setBorder(BorderFactory.createEmptyBorder(5,0,5,5));
-        southPanel.add(btnClose);
-
-        dialog.add(southPanel, BorderLayout.SOUTH);
-
-        dialog.pack();
-        dialog.setSize(800, 600);
-        dialog.setLocationRelativeTo(pnlTuyen);
-        dialog.setVisible(true);
-
+        int stt = 1;
+        for(Object[] rowData : dsGaChiTiet){
+            // rowData: {Tên Ga, Loại Ga, Khoảng cách}
+            modelChiTiet.addRow(new Object[]{ stt++, rowData[0], rowData[1], rowData[2] });
+        }
     }
 
     private void hienThiManHinhThemTuyen(){
