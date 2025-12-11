@@ -323,71 +323,71 @@ public class KhuyenMai_DAO {
 	}
 
 	// lay danh sach dieu kien khuyen mai
-	public List<DieuKienKhuyenMai> getAllDKKM() {
-		String sql = "SELECT * FROM DieuKienKhuyenMai";
-		List<DieuKienKhuyenMai> ds = new ArrayList<>();
-		try (Connection con = connectDB.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				DieuKienKhuyenMai dk = new DieuKienKhuyenMai();
-				dk.setDieuKienID(rs.getString("dieuKienID"));
-
-				// --- Liên kết khuyến mãi ---
-				KhuyenMai km = new KhuyenMai();
-				km.setKhuyenMaiID(rs.getString("khuyenMaiID"));
-				dk.setKhuyenMai(km);
-
-				// --- Các trường enum ---
-				String tuyenID = rs.getString("tuyenID");
-				if (tuyenID != null) {
-					Tuyen tuyen = new Tuyen();
-					tuyen.setTuyenID(tuyenID);
-					dk.setTuyen(tuyen);
-				}
-
-				// LoaiTau
-				String loaiTauStr = rs.getString("loaiTauID");
-				if (loaiTauStr != null) {
-					try {
-						dk.setLoaiTau(LoaiTau.valueOf(loaiTauStr));
-					} catch (IllegalArgumentException e) {
-						System.err.println(loaiTauStr);
-					}
-				}
-
-				// HangToa
-				String hangToaStr = rs.getString("hangToaID");
-				if (hangToaStr != null) {
-					try {
-						dk.setHangToa(HangToa.valueOf(hangToaStr));
-					} catch (IllegalArgumentException e) {
-						System.err.println(hangToaStr);
-					}
-				}
-
-				// LoaiDoiTuong
-				String loaiDTStr = rs.getString("loaiDoiTuongID");
-				if (loaiDTStr != null) {
-					try {
-						dk.setLoaiDoiTuong(LoaiDoiTuong.valueOf(loaiDTStr));
-					} catch (IllegalArgumentException e) {
-						System.err.println(loaiDTStr);
-					}
-				}
-
-				dk.setNgayTrongTuan(rs.getInt("ngayTrongTuan"));
-				dk.setNgayLe(rs.getBoolean("ngayLe"));
-				dk.setMinGiaTriDonHang(rs.getDouble("minGiaTriDonHang"));
-
-				ds.add(dk);
-			}
-
-		} catch (SQLException e) {
-			System.err.println(e.getMessage());
-		}
-		return ds;
-	}
+//	public List<DieuKienKhuyenMai> getAllDKKM() {
+//		String sql = "SELECT * FROM DieuKienKhuyenMai";
+//		List<DieuKienKhuyenMai> ds = new ArrayList<>();
+//		try (Connection con = connectDB.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+//
+//			ResultSet rs = ps.executeQuery();
+//			while (rs.next()) {
+//				DieuKienKhuyenMai dk = new DieuKienKhuyenMai();
+//				dk.setDieuKienID(rs.getString("dieuKienID"));
+//
+//				// --- Liên kết khuyến mãi ---
+//				KhuyenMai km = new KhuyenMai();
+//				km.setKhuyenMaiID(rs.getString("khuyenMaiID"));
+//				dk.setKhuyenMai(km);
+//
+//				// --- Các trường enum ---
+//				String tuyenID = rs.getString("tuyenID");
+//				if (tuyenID != null) {
+//					Tuyen tuyen = new Tuyen();
+//					tuyen.setTuyenID(tuyenID);
+//					dk.setTuyen(tuyen);
+//				}
+//
+//				// LoaiTau
+//				String loaiTauStr = rs.getString("loaiTauID");
+//				if (loaiTauStr != null) {
+//					try {
+//						dk.setLoaiTau(LoaiTau.valueOf(loaiTauStr));
+//					} catch (IllegalArgumentException e) {
+//						System.err.println(loaiTauStr);
+//					}
+//				}
+//
+//				// HangToa
+//				String hangToaStr = rs.getString("hangToaID");
+//				if (hangToaStr != null) {
+//					try {
+//						dk.setHangToa(HangToa.valueOf(hangToaStr));
+//					} catch (IllegalArgumentException e) {
+//						System.err.println(hangToaStr);
+//					}
+//				}
+//
+//				// LoaiDoiTuong
+//				String loaiDTStr = rs.getString("loaiDoiTuongID");
+//				if (loaiDTStr != null) {
+//					try {
+//						dk.setLoaiDoiTuong(LoaiDoiTuong.valueOf(loaiDTStr));
+//					} catch (IllegalArgumentException e) {
+//						System.err.println(loaiDTStr);
+//					}
+//				}
+//
+//				dk.setNgayTrongTuan(rs.getInt("ngayTrongTuan"));
+//				dk.setNgayLe(rs.getBoolean("ngayLe"));
+//				dk.setMinGiaTriDonHang(rs.getDouble("minGiaTriDonHang"));
+//
+//				ds.add(dk);
+//			}
+//
+//		} catch (SQLException e) {
+//			System.err.println(e.getMessage());
+//		}
+//		return ds;
+//	}
 
 	// lay dieu kien khuyen mai theo ma khuyen mai
 	public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoKhuyenMai(String khuyenMaiID) {

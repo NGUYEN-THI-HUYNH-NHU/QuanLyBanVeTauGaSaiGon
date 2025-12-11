@@ -64,6 +64,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         panelBody.add(createTablePanel(), BorderLayout.CENTER);
         add(panelBody, BorderLayout.CENTER);
         loadDataToTable();
+        initPlaceholders();
     }
 
     // tạo panel chia đôi ở phía trên
@@ -112,9 +113,6 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
 
 
         listText = Arrays.asList(txtMaKH, txtTenKH, txtSDT, txtEmail, txtSoGiayTo, txtDiaChi);
-        for (JTextField txtField : listText) {
-            txtField.addKeyListener(this);
-        }
         // Các nút thao tác
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         btnPanel.setBackground(Color.WHITE);
@@ -314,6 +312,52 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         }
     }
 
+    // Đặt placeholder cho JTextField
+    private void applyPlaceholder(JTextField field, String placeholder) {
+        field.setForeground(Color.GRAY);
+        field.setText(placeholder);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+
+                if (field.getText().trim().isEmpty()) {
+                    field.setForeground(Color.GRAY);
+                    field.setText(placeholder);
+                }
+            }
+        });
+    }
+
+    // Chỉ lấy giá trị thực tế từ JTextField, bỏ qua placeholder
+    private String getRealText(JTextField field, String placeholder) {
+        String text = field.getText().trim();
+        if (text.equals(placeholder) && field.getForeground().equals(Color.GRAY)) {
+            return "";
+        }
+        return text;
+    }
+
+    // khởi tạo placeholder cho các JTextField
+    private void initPlaceholders() {
+        applyPlaceholder(txtTenKH,   "VD: Nguyễn Văn An");
+        applyPlaceholder(txtSDT,     "VD: 0912345678");
+        applyPlaceholder(txtEmail,   "VD: email@domain.com");
+        applyPlaceholder(txtSoGiayTo,"VD: 079123456789");
+        applyPlaceholder(txtDiaChi,  "VD: 123 Lê Lợi, Q1, TP.HCM");
+    }
+
+
+
     // click 1 dòng trên table
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -369,20 +413,20 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         resetErrorLabels();
         boolean isValid = true;
 
-        String tenKH = txtTenKH.getText().trim();
-        String sdt = txtSDT.getText().trim();
-        String email = txtEmail.getText().trim();
-        String soGiayTo = txtSoGiayTo.getText().trim();
-        String diaChi = txtDiaChi.getText().trim();
+        String tenKH = getRealText(txtTenKH, "VD: Nguyễn Văn An");
+        String sdt    = getRealText(txtSDT, "VD: 0912345678");
+        String email  = getRealText(txtEmail, "VD: email@domain.com");
+        String soGiayTo = getRealText(txtSoGiayTo, "VD: 079123456789");
+        String diaChi = getRealText(txtDiaChi, "VD: 123 Lê Lợi, Q1, TP.HCM");
 
         if(tenKH.isEmpty() || !khachHang_ctrl.isValidTen(tenKH)){
-            lblErrorTenKH.setText("Tên khách hàng không hợp lệ!");
+            lblErrorTenKH.setText("Tên khách hàng không hợp lệ! VD: Nguyễn Văn A");
             isValid = false;
         } else {
             lblErrorTenKH.setText("");
         }
         if(sdt.isEmpty() || !khachHang_ctrl.isValidPhoneNumber(sdt)){
-            lblErrorSDT.setText("Số điện thoại không hợp lệ! ");
+            lblErrorSDT.setText("Số điện thoại không hợp lệ! VD: 0912345678");
             isValid = false;
         } else if(khachHang_ctrl.kiemTraTrungSDT(sdt)){
             lblErrorSDT.setText("Số điện thoại đã tồn tại!");
@@ -391,24 +435,25 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         }else {
             lblErrorSDT.setText("");
         }
-        if(soGiayTo.isEmpty()){
+
+        if (soGiayTo.isEmpty()) {
+            lblErrorSGT.setText("Số giấy tờ không được để trống! VD: 070305000901");
+            isValid = false;
+        } else if (khachHang_ctrl.kiemTraTrungSoGiayTo(soGiayTo)) {
             lblErrorSGT.setText("Số giấy tờ đã tồn tại!");
             isValid = false;
-        }else if(khachHang_ctrl.kiemTraTrungSoGiayTo(soGiayTo)){
-            lblErrorSGT.setText("Số giấy tờ đã tồn tại!");
-            isValid = false;
-        }
-        else{
+        } else {
             lblErrorSGT.setText("");
         }
+
         if(!email.isEmpty() && !khachHang_ctrl.isValidEmail(email)){
-            lblErrorEmail.setText("Email không hợp lệ!");
+            lblErrorEmail.setText("Email không hợp lệ! VD: email@domain.com");
             isValid = false;
         } else {
             lblErrorEmail.setText("");
         }
         if(!diaChi.isEmpty() && !khachHang_ctrl.isValidDiaChi(diaChi)){
-            lblErrorDiaChi.setText("Địa chỉ không hợp lệ!");
+            lblErrorDiaChi.setText("Địa chỉ không hợp lệ! VD: 123 Lê Lợi, Q1, TP.HCM");
             isValid = false;
         } else {
             lblErrorDiaChi.setText("");
@@ -436,6 +481,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         tableModel.setRowCount(0);
         if(kh != null){
             tableModel.addRow(new Object[]{
+                    1,
                     kh.getKhachHangID(),
                     kh.getHoTen(),
                     kh.getSoDienThoai(),
@@ -446,14 +492,19 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                     kh.getLoaiKhachHang()
             });
             return kh;
-        }else {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số điện thoại: " + sdt, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Không tìm thấy khách hàng với số điện thoại: " + sdt,
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
             return null;
         }
     }
+
     //tìm kiếm khách hàng bằng số giấy tờ
     public KhachHang timKiemKhachHangTheoSGT(String sgt){
         KhachHang kh = khachHang_ctrl.timKiemKhachHangTheoSoGiayTo(sgt);
+        tableModel.setRowCount(0);
         if(kh != null){
             tableModel.addRow(new Object[]{
                     kh.getKhachHangID(),
@@ -482,6 +533,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         txtDiaChi.setText("");
         cbLDT.setSelectedIndex(0);
         cbLKH.setSelectedIndex(0);
+        initPlaceholders();
 
     }
     public void actionPerformed(ActionEvent e) {
@@ -535,16 +587,20 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                 btnEdit.setText("Lưu");
             } else {
                 if (!khachHang_ctrl.isValidDiaChi(txtDiaChi.getText().trim())) {
-                    lblErrorDiaChi.setText("Địa chỉ không hợp lệ!");
+                    lblErrorDiaChi.setText("Địa chỉ không hợp lệ! VD: 123 Lê Lợi, Q1, TP.HCM");
+                    txtDiaChi.requestFocus();
                     return;
                 } else if (!khachHang_ctrl.isValidEmail(txtEmail.getText().trim())) {
-                    lblErrorEmail.setText("Email không hợp lệ!");
+                    lblErrorEmail.setText("Email không hợp lệ! VD: ");
+                    txtEmail.requestFocus();
                     return;
                 } else if (!khachHang_ctrl.isValidTen(txtTenKH.getText().trim())) {
-                    lblErrorTenKH.setText("Tên khách hàng không hợp lệ!");
+                    lblErrorTenKH.setText("Tên khách hàng không hợp lệ! VD: Nguyễn Văn A");
+                    txtTenKH.requestFocus();
                     return;
                 } else if (!khachHang_ctrl.isValidPhoneNumber(txtSDT.getText().trim())) {
-                    lblErrorSDT.setText("Số điện thoại không hợp lệ!");
+                    lblErrorSDT.setText("Số điện thoại không hợp lệ! VD: 0912345678");
+                    txtSDT.requestFocus();
                     return;
                 }
 
@@ -560,6 +616,14 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
 
                 KhachHang kh1 = new KhachHang(maKH1, tenKH1, sdt1, email1, soGiayTo1, diaChi1, loaiDT1, loaiKH1);
 
+                int confirm = JOptionPane.showConfirmDialog(
+                        this, "Bạn có chắc muốn cập nhật thông tin khách hàng này không?",
+                        "Xác nhận cập nhật", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (confirm != JOptionPane.YES_OPTION) {
+                    return;
+                }
+
                 if (khachHang_ctrl.capNhatKhachHang(kh1)) {
                     loadDataToTable();
                     JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -569,6 +633,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                 } else {
                     JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
+
             }
         }
     }

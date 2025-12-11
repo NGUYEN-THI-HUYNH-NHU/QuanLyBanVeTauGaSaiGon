@@ -10,12 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Date;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import com.toedter.calendar.JDateChooser;
 import controller.KhuyenMai_CTRL;
 import entity.DieuKienKhuyenMai;
@@ -87,11 +84,56 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         autoUpdateTimer.start();
         autoUpdateTimer.setRepeats(true);
 
-        allFields = new java.util.ArrayList<>();
+        allFields = new ArrayList<>();
         addAllFieldKey();
-
+        initPlaceholders();
         capNhatTrangThaiTuDong();
 
+    }
+
+    // Đặt placeholder cho 1 JTextField
+    private void applyPlaceholder(JTextField field, String placeholder) {
+        field.setForeground(Color.GRAY);
+        field.setText(placeholder);
+
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getText().trim().isEmpty()) {
+                    field.setForeground(Color.GRAY);
+                    field.setText(placeholder);
+                }
+            }
+        });
+    }
+
+    // Chỉ lấy giá trị thực tế từ JTextField, bỏ qua placeholder
+    private String getRealText(JTextField field, String placeholder) {
+        String text = field.getText().trim();
+        if (text.equals(placeholder) && field.getForeground().equals(Color.GRAY)) {
+            return "";
+        }
+        return text;
+    }
+
+    // Gắn placeholder cho các field
+    private void initPlaceholders() {
+        applyPlaceholder(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
+        applyPlaceholder(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
+        applyPlaceholder(txtTyLeGiamGia, "VD: 0.1 (ở dạng số thập phân, 10% = 0.1)");
+        applyPlaceholder(txtTienGiamGia, "VD: 20000");
+        applyPlaceholder(txtSoLuong, "VD: 100 (số lượng mã)");
+        applyPlaceholder(txtGioiHan, "VD: 1 (mỗi khách chỉ dùng 1 lần)");
+        applyPlaceholder(txtNgayTrongTuan, "1=Thứ 2...7=Chủ nhật, 0=không áp dụng");
+        applyPlaceholder(txtMinGiaTriHoaDon, "VD: 200000");
     }
 
     //panel input
@@ -111,6 +153,8 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
 
         return panel;
     }
+
+
     //panel thông tin
     private JPanel createPanelThongTin() {
         JPanel panelThongTin = new JPanel(new GridBagLayout());
@@ -249,6 +293,9 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
         btnClean = createButton("Làm mới", "/gui/icon/png/clean.png");
 
+        //tạo tooltip cho nút tìm kiếm
+        btnFind.setToolTipText("Tìm kiếm: Code khuyến mãi, Mô tả, trong khoảng thời gian, trạng thái, mã tuyến");
+
         panelButtons.add(btnAdd);
         panelButtons.add(btnEdit);
         panelButtons.add(btnFind);
@@ -267,20 +314,18 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         allFields.add(txtMoTa);
         allFields.add(txtTyLeGiamGia);
         allFields.add(txtTienGiamGia);
-
         allFields.add((JComponent) txtNgayBD.getDateEditor().getUiComponent());
         allFields.add((JComponent) txtNgayKT.getDateEditor().getUiComponent());
 
         // Điều kiện KM
         allFields.add(txtSoLuong);
         allFields.add(txtGioiHan);
-
         allFields.add(txtTrangThai);
+        allFields.add(txtTuyen);
+        allFields.add(txtHangToa);
+        allFields.add(txtLoaiTau);
+        allFields.add(txtLoaiDoiTuong);
 
-        allFields.add((JComponent) txtTuyen.getEditor().getEditorComponent());
-        allFields.add((JComponent) txtHangToa.getEditor().getEditorComponent());
-        allFields.add((JComponent) txtLoaiTau.getEditor().getEditorComponent());
-        allFields.add((JComponent) txtLoaiDoiTuong.getEditor().getEditorComponent());
 
         allFields.add(txtNgayTrongTuan);
         allFields.add(txtNgayLe);
@@ -457,110 +502,222 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtNgayTrongTuan.setText("");
         txtNgayLe.setSelected(false);
         txtMinGiaTriHoaDon.setText("");
+        loadKhuyenMaiTheoLoai("Tất cả");
 
     }
     //Valid form
-    public boolean validForm() {
-        String codeKh = txtCodeKH.getText().trim();
-        String moTa = txtMoTa.getText().trim();
-        double tyLeGiamGia = txtTyLeGiamGia.getText().trim().isEmpty() ? 0 : Double.parseDouble(txtTyLeGiamGia.getText().trim());
-        double tienGiamGia = txtTienGiamGia.getText().trim().isEmpty() ? 0 : parseTien(txtTienGiamGia.getText());
-        double soLuong = txtSoLuong.getText().trim().isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
-        int gioiHan = txtGioiHan.getText().trim().isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
-        int ngayTrongTuan = txtNgayTrongTuan.getText().trim().isEmpty() ? 0 : Integer.parseInt(txtNgayTrongTuan.getText().trim());
-        double minGiaTriDonHang = txtMinGiaTriHoaDon.getText().trim().isEmpty() ? 0 : parseTien(txtMinGiaTriHoaDon.getText().trim());
+    public boolean validForm(boolean isEdit) {
+        // 1. Lấy dữ liệu từ form
+        String codeKh = getRealText(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
+        String moTa = getRealText(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
+        String tyLeStr = getRealText(txtTyLeGiamGia, "VD: 0.1 (ở dạng số thập phân, 10% = 0.1)");
+        String tienGiamGiaStr = getRealText(txtTienGiamGia, "VD: 20000");
+        String soLuongStr = getRealText(txtSoLuong, "VD: 100 (số lượng mã)");
+        String gioiHanStr = getRealText(txtGioiHan, "VD: 1 (mỗi khách chỉ dùng 1 lần)");
+        String ngayTrongTuanStr = getRealText(txtNgayTrongTuan, "1=Thứ 2...7=Chủ nhật, 0=không áp dụng");
+        String minGiaTriStr = getRealText(txtMinGiaTriHoaDon, "VD: 200000");
 
         Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
         HangToa hangToa = (HangToa) txtHangToa.getSelectedItem();
         LoaiTau loaiTau = (LoaiTau) txtLoaiTau.getSelectedItem();
         LoaiDoiTuong loaiDoiTuong = (LoaiDoiTuong) txtLoaiDoiTuong.getSelectedItem();
 
-        if(codeKh.isEmpty()) {
+        double tyLeGiamGia = 0;
+        double tienGiamGia = 0;
+        double soLuong = 0;
+        int gioiHan = 0;
+        int ngayTrongTuan = 0;
+        double minGiaTriDonHang = 0;
+
+
+        //Validate code khuyến mãi
+        if (codeKh.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Code khuyến mãi không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtCodeKH.requestFocus();
             return false;
-        }else if(!khuyenMai_ctrl.kiemTraCodeKhuyenMai(codeKh)) {
+        }
+        if (!khuyenMai_ctrl.kiemTraCodeKhuyenMai(codeKh)) {
             JOptionPane.showMessageDialog(this, "Code khuyến mãi không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtCodeKH.requestFocus();
             return false;
         }
 
+        //Validate mô tả
         if (!khuyenMai_ctrl.kiemMoTa(moTa)) {
             JOptionPane.showMessageDialog(this, "Mô tả không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtMoTa.requestFocus();
             return false;
         }
 
+
+        if (!tyLeStr.isEmpty()) {
+            try {
+                tyLeGiamGia = Double.parseDouble(tyLeStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Tỷ lệ giảm giá phải là số!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtTyLeGiamGia.requestFocus();
+                return false;
+            }
+        }
         if (!khuyenMai_ctrl.kiemTraTyLeGiamGia(tyLeGiamGia)) {
             JOptionPane.showMessageDialog(this, "Tỷ lệ giảm giá không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtTyLeGiamGia.requestFocus();
             return false;
         }
 
+        if (!tienGiamGiaStr.isEmpty()) {
+            tienGiamGia = parseTien(tienGiamGiaStr);
+        }
         if (!khuyenMai_ctrl.kiemTraTienGiamGia(tienGiamGia)) {
             JOptionPane.showMessageDialog(this, "Tiền giảm giá không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtTienGiamGia.requestFocus();
             return false;
         }
 
+        //Ít nhất có một giá trị tỷ lệ hoặc tiền giảm giá
+        boolean coTyLe = tyLeGiamGia > 0;
+        boolean coTien = tienGiamGia > 0;
+
+        if (!coTyLe && !coTien) {
+            JOptionPane.showMessageDialog(this,
+                    "Khuyến mãi phải có TỶ LỆ GIẢM GIÁ hoặc TIỀN GIẢM GIÁ!\nBạn không thể để cả hai giá trị đều trống hoặc bằng 0.",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+
+            txtTyLeGiamGia.requestFocus();
+            txtTyLeGiamGia.selectAll();
+            return false;
+        }
+        if (coTyLe && coTien) {
+            JOptionPane.showMessageDialog(this,
+                    "Chỉ được chọn một hình thức giảm giá:\n- Tỷ lệ (%) HOẶC\n- Số tiền giảm giá (VNĐ).\nKhông được nhập cả hai!",
+                    "Lỗi nhập liệu",
+                    JOptionPane.ERROR_MESSAGE);
+
+            txtTyLeGiamGia.requestFocus();
+            txtTyLeGiamGia.selectAll();
+            return false;
+        }
+
+
+        // Số lượng
+        if (!soLuongStr.isEmpty()) {
+            try {
+                soLuong = Double.parseDouble(soLuongStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Số lượng phải là số!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtSoLuong.requestFocus();
+                return false;
+            }
+        }
         if (!khuyenMai_ctrl.kiemTraSoLuong(soLuong)) {
             JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtSoLuong.requestFocus();
             return false;
+        }
+
+        // Giới hạn / khách
+        if (!gioiHanStr.isEmpty()) {
+            try {
+                gioiHan = Integer.parseInt(gioiHanStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Giới hạn mỗi khách hàng phải là số nguyên!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtGioiHan.requestFocus();
+                return false;
+            }
         }
         if (!khuyenMai_ctrl.kiemTraGioiHanMoiKhachHang(gioiHan)) {
             JOptionPane.showMessageDialog(this, "Giới hạn mỗi khách hàng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtGioiHan.requestFocus();
             return false;
         }
 
+        // Ngày trong tuần
+        if (!ngayTrongTuanStr.isEmpty()) {
+            try {
+                ngayTrongTuan = Integer.parseInt(ngayTrongTuanStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Ngày trong tuần phải là số nguyên!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                txtNgayTrongTuan.requestFocus();
+                return false;
+            }
+        }
         if (!khuyenMai_ctrl.kiemTraNgayTrongTuan(ngayTrongTuan)) {
-            JOptionPane.showMessageDialog(this, "Ngày trong tuần không hợp lệ! Nhập 0 khi không áp dụng", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        try {
-            String txt = txtNgayTrongTuan.getText().trim();
-            if (!txt.isEmpty()) ngayTrongTuan = Integer.parseInt(txt);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Ngày trong tuần phải là số!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Ngày trong tuần không hợp lệ! Nhập 0 khi không áp dụng.", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtNgayTrongTuan.requestFocus();
             return false;
         }
 
+        // Min giá trị đơn hàng
+        if (!minGiaTriStr.isEmpty()) {
+            minGiaTriDonHang = parseTien(minGiaTriStr);
+        }
         if (!khuyenMai_ctrl.kiemTraMinGiaTriDonHang(minGiaTriDonHang)) {
             JOptionPane.showMessageDialog(this, "Min giá trị đơn hàng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
-
-        //Kiểm tra ngày
+        //Kiểm tra ngày bắt đầu / kết thúc
         if (txtNgayBD.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Ngày bắt đầu không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
-        } else {
-            LocalDate ngayBatDau = new java.sql.Date(txtNgayBD.getDate().getTime()).toLocalDate();
+        }
+        if (txtNgayKT.getDate() == null) {
+            JOptionPane.showMessageDialog(this, "Ngày kết thúc không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        LocalDate ngayBatDau = new java.sql.Date(txtNgayBD.getDate().getTime()).toLocalDate();
+        LocalDate ngayKetThuc = new java.sql.Date(txtNgayKT.getDate().getTime()).toLocalDate();
+
+        if (!isEdit) {
             if (!khuyenMai_ctrl.kiemTraNgayBatDau(ngayBatDau)) {
                 JOptionPane.showMessageDialog(this, "Ngày bắt đầu không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
-
-            if (txtNgayKT.getDate() == null) {
-                JOptionPane.showMessageDialog(this, "Ngày kết thúc không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-                return false;
-            } else {
-                LocalDate ngayKetThuc = new java.sql.Date(txtNgayKT.getDate().getTime()).toLocalDate();
-                if (!khuyenMai_ctrl.kiemTraNgayKetThuc(ngayBatDau, ngayKetThuc)) {
-                    JOptionPane.showMessageDialog(this, "Ngày kết thúc không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-                    return false;
-                }
-            }
         }
 
+        if (!khuyenMai_ctrl.kiemTraNgayKetThuc(ngayBatDau, ngayKetThuc)) {
+            JOptionPane.showMessageDialog(this, "Ngày kết thúc không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        //Ràng buộc theo loại code khuyến mãi (prefix)
         String prefix = codeKh.toUpperCase();
+
         if (prefix.startsWith("TUYEN_") && tuyen == null) {
-            JOptionPane.showMessageDialog(this, "Khuyến mãi theo tuyến bắt buộc chọn tuyến!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo tuyến bắt buộc phải chọn tuyến!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         if (prefix.startsWith("LOAITAU_") && loaiTau == null) {
-            JOptionPane.showMessageDialog(this, "Khuyến mãi theo loại tàu bắt buộc chọn loại tàu!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo loại tàu bắt buộc phải chọn loại tàu!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (prefix.startsWith("HANGTOA_") && hangToa == null) {
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo hạng toa bắt buộc phải chọn hạng toa!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (prefix.startsWith("DOITUONG_") && loaiDoiTuong == null) {
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo đối tượng bắt buộc phải chọn loại đối tượng!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (prefix.startsWith("NGAYTRONGTUAN_") && ngayTrongTuan <= 0) {
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo ngày trong tuần bắt buộc phải nhập ngày trong tuần > 0!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (prefix.startsWith("MINGIA_") && minGiaTriDonHang <= 0) {
+            JOptionPane.showMessageDialog(this, "Khuyến mãi theo min giá trị đơn hàng bắt buộc phải nhập min giá trị > 0!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         return true;
     }
+
 
     //gợi ý khi nhập mã khuyến mãi
     public void goiYMaKhuyenMai() {
@@ -648,7 +805,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     public String xacDinhLoaiKhuyenMai(String maKhuyenMai) {
         if (maKhuyenMai.startsWith("MUA")) {
             return "Mùa";
-        } else if (maKhuyenMai.startsWith("LEHOI")) {
+        } else if (maKhuyenMai.startsWith("LE")) {
             return "Lễ hội";
         } else if (maKhuyenMai.startsWith("DOITUONG")) {
             return "Đối tượng";
@@ -662,7 +819,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             return "Hạng toa";
         } else if (maKhuyenMai.startsWith("NGAYTRONGTUAN")) {
             return "Ngày trong tuần";
-        } else if (maKhuyenMai.startsWith("MINGIATRIHOADON")) {
+        } else if (maKhuyenMai.startsWith("MINGIA")) {
             return "Min giá hóa đơn";
         } else {
             return "Không xác định";
@@ -674,27 +831,33 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         if (flag) {
             String loai = xacDinhLoaiKhuyenMai(km.getMaKhuyenMai());
             loadKhuyenMaiTheoLoai(loai);
-            JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             return true;
         } else {
-            JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
 
     //sửa khuyến mãi
     private boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm){
-        return khuyenMai_ctrl.suaKhuyenMai(km, dkkm);
+        boolean flag = khuyenMai_ctrl.suaKhuyenMai(km, dkkm);
+        if (flag) {
+            String loai = xacDinhLoaiKhuyenMai(km.getMaKhuyenMai());
+            loadKhuyenMaiTheoLoai(loai);
+            return true;
+        } else {
+            return false;
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if (o.equals(btnAdd)) {
-            if (!validForm()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng và đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if (o.equals(btnAdd) || o.equals(btnEdit)) {
+            boolean isEdit = o.equals(btnEdit);
+            if (!validForm(isEdit)) {
                 return;
             }
         }
+
         if(o.equals(btnClean)){
             resetForm();
             return;
@@ -736,9 +899,11 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             return;
         }
 
-        //Lấy thông tin chung từ form
-        String codeKH = txtCodeKH.getText().trim();
-        String moTa = txtMoTa.getText().trim();
+        //==============Lấy thông tin chung từ form===================
+
+        // Thông tin khuyến mãi
+        String codeKH = getRealText(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
+        String moTa = getRealText(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
         double tyLeGiamGia = txtTyLeGiamGia.getText().isEmpty() ? 0 : Double.parseDouble(txtTyLeGiamGia.getText().trim());
         double tienGiamGia = txtTienGiamGia.getText().isEmpty() ? 0 : parseTien(txtTienGiamGia.getText());
         double soLuong = txtSoLuong.getText().isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
@@ -757,6 +922,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         boolean ngayLe = txtNgayLe.isSelected();
         double minGiaTriDonHang = txtMinGiaTriHoaDon.getText().isEmpty() ? 0 : parseTien(txtMinGiaTriHoaDon.getText());
         Integer ngayTrongTuan = txtNgayTrongTuan.getText().trim().isEmpty() ? null : Integer.parseInt(txtNgayTrongTuan.getText().trim());
+
 
         if (o.equals(btnAdd)) {
             String maKM = khuyenMai_ctrl.taoMaKhuyenMaiTuDong();
@@ -789,6 +955,18 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             DieuKienKhuyenMai dkkm = new DieuKienKhuyenMai(maDKHienTai, km, tuyen, loaiTau, hangToa, loaiDoiTuong,
                     ngayTrongTuan != null ? ngayTrongTuan : 0, ngayLe, minGiaTriDonHang);
 
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn cập nhật khuyến mãi này?",
+                    "Xác nhận cập nhật",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+
             if (suaKhuyenMai(km, dkkm)) {
                 JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                 String loai = xacDinhLoaiKhuyenMai(km.getMaKhuyenMai());
@@ -800,6 +978,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             System.out.print(minGiaTriDonHang);
             return;
         }
+
     }
 
     @Override

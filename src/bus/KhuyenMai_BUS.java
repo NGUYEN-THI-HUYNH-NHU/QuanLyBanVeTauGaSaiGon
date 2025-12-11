@@ -53,7 +53,7 @@ public class KhuyenMai_BUS {
 
 	// ==========regex
 	public boolean kiemTraCodeKhuyenMai(String code) {
-		String regex = "^[A-Z][A-Z0-9_]{4,30}$"; // ví dụ: LE2024, MUA_50, KM12345
+		String regex = "^[A-Z][A-Z0-9_]{4,30}$"; // ví dụ: LE_2024, MUA_50
 		return code != null && code.matches(regex);
 	}
 
@@ -118,9 +118,9 @@ public class KhuyenMai_BUS {
 	}
 
 	// lay danh khach dieu kien khuyen mai
-	public List<DieuKienKhuyenMai> layDanhSachDKKM() {
-		return khuyenMai_dao.getAllDKKM();
-	}
+//	public List<DieuKienKhuyenMai> layDanhSachDKKM() {
+//		return khuyenMai_dao.getAllDKKM();
+//	}
 
 	// lay danh sach tuyen
 	public List<Tuyen> layDanhSachTuyen() {
