@@ -232,16 +232,21 @@ public class PanelQuanLyTuyen extends JPanel {
         lblTableTitle.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
         // Bảng
-        String[] colChiTiet = {"STT", "Tên Ga", "Loại Ga", "Km"};
+        String[] colChiTiet = {"STT", "Tên Ga", "Loại Ga", "Khoảng cách giữa 2 ga"};
         modelChiTietGa = new DefaultTableModel(colChiTiet, 0);
         tableChiTietGa = new JTable(modelChiTietGa);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        tableChiTietGa.setDefaultRenderer(Object.class, centerRenderer);
         tableChiTietGa.setRowHeight(25);
         tableChiTietGa.setShowGrid(true);
         tableChiTietGa.getTableHeader().setBackground(new Color(36, 104, 155));
         tableChiTietGa.getTableHeader().setForeground(Color.WHITE);
 
-        tableChiTietGa.getColumnModel().getColumn(0).setMaxWidth(40);
-        tableChiTietGa.getColumnModel().getColumn(3).setMaxWidth(60);
+        tableChiTietGa.getColumnModel().getColumn(0).setWidth(20);
+        tableChiTietGa.getColumnModel().getColumn(1).setWidth(100);
+        tableChiTietGa.getColumnModel().getColumn(2).setWidth(150);
+        tableChiTietGa.getColumnModel().getColumn(3).setWidth(180);
 
         pnlDanhSachGa.add(lblTableTitle, BorderLayout.NORTH);
         pnlDanhSachGa.add(new JScrollPane(tableChiTietGa), BorderLayout.CENTER);

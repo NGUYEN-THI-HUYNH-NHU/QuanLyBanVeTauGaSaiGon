@@ -28,12 +28,12 @@ public class PanelQuanLyChuyen extends JPanel {
     private final NhanVien nhanVienThucHien;
     private QuanLyChuyen_CTRL quanLyChuyenCtrl;
 
-    private JLabel lblMaChuyenValue;
-    private JLabel lblTenChuyenValue;
-    private JLabel lblTenTuyenValue;
-    private JLabel lblGaDiValue;
-    private JLabel lblGaDenValue;
-    private JLabel lblTauValue;
+    private JTextField txtChiTietMaChuyen;
+    private JTextField txtChiTietTenChuyen;
+    private JTextField txtChiTietMaTuyen;
+    private JTextField txtChiTietGaDi;
+    private JTextField txtChiTietGaDen;
+    private JTextField txtChiTietTau;
 
     private JTable tableLichTrinh;
     private DefaultTableModel modelLichTrinh;
@@ -232,32 +232,32 @@ public class PanelQuanLyChuyen extends JPanel {
         JPanel pnlThongTin = new JPanel(new MigLayout("wrap 2, fillx, insets 10", "[110!, shrink 0][]", "5[]5"));
         pnlThongTin.setBackground(COLOR_BG);
 
-        lblMaChuyenValue = new JLabel("...");
-        lblTenChuyenValue = new JLabel("...");
-        lblTenTuyenValue = new JLabel("...");
-        lblGaDiValue = new JLabel("...");
-        lblGaDenValue = new JLabel("...");
-        lblTauValue = new JLabel("...");
+        txtChiTietMaChuyen = createReadOnlyTextField();
+        txtChiTietTenChuyen = createReadOnlyTextField();
+        txtChiTietMaTuyen = createReadOnlyTextField();
+        txtChiTietGaDi = createReadOnlyTextField();
+        txtChiTietGaDen = createReadOnlyTextField();
+        txtChiTietTau = createReadOnlyTextField();
 
         Font labelFont = BASE_FONT.deriveFont(Font.BOLD);
 
         pnlThongTin.add(new JLabel("Mã Chuyến:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblMaChuyenValue, "growx");
+        pnlThongTin.add(txtChiTietMaChuyen, "growx");
 
         pnlThongTin.add(new JLabel("Mã Tuyến:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblTenTuyenValue, "growx");
+        pnlThongTin.add(txtChiTietMaTuyen ,"growx");
 
         pnlThongTin.add(new JLabel("Tên Chuyến:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblTenChuyenValue, "growx");
+        pnlThongTin.add(txtChiTietTenChuyen, "growx");
 
         pnlThongTin.add(new JLabel("Ga Xuất Phát:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblGaDiValue, "growx");
+        pnlThongTin.add(txtChiTietGaDi, "growx");
 
         pnlThongTin.add(new JLabel("Ga Đích:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblGaDenValue, "growx");
+        pnlThongTin.add(txtChiTietGaDen, "growx");
 
         pnlThongTin.add(new JLabel("Tàu:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblTauValue, "growx");
+        pnlThongTin.add(txtChiTietTau, "growx");
 
         JPanel pnlLichTrinh = new JPanel(new BorderLayout());
         pnlLichTrinh.setBackground(COLOR_BG);
@@ -336,6 +336,14 @@ public class PanelQuanLyChuyen extends JPanel {
 
         detailPanel.add(panelActions, BorderLayout.SOUTH);
         return detailPanel;
+    }
+
+    private JTextField createReadOnlyTextField() {
+        JTextField txt = new JTextField();
+        txt.setEditable(false);
+        txt.setBackground(new Color(245, 245, 245)); // Light gray bg
+        txt.setFont(BASE_FONT);
+        return txt;
     }
 
     private void setupKeyBindings(){
@@ -467,52 +475,52 @@ public class PanelQuanLyChuyen extends JPanel {
         this.quanLyChuyenCtrl = quanLyChuyenCtrl;
     }
 
-    public JLabel getLblMaChuyenValue() {
-        return lblMaChuyenValue;
+    public JTextField getTxtChiTietMaChuyen() {
+        return txtChiTietMaChuyen;
     }
 
-    public void setLblMaChuyenValue(JLabel lblMaChuyenValue) {
-        this.lblMaChuyenValue = lblMaChuyenValue;
+    public void setTxtChiTietMaChuyen(JTextField txtChiTietMaChuyen) {
+        this.txtChiTietMaChuyen = txtChiTietMaChuyen;
     }
 
-    public JLabel getLblTenChuyenValue() {
-        return lblTenChuyenValue;
+    public JTextField getTxtChiTietTenChuyen() {
+        return txtChiTietTenChuyen;
     }
 
-    public void setLblTenChuyenValue(JLabel lblTenChuyenValue) {
-        this.lblTenChuyenValue = lblTenChuyenValue;
+    public void setTxtChiTietTenChuyen(JTextField txtChiTietTenChuyen) {
+        this.txtChiTietTenChuyen = txtChiTietTenChuyen;
     }
 
-    public JLabel getLblTenTuyenValue() {
-        return lblTenTuyenValue;
+    public JTextField getTxtChiTietMaTuyen() {
+        return txtChiTietMaTuyen;
     }
 
-    public void setLblTenTuyenValue(JLabel lblTenTuyenValue) {
-        this.lblTenTuyenValue = lblTenTuyenValue;
+    public void setTxtChiTietMaTuyen(JTextField txtChiTietMaTuyen) {
+        this.txtChiTietMaTuyen = txtChiTietMaTuyen;
     }
 
-    public JLabel getLblGaDiValue() {
-        return lblGaDiValue;
+    public JTextField getTxtChiTietGaDi() {
+        return txtChiTietGaDi;
     }
 
-    public void setLblGaDiValue(JLabel lblGaDiValue) {
-        this.lblGaDiValue = lblGaDiValue;
+    public void setTxtChiTietGaDi(JTextField txtChiTietGaDi) {
+        this.txtChiTietGaDi = txtChiTietGaDi;
     }
 
-    public JLabel getLblGaDenValue() {
-        return lblGaDenValue;
+    public JTextField getTxtChiTietGaDen() {
+        return txtChiTietGaDen;
     }
 
-    public void setLblGaDenValue(JLabel lblGaDenValue) {
-        this.lblGaDenValue = lblGaDenValue;
+    public void setTxtChiTietGaDen(JTextField txtChiTietGaDen) {
+        this.txtChiTietGaDen = txtChiTietGaDen;
     }
 
-    public JLabel getLblTauValue() {
-        return lblTauValue;
+    public JTextField getTxtChiTietTau() {
+        return txtChiTietTau;
     }
 
-    public void setLblTauValue(JLabel lblTauValue) {
-        this.lblTauValue = lblTauValue;
+    public void setTxtChiTietTau(JTextField txtChiTietTau) {
+        this.txtChiTietTau = txtChiTietTau;
     }
 
     public JTable getTableLichTrinh() {

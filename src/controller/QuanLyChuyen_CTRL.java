@@ -104,12 +104,14 @@ public class QuanLyChuyen_CTRL {
 
 
 
-        panelQuanLyChuyen.getLblMaChuyenValue().setText("...");
-        panelQuanLyChuyen.getLblTenChuyenValue().setText("...");
-        panelQuanLyChuyen.getLblTenTuyenValue().setText("...");
-        panelQuanLyChuyen.getLblGaDiValue().setText("...");
-        panelQuanLyChuyen.getLblGaDenValue().setText("...");
-        panelQuanLyChuyen.getLblTauValue().setText("...");
+        panelQuanLyChuyen.getTxtMaChuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietMaTuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietTau().setText("");
+        panelQuanLyChuyen.getTxtChiTietTenChuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietGaDi().setText("");
+        panelQuanLyChuyen.getTxtChiTietGaDen().setText("");
+
+
         panelQuanLyChuyen.getModelLichTrinh().setRowCount(0);
 
         String homNay = LocalDate.now().format(dateTimeFormatter);
@@ -216,12 +218,12 @@ public class QuanLyChuyen_CTRL {
 
         loadDataToTable(resultList);
 
-        panelQuanLyChuyen.getLblMaChuyenValue().setText("...");
-        panelQuanLyChuyen.getLblTenChuyenValue().setText("...");
-        panelQuanLyChuyen.getLblTenTuyenValue().setText("...");
-        panelQuanLyChuyen.getLblGaDiValue().setText("...");
-        panelQuanLyChuyen.getLblGaDenValue().setText("...");
-        panelQuanLyChuyen.getLblTauValue().setText("...");
+        panelQuanLyChuyen.getTxtMaChuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietMaTuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietTau().setText("");
+        panelQuanLyChuyen.getTxtChiTietTenChuyen().setText("");
+        panelQuanLyChuyen.getTxtChiTietGaDi().setText("");
+        panelQuanLyChuyen.getTxtChiTietGaDen().setText("");
         panelQuanLyChuyen.getModelLichTrinh().setRowCount(0);
     }
 
@@ -504,20 +506,20 @@ public class QuanLyChuyen_CTRL {
                     tenChuyen = "N/A";
                 }
             }
-            panelQuanLyChuyen.getLblMaChuyenValue().setText(chuyen.getChuyenID());
-            panelQuanLyChuyen.getLblTenChuyenValue().setText(tenChuyen);
-            panelQuanLyChuyen.getLblTenTuyenValue().setText(maTuyen);
+            panelQuanLyChuyen.getTxtChiTietMaChuyen().setText(chuyen.getChuyenID());
+            panelQuanLyChuyen.getTxtChiTietTenChuyen().setText(tenChuyen);
+            panelQuanLyChuyen.getTxtChiTietMaTuyen().setText(maTuyen);
 
-            panelQuanLyChuyen.getLblGaDiValue().setText(gaDiTuyen);
-            panelQuanLyChuyen.getLblGaDenValue().setText(gaDenTuyen);
-            panelQuanLyChuyen.getLblTauValue().setText(chuyen.getTau().getTenTau() != null ? chuyen.getTau().getTenTau() : "N/A");
+            panelQuanLyChuyen.getTxtChiTietGaDi().setText(gaDiTuyen);
+            panelQuanLyChuyen.getTxtChiTietGaDen().setText(gaDenTuyen);
+            panelQuanLyChuyen.getTxtChiTietTau().setText(chuyen.getTau().getTenTau() != null ? chuyen.getTau().getTenTau() : "N/A");
         } else {
-            panelQuanLyChuyen.getLblMaChuyenValue().setText("N/A");
-            panelQuanLyChuyen.getLblTenChuyenValue().setText("N/A");
-            panelQuanLyChuyen.getLblTenTuyenValue().setText("N/A");
-            panelQuanLyChuyen.getLblGaDiValue().setText("N/A");
-            panelQuanLyChuyen.getLblGaDenValue().setText("N/A");
-            panelQuanLyChuyen.getLblTauValue().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietMaChuyen().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietTenChuyen().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietMaTuyen().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietGaDi().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietGaDen().setText("N/A");
+            panelQuanLyChuyen.getTxtChiTietTau().setText("N/A");
         }
 
         DefaultTableModel model = panelQuanLyChuyen.getModelLichTrinh();

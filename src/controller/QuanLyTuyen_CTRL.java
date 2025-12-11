@@ -157,13 +157,11 @@ public class QuanLyTuyen_CTRL {
             pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
         }
 
-        // 3. Cập nhật bảng chi tiết ga
         DefaultTableModel modelChiTiet = pnlTuyen.getModelChiTietGa();
         modelChiTiet.setRowCount(0);
 
         int stt = 1;
         for(Object[] rowData : dsGaChiTiet){
-            // rowData: {Tên Ga, Loại Ga, Khoảng cách}
             modelChiTiet.addRow(new Object[]{ stt++, rowData[0], rowData[1], rowData[2] });
         }
     }
