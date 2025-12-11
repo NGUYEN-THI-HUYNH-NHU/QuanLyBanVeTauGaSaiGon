@@ -139,7 +139,7 @@ public class KhuyenMai_BUS {
 	public void ganDanhSachSuDungKhuyenMai(List<VeSession> listVeSession) {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmmss");
 		for (VeSession ve : listVeSession) {
-			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String sdkmID = "SD-" + ve.getKhuyenMaiApDung().getKhuyenMaiID() + "-"
 						+ ve.getVe().getKhachHang().getKhachHangID() + "-" + LocalDateTime.now().format(dtf).toString();
 				ve.setSuDungKhuyenMai(
@@ -150,7 +150,7 @@ public class KhuyenMai_BUS {
 
 	public void themDanhSachSuDungKhuyenMai(Connection conn, List<VeSession> listVeSession) throws Exception {
 		for (VeSession ve : listVeSession) {
-			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				suDungKhuyenMaiDAO.themSuDungKhuyenMai(conn, ve.getSuDungKhuyenMai());
 				khuyenMai_dao.giamSoLuongKhuyenMai(conn, ve.getKhuyenMaiApDung().getKhuyenMaiID());
 			}

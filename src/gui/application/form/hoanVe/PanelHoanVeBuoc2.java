@@ -85,22 +85,18 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	}
 
 	private void setupTable() {
-		table.setRowHeight(80);
+		table.setRowHeight(90);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
 
 		// Cấu hình độ rộng cột
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(170);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setMinWidth(120);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setMaxWidth(50);
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
-		DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer();
-		currencyRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
-		currencyRenderer.setVerticalAlignment(SwingConstants.TOP); // Căn lên trên
-		currencyRenderer.setOpaque(true);
-
 		// Áp dụng lớp Renderer nội tuyến để định dạng
 		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
 			@Override
@@ -110,7 +106,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.TOP);
+				label.setVerticalAlignment(SwingConstants.CENTER);
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
@@ -155,8 +151,8 @@ public class PanelHoanVeBuoc2 extends JPanel {
 					boolean hasFocus, int row, int column) {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-				// Căn lề trên
-				setVerticalAlignment(SwingConstants.TOP);
+				setHorizontalAlignment(SwingConstants.LEFT);
+				setVerticalAlignment(SwingConstants.CENTER);
 
 				// ÁP DỤNG STYLE XÁM
 				applyRowStyle(c, table, row);

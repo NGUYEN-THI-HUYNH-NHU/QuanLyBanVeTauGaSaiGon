@@ -49,7 +49,8 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, bookingSession.getKhachHang(), bookingSession.getNhanVien(), now,
 				bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
 				bookingSession.getGiaoDichThanhToan().getTienNhan(),
-				bookingSession.getGiaoDichThanhToan().getTienHoan(), true);
+				bookingSession.getGiaoDichThanhToan().getTienHoan(),
+				bookingSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
 		return hoaDon;
 	}
@@ -64,7 +65,8 @@ public class HoaDon_BUS {
 		HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
 				exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
 				exchangeSession.getGiaoDichThanhToan().getTienNhan(),
-				exchangeSession.getGiaoDichThanhToan().getTienHoan(), true);
+				exchangeSession.getGiaoDichThanhToan().getTienHoan(),
+				exchangeSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
 		return hoaDon;
 	}
@@ -122,7 +124,7 @@ public class HoaDon_BUS {
 
 			}
 
-			if (ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, ve.getVe(),
 						ve.getKhuyenMaiApDung().getMaKhuyenMai() + ": " + ve.getKhuyenMaiApDung().getMoTa(),
@@ -221,7 +223,8 @@ public class HoaDon_BUS {
 
 			}
 
-			if (listVeMoi.get(i).getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+			if (listVeMoi.get(i).getKhuyenMaiApDung() != null
+					&& listVeMoi.get(i).getKhuyenMaiApDung().getKhuyenMaiID() != null) {
 				String hdctKMID = hoaDon.getHoaDonID() + "-" + (++stt);
 				HoaDonChiTiet hdctKM = new HoaDonChiTiet(hdctKMID, hoaDon, listVeMoi.get(i).getVe(),
 						listVeMoi.get(i).getKhuyenMaiApDung().getMaKhuyenMai() + ": "

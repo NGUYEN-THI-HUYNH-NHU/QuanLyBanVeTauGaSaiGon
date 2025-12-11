@@ -154,6 +154,7 @@ public class HoaDonController {
 		// 1. Lấy dữ liệu từ View
 		String loaiHD = (String) view.getCboLoaiHoaDon().getSelectedItem();
 		String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+		boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
 		Date tuNgay = view.getDateChooserTuNgay().getDate();
 		Date denNgay = view.getDateChooserDenNgay().getDate();
 		String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
@@ -172,7 +173,10 @@ public class HoaDonController {
 		}
 
 		// 3. Validate Ngày tháng
-		if (tuNgay != null && denNgay != null && tuNgay.after(denNgay)) {
+		if (isTatCaNgay) {
+			tuNgay = null;
+			denNgay = null;
+		} else if (tuNgay != null && denNgay != null && tuNgay.after(denNgay)) {
 			JOptionPane.showMessageDialog(view, "Ngày bắt đầu không được lớn hơn ngày kết thúc!", "Lỗi bộ lọc",
 					JOptionPane.WARNING_MESSAGE);
 			return;

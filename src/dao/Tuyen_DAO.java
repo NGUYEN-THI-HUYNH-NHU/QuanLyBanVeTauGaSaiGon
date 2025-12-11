@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import connectDB.ConnectDB;
+import entity.Ga;
 import entity.Tuyen;
+import entity.TuyenChiTiet;
 
 public class Tuyen_DAO {
 	private ConnectDB connectDB;
@@ -195,6 +197,66 @@ public class Tuyen_DAO {
 				while (rs.next()) {
 					list.add(new Tuyen(rs.getString("tuyenID"), rs.getString("moTa")));
 				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public Tuyen layTuyenTheoMa(String maTuyen) {
+		Tuyen tuyen = null;
+		Connection con = ConnectDB.getInstance().getConnection();
+		String sql = "SELECT * FROM Tuyen WHERE tuyenID = ?";
+
+		try {
+			PreparedStatement pst = con.prepareStatement(sql);
+			pst.setString(1, maTuyen);
+			ResultSet rs = pst.executeQuery();
+
+			if (rs.next()) {
+				String id = rs.getString("tuyenID");
+				String moTa = rs.getString("moTa");
+
+				tuyen = new Tuyen(id, moTa);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return tuyen;
+	}
+
+	/**
+	 * Lấy danh sách chi tiết các ga (TuyenChiTiet) thuộc về một Tuyến
+	 * Sắp xếp theo thứ tự (thuTu)
+	 */
+	public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
+		List<TuyenChiTiet> list = new ArrayList<>();
+		Connection con = ConnectDB.getInstance().getConnection();
+
+		String sql = "SELECT tct.*, g.tenGa " +
+				"FROM TuyenChiTiet tct " +
+				"JOIN Ga g ON tct.gaID = g.gaID " +
+				"WHERE tct.tuyenID = ? " +
+				"ORDER BY tct.thuTu ASC";
+
+		try {
+			PreparedStatement pst = con.prepareStatement(sql);
+			pst.setString(1, maTuyen);
+			ResultSet rs = pst.executeQuery();
+
+			Tuyen tuyen = new Tuyen(maTuyen);
+
+			while (rs.next()) {
+				String gaID = rs.getString("gaID");
+				String tenGa = rs.getString("tenGa");
+				int thuTu = rs.getInt("thuTu");
+				int khoangCach = rs.getInt("khoangCachTuGaXP");
+
+				Ga ga = new Ga(gaID, tenGa);
+
+				TuyenChiTiet ct = new TuyenChiTiet(tuyen, ga, thuTu, khoangCach);
+				list.add(ct);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

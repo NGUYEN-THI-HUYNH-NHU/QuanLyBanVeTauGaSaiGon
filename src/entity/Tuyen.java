@@ -71,4 +71,6 @@ public class Tuyen {
 	public int hashCode() {
 		return Objects.hash(tuyenID);
 	}
+
+
 }

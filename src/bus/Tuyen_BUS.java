@@ -150,6 +150,7 @@ public class Tuyen_BUS {
 			return "Không tìm thấy thông tin chi tiết của tuyến này!";
 		}
 
+
 		Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
 		StringBuilder sb = new StringBuilder();
 		sb.append(
@@ -159,6 +160,7 @@ public class Tuyen_BUS {
 		sb.append("Khoảng cách từ ga xuất phát đến ga đích: ")
 				.append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");
 		sb.append("\n Danh sách các ga trung gian trên tuyến:\n");
+
 
 		return sb.toString();
 	}
@@ -349,6 +351,14 @@ public class Tuyen_BUS {
 
 	public List<Tuyen> layKiemTop10Tuyen(String keyword) {
 		return tuyen_dao.getTop10Tuyen(keyword);
+	}
+
+	public Tuyen getTuyenTheoMa(String maTuyen) {
+		return tuyen_dao.layTuyenTheoMa(maTuyen);
+	}
+
+	public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
+		return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen);
 	}
 
 }

@@ -17,25 +17,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dao.Chuyen_DAO;
-import dao.Ga_DAO;
-import dao.Ghe_DAO;
-import dao.Toa_DAO;
-import entity.Chuyen;
-import entity.Ga;
-import entity.Ghe;
-import entity.Toa;
+import dao.*;
+import entity.*;
 
 public class Chuyen_BUS {
 	private Ghe_DAO gheDAO;
 	private Toa_DAO toaDAO;
 	private Chuyen_DAO chuyenDAO;
+	private ChuyenGa_DAO chuyenGaDao;
 	private Ga_DAO gaDAO;
 
 	public Chuyen_BUS() {
 		gheDAO = new Ghe_DAO();
 		toaDAO = new Toa_DAO();
 		chuyenDAO = new Chuyen_DAO();
+		chuyenGaDao = new ChuyenGa_DAO();
 		gaDAO = new Ga_DAO();
 	}
 
@@ -93,5 +89,60 @@ public class Chuyen_BUS {
 	public double layKhuyenMaiTheoGhe(String tuyenID, String loaiTauID, String hangToaID, String loaiDoiTuongID,
 			LocalDate ngayDi, double giaGhe) {
 		return 0;
+	}
+
+	public List<Chuyen> layDanhSachChuyen(){
+		return chuyenDAO.getAllChuyen();
+	}
+
+	public List<ChuyenGa> layChiTietHanhTrinh(String maChuyen){
+		return chuyenGaDao.getChiTietHanhTrinh(maChuyen);
+	}
+
+	public Chuyen layChuyenTheoMa(String maChuyen){
+		if(maChuyen == null || maChuyen.isEmpty()){
+			return null;
+		}
+		return chuyenDAO.layChuyenTheoMa(maChuyen);
+	}
+
+	public List<Chuyen> timKiemChuyen(String maChuyen, String gaDi, String gaDen, String tenTau, LocalDate ngayDi){
+		if (maChuyen.isEmpty() && gaDi.isEmpty() && gaDen.isEmpty() && tenTau.isEmpty() && ngayDi == null) {
+			return chuyenDAO.getAllChuyen();
+		}
+
+		return chuyenDAO.timKiemChuyen(maChuyen, gaDi, gaDen, tenTau, ngayDi);
+	}
+
+	public List<String> getListMaChuyen(){
+		return chuyenDAO.getAllMaChuyenID();
+	}
+
+	public List<String> getListTenGa(){
+		return chuyenDAO.getAllTenGa();
+	}
+
+	public List<String> getListTenTau(){
+		return chuyenDAO.getAllTenTau();
+	}
+
+	public List<String> getAllTauID(){
+		return chuyenDAO.getAllTauID();
+	}
+
+	public List<String> getAllTuyenID(){
+		return chuyenDAO.getAllTuyenID();
+	}
+
+	public boolean themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
+		return chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
+	}
+
+	public Map<String, String> getMapTenGaToID(){
+		return chuyenDAO.getMapTenGaToID();
+	}
+
+	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
+		return chuyenDAO.capNhatChuyen(chuyen, lichTrinh);
 	}
 }

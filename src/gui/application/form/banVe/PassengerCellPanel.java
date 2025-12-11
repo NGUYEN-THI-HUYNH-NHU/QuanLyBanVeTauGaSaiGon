@@ -93,13 +93,16 @@ public class PassengerCellPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				cbType.requestFocusInWindow();
-				// 3. Enter trên cbType -> Nhảy dòng
-				cbType.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						handleFinalEnter();
-					}
-				});
+			}
+		});
+
+		// 3. Enter trên cbType -> Nhảy dòng
+		cbType.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (validateFields()) {
+					handleFinalEnter();
+				}
 			}
 		});
 	}
@@ -154,7 +157,6 @@ public class PassengerCellPanel extends JPanel {
 	private void showError(String msg, JTextField textField) {
 		lblError.setText(msg);
 		lblError.setVisible(true);
-		textField.putClientProperty("JComponent.outline", "error");
 		textField.requestFocusInWindow();
 	}
 

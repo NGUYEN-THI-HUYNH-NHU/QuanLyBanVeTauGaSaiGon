@@ -86,7 +86,6 @@ public class DoiVe_BUS {
 			phieuDungPhongVIPBUS.themCacPhieuDungPhongChoVIP(conn, dsPhieu);
 
 			// 6. Gán các sử dụng khuyến mãi cho các vé áp dụng khuyến mãi
-			System.out.println(exchangeSession.getListVeMoiDangChon().size());
 			khuyenMaiBUS.ganDanhSachSuDungKhuyenMai(exchangeSession.getListVeMoiDangChon());
 
 			// 7. Tạo và Lưu Hóa Đơn Chi Tiết (Batch Insert)

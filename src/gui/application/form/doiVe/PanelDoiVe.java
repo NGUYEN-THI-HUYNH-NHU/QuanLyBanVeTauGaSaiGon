@@ -18,6 +18,8 @@ import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import gui.application.UngDung;
+
 public class PanelDoiVe extends JPanel {
 	private CardLayout cardLayout;
 	private JPanel stepPanel;
@@ -89,6 +91,7 @@ public class PanelDoiVe extends JPanel {
 		// Lắng nghe sự kiện thanh toán thành công từ PanelDoiVe3
 		doiVe3Controller.addPanel3PaymentSuccessListener(() -> {
 			doiVe2Controller.stopAllTimers();
+			UngDung.reloadPanelDoiVe();
 		});
 	}
 

@@ -21,7 +21,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -128,7 +130,8 @@ public class PanelBuoc1Controller {
 		acGaDen.setPrevComponent(panel.getTxtGaDi());
 		// When Enter on final field (GaDen) without selecting popup -> trigger search
 		// button
-		acGaDen.setOnFinalEnter(() -> SwingUtilities.invokeLater(() -> panel.getBtnTimKiem().doClick()));
+		acGaDen.setOnFinalEnter(() -> SwingUtilities
+				.invokeLater(() -> panel.getDateNgayDi().getDateEditor().getUiComponent().requestFocusInWindow()));
 
 		// Button tìm kiếm
 		panel.getBtnTimKiem().addActionListener(e -> performSearch());
@@ -145,6 +148,42 @@ public class PanelBuoc1Controller {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Kích hoạt sự kiện click của nút (sẽ gọi performSearch() qua ActionListener)
+				panel.getBtnTimKiem().doClick();
+			}
+		});
+
+		// Lấy component nhập liệu thực sự bên trong JDateChooser (JTextField)
+		JComponent editorNgayDi = panel.getDateNgayDi().getDateEditor().getUiComponent();
+		// Gán InputMap/ActionMap cho component đó
+		InputMap dateDiIM = editorNgayDi.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap dateDiAM = editorNgayDi.getActionMap();
+
+		dateDiIM.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterOnDateDi");
+		dateDiAM.put("enterOnDateDi", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (panel.isKhuHoi()) {
+					Date ngayDi = panel.getDateNgayDi().getDate();
+					Calendar c = Calendar.getInstance();
+					c.setTime(ngayDi);
+					c.add(Calendar.DATE, 1);
+					panel.getDateNgayVe().setDate(c.getTime());
+					panel.getDateNgayVe().getDateEditor().getUiComponent().requestFocusInWindow();
+				} else {
+					panel.getBtnTimKiem().doClick();
+				}
+			}
+		});
+
+		JComponent editorNgayVe = panel.getDateNgayVe().getDateEditor().getUiComponent();
+		InputMap dateVeIM = editorNgayVe.getInputMap(JComponent.WHEN_FOCUSED);
+		ActionMap dateVeAM = editorNgayVe.getActionMap();
+
+		dateVeIM.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterOnDateVe");
+		dateVeAM.put("enterOnDateVe", new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Ở ngày về, Enter luôn có nghĩa là Tìm kiếm
 				panel.getBtnTimKiem().doClick();
 			}
 		});

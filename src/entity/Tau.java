@@ -43,6 +43,12 @@ public class Tau {
 		this.loaiTau = loaiTau;
 	}
 
+	public Tau(String tauID, String tenTau) {
+		super();
+		this.tauID = tauID;
+		this.tenTau = tenTau;
+	}
+
 	public String getTauID() {
 		return tauID;
 	}

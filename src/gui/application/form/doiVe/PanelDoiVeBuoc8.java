@@ -16,12 +16,14 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +38,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -57,7 +60,6 @@ public class PanelDoiVeBuoc8 extends JPanel {
 	private JTextField txtTienKhachDua;
 	private JLabel lblTienThoiLai;
 	private JButton btnXacNhanVaInCash;
-	private JButton btnXacNhanVaInQR;
 
 	private JPanel pnlQRCode;
 	private JPanel pnlPaymentMethodContainer;
@@ -82,6 +84,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 	private int tongThanhToan = 0;
 	private JPanel pnlChiTiet;
+	private JLabel lblQRCodeDisplay;
 
 	private static final int[] MENHGIAVND = { 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000 };
 	private static final String TIEN_MAT_CARD = "TienMat";
@@ -236,7 +239,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 5;
 		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalStrut(50), gbc);
+		pnl.add(Box.createVerticalStrut(30), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 6;
@@ -321,48 +324,46 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		pnlQRCode.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Chuyển khoản"),
 				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-		// --- QR Code Image (Placeholder) ---
-		// TODO: Replace with actual QR code generation
-		// For now, using a placeholder text or a sample image if you have one
-		JLabel lblQRCodePlaceholder = new JLabel(
-				"<html><center>[QR Code Image Placeholder]<br/>Quét mã để thanh toán</center></html>");
-		lblQRCodePlaceholder.setHorizontalAlignment(SwingConstants.CENTER);
-		lblQRCodePlaceholder.setFont(lblQRCodePlaceholder.getFont().deriveFont(Font.PLAIN, 16f));
-		lblQRCodePlaceholder.setPreferredSize(new Dimension(200, 200)); // Adjust size as needed
-		lblQRCodePlaceholder.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-		lblQRCodePlaceholder.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRCodePlaceholder);
+		// --- QR Code Display ---
+		lblQRCodeDisplay = new JLabel();
+		lblQRCodeDisplay.setHorizontalAlignment(SwingConstants.CENTER);
+		lblQRCodeDisplay.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+		lblQRCodeDisplay.setPreferredSize(new Dimension(160, 160));
+		lblQRCodeDisplay.setMaximumSize(new Dimension(160, 160));
+		lblQRCodeDisplay.setAlignmentX(Component.CENTER_ALIGNMENT);
+		lblQRCodeDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		lblQRCodeDisplay.setToolTipText("Bấm vào để phóng to");
 
-		pnlQRCode.add(Box.createVerticalStrut(10)); // Spacer
+		// Set ảnh placeholder mặc định
+		lblQRCodeDisplay.setText("Đang tải mã QR...");
 
-		JLabel lblQRInfo1 = new JLabel("Thanh toán đổi vé");
+		pnlQRCode.add(lblQRCodeDisplay);
+
+		pnlQRCode.add(Box.createVerticalStrut(10));
+
+		JLabel lblQRInfo1 = new JLabel("Thanh toán vé tàu Ga Sài Gòn");
 		lblQRInfo1.setFont(lblQRInfo1.getFont().deriveFont(Font.BOLD, 14f));
 		lblQRInfo1.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pnlQRCode.add(lblQRInfo1);
 
-		JLabel lblQRAmount = new JLabel(currencyFormat.format(tongThanhToan)); // Display amount
+		JLabel lblQRAmount = new JLabel(currencyFormat.format(tongThanhToan));
 		lblQRAmount.setFont(lblQRAmount.getFont().deriveFont(Font.BOLD, 18f));
 		lblQRAmount.setForeground(Color.RED);
 		lblQRAmount.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pnlQRCode.add(lblQRAmount);
 
-		JLabel lblQRInfo2 = new JLabel("Nhà ga Sài Gòn");
-		lblQRInfo2.setFont(lblQRInfo2.getFont().deriveFont(Font.PLAIN, 12f));
-		lblQRInfo2.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(lblQRInfo2);
-
-		pnlQRCode.add(Box.createVerticalStrut(15));
-
-		btnXacNhanVaInQR = new JButton("Xác nhận và in vé");
-		btnXacNhanVaInQR.setFont(btnXacNhanVaInQR.getFont().deriveFont(Font.BOLD, 14f));
-		btnXacNhanVaInQR.setBackground(new Color(0, 153, 51));
-		btnXacNhanVaInQR.setForeground(Color.WHITE);
-		btnXacNhanVaInQR.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pnlQRCode.add(btnXacNhanVaInQR);
-
-		pnlQRCode.add(Box.createVerticalGlue());
-
 		return pnlQRCode;
+	}
+
+	public void setQRCodeImage(ImageIcon icon) {
+		if (icon != null) {
+			Image img = icon.getImage().getScaledInstance(160, 160, Image.SCALE_SMOOTH);
+			lblQRCodeDisplay.setIcon(new ImageIcon(img));
+			lblQRCodeDisplay.setText("");
+		} else {
+			lblQRCodeDisplay.setIcon(null);
+			lblQRCodeDisplay.setText("Lỗi tải ảnh");
+		}
 	}
 
 	private void addInternalLogic() {
@@ -382,6 +383,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 		radChuyenKhoan.addActionListener(paymentMethodListener);
 
 		txtTienKhachDua.getDocument().addDocumentListener(new DocumentListener() {
+
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				updateChange();
@@ -419,6 +421,7 @@ public class PanelDoiVeBuoc8 extends JPanel {
 					lblTienThoiLai.setForeground(Color.RED);
 				}
 			}
+
 		});
 	}
 
@@ -600,7 +603,6 @@ public class PanelDoiVeBuoc8 extends JPanel {
 
 		// Disable confirm buttons specifically if panel is disabled
 		btnXacNhanVaInCash.setEnabled(enabled && radTienMat.isSelected());
-		btnXacNhanVaInQR.setEnabled(enabled && radChuyenKhoan.isSelected());
 	}
 
 	private void setTienMatPanelEnabled(boolean enabled) {
@@ -625,26 +627,53 @@ public class PanelDoiVeBuoc8 extends JPanel {
 				c.setEnabled(enabled);
 			}
 		}
-		btnXacNhanVaInQR.setEnabled(enabled);
 	}
 
 	public JButton getBtnXacNhanVaInCash() {
 		return btnXacNhanVaInCash;
 	}
 
-	public JButton getBtnXacNhanVaInQR() {
-		return btnXacNhanVaInQR;
-	}
-
 	public JButton getBtnXacNhanHoanTien() {
 		return btnXacNhanHoanTien;
+	}
+
+	public JRadioButton getRadChuyenKhoan() {
+		return radChuyenKhoan;
+	}
+
+	public JRadioButton getRadTienMat() {
+		return radTienMat;
 	}
 
 	public void setBtnXacNhanHoanTien(JButton btnXacNhanHoanTien) {
 		this.btnXacNhanHoanTien = btnXacNhanHoanTien;
 	}
 
+	public JLabel getLblQRCodeDisplay() {
+		return lblQRCodeDisplay;
+	}
+
 	public boolean isThanhToanTienMat() {
 		return radTienMat.isSelected();
 	}
+
+	public void setEnableChuyenKhoan(boolean enable) {
+		if (radChuyenKhoan != null) {
+			radChuyenKhoan.setEnabled(enable);
+		}
+	}
+
+	/**
+	 * Bắt buộc chọn về Tiền mặt (Dùng khi disable chuyển khoản)
+	 */
+	public void selectTienMat() {
+		if (radTienMat != null) {
+			radTienMat.setSelected(true);
+			// Kích hoạt sự kiện chuyển layout (CardLayout) về panel tiền mặt
+			for (ActionListener al : radTienMat.getActionListeners()) {
+				al.actionPerformed(new ActionEvent(radTienMat, ActionEvent.ACTION_PERFORMED, null));
+			}
+		}
+	}
+
 }
