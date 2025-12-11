@@ -141,4 +141,8 @@ public class Chuyen_BUS {
 	public Map<String, String> getMapTenGaToID(){
 		return chuyenDAO.getMapTenGaToID();
 	}
+
+	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
+		return chuyenDAO.capNhatChuyen(chuyen, lichTrinh);
+	}
 }

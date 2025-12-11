@@ -29,8 +29,10 @@ public class Chuyen {
 	private int soChoTrong;
 
 	private String tenChuyenHienThi;
-	private String gaDiHienThi;
-	private String gaDenHienThi;
+	private String tenGaDiHienThi;
+	private String tenGaDenHienThi;
+	private Ga gaDi;
+	private Ga gaDen;
 
 	public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen,
 			LocalTime gioDen, int soChoDat, int soChoTrong) {
@@ -207,19 +209,32 @@ public class Chuyen {
 		this.tenChuyenHienThi = tenChuyenHienThi;
 	}
 
-	public String getGaDiHienThi() {
-		return gaDiHienThi;
+	public Ga getGaDi() {
+		return gaDi;
 	}
 
-	public void setGaDiHienThi(String gaDiHienThi) {
-		this.gaDiHienThi = gaDiHienThi;
+	public void setGaDi(Ga gaDi) {
+		this.gaDi = gaDi;
 	}
 
-	public String getGaDenHienThi() {
-		return gaDenHienThi;
+	public Ga getGaDen() {
+		return gaDen;
 	}
 
-	public void setGaDenHienThi(String gaDenHienThi) {
-		this.gaDenHienThi = gaDenHienThi;
+	public void setGaDen(Ga gaDen) {
+		this.gaDen = gaDen;
+	}
+
+	public String getTenGaDiHienThi() {
+		return tenGaDiHienThi;
+	}
+	public void setTenGaDiHienThi(String tenGaDiHienThi) {
+		this.tenGaDiHienThi = tenGaDiHienThi;
+	}
+	public String getTenGaDenHienThi() {
+		return tenGaDenHienThi;
+	}
+	public void setTenGaDenHienThi(String tenGaDenHienThi) {
+		this.tenGaDenHienThi = tenGaDenHienThi;
 	}
 }

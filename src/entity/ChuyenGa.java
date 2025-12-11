@@ -57,7 +57,7 @@ public class ChuyenGa {
 	}
 
 	public LocalTime getGioDen() {
-		return gioDi;
+		return gioDen;
 	}
 
 	public LocalDate getNgayDi() {

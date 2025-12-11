@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.beust.ah.A;
 import connectDB.ConnectDB;
 import entity.Chuyen;
 import entity.ChuyenGa;
@@ -41,18 +40,12 @@ public class Chuyen_DAO {
 		String querySQL = "DECLARE @gaDiID VARCHAR(50) = ?;\r\n" + "DECLARE @gaDenID VARCHAR(50) = ?;\r\n"
 				+ "DECLARE @ngayDi DATE = ?;\r\n" + "\r\n" + "SELECT\r\n" + "    c.chuyenID,\r\n" + "    c.tuyenID,\r\n"
 				+ "    c.tauID,\r\n"
-				// Lấy thêm loaiTauID từ bảng Tau
 				+ "    t.loaiTauID,\r\n"
-				// Thông tin tại ga đi yêu cầu
 				+ "    cgDi.ngayDi   AS ngayDi,\r\n" + "    cgDi.gioDi    AS gioDi,\r\n"
-				// Thông tin tại ga đến yêu cầu
 				+ "    cgDen.ngayDen  AS ngayDen,\r\n" + "    cgDen.gioDen  AS gioDen\r\n" + "FROM Chuyen c\r\n"
-				// JOIN với bảng Tau để lấy loaiTauID
 				+ "INNER JOIN Tau t ON c.tauID = t.tauID\r\n"
-				// Tìm ga đi trong lịch trình của chuyến
 				+ "INNER JOIN ChuyenGa cgDi\r\n" + "    ON cgDi.chuyenID = c.chuyenID\r\n"
 				+ "    AND cgDi.gaID = @gaDiID\r\n"
-				// Tìm ga đến trong lịch trình của chuyến
 				+ "INNER JOIN ChuyenGa cgDen\r\n" + "    ON cgDen.chuyenID = c.chuyenID\r\n"
 				+ "    AND cgDen.gaID = @gaDenID\r\n" + "WHERE\r\n" + "    cgDi.ngayDi = @ngayDi\r\n"
 				+ "    AND cgDi.thuTu < cgDen.thuTu\r\n" + "ORDER BY cgDi.gioDi, c.chuyenID;\r\n";
@@ -72,7 +65,6 @@ public class Chuyen_DAO {
 					LoaiTau loaiTau = LoaiTau.valueOf(resultSet.getString("loaiTauID"));
 					Tau tau = new Tau(tauID, loaiTau);
 
-					// Lấy đúng các giá trị từ kết quả truy vấn
 					LocalDate ngayDi_ThucTe = resultSet.getDate("ngayDi").toLocalDate();
 					LocalTime gioDi_ThucTe = resultSet.getTime("gioDi").toLocalTime();
 					LocalDate ngayDen_ThucTe = resultSet.getDate("ngayDen").toLocalDate();
@@ -90,62 +82,21 @@ public class Chuyen_DAO {
 		return chuyenList;
 	}
 
-	public List<Chuyen> getAllChuyen(){
+	public List<Chuyen> getAllChuyen() {
 		List<Chuyen> list = new ArrayList<>();
 		Connection con = connectDB.getInstance().getConnection();
-
-
 		String sql = "SELECT c.*, t.tenTau, " +
-				"(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu ASC) AS tenGaDi, " +
-				"(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu DESC) AS tenGaDen, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, " +
 
 				"(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, " +
 				"(SELECT TOP 1 cg.gioDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS GioDenThuc " +
 
 				"FROM Chuyen c " +
-				"JOIN Tau t ON c.tauID = t.tauID";
+				"JOIN Tau t ON c.tauID = t.tauID " +
+				"ORDER BY c.ngayDi DESC, c.gioDi DESC";
 
-		try (Statement stmt = con.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
-			while(rs.next()){
-				String maChuyen = rs.getString("chuyenID");
-				String tenTau = rs.getString("tenTau");
-				String tenGaDi = rs.getString("tenGaDi");
-				String tenGaDen = rs.getString("tenGaDen");
-				String tenChuyen = (tenGaDi != null ? tenGaDi : "N/A") + " - " + (tenGaDen != null ? tenGaDen : "N/A");
-
-				Date sqlDateDi = rs.getDate("ngayDi");
-				Time sqlTimeDi = rs.getTime("gioDi");
-				LocalDate ngayDi = (sqlDateDi != null) ? sqlDateDi.toLocalDate() : null;
-				LocalTime gioDi = (sqlTimeDi != null) ? sqlTimeDi.toLocalTime() : null;
-
-				Date sqlDateDen = rs.getDate("NgayDenThuc");
-				Time sqlTimeDen = rs.getTime("GioDenThuc");
-				LocalDate ngayDen = (sqlDateDen != null) ? sqlDateDen.toLocalDate() : null;
-				LocalTime gioDen = (sqlTimeDen != null) ? sqlTimeDen.toLocalTime() : null;
-
-				Chuyen c = new Chuyen(maChuyen);
-				c.setTau(new Tau(rs.getString("tauID"), tenTau));
-
-				if(rs.getString("tuyenID") != null) {
-					c.setTuyen(new Tuyen(rs.getString("tuyenID")));
-				}
-
-				c.setNgayDi(ngayDi);
-				c.setGioDi(gioDi);
-				c.setNgayDen(ngayDen);
-				c.setGioDen(gioDen);
-
-				c.setGaDiHienThi(tenGaDi);
-				c.setGaDenHienThi(tenGaDen);
-				c.setTenChuyenHienThi(tenChuyen);
-
-				list.add(c);
-			}
-		} catch (SQLException e){
-			e.printStackTrace();
-		}
-		return list;
+		return getListChuyenFromResultSet(con, sql);
 	}
 
 	public Chuyen layChuyenTheoMa(String maChuyen) {
@@ -153,8 +104,8 @@ public class Chuyen_DAO {
 		Connection con = connectDB.getInstance().getConnection();
 
 		String sql = "SELECT c.*, t.tenTau, " +
-				"(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu ASC) AS tenGaDi, " +
-				"(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu DESC) AS tenGaDen, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, " +
 				"(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, " +
 				"(SELECT TOP 1 cg.gioDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS GioDenThuc " +
 
@@ -162,65 +113,25 @@ public class Chuyen_DAO {
 				"JOIN Tau t ON c.tauID = t.tauID " +
 				"WHERE c.chuyenID = ?";
 
-		try (PreparedStatement pst = con.prepareStatement(sql)) {
-			pst.setString(1, maChuyen);
-
-			try (ResultSet rs = pst.executeQuery()) {
-				if (rs.next()) {
-					String maChuyenDB = rs.getString("chuyenID");
-					String tenTau = rs.getString("tenTau");
-					String tenGaDi = rs.getString("tenGaDi");
-					String tenGaDen = rs.getString("tenGaDen");
-
-					String tenChuyen = (tenGaDi != null ? tenGaDi : "N/A") + " - " + (tenGaDen != null ? tenGaDen : "N/A");
-
-					Date sqlDateDi = rs.getDate("ngayDi");
-					Time sqlTimeDi = rs.getTime("gioDi");
-					LocalDate ngayDi = (sqlDateDi != null) ? sqlDateDi.toLocalDate() : null;
-					LocalTime gioDi = (sqlTimeDi != null) ? sqlTimeDi.toLocalTime() : null;
-
-					Date sqlDateDen = rs.getDate("NgayDenThuc");
-					Time sqlTimeDen = rs.getTime("GioDenThuc");
-					LocalDate ngayDen = (sqlDateDen != null) ? sqlDateDen.toLocalDate() : null;
-					LocalTime gioDen = (sqlTimeDen != null) ? sqlTimeDen.toLocalTime() : null;
-
-					chuyen = new Chuyen(maChuyenDB);
-					chuyen.setTau(new Tau(rs.getString("tauID"), tenTau));
-
-					if(rs.getString("tuyenID") != null) {
-						chuyen.setTuyen(new Tuyen(rs.getString("tuyenID")));
-					}
-
-					chuyen.setNgayDi(ngayDi);
-					chuyen.setGioDi(gioDi);
-					chuyen.setNgayDen(ngayDen);
-					chuyen.setGioDen(gioDen);
-
-					chuyen.setGaDiHienThi(tenGaDi);
-					chuyen.setGaDenHienThi(tenGaDen);
-					chuyen.setTenChuyenHienThi(tenChuyen);
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		List<Chuyen> list = getListChuyenFromResultSet(con, sql, maChuyen);
+		if (!list.isEmpty()) {
+			chuyen = list.get(0);
 		}
 		return chuyen;
 	}
 
 	public List<Chuyen> timKiemChuyen(String maChuyen, String gaDi, String gaDen, String tenTau, LocalDate ngayDi) {
-		List<Chuyen> list = new ArrayList<>();
 		Connection con = connectDB.getInstance().getConnection();
-
 		StringBuilder sql = new StringBuilder();
+
 		sql.append("SELECT c.*, t.tenTau, ");
-		sql.append("(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu ASC) AS tenGaDi, ");
-		sql.append("(SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu DESC) AS tenGaDen, ");
+		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, ");
+		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, ");
 		sql.append("(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, ");
 		sql.append("(SELECT TOP 1 cg.gioDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS GioDenThuc ");
 		sql.append("FROM Chuyen c JOIN Tau t ON c.tauID = t.tauID WHERE 1=1 ");
 
 		List<Object> params = new ArrayList<>();
-
 
 		if (!maChuyen.isEmpty()) {
 			sql.append(" AND c.chuyenID LIKE ?");
@@ -234,66 +145,61 @@ public class Chuyen_DAO {
 			sql.append(" AND c.ngayDi = ?");
 			params.add(java.sql.Date.valueOf(ngayDi));
 		}
-
 		if (!gaDi.isEmpty()) {
-			sql.append(" AND (SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu ASC) LIKE ?");
+			sql.append(" AND (SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) LIKE ?");
 			params.add("%" + gaDi + "%");
 		}
-
 		if (!gaDen.isEmpty()) {
-			sql.append(" AND (SELECT TOP 1 g.tenGa FROM TuyenChiTiet tct JOIN Ga g ON tct.gaID = g.gaID WHERE tct.tuyenID = c.tuyenID ORDER BY tct.thuTu DESC) LIKE ?");
+			sql.append(" AND (SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) LIKE ?");
 			params.add("%" + gaDen + "%");
 		}
 
 		sql.append(" ORDER BY c.chuyenID");
 
-		try (PreparedStatement pst = con.prepareStatement(sql.toString())) {
+		return getListChuyenFromResultSet(con, sql.toString(), params.toArray());
+	}
 
-			for (int i = 0; i < params.size(); i++) {
-				Object param = params.get(i);
-				if (param instanceof String) {
-					pst.setString(i + 1, (String) param);
-				} else if (param instanceof java.sql.Date) {
-					pst.setDate(i + 1, (java.sql.Date) param);
-				}
+	private List<Chuyen> getListChuyenFromResultSet(Connection con, String sql, Object... params) {
+		List<Chuyen> list = new ArrayList<>();
+		try (PreparedStatement pst = con.prepareStatement(sql)) {
+			for (int i = 0; i < params.length; i++) {
+				if (params[i] instanceof String) pst.setString(i + 1, (String) params[i]);
+				else if (params[i] instanceof java.sql.Date) pst.setDate(i + 1, (java.sql.Date) params[i]);
 			}
 
 			try (ResultSet rs = pst.executeQuery()) {
 				while (rs.next()) {
-					String maChuyenDB = rs.getString("chuyenID");
-					String tenTauDB = rs.getString("tenTau");
-					String tenGaDi = rs.getString("tenGaDi");
-					String tenGaDen = rs.getString("tenGaDen");
+					String maChuyen = rs.getString("chuyenID");
+					String tenTau = rs.getString("tenTau");
+					String tenGaDi = rs.getString("tenGaDi");   // Lấy từ subquery ORDER BY ASC
+					String tenGaDen = rs.getString("tenGaDen"); // Lấy từ subquery ORDER BY DESC
 
 					String tenChuyen = (tenGaDi != null ? tenGaDi : "N/A") + " - " + (tenGaDen != null ? tenGaDen : "N/A");
 
 					Date sqlDateDi = rs.getDate("ngayDi");
 					Time sqlTimeDi = rs.getTime("gioDi");
-					LocalDate ngayDiObj = (sqlDateDi != null) ? sqlDateDi.toLocalDate() : null;
-					LocalTime gioDi = (sqlTimeDi != null) ? sqlTimeDi.toLocalTime() : null;
+					LocalDate dateDi = (sqlDateDi != null) ? sqlDateDi.toLocalDate() : null;
+					LocalTime timeDi = (sqlTimeDi != null) ? sqlTimeDi.toLocalTime() : null;
 
 					Date sqlDateDen = rs.getDate("NgayDenThuc");
 					Time sqlTimeDen = rs.getTime("GioDenThuc");
-					LocalDate ngayDen = (sqlDateDen != null) ? sqlDateDen.toLocalDate() : null;
-					LocalTime gioDen = (sqlTimeDen != null) ? sqlTimeDen.toLocalTime() : null;
+					LocalDate dateDen = (sqlDateDen != null) ? sqlDateDen.toLocalDate() : null;
+					LocalTime timeDen = (sqlTimeDen != null) ? sqlTimeDen.toLocalTime() : null;
 
-					Chuyen chuyen = new Chuyen(maChuyenDB);
-					chuyen.setTau(new Tau(rs.getString("tauID"), tenTauDB));
+					Chuyen c = new Chuyen(maChuyen);
+					c.setTau(new Tau(rs.getString("tauID"), tenTau));
+					if (rs.getString("tuyenID") != null) c.setTuyen(new Tuyen(rs.getString("tuyenID")));
 
-					if(rs.getString("tuyenID") != null) {
-						chuyen.setTuyen(new Tuyen(rs.getString("tuyenID")));
-					}
+					c.setNgayDi(dateDi);
+					c.setGioDi(timeDi);
+					c.setNgayDen(dateDen);
+					c.setGioDen(timeDen);
 
-					chuyen.setNgayDi(ngayDiObj);
-					chuyen.setGioDi(gioDi);
-					chuyen.setNgayDen(ngayDen);
-					chuyen.setGioDen(gioDen);
+					c.setTenGaDiHienThi(tenGaDi);
+					c.setTenGaDenHienThi(tenGaDen);
+					c.setTenChuyenHienThi(tenChuyen);
 
-					chuyen.setGaDiHienThi(tenGaDi);
-					chuyen.setGaDenHienThi(tenGaDen);
-					chuyen.setTenChuyenHienThi(tenChuyen);
-
-					list.add(chuyen);
+					list.add(c);
 				}
 			}
 		} catch (SQLException e) {
@@ -434,4 +340,63 @@ public class Chuyen_DAO {
 	}
 
 
+	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinhMoi){
+		Connection con = null;
+		PreparedStatement pstUpdateChuyen = null;
+		PreparedStatement pstDeleteChuyenGa = null;
+		PreparedStatement pstInsertChuyenGa = null;
+		boolean success = false;
+
+		try {
+			con = ConnectDB.getInstance().getConnection();
+			con.setAutoCommit(false);
+			String sqlUpdateChuyen = "UPDATE Chuyen SET tuyenID=?, tauID=?, ngayDi=?, gioDi=? WHERE chuyenID=?";
+			pstUpdateChuyen = con.prepareStatement(sqlUpdateChuyen);
+			pstUpdateChuyen.setString(1, chuyen.getTuyen().getTuyenID());
+			pstUpdateChuyen.setString(2, chuyen.getTau().getTauID());
+			pstUpdateChuyen.setDate(3, java.sql.Date.valueOf(chuyen.getNgayDi()));
+			pstUpdateChuyen.setTime(4, java.sql.Time.valueOf(chuyen.getGioDi()));
+			pstUpdateChuyen.setString(5, chuyen.getChuyenID());
+
+			int rowsAff = pstUpdateChuyen.executeUpdate();
+			if (rowsAff == 0) throw new SQLException("Không tìm thấy chuyến để cập nhật");
+
+			String sqlDeleteGa = "DELETE FROM ChuyenGa WHERE chuyenID=?";
+			pstDeleteChuyenGa = con.prepareStatement(sqlDeleteGa);
+			pstDeleteChuyenGa.setString(1, chuyen.getChuyenID());
+			pstDeleteChuyenGa.executeUpdate();
+
+			String sqlInsertGa = "INSERT INTO ChuyenGa (chuyenID, gaID, thuTu, ngayDen, gioDen, NgayDi, gioDi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+			pstInsertChuyenGa = con.prepareStatement(sqlInsertGa);
+
+			for (ChuyenGa cg : lichTrinhMoi) {
+				pstInsertChuyenGa.setString(1, chuyen.getChuyenID());
+				pstInsertChuyenGa.setString(2, cg.getGa().getGaID());
+				pstInsertChuyenGa.setInt(3, cg.getThuTu());
+
+				pstInsertChuyenGa.setDate(4, cg.getNgayDen() != null ? java.sql.Date.valueOf(cg.getNgayDen()) : null);
+				pstInsertChuyenGa.setTime(5, cg.getGioDen() != null ? java.sql.Time.valueOf(cg.getGioDen()) : null);
+				pstInsertChuyenGa.setDate(6, cg.getNgayDi() != null ? java.sql.Date.valueOf(cg.getNgayDi()) : null);
+				pstInsertChuyenGa.setTime(7, cg.getGioDi() != null ? java.sql.Time.valueOf(cg.getGioDi()) : null);
+
+				pstInsertChuyenGa.addBatch();
+			}
+			pstInsertChuyenGa.executeBatch();
+
+			con.commit();
+			success = true;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+		} finally {
+			try {
+				if (pstUpdateChuyen != null) pstUpdateChuyen.close();
+				if (pstDeleteChuyenGa != null) pstDeleteChuyenGa.close();
+				if (pstInsertChuyenGa != null) pstInsertChuyenGa.close();
+				if (con != null) con.setAutoCommit(true);
+			} catch (SQLException ex) { ex.printStackTrace(); }
+		}
+		return success;
+	}
 }

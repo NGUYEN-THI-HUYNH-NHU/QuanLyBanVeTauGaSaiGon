@@ -244,11 +244,11 @@ public class PanelQuanLyChuyen extends JPanel {
         pnlThongTin.add(new JLabel("Mã Chuyến:"){ { setFont(BASE_FONT); } });
         pnlThongTin.add(lblMaChuyenValue, "growx");
 
+        pnlThongTin.add(new JLabel("Mã Tuyến:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(lblTenTuyenValue, "growx");
+
         pnlThongTin.add(new JLabel("Tên Chuyến:"){ { setFont(BASE_FONT); } });
         pnlThongTin.add(lblTenChuyenValue, "growx");
-
-        pnlThongTin.add(new JLabel("Tên Tuyến:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(lblTenTuyenValue, "growx");
 
         pnlThongTin.add(new JLabel("Ga Xuất Phát:"){ { setFont(BASE_FONT); } });
         pnlThongTin.add(lblGaDiValue, "growx");

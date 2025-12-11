@@ -12,6 +12,8 @@ package gui.application.form.quanLyChuyen;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.raven.datechooser.DateChooser;
+import com.raven.datechooser.SelectedAction;
+import com.raven.swing.TimePicker;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -29,11 +31,14 @@ public class PanelThemChuyen extends JPanel {
     private JComboBox<String> comboTau;
     private JTextField txtNgayDi;
     private JTextField txtGioDi;
+    private JButton btnGioDi;
     private JComboBox<String> comboGaDiMoi;
     private JComboBox<String> comboGaDenMoi;
     private JTextField txtGioDenMoi;
     private JTextField txtNgayDenMoi;
     private JTextField txtGioDiMoi;
+    private JButton btnGioDiMoi;
+    private JButton btnGioDenMoi;
     private JTextField txtNgayDiMoi;
     private DefaultTableModel modelLichTrinh;
     private JTable tableLichTrinh;
@@ -41,12 +46,17 @@ public class PanelThemChuyen extends JPanel {
     private JButton btnXoaGa;
     private JButton btnThemChuyen;
 
+    private TimePicker timePicker;
+
     public PanelThemChuyen() {
         setLayout(new BorderLayout(10, 10));
         initComponents();
     }
 
     private void initComponents(){
+        timePicker = new TimePicker();
+        timePicker.set24hourMode(true);
+
         JPanel pnlThongTin = new JPanel(new MigLayout("fillx, insets 20", "[pref!]10[grow]20[pref!]10[grow]", "[]15[]15[]15[]"));
         pnlThongTin.setBorder(BorderFactory.createTitledBorder("Thông tin chuyến"));
         pnlThongTin.setBackground(Color.WHITE);
@@ -73,6 +83,11 @@ public class PanelThemChuyen extends JPanel {
         DateChooser dateChooser = new DateChooser();
         dateChooser.setTextRefernce(txtNgayDi);
         dateChooser.setDateFormat("dd/MM/yyyy");
+        dateChooser.addEventDateChooser((action, date)->{
+            if(action.getAction() == SelectedAction.DAY_SELECTED){
+                dateChooser.hidePopup();
+            }
+        });
         pnlThongTin.add(txtNgayDi, "growx, wrap");
 
         pnlThongTin.add(new JLabel("Ga Xuất Phát:"));
@@ -84,9 +99,25 @@ public class PanelThemChuyen extends JPanel {
         pnlThongTin.add(comboGaDich, "growx, wrap");
 
         pnlThongTin.add(new JLabel("Giờ Đi:"));
+        JPanel pnlGioDi = new JPanel(new BorderLayout());
+        pnlGioDi.setBackground(Color.WHITE);
+
+
         txtGioDi = new JTextField();
         txtGioDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đi (HH:mm)");
-        pnlThongTin.add(txtGioDi, "growx, wrap");
+        btnGioDi = new JButton("Chọn Giờ");
+        btnGioDi.setBackground(new Color(36,104,155));
+        btnGioDi.setForeground(Color.WHITE);
+        btnGioDi.setMargin(new Insets(2,5,2,5));
+        pnlGioDi.add(txtGioDi, BorderLayout.CENTER);
+        pnlGioDi.add(btnGioDi, BorderLayout.EAST);
+        pnlThongTin.add(pnlGioDi, "growx, wrap");
+
+        btnGioDi.addActionListener(e -> {
+            timePicker.setDisplayText(txtGioDi);
+            timePicker.showPopup(pnlGioDi,0,pnlGioDi.getHeight());
+        });
+
         add(pnlThongTin, BorderLayout.NORTH);
 
         JPanel pnlLichTrinh = new JPanel(new BorderLayout(0,10));
@@ -107,25 +138,59 @@ public class PanelThemChuyen extends JPanel {
         DateChooser dc1 = new DateChooser();
         dc1.setTextRefernce(txtNgayDiMoi);
         dc1.setDateFormat("dd/MM/yyyy");
+        dc1.addEventDateChooser((action, date)->{
+            if(action.getAction() == SelectedAction.DAY_SELECTED){
+                dc1.hidePopup();
+            }
+        });
+
+        JPanel pnlGioDiMoi = new JPanel(new BorderLayout());
         txtGioDiMoi = new JTextField();
         txtGioDiMoi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đi (HH:mm)");
+        btnGioDiMoi = new JButton("Chọn Giờ");
+        btnGioDiMoi.setMargin(new Insets(2,2,2,2));
+        btnGioDiMoi.setBackground(new Color(36,104,155));
+        btnGioDiMoi.setForeground(Color.WHITE);
+        pnlGioDiMoi.add(txtGioDiMoi, BorderLayout.CENTER);
+        pnlGioDiMoi.add(btnGioDiMoi, BorderLayout.EAST);
+
+        btnGioDiMoi.addActionListener(e -> {
+            timePicker.setDisplayText(txtGioDiMoi);
+            timePicker.showPopup(pnlGioDiMoi,0,pnlGioDiMoi.getHeight());
+        });
 
         pnlNhapGa.add(new JLabel("Ngày Đi:"));
         pnlNhapGa.add(txtNgayDiMoi, "growx");
         pnlNhapGa.add(new JLabel("Giờ Đi:"));
-        pnlNhapGa.add(txtGioDiMoi, "growx, wrap");
+        pnlNhapGa.add(pnlGioDiMoi, "growx, wrap");
 
         txtNgayDenMoi = new JTextField();
         DateChooser dc2 = new DateChooser();
         dc2.setTextRefernce(txtNgayDenMoi);
         dc2.setDateFormat("dd/MM/yyyy");
+        dc2.addEventDateChooser((action, date)->{
+            if(action.getAction() == SelectedAction.DAY_SELECTED){
+                dc2.hidePopup();
+            }
+        });
+        JPanel pnlGioDenMoi = new JPanel(new BorderLayout());
         txtGioDenMoi = new JTextField();
         txtGioDenMoi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đến (HH:mm)");
+        btnGioDenMoi = new JButton("Chọn Giờ");
+        btnGioDenMoi.setMargin(new Insets(2,2,2,2));
+        btnGioDenMoi.setBackground(new Color(36,104,155));
+        btnGioDenMoi.setForeground(Color.WHITE);
+        pnlGioDenMoi.add(txtGioDenMoi, BorderLayout.CENTER);
+        pnlGioDenMoi.add(btnGioDenMoi, BorderLayout.EAST);
 
+        btnGioDenMoi.addActionListener(e -> {
+            timePicker.setDisplayText(txtGioDenMoi);
+            timePicker.showPopup(pnlGioDenMoi,0,pnlGioDenMoi.getHeight());
+        });
         pnlNhapGa.add(new JLabel("Ngày Đến:"));
         pnlNhapGa.add(txtNgayDenMoi, "growx");
         pnlNhapGa.add(new JLabel("Giờ Đến:"));
-        pnlNhapGa.add(txtGioDenMoi, "growx");
+        pnlNhapGa.add(pnlGioDenMoi, "growx");
 
         btnThemGa = new JButton("Thêm Chặng");
         btnThemGa.setBackground(new Color(36,104,155));
@@ -149,7 +214,14 @@ public class PanelThemChuyen extends JPanel {
             }
         };
         tableLichTrinh = new JTable(modelLichTrinh);
+        tableLichTrinh.setShowGrid(true);
+        tableLichTrinh.setShowHorizontalLines(true);
+        tableLichTrinh.setShowVerticalLines(true);
+        tableLichTrinh.setGridColor(Color.LIGHT_GRAY);
         tableLichTrinh.setRowHeight(25);
+        tableLichTrinh.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tableLichTrinh.getTableHeader().setBackground(new Color(36,104,155));
+        tableLichTrinh.getTableHeader().setForeground(Color.WHITE);
         tableLichTrinh.getColumnModel().getColumn(0).setMaxWidth(40);
         pnlLichTrinh.add(new JScrollPane(tableLichTrinh), BorderLayout.CENTER);
 
