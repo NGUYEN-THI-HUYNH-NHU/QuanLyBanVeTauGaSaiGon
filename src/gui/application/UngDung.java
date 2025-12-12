@@ -96,7 +96,7 @@ public class UngDung extends JFrame {
 	}
 
 	public static void main(String args[]) {
-		NgrokRunner.startNgrok();
+//		NgrokRunner.startNgrok();
 
 		FlatRobotoFont.install();
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
