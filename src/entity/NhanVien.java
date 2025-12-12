@@ -5,10 +5,10 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.VaiTroNhanVien;
-
 import java.time.LocalDate;
 import java.util.Objects;
+
+import entity.type.VaiTroNhanVien;
 
 /*
  * @description
@@ -63,6 +63,12 @@ public class NhanVien {
 		this.ngayThamGia = ngayThamGia;
 		this.isHoatDong = isHoatDong;
 		this.caLam = caLam;
+	}
+
+	public NhanVien(String nhanVienID, String hoTen) {
+		super();
+		this.nhanVienID = nhanVienID;
+		this.hoTen = hoTen;
 	}
 
 	public NhanVien(String nhanVienID) {

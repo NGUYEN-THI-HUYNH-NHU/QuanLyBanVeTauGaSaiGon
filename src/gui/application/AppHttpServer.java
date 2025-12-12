@@ -78,8 +78,9 @@ public class AppHttpServer {
 
 			server.setExecutor(null);
 			server.start();
-			System.out.println(">>> Server Mobile đang chạy port 8080...");
+			System.out.println(">>> AppHttpServer đang chạy port 8080...");
 			System.out.println(">>> API cho App ngoài: /api/scan?code=...");
+			System.out.println(">>> Endpoint nhận tiền Casso: /webhook/casso");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -119,22 +120,26 @@ public class AppHttpServer {
 
 					if (updateSuccess) {
 						return "[ HOP LE - MOI QUA ]\n" + "================================\n" + "Ma ve: " + veID + "\n"
-								+ "Ngay gio di: " + veID + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd + "\n"
-								+ "Tau:   " + tauID + " | Toa: " + soToa + "\n" + "Ghe:   " + soGhe + "\n"
-								+ "================================";
+								+ "Ngay gio di: " + ngayGioDi + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd
+								+ "\n" + "Tau:   " + tauID + " | Toa: " + soToa + " | Ghe:   " + soGhe + "\n"
+								+ "================================\n" + "Cap nhat trang thai ve thanh cong!";
 					} else {
 						return "(!) LOI CAP NHAT DATABASE";
 					}
 				}
 				// --- TRƯỜNG HỢP 2: VÉ ĐÃ DÙNG ---
 				else if (status == TrangThaiVe.DA_DUNG) {
-					return "(!) CANH BAO: VE DA DUNG\n" + "--------------------------------\n" + "Ma ve: " + veID + "\n"
-							+ "Khach: " + hoTen + "\n" + "Luu y: Ve nay da quet truoc do.";
+					return "(!) CANH BAO: VE DA DUNG\n" + "Luu y: Ve nay da quet truoc do." + "\n"
+							+ "================================\n" + "Ma ve: " + veID + "\n" + "Ngay gio di: "
+							+ ngayGioDi + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd + "\n" + "Tau:   " + tauID
+							+ " | Toa: " + soToa + " | Ghe:   " + soGhe + "\n" + "================================";
 				}
 				// --- TRƯỜNG HỢP 3: VÉ ĐÃ HỦY ---
 				else {
-					return "[ X ] VE KHONG HOP LE\n" + "--------------------------------\n" + "Trang thai: " + status
-							+ "\n" + "Ma ve: " + veID + "\n" + "Khach: " + hoTen;
+					return "[ X ] VE KHONG HOP LE\n" + "================================\n" + "Ma ve: " + veID + "\n"
+							+ "Ngay gio di: " + ngayGioDi + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd + "\n"
+							+ "Tau:   " + tauID + " | Toa: " + soToa + " | Ghe:   " + soGhe + "\n"
+							+ "================================";
 				}
 			}
 		}

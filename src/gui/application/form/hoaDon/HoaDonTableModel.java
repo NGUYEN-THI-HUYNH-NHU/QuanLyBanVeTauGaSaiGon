@@ -85,7 +85,8 @@ public class HoaDonTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return false;
+		return columnIndex > COL_STT && columnIndex < COL_THOI_DIEM_TAO;
+
 	}
 
 	@Override

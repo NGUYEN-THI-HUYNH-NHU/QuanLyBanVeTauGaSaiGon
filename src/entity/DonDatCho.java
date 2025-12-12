@@ -33,9 +33,9 @@ public class DonDatCho {
 		this.donDatChoID = donDatChoID;
 	}
 
- 	public DonDatCho() {
- 		super();
- 	}
+	public DonDatCho() {
+		super();
+	}
 
 	public String getDonDatChoID() {
 		return donDatChoID;
@@ -54,9 +54,9 @@ public class DonDatCho {
 	}
 
 	public void setDonDatChoID(String donDatChoID) {
-		if(donDatChoID != null && !donDatChoID.trim().isEmpty()) {
+		if (donDatChoID != null && !donDatChoID.trim().isEmpty()) {
 			this.donDatChoID = donDatChoID;
-		}else{
+		} else {
 			throw new IllegalArgumentException("Đơn đặt chỗ ID không được để trống!");
 		}
 	}
@@ -75,16 +75,17 @@ public class DonDatCho {
 
 	@Override
 	public String toString() {
-		return donDatChoID + ";" + nhanVien
-				+ ";" + khachHang
-				+ ";" + thoiDiemDatCho
-				;
+		return donDatChoID + ";" + nhanVien + ";" + khachHang + ";" + thoiDiemDatCho;
 	}
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		DonDatCho donDatCho = (DonDatCho) o;
 		return Objects.equals(donDatChoID, donDatCho.donDatChoID);
 	}
@@ -92,5 +93,26 @@ public class DonDatCho {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(donDatChoID);
+	}
+
+	public int getTongSoVe() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSoVeDaHoan() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getSoVeDaDoi() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }
