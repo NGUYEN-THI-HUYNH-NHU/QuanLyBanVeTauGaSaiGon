@@ -13,19 +13,15 @@ package entity.type;
  */
 
 public enum TrangThaiVe {
-	DA_BAN("Vé đã bán"),
-	DA_DUNG("Vé đã sử dụng"),
-	HET_HAN("Vé hết hạn"),
-	DA_HOAN("Vé đã hoàn"),
-	DA_DOI("Vé đã hoàn");
+	DA_BAN("Vé đã bán"), DA_DUNG("Vé đã sử dụng"), HET_HAN("Vé hết hạn"), DA_HOAN("Vé đã hoàn"), DA_DOI("Vé đã đổi");
 
 	private final String description;
 
 	TrangThaiVe(String description) {
-        this.description = description;
-    }
+		this.description = description;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 }
