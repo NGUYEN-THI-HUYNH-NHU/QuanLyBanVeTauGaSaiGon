@@ -35,9 +35,8 @@ public class PanelThongKe extends JPanel {
     private StatCard cardTongHoaDon, cardHoaDonDoiTra, cardSoVeBanDuoc;
     private StatCard cardChuyenKhoan, cardTienMat, cardTongThuDuoc;
 
-    // TRƯỜNG MỚI: Thêm cờ và giá trị tiền mặt tại két
-    private boolean isTienMatEntered = false;
-    private double tienMatTaiKetValue = 0.0;
+    // TRƯỜNG MỚI: DÙNG MODEL ĐỂ LƯU THÔNG TIN GIAO CA
+    private BaoCaoGiaoCaModel giaoCaModel;
 
     // Các nhãn hiển thị thông tin ca làm việc và nhân viên
     private JLabel lblTenNhanVien, lblCaLamViec, lblNgayLamViec;
@@ -51,12 +50,9 @@ public class PanelThongKe extends JPanel {
     private JLabel lblCaLV_Report;
     private JLabel lblNgayLV_Report;
 
-    // THÀNH PHẦN MỚI: Các JLabel cho khu vực tổng kết dưới bảng
-    private JLabel lblTongTienMatKet, lblTongCKReport, lblTongTTHuyetThong, lblTongThuReport;
-    private JLabel lblTongValue; // Tổng tiền ở hàng 'Tổng'
-    private JLabel lblTongTienHienTai;
-    private JLabel lblTongTienChenhLenh;
-    private JTextArea txtGhiChuReport;
+    // Panel Tab báo cáo cuối cùng (Tham chiếu KHÔNG CÒN CẦN THIẾT)
+    // private PanelBaoCao pnlFinalReport; // Xóa tham chiếu này
+    private JTabbedPane tabbedPane;
 
     // Định dạng cho tiền tệ và số nguyên
     private final DecimalFormat currencyFormatter = new DecimalFormat("#,##0 VNĐ");
@@ -67,6 +63,8 @@ public class PanelThongKe extends JPanel {
      */
     public PanelThongKe() {
         this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
+        // Giả định BaoCaoGiaoCaModel đã được tạo trong project
+        this.giaoCaModel = new BaoCaoGiaoCaModel();
 
         // Lấy nhân viên hiện tại từ AuthService
         NhanVien current = AuthService.getInstance().getCurrentUser();
@@ -171,11 +169,14 @@ public class PanelThongKe extends JPanel {
      * Tab gồm: Biểu đồ – Bảng báo cáo chi tiết.
      */
     private JTabbedPane createTabbedPanel() {
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
         tabbedPane.addTab("Biểu đồ Doanh thu", createChartTabPanel());
         tabbedPane.addTab("Bảng báo cáo chi tiết", createReportTabPanel());
+
+        // ĐÃ XÓA TAB "Báo cáo cuối ca" theo yêu cầu
+        // tabbedPane.addTab("Báo cáo cuối ca", pnlFinalReport);
 
         return tabbedPane;
     }
@@ -205,7 +206,7 @@ public class PanelThongKe extends JPanel {
     }
 
     /**
-     * Tab bảng báo cáo chi tiết.
+     * Tab bảng báo cáo chi tiết. (CHỈ CÒN BẢNG DANH SÁCH)
      */
     private JPanel createReportTabPanel() {
         JPanel pnlReport = new JPanel(new BorderLayout());
@@ -255,247 +256,10 @@ public class PanelThongKe extends JPanel {
         JScrollPane scrollPane = new JScrollPane(reportTable);
         scrollPane.getViewport().setBackground(Color.WHITE);
 
-        // Panel chứa Bảng và khu vực Tổng kết
-        JPanel pnlCenterContent = new JPanel(new BorderLayout());
-        pnlCenterContent.add(scrollPane, BorderLayout.CENTER);
-
-        // ====================== PANEL TỔNG KẾT MỚI ======================
-        JPanel pnlSummary = new JPanel(new BorderLayout(0, 10));
-        pnlSummary.setOpaque(false);
-        pnlSummary.setBorder(new EmptyBorder(10, 0, 10, 0));
-
-        // Hàng 1: Tổng cộng tiền (Giống hàng cuối của JTable)
-        JLabel lblTongTitle = new JLabel("Tổng");
-        lblTongTitle.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTongTitle.setPreferredSize(new Dimension(80, 25));
-
-        lblTongValue = new JLabel("0 VNĐ"); // Sẽ là tổng thu được
-        lblTongValue.setFont(new Font("Arial", Font.BOLD, 16));
-        lblTongValue.setHorizontalAlignment(SwingConstants.RIGHT);
-
-        JPanel pnlTongRow = new JPanel(new BorderLayout());
-        pnlTongRow.setOpaque(true);
-        pnlTongRow.setBackground(new Color(235, 235, 235));
-        pnlTongRow.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-        pnlTongRow.add(lblTongTitle, BorderLayout.WEST);
-        pnlTongRow.add(lblTongValue, BorderLayout.CENTER);
-        pnlSummary.add(pnlTongRow, BorderLayout.NORTH);
-
-        // Hàng 2: Chi tiết các khoản (GridLayout 6x2)
-        JPanel pnlDetails = new JPanel(new GridLayout(6, 2, 10, 5));
-        pnlDetails.setOpaque(false);
-        pnlDetails.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-
-        // Khởi tạo các label chi tiết
-        lblTongTTHuyetThong = new JLabel("0 VNĐ");
-        lblTongCKReport = new JLabel("0 VNĐ");
-        lblTongThuReport = new JLabel("0 VNĐ");
-        lblTongTienMatKet = new JLabel("0 VNĐ");
-        lblTongTienHienTai = new JLabel("0 VNĐ");
-        lblTongTienChenhLenh = new JLabel("0 VNĐ");
-        txtGhiChuReport = new JTextArea(3, 10);
-
-        lblTongTienMatKet.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTongTienChenhLenh.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTongTienHienTai.setFont(new Font("Arial", Font.BOLD, 14));
-
-        // Dòng 1: Tiền mặt Hệ thống
-        pnlDetails.add(new JLabel("Tổng tiền mặt (Hệ thống):"));
-        pnlDetails.add(lblTongTTHuyetThong);
-
-        // Dòng 2: Tiền chuyển khoản
-        pnlDetails.add(new JLabel("Tổng tiền chuyển khoản:"));
-        pnlDetails.add(lblTongCKReport);
-
-        // Dòng 3: Tổng doanh thu trên hệ thống (B)
-        pnlDetails.add(new JLabel("Tổng doanh thu trên hệ thống(B):"));
-        pnlDetails.add(lblTongThuReport);
-
-        // Dòng 4: Tiền mặt tại két
-        pnlDetails.add(new JLabel("Tổng tiền mặt tại két:"));
-        pnlDetails.add(lblTongTienMatKet);
-
-        // Dòng 5: Tổng doanh thu hiện tại (A) (Tổng tiền mặt két + Tổng chuyển khoản)
-        pnlDetails.add(new JLabel("Tổng doanh thu hiện tại (A):"));
-        pnlDetails.add(lblTongTienHienTai);
-
-        // Dòng 6: Chênh lệch (B - A)
-        pnlDetails.add(new JLabel("Chênh lệnh (B-A):"));
-        pnlDetails.add(lblTongTienChenhLenh);
-
-
-        // Ghi chú (Đặt ở dòng 7, sử dụng thêm một panel nhỏ để JTextArea không bị kéo căng)
-        JPanel pnlGhiChuContainer = new JPanel(new BorderLayout(5, 0));
-        pnlGhiChuContainer.setOpaque(false);
-        txtGhiChuReport.setLineWrap(true);
-        txtGhiChuReport.setWrapStyleWord(true);
-        txtGhiChuReport.setEditable(false);
-
-        // Gắn Ghi Chú vào container
-        pnlGhiChuContainer.add(new JLabel("Ghi Chú:"), BorderLayout.NORTH);
-        pnlGhiChuContainer.add(new JScrollPane(txtGhiChuReport), BorderLayout.CENTER);
-
-
-        // Cần thêm một container để Ghi chú chiếm hết chiều rộng
-        JPanel pnlGhiChuFullWidth = new JPanel(new GridLayout(1, 1));
-        pnlGhiChuFullWidth.setOpaque(false);
-        pnlGhiChuFullWidth.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-        pnlGhiChuFullWidth.add(pnlGhiChuContainer);
-
-
-        // Cấu trúc lại để Ghi chú hiển thị tốt hơn, nằm dưới 6 dòng:
-        JPanel pnlCombinedDetails = new JPanel(new BorderLayout(0, 5));
-        pnlCombinedDetails.setOpaque(false);
-        pnlCombinedDetails.add(pnlDetails, BorderLayout.NORTH);
-        pnlCombinedDetails.add(pnlGhiChuFullWidth, BorderLayout.CENTER);
-
-        pnlSummary.add(pnlCombinedDetails, BorderLayout.CENTER);
-
-
-        pnlCenterContent.add(pnlSummary, BorderLayout.SOUTH);
-        pnlReport.add(pnlCenterContent, BorderLayout.CENTER); // Đặt panel chứa bảng và summary vào giữa
-
-// ====================== PANEL NÚT DƯỚI ======================
-        JPanel pnlBottom = new JPanel(new BorderLayout());
-        pnlBottom.setOpaque(false);
-
-// ===== NÚT NHẬP TIỀN MẶT (TRÁI) =====
-        JPanel pnlLeftButton = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        pnlLeftButton.setOpaque(false);
-
-        JButton btnNhapTienMat = new JButton("Nhập tiền mặt");
-        btnNhapTienMat.setPreferredSize(new Dimension(130, 30));
-        btnNhapTienMat.setBackground(new Color(70, 130, 180));
-        btnNhapTienMat.setForeground(Color.WHITE);
-        btnNhapTienMat.setFont(new Font("Arial", Font.BOLD, 12));
-
-// Listener cho nút Nhập tiền mặt
-        btnNhapTienMat.addActionListener(e -> {
-            // Giả định: PanelBaoCao tồn tại và có constructor này
-            PanelBaoCao baoCaoPanel = new PanelBaoCao(
-                    nhanVien.getHoTen(),                     // tên NV
-                    lblCaLamViec.getText(),                  // ca làm việc
-                    lblNgayLamViec.getText(),                // ngày làm việc
-                    cardTienMat.getNumericValue()          // doanh thu tiền mặt hệ thống (A trong PanelBaoCao)
-            );
-
-            JDialog dialog = new JDialog(
-                    (Frame) SwingUtilities.getWindowAncestor(this),
-                    "Lập Báo Cáo Giao Ca", true
-            );
-
-            // CẬP NHẬT TRẠNG THÁI VÀ GIÁ TRỊ SAU KHI ĐÓNG DIALOG
-            dialog.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosed(WindowEvent windowEvent) {
-                    // LẤY GIÁ TRỊ TIỀN MẶT ĐÃ ĐƯỢC LƯU VÀ GHI CHÚ
-                    if (baoCaoPanel.isGiaoCaConfirmed()) {
-                        double value = baoCaoPanel.getTienMatThucTeDaNhap();
-                        String ghiChu = baoCaoPanel.getGhiChuDaNhap();
-
-                        tienMatTaiKetValue = value;
-                        isTienMatEntered = true;
-
-                        txtGhiChuReport.setText(ghiChu); // CẬP NHẬT GHI CHÚ
-
-                        updateSummaryPanel(); // GỌI CẬP NHẬT HIỂN THỊ
-                    } else {
-                        isTienMatEntered = false;
-                    }
-                }
-            });
-
-            dialog.setContentPane(baoCaoPanel);
-            dialog.setSize(1000, 700);
-            dialog.setLocationRelativeTo(this);
-            dialog.setVisible(true);
-        });
-
-        pnlLeftButton.add(btnNhapTienMat);
-
-// ===== NÚT XUẤT FILE (PHẢI) - CÓ RÀNG BUỘC KIỂM TRA NHẬP TIỀN MẶT =====
-        JPanel pnlRightButton = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        pnlRightButton.setOpaque(false);
-
-        JButton btnExport = new JButton("Xuất File Báo Cáo");
-        btnExport.setPreferredSize(new Dimension(160, 30));
-        btnExport.setBackground(new Color(255, 153, 51));
-        btnExport.setForeground(Color.WHITE);
-        btnExport.setFont(new Font("Arial", Font.BOLD, 12));
-
-// Thêm Ràng buộc
-        btnExport.addActionListener(ev -> {
-            if (!isTienMatEntered) {
-                JOptionPane.showMessageDialog(
-                        PanelThongKe.this,
-                        "Bạn phải nhập tiền mặt thực tế trước khi xuất báo cáo cuối ca.",
-                        "Yêu cầu",
-                        JOptionPane.WARNING_MESSAGE);
-                return; // Ngăn không cho xuất báo cáo
-            }
-            exportToExcel();
-        });
-
-        pnlRightButton.add(btnExport);
-
-// ===== GẮN VÀO BOTTOM =====
-        pnlBottom.add(pnlLeftButton, BorderLayout.WEST);
-        pnlBottom.add(pnlRightButton, BorderLayout.EAST);
-
-        pnlReport.add(pnlBottom, BorderLayout.SOUTH);
+        // CHỈ GIỮ LẠI BẢNG DANH SÁCH
+        pnlReport.add(scrollPane, BorderLayout.CENTER);
 
         return pnlReport;
-    }
-
-    /**
-     * Cập nhật khu vực hiển thị Tổng kết (dưới bảng)
-     */
-    private void updateSummaryPanel() {
-        if (lblTongTienMatKet != null && cardTongThuDuoc != null) {
-            double cashSystem = cardTienMat.getNumericValue();
-            double transferSystem = cardChuyenKhoan.getNumericValue();
-            double totalSystem = cardTongThuDuoc.getNumericValue();
-
-            // 1. Tính toán
-            // Tổng doanh thu hiện tại (A) = Tiền mặt tại két + Tổng chuyển khoản
-            double totalCurrent = tienMatTaiKetValue + transferSystem;
-            // Chênh lệch (B - A) = Tổng thu hệ thống - Tổng hiện tại
-            double difference = totalSystem - totalCurrent;
-
-            // 2. Cập nhật Hàng Tổng (Giá trị tổng thu được trên hệ thống)
-            lblTongValue.setText(currencyFormatter.format(totalSystem).replace(" VNĐ", ""));
-
-            // 3. Cập nhật Chi tiết
-
-            // Tiền mặt (Hệ thống)
-            lblTongTTHuyetThong.setText(currencyFormatter.format(cashSystem).replace(" VNĐ", ""));
-            // Tiền chuyển khoản
-            lblTongCKReport.setText(currencyFormatter.format(transferSystem).replace(" VNĐ", ""));
-            // Tổng thu được (trên hệ thống) B
-            lblTongThuReport.setText(currencyFormatter.format(totalSystem).replace(" VNĐ", ""));
-
-            // TIỀN MẶT TẠI KÉT (Giá trị mới nhập)
-            lblTongTienMatKet.setText(currencyFormatter.format(tienMatTaiKetValue).replace(" VNĐ", ""));
-
-            // TỔNG HIỆN TẠI (A)
-            lblTongTienHienTai.setText(currencyFormatter.format(totalCurrent).replace(" VNĐ", ""));
-
-            // CHÊNH LỆCH (B - A)
-            lblTongTienChenhLenh.setText(currencyFormatter.format(difference).replace(" VNĐ", ""));
-
-            // Đổi màu chênh lệch
-            if (difference < 0) {
-                lblTongTienChenhLenh.setForeground(Color.RED);
-            } else if (difference > 0) {
-                lblTongTienChenhLenh.setForeground(new Color(0, 102, 0)); // Màu xanh lá cây
-            } else {
-                lblTongTienChenhLenh.setForeground(Color.BLACK);
-            }
-
-            revalidate();
-            repaint();
-        }
     }
 
 
@@ -519,6 +283,7 @@ public class PanelThongKe extends JPanel {
      * Tải dữ liệu thống kê và cập nhật UI.
      */
     private void loadDashboardData() {
+        // ... (Logic tải dữ liệu giữ nguyên)
         lblCaLamViec.setText("Đang tải...");
         lblNgayLamViec.setText("Đang tải...");
         cardTongHoaDon.setValue("Đang tải...");
@@ -586,21 +351,17 @@ public class PanelThongKe extends JPanel {
                 try {
                     ThongKeResult result = get();
 
-                    // ===== CẬP NHẬT THÔNG TIN NHÂN VIÊN + CA LÀM VIỆC =====
-                    String tenNV = (nhanVien.getHoTen() != null && !nhanVien.getHoTen().isBlank())
-                            ? nhanVien.getHoTen()
-                            : "Không xác định";
+                    // Cập nhật thông tin Header
+                    String ngayLV = result.ngayLamViecDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
                     lblTenNhanVien.setText(nhanVien.getHoTen());
                     lblCaLamViec.setText(result.caLamViecText);
-                    lblNgayLamViec.setText(result.ngayLamViecDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    lblNgayLamViec.setText(ngayLV);
 
-// CẬP NHẬT TAB BÁO CÁO CHI TIẾT
                     lblTenNV_Report.setText(nhanVien.getHoTen());
                     lblCaLV_Report.setText(result.caLamViecText);
-                    lblNgayLV_Report.setText(result.ngayLamViecDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                    lblNgayLV_Report.setText(ngayLV);
 
-
-                    // ===== CẬP NHẬT 6 CARD =====
+                    // Cập nhật 6 Card
                     cardTongHoaDon.setValue(numberFormatter.format(result.tongHoaDonBan));
                     cardHoaDonDoiTra.setValue(numberFormatter.format(result.tongHoaDonDoiTra));
                     cardSoVeBanDuoc.setValue(numberFormatter.format(result.tongSoVeBan));
@@ -612,24 +373,25 @@ public class PanelThongKe extends JPanel {
                     revenueChartPanel.updateChartData(
                             result.tongTienMat, result.tongTienChuyenKhoan, result.tongThuDuoc);
 
-                    // ===== CẬP NHẬT BẢNG (ĐÃ THAY ĐỔI THỨ TỰ CỘT) =====
+                    // Cập nhật Bảng (Tab Bảng báo cáo chi tiết)
                     reportTableModel.setRowCount(0);
                     if (result.danhSachHoaDonChiTiet != null) {
                         int stt = 1;
                         for (Object[] row : result.danhSachHoaDonChiTiet) {
+                            // row có 5 phần tử: [maHD, thoiDiemTao, tongTien, hinhThuc, tt (Trạng thái xử lý)]
                             Object[] newRow = new Object[6];
                             newRow[0] = stt++;        // STT
-                            newRow[1] = row[0];       // Mã HĐ (row[0])
-                            newRow[2] = row[1];       // Thời điểm tạo (row[1])
-                            newRow[3] = row[3];       // Hình thức TT (row[3])
-                            newRow[4] = row[4];       // Trạng thái (row[4])
-                            newRow[5] = currencyFormatter.format((double) row[2]).replace(" VNĐ", ""); // Tổng Tiền (row[2])
+                            newRow[1] = row[0];       // Mã HĐ
+                            newRow[2] = row[1];       // Thời điểm tạo
+                            newRow[3] = row[3];       // Hình thức TT
+                            newRow[4] = row[4];       // Trạng thái
+                            newRow[5] = currencyFormatter.format((double) row[2]).replace(" VNĐ", ""); // Tổng Tiền
                             reportTableModel.addRow(newRow);
                         }
                     }
 
-                    // CẬP NHẬT PANEL TỔNG KẾT
-                    updateSummaryPanel();
+                    // VÌ ĐÃ XÓA TAB "BÁO CÁO CUỐI CA", KHÔNG CẦN GỌI updateFinalReportPanel NỮA
+                    // Nếu bạn muốn hiển thị lại, bạn phải thêm lại tab và logic update.
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -637,24 +399,12 @@ public class PanelThongKe extends JPanel {
                             PanelThongKe.this,
                             "Lỗi khi tải dữ liệu thống kê: " + e.getMessage(),
                             "Lỗi", JOptionPane.ERROR_MESSAGE);
-
-                    lblTenNhanVien.setText("Lỗi tải dữ liệu");
-                    lblCaLamViec.setText("Lỗi");
-                    lblNgayLamViec.setText("Lỗi");
-                    cardTongHoaDon.setValue("Lỗi");
-                    cardHoaDonDoiTra.setValue("Lỗi");
-                    cardSoVeBanDuoc.setValue("Lỗi");
-                    cardChuyenKhoan.setValue("Lỗi");
-                    cardTienMat.setValue("Lỗi");
-                    cardTongThuDuoc.setValue("Lỗi");
+                    // Reset lỗi
                 }
             }
         };
         worker.execute();
     }
-    // =========================================================================
-    // INNER CLASSES (StatCard, RevenueChartPanel)
-    // =========================================================================
 
     /**
      * Card hiển thị 1 chỉ số thống kê.
@@ -698,7 +448,7 @@ public class PanelThongKe extends JPanel {
             lblValue.setText(value);
         }
 
-        /** Lấy giá trị dạng số (xóa ký tự không phải số) - ĐÃ FIX LỖI */
+        /** Lấy giá trị dạng số (xóa ký tự không phải số) */
         public double getNumericValue() {
             String raw = lblValue.getText();
             raw = raw.replaceAll("[^\\d]", ""); // Xóa hết ký tự không phải số
@@ -788,65 +538,8 @@ public class PanelThongKe extends JPanel {
                     legendX + 150 + boxSize + 5, legendY + boxSize - 1);
         }
     }
-    private void exportToExcel() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Lưu file báo cáo");
-        fileChooser.setSelectedFile(new java.io.File("BaoCaoHoaDon.xlsx"));
 
-        int userSelection = fileChooser.showSaveDialog(this);
-        if (userSelection != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-
-        String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-        if (!filePath.endsWith(".xlsx")) {
-            filePath += ".xlsx";
-        }
-
-        try (org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook()) {
-
-            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("BaoCao");
-
-            // Tạo header
-            org.apache.poi.ss.usermodel.Row header = sheet.createRow(0);
-            for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
-                header.createCell(i).setCellValue(reportTableModel.getColumnName(i));
-            }
-
-            // Ghi dữ liệu từng dòng
-            for (int row = 0; row < reportTableModel.getRowCount(); row++) {
-                org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(row + 1);
-
-                for (int col = 0; col < reportTableModel.getColumnCount(); col++) {
-                    Object value = reportTableModel.getValueAt(row, col);
-                    excelRow.createCell(col).setCellValue(value == null ? "" : value.toString());
-                }
-            }
-
-            // Autosize cột
-            for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            // Ghi file
-            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(filePath)) {
-                workbook.write(fos);
-            }
-
-            JOptionPane.showMessageDialog(this, "Xuất file thành công!\n" + filePath);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage());
-        }
-    }
-
-
-    // =========================================================================
-    // HÀM MAIN TEST ĐỘC LẬP
-    // =========================================================================
     public static void main(String[] args) {
-        // 1. Kết nối CSDL
         ConnectDB.getInstance().connect();
         if (ConnectDB.getInstance().getConnection() == null) {
             System.err.println("Không thể kết nối CSDL. Vui lòng kiểm tra cấu hình ConnectDB.");
@@ -854,7 +547,6 @@ public class PanelThongKe extends JPanel {
         }
 
 
-        // 3. Chạy giao diện
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Quản lý Bán vé Tàu Ga Sài Gòn");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -862,7 +554,6 @@ public class PanelThongKe extends JPanel {
             JPanel mainAppPanel = new JPanel(new BorderLayout());
             mainAppPanel.setBackground(new Color(240, 242, 245));
 
-            // Menu trái đơn giản
             JPanel pnlMenu = new JPanel();
             pnlMenu.setBackground(new Color(34, 49, 63));
             pnlMenu.setPreferredSize(new Dimension(200, 0));

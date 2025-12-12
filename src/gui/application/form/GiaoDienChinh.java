@@ -38,6 +38,7 @@ import gui.application.form.NhanVien.QuanLyNhanVien;
 import gui.application.form.TaiKhoan.QuanLyTaiKhoan;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.bieuGia.PanelQuanLyBieuGia;
+import gui.application.form.dashboard.Dashboard;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 import gui.application.form.hoanVe.PanelHoanVe;
@@ -100,7 +101,7 @@ public class GiaoDienChinh extends JLayeredPane {
 	private void initMenuEvent(NhanVien nhanVien) {
 		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
 			switch (index) {
-//			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
+			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
 			case 3 -> UngDung.showGiaoDienChinh(new PanelBanVe());
 			case 4 -> {
