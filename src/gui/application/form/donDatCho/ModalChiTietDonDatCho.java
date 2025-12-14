@@ -147,12 +147,12 @@ public class ModalChiTietDonDatCho extends JDialog {
 
 		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_VE_ID).setMinWidth(150);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GA_DI).setMaxWidth(70);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GA_DEN).setMaxWidth(70);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_SO_GHE).setMinWidth(110);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GIA).setMaxWidth(80);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_LOAI_VE).setMaxWidth(70);
-		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_TRANG_THAI).setMinWidth(50);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GA_DI).setMaxWidth(75);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GA_DEN).setMaxWidth(75);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GHE).setMinWidth(100);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_NGAY_GIO_DI).setMinWidth(80);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GIA).setMaxWidth(70);
+		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_TRANG_THAI).setMaxWidth(80);
 
 		table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_GIA).setCellRenderer(new CurrencyRenderer());
 

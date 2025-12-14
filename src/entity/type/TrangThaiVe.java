@@ -13,7 +13,7 @@ package entity.type;
  */
 
 public enum TrangThaiVe {
-	DA_BAN("Vé đã bán"), DA_DUNG("Vé đã sử dụng"), HET_HAN("Vé hết hạn"), DA_HOAN("Vé đã hoàn"), DA_DOI("Vé đã đổi");
+	DA_BAN("Đã bán"), DA_DUNG("Đã sử dụng"), HET_HAN("Hết hạn"), DA_HOAN("Đã hoàn"), DA_DOI("Đã đổi");
 
 	private final String description;
 

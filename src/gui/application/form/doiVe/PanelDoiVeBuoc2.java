@@ -75,6 +75,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 
 		JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnTiepTuc = new JButton("Tiếp tục");
+		btnTiepTuc.setBackground(new Color(36, 104, 155));
 		south.add(btnTiepTuc);
 
 		add(south, BorderLayout.SOUTH);
