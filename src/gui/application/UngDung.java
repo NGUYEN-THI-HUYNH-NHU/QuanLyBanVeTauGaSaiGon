@@ -30,7 +30,6 @@ import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoanVe.PanelHoanVe;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
-import gui.application.paymentHelper.NgrokRunner;
 
 public class UngDung extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -96,8 +95,6 @@ public class UngDung extends JFrame {
 	}
 
 	public static void main(String args[]) {
-		NgrokRunner.startNgrok();
-
 		FlatRobotoFont.install();
 		FlatLaf.registerCustomDefaultsSource("gui.theme");
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));

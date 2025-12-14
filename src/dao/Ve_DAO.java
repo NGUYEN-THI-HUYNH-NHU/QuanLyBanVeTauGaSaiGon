@@ -201,6 +201,23 @@ public class Ve_DAO {
 		return null;
 	}
 
+	public List<String> getVeIDsStartingWith(String baseID) {
+		List<String> listIDs = new ArrayList<>();
+		String sql = "SELECT veID FROM Ve WHERE veID LIKE ?";
+		Connection con = ConnectDB.getInstance().getConnection();
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, baseID + "%");
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				listIDs.add(rs.getString("veID"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return listIDs;
+	}
+
 	/**
 	 * @param veID
 	 * @param daDung

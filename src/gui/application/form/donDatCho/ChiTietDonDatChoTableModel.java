@@ -5,6 +5,7 @@ package gui.application.form.donDatCho;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.time.format.DateTimeFormatter;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -23,12 +24,12 @@ public class ChiTietDonDatChoTableModel extends AbstractTableModel {
 	public static final int COL_VE_ID = 1;
 	public static final int COL_GA_DI = 2;
 	public static final int COL_GA_DEN = 3;
-	public static final int COL_SO_GHE = 4;
-	public static final int COL_LOAI_VE = 5;
+	public static final int COL_GHE = 4;
+	public static final int COL_NGAY_GIO_DI = 5;
 	public static final int COL_GIA = 6;
 	public static final int COL_TRANG_THAI = 7;
 
-	private final String[] columnNames = { "STT", "Mã vé", "Ga đi", "Ga đến", "Số ghế", "Loại vé", "Giá vé",
+	private final String[] columnNames = { "STT", "Mã vé", "Ga đi", "Ga đến", "Thông tin ghế", "Ngày giờ đi", "Giá vé",
 			"Trạng thái" };
 
 	private List<Ve> rows;
@@ -82,11 +83,12 @@ public class ChiTietDonDatChoTableModel extends AbstractTableModel {
 			return row.getGaDi().getTenGa();
 		case COL_GA_DEN:
 			return row.getGaDen().getTenGa();
-		case COL_SO_GHE:
-			return "Toa: " + row.getGhe().getToa().getSoToa() + "(" + row.getGhe().getToa().getHangToa() + ")"
-					+ " - Ghế: " + row.getGhe().getSoGhe();
-		case COL_LOAI_VE:
-			return row.getKhachHang().getLoaiDoiTuong().getDescription();
+		case COL_GHE:
+			StringBuilder sb = new StringBuilder();
+			return sb.append("Tau: " + row.getGhe().getToa().getTau().getTauID())
+					.append(" - Toa: " + row.getGhe().getToa().getSoToa()).append(" - Ghế: " + row.getGhe().getSoGhe());
+		case COL_NGAY_GIO_DI:
+			return row.getNgayGioDi().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
 		case COL_GIA:
 			return row.getGia();
 		case COL_TRANG_THAI:

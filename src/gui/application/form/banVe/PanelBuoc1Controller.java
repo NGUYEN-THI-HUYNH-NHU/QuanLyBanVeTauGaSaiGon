@@ -618,7 +618,7 @@ public class PanelBuoc1Controller {
 			popup = new JPopupMenu();
 			popup.setBackground(Color.WHITE);
 			int desiredWidth = Math.max(field.getWidth(), 120);
-			int estRowHeight = 20 + vPadding * 2;
+			int estRowHeight = 16 + vPadding * 2;
 			int desiredHeight = Math.min(8, listModel.getSize()) * estRowHeight;
 			popup.setPopupSize(new Dimension(desiredWidth, Math.min(desiredHeight, 300)));
 			popup.setFocusable(false);

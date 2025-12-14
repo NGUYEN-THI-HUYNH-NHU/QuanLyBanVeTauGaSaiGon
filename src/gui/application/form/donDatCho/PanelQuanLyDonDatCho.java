@@ -118,8 +118,10 @@ public class PanelQuanLyDonDatCho extends JPanel {
 		// Nút lọc nằm bên phải
 		JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnReset = new JButton("Xóa bộ lọc");
-		btnLoc = new JButton("Lọc danh sách");
-		btnLoc.setBackground(new Color(38, 117, 191));
+		btnReset.setIcon(new FlatSVGIcon("gui/icon/svg/reset.svg", 0.8f));
+		btnLoc = new JButton("Lọc");
+		btnLoc.setIcon(new FlatSVGIcon("gui/icon/svg/filter.svg", 0.8f));
+		btnLoc.setBackground(new Color(36, 104, 155));
 		btnLoc.setForeground(Color.WHITE);
 		pnlButtons.add(btnLoc);
 		pnlButtons.add(btnReset);
