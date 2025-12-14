@@ -16,8 +16,6 @@ import dao.KhoangCachChuan_DAO;
 import entity.Ga;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
-import gui.application.UngDung;
-import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 import javax.swing.*;
@@ -28,9 +26,12 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ThemTuyen_CTRL {
     private final PanelThemTuyen panelThemTuyen;
@@ -41,6 +42,16 @@ public class ThemTuyen_CTRL {
 
     private final Map<String, Ga> dsGaCoSan;
     private final List<Ga> dsGaDaChon;
+    private List<String> listTenGaGoc;
+
+    private JPopupMenu ppGaXuatPhat = new JPopupMenu();
+    private JList<String> lstGaXuatPhat = new JList<>();
+
+    private JPopupMenu ppGaDich = new JPopupMenu();
+    private JList<String> lstGaDich = new JList<>();
+
+    private JPopupMenu ppGaTrungGian = new JPopupMenu();
+    private JList<String> lstGaTrungGian = new JList<>();
 
     public ThemTuyen_CTRL(PanelThemTuyen panelThemTuyen, JDialog dialog){
         this.panelThemTuyen = panelThemTuyen;
@@ -51,84 +62,85 @@ public class ThemTuyen_CTRL {
 
         dsGaCoSan = new LinkedHashMap<>();
         dsGaDaChon = new ArrayList<>();
+        listTenGaGoc = new ArrayList<>();
 
         khoiTaoDuLieuBanDau();
         thietLapListener();
     }
 
     private void khoiTaoDuLieuBanDau(){
-       List<String> dsGa = gaBus.getDanhSachTenGa();
-       for(String tenGa : dsGa){
-              Ga ga = gaBus.getGaByTenGa(tenGa);
-              if(ga != null){
+        listTenGaGoc = gaBus.getDanhSachTenGa();
+
+        for(String tenGa : listTenGaGoc){
+            Ga ga = gaBus.getGaByTenGa(tenGa);
+            if(ga != null){
                 dsGaCoSan.put(tenGa, ga);
-              }
-       }
+            }
+        }
+
+        setModelToComboBox(panelThemTuyen.getTxtGaXuatPhat());
+        setModelToComboBox(panelThemTuyen.getTxtGaDich());
+        setModelToComboBox(panelThemTuyen.getTxtGaTrungGian());
+    }
+
+    private void setModelToComboBox(JComboBox<String> cbo){
+        cbo.setEditable(true);
+        cbo.setSelectedIndex(-1);
     }
 
     private void thietLapListener(){
-        Runnable actionXP = () -> {
-            capNhatMaTuyen();
-            chuyenFocusSauKhiChon(panelThemTuyen.getTxtGaXuatPhat());
-        };
-         Runnable actionDen = () -> {
-             capNhatMaTuyen();
-             chuyenFocusSauKhiChon(panelThemTuyen.getTxtGaDich());
-         };
-       taoPopGoiY(
-               panelThemTuyen.getTxtGaXuatPhat(),
-                panelThemTuyen.getPpGaXuatPhat(),
-                panelThemTuyen.getListGaXuatPhat(),
-                gaBus::timTenGaChoGoiY,
-               actionXP
-       );
+        JTextField txtXP = (JTextField) panelThemTuyen.getTxtGaXuatPhat().getEditor().getEditorComponent();
+        JTextField txtDich = (JTextField) panelThemTuyen.getTxtGaDich().getEditor().getEditorComponent();
+        JTextField txtTG = (JTextField) panelThemTuyen.getTxtGaTrungGian().getEditor().getEditorComponent();
 
-       taoPopGoiY(
-                panelThemTuyen.getTxtGaDich(),
-                panelThemTuyen.getPpGaDich(),
-                panelThemTuyen.getListGaDich(),
-                gaBus::timTenGaChoGoiY,
-                actionDen
-       );
+        taoPopupGoiY(txtXP, ppGaXuatPhat, lstGaXuatPhat,
+                input -> locDuLieu(listTenGaGoc, input),
+                txtDich);
 
-       taoPopGoiY(
-                panelThemTuyen.getTxtGaTrungGian(),
-                panelThemTuyen.getPpGaTrungGian(),
-                panelThemTuyen.getListGaTrungGian(),
-                gaBus::timTenGaChoGoiY,
-               this::xuLyChonGaTrungGian
-       );
+        taoPopupGoiY(txtDich, ppGaDich, lstGaDich,
+                input -> locDuLieu(listTenGaGoc, input),
+                txtTG);
 
-       panelThemTuyen.getBtnXacNhanTinhKC().addActionListener(e -> capNhatDanhSachVaTinhKC());
-       panelThemTuyen.getBtnHuy().addActionListener(e -> xuLyHuyBo());
-       panelThemTuyen.getBtnLuu().addActionListener(e -> xuLyLuuTuyen());
+        taoPopupGoiY(txtTG, ppGaTrungGian, lstGaTrungGian,
+                input -> locDuLieu(listTenGaGoc, input),
+                null);
 
-    }
+        setupUpdateMatuyenEvent(panelThemTuyen.getTxtGaXuatPhat());
+        setupUpdateMatuyenEvent(panelThemTuyen.getTxtGaDich());
 
-    private void capNhatMaTuyen() {
-        String tenGaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim(); // <-- SỬA
-        String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim(); // <-- SỬA
-
-        if(!tenGaDi.isEmpty() && !tenGaDen.isEmpty()){
-            String baseMa = tuyenBus.taoMaTuyenCoSo(tenGaDi,tenGaDen);
-            if(baseMa.isEmpty()){
-                panelThemTuyen.getTxtMaTuyen().setText("");
-                return;
+        txtTG.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                    if(!ppGaTrungGian.isVisible()){
+                        xuLyChonGaTrungGian();
+                    }
+                }
             }
-        if(tuyenBus.kiemTraMaTuyuenDaTonTai(baseMa)) {
-            panelThemTuyen.getTxtMaTuyen().setText("LỖI: Tuyến " + baseMa + " đã tồn tại!");
-            panelThemTuyen.getTxtMaTuyen().setForeground(Color.RED);
-        }else{
-            panelThemTuyen.getTxtMaTuyen().setText(baseMa);
-            panelThemTuyen.getTxtMaTuyen().setForeground(Color.BLACK);
-        }
-        }else{
-            panelThemTuyen.getTxtMaTuyen().setText("");
-            panelThemTuyen.getTxtMaTuyen().setForeground(Color.BLACK);
-        }
+        });
+
+        panelThemTuyen.getBtnXacNhanTinhKC().addActionListener(e -> capNhatDanhSachVaTinhKC());
+        panelThemTuyen.getBtnLuu().addActionListener(e -> xuLyLuuTuyen());
+        panelThemTuyen.getBtnHuy().addActionListener(e -> xuLyHuyBo());
     }
 
-    private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp, Function<String, List<String>> timKiem) {
+    private String unAccent(String s) {
+        if (s == null) return "";
+        String temp = Normalizer.normalize(s.toLowerCase(), java.text.Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(temp).replaceAll("").replace('đ', 'd').replace('Đ', 'D');
+    }
+
+    private List<String> locDuLieu(List<String> src, String input){
+        if(src == null || input.isEmpty()) return new ArrayList<>();
+        String inputNorm = unAccent(input);
+        return src.stream()
+                .filter(s -> unAccent(s).contains(inputNorm))
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
+    private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp, Function<String, List<String>> timKiem){
         String input = txt.getText().trim();
         if(input.isEmpty()){
             pp.setVisible(false);
@@ -144,110 +156,140 @@ public class ThemTuyen_CTRL {
         lst.setListData(ds.toArray(new String[0]));
         lst.setVisibleRowCount(Math.min(ds.size(), 8));
 
-        pp.show(txt, 0, txt.getHeight());
-        txt.requestFocusInWindow();
+        if(txt.isShowing()){
+            pp.show(txt, 0, txt.getHeight());
+            txt.requestFocus();
+        }
     }
 
-    private void taoPopGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem, Runnable actionOnSelect) {
-
+    private void taoPopupGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem, JComponent nextFocus){
         pp.setFocusable(false);
+        lst.setFocusable(false);
+        lst.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         pp.removeAll();
         pp.add(new JScrollPane(lst));
 
-        // Hiển thị gợi ý khi input thay đổi
         txt.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                hienThiGoiY(txt, lst, pp, timKiem);
+            private Timer timer;
+
+            private void update() {
+                if (timer != null && timer.isRunning()) timer.stop();
+                timer = new Timer(300, e -> SwingUtilities.invokeLater(() -> {
+                    if (txt.isFocusOwner()) {
+                        hienThiGoiY(txt, lst, pp, timKiem);
+                    }
+                }));
+                timer.setRepeats(false);
+                timer.start();
             }
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                hienThiGoiY(txt, lst, pp, timKiem);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-            }
+            @Override public void insertUpdate(DocumentEvent e) { update(); }
+            @Override public void removeUpdate(DocumentEvent e) { update(); }
+            @Override public void changedUpdate(DocumentEvent e) { update(); }
         });
-
-        // Mouse click chọn item -> CHỈ CẬP NHẬT COMBOBOX VÀ GỌI HÀM XỬ LÝ LIÊN QUAN
         lst.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                int index = lst.locationToIndex(e.getPoint());
-                if (index >= 0) {
-                    txt.setText(lst.getModel().getElementAt(index));
+            @Override public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e) && lst.getSelectedIndex() != -1) {
+                    txt.setText(lst.getSelectedValue());
                     pp.setVisible(false);
-                    actionOnSelect.run();
+                    capNhatMaTuyen();
+                    if(nextFocus != null) {
+                        nextFocus.requestFocusInWindow();
+                    }
                 }
             }
         });
-
         txt.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                int key = e.getKeyCode();
-                int selectedIndex = lst.getSelectedIndex();
                 if (pp.isVisible()) {
-                    switch (key) {
-                        case KeyEvent.VK_DOWN:
-                            if (selectedIndex < lst.getModel().getSize() - 1) {
-                                lst.setSelectedIndex(selectedIndex + 1);
-                                lst.ensureIndexIsVisible(selectedIndex + 1);
-                            }
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_UP:
-                            if (selectedIndex > 0) {
-                                lst.setSelectedIndex(selectedIndex - 1);
-                                lst.ensureIndexIsVisible(selectedIndex - 1);
-                            }
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_ENTER:
-                            String selected = lst.getSelectedValue();
-                            if (selected != null) {
-                                txt.setText(selected);
-                            }
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                        int index = lst.getSelectedIndex();
+                        if (index < lst.getModel().getSize() - 1) {
+                            lst.setSelectedIndex(index + 1);
+                            lst.ensureIndexIsVisible(index + 1);
+                        }
+                        e.consume();
+                    } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                        int index = lst.getSelectedIndex();
+                        if (index > 0) {
+                            lst.setSelectedIndex(index - 1);
+                            lst.ensureIndexIsVisible(index - 1);
+                        }
+                        e.consume();
+                    } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        if (lst.getSelectedValue() != null) {
+                            txt.setText(lst.getSelectedValue());
                             pp.setVisible(false);
-                            actionOnSelect.run();
-                            e.consume();
-                            break;
-                        case KeyEvent.VK_ESCAPE:
-                            pp.setVisible(false);
-                            e.consume();
-                            break;
+                            capNhatMaTuyen();
+                            if(nextFocus != null){
+                                nextFocus.requestFocusInWindow();
+                            }
+                        }
+                        e.consume();
                     }
                 }
             }
         });
-
         txt.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // Tạm ẩn popup
-                Timer timer = new Timer(200, (ae) -> {
-                    if (!pp.isFocusOwner() && !(lst.isFocusOwner())) {
+                SwingUtilities.invokeLater(() -> {
+                    if (!pp.isFocusOwner() && !lst.isFocusOwner()) {
                         pp.setVisible(false);
                     }
                 });
-                timer.setRepeats(false);
-                timer.start();
             }
         });
     }
 
+    private void setupUpdateMatuyenEvent(JComboBox<String> cbo){
+        JTextField txt = (JTextField) cbo.getEditor().getEditorComponent();
+        txt.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                capNhatMaTuyen();
+            }
+        });
+    }
+
+    private void capNhatMaTuyen() {
+        Object selectedXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
+        Object selectedDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
+
+        String tenGaDi = selectedXP != null ? selectedXP.toString().trim() : "";
+        String tenGaDen = selectedDich != null ? selectedDich.toString().trim() : "";
+
+        if(!tenGaDi.isEmpty() && !tenGaDen.isEmpty()){
+            String baseMa = tuyenBus.taoMaTuyenCoSo(tenGaDi,tenGaDen);
+            if(baseMa.isEmpty()){
+                panelThemTuyen.getTxtMaTuyen().setText("");
+                return;
+            }
+            if(tuyenBus.kiemTraMaTuyuenDaTonTai(baseMa)) {
+                panelThemTuyen.getTxtMaTuyen().setText("LỖI: Tuyến " + baseMa + " đã tồn tại!");
+                panelThemTuyen.getTxtMaTuyen().setForeground(Color.RED);
+            }else{
+                panelThemTuyen.getTxtMaTuyen().setText(baseMa);
+                panelThemTuyen.getTxtMaTuyen().setForeground(Color.BLACK);
+            }
+        }else{
+            panelThemTuyen.getTxtMaTuyen().setText("");
+            panelThemTuyen.getTxtMaTuyen().setForeground(Color.BLACK);
+        }
+    }
 
     private void xuLyChonGaTrungGian(){
-        JTextField txtGaMoi = panelThemTuyen.getTxtGaTrungGian();
-        String tenGaMoi = txtGaMoi.getText().trim();
-        if(tenGaMoi == null || tenGaMoi.isEmpty()){
+        Object item = panelThemTuyen.getTxtGaTrungGian().getEditor().getItem();
+        String tenGaMoi = item != null ? item.toString().trim() : "";
+        if(tenGaMoi.isEmpty()){
             return;
         }
 
-       String gaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
-        String gaDen = panelThemTuyen.getTxtGaDich().getText().trim();
+        Object itemXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
+        Object itemDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
+        String gaDi = itemXP != null ? itemXP.toString().trim() : "";
+        String gaDen = itemDich != null ? itemDich.toString().trim() : "";
 
         if(!dsGaCoSan.containsKey(tenGaMoi)){
             JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không tồn tại trong hệ thống!", "Lỗi chọn ga trung gian", JOptionPane.ERROR_MESSAGE);
@@ -264,7 +306,9 @@ public class ThemTuyen_CTRL {
         }
         dsGaDaChon.add(gaMoi);
         taovaThemTagGa(gaMoi);
-        txtGaMoi.setText("");
+
+        panelThemTuyen.getTxtGaTrungGian().getEditor().setItem("");
+        ppGaTrungGian.setVisible(false);
     }
 
     private void taovaThemTagGa(Ga ga){
@@ -286,19 +330,24 @@ public class ThemTuyen_CTRL {
         DefaultTableModel model = panelThemTuyen.getModelGaChiTiet();
         model.setRowCount(0);
 
-        String tenGaDi = (String) panelThemTuyen.getTxtGaXuatPhat().getText().trim();
-        String tenGaDen = (String) panelThemTuyen.getTxtGaDich().getText().trim();
+        Object itemXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
+        Object itemDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
+        String tenGaDi = itemXP != null ? itemXP.toString().trim() : "";
+        String tenGaDen = itemDich != null ? itemDich.toString().trim() : "";
 
         if ( tenGaDi.isEmpty() || tenGaDen.isEmpty()) {
             JOptionPane.showMessageDialog(panelThemTuyen, "Vui lòng chọn Ga Xuất Phát và Ga Đích trước khi tính khoảng cách.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             panelThemTuyen.getTxtDoDaiQuangDuong().setText("0");
             return;
         }
+        if(!dsGaCoSan.containsKey(tenGaDi) || !dsGaCoSan.containsKey(tenGaDen)){
+            JOptionPane.showMessageDialog(panelThemTuyen, "Ga Xuất Phát hoặc Ga Đích không tồn tại trong hệ thống.", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
+            panelThemTuyen.getTxtDoDaiQuangDuong().setText("Lỗi dữ liệu");
+            return;
+        }
 
         Ga gaXP = dsGaCoSan.get(tenGaDi);
         Ga gaDich = dsGaCoSan.get(tenGaDen);
-
-        if (gaXP == null || gaDich == null) return;
 
         List<Ga> toanBoTuyen = new ArrayList<>();
         toanBoTuyen.add(gaXP);
@@ -359,20 +408,18 @@ public class ThemTuyen_CTRL {
         String maTuyen = panelThemTuyen.getTxtMaTuyen().getText().trim();
         String moTa = panelThemTuyen.getTxtMoTa().getText().trim();
         String doDaiKCStr = panelThemTuyen.getTxtDoDaiQuangDuong().getText().trim();
-        if(maTuyen.startsWith("LỖI") || maTuyen.isEmpty()){
-            JOptionPane.showMessageDialog(panelThemTuyen, "Mã tuyến không hợp lệ do đã tồn tại tuyến tương tự.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
+
+        if (maTuyen.startsWith("LỖI") || maTuyen.isEmpty() || tuyenBus.kiemTraMaTuyuenDaTonTai(maTuyen)) {
+            JOptionPane.showMessageDialog(panelThemTuyen, "Mã tuyến không hợp lệ hoặc đã tồn tại.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (tuyenBus.kiemTraMaTuyuenDaTonTai(maTuyen)) {
-            JOptionPane.showMessageDialog(panelThemTuyen, "Mã tuyến " + maTuyen + " đã tồn tại. Vui lòng chọn lại.", "Lỗi Trùng Lặp", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (doDaiKCStr.equals("Lỗi Dữ Liệu") || doDaiKCStr.equals("0") || maTuyen.isEmpty() || moTa.isEmpty()) {
-            JOptionPane.showMessageDialog(panelThemTuyen, "Không thể lưu tuyến do có lỗi về khoảng cách giữa các ga.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
+        if (doDaiKCStr.equals("Lỗi dữ liệu") || doDaiKCStr.equals("0") || moTa.isEmpty()) {
+            JOptionPane.showMessageDialog(panelThemTuyen, "Dữ liệu không hợp lệ (Khoảng cách hoặc Mô tả).", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             return;
         }
         if (panelThemTuyen.getModelGaChiTiet().getRowCount() < 2) {
             JOptionPane.showMessageDialog(panelThemTuyen, "Tuyến phải có ít nhất ga xuất phát và ga đích.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         try {
             Integer.parseInt(doDaiKCStr);
@@ -400,8 +447,6 @@ public class ThemTuyen_CTRL {
             if (luuTuyenThanhCong) {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Đã lưu tuyến mới " + maTuyen + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose();
-                PanelQuanLyTuyen panelQuanLy = new PanelQuanLyTuyen(panelThemTuyen.getNhanVienThucHien());
-                UngDung.showGiaoDienChinh(panelQuanLy);
             } else {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Lưu tuyến thất bại! Vui lòng kiểm tra lại dữ liệu.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             }
@@ -426,12 +471,12 @@ public class ThemTuyen_CTRL {
         }
     }
 
-    private void chuyenFocusSauKhiChon(JTextField sourceField){
-        if(sourceField == panelThemTuyen.getTxtGaXuatPhat()) {
-            panelThemTuyen.getTxtGaDich().requestFocusInWindow();
-        } else if (sourceField == panelThemTuyen.getTxtGaDich()) {
-            panelThemTuyen.getTxtGaTrungGian().requestFocusInWindow();
-
-        }
-    }
+//    private void chuyenFocusSauKhiChon(JTextField sourceField){
+//        if(sourceField == panelThemTuyen.getTxtGaXuatPhat()) {
+//            panelThemTuyen.getTxtGaDich().requestFocusInWindow();
+//        } else if (sourceField == panelThemTuyen.getTxtGaDich()) {
+//            panelThemTuyen.getTxtGaTrungGian().requestFocusInWindow();
+//
+//        }
+//    }
 }

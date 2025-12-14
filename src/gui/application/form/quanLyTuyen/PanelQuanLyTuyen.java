@@ -167,7 +167,7 @@ public class PanelQuanLyTuyen extends JPanel {
         });
 
         scrollPaneTable = new JScrollPane(tableTuyen);
-        scrollPaneTable.setMinimumSize(new Dimension(600, 0)); // Chiều rộng tối thiểu cho bảng
+        scrollPaneTable.setMinimumSize(new Dimension(600, 0));
 
         // B. Panel Chi Tiết (RIGHT)
         pnlChiTiet = new JPanel(new BorderLayout(0, 10));
@@ -239,6 +239,7 @@ public class PanelQuanLyTuyen extends JPanel {
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         tableChiTietGa.setDefaultRenderer(Object.class, centerRenderer);
         tableChiTietGa.setRowHeight(25);
+        tableChiTietGa.setEnabled(false);
         tableChiTietGa.setShowGrid(true);
         tableChiTietGa.getTableHeader().setBackground(new Color(36, 104, 155));
         tableChiTietGa.getTableHeader().setForeground(Color.WHITE);

@@ -32,9 +32,9 @@ public class PanelThemTuyen extends JPanel {
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JTextField txtGaXuatPhat;
-    private JTextField txtGaDich;
-    private JTextField txtGaTrungGian;
+    private JComboBox<String> txtGaXuatPhat;
+    private JComboBox<String> txtGaDich;
+    private JComboBox<String> txtGaTrungGian;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -71,8 +71,6 @@ public class PanelThemTuyen extends JPanel {
 
     public void initComponents(){
         JPanel pnlContent = new JPanel(new MigLayout("wrap 4, fillx, insets 20 20 5 20","[120, left][250, grow][120, right][250, grow]","[]")); //layout lưới 4 cột, fill ngang
-//        this.setOpaque(false);
-//        pnlContent.setOpaque(false);
 
         pnlContent.setBorder(BorderFactory.createLineBorder(COLOR_BORDER, 1));
 
@@ -82,11 +80,9 @@ public class PanelThemTuyen extends JPanel {
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        txtGaXuatPhat = new JTextField();
-//        txtGaXuatPhat.setOpaque(false);
+        txtGaXuatPhat = new JComboBox<>();
         txtGaXuatPhat.setBackground(COLOR_TEXT_BG);
-        txtGaDich = new JTextField();
-//        txtGaDich.setOpaque(false);
+        txtGaDich = new JComboBox<>();
         txtGaDich.setBackground(COLOR_TEXT_BG);
         txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
         txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
@@ -98,21 +94,20 @@ public class PanelThemTuyen extends JPanel {
         txtMaTuyen = new JTextField();
         txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mã Tuyến được tạo tự động!");
         txtMaTuyen.setEditable(false);
+        txtMaTuyen.setFocusable(false);
         txtMaTuyen.setBackground(COLOR_TEXT_BG);
         txtDoDaiQuangDuong = new JTextField();
         txtDoDaiQuangDuong.setEditable(false);
         txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
-        txtDoDaiQuangDuong.setEditable(false);
-//        txtDoDaiQuangDuong.setOpaque(false);
+        txtDoDaiQuangDuong.setFocusable(false);
         txtDoDaiQuangDuong.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Mã Tuyến:"));
         pnlContent.add(txtMaTuyen, "growx");
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        txtGaTrungGian = new JTextField();
+        txtGaTrungGian = new JComboBox<>();
         txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
-//        txtGaTrungGian.setOpaque(false);
         txtGaTrungGian.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
         pnlContent.add(txtGaTrungGian, "growx");
@@ -130,10 +125,8 @@ public class PanelThemTuyen extends JPanel {
         ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
 
         pnlGaTrungGianDaChon = new JPanel(new FlowLayout(FlowLayout.LEFT,5,5));
-//        pnlGaTrungGianDaChon.setOpaque(false);
         pnlGaTrungGianDaChon.setBorder(BorderFactory.createTitledBorder("Danh Sách Ga Trung Gian Đã Chọn:"));
         JScrollPane scrollPane = new JScrollPane(pnlGaTrungGianDaChon);
-//        scrollPane.getViewport().setOpaque(false);
         scrollPane.setPreferredSize(new Dimension(200,70));
         pnlContent.add(scrollPane, "span 2, growx, pushx, height 70, wrap 20");
 
@@ -143,12 +136,13 @@ public class PanelThemTuyen extends JPanel {
         pnlContent.add(btnXacNhanTinhKC, "wrap 20");
 
         txtMoTa = new JTextArea(3,20);
-        txtMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//        txtMoTa.setOpaque(false);
         txtMoTa.setBackground(COLOR_TEXT_BG);
+        txtMoTa.setOpaque(false);
+        txtMoTa.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mô tả chi tiết cho tuyến đường này...");
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
-//        scrollMoTa.setOpaque(false);
-//        scrollMoTa.getViewport().setOpaque(false);
+        scrollMoTa.getViewport().setOpaque(false);
+        scrollMoTa.setOpaque(false);
+        scrollMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
         pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
 
@@ -160,20 +154,20 @@ public class PanelThemTuyen extends JPanel {
             }
         };
         tblGaChiTiet = new JTable(modelGaChiTiet);
-//        tblGaChiTiet.setOpaque(false);
         tblGaChiTiet.setRowHeight(25);
         tblGaChiTiet.setShowGrid(true);
         tblGaChiTiet.setShowHorizontalLines(true);
         tblGaChiTiet.setGridColor(COLOR_BORDER);
+        tblGaChiTiet.setEnabled(false);
         tblGaChiTiet.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (!isSelected) {
                     if (row % 2 == 0) {
-                        c.setBackground(COLOR_TABLE_STRIPE); // Màu sọc mờ 1
+                        c.setBackground(COLOR_TABLE_STRIPE);
                     } else {
-                        c.setBackground(COLOR_TABLE_BG); // Màu sọc mờ 2
+                        c.setBackground(COLOR_TABLE_BG);
                     }
                 }
                 return c;
@@ -186,11 +180,9 @@ public class PanelThemTuyen extends JPanel {
         header.setBackground(new Color(30,41,58));
 
         JPanel pnlTable = new JPanel(new BorderLayout());
-//        pnlTable.setOpaque(false);
         pnlTable.setBorder(BorderFactory.createTitledBorder("Thứ Tự và Khoảng Cách Các Ga Từ Ga Xuất Phát của các Ga trên Tuyến"));
 
         JScrollPane tableScrollPane = new JScrollPane(tblGaChiTiet);
-//        tableScrollPane.setOpaque(false);
         tableScrollPane.getViewport().setOpaque(false);
         pnlTable.add(tableScrollPane, BorderLayout.CENTER);
         pnlContent.add(pnlTable, "span 4, grow, push,height 200, wrap 0");
@@ -222,20 +214,6 @@ public class PanelThemTuyen extends JPanel {
         ppGaTrungGian.add(new JScrollPane(listGaTrungGian));
     }
 
-//    private void loadAndBlurBackground(String imagePath){
-//        try{
-//            BufferedImage originalImage = ImageIO.read(new File(imagePath));
-//            if(originalImage != null){
-//                GaussianFilter blurFilter = new GaussianFilter();
-//                blurFilter.setRadius(10.0f);
-//
-//                backgroundImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), originalImage.getType());
-//                blurFilter.filter(originalImage, backgroundImage);
-//            }
-//        }catch (IOException e){
-//            backgroundImage = null;
-//        }
-//    }
 
     @Override
     protected  void paintComponent(Graphics g){
@@ -251,18 +229,6 @@ public class PanelThemTuyen extends JPanel {
 
     public JPanel getPnlGaTrungGianDaChon() {
         return pnlGaTrungGianDaChon;
-    }
-
-    public JTextField getTxtGaXuatPhat() {
-        return txtGaXuatPhat;
-    }
-
-    public JTextField getTxtGaDich() {
-        return txtGaDich;
-    }
-
-    public JTextField getTxtGaTrungGian() {
-        return txtGaTrungGian;
     }
 
     public JPopupMenu getPpGaXuatPhat() {
@@ -317,8 +283,100 @@ public class PanelThemTuyen extends JPanel {
         return modelGaChiTiet;
     }
 
+    public BufferedImage getBackgroundImage() {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(BufferedImage backgroundImage) {
+        this.backgroundImage = backgroundImage;
+    }
+
+    public void setPnlGaTrungGianDaChon(JPanel pnlGaTrungGianDaChon) {
+        this.pnlGaTrungGianDaChon = pnlGaTrungGianDaChon;
+    }
+
+    public JComboBox<String> getTxtGaXuatPhat() {
+        return txtGaXuatPhat;
+    }
+
+    public void setTxtGaXuatPhat(JComboBox<String> txtGaXuatPhat) {
+        this.txtGaXuatPhat = txtGaXuatPhat;
+    }
+
+    public JComboBox<String> getTxtGaDich() {
+        return txtGaDich;
+    }
+
+    public void setTxtGaDich(JComboBox<String> txtGaDich) {
+        this.txtGaDich = txtGaDich;
+    }
+
+    public JComboBox<String> getTxtGaTrungGian() {
+        return txtGaTrungGian;
+    }
+
+    public void setTxtGaTrungGian(JComboBox<String> txtGaTrungGian) {
+        this.txtGaTrungGian = txtGaTrungGian;
+    }
+
+    public void setPpGaXuatPhat(JPopupMenu ppGaXuatPhat) {
+        this.ppGaXuatPhat = ppGaXuatPhat;
+    }
+
+    public void setPpGaDich(JPopupMenu ppGaDich) {
+        this.ppGaDich = ppGaDich;
+    }
+
+    public void setPpGaTrungGian(JPopupMenu ppGaTrungGian) {
+        this.ppGaTrungGian = ppGaTrungGian;
+    }
+
+    public void setListGaXuatPhat(JList<String> listGaXuatPhat) {
+        this.listGaXuatPhat = listGaXuatPhat;
+    }
+
+    public void setListGaDich(JList<String> listGaDich) {
+        this.listGaDich = listGaDich;
+    }
+
+    public void setListGaTrungGian(JList<String> listGaTrungGian) {
+        this.listGaTrungGian = listGaTrungGian;
+    }
+
+    public void setBtnLuu(JButton btnLuu) {
+        this.btnLuu = btnLuu;
+    }
+
+    public void setBtnHuy(JButton btnHuy) {
+        this.btnHuy = btnHuy;
+    }
+
+    public void setBtnXacNhanTinhKC(JButton btnXacNhanTinhKC) {
+        this.btnXacNhanTinhKC = btnXacNhanTinhKC;
+    }
+
+    public void setTxtMaTuyen(JTextField txtMaTuyen) {
+        this.txtMaTuyen = txtMaTuyen;
+    }
+
+    public void setTxtDoDaiQuangDuong(JTextField txtDoDaiQuangDuong) {
+        this.txtDoDaiQuangDuong = txtDoDaiQuangDuong;
+    }
+
+    public void setTxtMoTa(JTextArea txtMoTa) {
+        this.txtMoTa = txtMoTa;
+    }
+
+    public void setModelGaChiTiet(DefaultTableModel modelGaChiTiet) {
+        this.modelGaChiTiet = modelGaChiTiet;
+    }
+
     public JTable getTblGaChiTiet() {
         return tblGaChiTiet;
+    }
+
+    public void setTblGaChiTiet(JTable tblGaChiTiet) {
+        this.tblGaChiTiet = tblGaChiTiet;
     }
 
     public Color getCOLOR_PRIMARY_BG() {
@@ -339,5 +397,13 @@ public class PanelThemTuyen extends JPanel {
 
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
+    }
+
+    public Color getCOLOR_TABLE_STRIPE() {
+        return COLOR_TABLE_STRIPE;
+    }
+
+    public Color getCOLOR_TEXT_BG() {
+        return COLOR_TEXT_BG;
     }
 }

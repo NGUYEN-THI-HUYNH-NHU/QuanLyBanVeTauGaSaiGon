@@ -19,7 +19,7 @@ public class NgrokRunner {
 	private static Process ngrokProcess;
 
 	// Thay thế bằng domain tĩnh của bạn
-	private static final String NGROK_DOMAIN = "pricily-postdevelopmental-noah.ngrok-free.dev";
+	private static final String NGROK_DOMAIN = "hapiaceous-mannishly-kale.ngrok-free.dev ";
 	private static final String PORT = "8080";
 
 	/**
