@@ -110,7 +110,7 @@ public class Menu extends JPanel {
 						continue;
 					}
 				} else {
-					if (i == 3 || i == 4 || i == 5 || i == 15) {
+					if (i == 3 || i == 4 || i == 5 || i == 6 || i == 15) {
 						continue;
 					}
 				}

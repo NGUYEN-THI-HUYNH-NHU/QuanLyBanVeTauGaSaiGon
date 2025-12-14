@@ -14,12 +14,17 @@ package gui.application.paymentHelper;
 
 import java.io.IOException;
 
+import entity.NhanVien;
+import gui.application.AuthService;
+
 public class NgrokRunner {
 
 	private static Process ngrokProcess;
-
-	// Thay thế bằng domain tĩnh của bạn
-	private static final String NGROK_DOMAIN = "hapiaceous-mannishly-kale.ngrok-free.dev ";
+	private static final String NGROK_DOMAIN_1 = "pricily-postdevelopmental-noah.ngrok-free.dev";
+	private static final String NGROK_DOMAIN_2 = "glykopexic-ungroined-nelly.ngrok-free.dev";
+	private static final String NGROK_DOMAIN_3 = "apiaceous-mannishly-kale.ngrok-free.dev";
+	private static final String NGROK_DOMAIN_4 = "ungrieving-lilian-noncongruently.ngrok-free.dev";
+	private static String ngrok_domain;
 	private static final String PORT = "8080";
 
 	/**
@@ -36,8 +41,18 @@ public class NgrokRunner {
 			System.out.println(">> Đang khởi động Ngrok Tunnel...");
 
 			// Lệnh chạy: ngrok http --domain=xxx 8080
-			// Lưu ý: "ngrok.exe" giả định file này nằm ở thư mục gốc dự án
-			ProcessBuilder builder = new ProcessBuilder("ngrok", "http", "--domain=" + NGROK_DOMAIN, PORT);
+			NhanVien nv = AuthService.getInstance().getCurrentUser();
+			if (nv.getNhanVienID().equals("NV001")) {
+				ngrok_domain = NGROK_DOMAIN_1;
+			} else if (nv.getNhanVienID().equals("NV002")) {
+				ngrok_domain = NGROK_DOMAIN_2;
+			} else if (nv.getNhanVienID().equals("NV003")) {
+				ngrok_domain = NGROK_DOMAIN_3;
+			} else if (nv.getNhanVienID().equals("NV004")) {
+				ngrok_domain = NGROK_DOMAIN_4;
+			}
+
+			ProcessBuilder builder = new ProcessBuilder("ngrok", "http", "--domain=" + ngrok_domain, PORT);
 
 			// Tự động tắt Ngrok khi tắt App Java (Quan trọng)
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -60,7 +75,7 @@ public class NgrokRunner {
 	 */
 	public static void stopNgrok() {
 		if (ngrokProcess != null) {
-			ngrokProcess.destroy(); // Giết tiến trình
+			ngrokProcess.destroy();
 			System.out.println(">> Đã tắt Ngrok.");
 		}
 	}

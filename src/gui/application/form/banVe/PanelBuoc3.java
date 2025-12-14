@@ -112,11 +112,11 @@ public class PanelBuoc3 extends JPanel {
 		south.add(lblInfo, BorderLayout.WEST);
 
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		btnConfirm = new JButton("Xác nhận");
-		btnConfirm.putClientProperty("JButton.buttonType", "default");
 		btnCancel = new JButton("Hủy");
-		btns.add(btnConfirm);
+		btnConfirm = new JButton("Xác nhận");
+		btnConfirm.setBackground(new Color(36, 104, 155));
 		btns.add(btnCancel);
+		btns.add(btnConfirm);
 		south.add(btns, BorderLayout.EAST);
 
 		add(south, BorderLayout.SOUTH);
