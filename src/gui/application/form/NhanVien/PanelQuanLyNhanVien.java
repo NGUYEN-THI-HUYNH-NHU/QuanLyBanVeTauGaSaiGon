@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListener, KeyListener {
+public class PanelQuanLyNhanVien extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVien nhanVienHienTai;
     private final NhanVien_CTRL nhanVien_ctrl;
 
@@ -43,7 +43,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
     private final Color COLOR_TEXT_LABEL = new Color(51, 65, 85);
 
 
-    public QuanLyNhanVien(NhanVien nhanVienHienTai) {
+    public PanelQuanLyNhanVien(NhanVien nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
         this.nhanVien_ctrl = new NhanVien_CTRL();
 
@@ -174,6 +174,10 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         btnPanel.add(btnEdit);
         btnPanel.add(btnFind);
         btnPanel.add(btnClean);
+
+        setupComboKeyboard(cbVaiTro);
+        setupComboKeyboard(cbCaLam);
+
 
         p.add(form, BorderLayout.CENTER);
         p.add(btnPanel, BorderLayout.SOUTH);
@@ -337,7 +341,14 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
     private JScrollPane panelTable() {
         String[] cols = {"Mã NV", "Vai trò", "Tên nhân viên", "Giới tính", "Ngày sinh",
                 "Số điện thoại", "Email", "Địa chỉ", "Ngày tham gia", "Trạng thái", "Ca làm"};
-        model = new DefaultTableModel(cols, 0);
+
+
+        model = new DefaultTableModel(cols, 0){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
         table = new JTable(model);
         table.setRowHeight(25);
         table.setFont(new Font("Roboto", Font.PLAIN, 13));
@@ -563,7 +574,7 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
 
         // 3) Email
         if (!email.isEmpty() && !nhanVien_ctrl.validEmail(email)) {
-            JOptionPane.showMessageDialog(this, "Email không hợp lệ!", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Email không hợp lệ! VD: haNguyen123@gmail.com", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
             txtEmail.requestFocus();
             return false;
         } else if (email.isEmpty()) {
@@ -579,13 +590,6 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         } else if (diaChi.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Địa chỉ không được để trống", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
             txtDiaChi.requestFocus();
-            return false;
-        }
-
-        // 5) Giới tính
-        if (!rbtnNam.isSelected() && !rbtnNu.isSelected()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn giới tính.", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
-            rbtnNam.requestFocus();
             return false;
         }
 
@@ -713,8 +717,8 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
 
     //tim kiem nhan vien
     public void timKiemNhanVien() {
-        String ten = txtTenNV.getText().trim();
-        String sdt = txtSDT.getText().trim();
+        String ten = getRealText(txtTenNV, "VD: Nguyễn Văn A");
+        String sdt = getRealText(txtSDT, "VD: 0912345678");
         VaiTroNhanVien vaiTro = (VaiTroNhanVien) cbVaiTro.getSelectedItem();
         Boolean isHoatDong = chkDangHoatDong.isSelected();
 
@@ -762,6 +766,48 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
         }
     }
 
+    //bắt phím cho combox
+    private void setupComboKeyboard(JComboBox<?> combo) {
+
+        JComponent target = combo;
+        if (combo.isEditable() && combo.getEditor().getEditorComponent() instanceof JComponent editor) {
+            target = editor;
+        }
+
+        InputMap im = target.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap am = target.getActionMap();
+
+        // 1) Nhấn DOWN khi chưa mở popup -> mở popup (và vẫn cho di chuyển item)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "openOrMoveDown");
+        am.put("openOrMoveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!combo.isPopupVisible()) {
+                    combo.showPopup();
+                } else {
+
+                    Action def = combo.getActionMap().get("selectNext");
+                    if (def != null) def.actionPerformed(e);
+                }
+            }
+        });
+
+        // 2) Enter: nếu popup đang mở -> đóng popup (chọn item hiện tại)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterSelectOrNext");
+        am.put("enterSelectOrNext", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (combo.isPopupVisible()) {
+                    combo.hidePopup();
+                } else {
+                    combo.transferFocus();
+                }
+            }
+        });
+    }
+
 
     @Override public void mousePressed(MouseEvent e) {
 
@@ -775,12 +821,10 @@ public class QuanLyNhanVien extends JPanel implements ActionListener, MouseListe
     @Override public void mouseExited(MouseEvent e) {
 
     }
-    @Override
-    public void keyTyped(KeyEvent e) {
+    @Override public void keyTyped(KeyEvent e) {
 
     }
-    @Override
-    public void keyReleased(KeyEvent e) {
+    @Override public void keyReleased(KeyEvent e) {
 
     }
 }

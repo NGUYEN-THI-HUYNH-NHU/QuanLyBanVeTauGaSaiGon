@@ -86,8 +86,7 @@ public class NhanVien_DAO {
 		return maMoi;
 	}
 
-	// tìm kiếm nhân viên bằng: sdt, ten, vai tro, trang thai (có thể mà 1 hay nhiều
-	// tiêu chí cùng 1 lúc)
+	// tìm kiếm nhân viên bằng: sdt, ten, vai tro, trang thai (có thể mà 1 hay nhiều tiêu chí cùng 1 lúc)
 	public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVien vaiTro, Boolean isHoatDong) {
 		Connection connection = connectDB.getConnection();
 		List<NhanVien> ds = new ArrayList<>();
@@ -277,5 +276,6 @@ public class NhanVien_DAO {
 		}
 		return false;
 	}
+
 
 }

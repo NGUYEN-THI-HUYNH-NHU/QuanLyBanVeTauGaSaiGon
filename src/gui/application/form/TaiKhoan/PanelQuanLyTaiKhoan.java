@@ -4,6 +4,7 @@ import controller.NhanVien_CTRL;
 import controller.TaiKhoan_CTRL;
 import entity.NhanVien;
 import entity.TaiKhoan;
+import entity.type.VaiTroNhanVien;
 import entity.type.VaiTroTaiKhoan;
 import org.mindrot.jbcrypt.BCrypt;
 import javax.swing.*;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListener, KeyListener{
+public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, MouseListener, KeyListener{
 
     private final NhanVien nhanVienHienTai;
     private final TaiKhoan_CTRL taiKhoan_ctrl;
@@ -42,13 +43,13 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
     private JTable table;
     private List<JComponent> allFields;
 
-    public QuanLyTaiKhoan(NhanVien nhanVienHienTai){
+    public PanelQuanLyTaiKhoan(NhanVien nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
         taiKhoan_ctrl = new TaiKhoan_CTRL();
         nhanVien_ctrl = new NhanVien_CTRL();
 
 
-        setLayout(new BorderLayout(10,  10));
+        setLayout(new BorderLayout(10, 10));
         setBackground(COLOR_BG_MAIN);
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -67,13 +68,40 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
         panelBody.add(panelTable(), BorderLayout.CENTER);
         loadDataToTable();
         initPlaceholders();
+        autoFillVaiTro();
 
         table.addMouseListener(this);
         btnAdd.addActionListener(this);
         btnEdit.addActionListener(this);
         btnFind.addActionListener(this);
         btnClean.addActionListener(this);
+    }
+    //chọn maNV tự cập nhật vai trò
+    private void updateVaiTroTheoMaNV(){
+        Object selectedMaNV = cbNhanVien.getSelectedItem();
+        if(selectedMaNV != null && !selectedMaNV.equals("Chọn mã nhân viên")){
+            String maNV = selectedMaNV.toString();
+            VaiTroNhanVien vaiTroNhanVien = nhanVien_ctrl.layVaiTroNhanVienTheoMaNV(maNV);
+            if(vaiTroNhanVien != null){
+                switch (vaiTroNhanVien){
+                    case QUAN_LY -> cbVaiTro.setSelectedItem(VaiTroTaiKhoan.QUAN_LY);
+                    case NHAN_VIEN-> cbVaiTro.setSelectedItem(VaiTroTaiKhoan.NHAN_VIEN);
+                    default -> cbVaiTro.setSelectedIndex(0);
+                }
+            }else{
+                cbVaiTro.setSelectedIndex(0);
+            }
+        }else{
+            cbVaiTro.setSelectedIndex(0);
+        }
+    }
 
+    private void autoFillVaiTro(){
+        cbNhanVien.addItemListener(e -> {
+                if(e.getStateChange() == ItemEvent.SELECTED){
+                    updateVaiTroTheoMaNV();
+                }
+        });
     }
 
     // Đặt placeholder cho 1 JTextField
@@ -150,11 +178,15 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
                 if (value == null) {
                     label.setText("Chọn vai trò");
                 } else if (value instanceof VaiTroTaiKhoan) {
-                    label.setText(((VaiTroTaiKhoan) value).name());  // Hiển thị description của enum
+                    label.setText(((VaiTroTaiKhoan) value).name());
                 }
                 return label;
             }
         });
+
+        cbVaiTro.setEnabled(false);
+
+
         cbNhanVien = new JComboBox<>();
         cbNhanVien.addItem("Chọn mã nhân viên");
         nhanVien_ctrl.layDanhSachNhanVien().forEach(nv -> cbNhanVien.addItem(nv.getNhanVienID()));
@@ -165,6 +197,7 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
         txtThoiDiemTao = new JTextField();
         txtThoiDiemTao.setEnabled(false);
         cbHoatDong = new JCheckBox("Đang hoạt động");
+        cbHoatDong.setSelected(true);
 
         allFields = List.of(txtTaiKhoanID, cbVaiTro, cbNhanVien, txtTenDangNhap,
                 txtMatKhau, txtXacNhanMatKhau, txtThoiDiemTao, cbHoatDong);
@@ -174,8 +207,8 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
         }
 
         addField(form, gbc, "ID tài khoản: ", txtTaiKhoanID, font);
-        addField(form, gbc, "Vai trò: ", cbVaiTro, font);
         addField(form, gbc, "Nhân viên: ", cbNhanVien, font);
+        addField(form, gbc, "Vai trò: ", cbVaiTro, font);
         addField(form, gbc, "Tên đăng nhập: ", txtTenDangNhap, font);
         addField(form, gbc, "Mật khẩu: ", txtMatKhau, font);
         addField(form, gbc, "Xác nhận mật khẩu: ", txtXacNhanMatKhau, font);
@@ -241,7 +274,13 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
     //table
     private JScrollPane panelTable(){
         String[] cols = {"ID tài khoản", "Vai trò", "Mã nhân viên", "Tên đang nhập", "Thời điểm tạo", "Hoạt động"};
-        model = new DefaultTableModel(cols, 0);
+
+        model = new DefaultTableModel(cols, 0){
+            @Override
+            public boolean isCellEditable(int row, int column){
+                return false;
+            }
+        };
         table = new JTable(model);
         table.setRowHeight(25);
         table.setFont(new Font("Roboto", Font.PLAIN, 14));
@@ -281,21 +320,28 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
             TaiKhoan tk = new TaiKhoan();
             themTaiKhoan(tk);
             clearForm();
-        }else if(source == btnEdit){
-            TaiKhoan tk = new TaiKhoan();
-            capNhatTaiKhoan(tk);
-            clearForm();
         }else if(source == btnFind){
-            String maNV = cbNhanVien.getSelectedItem() != "Chọn mã nhân viên" ? cbNhanVien.getSelectedItem().toString() : null;
-            String vaiTro = cbVaiTro.getSelectedItem() != null ? cbVaiTro.getSelectedItem().toString() : null;
-            String tenDangNhap = txtTenDangNhap.getText().trim() != null ? txtTenDangNhap.getText().trim() : null;
-            boolean hoatDong = cbHoatDong.isSelected();
-            timKiemTaiKhoan(maNV, tenDangNhap, vaiTro, hoatDong);
+            String maNV = null;
+            Object nvSelected = cbNhanVien.getSelectedItem();
+            if(nvSelected != null && !nvSelected.equals("Chọn mã nhân viên")){
+                maNV = nvSelected.toString();
+            }
+            String vaiTro = null;
+            Object vaiTroSelected = cbVaiTro.getSelectedItem();
+            if(vaiTroSelected != null){
+                vaiTro = vaiTroSelected.toString();
+            }
+            String tenDN = getRealText(txtTenDangNhap, "VD: user123").trim();
+            Boolean hoatDong = null;
+            if(cbHoatDong.isSelected()){
+                hoatDong = true;
+            }else{
+                hoatDong = false;
+            }
+            timKiemTaiKhoan(maNV, tenDN, vaiTro, hoatDong);
             clearForm();
 
         }else if(source == btnEdit){
-
-
         if (txtTaiKhoanID.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
                     "Vui lòng chọn tài khoản cần sửa từ bảng.",
@@ -304,22 +350,13 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
             return;
         }
 
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có chắc chắn muốn cập nhật tài khoản này?",
-                "Xác nhận cập nhật",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
         TaiKhoan tk = new TaiKhoan();
         capNhatTaiKhoan(tk);
         clearForm();
-    }
+    }else if(source == btnClean){
+            clearForm();
+            loadDataToTable();
+        }
 
 }
 
@@ -380,12 +417,13 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
             }
             String maNV = (String) cbNhanVien.getSelectedItem();
             NhanVien nv = nhanVien_ctrl.layNhanVienBangMaNV(maNV);
+            VaiTroTaiKhoan vaiTro = (VaiTroTaiKhoan) cbVaiTro.getSelectedItem();
             String tenDangNhap = getRealText(txtTenDangNhap, "VD: user123").trim();
             String matKhauPlain = getRealText((JPasswordField) txtMatKhau, "VD: P@ssw0rd").trim();
             LocalDateTime thoiDiemTao = LocalDateTime.now();
 
             tk.setTaiKhoanID(newID);
-            tk.setVaiTroTaiKhoan((VaiTroTaiKhoan) cbVaiTro.getSelectedItem());
+            tk.setVaiTroTaiKhoan(vaiTro);
             tk.setNhanVien(nv);
             tk.setTenDangNhap(tenDangNhap);
             tk.setMatKhauHash(BCrypt.hashpw(matKhauPlain, BCrypt.gensalt(12)));
@@ -455,7 +493,7 @@ public class QuanLyTaiKhoan extends JPanel implements ActionListener, MouseListe
 
         try{
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-            List<TaiKhoan> ketQua = taiKhoan_ctrl.timKiemTongHop(maNV,tenDN, vaiTro, trangThai);
+            List<TaiKhoan> ketQua = taiKhoan_ctrl.timKiemTongHop(maNV, tenDN, vaiTro, trangThai);
             for (TaiKhoan tk : ketQua) {
                 if(tk == null) continue;
                 model.addRow(new Object[]{

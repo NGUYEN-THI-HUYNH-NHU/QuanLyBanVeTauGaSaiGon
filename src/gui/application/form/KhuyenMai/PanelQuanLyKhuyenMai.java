@@ -25,7 +25,7 @@ import entity.type.LoaiTau;
 
 
 
-public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener, KeyListener {
+public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVien nhanVien;
     private final KhuyenMai_CTRL khuyenMai_ctrl;
     private final Timer autoUpdateTimer;
@@ -58,7 +58,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     private JTabbedPane tabPane;
 
 
-    public QuanLyKhuyenMai(NhanVien nhanVien) {
+    public PanelQuanLyKhuyenMai(NhanVien nhanVien) {
         this.nhanVien = nhanVien;
         khuyenMai_ctrl = new KhuyenMai_CTRL();
 
@@ -173,6 +173,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         // Mã khuyến mãi
         txtMaKM = new JTextField(20);
         txtMaKM.setEditable(false);
+        txtMaKM.requestFocus(false);
         formNhapThongTin(panelThongTin, gbc, 0, "Mã khuyến mãi:", txtMaKM, inputFont);
 
         // Code khuyến mãi
@@ -230,6 +231,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         // Trạng thái
         txtTrangThai = new JCheckBox("Đang hoạt động");
         formNhapThongTin(panelDieuKien, gbc, 2, "Trạng thái:", txtTrangThai, inputFont);
+        txtTrangThai.setSelected(true);
 
         // Tuyến ID
         txtTuyen = taoComboBoxTuyen();
@@ -260,11 +262,15 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         formNhapThongTin(panelDieuKien, gbc, 9, "Min giá trị đơn hàng:", txtMinGiaTriHoaDon, inputFont);
 
 
-        txtHangToa.setEditable(false);
-        txtLoaiTau.setEditable(false);
-        txtLoaiDoiTuong.setEditable(false);
-        txtTuyen.setEditable(false);
+//        txtHangToa.setEditable(false);
+//        txtLoaiTau.setEditable(false);
+//        txtLoaiDoiTuong.setEditable(false);
+//        txtTuyen.setEditable(false);
 
+        setupComboKeyboard(txtTuyen);
+        setupComboKeyboard(txtHangToa);
+        setupComboKeyboard(txtLoaiTau);
+        setupComboKeyboard(txtLoaiDoiTuong);
 
 
         return panelDieuKien;
@@ -387,7 +393,14 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         // Tạo bảng danh sách
         String[] columnNames = { "Mã khuyến mãi", "Code KH", "Mô tả", "Tỷ lệ giảm giá", "Tiền giảm giá",
                 "Ngày bắt đầu", "Ngày kết thúc", "Số lượng", "Giới hạn/khách", "Trạng thái" };
-        tableModel = new DefaultTableModel(columnNames, 0);
+
+
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(tableModel);
         table.setFont(new Font("Roboto", Font.PLAIN, 13));
         table.setRowHeight(25);
@@ -437,7 +450,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
     //cap nhap trang thai
     private void capNhatTrangThaiTuDong(){
         if(khuyenMai_ctrl.tuDongCapNhatTrangThai()){
-
+            System.out.print("Cập nhật trạng thái khuyến mãi thành công!");
         }else{
             System.out.print("Cập nhật trạng thái khuyến mãi thất bại!");
         }
@@ -504,6 +517,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         txtMinGiaTriHoaDon.setText("");
         loadKhuyenMaiTheoLoai("Tất cả");
 
+        initPlaceholders();
     }
     //Valid form
     public boolean validForm(boolean isEdit) {
@@ -511,11 +525,11 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         String codeKh = getRealText(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
         String moTa = getRealText(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
         String tyLeStr = getRealText(txtTyLeGiamGia, "VD: 0.1 (ở dạng số thập phân, 10% = 0.1)");
-        String tienGiamGiaStr = getRealText(txtTienGiamGia, "VD: 20000");
+        String tienGiamGiaStr = getRealText(txtTienGiamGia, "VD: 20.000");
         String soLuongStr = getRealText(txtSoLuong, "VD: 100 (số lượng mã)");
         String gioiHanStr = getRealText(txtGioiHan, "VD: 1 (mỗi khách chỉ dùng 1 lần)");
         String ngayTrongTuanStr = getRealText(txtNgayTrongTuan, "1=Thứ 2...7=Chủ nhật, 0=không áp dụng");
-        String minGiaTriStr = getRealText(txtMinGiaTriHoaDon, "VD: 200000");
+        String minGiaTriStr = getRealText(txtMinGiaTriHoaDon, "VD: 200.000");
 
         Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
         HangToa hangToa = (HangToa) txtHangToa.getSelectedItem();
@@ -609,6 +623,10 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
                 txtSoLuong.requestFocus();
                 return false;
             }
+        }else{
+            JOptionPane.showMessageDialog(this, "Số lượng không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtSoLuong.requestFocus();
+            return false;
         }
         if (!khuyenMai_ctrl.kiemTraSoLuong(soLuong)) {
             JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -625,6 +643,10 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
                 txtGioiHan.requestFocus();
                 return false;
             }
+        }else{
+            JOptionPane.showMessageDialog(this, "Giới hạn mỗi khách hàng không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            txtGioiHan.requestFocus();
+            return false;
         }
         if (!khuyenMai_ctrl.kiemTraGioiHanMoiKhachHang(gioiHan)) {
             JOptionPane.showMessageDialog(this, "Giới hạn mỗi khách hàng không hợp lệ!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
@@ -863,7 +885,7 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
             return;
         }
         if (o.equals(btnFind)) {
-            String tuKhoa = !txtMaKM.getText().trim().isEmpty() ? txtMaKM.getText().trim() : txtMoTa.getText().trim();
+            String tuKhoa = getRealText(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
             Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
             String maTuyen = tuyen != null && !"Tất cả".equals(tuyen.toString()) ? tuyen.getTuyenID() : null;
             Boolean tthai = txtTrangThai.isSelected();
@@ -904,10 +926,10 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         // Thông tin khuyến mãi
         String codeKH = getRealText(txtCodeKH, "VD: LE_30_04, MUA_HE_2025, TUYEN_SG_HN");
         String moTa = getRealText(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
-        double tyLeGiamGia = txtTyLeGiamGia.getText().isEmpty() ? 0 : Double.parseDouble(txtTyLeGiamGia.getText().trim());
-        double tienGiamGia = txtTienGiamGia.getText().isEmpty() ? 0 : parseTien(txtTienGiamGia.getText());
-        double soLuong = txtSoLuong.getText().isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
-        int gioiHan = txtGioiHan.getText().isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
+        double tyLeGiamGia = getRealText(txtTyLeGiamGia, "VD: 0.1 (ở dạng số thập phân, 10% = 0.1)").isEmpty() ? 0 : Double.parseDouble(txtTyLeGiamGia.getText().trim());
+        double tienGiamGia = getRealText(txtTienGiamGia, "VD: 20000").isEmpty() ? 0 : parseTien(txtTienGiamGia.getText());
+        double soLuong = getRealText(txtSoLuong, "VD: 100 (số lượng mã)").isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
+        int gioiHan = getRealText(txtGioiHan, "VD: 1 (mỗi khách chỉ dùng 1 lần)").isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
         boolean trangThai = txtTrangThai.isSelected();
 
         LocalDate ngayBatDau = new Date(txtNgayBD.getDate().getTime()).toLocalDate();
@@ -920,8 +942,8 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         LoaiTau loaiTau = (LoaiTau) txtLoaiTau.getSelectedItem();
         LoaiDoiTuong loaiDoiTuong = (LoaiDoiTuong) txtLoaiDoiTuong.getSelectedItem();
         boolean ngayLe = txtNgayLe.isSelected();
-        double minGiaTriDonHang = txtMinGiaTriHoaDon.getText().isEmpty() ? 0 : parseTien(txtMinGiaTriHoaDon.getText());
-        Integer ngayTrongTuan = txtNgayTrongTuan.getText().trim().isEmpty() ? null : Integer.parseInt(txtNgayTrongTuan.getText().trim());
+        double minGiaTriDonHang = getRealText(txtMinGiaTriHoaDon, "VD: 200000").isEmpty() ? 0 : parseTien(txtMinGiaTriHoaDon.getText());
+        Integer ngayTrongTuan = getRealText(txtNgayTrongTuan, "1=Thứ 2...7=Chủ nhật, 0=không áp dụng").isEmpty() ? null : Integer.parseInt(txtNgayTrongTuan.getText().trim());
 
 
         if (o.equals(btnAdd)) {
@@ -1138,27 +1160,65 @@ public class QuanLyKhuyenMai extends JPanel implements ActionListener, MouseList
         }
     }
 
+    //bắt phím cho combox
+    private void setupComboKeyboard(JComboBox<?> combo) {
+
+        JComponent target = combo;
+        if (combo.isEditable() && combo.getEditor().getEditorComponent() instanceof JComponent editor) {
+            target = editor;
+        }
+
+        InputMap im = target.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap am = target.getActionMap();
+
+        // 1) Nhấn DOWN khi chưa mở popup -> mở popup (và vẫn cho di chuyển item)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "openOrMoveDown");
+        am.put("openOrMoveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!combo.isPopupVisible()) {
+                    combo.showPopup();
+                } else {
+
+                    Action def = combo.getActionMap().get("selectNext");
+                    if (def != null) def.actionPerformed(e);
+                }
+            }
+        });
+
+        // 2) Enter: nếu popup đang mở -> đóng popup (chọn item hiện tại)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterSelectOrNext");
+        am.put("enterSelectOrNext", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (combo.isPopupVisible()) {
+                    combo.hidePopup();
+                } else {
+                    combo.transferFocus();
+                }
+            }
+        });
+    }
+
+
     @Override
     public void mousePressed(MouseEvent e) {
 
     }
-    @Override
     public void mouseReleased(MouseEvent e) {
 
     }
-    @Override
     public void mouseEntered(MouseEvent e) {
 
     }
-    @Override
     public void mouseExited(MouseEvent e) {
 
     }
-    @Override
     public void keyTyped(KeyEvent e) {
 
     }
-    @Override
     public void keyReleased(KeyEvent e) {
 
     }

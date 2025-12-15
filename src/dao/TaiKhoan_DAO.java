@@ -264,13 +264,12 @@ public class TaiKhoan_DAO {
 
 	public boolean capNhatTaiKhoan(TaiKhoan tkMoi) {
 		Connection con = connectDB.getConnection();
-		String sql = "UPDATE TaiKhoan SET vaiTroTaiKhoanID = ?, tenDangNhap = ?, matKhauHash = ?, trangThai = ? WHERE taiKhoanID = ?";
+		String sql = "UPDATE TaiKhoan SET tenDangNhap = ?, matKhauHash = ?, trangThai = ? WHERE taiKhoanID = ?";
 		try (PreparedStatement stmt = con.prepareStatement(sql)) {
-			stmt.setString(1, tkMoi.getVaiTroTaiKhoan().name());
-			stmt.setString(2, tkMoi.getTenDangNhap());
-			stmt.setString(3, tkMoi.getMatKhauHash());
-			stmt.setBoolean(4, tkMoi.isHoatDong());
-			stmt.setString(5, tkMoi.getTaiKhoanID());
+			stmt.setString(1, tkMoi.getTenDangNhap());
+			stmt.setString(2, tkMoi.getMatKhauHash());
+			stmt.setBoolean(3, tkMoi.isHoatDong());
+			stmt.setString(4, tkMoi.getTaiKhoanID());
 
 			int n = stmt.executeUpdate();
 			return n > 0;
@@ -367,6 +366,7 @@ public class TaiKhoan_DAO {
 				dsTK.add(taiKhoan);
 			}
 			return dsTK;
+
 		} catch (SQLException e) {
 			System.out.print("Tim kiem tong hop tai khoan that bai: " + e.getMessage());
 			e.printStackTrace();
