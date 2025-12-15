@@ -16,7 +16,7 @@ import java.awt.event.*;
 import java.util.Arrays;
 import java.util.List;
 
-public class QuanLyKhachHang extends JPanel implements ActionListener, MouseListener, KeyListener {
+public class PanelQuanLyKhachHang extends JPanel implements ActionListener, MouseListener, KeyListener {
 
     private final KhachHang_CTRL khachHang_ctrl;
     private final NhanVien nhanVienThucHien;
@@ -44,7 +44,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
     private final Color COLOR_TEXT_LABEL = new Color(51, 65, 85);
     private JLabel lblAvatar;
 
-    public QuanLyKhachHang(NhanVien nhanVienThucHien) {
+    public PanelQuanLyKhachHang(NhanVien nhanVienThucHien) {
         this.khachHang_ctrl = new KhachHang_CTRL();
         this.nhanVienThucHien = nhanVienThucHien;
         setLayout(new BorderLayout(10, 10));
@@ -177,6 +177,9 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         addDetailRow(details, "Loại khách hàng:", lblChiTietLoaiKhachHang, titleFont, COLOR_TEXT_LABEL);
         addDetailRow(details, "Giấy tờ:", lblChiTietGiayTo, titleFont, COLOR_TEXT_LABEL);
 
+        setupComboKeyboard(cbLDT);
+        setupComboKeyboard(cbLKH);
+
         infoPanel.add(details, BorderLayout.CENTER);
         return infoPanel;
     }
@@ -208,6 +211,8 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
         lblChiTietGiayTo.setText("");
         lblChiTietLoaiDoiTuong.setText("");
         lblChiTietLoaiKhachHang.setText("");
+
+        initPlaceholders();
     }
 
 
@@ -256,8 +261,16 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
     // Panle danh sách khách hàng
     private JScrollPane createTablePanel() {
         String[] columnNames = { "STT","Mã KH", "Tên KH", "SĐT", "Email", "Giấy tờ", "Địa chỉ", "Loại đối tượng", "Loại KH"};
-        tableModel = new DefaultTableModel(columnNames, 0);
+
+        //Tạo bảng không cho phép sửa trực tiếp trên bảng
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         table = new JTable(tableModel);
+
         table.setFont(new Font("Roboto", Font.PLAIN, 13));
         table.setRowHeight(25);
         table.addMouseListener(this);
@@ -591,7 +604,7 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                     txtDiaChi.requestFocus();
                     return;
                 } else if (!khachHang_ctrl.isValidEmail(txtEmail.getText().trim())) {
-                    lblErrorEmail.setText("Email không hợp lệ! VD: ");
+                    lblErrorEmail.setText("Email không hợp lệ! VD: email@domain.com");
                     txtEmail.requestFocus();
                     return;
                 } else if (!khachHang_ctrl.isValidTen(txtTenKH.getText().trim())) {
@@ -651,6 +664,49 @@ public class QuanLyKhachHang extends JPanel implements ActionListener, MouseList
                 }
             }
         }
+    }
+
+
+    //bắt phím cho combox
+    private void setupComboKeyboard(JComboBox<?> combo) {
+
+        JComponent target = combo;
+        if (combo.isEditable() && combo.getEditor().getEditorComponent() instanceof JComponent editor) {
+            target = editor;
+        }
+
+        InputMap im = target.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap am = target.getActionMap();
+
+        // 1) Nhấn DOWN khi chưa mở popup -> mở popup (và vẫn cho di chuyển item)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "openOrMoveDown");
+        am.put("openOrMoveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!combo.isPopupVisible()) {
+                    combo.showPopup();
+                } else {
+
+                    Action def = combo.getActionMap().get("selectNext");
+                    if (def != null) def.actionPerformed(e);
+                }
+            }
+        });
+
+        // 2) Enter: nếu popup đang mở -> đóng popup (chọn item hiện tại)
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterSelectOrNext");
+        am.put("enterSelectOrNext", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (combo.isPopupVisible()) {
+                    combo.hidePopup();
+                } else {
+                    combo.transferFocus();
+                }
+            }
+        });
     }
     public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {}

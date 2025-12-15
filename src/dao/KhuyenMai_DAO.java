@@ -231,10 +231,17 @@ public class KhuyenMai_DAO {
 
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				KhuyenMai km = new KhuyenMai(rs.getString("khuyenMaiID"), rs.getString("maKhuyenMai"),
-						rs.getString("moTa"), rs.getDouble("tyLeGiamGia"), rs.getDouble("tienGiamGia"),
-						rs.getDate("ngayBatDau").toLocalDate(), rs.getDate("ngayKetThuc").toLocalDate(),
-						rs.getInt("soLuong"), rs.getInt("gioiHanMoiKhachHang"), rs.getBoolean("trangThai"));
+				KhuyenMai km = new KhuyenMai(
+						rs.getString("khuyenMaiID"),
+						rs.getString("maKhuyenMai"),
+						rs.getString("moTa"),
+						rs.getDouble("tyLeGiamGia"),
+						rs.getDouble("tienGiamGia"),
+						rs.getDate("ngayBatDau").toLocalDate(),
+						rs.getDate("ngayKetThuc").toLocalDate(),
+						rs.getInt("soLuong"),
+						rs.getInt("gioiHanMoiKhachHang"),
+						rs.getBoolean("trangThai"));
 				ds.add(km);
 			}
 
