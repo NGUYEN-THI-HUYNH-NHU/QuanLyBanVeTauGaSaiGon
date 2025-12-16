@@ -7,9 +7,11 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
@@ -20,8 +22,6 @@ import java.awt.*;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,13 +30,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.beans.PropertyChangeListener;
 
 /**
  * Panel hiển thị thống kê vé theo thời gian.
- * Phiên bản: Biểu đồ đồng bộ style với Thống kê doanh thu.
+ * Phiên bản: Đồng bộ hoàn toàn với PanelThongKeDoanhThu (Chart Flat, Autocomplete Ga, Khóa Ga).
  */
 public class PanelThongKeVe extends JPanel {
 
@@ -68,12 +69,15 @@ public class PanelThongKeVe extends JPanel {
     private final JComboBox<String> cbGaDen;
     private final JComboBox<String> cbNhanVien;
     private final JComboBox<String> cbLoaiVe;
-    private final JPanel panelGaDiDen;
+
     private final JButton btnTimKiem;
     private final JButton btnXoaBoLoc;
 
     private final Map<String, String> nhanVienMap = new HashMap<>();
     private final Map<String, String> hangToaMap = new HashMap<>();
+
+    // Danh sách gốc để phục vụ tìm kiếm (Autocomplete)
+    private List<String> danhSachGaGoc;
 
     // ====== Card thống kê ======
     private final JLabel lblTongSoVeBanValue;
@@ -87,8 +91,16 @@ public class PanelThongKeVe extends JPanel {
     private final JPanel chartPanelContainer;
     private final JTable tableChiTiet;
     private final DefaultTableModel chiTietTableModel;
+
+    // ====== Thành phần Header Chi tiết ======
     private final JLabel lblChiTietTitle;
     private final JButton btnExportExcel;
+
+    // 4 Label hiển thị thông tin lọc
+    private JLabel lblInfoThoiGian;
+    private JLabel lblInfoTuyen;
+    private JLabel lblInfoNhanVien;
+    private JLabel lblInfoLoaiVe;
 
     private static class ThongKeVeResult {
         int tongSoVeBan, tongVeConHieuLuc, tongVeDaDung, tongVeDaDoi, tongVeHoan;
@@ -99,34 +111,28 @@ public class PanelThongKeVe extends JPanel {
     public PanelThongKeVe() {
         this.thongKeVeDAO = new ThongKeVe_DAO();
 
+        // --- Khởi tạo components lọc ---
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
-        tuNgay = new JDateChooser();
-        denNgay = new JDateChooser();
-        cbTuThang = new JComboBox<>();
-        cbDenThang = new JComboBox<>();
-        cbTuNamThang = new JComboBox<>();
-        cbDenNamThang = new JComboBox<>();
-        cbTuNam = new JComboBox<>();
-        cbDenNam = new JComboBox<>();
+        tuNgay = new JDateChooser(); denNgay = new JDateChooser();
+        cbTuThang = new JComboBox<>(); cbDenThang = new JComboBox<>();
+        cbTuNamThang = new JComboBox<>(); cbDenNamThang = new JComboBox<>();
+        cbTuNam = new JComboBox<>(); cbDenNam = new JComboBox<>();
         filterSwitcher = new JPanel(new CardLayout());
 
         cbLoaiTuyen = new JComboBox<>(new String[]{"Tất cả", "Theo Ga đi/đến"});
-        cbGaDi = new JComboBox<>();
-        cbGaDen = new JComboBox<>();
+        cbGaDi = new JComboBox<>(); cbGaDen = new JComboBox<>();
         cbNhanVien = new JComboBox<>();
         cbLoaiVe = new JComboBox<>();
-        panelGaDiDen = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
         btnTimKiem = new JButton("Tìm kiếm");
-
-        // === Nút Xóa bộ lọc ===
         btnXoaBoLoc = new JButton("Xóa bộ lọc");
         btnXoaBoLoc.setFont(new Font("Arial", Font.BOLD, 13));
-        btnXoaBoLoc.setBackground(new Color(108, 117, 125)); // Màu xám
+        btnXoaBoLoc.setBackground(new Color(108, 117, 125));
         btnXoaBoLoc.setForeground(Color.WHITE);
         btnXoaBoLoc.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnXoaBoLoc.addActionListener(e -> xoaBoLoc());
 
+        // --- Khởi tạo Cards Value ---
         lblTongSoVeBanValue = createValueLabel("...");
         lblTongVeConHieuLucValue = createValueLabel("...");
         lblTongVeDaDungValue = createValueLabel("...");
@@ -134,6 +140,7 @@ public class PanelThongKeVe extends JPanel {
         lblTongVeHoanValue = createValueLabel("...");
         lblTongTienVeValue = createValueLabel("...");
 
+        // --- Layout Chính ---
         setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
@@ -148,7 +155,7 @@ public class PanelThongKeVe extends JPanel {
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)
         ));
 
-        // ===== Khu vực NORTH =====
+        // ===== Khu vực NORTH: Bộ lọc và Cards =====
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
@@ -200,12 +207,37 @@ public class PanelThongKeVe extends JPanel {
             }
         };
         tableChiTiet = new JTable(chiTietTableModel);
-        setupTableDetails();
 
+        // --- Tạo Panel Chi Tiết & Header ---
+
+        // 1. Tiêu đề lớn
         lblChiTietTitle = new JLabel("Báo cáo thống kê chi tiết", JLabel.CENTER);
-        lblChiTietTitle.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        lblChiTietTitle.setBorder(new EmptyBorder(5, 0, 10, 0));
+        lblChiTietTitle.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        lblChiTietTitle.setBorder(new EmptyBorder(10, 0, 5, 0));
 
+        // 2. Panel Thông tin lọc (Header phụ)
+        JPanel pnlFilterInfo = new JPanel(new GridLayout(2, 2, 20, 5));
+        pnlFilterInfo.setOpaque(false);
+        pnlFilterInfo.setBorder(new EmptyBorder(0, 50, 10, 50));
+
+        Font fontInfo = new Font("Times New Roman", Font.PLAIN, 14);
+        lblInfoThoiGian = new JLabel("Thời gian: Tất cả"); lblInfoThoiGian.setFont(fontInfo);
+        lblInfoTuyen = new JLabel("Tuyến: Tất cả"); lblInfoTuyen.setFont(fontInfo);
+        lblInfoNhanVien = new JLabel("Nhân viên: Tất cả"); lblInfoNhanVien.setFont(fontInfo);
+        lblInfoLoaiVe = new JLabel("Loại vé: Tất cả"); lblInfoLoaiVe.setFont(fontInfo);
+
+        pnlFilterInfo.add(lblInfoThoiGian);
+        pnlFilterInfo.add(lblInfoTuyen);
+        pnlFilterInfo.add(lblInfoNhanVien);
+        pnlFilterInfo.add(lblInfoLoaiVe);
+
+        // Container chứa Title + Filter Info
+        JPanel pnlTopContainer = new JPanel(new BorderLayout());
+        pnlTopContainer.setOpaque(false);
+        pnlTopContainer.add(lblChiTietTitle, BorderLayout.NORTH);
+        pnlTopContainer.add(pnlFilterInfo, BorderLayout.CENTER);
+
+        // 3. Nút Xuất Excel
         btnExportExcel = new JButton("Xuất Excel");
         btnExportExcel.setBackground(new Color(33, 115, 70));
         btnExportExcel.setForeground(Color.WHITE);
@@ -217,296 +249,85 @@ public class PanelThongKeVe extends JPanel {
         bottomPanel.setOpaque(false);
         bottomPanel.add(btnExportExcel);
 
-        JPanel panelChiTietContainer = taoPanelChiTiet(lblChiTietTitle, tableChiTiet, bottomPanel);
+        // 4. Ghép vào Panel chính
+        JPanel panelChiTietContainer = taoPanelChiTiet(pnlTopContainer, tableChiTiet, bottomPanel);
 
         tab.addTab("Tổng quan", chartPanelContainer);
         tab.addTab("Chi tiết", panelChiTietContainer);
         add(tab, BorderLayout.CENTER);
 
+        // --- Load dữ liệu ---
         loadComboBoxesData();
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    private JPanel buildFilterBar() {
-        JPanel bar = new JPanel(new GridBagLayout());
-        bar.setOpaque(false);
-        GridBagConstraints gbc = new GridBagConstraints();
+    // ================== HÀM XỬ LÝ AUTOCOMPLETE ==================
+    // Hàm này giúp biến JComboBox thành ô nhập liệu thông minh
+    private void setupAutoComplete(final JComboBox<String> comboBox, final List<String> items) {
+        final JTextField textfield = (JTextField) comboBox.getEditor().getEditorComponent();
 
-        gbc.insets = new Insets(6, 10, 6, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        // Khi gõ phím
+        textfield.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    String text = textfield.getText();
+                    // Không lọc khi dùng các phím điều hướng
+                    if (e.getKeyCode() >= 37 && e.getKeyCode() <= 40) return;
+                    filterInfo(comboBox, text, items);
+                });
+            }
+        });
 
-        Dimension comboSize = new Dimension(250, 32);
-
-        // Hàng 0: Loại thời gian
-        gbc.gridx = 0; gbc.gridy = 0;
-        bar.add(new JLabel("Loại thời gian:"), gbc);
-        gbc.gridx = 1;
-        cbLoaiThoiGian.setPreferredSize(comboSize);
-        bar.add(cbLoaiThoiGian, gbc);
-        gbc.gridx = 2;
-        filterSwitcher.setOpaque(false);
-        filterSwitcher.add(buildTatCaFilter(), CARD_TATCA);
-        filterSwitcher.add(buildNgayFilter(), CARD_NGAY);
-        filterSwitcher.add(buildThangFilter(), CARD_THANG);
-        filterSwitcher.add(buildNamFilter(), CARD_NAM);
-        filterSwitcher.setPreferredSize(new Dimension(350, 32));
-        bar.add(filterSwitcher, gbc);
-
-        // Hàng 1: Lọc tuyến + Cột 2
-        gbc.gridx = 0; gbc.gridy = 1;
-        bar.add(new JLabel("Lọc tuyến:"), gbc);
-        gbc.gridx = 1;
-        cbLoaiTuyen.setPreferredSize(comboSize);
-        bar.add(cbLoaiTuyen, gbc);
-
-        JPanel panelGa = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        panelGa.setOpaque(false);
-        panelGa.add(new JLabel("Ga đi:"));
-        cbGaDi.setPreferredSize(comboSize);
-        panelGa.add(cbGaDi);
-        panelGa.add(new JLabel("Ga đến:"));
-        cbGaDen.setPreferredSize(comboSize);
-        panelGa.add(cbGaDen);
-
-        JPanel panelLoaiVe = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        panelLoaiVe.setOpaque(false);
-        panelLoaiVe.add(new JLabel("Loại vé (Hạng toa):"));
-        cbLoaiVe.setPreferredSize(comboSize);
-        panelLoaiVe.add(cbLoaiVe);
-
-        JPanel panelCot2 = new JPanel(new GridLayout(2, 1, 0, 4));
-        panelCot2.setOpaque(false);
-        panelCot2.add(panelGa);
-        panelCot2.add(panelLoaiVe);
-
-        gbc.gridx = 2; gbc.gridy = 1; gbc.gridheight = 2;
-        bar.add(panelCot2, gbc);
-        gbc.gridheight = 1;
-
-        // Hàng 2: Nhân viên
-        gbc.gridx = 0; gbc.gridy = 2;
-        bar.add(new JLabel("Nhân viên:"), gbc);
-        gbc.gridx = 1;
-        cbNhanVien.setPreferredSize(comboSize);
-        bar.add(cbNhanVien, gbc);
-
-        // Hàng 3: Cụm nút
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 3;
-        gbc.anchor = GridBagConstraints.WEST;
-
-        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        panelButtons.setOpaque(false);
-
-        btnTimKiem.setText("Tìm kiếm");
-        btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
-        btnTimKiem.setBackground(new Color(33, 150, 83));
-        btnTimKiem.setForeground(Color.WHITE);
-        btnTimKiem.setPreferredSize(new Dimension(120, 35));
-
-        btnXoaBoLoc.setPreferredSize(new Dimension(120, 35));
-
-        panelButtons.add(btnTimKiem);
-        panelButtons.add(btnXoaBoLoc);
-        bar.add(panelButtons, gbc);
-
-        // ============================================
-        // SỰ KIỆN LẮNG NGHE
-        // ============================================
-        cbLoaiThoiGian.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                CardLayout cl = (CardLayout) filterSwitcher.getLayout();
-                switch ((String) e.getItem()) {
-                    case "Theo ngày" -> cl.show(filterSwitcher, CARD_NGAY);
-                    case "Theo tháng" -> cl.show(filterSwitcher, CARD_THANG);
-                    case "Theo năm" -> cl.show(filterSwitcher, CARD_NAM);
-                    default -> cl.show(filterSwitcher, CARD_TATCA);
+        // Khi click chuột vào thì tự động bôi đen để dễ gõ
+        textfield.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (comboBox.isEnabled()) {
+                    comboBox.setPopupVisible(true);
                 }
             }
         });
 
-        cbLoaiTuyen.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                String selected = (String) e.getItem();
-                boolean enable = "Theo Ga đi/đến".equals(selected);
-                cbGaDi.setEnabled(enable);
-                cbGaDen.setEnabled(enable);
-            }
-        });
-
-        cbGaDi.setEnabled(false);
-        cbGaDen.setEnabled(false);
-
-        btnTimKiem.addActionListener(e -> xuLyThongKe());
-        ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
-
-        return bar;
+        comboBox.setEditable(true);
     }
 
-    private void loadComboBoxesData() {
-        try {
-            List<String> tenGaList = thongKeVeDAO.getDanhSachTenGa();
-            cbGaDi.removeAllItems();
-            cbGaDen.removeAllItems();
-            if (tenGaList == null || tenGaList.isEmpty()) {
-                cbGaDi.addItem("Lỗi"); cbGaDen.addItem("Lỗi");
-            } else {
-                for (String tenGa : tenGaList) {
-                    cbGaDi.addItem(tenGa);
-                    cbGaDen.addItem(tenGa);
-                }
-            }
-            cbGaDi.setSelectedItem("Sài Gòn");
-            cbGaDen.setSelectedItem("Hà Nội");
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi khi tải danh sách ga", e);
+    private void filterInfo(JComboBox<String> comboBox, String enteredText, List<String> items) {
+        if (!comboBox.isPopupVisible()) {
+            comboBox.showPopup();
         }
 
-        try {
-            Map<String, String> dsNhanVien = thongKeVeDAO.getDanhSachNhanVien();
-            nhanVienMap.clear();
-            cbNhanVien.removeAllItems();
-            cbNhanVien.addItem("Tất cả");
-            if (dsNhanVien != null) {
-                for (Map.Entry<String, String> entry : dsNhanVien.entrySet()) {
-                    String id = entry.getKey();
-                    String ten = entry.getValue();
-                    String display = ten + " (" + id + ")";
-                    nhanVienMap.put(display, id);
-                    cbNhanVien.addItem(display);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi khi tải danh sách nhân viên", e);
+        List<String> filterArray = items.stream()
+                .filter(p -> p.toLowerCase().contains(enteredText.toLowerCase()))
+                .collect(Collectors.toList());
+
+        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboBox.getModel();
+        model.removeAllElements();
+
+        for (String s : filterArray) {
+            model.addElement(s);
         }
 
-        try {
-            Map<String, String> dsHangToa = thongKeVeDAO.getDanhSachLoaiVe();
-            hangToaMap.clear();
-            cbLoaiVe.removeAllItems();
-            cbLoaiVe.addItem("Tất cả");
-            if (dsHangToa != null) {
-                for (Map.Entry<String, String> entry : dsHangToa.entrySet()) {
-                    String id = entry.getKey();
-                    String moTa = entry.getValue();
-                    hangToaMap.put(moTa, id);
-                    cbLoaiVe.addItem(moTa);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi khi tải danh sách loại vé", e);
-        }
+        JTextField textfield = (JTextField) comboBox.getEditor().getEditorComponent();
+        textfield.setText(enteredText);
     }
 
-    private JLabel createValueLabel(String initialText) {
-        JLabel label = new JLabel(initialText, SwingConstants.CENTER);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Times New Roman", Font.BOLD, 16));
-        return label;
-    }
-
-    private JPanel createCard(String title, JLabel valueLabel, Color color) {
-        JPanel card = new JPanel(new BorderLayout(0, 5));
-        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-        card.setBackground(color);
-        card.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
-        card.add(titleLabel, BorderLayout.NORTH);
-        card.add(valueLabel, BorderLayout.CENTER);
-        return card;
-    }
-
-    private JPanel taoPanelTongQuan() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-        JLabel placeholder = new JLabel("📊 Chọn bộ lọc và nhấn Tìm kiếm", SwingConstants.CENTER);
-        placeholder.setFont(new Font("Times New Roman", Font.ITALIC, 16));
-        placeholder.setForeground(Color.GRAY);
-        panel.add(placeholder, BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel taoPanelChiTiet(JLabel titleLabel, JTable table, JPanel bottomPanel) {
-        JPanel panel = new JPanel(new BorderLayout(0, 10));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
-        panel.add(titleLabel, BorderLayout.NORTH);
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(bottomPanel, BorderLayout.SOUTH);
-        return panel;
-    }
-
-    private void setupTableDetails() {
-        tableChiTiet.setFont(new Font("Times New Roman", Font.PLAIN, 14));
-        tableChiTiet.setRowHeight(28);
-        JTableHeader header = tableChiTiet.getTableHeader();
-        header.setFont(new Font("Times New Roman", Font.BOLD, 14));
-        header.setBackground(new Color(230, 230, 230));
-        tableChiTiet.setAutoCreateRowSorter(true);
-
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        DefaultTableCellRenderer currencyRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                if (value instanceof Number) {
-                    value = currencyFormatter.format(value);
-                }
-                setHorizontalAlignment(JLabel.RIGHT);
-                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            }
-        };
-
-        DefaultTableCellRenderer integerRenderer = new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                if (value instanceof Number) {
-                    value = integerFormatter.format(value);
-                }
-                setHorizontalAlignment(JLabel.RIGHT);
-                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            }
-        };
-
-        TableColumnModel columnModel = tableChiTiet.getColumnModel();
-        columnModel.getColumn(0).setPreferredWidth(40);
-        columnModel.getColumn(0).setCellRenderer(centerRenderer);
-
-        columnModel.getColumn(1).setPreferredWidth(110);
-        columnModel.getColumn(1).setCellRenderer(centerRenderer);
-
-        for (int i = 2; i <= 6; i++) {
-            columnModel.getColumn(i).setPreferredWidth(90);
-            columnModel.getColumn(i).setCellRenderer(integerRenderer);
-        }
-
-        columnModel.getColumn(7).setPreferredWidth(140);
-        columnModel.getColumn(7).setCellRenderer(currencyRenderer);
-    }
-
+    // ================== HÀM XỬ LÝ LOGIC ==================
     private void xuLyThongKe() {
         String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
         if (loaiThoiGian == null) loaiThoiGian = "Tất cả";
 
         String loaiTuyen = (String) cbLoaiTuyen.getSelectedItem();
-        String tenGaDi = (String) cbGaDi.getSelectedItem();
-        String tenGaDen = (String) cbGaDen.getSelectedItem();
+        String tenGaDi = (String) cbGaDi.getEditor().getItem(); // Lấy từ Editor
+        String tenGaDen = (String) cbGaDen.getEditor().getItem();
 
-        if ("Tất cả".equals(loaiTuyen)) {
-            tenGaDi = null;
-            tenGaDen = null;
-        } else {
-            if (tenGaDi == null || tenGaDen == null || tenGaDi.contains("Lỗi") || tenGaDen.contains("Lỗi")) {
-                JOptionPane.showMessageDialog(this, "Lỗi danh sách ga.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        // Kiểm tra hợp lệ Ga đi / Ga đến
+        if (!"Tất cả".equals(loaiTuyen)) {
+            if (tenGaDi == null || tenGaDi.trim().isEmpty() || !danhSachGaGoc.contains(tenGaDi)) {
+                JOptionPane.showMessageDialog(this, "Ga đi không hợp lệ hoặc không có trong danh sách!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (tenGaDen == null || tenGaDen.trim().isEmpty() || !danhSachGaGoc.contains(tenGaDen)) {
+                JOptionPane.showMessageDialog(this, "Ga đến không hợp lệ hoặc không có trong danh sách!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                 return;
             }
         }
@@ -521,17 +342,19 @@ public class PanelThongKeVe extends JPanel {
 
         LocalDate fromLocalDate, toLocalDate;
         String titleLoai, titleChart;
+        String infoThoiGian;
 
         try {
             switch (loaiThoiGian) {
                 case "Theo ngày" -> {
-                    Date utilFrom = tuNgay.getDate();
-                    Date utilTo = denNgay.getDate();
+                    Date utilFrom = tuNgay.getDate(); Date utilTo = denNgay.getDate();
                     if (!kiemTraKhoangNgayHopLe(utilFrom, utilTo)) return;
                     fromLocalDate = utilFrom.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     toLocalDate = utilTo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                    titleLoai = "ngày (từ " + fmtD(fromLocalDate) + " đến " + fmtD(toLocalDate) + ")";
+                    String strDate = String.format("%s - %s", fmtD(fromLocalDate), fmtD(toLocalDate));
+                    titleLoai = "ngày (" + strDate + ")";
                     titleChart = "ngày";
+                    infoThoiGian = strDate;
                 }
                 case "Theo tháng" -> {
                     int fm = cbTuThang.getSelectedIndex() + 1; int fy = nvl((Integer) cbTuNamThang.getSelectedItem(), LocalDate.now().getYear());
@@ -542,8 +365,10 @@ public class PanelThongKeVe extends JPanel {
                         JOptionPane.showMessageDialog(this, "Thời điểm kết thúc phải ≥ thời điểm bắt đầu.", "Lỗi", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    titleLoai = "tháng (từ " + fm + "/" + fy + " đến " + tm + "/" + ty + ")";
+                    String strMonth = String.format("%d/%d - %d/%d", fm, fy, tm, ty);
+                    titleLoai = "tháng (" + strMonth + ")";
                     titleChart = "tháng";
+                    infoThoiGian = strMonth;
                 }
                 case "Theo năm" -> {
                     int sy = nvl((Integer) cbTuNam.getSelectedItem(), LocalDate.now().getYear());
@@ -554,8 +379,10 @@ public class PanelThongKeVe extends JPanel {
                         JOptionPane.showMessageDialog(this, "Năm kết thúc phải ≥ năm bắt đầu.", "Lỗi", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    titleLoai = "năm (từ " + sy + " đến " + ey + ")";
+                    String strYear = String.format("%d - %d", sy, ey);
+                    titleLoai = "năm (" + strYear + ")";
                     titleChart = "năm";
+                    infoThoiGian = strYear;
                 }
                 default -> {
                     fromLocalDate = LocalDate.of(2000, 1, 1);
@@ -563,6 +390,7 @@ public class PanelThongKeVe extends JPanel {
                     titleLoai = "tất cả";
                     titleChart = "Tất cả (theo năm)";
                     loaiThoiGian = "Theo năm";
+                    infoThoiGian = "Tất cả";
                 }
             }
         } catch (Exception ex) {
@@ -570,6 +398,20 @@ public class PanelThongKeVe extends JPanel {
             return;
         }
 
+        // --- CẬP NHẬT HEADER LỌC ---
+        lblInfoThoiGian.setText("Thời gian: " + infoThoiGian);
+
+        String infoTuyen = "Tất cả";
+        if (!"Tất cả".equals(loaiTuyen)) infoTuyen = tenGaDi + " -> " + tenGaDen;
+        lblInfoTuyen.setText("Tuyến: " + infoTuyen);
+
+        String infoNV = (selectedNhanVien == null) ? "Tất cả" : selectedNhanVien;
+        lblInfoNhanVien.setText("Nhân viên: " + infoNV);
+
+        String infoLoaiVe = (selectedLoaiVe == null) ? "Tất cả" : selectedLoaiVe;
+        lblInfoLoaiVe.setText("Loại vé: " + infoLoaiVe);
+
+        // --- CẬP NHẬT TRẠNG THÁI UI ---
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         lblTongSoVeBanValue.setText("...");
         lblTongVeConHieuLucValue.setText("...");
@@ -635,9 +477,9 @@ public class PanelThongKeVe extends JPanel {
         worker.execute();
     }
 
-    // === HÀM ĐƯỢC CHỈNH SỬA ===
     private void capNhatChartVaTable(Map<String, ThongKeVeChiTietItem> data, String chartTitle, String reportTitle) {
         lblChiTietTitle.setText("Báo cáo thống kê vé chi tiết theo " + reportTitle.toLowerCase());
+
         if (data == null || data.isEmpty()) {
             capNhatChartRong("📉 Không có dữ liệu vé trong khoảng đã chọn");
             capNhatBangRong();
@@ -657,43 +499,42 @@ public class PanelThongKeVe extends JPanel {
                 "Số lượng vé theo " + chartTitle.toLowerCase(), "Thời gian", "Số lượng vé", dataset,
                 PlotOrientation.VERTICAL, true, true, false);
 
-        // --- TÙY CHỈNH GIỐNG THONG KE DOANH THU ---
+        // --- TÙY CHỈNH STYLE (FLAT DESIGN) ---
 
-        // 1. Tùy chỉnh Plot (Nền trắng, lưới xám)
+        // 1. Plot
         CategoryPlot plot = barChart.getCategoryPlot();
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.GRAY);
-        plot.setOutlineVisible(false);
+        plot.setOutlineVisible(false); // Bỏ viền
         plot.setInsets(new RectangleInsets(10, 5, 5, 10));
 
-        // 2. Tùy chỉnh Trục Y (Hiển thị số kiểu Việt Nam: 1.000)
+        // 2. Trục Y
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setUpperMargin(0.15);
         rangeAxis.setNumberFormatOverride(NumberFormat.getNumberInstance(new Locale("vi","VN")));
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        // 3. Tùy chỉnh Renderer (Thanh biểu đồ)
+        // 3. Renderer (Thanh biểu đồ)
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setSeriesPaint(0, new Color(46, 204, 113)); // Màu Xanh (Giống Doanh Thu)
-        renderer.setSeriesPaint(1, new Color(231, 76, 60)); // Màu Đỏ (Giống Chi Phí)
+        renderer.setSeriesPaint(0, new Color(46, 204, 113)); // Xanh (Vé bán)
+        renderer.setSeriesPaint(1, new Color(231, 76, 60));  // Đỏ (Vé hoàn/đổi)
+        renderer.setBarPainter(new StandardBarPainter());    // Phẳng
         renderer.setDrawBarOutline(false);
         renderer.setItemMargin(0.2);
         renderer.setShadowVisible(false);
         renderer.setMaximumBarWidth(0.08);
 
-        // 4. Tùy chỉnh Trục X (Nhãn thời gian)
+        // 4. Trục X
         CategoryAxis domainAxis = plot.getDomainAxis();
         if (!chartTitle.contains("năm") && dataset.getColumnCount() > 8) {
             domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-            domainAxis.setTickLabelFont(domainAxis.getTickLabelFont().deriveFont(10f));
         } else {
             domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
-            domainAxis.setTickLabelFont(domainAxis.getTickLabelFont().deriveFont(11f));
         }
         domainAxis.setLowerMargin(0.02);
         domainAxis.setUpperMargin(0.02);
 
-        // 5. Tùy chỉnh Legend (Chú thích)
+        // 5. Legend & Title
         if (barChart.getLegend() != null) {
             barChart.getLegend().setFrame(BlockBorder.NONE);
         }
@@ -709,6 +550,7 @@ public class PanelThongKeVe extends JPanel {
         chartPanelContainer.revalidate();
         chartPanelContainer.repaint();
 
+        // --- Fill Table ---
         chiTietTableModel.setRowCount(0);
         int stt = 1;
         for (Map.Entry<String, ThongKeVeChiTietItem> entry : data.entrySet()) {
@@ -722,6 +564,7 @@ public class PanelThongKeVe extends JPanel {
         btnExportExcel.setEnabled(true);
     }
 
+    // ================== HÀM XUẤT EXCEL (UPDATED) ==================
     private void exportTableToExcel(ActionEvent e) {
         if (chiTietTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -744,22 +587,72 @@ public class PanelThongKeVe extends JPanel {
              FileOutputStream outputStream = new FileOutputStream(finalFileToSave)) {
             Sheet sheet = workbook.createSheet("ChiTietThongKeVe");
 
+            // --- STYLES ---
+            CellStyle titleStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font titleFont = workbook.createFont();
+            titleFont.setBold(true); titleFont.setFontHeightInPoints((short) 16);
+            titleStyle.setFont(titleFont);
+            titleStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            CellStyle infoStyle = workbook.createCellStyle();
+            infoStyle.setAlignment(HorizontalAlignment.LEFT);
+            org.apache.poi.ss.usermodel.Font infoFont = workbook.createFont();
+            infoFont.setItalic(true);
+            infoStyle.setFont(infoFont);
+
             CellStyle headerCellStyle = workbook.createCellStyle();
             org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
             headerFont.setBold(true);
             headerCellStyle.setFont(headerFont);
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
 
             CellStyle currencyCellStyle = workbook.createCellStyle();
+            currencyCellStyle.cloneStyleFrom(dataStyle);
             currencyCellStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("#,##0 ₫"));
 
             CellStyle centerStyle = workbook.createCellStyle();
+            centerStyle.cloneStyleFrom(dataStyle);
             centerStyle.setAlignment(HorizontalAlignment.CENTER);
 
+            // --- 1. TIÊU ĐỀ ---
             Row titleRow = sheet.createRow(0);
-            titleRow.createCell(0).setCellValue(lblChiTietTitle.getText());
-            sheet.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(0, 0, 0, chiTietTableModel.getColumnCount() - 1));
+            titleRow.createCell(0).setCellValue(lblChiTietTitle.getText().toUpperCase());
+            titleRow.getCell(0).setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, chiTietTableModel.getColumnCount() - 1));
 
-            Row headerRow = sheet.createRow(2);
+            // --- 2. HEADER THÔNG TIN LỌC (4 dòng) ---
+            int lastCol = Math.max(0, chiTietTableModel.getColumnCount() - 1);
+
+            Row row1 = sheet.createRow(1);
+            Cell cellTime = row1.createCell(0); cellTime.setCellValue(lblInfoThoiGian.getText()); cellTime.setCellStyle(infoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, lastCol));
+
+            Row row2 = sheet.createRow(2);
+            Cell cellRoute = row2.createCell(0); cellRoute.setCellValue(lblInfoTuyen.getText()); cellRoute.setCellStyle(infoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, lastCol));
+
+            Row row3 = sheet.createRow(3);
+            Cell cellNV = row3.createCell(0); cellNV.setCellValue(lblInfoNhanVien.getText()); cellNV.setCellStyle(infoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, lastCol));
+
+            Row row4 = sheet.createRow(4);
+            Cell cellType = row4.createCell(0); cellType.setCellValue(lblInfoLoaiVe.getText()); cellType.setCellStyle(infoStyle);
+            sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastCol));
+
+            // --- 3. BẢNG DỮ LIỆU ---
+            int startRow = 6;
+
+            Row headerRow = sheet.createRow(startRow);
             for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(chiTietTableModel.getColumnName(col));
@@ -767,22 +660,29 @@ public class PanelThongKeVe extends JPanel {
             }
 
             for (int row = 0; row < chiTietTableModel.getRowCount(); row++) {
-                Row dataRow = sheet.createRow(row + 3);
+                Row dataRow = sheet.createRow(startRow + 1 + row);
                 for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
                     Cell cell = dataRow.createCell(col);
                     Object value = chiTietTableModel.getValueAt(row, col);
 
-                    if (value instanceof Integer) cell.setCellValue((Integer) value);
-                    else if (value instanceof Double) {
+                    if (value instanceof Integer) {
+                        cell.setCellValue((Integer) value);
+                        cell.setCellStyle(dataStyle);
+                    } else if (value instanceof Double) {
                         cell.setCellValue((Double) value);
                         cell.setCellStyle(currencyCellStyle);
                     } else if (value instanceof String) {
                         cell.setCellValue((String) value);
                         if (col == 1) cell.setCellStyle(centerStyle);
-                    } else if (value != null) cell.setCellValue(value.toString());
+                        else cell.setCellStyle(dataStyle);
+                    } else {
+                        if (value != null) cell.setCellValue(value.toString());
+                        cell.setCellStyle(dataStyle);
+                    }
                 }
             }
             for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) sheet.autoSizeColumn(col);
+
             workbook.write(outputStream);
             JOptionPane.showMessageDialog(this, "Xuất Excel thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(finalFileToSave);
@@ -791,114 +691,218 @@ public class PanelThongKeVe extends JPanel {
         }
     }
 
+    // ================== UTILS UI ==================
+    private JPanel buildFilterBar() {
+        JPanel bar = new JPanel(new GridBagLayout());
+        bar.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 10, 6, 10);
+        gbc.anchor = GridBagConstraints.WEST; gbc.fill = GridBagConstraints.HORIZONTAL;
+        Dimension comboSize = new Dimension(250, 32);
+
+        // Hàng 0
+        gbc.gridx = 0; gbc.gridy = 0; bar.add(new JLabel("Loại thời gian:"), gbc);
+        gbc.gridx = 1; cbLoaiThoiGian.setPreferredSize(comboSize); bar.add(cbLoaiThoiGian, gbc);
+        gbc.gridx = 2; filterSwitcher.setOpaque(false);
+        filterSwitcher.add(buildTatCaFilter(), CARD_TATCA);
+        filterSwitcher.add(buildNgayFilter(), CARD_NGAY);
+        filterSwitcher.add(buildThangFilter(), CARD_THANG);
+        filterSwitcher.add(buildNamFilter(), CARD_NAM);
+        filterSwitcher.setPreferredSize(new Dimension(350, 32));
+        bar.add(filterSwitcher, gbc);
+
+        // Hàng 1
+        gbc.gridx = 0; gbc.gridy = 1; bar.add(new JLabel("Lọc tuyến:"), gbc);
+        gbc.gridx = 1; cbLoaiTuyen.setPreferredSize(comboSize); bar.add(cbLoaiTuyen, gbc);
+
+        JPanel panelGa = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0)); panelGa.setOpaque(false);
+        panelGa.add(new JLabel("Ga đi:")); cbGaDi.setPreferredSize(comboSize); panelGa.add(cbGaDi);
+        panelGa.add(new JLabel("Ga đến:")); cbGaDen.setPreferredSize(comboSize); panelGa.add(cbGaDen);
+        JPanel panelLoaiVe = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0)); panelLoaiVe.setOpaque(false);
+        panelLoaiVe.add(new JLabel("Loại vé:")); cbLoaiVe.setPreferredSize(comboSize); panelLoaiVe.add(cbLoaiVe);
+
+        JPanel panelCot2 = new JPanel(new GridLayout(2, 1, 0, 4)); panelCot2.setOpaque(false);
+        panelCot2.add(panelGa); panelCot2.add(panelLoaiVe);
+        gbc.gridx = 2; gbc.gridy = 1; gbc.gridheight = 2; bar.add(panelCot2, gbc); gbc.gridheight = 1;
+
+        // Hàng 2
+        gbc.gridx = 0; gbc.gridy = 2; bar.add(new JLabel("Nhân viên:"), gbc);
+        gbc.gridx = 1; cbNhanVien.setPreferredSize(comboSize); bar.add(cbNhanVien, gbc);
+
+        // Hàng 3
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 3;
+        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); panelButtons.setOpaque(false);
+        btnTimKiem.setText("Tìm kiếm"); btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
+        btnTimKiem.setBackground(new Color(33, 150, 83)); btnTimKiem.setForeground(Color.WHITE);
+        btnTimKiem.setPreferredSize(new Dimension(120, 35));
+        btnXoaBoLoc.setPreferredSize(new Dimension(120, 35));
+        panelButtons.add(btnTimKiem); panelButtons.add(btnXoaBoLoc);
+        bar.add(panelButtons, gbc);
+
+        // Events
+        cbLoaiThoiGian.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                CardLayout cl = (CardLayout) filterSwitcher.getLayout();
+                switch ((String) e.getItem()) {
+                    case "Theo ngày" -> cl.show(filterSwitcher, CARD_NGAY);
+                    case "Theo tháng" -> cl.show(filterSwitcher, CARD_THANG);
+                    case "Theo năm" -> cl.show(filterSwitcher, CARD_NAM);
+                    default -> cl.show(filterSwitcher, CARD_TATCA);
+                }
+            }
+        });
+
+        // --- SỰ KIỆN KHÓA/MỞ & RESET GA ---
+        cbLoaiTuyen.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                String val = (String) e.getItem();
+                boolean enable = val != null && val.equals("Theo Ga đi/đến");
+                cbGaDi.setEnabled(enable);
+                cbGaDen.setEnabled(enable);
+                if (!enable) {
+                    ((JTextField)cbGaDi.getEditor().getEditorComponent()).setText("");
+                    ((JTextField)cbGaDen.getEditor().getEditorComponent()).setText("");
+                }
+            }
+        });
+        cbGaDi.setEnabled(false);
+        cbGaDen.setEnabled(false);
+
+        btnTimKiem.addActionListener(e -> xuLyThongKe());
+        ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
+
+        return bar;
+    }
+
+    private JPanel taoPanelTongQuan() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
+        JLabel placeholder = new JLabel("📊 Chọn bộ lọc và nhấn Tìm kiếm", SwingConstants.CENTER);
+        placeholder.setFont(new Font("Times New Roman", Font.ITALIC, 16));
+        placeholder.setForeground(Color.GRAY);
+        panel.add(placeholder, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel taoPanelChiTiet(JComponent title, JTable table, JPanel bottomPanel) {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
+        panel.add(title, BorderLayout.NORTH);
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    private void loadComboBoxesData() {
+        try {
+            danhSachGaGoc = thongKeVeDAO.getDanhSachTenGa();
+            cbGaDi.removeAllItems();
+            cbGaDen.removeAllItems();
+            if (danhSachGaGoc == null || danhSachGaGoc.isEmpty()) {
+                cbGaDi.addItem("Lỗi");
+                cbGaDen.addItem("Lỗi");
+            } else {
+                for (String ga : danhSachGaGoc) {
+                    cbGaDi.addItem(ga);
+                    cbGaDen.addItem(ga);
+                }
+                setupAutoComplete(cbGaDi, danhSachGaGoc);
+                setupAutoComplete(cbGaDen, danhSachGaGoc);
+            }
+            if (danhSachGaGoc != null) {
+                if (danhSachGaGoc.contains("Sài Gòn")) cbGaDi.setSelectedItem("Sài Gòn");
+                if (danhSachGaGoc.contains("Hà Nội")) cbGaDen.setSelectedItem("Hà Nội");
+            }
+        } catch (Exception e) { LOGGER.log(Level.WARNING, "Lỗi load ga", e); }
+
+        try {
+            Map<String, String> dsNhanVien = thongKeVeDAO.getDanhSachNhanVien();
+            nhanVienMap.clear(); cbNhanVien.removeAllItems(); cbNhanVien.addItem("Tất cả");
+            if (dsNhanVien != null) for (Map.Entry<String, String> e : dsNhanVien.entrySet()) {
+                String d = e.getValue() + " (" + e.getKey() + ")";
+                nhanVienMap.put(d, e.getKey()); cbNhanVien.addItem(d);
+            }
+        } catch (Exception e) { LOGGER.log(Level.WARNING, "Lỗi load NV", e); }
+
+        try {
+            Map<String, String> dsHangToa = thongKeVeDAO.getDanhSachLoaiVe();
+            hangToaMap.clear(); cbLoaiVe.removeAllItems(); cbLoaiVe.addItem("Tất cả");
+            if (dsHangToa != null) for (Map.Entry<String, String> e : dsHangToa.entrySet()) {
+                hangToaMap.put(e.getValue(), e.getKey()); cbLoaiVe.addItem(e.getValue());
+            }
+        } catch (Exception e) { LOGGER.log(Level.WARNING, "Lỗi load Loại vé", e); }
+    }
+
+    // --- UTILS: ValueLabel, Card, Loading, Date Check ---
+    private JLabel createValueLabel(String initialText) {
+        JLabel label = new JLabel(initialText, SwingConstants.CENTER);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        return label;
+    }
+    private JPanel createCard(String title, JLabel valueLabel, Color color) {
+        JPanel card = new JPanel(new BorderLayout(0, 5));
+        JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+        card.setBackground(color);
+        card.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
+        card.add(titleLabel, BorderLayout.NORTH);
+        card.add(valueLabel, BorderLayout.CENTER);
+        return card;
+    }
     private void handleLoadingError(Exception ex, String context) {
         setCursor(Cursor.getDefaultCursor());
         LOGGER.log(Level.SEVERE, context, ex);
         JOptionPane.showMessageDialog(this, context + ":\n" + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
     }
-
     private boolean kiemTraKhoangNgayHopLe(Date from, Date to) {
-        if (from == null || to == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn đủ ngày.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
-        if (!isSameDay(from, to) && to.before(from)) {
-            JOptionPane.showMessageDialog(this, "Ngày kết thúc phải ≥ ngày bắt đầu.", "Lỗi", JOptionPane.WARNING_MESSAGE);
-            return false;
-        }
+        if (from == null || to == null) { JOptionPane.showMessageDialog(this, "Vui lòng chọn đủ ngày."); return false; }
+        if (!isSameDay(from, to) && to.before(from)) { JOptionPane.showMessageDialog(this, "Ngày kết thúc phải ≥ ngày bắt đầu."); return false; }
         return true;
     }
-
     private void capNhatChartRong(String msg) {
         SwingUtilities.invokeLater(() -> {
-            chartPanelContainer.removeAll();
-            JLabel l = new JLabel(msg, SwingConstants.CENTER);
-            chartPanelContainer.add(l, BorderLayout.CENTER);
-            chartPanelContainer.revalidate();
-            chartPanelContainer.repaint();
+            chartPanelContainer.removeAll(); chartPanelContainer.add(new JLabel(msg, SwingConstants.CENTER));
+            chartPanelContainer.revalidate(); chartPanelContainer.repaint();
         });
     }
-
-    private void capNhatBangRong() {
-        SwingUtilities.invokeLater(() -> chiTietTableModel.setRowCount(0));
-    }
-
+    private void capNhatBangRong() { SwingUtilities.invokeLater(() -> chiTietTableModel.setRowCount(0)); }
     private boolean isSameDay(Date d1, Date d2) {
-        if (d1 == null || d2 == null) return false;
-        Calendar c1 = Calendar.getInstance(); c1.setTime(d1);
-        Calendar c2 = Calendar.getInstance(); c2.setTime(d2);
+        Calendar c1 = Calendar.getInstance(); c1.setTime(d1); Calendar c2 = Calendar.getInstance(); c2.setTime(d2);
         return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
     }
-
     private String fmtD(LocalDate d) { return d.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")); }
     private int nvl(Integer v, int def) { return v == null ? def : v; }
 
-    private JPanel buildTatCaFilter() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); p.setOpaque(false);
-        p.add(new JLabel("Hiển thị dữ liệu theo năm"));
-        p.setPreferredSize(new Dimension(300, 30)); return p;
-    }
-    private JPanel buildNgayFilter() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false);
-        tuNgay.setDateFormatString("dd/MM/yyyy"); denNgay.setDateFormatString("dd/MM/yyyy");
-        tuNgay.setPreferredSize(new Dimension(160, 28)); denNgay.setPreferredSize(new Dimension(160, 28));
-        tuNgay.setDate(new Date()); denNgay.setDate(new Date());
-        addDateConstraint(tuNgay, denNgay);
-        p.add(new JLabel("Từ:")); p.add(tuNgay); p.add(new JLabel("Đến:")); p.add(denNgay); return p;
-    }
-    private JPanel buildThangFilter() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); p.setOpaque(false);
-        if (cbTuThang.getItemCount() == 0) {
-            for (int i = 1; i <= 12; i++) { cbTuThang.addItem("Tháng " + i); cbDenThang.addItem("Tháng " + i); }
-            int cy = Calendar.getInstance().get(Calendar.YEAR);
-            for (int y = 2020; y <= cy + 5; y++) { cbTuNamThang.addItem(y); cbDenNamThang.addItem(y); }
-            cbTuThang.setSelectedIndex(Calendar.getInstance().get(Calendar.MONTH));
-            cbDenThang.setSelectedIndex(Calendar.getInstance().get(Calendar.MONTH));
-            cbTuNamThang.setSelectedItem(cy); cbDenNamThang.setSelectedItem(cy);
-        }
-        Dimension m = new Dimension(120, 28); Dimension y = new Dimension(120, 28);
-        cbTuThang.setPreferredSize(m); cbDenThang.setPreferredSize(m);
-        cbTuNamThang.setPreferredSize(y); cbDenNamThang.setPreferredSize(y);
-        p.add(new JLabel("Từ:")); p.add(cbTuThang); p.add(cbTuNamThang);
-        p.add(new JLabel("Đến:")); p.add(cbDenThang); p.add(cbDenNamThang); return p;
-    }
-    private JPanel buildNamFilter() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false);
-        if (cbTuNam.getItemCount() == 0) {
-            int cy = Calendar.getInstance().get(Calendar.YEAR);
-            for (int y = 2020; y <= cy + 5; y++) { cbTuNam.addItem(y); cbDenNam.addItem(y); }
-            cbTuNam.setSelectedItem(cy); cbDenNam.setSelectedItem(cy);
-        }
-        Dimension d = new Dimension(120, 28);
-        cbTuNam.setPreferredSize(d); cbDenNam.setPreferredSize(d);
-        p.add(new JLabel("Từ năm:")); p.add(cbTuNam); p.add(new JLabel("Đến năm:")); p.add(cbDenNam); return p;
-    }
-    private void addDateConstraint(JDateChooser f, JDateChooser t) {
-        PropertyChangeListener l = evt -> {
-            if (!"date".equals(evt.getPropertyName())) return;
-            Date d1 = f.getDate(), d2 = t.getDate();
-            if (d1 != null && d2 != null && !isSameDay(d1, d2) && d2.before(d1)) t.setDate(d1);
-        };
-        f.addPropertyChangeListener("date", l); t.addPropertyChangeListener("date", l);
-    }
+    private JPanel buildTatCaFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); p.setOpaque(false); p.add(new JLabel("Hiển thị dữ liệu theo năm")); p.setPreferredSize(new Dimension(300, 30)); return p; }
+    private JPanel buildNgayFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false); tuNgay.setDateFormatString("dd/MM/yyyy"); denNgay.setDateFormatString("dd/MM/yyyy"); tuNgay.setPreferredSize(new Dimension(160, 28)); denNgay.setPreferredSize(new Dimension(160, 28)); tuNgay.setDate(new Date()); denNgay.setDate(new Date()); addDateConstraint(tuNgay, denNgay); p.add(new JLabel("Từ:")); p.add(tuNgay); p.add(new JLabel("Đến:")); p.add(denNgay); return p; }
+    private JPanel buildThangFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0)); p.setOpaque(false); if (cbTuThang.getItemCount() == 0) { for (int i = 1; i <= 12; i++) { cbTuThang.addItem("Tháng " + i); cbDenThang.addItem("Tháng " + i); } int cy = Calendar.getInstance().get(Calendar.YEAR); for (int y = 2020; y <= cy + 5; y++) { cbTuNamThang.addItem(y); cbDenNamThang.addItem(y); } cbTuThang.setSelectedIndex(Calendar.getInstance().get(Calendar.MONTH)); cbDenThang.setSelectedIndex(Calendar.getInstance().get(Calendar.MONTH)); cbTuNamThang.setSelectedItem(cy); cbDenNamThang.setSelectedItem(cy); } Dimension m = new Dimension(120, 28); Dimension y = new Dimension(120, 28); cbTuThang.setPreferredSize(m); cbDenThang.setPreferredSize(m); cbTuNamThang.setPreferredSize(y); cbDenNamThang.setPreferredSize(y); p.add(new JLabel("Từ:")); p.add(cbTuThang); p.add(cbTuNamThang); p.add(new JLabel("Đến:")); p.add(cbDenThang); p.add(cbDenNamThang); return p; }
+    private JPanel buildNamFilter() { JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0)); p.setOpaque(false); if (cbTuNam.getItemCount() == 0) { int cy = Calendar.getInstance().get(Calendar.YEAR); for (int y = 2020; y <= cy + 5; y++) { cbTuNam.addItem(y); cbDenNam.addItem(y); } cbTuNam.setSelectedItem(cy); cbDenNam.setSelectedItem(cy); } Dimension d = new Dimension(120, 28); cbTuNam.setPreferredSize(d); cbDenNam.setPreferredSize(d); p.add(new JLabel("Từ năm:")); p.add(cbTuNam); p.add(new JLabel("Đến năm:")); p.add(cbDenNam); return p; }
+    private void addDateConstraint(JDateChooser f, JDateChooser t) { PropertyChangeListener l = evt -> { if (!"date".equals(evt.getPropertyName())) return; Date d1 = f.getDate(), d2 = t.getDate(); if (d1 != null && d2 != null && !isSameDay(d1, d2) && d2.before(d1)) t.setDate(d1); }; f.addPropertyChangeListener("date", l); t.addPropertyChangeListener("date", l); }
+
     private void xoaBoLoc() {
         cbLoaiThoiGian.setSelectedIndex(0);
         tuNgay.setDate(new Date()); denNgay.setDate(new Date());
         Calendar now = Calendar.getInstance();
-        cbTuThang.setSelectedIndex(now.get(Calendar.MONTH));
-        cbDenThang.setSelectedIndex(now.get(Calendar.MONTH));
-        cbTuNam.setSelectedItem(now.get(Calendar.YEAR));
-        cbDenNam.setSelectedItem(now.get(Calendar.YEAR));
+        cbTuThang.setSelectedIndex(now.get(Calendar.MONTH)); cbDenThang.setSelectedIndex(now.get(Calendar.MONTH));
+        cbTuNam.setSelectedItem(now.get(Calendar.YEAR)); cbDenNam.setSelectedItem(now.get(Calendar.YEAR));
 
         cbLoaiTuyen.setSelectedIndex(0);
         cbGaDi.setEnabled(false);
         cbGaDen.setEnabled(false);
+        // Reset text nhập trong Editor
+        ((JTextField)cbGaDi.getEditor().getEditorComponent()).setText("");
+        ((JTextField)cbGaDen.getEditor().getEditorComponent()).setText("");
 
         if (cbNhanVien.getItemCount() > 0) cbNhanVien.setSelectedIndex(0);
         if (cbLoaiVe.getItemCount() > 0) cbLoaiVe.setSelectedIndex(0);
         if (cbGaDi.getItemCount() > 0) cbGaDi.setSelectedIndex(0);
         if (cbGaDen.getItemCount() > 1) cbGaDen.setSelectedIndex(1);
-
         xuLyThongKe();
     }
 }

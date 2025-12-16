@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -16,7 +18,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.apache.poi.ss.usermodel.Workbook;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class PanelBaoCao extends JPanel {
@@ -276,14 +280,28 @@ public class PanelBaoCao extends JPanel {
     // PHƯƠNG THỨC XUẤT FILE EXCEL
     // =================================================================
     private void exportToExcel() {
+        // =================================================================
+        // 1. RÀNG BUỘC: BẮT BUỘC PHẢI NHẬP TIỀN MẶT MỚI ĐƯỢC XUẤT FILE
+        // =================================================================
+        if (!giaoCaModel.isGiaoCaConfirmed()) {
+            JOptionPane.showMessageDialog(this,
+                    "Bạn chưa thực hiện kiểm kê tiền mặt!\nVui lòng nhấn nút 'Nhập tiền mặt' và xác nhận trước khi xuất file báo cáo.",
+                    "Chưa kiểm kê",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         if (reportTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu hóa đơn để xuất.");
             return;
         }
 
+        // =================================================================
+        // 2. CHỌN NƠI LƯU FILE
+        // =================================================================
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Lưu file báo cáo");
-        String defaultFileName = "BaoCaoCuoiCa_" + ngayLV.replace("/", "-") + "_" + caLV.replace(" ", "_") + ".xlsx";
+        String defaultFileName = "BaoCao_" + ngayLV.replace("/", "-") + "_" + caLV.replace(" ", "_") + ".xlsx";
         fileChooser.setSelectedFile(new java.io.File(defaultFileName));
 
         int userSelection = fileChooser.showSaveDialog(this);
@@ -297,36 +315,113 @@ public class PanelBaoCao extends JPanel {
         }
 
         try (Workbook workbook = new XSSFWorkbook()) {
-            // --- Sheet 1: Chi tiết hóa đơn ---
+
+            // --- TẠO STYLE DÙNG CHUNG ---
+            CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            CellStyle tableHeaderStyle = workbook.createCellStyle();
+            tableHeaderStyle.cloneStyleFrom(headerStyle);
+            tableHeaderStyle.setBorderBottom(BorderStyle.THIN);
+            tableHeaderStyle.setBorderTop(BorderStyle.THIN);
+            tableHeaderStyle.setBorderLeft(BorderStyle.THIN);
+            tableHeaderStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle titleBigStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font titleFont = workbook.createFont();
+            titleFont.setBold(true);
+            titleFont.setFontHeightInPoints((short) 16);
+            titleBigStyle.setFont(titleFont);
+            titleBigStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            // =================================================================
+            // SHEET 1: CHI TIẾT HÓA ĐƠN (CÓ HEADER + BẢNG)
+            // =================================================================
             org.apache.poi.ss.usermodel.Sheet sheet1 = workbook.createSheet("ChiTietHoaDon");
 
-            org.apache.poi.ss.usermodel.Row header1 = sheet1.createRow(0);
+            // --- Phần Header Sheet 1 ---
+            // Dòng 0: Tiêu đề lớn
+            Row row0 = sheet1.createRow(0);
+            row0.setHeightInPoints(30);
+            Cell cellTitle = row0.createCell(0);
+            cellTitle.setCellValue("DANH SÁCH HÓA ĐƠN CHI TIẾT");
+            cellTitle.setCellStyle(titleBigStyle);
+            sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, 5)); // Merge cột A-F
+
+            // Dòng 2: Thông tin Nhân viên - Ca - Ngày
+            Row row2 = sheet1.createRow(2);
+            row2.setHeightInPoints(25);
+
+            // Nhân viên
+            Cell cellNV = row2.createCell(0);
+            cellNV.setCellValue("NV: " + tenNV);
+            cellNV.setCellStyle(headerStyle);
+            sheet1.addMergedRegion(new CellRangeAddress(2, 2, 0, 1));
+
+            // Ca làm việc
+            Cell cellCa = row2.createCell(2);
+            cellCa.setCellValue("Ca: " + caLV);
+            cellCa.setCellStyle(headerStyle);
+            sheet1.addMergedRegion(new CellRangeAddress(2, 2, 2, 3));
+
+            // Ngày làm việc
+            Cell cellNgay = row2.createCell(4);
+            cellNgay.setCellValue("Ngày: " + ngayLV);
+            cellNgay.setCellStyle(headerStyle);
+            sheet1.addMergedRegion(new CellRangeAddress(2, 2, 4, 5));
+
+            // --- Phần Bảng Sheet 1 ---
+            int startRowSheet1 = 4; // Bắt đầu bảng từ dòng 5
+
+            // Header Bảng
+            org.apache.poi.ss.usermodel.Row header1 = sheet1.createRow(startRowSheet1);
             for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
-                header1.createCell(i).setCellValue(reportTableModel.getColumnName(i));
+                Cell cell = header1.createCell(i);
+                cell.setCellValue(reportTableModel.getColumnName(i));
+                cell.setCellStyle(tableHeaderStyle);
             }
 
+            // Dữ liệu Bảng
             for (int row = 0; row < reportTableModel.getRowCount(); row++) {
-                org.apache.poi.ss.usermodel.Row excelRow = sheet1.createRow(row + 1);
+                org.apache.poi.ss.usermodel.Row excelRow = sheet1.createRow(startRowSheet1 + 1 + row);
                 for (int col = 0; col < reportTableModel.getColumnCount(); col++) {
                     Object value = reportTableModel.getValueAt(row, col);
-                    excelRow.createCell(col).setCellValue(value == null ? "" : value.toString());
+                    Cell cell = excelRow.createCell(col);
+                    cell.setCellValue(value == null ? "" : value.toString());
+                    cell.setCellStyle(dataStyle);
                 }
             }
+
+            // Auto size cột sheet 1
             for (int i = 0; i < reportTableModel.getColumnCount(); i++) {
                 sheet1.autoSizeColumn(i);
             }
 
-            // --- Sheet 2: Tổng kết & Bảng kê ---
+            // =================================================================
+            // SHEET 2: TỔNG KẾT & BẢNG KÊ (GIỮ NGUYÊN CODE CŨ CỦA BẠN)
+            // =================================================================
             org.apache.poi.ss.usermodel.Sheet sheet2 = workbook.createSheet("TongKet");
 
             int rowNum = 0;
-            sheet2.createRow(rowNum++).createCell(0).setCellValue("BÁO CÁO CUỐI CA");
+            sheet2.createRow(rowNum++).createCell(0).setCellValue("BÁO CÁO TỔNG KẾT CA");
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Nhân viên: " + tenNV);
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Ca làm việc: " + caLV);
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Ngày làm việc: " + ngayLV);
             rowNum++;
 
+            // Phần tổng kết tài chính
             sheet2.createRow(rowNum++).createCell(0).setCellValue("TỔNG KẾT TÀI CHÍNH:");
+
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Tổng tiền mặt (Hệ thống):");
             sheet2.getRow(rowNum - 1).createCell(1).setCellValue(lblTongTTHuyetThong.getText());
 
@@ -345,41 +440,30 @@ public class PanelBaoCao extends JPanel {
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Chênh lệnh (A - B):");
             sheet2.getRow(rowNum - 1).createCell(1).setCellValue(lblTongTienChenhLech.getText());
 
-            // ============================================================
-            // ĐOẠN CODE IN CHI TIẾT TIỀN MẶT
-            // ============================================================
-            rowNum++; // Dòng trống
+            // Phần chi tiết tiền mặt
+            rowNum++;
             org.apache.poi.ss.usermodel.Row titleRow = sheet2.createRow(rowNum++);
             titleRow.createCell(0).setCellValue("CHI TIẾT TIỀN MẶT THỰC TẾ:");
 
-            // Lấy Map từ model
             Map<Integer, Integer> mapTien = giaoCaModel.getChiTietTienMat();
 
             if (mapTien != null && !mapTien.isEmpty()) {
-                // Sắp xếp mệnh giá từ Lớn -> Bé
                 List<Integer> sortedKeys = new ArrayList<>(mapTien.keySet());
                 sortedKeys.sort((a, b) -> b - a);
 
                 for (Integer menhGia : sortedKeys) {
                     int soLuong = mapTien.get(menhGia);
                     org.apache.poi.ss.usermodel.Row rowTien = sheet2.createRow(rowNum++);
-
-                    // Cột A: Mệnh giá (VD: 500.000)
                     rowTien.createCell(0).setCellValue(currencyFormatter.format(menhGia));
-
-                    // Cột B: Số lượng (VD: x 10)
                     rowTien.createCell(1).setCellValue("x " + soLuong);
-
-                    // Cột C: Thành tiền (VD: = 5.000.000)
                     double thanhTien = (double) menhGia * soLuong;
                     rowTien.createCell(2).setCellValue("= " + currencyFormatter.format(thanhTien));
                 }
             } else {
                 sheet2.createRow(rowNum++).createCell(0).setCellValue("(Chưa có dữ liệu chi tiết)");
             }
-            rowNum++; // Dòng trống
-            // ============================================================
 
+            rowNum++;
             sheet2.createRow(rowNum++).createCell(0).setCellValue("Ghi chú:");
             sheet2.createRow(rowNum++).createCell(0).setCellValue(txtGhiChuReport.getText());
 
@@ -387,11 +471,23 @@ public class PanelBaoCao extends JPanel {
             sheet2.autoSizeColumn(1);
             sheet2.autoSizeColumn(2);
 
+            // =================================================================
+            // GHI FILE VÀ TỰ ĐỘNG MỞ
+            // =================================================================
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 workbook.write(fos);
             }
 
-            JOptionPane.showMessageDialog(this, "Xuất file báo cáo thành công!\n" + filePath);
+            // Tự động mở file sau khi xuất
+            java.io.File file = new java.io.File(filePath);
+            if (java.awt.Desktop.isDesktopSupported()) {
+                java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+                if (file.exists()) {
+                    desktop.open(file);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Xuất file báo cáo thành công!\n" + filePath);
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();

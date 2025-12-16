@@ -20,6 +20,7 @@ import gui.application.UngDung;
 import gui.application.form.FormDangNhap;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.dashboard.Dashboard;
+import gui.application.paymentHelper.NgrokRunner;
 
 public class DangNhap_Ctrl {
 	private TaiKhoan_DAO taiKhoan_DAO = new TaiKhoan_DAO();;
@@ -71,7 +72,8 @@ public class DangNhap_Ctrl {
 			} else {
 				ungDung.showGiaoDienChinh(new Dashboard());
 			}
-			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
+            NgrokRunner.startNgrok();
+            SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
 		}
 	}
 

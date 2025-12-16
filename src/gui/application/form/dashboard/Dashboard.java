@@ -141,7 +141,7 @@ public class Dashboard extends JPanel {
                 }
                 invoiceAnalysisChart.setData(sold, refund, currentFmt);
 
-                // --- 4. CƠ CẤU KHÁCH (Đã xóa Promotion Chart) ---
+                // --- 4. CƠ CẤU KHÁCH ---
                 customerSplitChart.setData(dashboardDAO.getCustomerSplitData(startDate, endDate));
 
                 return null;
