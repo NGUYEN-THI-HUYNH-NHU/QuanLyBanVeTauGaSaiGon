@@ -23,6 +23,7 @@ import dao.Ga_DAO;
 import dao.KhoangCachChuan_DAO;
 import dao.TuyenChiTiet_DAO;
 import dao.Tuyen_DAO;
+import entity.Ga;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
 
@@ -210,17 +211,16 @@ public class Tuyen_BUS {
 	/**
 	 * tạo mã tuyến
 	 */
-	public String taoMaTuyenCoSo(String gaXuatPhat, String gaDich) {
-		if (gaXuatPhat == null || gaXuatPhat.isEmpty() || gaDich == null || gaDich.isEmpty()) {
+	public String taoMaTuyenCoSo(String tenGaDi, String tenGaDen) {
+		Ga gaDi = ga_dao.getGaByTenGa(tenGaDi);
+		Ga gaDen = ga_dao.getGaByTenGa(tenGaDen);
+
+		if (gaDi == null || gaDen == null) {
 			return "";
 		}
-		String maDi = ga_dao.getGaByTenGa(gaXuatPhat).getGaID();
-		String maDen = ga_dao.getGaByTenGa(gaDich).getGaID();
-
-		if (maDi.length() < 3 || maDen.length() < 3) {
-			return maDi + "-" + maDen;
-		}
-		return maDi + "-" + maDen;
+		
+		String maTuyen = gaDi.getGaID() + "-" + gaDen.getGaID();
+		return maTuyen;
 	}
 
 	/**

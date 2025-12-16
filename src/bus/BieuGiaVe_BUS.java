@@ -11,6 +11,8 @@ package bus;
  * @date: Nov 27, 2025
  * @version: 1.0
  */
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import dao.BieuGiaVe_DAO;
@@ -23,6 +25,10 @@ public class BieuGiaVe_BUS {
 		return dao.getAllBieuGia();
 	}
 
+	public List<BieuGiaVe> timKiem(String tuKhoa, String tuyenID, String loaiTauID) {
+		return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID);
+	}
+
 	public String themBieuGia(BieuGiaVe bg) {
 		// Validation
 		String loi = kiemTraHopLe(bg);
@@ -30,14 +36,24 @@ public class BieuGiaVe_BUS {
 			return loi;
 		}
 
-		// Sinh ID tự động (Nếu ID chưa có)
-		if (bg.getBieuGiaVeID() == null || bg.getBieuGiaVeID().isEmpty()) {
-			// Ví dụ sinh mã: BG + TimeMillis hoặc UUID
-			bg.setBieuGiaVeID("BG" + System.currentTimeMillis());
-		}
+		String newID = taoMaBieuGia(bg.getNgayBatDau(), bg.getNgayKetThuc());
+		bg.setBieuGiaVeID(newID);
 
 		return dao.themBieuGia(bg) ? "Thêm thành công" : "Thêm thất bại (Lỗi DB)";
 	}
+
+	private String taoMaBieuGia(LocalDate ngayBD, LocalDate ngayKT) {
+
+		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+		String start = ngayBD.format(fmt);
+		String end = (ngayKT != null)
+				? ngayKT.format(fmt)
+				: "VOHIEULUC";
+
+		return "BGV_" + start + "_" + end;
+	}
+
 
 	public String capNhatBieuGia(BieuGiaVe bg) {
 		String loi = kiemTraHopLe(bg);

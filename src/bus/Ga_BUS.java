@@ -65,6 +65,9 @@ public class Ga_BUS {
         return dsTenGa;
     }
 
+    public List<Ga> getAllGa(){
+        return ga_dao.getAllGa();
+    }
     /**
      * Loại bỏ dấu tiếng việt
      * @param input Chuỗi cần loại bỏ dấu

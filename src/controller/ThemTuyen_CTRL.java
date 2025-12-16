@@ -69,18 +69,15 @@ public class ThemTuyen_CTRL {
     }
 
     private void khoiTaoDuLieuBanDau(){
-        listTenGaGoc = gaBus.getDanhSachTenGa();
+        List<Ga> listGaFull = gaBus.getAllGa();
 
-        for(String tenGa : listTenGaGoc){
-            Ga ga = gaBus.getGaByTenGa(tenGa);
-            if(ga != null){
-                dsGaCoSan.put(tenGa, ga);
-            }
+        listTenGaGoc = new ArrayList<>();
+        dsGaCoSan.clear();
+
+        for(Ga ga : listGaFull){
+            dsGaCoSan.put(ga.getTenGa(), ga);
+            listTenGaGoc.add(ga.getTenGa());
         }
-
-        setModelToComboBox(panelThemTuyen.getTxtGaXuatPhat());
-        setModelToComboBox(panelThemTuyen.getTxtGaDich());
-        setModelToComboBox(panelThemTuyen.getTxtGaTrungGian());
     }
 
     private void setModelToComboBox(JComboBox<String> cbo){
@@ -89,9 +86,9 @@ public class ThemTuyen_CTRL {
     }
 
     private void thietLapListener(){
-        JTextField txtXP = (JTextField) panelThemTuyen.getTxtGaXuatPhat().getEditor().getEditorComponent();
-        JTextField txtDich = (JTextField) panelThemTuyen.getTxtGaDich().getEditor().getEditorComponent();
-        JTextField txtTG = (JTextField) panelThemTuyen.getTxtGaTrungGian().getEditor().getEditorComponent();
+        JTextField txtXP = panelThemTuyen.getTxtGaXuatPhat();
+        JTextField txtDich = panelThemTuyen.getTxtGaDich();
+        JTextField txtTG = panelThemTuyen.getTxtGaTrungGian();
 
         taoPopupGoiY(txtXP, ppGaXuatPhat, lstGaXuatPhat,
                 input -> locDuLieu(listTenGaGoc, input),
@@ -105,8 +102,8 @@ public class ThemTuyen_CTRL {
                 input -> locDuLieu(listTenGaGoc, input),
                 null);
 
-        setupUpdateMatuyenEvent(panelThemTuyen.getTxtGaXuatPhat());
-        setupUpdateMatuyenEvent(panelThemTuyen.getTxtGaDich());
+        setupUpdateMatuyenEvent(txtXP);
+        setupUpdateMatuyenEvent(txtDich);
 
         txtTG.addKeyListener(new KeyAdapter() {
             @Override
@@ -132,20 +129,21 @@ public class ThemTuyen_CTRL {
     }
 
     private List<String> locDuLieu(List<String> src, String input){
-        if(src == null || input.isEmpty()) return new ArrayList<>();
+        if(src == null) return new ArrayList<>();
+
+        if (input.trim().isEmpty()) {
+            return new ArrayList<>(src);
+        }
+
         String inputNorm = unAccent(input);
         return src.stream()
                 .filter(s -> unAccent(s).contains(inputNorm))
-                .limit(10)
+                .limit(20)
                 .collect(Collectors.toList());
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp, Function<String, List<String>> timKiem){
         String input = txt.getText().trim();
-        if(input.isEmpty()){
-            pp.setVisible(false);
-            return;
-        }
 
         List<String> ds = timKiem.apply(input);
         if(ds == null || ds.isEmpty()){
@@ -153,10 +151,16 @@ public class ThemTuyen_CTRL {
             return;
         }
 
+        if (ds.size() == 1 && ds.get(0).equalsIgnoreCase(input)) {
+            pp.setVisible(false);
+            return;
+        }
+
         lst.setListData(ds.toArray(new String[0]));
-        lst.setVisibleRowCount(Math.min(ds.size(), 8));
+        lst.setVisibleRowCount(Math.min(ds.size(), 10));
 
         if(txt.isShowing()){
+            pp.setPopupSize(txt.getWidth(), pp.getPreferredSize().height);
             pp.show(txt, 0, txt.getHeight());
             txt.requestFocus();
         }
@@ -186,6 +190,12 @@ public class ThemTuyen_CTRL {
             @Override public void insertUpdate(DocumentEvent e) { update(); }
             @Override public void removeUpdate(DocumentEvent e) { update(); }
             @Override public void changedUpdate(DocumentEvent e) { update(); }
+        });
+        txt.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                hienThiGoiY(txt, lst, pp, timKiem);
+            }
         });
         lst.addMouseListener(new MouseAdapter() {
             @Override public void mousePressed(MouseEvent e) {
@@ -218,20 +228,34 @@ public class ThemTuyen_CTRL {
                         }
                         e.consume();
                     } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                        if (lst.getSelectedValue() != null) {
-                            txt.setText(lst.getSelectedValue());
-                            pp.setVisible(false);
-                            capNhatMaTuyen();
-                            if(nextFocus != null){
-                                nextFocus.requestFocusInWindow();
+                        if (pp.isVisible()) {
+                            if (lst.getSelectedIndex() == -1 && lst.getModel().getSize() > 0) {
+                                lst.setSelectedIndex(0);
                             }
+                            if (lst.getSelectedValue() != null) {
+                                txt.setText(lst.getSelectedValue());
+                                pp.setVisible(false);
+                                capNhatMaTuyen();
+
+                                if (nextFocus != null) {
+                                    nextFocus.requestFocusInWindow();
+                                }
+                            }
+                            e.consume();
                         }
-                        e.consume();
                     }
+                }
+                else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    hienThiGoiY(txt, lst, pp, timKiem);
                 }
             }
         });
         txt.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+//                SwingUtilities.invokeLater(() -> hienThiGoiY(txt, lst, pp, timKiem));
+            }
+
             @Override
             public void focusLost(FocusEvent e) {
                 SwingUtilities.invokeLater(() -> {
@@ -243,8 +267,7 @@ public class ThemTuyen_CTRL {
         });
     }
 
-    private void setupUpdateMatuyenEvent(JComboBox<String> cbo){
-        JTextField txt = (JTextField) cbo.getEditor().getEditorComponent();
+    private void setupUpdateMatuyenEvent(JTextField txt){
         txt.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -254,12 +277,8 @@ public class ThemTuyen_CTRL {
     }
 
     private void capNhatMaTuyen() {
-        Object selectedXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
-        Object selectedDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
-
-        String tenGaDi = selectedXP != null ? selectedXP.toString().trim() : "";
-        String tenGaDen = selectedDich != null ? selectedDich.toString().trim() : "";
-
+        String tenGaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
+        String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim();
         if(!tenGaDi.isEmpty() && !tenGaDen.isEmpty()){
             String baseMa = tuyenBus.taoMaTuyenCoSo(tenGaDi,tenGaDen);
             if(baseMa.isEmpty()){
@@ -280,17 +299,13 @@ public class ThemTuyen_CTRL {
     }
 
     private void xuLyChonGaTrungGian(){
-        Object item = panelThemTuyen.getTxtGaTrungGian().getEditor().getItem();
-        String tenGaMoi = item != null ? item.toString().trim() : "";
+        String tenGaMoi = panelThemTuyen.getTxtGaTrungGian().getText().trim();
         if(tenGaMoi.isEmpty()){
             return;
         }
 
-        Object itemXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
-        Object itemDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
-        String gaDi = itemXP != null ? itemXP.toString().trim() : "";
-        String gaDen = itemDich != null ? itemDich.toString().trim() : "";
-
+        String gaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
+        String gaDen = panelThemTuyen.getTxtGaDich().getText().trim();
         if(!dsGaCoSan.containsKey(tenGaMoi)){
             JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không tồn tại trong hệ thống!", "Lỗi chọn ga trung gian", JOptionPane.ERROR_MESSAGE);
             return;
@@ -307,7 +322,7 @@ public class ThemTuyen_CTRL {
         dsGaDaChon.add(gaMoi);
         taovaThemTagGa(gaMoi);
 
-        panelThemTuyen.getTxtGaTrungGian().getEditor().setItem("");
+        panelThemTuyen.getTxtGaTrungGian().setText("");
         ppGaTrungGian.setVisible(false);
     }
 
@@ -330,11 +345,8 @@ public class ThemTuyen_CTRL {
         DefaultTableModel model = panelThemTuyen.getModelGaChiTiet();
         model.setRowCount(0);
 
-        Object itemXP = panelThemTuyen.getTxtGaXuatPhat().getEditor().getItem();
-        Object itemDich = panelThemTuyen.getTxtGaDich().getEditor().getItem();
-        String tenGaDi = itemXP != null ? itemXP.toString().trim() : "";
-        String tenGaDen = itemDich != null ? itemDich.toString().trim() : "";
-
+        String tenGaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
+        String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim();
         if ( tenGaDi.isEmpty() || tenGaDen.isEmpty()) {
             JOptionPane.showMessageDialog(panelThemTuyen, "Vui lòng chọn Ga Xuất Phát và Ga Đích trước khi tính khoảng cách.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             panelThemTuyen.getTxtDoDaiQuangDuong().setText("0");

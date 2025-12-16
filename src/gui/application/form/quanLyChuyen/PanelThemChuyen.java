@@ -32,8 +32,8 @@ public class PanelThemChuyen extends JPanel {
     private JTextField txtNgayDi;
     private JTextField txtGioDi;
     private JButton btnGioDi;
-    private JComboBox<String> comboGaDiMoi;
-    private JComboBox<String> comboGaDenMoi;
+    private JTextField txtGaDiMoi;
+    private JTextField txtGaDenMoi;
     private JTextField txtGioDenMoi;
     private JTextField txtNgayDenMoi;
     private JTextField txtGioDiMoi;
@@ -90,13 +90,6 @@ public class PanelThemChuyen extends JPanel {
         });
         pnlThongTin.add(txtNgayDi, "growx, wrap");
 
-        pnlThongTin.add(new JLabel("Ga Xuất Phát:"));
-        comboGaXuatPhat = new JComboBox<>();
-        pnlThongTin.add(comboGaXuatPhat, "growx");
-
-        pnlThongTin.add(new JLabel("Ga Đích:"));
-        comboGaDich = new JComboBox<>();
-        pnlThongTin.add(comboGaDich, "growx, wrap");
 
         pnlThongTin.add(new JLabel("Giờ Đi:"));
         JPanel pnlGioDi = new JPanel(new BorderLayout());
@@ -111,7 +104,7 @@ public class PanelThemChuyen extends JPanel {
         btnGioDi.setMargin(new Insets(2,5,2,5));
         pnlGioDi.add(txtGioDi, BorderLayout.CENTER);
         pnlGioDi.add(btnGioDi, BorderLayout.EAST);
-        pnlThongTin.add(pnlGioDi, "growx, wrap");
+        pnlThongTin.add(pnlGioDi, "growx");
 
         btnGioDi.addActionListener(e -> {
             timePicker.setDisplayText(txtGioDi);
@@ -127,12 +120,12 @@ public class PanelThemChuyen extends JPanel {
         JPanel pnlNhapGa = new JPanel(new MigLayout("fillx", "[pref!]5[grow]10[pref!]5[grow]10[pref!]5[grow]", "[]"));
         pnlNhapGa.setBackground(Color.WHITE);
 
-        comboGaDiMoi = new JComboBox<>();
-        comboGaDenMoi = new JComboBox<>();
+        txtGaDiMoi = new JTextField();
+        txtGaDenMoi = new JTextField();
         pnlNhapGa.add(new JLabel("Ga Đi:"));
-        pnlNhapGa.add(comboGaDiMoi, "growx");
+        pnlNhapGa.add(txtGaDiMoi, "growx");
         pnlNhapGa.add(new JLabel("Ga Đến:"));
-        pnlNhapGa.add(comboGaDenMoi, "growx, wrap");
+        pnlNhapGa.add(txtGaDenMoi, "growx, wrap");
 
         txtNgayDiMoi = new JTextField();
         DateChooser dc1 = new DateChooser();
@@ -202,7 +195,6 @@ public class PanelThemChuyen extends JPanel {
         btnXoaGa.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         pnlNhapGa.add(btnThemGa, "w 100!, h 30!");
-        pnlNhapGa.add(btnXoaGa, "w 100!, h 30!");
 
         pnlLichTrinh.add(pnlNhapGa, BorderLayout.NORTH);
 
@@ -303,20 +295,52 @@ public class PanelThemChuyen extends JPanel {
         this.txtGioDi = txtGioDi;
     }
 
-    public JComboBox<String> getComboGaDiMoi() {
-        return comboGaDiMoi;
+    public JButton getBtnGioDi() {
+        return btnGioDi;
     }
 
-    public void setComboGaDiMoi(JComboBox<String> comboGaDiMoi) {
-        this.comboGaDiMoi = comboGaDiMoi;
+    public void setBtnGioDi(JButton btnGioDi) {
+        this.btnGioDi = btnGioDi;
     }
 
-    public JComboBox<String> getComboGaDenMoi() {
-        return comboGaDenMoi;
+    public JTextField getTxtGaDiMoi() {
+        return txtGaDiMoi;
     }
 
-    public void setComboGaDenMoi(JComboBox<String> comboGaDenMoi) {
-        this.comboGaDenMoi = comboGaDenMoi;
+    public void setTxtGaDiMoi(JTextField txtGaDiMoi) {
+        this.txtGaDiMoi = txtGaDiMoi;
+    }
+
+    public JTextField getTxtGaDenMoi() {
+        return txtGaDenMoi;
+    }
+
+    public void setTxtGaDenMoi(JTextField txtGaDenMoi) {
+        this.txtGaDenMoi = txtGaDenMoi;
+    }
+
+    public JButton getBtnGioDiMoi() {
+        return btnGioDiMoi;
+    }
+
+    public void setBtnGioDiMoi(JButton btnGioDiMoi) {
+        this.btnGioDiMoi = btnGioDiMoi;
+    }
+
+    public JButton getBtnGioDenMoi() {
+        return btnGioDenMoi;
+    }
+
+    public void setBtnGioDenMoi(JButton btnGioDenMoi) {
+        this.btnGioDenMoi = btnGioDenMoi;
+    }
+
+    public TimePicker getTimePicker() {
+        return timePicker;
+    }
+
+    public void setTimePicker(TimePicker timePicker) {
+        this.timePicker = timePicker;
     }
 
     public JTextField getTxtGioDenMoi() {

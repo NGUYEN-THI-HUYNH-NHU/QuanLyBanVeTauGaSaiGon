@@ -54,7 +54,26 @@ public class QuanLyTuyen_CTRL {
 
         PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
         thietLapAutoCompleteListener();
+        thietLapPhimTatF5();
     }
+
+    private boolean thucHienTimKiem() {
+        String gaDi = pnlTuyen.getTxtGaDi().getText();
+        String gaDen = pnlTuyen.getTxtGaDen().getText();
+        String maTuyen = pnlTuyen.getTxtTimKiem().getText();
+
+        List<Object[]> ketQua;
+
+        if (!maTuyen.trim().isEmpty()) {
+            ketQua = tuyen_bus.getDuLieuBangTheoTuyenID(maTuyen.trim());
+        } else {
+            ketQua = tuyen_bus.getDuLieuBangTheoGa(gaDi, gaDen);
+        }
+
+        pnlTuyen.capNhatBang(ketQua);
+        return ketQua != null && !ketQua.isEmpty();
+    }
+
 
     private class TimKiemListener implements ActionListener{
         @Override
@@ -117,7 +136,6 @@ public class QuanLyTuyen_CTRL {
             ketQuaDuLieuBang = tuyen_bus.getDuLieuBangTheoGa(gaDi, gaDen);
         }
 
-        // Cập nhật bảng với List<Object[]>
         pnlTuyen.capNhatBang(ketQuaDuLieuBang);
 
         if(ketQuaDuLieuBang.isEmpty()){
@@ -220,13 +238,15 @@ public class QuanLyTuyen_CTRL {
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
                              Function<String, List<String>> timKiem){
         String input = txt.getText().trim();
-        if(input.length() < 1){
+
+        List<String> ds = timKiem.apply(input);
+
+        if(ds == null || ds.isEmpty()){
             pp.setVisible(false);
             return;
         }
 
-        List<String> ds = timKiem.apply(input);
-        if(ds == null || ds.isEmpty()){
+        if (ds.size() == 1 && ds.get(0).equalsIgnoreCase(input)) {
             pp.setVisible(false);
             return;
         }
@@ -234,7 +254,12 @@ public class QuanLyTuyen_CTRL {
         lst.setListData(ds.toArray(new String[0]));
         lst.setVisibleRowCount(Math.min(ds.size(), 8));
 
-        pp.show(txt, 0, txt.getHeight());
+        pp.setPopupSize(txt.getWidth(), pp.getPreferredSize().height);
+
+        if(txt.isShowing()){
+            pp.show(txt, 0, txt.getHeight());
+            txt.requestFocus();
+        }
     }
 
     private void taoPopGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem) {
@@ -260,7 +285,8 @@ public class QuanLyTuyen_CTRL {
                 if (index >= 0) {
                     txt.setText(lst.getModel().getElementAt(index));
                     pp.setVisible(false);
-                    timKiemTuyen();
+                    thucHienTimKiem();
+                    chuyenFocusSauChon(txt);
                 }
             }
         });
@@ -297,7 +323,8 @@ public class QuanLyTuyen_CTRL {
                             txt.setText(selected);
                         }
                         pp.setVisible(false);
-                        timKiemTuyen();
+                        thucHienTimKiem();
+                        chuyenFocusSauChon(txt);
                         break;
                     case java.awt.event.KeyEvent.VK_RIGHT:
                          if (txt == pnlTuyen.getTxtGaDen()) {
@@ -323,4 +350,31 @@ public class QuanLyTuyen_CTRL {
             }
         });
     }
+    private void thietLapPhimTatF5() {
+        JComponent root = pnlTuyen;
+
+        InputMap im = root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap am = root.getActionMap();
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "LAM_MOI_TUYEN");
+
+        am.put("LAM_MOI_TUYEN", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                lamMoiTuyen();
+            }
+        });
+    }
+
+
+    private void chuyenFocusSauChon(JTextField txt) {
+        if (txt == pnlTuyen.getTxtGaDi()) {
+            pnlTuyen.getTxtGaDen().requestFocus();
+        } else if (txt == pnlTuyen.getTxtGaDen()) {
+            pnlTuyen.getTxtTimKiem().requestFocus();
+        } else if (txt == pnlTuyen.getTxtTimKiem()) {
+            txt.selectAll(); // hoặc không làm gì
+        }
+    }
+
 }

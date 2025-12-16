@@ -5,8 +5,10 @@ package gui.application.form.bieuGia;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /*
  * @description
@@ -30,7 +32,7 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 	public static final int COL_XEM = 8;
 	public static final int COL_SUA = 9;
 
-	private final String[] columnNames = { "ID", "Ưu tiên", "Tuyến", "Tàu", "Toa", "Khoảng cách", "Hiệu lực", "Giá",
+	private final String[] columnNames = { "Mã Biểu Giá", "Ưu tiên", "Tuyến", "Tàu", "Toa", "Khoảng cách", "Hiệu lực", "Giá",
 			"Xem", "Sửa" };
 
 	private List<BieuGiaVe> rows;
@@ -70,6 +72,11 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 		}
 	}
 
+	private String formatVND(double value){
+		NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
+		return nf.format(value) + " VND";
+	}
+
 	@Override
 	public int getRowCount() {
 		return rows.size();
@@ -106,8 +113,11 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 			String end = (bg.getNgayKetThuc() != null) ? bg.getNgayKetThuc().toString() : "∞";
 			return start + " -> " + end;
 		case COL_GIA:
-			return (bg.getGiaCoBan() > 0) ? String.format("Cố định: %.0f", bg.getGiaCoBan())
-					: String.format("%.0f /km", bg.getDonGiaTrenKm());
+			if(bg.getGiaCoBan() > 0){
+				return "Cố định: " + formatVND(bg.getGiaCoBan());
+			}else{
+				return formatVND(bg.getDonGiaTrenKm()) + " / Km";
+			}
 		case COL_XEM:
 			return "Xem";
 		case COL_SUA:
