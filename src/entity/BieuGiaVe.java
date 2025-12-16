@@ -124,11 +124,7 @@ public class BieuGiaVe {
 	}
 
 	public void setBieuGiaVeID(String bieuGiaVeID) {
-		if (bieuGiaVeID != null && !bieuGiaVeID.isEmpty()) {
-			this.bieuGiaVeID = bieuGiaVeID;
-		} else {
-			throw new IllegalArgumentException("Biểu giá vé ID không được để trống!");
-		}
+		this.bieuGiaVeID = bieuGiaVeID;
 	}
 
 	public LocalDate getNgayBatDau() {
