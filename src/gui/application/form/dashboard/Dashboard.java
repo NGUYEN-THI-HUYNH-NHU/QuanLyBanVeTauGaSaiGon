@@ -6,9 +6,10 @@ import dao.Dashboard_DAO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Arc2D;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -27,6 +28,10 @@ public class Dashboard extends JPanel {
     private static final Color BORDER_COLOR = new Color(200, 200, 200);
     private static final Color ACTIVE_BTN_COLOR = new Color(59, 130, 246);
     private static final Color COLOR_REVENUE = new Color(16, 185, 129);
+
+    // Màu cho phần cảnh báo
+    private static final Color ALERT_GREEN = new Color(103, 178, 68);  // Xanh lá
+    private static final Color ALERT_RED = new Color(212, 59, 41);     // Đỏ
 
     private static final Color[] CHART_COLORS = {
             new Color(59, 130, 246), // xanh dương
@@ -47,10 +52,13 @@ public class Dashboard extends JPanel {
     private RevenueBarChartPanel revenueBarChart;
     private InvoiceAnalysisChartPanel invoiceAnalysisChart;
     private StackedBarChartPanel stackedBarChart;
-    // Đã xóa PromotionRateChartPanel
-    private CustomerSplitChartPanel customerSplitChart;
+    private AlertsPanel alertsPanel;
 
     private JButton btnToday, btnWeek, btnMonth, btnYear, btnAll;
+
+    // Lưu trạng thái lọc hiện tại để dùng cho Dialog chi tiết
+    private LocalDate currentStart;
+    private LocalDate currentEnd;
 
     // ========================================================================
 
@@ -77,6 +85,7 @@ public class Dashboard extends JPanel {
             revenueBarChart.setDateFormat(fmt);
             stackedBarChart.setDateFormat(fmt);
 
+            // Mặc định load dữ liệu hôm nay
             loadDashboardData(today, today, 0, fmt);
         }
     }
@@ -86,6 +95,9 @@ public class Dashboard extends JPanel {
     // ========================================================================
 
     private void loadDashboardData(LocalDate startDate, LocalDate endDate, int viewType, DateTimeFormatter currentFmt) {
+        // Lưu lại ngày lọc để AlertsPanel sử dụng khi click xem chi tiết
+        this.currentStart = startDate;
+        this.currentEnd = endDate;
 
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
@@ -141,13 +153,80 @@ public class Dashboard extends JPanel {
                 }
                 invoiceAnalysisChart.setData(sold, refund, currentFmt);
 
-                // --- 4. CƠ CẤU KHÁCH ---
-                customerSplitChart.setData(dashboardDAO.getCustomerSplitData(startDate, endDate));
+                // --- 4. CẬP NHẬT CẢNH BÁO (ALERTS) ---
+                // Gọi hàm DAO thực tế để lấy số liệu từ CSDL
+                int[] alertData = dashboardDAO.getTripOccupancyAlerts(startDate, endDate);
+                int highOccupancyCount = alertData[0]; // Số chuyến sắp hết vé
+                int lowOccupancyCount = alertData[1];  // Số chuyến bán thấp
+
+                alertsPanel.setAlertData(highOccupancyCount, lowOccupancyCount);
 
                 return null;
             }
         };
         worker.execute();
+    }
+
+    // --- HÀM HIỂN THỊ DIALOG CHI TIẾT ---
+    private void showDetailsDialog(String title, boolean isLowOccupancy) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), title, true);
+        dialog.setSize(950, 500);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        // Lấy dữ liệu chi tiết từ DAO
+        List<Object[]> dataList;
+        if (isLowOccupancy) {
+            dataList = dashboardDAO.getLowOccupancyList(currentStart, currentEnd);
+        } else {
+            dataList = dashboardDAO.getHighOccupancyList(currentStart, currentEnd);
+        }
+
+        // Cấu hình bảng
+        String[] columnNames;
+        if (isLowOccupancy) {
+            columnNames = new String[]{"STT", "Chuyến ID", "Tuyến ID", "Ga đi", "Ga đến", "Ngày đi", "Giờ đi", "Số vé bán", "Tỉ lệ lấp đầy (%)"};
+        } else {
+            columnNames = new String[]{"STT", "Chuyến ID", "Tuyến ID", "Ga đi", "Ga đến", "Ngày đi", "Giờ đi", "Số vé bán"};
+        }
+
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        int stt = 1;
+        for (Object[] row : dataList) {
+            Object[] tableRow;
+            if (isLowOccupancy) {
+                // Thêm cột Tỉ lệ cho bảng bán thấp
+                tableRow = new Object[]{ stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7] + "%" };
+            } else {
+                tableRow = new Object[]{ stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6] };
+            }
+            model.addRow(tableRow);
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(30);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        // Center align
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for(int i=0;i<table.getColumnCount();i++) table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(new EmptyBorder(10,10,10,10));
+
+        JLabel lblTitle = new JLabel(title, JLabel.CENTER);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTitle.setBorder(new EmptyBorder(10,0,10,0));
+        if(isLowOccupancy) lblTitle.setForeground(ALERT_RED); else lblTitle.setForeground(ALERT_GREEN);
+
+        dialog.add(lblTitle, BorderLayout.NORTH);
+        dialog.add(scroll, BorderLayout.CENTER);
+        dialog.setVisible(true);
     }
 
     // =========================================================================
@@ -167,7 +246,7 @@ public class Dashboard extends JPanel {
 
         protected void createChartTitle(Graphics2D g, String t) {
             g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-            g.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            g.setFont(new Font("Segoe UI", Font.BOLD, 18));
             g.setColor(TEXT_COLOR);
             g.drawString(t, 20, 30);
         }
@@ -178,125 +257,6 @@ public class Dashboard extends JPanel {
             g.setColor(TEXT_MUTED);
             g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             g.drawString(t, x + 20, y);
-        }
-
-        // HÀM VẼ PIE CHART CHUNG
-        protected void drawPieChartWithCallouts(Graphics g, String title, Map<String, Integer> data, Map<String, Color> colorMap) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-
-            createChartTitle(g2, title);
-
-            if (data == null || data.isEmpty()) {
-                g2.setColor(TEXT_MUTED);
-                g2.drawString("Không có dữ liệu.", getWidth() / 2 - 40, getHeight() / 2);
-                return;
-            }
-
-            int total = data.values().stream().mapToInt(Integer::intValue).sum();
-            if (total == 0) return;
-
-            // Tính toán kích thước (60% vùng khả dụng)
-            int availableHeight = getHeight() - 80;
-            int availableWidth = getWidth() - 200;
-            int chartSize = (int) (Math.min(availableWidth, availableHeight) * 0.60);
-
-            if (chartSize > 280) chartSize = 280;
-            if (chartSize < 100) chartSize = 100;
-
-            int radius = chartSize / 2;
-            int centerX = getWidth() / 2;
-            int centerY = (int) (getHeight() * 0.45);
-
-            double currentAngle = 90;
-            List<LabelData> labels = new ArrayList<>();
-
-            // 1. Vẽ Pie
-            for (Map.Entry<String, Integer> entry : data.entrySet()) {
-                String labelName = entry.getKey();
-                int value = entry.getValue();
-                if (value == 0) continue;
-
-                double angleExtent = (value / (double) total) * 360;
-                Color sliceColor = colorMap.getOrDefault(labelName, Color.LIGHT_GRAY);
-
-                g2.setColor(sliceColor);
-                g2.fill(new Arc2D.Double(centerX - radius, centerY - radius, chartSize, chartSize, currentAngle, -angleExtent, Arc2D.PIE));
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.draw(new Arc2D.Double(centerX - radius, centerY - radius, chartSize, chartSize, currentAngle, -angleExtent, Arc2D.PIE));
-
-                double midAngle = currentAngle - angleExtent / 2;
-                int percent = (int) Math.round((value / (double) total) * 100);
-                String labelText = String.format("%s: %d (%d%%)", labelName, value, percent);
-
-                labels.add(new LabelData(midAngle, labelText, sliceColor));
-                currentAngle -= angleExtent;
-            }
-
-            // 2. Vẽ Callout & Text
-            g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            int kneeRadius = radius + 15;
-            int tailLength = 15;
-
-            for (LabelData lbl : labels) {
-                double rad = Math.toRadians(lbl.angle);
-                int x1 = (int) (centerX + Math.cos(rad) * radius);
-                int y1 = (int) (centerY - Math.sin(rad) * radius);
-                int x2 = (int) (centerX + Math.cos(rad) * kneeRadius);
-                int y2 = (int) (centerY - Math.sin(rad) * kneeRadius);
-
-                boolean isRight = (Math.cos(rad) >= 0);
-                int x3 = isRight ? x2 + tailLength : x2 - tailLength;
-                int y3 = y2;
-
-                g2.setColor(Color.DARK_GRAY);
-                g2.setStroke(new BasicStroke(0.8f));
-                g2.drawLine(x1, y1, x2, y2);
-                g2.drawLine(x2, y2, x3, y3);
-
-                FontMetrics fm = g2.getFontMetrics();
-                int textW = fm.stringWidth(lbl.text);
-                int textH = fm.getHeight();
-                int pad = 4;
-
-                int boxX = isRight ? x3 + 2 : x3 - textW - pad * 2 - 2;
-                int boxY = y3 - textH / 2 - pad;
-
-                g2.setColor(new Color(0, 0, 0, 30));
-                g2.fillRect(boxX + 2, boxY + 2, textW + pad * 2, textH + pad * 2);
-                g2.setColor(new Color(255, 255, 225));
-                g2.fillRect(boxX, boxY, textW + pad * 2, textH + pad * 2);
-                g2.setColor(Color.GRAY);
-                g2.drawRect(boxX, boxY, textW + pad * 2, textH + pad * 2);
-                g2.setColor(Color.BLACK);
-                g2.drawString(lbl.text, boxX + pad, boxY + textH + pad - 4);
-            }
-
-            // 3. Legend
-            int legendY = getHeight() - 25;
-            int totalLegendW = 0;
-            for (String key : colorMap.keySet()) {
-                if (data.containsKey(key) && data.get(key) > 0) {
-                    totalLegendW += g2.getFontMetrics().stringWidth(key) + 30;
-                }
-            }
-            int currentX = (getWidth() - totalLegendW) / 2;
-            if (currentX < 10) currentX = 10;
-
-            for (Map.Entry<String, Color> entry : colorMap.entrySet()) {
-                String key = entry.getKey();
-                if (data.containsKey(key) && data.get(key) > 0) {
-                    drawLegend(g2, currentX, legendY, entry.getValue(), key);
-                    currentX += g2.getFontMetrics().stringWidth(key) + 30;
-                }
-            }
-        }
-
-        protected static class LabelData {
-            double angle; String text; Color color;
-            public LabelData(double a, String t, Color c) { this.angle = a; this.text = t; this.color = c; }
         }
     }
 
@@ -520,35 +480,97 @@ public class Dashboard extends JPanel {
     }
 
     // =========================================================================
-    // 3. BIỂU ĐỒ CƠ CẤU KHÁCH (PIE CHART)
+    // 3. PANEL CẢNH BÁO MỚI (AlertsPanel)
     // =========================================================================
-    static class CustomerSplitChartPanel extends BasePanel {
-        private Map<String, Integer> data;
-        private final Map<String, Color> colorMap = new HashMap<>();
+    class AlertsPanel extends BasePanel {
+        private int highOccupancyCount = 0;
+        private int lowOccupancyCount = 0;
+        private Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+        private Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
-        public CustomerSplitChartPanel(Map<String, Integer> d) {
-            this.data = d;
-            colorMap.put("Khách mới", new Color(46, 204, 113));       // Xanh lá
-            colorMap.put("Khách quay lại", new Color(52, 152, 219));  // Xanh dương
-            colorMap.put("Thân thiết", new Color(155, 89, 182));      // Tím
-            colorMap.put("VIP", new Color(241, 196, 15));             // Vàng
-            colorMap.put("Ngủ đông", new Color(149, 165, 166));       // Xám
+        public AlertsPanel() {
+            super();
+            // Thêm sự kiện chuột
+            addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    if (getGreenBounds().contains(e.getPoint()) || getRedBounds().contains(e.getPoint())) {
+                        setCursor(handCursor);
+                    } else {
+                        setCursor(defaultCursor);
+                    }
+                }
+            });
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (getGreenBounds().contains(e.getPoint())) {
+                        showDetailsDialog("CHI TIẾT CHUYẾN SẮP HẾT VÉ", false);
+                    } else if (getRedBounds().contains(e.getPoint())) {
+                        showDetailsDialog("CHI TIẾT CHUYẾN CÓ TỈ LỆ BÁN THẤP", true);
+                    }
+                }
+            });
         }
 
-        public void setData(Map<String, Integer> d) {
-            this.data = d;
+        public void setAlertData(int high, int low) {
+            this.highOccupancyCount = high;
+            this.lowOccupancyCount = low;
             repaint();
+        }
+
+        // Helper methods để tính vùng click
+        private Rectangle getGreenBounds() {
+            int padding = 20, titleH = 50;
+            int w = getWidth() - padding * 2;
+            int h = (getHeight() - titleH - padding * 2 - 20) / 2;
+            if (h > 100) h = 100;
+            return new Rectangle(padding, titleH, w, h);
+        }
+
+        private Rectangle getRedBounds() {
+            Rectangle g = getGreenBounds();
+            return new Rectangle(g.x, g.y + g.height + 20, g.width, g.height);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            drawPieChartWithCallouts(g, "CƠ CẤU KHÁCH", data, colorMap);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
+            createChartTitle(g2, "Cảnh báo (Click xem chi tiết):");
+
+            Rectangle green = getGreenBounds();
+            Rectangle red = getRedBounds();
+
+            // KHỐI XANH
+            g2.setColor(ALERT_GREEN);
+            g2.fillRoundRect(green.x, green.y, green.width, green.height, 10, 10);
+            g2.setColor(Color.BLACK);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 20));
+            String textGreen = "Chuyến sắp hết vé (" + highOccupancyCount + ")";
+            FontMetrics fm = g2.getFontMetrics();
+            int tx = green.x + (green.width - fm.stringWidth(textGreen)) / 2;
+            int ty = green.y + (green.height - fm.getHeight()) / 2 + fm.getAscent();
+            g2.drawString(textGreen, tx, ty);
+
+            // KHỐI ĐỎ
+            g2.setColor(ALERT_RED);
+            g2.fillRoundRect(red.x, red.y, red.width, red.height, 10, 10);
+            g2.setColor(Color.BLACK);
+            String textRed = "Chuyến có Tỉ lệ bán thấp (" + lowOccupancyCount + ")";
+            tx = red.x + (red.width - fm.stringWidth(textRed)) / 2;
+            ty = red.y + (red.height - fm.getHeight()) / 2 + fm.getAscent();
+            g2.drawString(textRed, tx, ty);
         }
     }
 
     // =========================================================================
-    // 4. BIỂU ĐỒ CỘT CHỒNG
+    // =========================================================================
+    // 4. BIỂU ĐỒ CỘT CHỒNG (ĐÃ SỬA LỖI THIẾU drawTooltip)
     // =========================================================================
     static class StackedBarChartPanel extends BasePanel {
         private Map<LocalDate, Map<String, Integer>> data = new LinkedHashMap<>();
@@ -558,12 +580,19 @@ public class Dashboard extends JPanel {
 
         public StackedBarChartPanel(Map<LocalDate, Map<String, Integer>> data) {
             this.data = (data != null) ? data : new LinkedHashMap<>();
-            addMouseMotionListener(new MouseMotionAdapter() { @Override public void mouseMoved(MouseEvent e) { mousePoint = e.getPoint(); repaint(); } });
-            addMouseListener(new MouseAdapter() { @Override public void mouseExited(MouseEvent e) { mousePoint = null; repaint(); } });
+            // Sự kiện chuột để bắt tọa độ hiển thị Tooltip
+            addMouseMotionListener(new MouseMotionAdapter() {
+                @Override public void mouseMoved(MouseEvent e) { mousePoint = e.getPoint(); repaint(); }
+            });
+            addMouseListener(new MouseAdapter() {
+                @Override public void mouseExited(MouseEvent e) { mousePoint = null; repaint(); }
+            });
         }
+
         public void setViewType(int v) { this.viewType = v; repaint(); }
         public void setData(Map<LocalDate, Map<String, Integer>> d) { this.data = (d != null) ? d : new LinkedHashMap<>(); repaint(); }
         public void setDateFormat(DateTimeFormatter p) { this.fmt = p; repaint(); }
+
         private String normalizeSeat(String s) {
             s = s.toLowerCase();
             if (s.contains("khoang 4")) return "Giường nằm 4";
@@ -571,12 +600,14 @@ public class Dashboard extends JPanel {
             if (s.contains("ngồi"))     return "Ghế ngồi";
             return s;
         }
+
         private String[] getSeatTypes() {
             LinkedHashSet<String> set = new LinkedHashSet<>();
             for (Map<String, Integer> sm : data.values()) for (String k : sm.keySet()) set.add(normalizeSeat(k));
             if (set.isEmpty()) { set.add("Giường nằm 4"); set.add("Giường nằm 6"); set.add("Ghế ngồi"); }
             return set.toArray(new String[0]);
         }
+
         private Map<String, Integer> emptySeatMap(String[] types) {
             Map<String, Integer> m = new LinkedHashMap<>();
             for (String s : types) m.put(s, 0); return m;
@@ -584,18 +615,26 @@ public class Dashboard extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g); Graphics2D g2 = (Graphics2D) g;
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
             createChartTitle(g2, "NGẢ VÉ THEO LOẠI GHẾ");
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 
-            if (data == null || data.isEmpty()) { g2.setColor(TEXT_MUTED); g2.drawString("Không có dữ liệu.", getWidth()/2 - 50, getHeight()/2); return; }
+            if (data == null || data.isEmpty()) {
+                g2.setColor(TEXT_MUTED);
+                g2.drawString("Không có dữ liệu.", getWidth()/2 - 50, getHeight()/2);
+                return;
+            }
+
             String[] seatTypes = getSeatTypes();
             List<String> xLabels = new ArrayList<>();
             List<Map<String, Integer>> stacked = new ArrayList<>();
-            List<LocalDate> dates = new ArrayList<>(data.keySet()); Collections.sort(dates);
+            List<LocalDate> dates = new ArrayList<>(data.keySet());
+            Collections.sort(dates);
 
+            // Xử lý dữ liệu theo ViewType
             if (viewType == 1) { // 12 Tháng
                 int year = dates.isEmpty() ? LocalDate.now().getYear() : dates.get(0).getYear();
                 for (int m = 1; m <= 12; m++) {
@@ -631,6 +670,7 @@ public class Dashboard extends JPanel {
             int x0 = ins.left + padding + yLabelW, h = getHeight() - ins.top - ins.bottom - topSpace - bottomSpace;
             int w = getWidth() - x0 - padding, y0 = ins.top + topSpace, yBase = y0 + h;
 
+            // Vẽ lưới ngang
             for (int i = 0; i <= 5; i++) {
                 int y = yBase - (i * h / 5);
                 g2.setColor(BORDER_COLOR); g2.drawLine(x0, y, x0 + w, y);
@@ -641,6 +681,7 @@ public class Dashboard extends JPanel {
             double slotW = (double) w / n; int barW = (int)(slotW * 0.6);
             String hoverText = null; int hoverX = 0, hoverY = 0;
 
+            // Vẽ các cột chồng
             for (int i = 0; i < n; i++) {
                 double center = x0 + (i * slotW) + slotW/2;
                 int x = (int)(center - barW/2);
@@ -650,7 +691,7 @@ public class Dashboard extends JPanel {
 
                 for (String seat : seatTypes) {
                     int v = sm.get(seat);
-                    if (v > 0) { // CHỈ VẼ KHI CÓ DỮ LIỆU
+                    if (v > 0) {
                         int bh = (int)((double)v / max * h);
                         if (bh < 1) bh = 1;
                         int y = yStack - bh;
@@ -669,20 +710,40 @@ public class Dashboard extends JPanel {
                 g2.drawString(lbl, (int)(center - g2.getFontMetrics().stringWidth(lbl)/2), yBase + 20);
             }
 
+            // Vẽ chú thích (Legend)
             int lx = x0, ly = ins.top + 50;
             for (int i = 0; i < seatTypes.length; i++) {
                 drawLegend(g2, lx, ly, CHART_COLORS[i % CHART_COLORS.length], seatTypes[i]); lx += 140;
             }
-            if (hoverText != null) drawTooltip(g2, hoverText, hoverX, hoverY);
+
+            // Vẽ Tooltip (Nếu có hover)
+            if (hoverText != null) {
+                drawTooltip(g2, hoverText, hoverX, hoverY);
+            }
         }
+
+        // --- ĐÂY LÀ HÀM BẠN ĐANG BỊ THIẾU ---
         private void drawTooltip(Graphics2D g2, String text, int x, int y) {
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             FontMetrics fm = g2.getFontMetrics();
-            int w = fm.stringWidth(text) + 12, h = fm.getHeight() + 6;
-            int bx = x + 10, by = y - 25;
-            if (bx + w > getWidth()) bx = x - w - 5; if (by < 0) by = y + 15;
-            g2.setColor(new Color(255,255,225)); g2.fillRoundRect(bx, by, w, h, 5, 5);
-            g2.setColor(Color.BLACK); g2.drawRoundRect(bx, by, w, h, 5, 5);
+            int w = fm.stringWidth(text) + 12;
+            int h = fm.getHeight() + 6;
+
+            // Tính toán vị trí để tooltip không bị tràn ra ngoài màn hình
+            int bx = x + 10;
+            int by = y - 25;
+            if (bx + w > getWidth()) bx = x - w - 5;
+            if (by < 0) by = y + 15;
+
+            // Vẽ nền tooltip
+            g2.setColor(new Color(255, 255, 225)); // Màu vàng nhạt
+            g2.fillRoundRect(bx, by, w, h, 5, 5);
+
+            // Vẽ viền tooltip
+            g2.setColor(Color.BLACK);
+            g2.drawRoundRect(bx, by, w, h, 5, 5);
+
+            // Vẽ chữ
             g2.drawString(text, bx + 6, by + h - 6);
         }
     }
@@ -768,10 +829,9 @@ public class Dashboard extends JPanel {
         c.gridy = 2; c.gridx = 0; c.gridwidth = 2;
         stackedBarChart = new StackedBarChartPanel(new LinkedHashMap<>()); g.add(stackedBarChart, c);
 
-        // Đã xóa PromotionRateChartPanel, Customer Chart chiếm toàn bộ bên phải
         c.gridx = 2; c.gridwidth = 2;
-        customerSplitChart = new CustomerSplitChartPanel(new LinkedHashMap<>());
-        g.add(customerSplitChart, c);
+        alertsPanel = new AlertsPanel();
+        g.add(alertsPanel, c);
 
         return g;
     }
