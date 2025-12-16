@@ -29,6 +29,8 @@ public class Ve {
 	private LocalDateTime ngayGioDi;
 	private double gia;
 	private TrangThaiVe trangThai;
+	// thuộc tính dẫn xuất
+	private boolean isVeDoi;
 
 	public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
 			LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
@@ -157,6 +159,14 @@ public class Ve {
 
 	public void setTrangThai(TrangThaiVe trangThai) {
 		this.trangThai = trangThai;
+	}
+
+	public boolean isVeDoi() {
+		return isVeDoi;
+	}
+
+	public void setVeDoi(boolean isVeDoi) {
+		this.isVeDoi = isVeDoi;
 	}
 
 	@Override

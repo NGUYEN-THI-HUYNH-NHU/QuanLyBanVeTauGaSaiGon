@@ -40,7 +40,7 @@ public class PanelGioVe extends JPanel {
 
 	public PanelGioVe() {
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(230, 400));
+		setPreferredSize(new Dimension(230, 300));
 		setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		container = new JPanel();

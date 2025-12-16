@@ -168,10 +168,11 @@ public class PanelBuoc5 extends JPanel {
 
 		gbc.gridx = 0;
 		gbc.gridy = 4;
-		pnl.add(Box.createVerticalStrut(30), gbc);
+		pnl.add(Box.createVerticalGlue(), gbc);
 
 		gbc.gridx = 0;
 		gbc.gridy = 5;
+		gbc.weighty = 1.0;
 		gbc.anchor = GridBagConstraints.WEST;
 		JLabel totalLabel = new JLabel("Tổng thanh toán:");
 		totalLabel.setFont(totalLabel.getFont().deriveFont(Font.BOLD, 14f));
@@ -366,25 +367,6 @@ public class PanelBuoc5 extends JPanel {
 		return Integer.parseInt(text);
 	}
 
-	private void setTienMatEnabled(boolean enabled) {
-
-		for (Component c : pnlTienDua.getComponents()) {
-			if (c instanceof JTextField || c instanceof JPanel || c instanceof JButton) {
-				c.setEnabled(enabled);
-			}
-		}
-		for (JButton btn : suggestionButtons) {
-			btn.setEnabled(enabled);
-		}
-
-		// Nếu tắt (chuyển khoản), xóa text và reset tiền thừa
-		if (!enabled) {
-			txtTienKhachDua.setText("");
-			lblTienThoiLai.setText("0 VND");
-			lblTienThoiLai.setForeground(Color.BLUE);
-		}
-	}
-
 	private List<Integer> generateSuggestions(int total) {
 		Set<Integer> suggestions = new LinkedHashSet<>();
 
@@ -394,7 +376,7 @@ public class PanelBuoc5 extends JPanel {
 			// Thêm một vài mệnh giá nhỏ nếu muốn
 			suggestions.add(10000);
 			suggestions.add(50000);
-			return suggestions.stream().limit(6).collect(Collectors.toList());
+			return suggestions.stream().limit(8).collect(Collectors.toList());
 		}
 
 		// 1. Luôn thêm số tiền chính xác
@@ -457,21 +439,21 @@ public class PanelBuoc5 extends JPanel {
 
 		// 3. Thêm các mệnh giá chuẩn lớn hơn total gần nhất
 		for (int denom : MENHGIAVND) {
-			if (denom > total && suggestions.size() < 6) { // Chỉ thêm nếu lớn hơn và chưa đủ 6 gợi ý
+			if (denom > total && suggestions.size() < 8) { // Chỉ thêm nếu lớn hơn và chưa đủ 8 gợi ý
 				suggestions.add(denom);
 			}
 		}
 
 		// 4. Nếu vẫn chưa đủ 6, thêm các mệnh giá lớn hơn tiếp theo
 		// (Lấy từ cuối mảng mệnh giá)
-		for (int i = MENHGIAVND.length - 1; i >= 0 && suggestions.size() < 6; i--) {
+		for (int i = MENHGIAVND.length - 1; i >= 0 && suggestions.size() < 8; i--) {
 			if (MENHGIAVND[i] > total) {
 				suggestions.add(MENHGIAVND[i]); // add sẽ tự bỏ qua nếu đã tồn tại
 			}
 		}
 
 		// 5. Chuyển thành List, sắp xếp và lấy tối đa 6
-		return suggestions.stream().sorted().limit(6).collect(Collectors.toList());
+		return suggestions.stream().sorted().limit(8).collect(Collectors.toList());
 	}
 
 	private void updateSuggestionButtons(List<Integer> suggestions) {

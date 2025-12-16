@@ -31,7 +31,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.LeftCenterAlignRenderer;
+import gui.tuyChinh.LeftTopRenderer;
 
 public class PanelDoiVeBuoc3 extends JPanel {
 	private VeDoiTableModel model;
@@ -66,12 +66,12 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 		table.setRowHeight(80);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI));
-
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
-		table.getColumnModel().getColumn(0).setMinWidth(150);
-		table.getColumnModel().getColumn(1).setMinWidth(180);
-		table.getColumnModel().getColumn(6).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setMaxWidth(30);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(180);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(160);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setMinWidth(120);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON).setMaxWidth(50);
 
 		// 2. RENDERER CHO CỘT THỜI GIAN
 		DefaultTableCellRenderer timeRenderer = new DefaultTableCellRenderer() {
@@ -87,16 +87,20 @@ public class PanelDoiVeBuoc3 extends JPanel {
 				return c;
 			}
 		};
-		table.getColumnModel().getColumn(5).setCellRenderer(timeRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-		table.getColumnModel().getColumn(2).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(3).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 
-		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
-		table.getColumnModel().getColumn(0).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(1).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(4).setCellRenderer(leftCenterRenderer);
+		LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setCellRenderer(leftTopRenderer);
+
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK));
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 1));
+
 	}
 
 	public void displayConfirmation(List<VeDoiRow> selectedRows) {

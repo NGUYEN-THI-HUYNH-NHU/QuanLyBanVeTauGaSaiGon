@@ -27,7 +27,7 @@ public class PanelBuoc2 extends JPanel {
 	public PanelBuoc2() {
 		setLayout(new BorderLayout(2, 0));
 		setBorder(new TitledBorder(""));
-		setPreferredSize(new Dimension(0, 440));
+		setPreferredSize(new Dimension(0, 420));
 
 		panelGioVe = new PanelGioVe();
 		add(panelGioVe, BorderLayout.EAST);

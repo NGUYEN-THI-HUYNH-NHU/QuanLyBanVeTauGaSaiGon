@@ -150,17 +150,17 @@ public class Ve_BUS {
 	 */
 	public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
 		List<Ve> dsVe = new ArrayList<Ve>();
-		List<VeSession> dsVeMoi = exchangeSession.getListVeMoiDangChon();
 		DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
+		int n = exchangeSession.getListVeMoiDangChon().size();
 
-		for (VeSession v : dsVeMoi) {
-			Ve ve = v.getVe();
+		for (int i = 0; i < n; i++) {
+			Ve ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
 			String veID = taoVeIDDuyNhat(ve);
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
 
 			dsVe.add(ve);
-			v.setVe(ve);
+			exchangeSession.getListVeMoiDangChon().get(i).setVe(ve);
 		}
 
 		return dsVe;
@@ -187,15 +187,6 @@ public class Ve_BUS {
 	 */
 	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID) {
 		return veDAO.getVeByDonDatChoID(donDatChoID);
-	}
-
-	/**
-	 * @param donDatChoID
-	 * @param trangThai
-	 * @return
-	 */
-	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		return veDAO.getVeByDonDatChoID(donDatChoID, trangThai);
 	}
 
 	/**
