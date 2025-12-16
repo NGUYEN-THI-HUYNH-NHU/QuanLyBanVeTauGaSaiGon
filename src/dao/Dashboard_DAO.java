@@ -6,29 +6,28 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Dashboard_DAO {
 
     // =========================================================================
-    // 1. CÁC HÀM KPI (THẺ SỐ LIỆU TỔNG QUAN)
+    // 1. KPI & TỔNG QUAN
     // =========================================================================
-
     public double getKpiTotalRevenue(LocalDate startDate, LocalDate endDate) {
         StringBuilder sql = new StringBuilder("SELECT SUM(tongTien) AS TongDoanhThu FROM HoaDon WHERE trangThai = 1");
         if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
         if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-
-        try (Connection conn = ConnectDB.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             int idx = 1;
             if (startDate != null) pstmt.setObject(idx++, startDate.atStartOfDay());
             if (endDate != null) pstmt.setObject(idx++, endDate.plusDays(1).atStartOfDay());
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) return rs.getDouble("TongDoanhThu");
-            }
+            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getDouble("TongDoanhThu"); }
         } catch (SQLException e) { e.printStackTrace(); }
         return 0.0;
     }
@@ -45,14 +44,13 @@ public class Dashboard_DAO {
         if (startDate != null) sql.append(" AND c.ngayDi >= ?");
         if (endDate != null) sql.append(" AND c.ngayDi <= ?");
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            int idx = 1; if (startDate != null) pstmt.setObject(idx++, startDate); if (endDate != null) pstmt.setObject(idx++, endDate);
+            int idx = 1; if (startDate != null) pstmt.setObject(idx++, java.sql.Date.valueOf(startDate)); if (endDate != null) pstmt.setObject(idx++, java.sql.Date.valueOf(endDate));
             try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt("TongSoGhe"); }
         } catch (SQLException e) { e.printStackTrace(); }
         return 0;
     }
 
     public int getTotalRefundsAndExchanges(LocalDate startDate, LocalDate endDate) {
-        // Đếm hóa đơn có mã bắt đầu bằng HDHV (Hoàn) hoặc HDDV (Đổi)
         StringBuilder sql = new StringBuilder("SELECT COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE (hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%')");
         if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
         if (endDate != null) sql.append(" AND thoiDiemTao < ?");
@@ -60,191 +58,150 @@ public class Dashboard_DAO {
     }
 
     // =========================================================================
-    // 2. BIỂU ĐỒ DOANH THU (CỘT)
+    // 2. BIỂU ĐỒ (Chart Data)
     // =========================================================================
+    public Map<LocalDate, Double> getRevenueOverTime(LocalDate startDate, LocalDate endDate) { return getRevenueData(startDate, endDate, "CAST(thoiDiemTao AS DATE)"); }
+    public Map<LocalDate, Double> getRevenueOverTimeByMonth(LocalDate startDate, LocalDate endDate) { return getRevenueData(startDate, endDate, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)"); }
+    public Map<LocalDate, Double> getRevenueOverTimeByYear(LocalDate startDate, LocalDate endDate) { return getRevenueData(startDate, endDate, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)"); }
 
-    public Map<LocalDate, Double> getRevenueOverTime(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT CAST(thoiDiemTao AS DATE) AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE trangThai = 1 ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY CAST(thoiDiemTao AS DATE) ORDER BY KeyDate");
-        return executeQueryForDateMap(sql.toString(), startDate, endDate, "KeyDate");
-    }
-
-    public Map<LocalDate, Double> getRevenueOverTimeByMonth(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE trangThai = 1 ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) ORDER BY KeyDate");
-        return executeQueryForDateMap(sql.toString(), startDate, endDate, "KeyDate");
+    private Map<LocalDate, Double> getRevenueData(LocalDate s, LocalDate e, String datePart) {
+        StringBuilder sql = new StringBuilder("SELECT " + datePart + " AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE trangThai = 1 ");
+        if (s != null) sql.append(" AND thoiDiemTao >= ?"); if (e != null) sql.append(" AND thoiDiemTao < ?");
+        sql.append(" GROUP BY " + datePart + " ORDER BY KeyDate");
+        return executeQueryForDateMap(sql.toString(), s, e, "KeyDate");
     }
 
-    public Map<LocalDate, Double> getRevenueOverTimeByYear(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE trangThai = 1 ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) ORDER BY KeyDate");
-        return executeQueryForDateMap(sql.toString(), startDate, endDate, "KeyDate");
-    }
+    public Map<LocalDate, Integer> getInvoicesPaidOverTime(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", false); }
+    public Map<LocalDate, Integer> getInvoicesRefundedOverTime(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", true); }
+    public Map<LocalDate, Integer> getInvoicesPaidByMonth(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", false); }
+    public Map<LocalDate, Integer> getInvoicesRefundedByMonth(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", true); }
+    public Map<LocalDate, Integer> getInvoicesPaidByYear(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", false); }
+    public Map<LocalDate, Integer> getInvoicesRefundedByYear(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", true); }
 
-    // =========================================================================
-    // 3. BIỂU ĐỒ ĐƯỜNG: HÓA ĐƠN (PHÂN LOẠI BÁN vs HOÀN/ĐỔI)
-    // =========================================================================
-
-    // --- A. THEO NGÀY (Cho bộ lọc Hôm nay, Tuần, Tháng) ---
-    public Map<LocalDate, Integer> getInvoicesPaidOverTime(LocalDate startDate, LocalDate endDate) {
-        // Hóa đơn BÁN: Loại trừ HDHV và HDDV
-        StringBuilder sql = new StringBuilder("SELECT CAST(thoiDiemTao AS DATE) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE trangThai = 1 AND hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%' ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY CAST(thoiDiemTao AS DATE) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
+    private Map<LocalDate, Integer> getInvoiceData(LocalDate s, LocalDate e, String datePart, boolean isRefund) {
+        String cond = isRefund ? "(hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%')" : "trangThai = 1 AND hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%'";
+        StringBuilder sql = new StringBuilder("SELECT " + datePart + " AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE " + cond);
+        if (s != null) sql.append(" AND thoiDiemTao >= ?"); if (e != null) sql.append(" AND thoiDiemTao < ?");
+        sql.append(" GROUP BY " + datePart + " ORDER BY Ngay");
+        return executeQueryForIntMapDateKey(sql.toString(), s, e);
     }
-    public Map<LocalDate, Integer> getInvoicesRefundedOverTime(LocalDate startDate, LocalDate endDate) {
-        // Hóa đơn HOÀN/ĐỔI: Chỉ lấy HDHV hoặc HDDV
-        StringBuilder sql = new StringBuilder("SELECT CAST(thoiDiemTao AS DATE) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE (hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%') ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY CAST(thoiDiemTao AS DATE) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
-    }
-
-    // --- B. THEO THÁNG (Cho bộ lọc Năm này) ---
-    public Map<LocalDate, Integer> getInvoicesPaidByMonth(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE trangThai = 1 AND hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%' ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
-    }
-    public Map<LocalDate, Integer> getInvoicesRefundedByMonth(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE (hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%') ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
-    }
-
-    // --- C. THEO NĂM (Cho bộ lọc Tất cả) ---
-    public Map<LocalDate, Integer> getInvoicesPaidByYear(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE trangThai = 1 AND hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%' ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
-    }
-    public Map<LocalDate, Integer> getInvoicesRefundedByYear(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE (hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%') ");
-        if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND thoiDiemTao < ?");
-        sql.append(" GROUP BY DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0) ORDER BY Ngay");
-        return executeQueryForIntMapDateKey(sql.toString(), startDate, endDate);
-    }
-
-    // =========================================================================
-    // 4. BIỂU ĐỒ NGẢ VÉ (JOIN QUA HOADONCHITIET)
-    // =========================================================================
 
     public Map<LocalDate, Map<String, Integer>> getTicketsBySeatTypeOverTime(LocalDate startDate, LocalDate endDate) {
         StringBuilder sql = new StringBuilder(
                 "SELECT CAST(hd.thoiDiemTao AS DATE) AS Ngay, " +
-                        "    CASE WHEN t.hangToaID = 'GN_K4' THEN N'Giường nằm 4' " +
-                        "         WHEN t.hangToaID = 'GN_K6' THEN N'Giường nằm 6' " +
-                        "         WHEN t.hangToaID = 'NM_CLC' THEN N'Ghế ngồi' " +
-                        "         ELSE N'Khác' END AS LoaiGhe, " +
+                        "    CASE WHEN t.hangToaID = 'GN_K4' THEN N'Giường nằm 4' WHEN t.hangToaID = 'GN_K6' THEN N'Giường nằm 6' WHEN t.hangToaID = 'NM_CLC' THEN N'Ghế ngồi' ELSE N'Khác' END AS LoaiGhe, " +
                         "    COUNT(v.veID) AS SoLuong " +
-                        "FROM Ve v " +
-                        "JOIN HoaDonChiTiet hdct ON v.veID = hdct.veID " +
-                        "JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID " +
-                        "JOIN Ghe g ON v.gheID = g.gheID " +
-                        "JOIN Toa t ON g.toaID = t.toaID " +
-                        "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG') "
-        );
-
-        if (startDate != null) sql.append(" AND hd.thoiDiemTao >= ?");
-        if (endDate != null) sql.append(" AND hd.thoiDiemTao < ?");
-
-        sql.append(" GROUP BY CAST(hd.thoiDiemTao AS DATE), " +
-                "      CASE WHEN t.hangToaID = 'GN_K4' THEN N'Giường nằm 4' " +
-                "           WHEN t.hangToaID = 'GN_K6' THEN N'Giường nằm 6' " +
-                "           WHEN t.hangToaID = 'NM_CLC' THEN N'Ghế ngồi' " +
-                "           ELSE N'Khác' END " +
-                " ORDER BY Ngay, LoaiGhe");
-
+                        "FROM Ve v JOIN HoaDonChiTiet hdct ON v.veID = hdct.veID JOIN HoaDon hd ON hdct.hoaDonID = hd.hoaDonID JOIN Ghe g ON v.gheID = g.gheID JOIN Toa t ON g.toaID = t.toaID " +
+                        "WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG') ");
+        if (startDate != null) sql.append(" AND hd.thoiDiemTao >= ?"); if (endDate != null) sql.append(" AND hd.thoiDiemTao < ?");
+        sql.append(" GROUP BY CAST(hd.thoiDiemTao AS DATE), CASE WHEN t.hangToaID = 'GN_K4' THEN N'Giường nằm 4' WHEN t.hangToaID = 'GN_K6' THEN N'Giường nằm 6' WHEN t.hangToaID = 'NM_CLC' THEN N'Ghế ngồi' ELSE N'Khác' END ORDER BY Ngay, LoaiGhe");
         Map<LocalDate, Map<String, Integer>> result = new LinkedHashMap<>();
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
-            int idx = 1;
-            if (startDate != null) pstmt.setObject(idx++, startDate.atStartOfDay());
-            if (endDate != null) pstmt.setObject(idx++, endDate.plusDays(1).atStartOfDay());
+            int idx = 1; if (startDate != null) pstmt.setObject(idx++, startDate.atStartOfDay()); if (endDate != null) pstmt.setObject(idx++, endDate.plusDays(1).atStartOfDay());
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    java.sql.Date sqlDate = rs.getDate("Ngay");
-                    if (sqlDate != null) {
-                        result.putIfAbsent(sqlDate.toLocalDate(), new HashMap<>());
-                        result.get(sqlDate.toLocalDate()).put(rs.getString("LoaiGhe"), rs.getInt("SoLuong"));
+                    java.sql.Date d = rs.getDate("Ngay");
+                    if (d != null) {
+                        result.putIfAbsent(d.toLocalDate(), new HashMap<>());
+                        result.get(d.toLocalDate()).put(rs.getString("LoaiGhe"), rs.getInt("SoLuong"));
                     }
                 }
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException ex) { ex.printStackTrace(); }
         return result;
     }
 
     // =========================================================================
-    // 5. CÁC BIỂU ĐỒ TRÒN (PIE CHART)
+    // 3. CẢNH BÁO & CHI TIẾT CHUYẾN TÀU (QUAN TRỌNG)
     // =========================================================================
 
-    public Map<String, Integer> getCustomerSplitData(LocalDate startDate, LocalDate endDate) {
-        // Sử dụng CTE để tính RFM và phân loại khách hàng
-        StringBuilder sql = new StringBuilder();
-        sql.append("WITH Metrics AS ( ");
-        sql.append("    SELECT ");
-        sql.append("        kh.khachHangID, ");
-        sql.append("        SUM(v.gia) AS TongChiTieu, ");
-        sql.append("        COUNT(v.veID) AS SoLanMua, ");
-        sql.append("        MAX(d.thoiDiemDatCho) AS LanMuaCuoi ");
-        sql.append("    FROM KhachHang kh ");
-        sql.append("    JOIN DonDatCho d ON kh.khachHangID = d.khachHangID ");
-        sql.append("    JOIN Ve v ON d.donDatChoID = v.donDatChoID ");
-        sql.append("    WHERE v.trangThai IN ('DA_BAN', 'DA_DUNG') ");
-
-        if (startDate != null) sql.append(" AND d.thoiDiemDatCho >= ? ");
-        if (endDate != null) sql.append(" AND d.thoiDiemDatCho < ? ");
-
-        sql.append("    GROUP BY kh.khachHangID ");
-        sql.append("), ");
-        sql.append("Classified AS ( ");
-        sql.append("    SELECT ");
-        sql.append("        CASE ");
-        sql.append("            WHEN TongChiTieu >= 10000000 THEN N'VIP' ");
-        sql.append("            WHEN DATEDIFF(day, LanMuaCuoi, GETDATE()) > 180 THEN N'Ngủ đông' ");
-        sql.append("            WHEN SoLanMua >= 5 THEN N'Thân thiết' ");
-        sql.append("            WHEN SoLanMua >= 2 THEN N'Khách quay lại' ");
-        sql.append("            ELSE N'Khách mới' ");
-        sql.append("        END AS LoaiKH ");
-        sql.append("    FROM Metrics ");
-        sql.append(") ");
-        sql.append("SELECT LoaiKH, COUNT(*) AS SoLuong FROM Classified GROUP BY LoaiKH ORDER BY SoLuong DESC");
-
-        return executeQueryForIntMap(sql.toString(), startDate, endDate);
+    /**
+     * Đếm số lượng chuyến tàu cảnh báo.
+     * index 0: High Occupancy (>=90%)
+     * index 1: Low Occupancy (<40% & sắp chạy trong 48h)
+     */
+    public int[] getTripOccupancyAlerts(LocalDate startDate, LocalDate endDate) {
+        int[] counts = {0, 0};
+        // Dùng lại hàm lấy danh sách chi tiết để đếm size, tránh lặp logic
+        List<Object[]> highList = getOccupancyList(startDate, endDate, true);
+        List<Object[]> lowList = getOccupancyList(startDate, endDate, false);
+        counts[0] = highList.size();
+        counts[1] = lowList.size();
+        return counts;
     }
 
-    public Map<String, Integer> getPromotionRateData(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sqlTotal = new StringBuilder("SELECT COUNT(hoaDonID) AS Total FROM HoaDon WHERE 1=1");
-        StringBuilder sqlPromo = new StringBuilder("SELECT COUNT(DISTINCT hd.hoaDonID) AS Promo FROM HoaDon hd JOIN HoaDonChiTiet hdct ON hd.hoaDonID=hdct.hoaDonID WHERE hdct.loaiDichVu='KHUYEN_MAI'");
-        if(startDate!=null){sqlTotal.append(" AND thoiDiemTao >= ?");sqlPromo.append(" AND hd.thoiDiemTao >= ?");}
-        if(endDate!=null){sqlTotal.append(" AND thoiDiemTao < ?");sqlPromo.append(" AND hd.thoiDiemTao < ?");}
-        int total=0,promo=0;
-        try(Connection conn=ConnectDB.getInstance().getConnection()){
-            PreparedStatement p1=conn.prepareStatement(sqlTotal.toString()); int i=1;if(startDate!=null)p1.setObject(i++,startDate.atStartOfDay());if(endDate!=null)p1.setObject(i++,endDate.plusDays(1).atStartOfDay());ResultSet r1=p1.executeQuery();if(r1.next())total=r1.getInt(1);
-            PreparedStatement p2=conn.prepareStatement(sqlPromo.toString()); i=1;if(startDate!=null)p2.setObject(i++,startDate.atStartOfDay());if(endDate!=null)p2.setObject(i++,endDate.plusDays(1).atStartOfDay());ResultSet r2=p2.executeQuery();if(r2.next())promo=r2.getInt(1);
-        }catch(Exception e){e.printStackTrace();}
-        Map<String,Integer> r=new LinkedHashMap<>(); r.put("Đã sử dụng",promo);r.put("Chưa sử dụng",total-promo);return r;
+    /** Lấy danh sách chi tiết chuyến sắp hết vé */
+    public List<Object[]> getHighOccupancyList(LocalDate startDate, LocalDate endDate) {
+        return getOccupancyList(startDate, endDate, true);
+    }
+
+    /** Lấy danh sách chi tiết chuyến bán thấp */
+    public List<Object[]> getLowOccupancyList(LocalDate startDate, LocalDate endDate) {
+        return getOccupancyList(startDate, endDate, false);
+    }
+
+    // Hàm core xử lý logic lọc chuyến tàu
+    private List<Object[]> getOccupancyList(LocalDate startDate, LocalDate endDate, boolean isHighOccupancy) {
+        List<Object[]> list = new ArrayList<>();
+        String sql = "SELECT c.chuyenID, c.tuyenID, c.ngayDi, c.gioDi, " +
+                "    (SELECT moTa FROM Tuyen WHERE tuyenID = c.tuyenID) as TenTuyen, " +
+                "    (SELECT COUNT(*) FROM Ve v WHERE v.chuyenID = c.chuyenID AND v.trangThai = 'DA_BAN') AS SoVeDaBan, " +
+                "    (SELECT COUNT(*) FROM Ghe g JOIN Toa t ON g.toaID = t.toaID WHERE t.tauID = c.tauID) AS TongSoGhe " +
+                "FROM Chuyen c WHERE c.ngayDi BETWEEN ? AND ?";
+
+        try (Connection con = ConnectDB.getInstance().getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            if (startDate == null) startDate = LocalDate.of(2000, 1, 1);
+            if (endDate == null) endDate = LocalDate.of(2099, 12, 31);
+            ps.setDate(1, java.sql.Date.valueOf(startDate));
+            ps.setDate(2, java.sql.Date.valueOf(endDate));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int soVe = rs.getInt("SoVeDaBan");
+                    int tongGhe = rs.getInt("TongSoGhe");
+                    if (tongGhe == 0) continue;
+
+                    double tyLe = (double) soVe / tongGhe * 100;
+                    String chuyenID = rs.getString("chuyenID");
+                    String tuyenID = rs.getString("tuyenID");
+                    String moTaTuyen = rs.getString("TenTuyen");
+                    java.sql.Date ngayDi = rs.getDate("ngayDi");
+                    java.sql.Time gioDi = rs.getTime("gioDi");
+
+                    // Tách ga đi/đến từ mô tả (VD: "Hà Nội - Sài Gòn")
+                    String gaDi = "N/A", gaDen = "N/A";
+                    if (moTaTuyen != null && moTaTuyen.contains("-")) {
+                        String[] parts = moTaTuyen.split("-");
+                        if (parts.length >= 2) { gaDi = parts[0].trim(); gaDen = parts[1].trim(); }
+                    }
+
+                    boolean match = false;
+                    if (isHighOccupancy) {
+                        if (tyLe >= 90) match = true;
+                    } else {
+                        // Logic bán thấp: < 40% VÀ Sắp chạy (trong 48h)
+                        if (tyLe < 40) {
+                            LocalDateTime now = LocalDateTime.now();
+                            LocalDateTime departure = LocalDateTime.of(ngayDi.toLocalDate(), gioDi.toLocalTime());
+                            if (departure.isAfter(now) && departure.isBefore(now.plusHours(48))) {
+                                match = true;
+                            }
+                        }
+                    }
+
+                    if (match) {
+                        // Object[] trả về: ChuyenID, TuyenID, GaDi, GaDen, NgayDi, GioDi, SoVe, TyLe
+                        list.add(new Object[]{ chuyenID, tuyenID, gaDi, gaDen, ngayDi.toLocalDate(), gioDi.toLocalTime(), soVe, Math.round(tyLe * 100.0) / 100.0 });
+                    }
+                }
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
     }
 
     // =========================================================================
-    // 6. HELPER METHODS
+    // 4. HELPER METHODS
     // =========================================================================
-
     private Map<LocalDate, Double> executeQueryForDateMap(String sql, LocalDate s, LocalDate e, String col) {
         Map<LocalDate, Double> r = new LinkedHashMap<>();
         try(Connection c=ConnectDB.getInstance().getConnection();PreparedStatement p=c.prepareStatement(sql)){
@@ -252,28 +209,13 @@ public class Dashboard_DAO {
             try(ResultSet rs=p.executeQuery()){while(rs.next())if(rs.getDate(col)!=null)r.put(rs.getDate(col).toLocalDate(),rs.getDouble("DoanhThu"));}
         }catch(Exception ex){ex.printStackTrace();}return r;
     }
-
-    private Map<String, Integer> executeQueryForIntMap(String sql, LocalDate s, LocalDate e) {
-        Map<String,Integer> r=new LinkedHashMap<>();
-        try(Connection c=ConnectDB.getInstance().getConnection();PreparedStatement p=c.prepareStatement(sql)){
-            int i=1;if(s!=null)p.setObject(i++,s.atStartOfDay());if(e!=null)p.setObject(i++,e.plusDays(1).atStartOfDay());
-            try(ResultSet rs=p.executeQuery()){while(rs.next())r.put(rs.getString(1),rs.getInt(2));}
-        }catch(Exception ex){ex.printStackTrace();}return r;
-    }
-
     private Map<LocalDate, Integer> executeQueryForIntMapDateKey(String sql, LocalDate s, LocalDate e) {
         Map<LocalDate, Integer> r = new LinkedHashMap<>();
         try(Connection c=ConnectDB.getInstance().getConnection();PreparedStatement p=c.prepareStatement(sql)){
             int i=1;if(s!=null)p.setObject(i++,s.atStartOfDay());if(e!=null)p.setObject(i++,e.plusDays(1).atStartOfDay());
-            try(ResultSet rs=p.executeQuery()){
-                while(rs.next()) {
-                    if (rs.getDate("Ngay") != null)
-                        r.put(rs.getDate("Ngay").toLocalDate(), rs.getInt("SoLuong"));
-                }
-            }
+            try(ResultSet rs=p.executeQuery()){while(rs.next()){if(rs.getDate("Ngay")!=null)r.put(rs.getDate("Ngay").toLocalDate(),rs.getInt("SoLuong"));}}
         }catch(Exception ex){ex.printStackTrace();}return r;
     }
-
     private int executeCountQuery(String sql, LocalDate s, LocalDate e, String col) {
         try(Connection c=ConnectDB.getInstance().getConnection();PreparedStatement p=c.prepareStatement(sql)){
             int i=1;if(s!=null)p.setObject(i++,s.atStartOfDay());if(e!=null)p.setObject(i++,e.plusDays(1).atStartOfDay());

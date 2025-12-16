@@ -22,7 +22,7 @@ public class ConnectDB {
 //  private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V8;encrypt=false;";
 	private static final String USER = "sa";
 //	private static final String PASSWORD = "sapassword";
-	private static final String PASSWORD = "StrongP@ssw0rd!";
+	private static final String PASSWORD = "Sql@123456!";
 
 	private static ConnectDB instance;
 
