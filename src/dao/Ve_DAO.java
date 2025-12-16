@@ -43,9 +43,12 @@ public class Ve_DAO {
 	 * @return
 	 */
 	public List<Ve> getVeByDonDatChoID(String donDatChoID) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
-				+ "WHERE donDatChoID = ?";
+		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
+				+ "CASE WHEN GD.veMoiID IS NOT NULL THEN 1 ELSE 0 END AS isVeDoi "
+				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID " + "JOIN Ghe g ON V.gheID = G.gheID "
+				+ "JOIN TOA T ON G.toaID = T.toaID " + "JOIN Tau TAU ON T.tauID = TAU.tauID "
+				+ "JOIN GA Ga1 ON V.gaDiID = Ga1.gaID " + "JOIN GA Ga2 ON V.gaDenID = Ga2.gaID "
+				+ "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "WHERE donDatChoID = ?";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
@@ -71,49 +74,7 @@ public class Ve_DAO {
 				ve.setNgayGioDi(t.toLocalDateTime());
 				ve.setGia(resultSet.getDouble("gia"));
 				ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
-
-				dsVe.add(ve);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return dsVe;
-	}
-
-	/**
-	 * @param donDatChoID
-	 * @return
-	 */
-	public List<Ve> getVeByDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		String sql = "SELECT V.veID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID\r\n"
-				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID JOIN Ghe g ON V.gheID = G.gheID JOIN TOA T ON G.toaID = T.toaID JOIN Tau TAU ON T.tauID = TAU.tauID JOIN GA Ga1 ON V.gaDiID = Ga1.gaID JOIN GA Ga2 ON V.gaDenID = Ga2.gaID\r\n"
-				+ "WHERE donDatChoID = ? AND V.trangThai = ?";
-		Connection con = connectDB.getConnection();
-		PreparedStatement pstmt = null;
-		ResultSet resultSet = null;
-		List<Ve> dsVe = new ArrayList<Ve>();
-		try {
-			pstmt = con.prepareStatement(sql);
-			pstmt.setString(1, donDatChoID);
-			pstmt.setString(2, trangThai.toString());
-			resultSet = pstmt.executeQuery();
-			while (resultSet.next()) {
-				Ve ve = new Ve();
-				ve.setVeID(resultSet.getString("veID"));
-				ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
-						LoaiDoiTuong.valueOf(resultSet.getString("loaiDoiTuongID")), resultSet.getString("soGiayTo")));
-				ve.setDonDatCho(new DonDatCho(donDatChoID));
-				ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
-				ve.setGhe(new Ghe(resultSet.getString("gheID"),
-						new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
-								HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
-						resultSet.getInt("soGhe")));
-				ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
-				ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-				java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
-				ve.setNgayGioDi(t.toLocalDateTime());
-				ve.setGia(resultSet.getDouble("gia"));
-				ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+				ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
 
 				dsVe.add(ve);
 			}

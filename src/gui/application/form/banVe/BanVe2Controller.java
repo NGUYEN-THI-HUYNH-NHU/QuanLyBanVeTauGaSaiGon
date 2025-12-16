@@ -10,6 +10,7 @@ import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractButton;
@@ -24,8 +25,10 @@ import javax.swing.SwingWorker;
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
 import entity.GiaoDichThanhToan;
+import entity.Ve;
 import entity.type.LoaiDoiTuong;
 import gui.application.AppHttpServer;
+import gui.application.EmailService;
 import gui.application.paymentHelper.PdfTicketExporter;
 import gui.application.paymentHelper.VietQRService;
 
@@ -359,6 +362,20 @@ public class BanVe2Controller {
 				try {
 					boolean saveSuccess = get();
 					if (saveSuccess) {
+						String emailKhach = bookingSession.getKhachHang().getEmail();
+						if (emailKhach != null && !emailKhach.isEmpty()) {
+							// Chạy luồng riêng để gửi email, không chờ đợi
+							new Thread(() -> {
+								List<Ve> listVeDaMua = new ArrayList<>();
+								for (VeSession vs : bookingSession.getAllSelectedTickets()) {
+									listVeDaMua.add(vs.getVe());
+								}
+								// Gọi service gửi mail
+								EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho(),
+										giaoDich.getTongTien());
+							}).start();
+						}
+
 						int choice = JOptionPane.showConfirmDialog(view,
 								"Bán vé thành công! Bạn có muốn in vé ngay không?", "In vé", JOptionPane.YES_NO_OPTION);
 

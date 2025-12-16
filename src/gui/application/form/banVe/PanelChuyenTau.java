@@ -44,7 +44,6 @@ public class PanelChuyenTau extends JPanel {
 	private JPanel selectedCard = null;
 	private PanelBuoc2Controller controller;
 
-	private Color hoverBg = new Color(230, 240, 255, 120);
 	private Border normalBorder = new RoundedBorder(20, new Color(200, 200, 200), 2, true, new Color(230, 230, 230));
 	private Border selectedBorder = new RoundedBorder(20, new Color(30, 120, 220), 2, true, new Color(30, 150, 220));
 
@@ -130,9 +129,7 @@ public class PanelChuyenTau extends JPanel {
 		overlay.add(lblNgayGioDen, gbc);
 
 		// seat info ở bottom (dạng badge)
-		JLabel lblCho = new JLabel(
-				String.format("Đặt: %d  Trống: %d", /* c.getBookedSeatsCount() */ 0, /* c.getAvailableSeatsCount() */0),
-				SwingConstants.CENTER);
+		JLabel lblCho = new JLabel(String.format("Đặt: %d  Trống: %d", 0, 0), SwingConstants.CENTER);
 		lblCho.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
 		lblCho.setBackground(new Color(255, 255, 255, 200));
 		lblCho.setFont(fontLbl);
