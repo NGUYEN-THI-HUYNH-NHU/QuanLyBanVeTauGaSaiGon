@@ -66,6 +66,18 @@ public class ThemTuyen_CTRL {
 
         khoiTaoDuLieuBanDau();
         thietLapListener();
+
+        this.dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                lamMoi();
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                lamMoi();
+            }
+        });
     }
 
     private void khoiTaoDuLieuBanDau(){
@@ -300,24 +312,21 @@ public class ThemTuyen_CTRL {
 
     private void xuLyChonGaTrungGian(){
         String tenGaMoi = panelThemTuyen.getTxtGaTrungGian().getText().trim();
-        if(tenGaMoi.isEmpty()){
-            return;
-        }
+        if(tenGaMoi.isEmpty()) return;
 
+        // 1. Kiểm tra Ga Xuất Phát và Ga Đích
         String tenGaXP = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
         String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim();
 
         if (tenGaXP.isEmpty() || tenGaDen.isEmpty()) {
             JOptionPane.showMessageDialog(panelThemTuyen,
-                    "Vui lòng chọn Ga Xuất Phát và Ga Đích trước khi thêm Ga Trung Gian!",
-                    "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
+                    "Vui lòng chọn Ga Xuất Phát và Ga Đích trước!", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // 2. Kiểm tra Ga hợp lệ
         if(!dsGaCoSan.containsKey(tenGaMoi) || !dsGaCoSan.containsKey(tenGaXP) || !dsGaCoSan.containsKey(tenGaDen)){
-            JOptionPane.showMessageDialog(panelThemTuyen,
-                    "Tên ga không hợp lệ hoặc không tồn tại trong hệ thống!",
-                    "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelThemTuyen, "Tên ga không tồn tại trong hệ thống!", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -325,47 +334,52 @@ public class ThemTuyen_CTRL {
         Ga gaXP = dsGaCoSan.get(tenGaXP);
         Ga gaDen = dsGaCoSan.get(tenGaDen);
 
+        // 3. Kiểm tra trùng
         if(tenGaMoi.equals(tenGaXP) || tenGaMoi.equals(tenGaDen)){
-            JOptionPane.showMessageDialog(panelThemTuyen,
-                    "Ga trung gian không được trùng với Ga Xuất Phát hoặc Ga Đích!",
-                    "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không được trùng với Ga XP hoặc Ga Đích!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         if(dsGaDaChon.stream().anyMatch(g -> g.getTenGa().equals(tenGaMoi))){
-            JOptionPane.showMessageDialog(panelThemTuyen,
-                    "Ga này đã được thêm vào danh sách!",
-                    "Lỗi trùng lặp", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(panelThemTuyen, "Ga này đã được thêm rồi!", "Trùng lặp", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // --- 4. KIỂM TRA LOGIC HƯỚNG VÀ THỨ TỰ (QUAN TRỌNG) ---
         try {
+            // A. Tính tổng quãng đường (XP -> Đích)
             int kcTong = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaDen.getGaID());
-
+            // B. Tính quãng đường từ XP -> Ga Mới
             int kcTuDauDenMoi = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaMoi.getGaID());
+            // C. Tính quãng đường từ Ga Mới -> Đích
+            int kcTuMoiDenDich = tuyenBus.tinhKhoangCachTongDijsktra(gaMoi.getGaID(), gaDen.getGaID());
 
-            if (kcTong == -1 || kcTuDauDenMoi == -1) {
-                JOptionPane.showMessageDialog(panelThemTuyen,
-                        "Không thể tính toán khoảng cách. Vui lòng kiểm tra lại kết nối giữa các ga.",
-                        "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+            // Check lỗi DB
+            if (kcTong == -1 || kcTuDauDenMoi == -1 || kcTuMoiDenDich == -1) {
+                JOptionPane.showMessageDialog(panelThemTuyen, "Lỗi tính toán khoảng cách. Kiểm tra lại dữ liệu Ga.", "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (kcTuDauDenMoi >= kcTong) {
+            // Check 4.1: Ga Mới có nằm TRÊN tuyến đường không?
+            // Nếu (XP->Mới) + (Mới->Đích) > (XP->Đích) nghĩa là ga này nằm lệch đường hoặc ngược chiều hẳn
+            // Cho phép sai số nhỏ (ví dụ 5km) do dữ liệu đường sắt có thể không tuyệt đối thẳng
+            if (Math.abs((kcTuDauDenMoi + kcTuMoiDenDich) - kcTong) > 20) {
                 JOptionPane.showMessageDialog(panelThemTuyen,
-                        "Ga " + tenGaMoi + " nằm sau Ga Đích (" + tenGaDen + ") trên tuyến đường sắt.\n" +
-                                "Vui lòng kiểm tra lại hướng tuyến.",
-                        "Sai thứ tự địa lý", JOptionPane.ERROR_MESSAGE);
+                        "Ga " + tenGaMoi + " không nằm trên cung đường từ " + tenGaXP + " đến " + tenGaDen + ".\n" +
+                                "Hoặc ga này nằm ngược chiều di chuyển.",
+                        "Sai lộ trình", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             if (!dsGaDaChon.isEmpty()) {
-                Ga gaCuoiCungTrongList = dsGaDaChon.get(dsGaDaChon.size() - 1);
-                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaCuoiCungTrongList.getGaID());
+                Ga gaCuoiCung = dsGaDaChon.get(dsGaDaChon.size() - 1);
+                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaCuoiCung.getGaID());
 
                 if (kcTuDauDenMoi <= kcTuDauDenCuoiList) {
                     JOptionPane.showMessageDialog(panelThemTuyen,
-                            "Sai thứ tự! Ga " + tenGaMoi + " nằm trước ga " + gaCuoiCungTrongList.getTenGa() + ".\n" +
-                                    "Bạn phải thêm các ga theo đúng thứ tự hành trình từ " + tenGaXP + " đến " + tenGaDen + ".",
+                            "Sai thứ tự hành trình!\n" +
+                                    "- Ga " + gaCuoiCung.getTenGa() + " cách " + tenGaXP + ": " + kcTuDauDenCuoiList + " km\n" +
+                                    "- Ga " + tenGaMoi + " cách " + tenGaXP + ": " + kcTuDauDenMoi + " km\n\n" +
+                                    "-> Bạn phải nhập ga " + tenGaMoi + " TRƯỚC ga " + gaCuoiCung.getTenGa() + ".",
                             "Sai thứ tự nhập liệu", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -373,7 +387,6 @@ public class ThemTuyen_CTRL {
 
             dsGaDaChon.add(gaMoi);
             taovaThemTagGa(gaMoi);
-
             panelThemTuyen.getTxtGaTrungGian().setText("");
             ppGaTrungGian.setVisible(false);
 
@@ -381,7 +394,6 @@ public class ThemTuyen_CTRL {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(panelThemTuyen, "Lỗi khi tính toán khoảng cách: " + ex.getMessage());
         }
     }
 
@@ -542,12 +554,26 @@ public class ThemTuyen_CTRL {
         }
     }
 
-//    private void chuyenFocusSauKhiChon(JTextField sourceField){
-//        if(sourceField == panelThemTuyen.getTxtGaXuatPhat()) {
-//            panelThemTuyen.getTxtGaDich().requestFocusInWindow();
-//        } else if (sourceField == panelThemTuyen.getTxtGaDich()) {
-//            panelThemTuyen.getTxtGaTrungGian().requestFocusInWindow();
-//
-//        }
-//    }
+    public void lamMoi() {
+        panelThemTuyen.getTxtGaXuatPhat().setText("");
+        panelThemTuyen.getTxtGaDich().setText("");
+        panelThemTuyen.getTxtGaTrungGian().setText("");
+        panelThemTuyen.getTxtMaTuyen().setText("");
+        panelThemTuyen.getTxtDoDaiQuangDuong().setText("");
+        panelThemTuyen.getTxtMoTa().setText("");
+
+        panelThemTuyen.getTxtMaTuyen().setForeground(Color.BLACK);
+
+        dsGaDaChon.clear();
+
+        panelThemTuyen.getPnlGaTrungGianDaChon().removeAll();
+        panelThemTuyen.getPnlGaTrungGianDaChon().revalidate();
+        panelThemTuyen.getPnlGaTrungGianDaChon().repaint();
+
+        panelThemTuyen.getModelGaChiTiet().setRowCount(0);
+
+        ppGaXuatPhat.setVisible(false);
+        ppGaDich.setVisible(false);
+        ppGaTrungGian.setVisible(false);
+    }
 }
