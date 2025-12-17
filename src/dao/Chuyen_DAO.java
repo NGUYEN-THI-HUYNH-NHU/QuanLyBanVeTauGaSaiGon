@@ -429,4 +429,20 @@ public class Chuyen_DAO {
 		} catch (SQLException e) { e.printStackTrace(); }
 		return list;
 	}
+
+	public boolean existsById(String chuyenID) {
+		String sql = "SELECT 1 FROM Chuyen WHERE chuyenID = ?";
+		try (Connection con = ConnectDB.getInstance().getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setString(1, chuyenID);
+			ResultSet rs = ps.executeQuery();
+			return rs.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }

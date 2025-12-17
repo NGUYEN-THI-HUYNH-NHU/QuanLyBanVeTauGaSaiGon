@@ -1006,13 +1006,23 @@ public class QuanLyChuyen_CTRL {
                 listStops.add(stopNode);
             }
 
-            if (chuyenBus.themChuyen(c, listStops)) {
-                JOptionPane.showMessageDialog(panelThemChuyen, "Thêm thành công!");
+            String error = chuyenBus.themChuyen(c, listStops);
+
+            if (error == null) {
+                JOptionPane.showMessageDialog(panelThemChuyen,
+                        "Thêm chuyến thành công!",
+                        "Thành công",
+                        JOptionPane.INFORMATION_MESSAGE);
+
                 dialogThem.dispose();
                 timKiemChuyen();
             } else {
-                JOptionPane.showMessageDialog(dialogThem, "Thêm thất bại!");
+                JOptionPane.showMessageDialog(dialogThem,
+                        "Thêm chuyến thất bại: " + error,
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
+
         } catch(Exception ex){ ex.printStackTrace(); }
     }
 

@@ -132,9 +132,20 @@ public class Chuyen_BUS {
 		return chuyenDAO.getAllTuyenID();
 	}
 
-	public boolean themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
-		return chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
+	public String themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
+
+		if (chuyenDAO.existsById(chuyen.getChuyenID())) {
+			return "Đã tồn tại chuyến " + chuyen.getChuyenID();
+		}
+
+		boolean ok = chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
+		if (!ok) {
+			return "Không thể thêm chuyến (lỗi lưu dữ liệu)";
+		}
+
+		return null;
 	}
+
 
 	public Map<String, String> getMapTenGaToID(){
 		return chuyenDAO.getMapTenGaToID();
