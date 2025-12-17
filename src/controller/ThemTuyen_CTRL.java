@@ -304,26 +304,85 @@ public class ThemTuyen_CTRL {
             return;
         }
 
-        String gaDi = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
-        String gaDen = panelThemTuyen.getTxtGaDich().getText().trim();
-        if(!dsGaCoSan.containsKey(tenGaMoi)){
-            JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không tồn tại trong hệ thống!", "Lỗi chọn ga trung gian", JOptionPane.ERROR_MESSAGE);
+        String tenGaXP = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
+        String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim();
+
+        if (tenGaXP.isEmpty() || tenGaDen.isEmpty()) {
+            JOptionPane.showMessageDialog(panelThemTuyen,
+                    "Vui lòng chọn Ga Xuất Phát và Ga Đích trước khi thêm Ga Trung Gian!",
+                    "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        if(!dsGaCoSan.containsKey(tenGaMoi) || !dsGaCoSan.containsKey(tenGaXP) || !dsGaCoSan.containsKey(tenGaDen)){
+            JOptionPane.showMessageDialog(panelThemTuyen,
+                    "Tên ga không hợp lệ hoặc không tồn tại trong hệ thống!",
+                    "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Ga gaMoi = dsGaCoSan.get(tenGaMoi);
-        if(tenGaMoi.equals(gaDi) || tenGaMoi.equals(gaDen)){
-            JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không được trùng với ga xuất phát hoặc ga đích!", "Lỗi chọn ga trung gian", JOptionPane.ERROR_MESSAGE);
+        Ga gaXP = dsGaCoSan.get(tenGaXP);
+        Ga gaDen = dsGaCoSan.get(tenGaDen);
+
+        if(tenGaMoi.equals(tenGaXP) || tenGaMoi.equals(tenGaDen)){
+            JOptionPane.showMessageDialog(panelThemTuyen,
+                    "Ga trung gian không được trùng với Ga Xuất Phát hoặc Ga Đích!",
+                    "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
             return;
         }
         if(dsGaDaChon.stream().anyMatch(g -> g.getTenGa().equals(tenGaMoi))){
-            JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian đã được chọn!", "Lỗi chọn ga trung gian", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelThemTuyen,
+                    "Ga này đã được thêm vào danh sách!",
+                    "Lỗi trùng lặp", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        dsGaDaChon.add(gaMoi);
-        taovaThemTagGa(gaMoi);
 
-        panelThemTuyen.getTxtGaTrungGian().setText("");
-        ppGaTrungGian.setVisible(false);
+        try {
+            int kcTong = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaDen.getGaID());
+
+            int kcTuDauDenMoi = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaMoi.getGaID());
+
+            if (kcTong == -1 || kcTuDauDenMoi == -1) {
+                JOptionPane.showMessageDialog(panelThemTuyen,
+                        "Không thể tính toán khoảng cách. Vui lòng kiểm tra lại kết nối giữa các ga.",
+                        "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (kcTuDauDenMoi >= kcTong) {
+                JOptionPane.showMessageDialog(panelThemTuyen,
+                        "Ga " + tenGaMoi + " nằm sau Ga Đích (" + tenGaDen + ") trên tuyến đường sắt.\n" +
+                                "Vui lòng kiểm tra lại hướng tuyến.",
+                        "Sai thứ tự địa lý", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!dsGaDaChon.isEmpty()) {
+                Ga gaCuoiCungTrongList = dsGaDaChon.get(dsGaDaChon.size() - 1);
+                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaCuoiCungTrongList.getGaID());
+
+                if (kcTuDauDenMoi <= kcTuDauDenCuoiList) {
+                    JOptionPane.showMessageDialog(panelThemTuyen,
+                            "Sai thứ tự! Ga " + tenGaMoi + " nằm trước ga " + gaCuoiCungTrongList.getTenGa() + ".\n" +
+                                    "Bạn phải thêm các ga theo đúng thứ tự hành trình từ " + tenGaXP + " đến " + tenGaDen + ".",
+                            "Sai thứ tự nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            dsGaDaChon.add(gaMoi);
+            taovaThemTagGa(gaMoi);
+
+            panelThemTuyen.getTxtGaTrungGian().setText("");
+            ppGaTrungGian.setVisible(false);
+
+            capNhatDanhSachVaTinhKC();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(panelThemTuyen, "Lỗi khi tính toán khoảng cách: " + ex.getMessage());
+        }
     }
 
     private void taovaThemTagGa(Ga ga){
