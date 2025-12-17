@@ -55,7 +55,7 @@ public class PanelQuanLyChuyen extends JPanel {
 
     private final Font BASE_FONT = new Font("Segoe UI", Font.PLAIN, 15);
     private final Color COLOR_ACCENT = new Color(36,104,155);
-    private final Color COLOR_HEADER = new Color(30,41,58);
+    private final Color COLOR_HEADER = new Color(36,104,155);
     private final Color COLOR_BG = new Color(245, 250, 255);
 
     public PanelQuanLyChuyen(NhanVien nhanVien){

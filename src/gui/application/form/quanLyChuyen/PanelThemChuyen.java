@@ -70,16 +70,19 @@ public class PanelThemChuyen extends JPanel {
         txtMaChuyen.setBackground(new Color(240, 240, 240));
         pnlThongTin.add(txtMaChuyen, "growx");
 
-        pnlThongTin.add(new JLabel("Tuyến:"));
+        pnlThongTin.add(new JLabel("Tên Tuyến:"));
         comboTuyen = new JComboBox<>();
+        comboTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập Tên Tuyến cần thêm!");
         pnlThongTin.add(comboTuyen, "growx, wrap");
 
-        pnlThongTin.add(new JLabel("Mã Tàu:"));
+        pnlThongTin.add(new JLabel("Tên Tàu:"));
         comboTau = new JComboBox<>();
+        comboTau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Tàu dùng cho chuyến!");
         pnlThongTin.add(comboTau, "growx");
 
         pnlThongTin.add(new JLabel("Ngày Đi:"));
         txtNgayDi = new JTextField();
+        txtNgayDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập ngày đi (dd/MM/YYYY)");
         DateChooser dateChooser = new DateChooser();
         dateChooser.setTextRefernce(txtNgayDi);
         dateChooser.setDateFormat("dd/MM/yyyy");
@@ -119,12 +122,19 @@ public class PanelThemChuyen extends JPanel {
 
         JPanel pnlNhapGa = new JPanel(new MigLayout("fillx", "[pref!]5[grow]10[pref!]5[grow]10[pref!]5[grow]", "[]"));
         pnlNhapGa.setBackground(Color.WHITE);
-
+        JLabel lblHuongDan = new JLabel("(*) Chọn chặng trên bảng thông tin lịch trình để nhập các thông tin ngày/giờ cho chặng!");
+        lblHuongDan.setForeground(Color.RED);
+        lblHuongDan.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+        pnlNhapGa.add(lblHuongDan, "span, wrap, gapbottom 10");
         txtGaDiMoi = new JTextField();
         txtGaDenMoi = new JTextField();
         pnlNhapGa.add(new JLabel("Ga Đi:"));
+        txtGaDiMoi.setEditable(false);
+        txtGaDiMoi.setFocusable(false);
         pnlNhapGa.add(txtGaDiMoi, "growx");
         pnlNhapGa.add(new JLabel("Ga Đến:"));
+        txtGaDenMoi.setEditable(false);
+        txtGaDenMoi.setFocusable(false);
         pnlNhapGa.add(txtGaDenMoi, "growx, wrap");
 
         txtNgayDiMoi = new JTextField();

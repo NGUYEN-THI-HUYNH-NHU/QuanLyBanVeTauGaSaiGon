@@ -76,6 +76,8 @@ public class PanelCapNhatChuyen extends JPanel {
 
         pnlThongTin.add(new JLabel("Tuyến:"));
         comboTuyen = new JComboBox<>();
+        comboTuyen.setEditable(false);
+        comboTuyen.setFocusable(false);
         pnlThongTin.add(comboTuyen, "growx, wrap");
 
         pnlThongTin.add(new JLabel("Mã Tàu:"));
@@ -121,12 +123,17 @@ public class PanelCapNhatChuyen extends JPanel {
 
         JPanel pnlNhapGa = new JPanel(new MigLayout("fillx", "[pref!]5[grow]10[pref!]5[grow]10[pref!]5[grow]", "[]"));
         pnlNhapGa.setBackground(Color.WHITE);
-
+        JLabel lblHuongDan = new JLabel("(*) Chọn chặng trên bảng thông tin lịch trình để cập nhập các thông tin ngày/giờ cho chặng!");
+        lblHuongDan.setForeground(Color.RED);
+        lblHuongDan.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+        pnlNhapGa.add(lblHuongDan, "span, wrap, gapbottom 10");
         txtGaDiMoi = new JTextField();
         txtGaDenMoi = new JTextField();
         pnlNhapGa.add(new JLabel("Ga Đi:"));
+        txtGaDiMoi.setFocusable(false);
         pnlNhapGa.add(txtGaDiMoi, "growx");
         pnlNhapGa.add(new JLabel("Ga Đến:"));
+        txtGaDenMoi.setFocusable(false);
         pnlNhapGa.add(txtGaDenMoi, "growx, wrap");
 
         txtNgayDiMoi = new JTextField();
@@ -187,7 +194,7 @@ public class PanelCapNhatChuyen extends JPanel {
         pnlNhapGa.add(new JLabel("Giờ Đến:"));
         pnlNhapGa.add(pnlGioDenMoi, "growx");
 
-        btnCapNhatChang = new JButton("Cập Nhật CGiờ");
+        btnCapNhatChang = new JButton("Cập Nhật Giờ");
         btnCapNhatChang.setBackground(new Color(36,104,155));
         btnCapNhatChang.setForeground(Color.WHITE);
         btnCapNhatChang.setFont(new Font("Segoe UI", Font.BOLD, 14));
