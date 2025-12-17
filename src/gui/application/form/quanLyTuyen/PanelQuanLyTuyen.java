@@ -70,7 +70,7 @@ public class PanelQuanLyTuyen extends JPanel {
         panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        title.setForeground(new Color(30,41,58));
+        title.setForeground(new Color(36,104,155));
         panelHeader.add(title, "growx");
 
         // Input fields
@@ -145,7 +145,7 @@ public class PanelQuanLyTuyen extends JPanel {
         // Table Style
         JTableHeader hd = tableTuyen.getTableHeader();
         hd.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        hd.setBackground(new Color(30,41,58));
+        hd.setBackground(new Color(36,104,155));
         hd.setForeground(Color.white);
         ((DefaultTableCellRenderer)hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -274,7 +274,7 @@ public class PanelQuanLyTuyen extends JPanel {
     }
 
     public void setMauBTN() {
-        Color mauNutChu = new Color(30,41,58);
+        Color mauNutChu = new Color(36,104,155);
         JButton[] buttons = { btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
