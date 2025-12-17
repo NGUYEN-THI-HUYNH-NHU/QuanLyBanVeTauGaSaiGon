@@ -878,12 +878,11 @@ public class QuanLyChuyen_CTRL {
             }
 
             private void syncHeaderToTable() {
-                // Nếu bảng đã có dữ liệu, cập nhật dòng đầu tiên (row 0)
                 if (panelThemChuyen.getModelLichTrinh().getRowCount() > 0) {
                     panelThemChuyen.getModelLichTrinh().setValueAt(panelThemChuyen.getTxtNgayDi().getText(), 0, 2);
                     panelThemChuyen.getModelLichTrinh().setValueAt(panelThemChuyen.getTxtGioDi().getText(), 0, 3);
                 }
-                genCode(); // Gọi lại genCode để cập nhật mã chuyến
+                genCode();
             }
         };
 
@@ -895,10 +894,17 @@ public class QuanLyChuyen_CTRL {
 
         if (panelThemChuyen.getComboTuyen().getEditor().getEditorComponent() instanceof JTextField) {
             panelThemChuyen.getComboTuyen().addActionListener(e -> {
-                String tuyenID = (String) panelThemChuyen.getComboTuyen().getSelectedItem();
-                if (tuyenID != null && !tuyenID.isEmpty()) {
-                    loadLichTrinhMau(tuyenID);
-                }
+                Object selected = panelThemChuyen.getComboTuyen().getSelectedItem();
+                if (selected == null) return;
+
+                String rawValue = selected.toString().trim();
+                if (rawValue.isEmpty()) return;
+
+                String maTuyen = layMaTuChuoiHienThi(rawValue);
+
+                setComboText(panelThemChuyen.getComboTuyen(), maTuyen);
+
+                loadLichTrinhMau(maTuyen);
             });
         }
         panelThemChuyen.getBtnThemGa().setText("Lưu Giờ");
@@ -1020,7 +1026,6 @@ public class QuanLyChuyen_CTRL {
 
     private void setupComboTuyen(JComboBox<String> cbo, List<String> dataFormatted) {
         cbo.setEditable(true);
-        // Model chứa full chuỗi "Mã (Tên)" để hiển thị đẹp khi xổ xuống
         cbo.setModel(new DefaultComboBoxModel<>(dataFormatted.toArray(new String[0])));
         cbo.setSelectedIndex(-1);
 
@@ -1036,7 +1041,6 @@ public class QuanLyChuyen_CTRL {
         pp.removeAll();
         pp.add(new JScrollPane(lst));
 
-        // 1. Sự kiện gõ phím để lọc
         txtEditor.getDocument().addDocumentListener(new DocumentListener() {
             private Timer timer;
             private void update() {
@@ -1054,8 +1058,6 @@ public class QuanLyChuyen_CTRL {
             @Override public void removeUpdate(DocumentEvent e) { update(); }
             @Override public void changedUpdate(DocumentEvent e) {}
         });
-
-        // 2. Sự kiện Click chuột: Gọi chonTuyen ngay
         lst.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -1065,22 +1067,19 @@ public class QuanLyChuyen_CTRL {
             }
         });
 
-        // 3. Sự kiện Phím Enter: Gọi chonTuyen ngay
         txtEditor.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    // Nếu popup đang hiện -> chọn từ list
                     if (pp.isVisible() && lst.getSelectedValue() != null) {
                         chonTuyen(lst.getSelectedValue(), txtEditor, pp, actionNextFocus);
                     }
-                    // Nếu popup không hiện (đã gõ xong) -> chọn text hiện tại
                     else {
                         chonTuyen(txtEditor.getText(), txtEditor, pp, actionNextFocus);
                     }
                     e.consume();
                 }
-                // Xử lý phím lên xuống
+
                 else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     if (pp.isVisible()) {
                         int index = lst.getSelectedIndex();
