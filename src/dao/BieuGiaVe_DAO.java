@@ -14,12 +14,7 @@ package dao;
  * 
  * @version: 1.0
  */
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +78,57 @@ public class BieuGiaVe_DAO {
 		}
 		System.out.println(list);
 		return list;
+	}
+
+	public List<BieuGiaVe> getBieuGiaTheoTieuChi(String tuKhoa, String maTuyen, String loaiTau) {
+		List<BieuGiaVe> list = new ArrayList<>();
+		StringBuilder sql = new StringBuilder("SELECT * FROM BieuGiaVe WHERE 1=1");
+
+		// Logic "Search Flexible": Chỉ thêm điều kiện nếu người dùng có nhập/chọn
+		if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+			sql.append(" AND bieuGiaVeID LIKE ?");
+		}
+		if (maTuyen != null && !maTuyen.equalsIgnoreCase("Tất cả") && !maTuyen.isEmpty()) {
+			sql.append(" AND tuyenApDungID = ?");
+		}
+		if (loaiTau != null && !loaiTau.equalsIgnoreCase("Tất cả")) {
+			sql.append(" AND loaiTauApDungID = ?");
+		}
+
+		sql.append(" ORDER BY doUuTien DESC, ngayBatDau DESC");
+
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			int index = 1;
+			if (tuKhoa != null && !tuKhoa.trim().isEmpty()) ps.setString(index++, "%" + tuKhoa + "%");
+			if (maTuyen != null && !maTuyen.equalsIgnoreCase("Tất cả") && !maTuyen.isEmpty()) ps.setString(index++, maTuyen);
+			if (loaiTau != null && !loaiTau.equalsIgnoreCase("Tất cả")) ps.setString(index++, loaiTau);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) list.add(mapRow(rs));
+			}
+		} catch (SQLException e) { e.printStackTrace(); }
+		return list;
+	}
+
+	private BieuGiaVe mapRow(ResultSet rs) throws SQLException {
+		BieuGiaVe bg = new BieuGiaVe();
+		bg.setBieuGiaVeID(rs.getString("bieuGiaVeID"));
+		String tuyenID = rs.getString("tuyenApDungID");
+		bg.setTuyenApDung(tuyenID != null ? new Tuyen(tuyenID) : null);
+		String loaiTauID = rs.getString("loaiTauApDungID");
+		bg.setLoaiTauApDung(loaiTauID != null ? LoaiTau.valueOf(loaiTauID) : null);
+		String hangToaID = rs.getString("hangToaApDungID");
+		bg.setHangToaApDung(hangToaID != null ? HangToa.valueOf(hangToaID) : null);
+		bg.setMinKm(rs.getInt("minKm"));
+		bg.setMaxKm(rs.getInt("maxKm"));
+		bg.setDonGiaTrenKm(rs.getObject("donGiaTrenKm") != null ? rs.getDouble("donGiaTrenKm") : 0);
+		bg.setGiaCoBan(rs.getObject("giaCoBan") != null ? rs.getDouble("giaCoBan") : 0);
+		bg.setPhuPhiCaoDiem(rs.getDouble("phuPhiCaoDiem"));
+		bg.setDoUuTien(rs.getInt("doUuTien"));
+		bg.setNgayBatDau(toLocalDate(rs.getDate("ngayBatDau")));
+		bg.setNgayKetThuc(toLocalDate(rs.getDate("ngayKetThuc")));
+		return bg;
 	}
 
 	public boolean themBieuGia(BieuGiaVe bg) {

@@ -14,6 +14,7 @@ package gui.application.form.banVe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -56,6 +57,7 @@ public class PanelBuoc3 extends JPanel {
 	private Consumer<PassengerRow> deleteListener;
 
 	private PanelBuoc3Controller controller;
+	private JTextField txtEmail;
 
 	public PanelBuoc3() {
 		setLayout(new BorderLayout(8, 8));
@@ -124,13 +126,17 @@ public class PanelBuoc3 extends JPanel {
 		// FORM KHÁCH HÀNG (bên phải)
 		formKhachHang = new JPanel(new GridBagLayout());
 		formKhachHang.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1));
+		formKhachHang.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
+		formKhachHang.setSize(new Dimension(300, 0));
 
 		txtTen = new JTextField(18);
 		txtCccd = new JTextField(18);
 		txtPhone = new JTextField(18);
+		txtEmail = new JTextField(18);
 		txtTen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ và Tên");
 		txtCccd.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Số CCCD/Hộ chiếu");
 		txtPhone.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Số điện thoại");
+		txtEmail.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Email");
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -142,34 +148,40 @@ public class PanelBuoc3 extends JPanel {
 		JLabel lblNguoiMuaVe = new JLabel("Người mua vé", SwingConstants.CENTER);
 		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
 		lblNguoiMuaVe.setForeground(new Color(0, 145, 212));
-		formKhachHang.add(lblNguoiMuaVe, gbc);
+//		formKhachHang.add(lblNguoiMuaVe, gbc);
 
-		gbc.insets = new Insets(2, 2, 2, 2);
+		gbc.insets = new Insets(1, 2, 1, 2);
 		gbc.gridwidth = 1;
 
 		// ====== row 0: CCCD/Hộ chiếu * ======
-		gbc.gridy = 1;
+		gbc.gridy = 0;
 		formKhachHang.add(new JLabel("<html>Số CCCD/Hộ chiếu <font color='red'>*</font></html>"), gbc);
-		gbc.gridy = 2;
+		gbc.gridy = 1;
 		formKhachHang.add(txtCccd, gbc);
 
 		// ====== row 1: Họ và tên * ======
-		gbc.gridy = 3;
+		gbc.gridy = 2;
 		formKhachHang.add(new JLabel("<html>Họ và Tên <font color='red'>*</font></html>"), gbc);
-		gbc.gridy = 4;
+		gbc.gridy = 3;
 		formKhachHang.add(txtTen, gbc);
 
 		// ====== row 2: Số điện thoại * ======
-		gbc.gridy = 5;
+		gbc.gridy = 4;
 		formKhachHang.add(new JLabel("<html>Số điện thoại <font color='red'>*</font></html>"), gbc);
-		gbc.gridy = 6;
+		gbc.gridy = 5;
 		formKhachHang.add(txtPhone, gbc);
 
+		// ====== row 3: Email * ======
+		gbc.gridy = 6;
+		formKhachHang.add(new JLabel("<html>Email <font color='red'>*</font></html>"), gbc);
 		gbc.gridy = 7;
-		formKhachHang.add(Box.createVerticalStrut(30), gbc);
+		formKhachHang.add(txtEmail, gbc);
+
+		gbc.gridy = 8;
+		formKhachHang.add(Box.createVerticalStrut(20));
 
 		// ====== row 4: lblError * ======
-		gbc.gridy = 8;
+		gbc.gridy = 9;
 		lblError = new JLabel("");
 		lblError.setForeground(Color.RED);
 		lblError.setFont(new Font(lblError.getFont().getName(), Font.ITALIC, 11));
@@ -205,6 +217,10 @@ public class PanelBuoc3 extends JPanel {
 
 	public JTextField getTxtPhoneNguoiMua() {
 		return this.txtPhone;
+	}
+
+	public JTextField getTxtEmailNguoiMua() {
+		return this.txtEmail;
 	}
 
 	public VeBanTableModel getModel() {

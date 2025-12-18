@@ -25,15 +25,14 @@ public class Tuyen_DAO {
 
 	public List<Tuyen> getAllTuyen() {
 		List<Tuyen> danhSachTuyen = new ArrayList<>();
-		String sql = "SELECT tuyenID, moTa FROM Tuyen";
+		String sql = "SELECT tuyenID, moTa, trangThai FROM Tuyen";
 
 		try (Connection con = connectDB.getConnection();
 				PreparedStatement pstm = con.prepareStatement(sql);
 				ResultSet rs = pstm.executeQuery()) {
 
 			while (rs.next()) {
-				String tuyenID = rs.getString("tuyenID");
-				Tuyen tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
+				Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"), rs.getBoolean("trangThai"));
 				danhSachTuyen.add(tuyen);
 			}
 		} catch (SQLException e) {
@@ -50,7 +49,7 @@ public class Tuyen_DAO {
 			pstm.setString(1, "%" + tuyenIDTim.toLowerCase() + "%");
 			ResultSet rs = pstm.executeQuery();
 			while (rs.next()) {
-				Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
+				Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"), rs.getBoolean("trangThai"));
 				danhSachTuyen.add(tuyen);
 			}
 		} catch (SQLException e) {
@@ -67,21 +66,19 @@ public class Tuyen_DAO {
 
 		if (hasBothGa) {
 			// SQL_FULL_SEARCH: Tìm tuyến có GaDi trước GaDen (3 tham số)
-			sql = "SELECT DISTINCT t.tuyenID, t.moTa " + "FROM Tuyen t " + "WHERE t.tuyenID IN ( "
+			sql = "SELECT DISTINCT t.tuyenID, t.moTa, t.trangThai " +
+					"FROM Tuyen t " +
+					"WHERE t.tuyenID IN ( "
 					+ "    SELECT t1.tuyenID FROM TuyenChiTiet t1 JOIN Ga g1 ON t1.gaID = g1.gaID WHERE LOWER(g1.tenGa) LIKE LOWER(?) "
-					+ // ?1: Ga Di
-					"    AND t1.tuyenID IN ( "
+					+ "    AND t1.tuyenID IN ( "
 					+ "        SELECT t2.tuyenID FROM TuyenChiTiet t2 JOIN Ga g2 ON t2.gaID = g2.gaID WHERE LOWER(g2.tenGa) LIKE LOWER(?) "
-					+ // ?2: Ga Đến
-					"        AND t2.thuTu > ( "
+					+ "        AND t2.thuTu > ( "
 					+ "            SELECT MIN(t3.thuTu) FROM TuyenChiTiet t3 JOIN Ga g3 ON t3.gaID = g3.gaID "
-					+ "            WHERE LOWER(g3.tenGa) LIKE LOWER(?) AND t3.tuyenID = t2.tuyenID " + // ?3: Ga Di
-																										// (MIN)
-					"        ) " + "    ) " + ") ORDER BY t.tuyenID";
+					+ "            WHERE LOWER(g3.tenGa) LIKE LOWER(?) AND t3.tuyenID = t2.tuyenID "
+					+ "        ) " + "    ) " + ") ORDER BY t.tuyenID";
 			expectedParamCount = 3;
 		} else {
-			// SQL_PARTIAL_SEARCH: Tìm tuyến chỉ chứa GaDi HOẶC GaDen (1 tham số)
-			sql = "SELECT DISTINCT t.tuyenID, t.moTa "
+			sql = "SELECT DISTINCT t.tuyenID, t.moTa, t.trangThai "
 					+ "FROM Tuyen t JOIN TuyenChiTiet t1 ON t.tuyenID = t1.tuyenID JOIN Ga g1 ON t1.gaID = g1.gaID "
 					+ "WHERE 1=1 ";
 			if (gaDi != null && !gaDi.trim().isEmpty()) {
@@ -96,15 +93,12 @@ public class Tuyen_DAO {
 		try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 
 			if (hasBothGa) {
-				// Thiết lập 3 tham số cho SQL_FULL_SEARCH
 				pstmt.setString(1, "%" + gaDi.trim() + "%");
 				pstmt.setString(2, "%" + gaDen.trim() + "%");
 				pstmt.setString(3, "%" + gaDi.trim() + "%");
 			} else if (gaDi != null && !gaDi.trim().isEmpty()) {
-				// Thiết lập 1 tham số cho SQL_PARTIAL_SEARCH (Ga Di)
 				pstmt.setString(1, "%" + gaDi.trim() + "%");
 			} else if (gaDen != null && !gaDen.trim().isEmpty()) {
-				// Thiết lập 1 tham số cho SQL_PARTIAL_SEARCH (Ga Đến)
 				pstmt.setString(1, "%" + gaDen.trim() + "%");
 			}
 
@@ -112,7 +106,7 @@ public class Tuyen_DAO {
 				while (rs.next()) {
 					String tuyenID = rs.getString("tuyenID");
 					if (!tuyepMap.containsKey(tuyenID)) {
-						Tuyen tuyen = new Tuyen(tuyenID, rs.getString("moTa"));
+						Tuyen tuyen = new Tuyen(tuyenID, rs.getString("moTa"), rs.getBoolean("trangThai"));
 						tuyepMap.put(tuyenID, tuyen);
 					}
 				}
@@ -124,15 +118,15 @@ public class Tuyen_DAO {
 	}
 
 	public boolean themTuyenMoi(Tuyen tuyenMoi) {
-		String sql = "INSERT INTO Tuyen(tuyenID, moTa) VALUES(?, ?)";
+		String sql = "INSERT INTO Tuyen(tuyenID, moTa, trangThai) VALUES(?, ?, ?)";
 		if (tuyenMoi == null || tuyenMoi.getTuyenID() == null || tuyenMoi.getTuyenID().isEmpty()) {
 			return false;
 		}
 		try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, tuyenMoi.getTuyenID());
 			pstmt.setString(2, tuyenMoi.getMoTa());
-			int affectedRows = pstmt.executeUpdate();
-			return affectedRows > 0;
+			pstmt.setBoolean(3, tuyenMoi.isTrangThai());
+			return pstmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -152,10 +146,11 @@ public class Tuyen_DAO {
 	}
 
 	public boolean capNhatTuyen(Tuyen tuyenCapNhat) {
-		String sql = "UPDATE Tuyen SET moTa = ? WHERE tuyenID = ?";
+		String sql = "UPDATE Tuyen SET moTa = ?, trangThai = ? WHERE tuyenID = ?";
 		try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, tuyenCapNhat.getMoTa());
-			pstmt.setString(2, tuyenCapNhat.getTuyenID());
+			pstmt.setBoolean(2, tuyenCapNhat.isTrangThai());
+			pstmt.setString(3, tuyenCapNhat.getTuyenID());
 			int affectedRows = pstmt.executeUpdate();
 			return affectedRows > 0;
 		} catch (SQLException e) {
@@ -177,7 +172,7 @@ public class Tuyen_DAO {
 			pstm.setString(1, tuyenIDTim);
 			try (ResultSet rs = pstm.executeQuery()) {
 				if (rs.next()) {
-					return new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
+					return new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"), rs.getBoolean("trangThai"));
 				}
 			}
 		} catch (SQLException e) {
@@ -188,14 +183,14 @@ public class Tuyen_DAO {
 
 	public List<Tuyen> getTop10Tuyen(String keyword) {
 		List<Tuyen> list = new ArrayList<>();
-		String sql = "SELECT TOP 10 tuyenID, moTa FROM Tuyen WHERE tuyenID LIKE ? OR moTa LIKE ?";
+		String sql = "SELECT TOP 10 tuyenID, moTa, trangThai FROM Tuyen WHERE tuyenID LIKE ? OR moTa LIKE ?";
 		Connection conn = connectDB.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, "%" + keyword + "%");
 			ps.setString(2, "%" + keyword + "%");
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					list.add(new Tuyen(rs.getString("tuyenID"), rs.getString("moTa")));
+					list.add(new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"), rs.getBoolean("trangThai")));
 				}
 			}
 		} catch (SQLException e) {
@@ -217,8 +212,8 @@ public class Tuyen_DAO {
 			if (rs.next()) {
 				String id = rs.getString("tuyenID");
 				String moTa = rs.getString("moTa");
-
-				tuyen = new Tuyen(id, moTa);
+				boolean trangThai = rs.getBoolean("trangThai");
+				tuyen = new Tuyen(id, moTa, trangThai);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -245,7 +240,9 @@ public class Tuyen_DAO {
 			pst.setString(1, maTuyen);
 			ResultSet rs = pst.executeQuery();
 
-			Tuyen tuyen = new Tuyen(maTuyen);
+			Tuyen tuyen = getTuyenByExactID(maTuyen);
+
+			if(tuyen == null) tuyen = new Tuyen(maTuyen);
 
 			while (rs.next()) {
 				String gaID = rs.getString("gaID");

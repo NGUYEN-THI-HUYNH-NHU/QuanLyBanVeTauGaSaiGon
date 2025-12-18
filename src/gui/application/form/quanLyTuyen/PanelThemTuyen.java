@@ -32,9 +32,9 @@ public class PanelThemTuyen extends JPanel {
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JComboBox<String> txtGaXuatPhat;
-    private JComboBox<String> txtGaDich;
-    private JComboBox<String> txtGaTrungGian;
+    private JTextField txtGaXuatPhat;
+    private JTextField txtGaDich;
+    private JTextField txtGaTrungGian;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -47,6 +47,8 @@ public class PanelThemTuyen extends JPanel {
     private JButton btnHuy;
     private JButton btnXacNhanTinhKC;
 
+    private JComboBox<String> cboTrangThai;
+
     private JTextField txtMaTuyen;
     private JTextField txtDoDaiQuangDuong;
 
@@ -57,7 +59,7 @@ public class PanelThemTuyen extends JPanel {
 
     private final Color COLOR_PRIMARY_BG = new Color(245, 250, 255);
     private final Color COLOR_BORDER = new Color(180, 180, 200);
-    private final Color COLOR_ACCENT = new Color(30,41,58);
+    private final Color COLOR_ACCENT = new Color(36,104,155);
     private final Color COLOR_DANGER = new Color(220, 80, 80);
     private final Color COLOR_TABLE_BG = new Color(255,255,255,180);
     private final Color COLOR_TABLE_STRIPE = new Color(240,245,250,180);
@@ -77,12 +79,12 @@ public class PanelThemTuyen extends JPanel {
         // --- 1. Tiêu đề --- //
         JLabel lblTieuDe = new JLabel("THÊM TUYẾN MỚI");
         lblTieuDe.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        lblTieuDe.setForeground(new Color(30,41,58));
+        lblTieuDe.setForeground(new Color(36,104,155));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        txtGaXuatPhat = new JComboBox<>();
+        txtGaXuatPhat = new JTextField();
         txtGaXuatPhat.setBackground(COLOR_TEXT_BG);
-        txtGaDich = new JComboBox<>();
+        txtGaDich = new JTextField();
         txtGaDich.setBackground(COLOR_TEXT_BG);
         txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn thêm");
         txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn thêm");
@@ -106,7 +108,7 @@ public class PanelThemTuyen extends JPanel {
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        txtGaTrungGian = new JComboBox<>();
+        txtGaTrungGian = new JTextField();
         txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn thêm");
         txtGaTrungGian.setBackground(COLOR_TEXT_BG);
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
@@ -135,16 +137,24 @@ public class PanelThemTuyen extends JPanel {
         btnXacNhanTinhKC.setForeground(Color.WHITE);
         pnlContent.add(btnXacNhanTinhKC, "wrap 20");
 
-        txtMoTa = new JTextArea(3,20);
+        JLabel lblHuongDanMoTa = new JLabel("Hãy nhập mô tả về tuyến (Ví Dụ: Tuyến Sài Gòn - Hà Nội) (*)Bắt buộc");
+        lblHuongDanMoTa.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        lblHuongDanMoTa.setForeground(Color.RED);
+        txtMoTa = new JTextArea(3,30);
         txtMoTa.setBackground(COLOR_TEXT_BG);
         txtMoTa.setOpaque(false);
-        txtMoTa.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập mô tả chi tiết cho tuyến đường này...");
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
         scrollMoTa.getViewport().setOpaque(false);
         scrollMoTa.setOpaque(false);
         scrollMoTa.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
-        pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
+        pnlContent.add(lblHuongDanMoTa, "span 3, wrap 5");
+        pnlContent.add(scrollMoTa, "span 4, growx, pushx, wrap 20");
+
+        cboTrangThai = new JComboBox<>(new String[]{"Hoạt Động", "Không Hoạt Động"});
+        cboTrangThai.setBackground(COLOR_TEXT_BG);
+        pnlContent.add(new JLabel("Trạng Thái Tuyến:"));
+        pnlContent.add(cboTrangThai, "growx, wrap 20");
 
         String[] columnNames = {"Tên Ga", "Loại Ga", "Khoảng Cách Từ Ga Xuất Phát (km)"};
         modelGaChiTiet = new DefaultTableModel(columnNames, 0){
@@ -177,7 +187,7 @@ public class PanelThemTuyen extends JPanel {
         JTableHeader header = tblGaChiTiet.getTableHeader();
         header.setForeground(Color.WHITE);
         header.setFont(header.getFont().deriveFont(Font.BOLD,12f));
-        header.setBackground(new Color(30,41,58));
+        header.setBackground(new Color(36,104,155));
 
         JPanel pnlTable = new JPanel(new BorderLayout());
         pnlTable.setBorder(BorderFactory.createTitledBorder("Thứ Tự và Khoảng Cách Các Ga Từ Ga Xuất Phát của các Ga trên Tuyến"));
@@ -295,27 +305,27 @@ public class PanelThemTuyen extends JPanel {
         this.pnlGaTrungGianDaChon = pnlGaTrungGianDaChon;
     }
 
-    public JComboBox<String> getTxtGaXuatPhat() {
+    public JTextField getTxtGaXuatPhat() {
         return txtGaXuatPhat;
     }
 
-    public void setTxtGaXuatPhat(JComboBox<String> txtGaXuatPhat) {
+    public void setTxtGaXuatPhat(JTextField txtGaXuatPhat) {
         this.txtGaXuatPhat = txtGaXuatPhat;
     }
 
-    public JComboBox<String> getTxtGaDich() {
+    public JTextField getTxtGaDich() {
         return txtGaDich;
     }
 
-    public void setTxtGaDich(JComboBox<String> txtGaDich) {
+    public void setTxtGaDich(JTextField txtGaDich) {
         this.txtGaDich = txtGaDich;
     }
 
-    public JComboBox<String> getTxtGaTrungGian() {
+    public JTextField getTxtGaTrungGian() {
         return txtGaTrungGian;
     }
 
-    public void setTxtGaTrungGian(JComboBox<String> txtGaTrungGian) {
+    public void setTxtGaTrungGian(JTextField txtGaTrungGian) {
         this.txtGaTrungGian = txtGaTrungGian;
     }
 
@@ -405,5 +415,13 @@ public class PanelThemTuyen extends JPanel {
 
     public Color getCOLOR_TEXT_BG() {
         return COLOR_TEXT_BG;
+    }
+
+    public JComboBox<String> getCboTrangThai() {
+        return cboTrangThai;
+    }
+
+    public void setCboTrangThai(JComboBox<String> cboTrangThai) {
+        this.cboTrangThai = cboTrangThai;
     }
 }

@@ -33,7 +33,6 @@ import entity.DonDatCho;
 import entity.KhachHang;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
-import entity.type.TrangThaiVe;
 
 public class DoiVeBuoc1Controller {
 	private final PanelDoiVeBuoc1 panel;
@@ -121,7 +120,7 @@ public class DoiVeBuoc1Controller {
 					DonDatCho donDatCho = get();
 					if (donDatCho != null) {
 						// Nếu tìm thấy -> lấy vé và khách hàng
-						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC, TrangThaiVe.DA_BAN);
+						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
 						List<PhieuDungPhongVIP> danhSachPhieu = phieuDungPhongVIPBUS.timCacPhieuTheoVe(danhSachVe);
 						KhachHang khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
 

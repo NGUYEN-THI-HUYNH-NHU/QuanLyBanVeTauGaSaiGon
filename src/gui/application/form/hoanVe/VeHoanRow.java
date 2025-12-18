@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import entity.Ve;
+import entity.type.TrangThaiVe;
 
 public class VeHoanRow {
 	private Ve ve;
@@ -37,7 +38,12 @@ public class VeHoanRow {
 		this.thanhTien = ve.getGia();
 		this.thongTinVe = ve.thongTinVeHoan();
 
-		calcThoiGianConLaiVaPhiHoan();
+		if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
+			calcThoiGianConLaiVaPhiHoan();
+		} else {
+			this.isDuDieuKien = false;
+			this.thongTinPhiHoan = "Không thể hoàn do vé không còn hiệu lực (vé đã dùng/hoàn/đổi).";
+		}
 
 		this.lyDo = "Không còn nhu cầu";
 

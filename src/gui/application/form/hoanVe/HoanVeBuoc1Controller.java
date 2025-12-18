@@ -30,7 +30,6 @@ import bus.Ve_BUS;
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.Ve;
-import entity.type.TrangThaiVe;
 
 public class HoanVeBuoc1Controller {
 	private final PanelHoanVeBuoc1 panel;
@@ -117,7 +116,7 @@ public class HoanVeBuoc1Controller {
 					DonDatCho donDatCho = get();
 					if (donDatCho != null) {
 						// Nếu tìm thấy -> lấy vé và khách hàng
-						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC, TrangThaiVe.DA_BAN);
+						List<Ve> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
 						KhachHang khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
 
 						panel.getBtnTraCuu().setEnabled(true);

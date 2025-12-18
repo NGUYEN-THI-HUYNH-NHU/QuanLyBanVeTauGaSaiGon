@@ -74,37 +74,105 @@ public class PanelBuoc3Controller {
 			}
 		});
 
-		// 3. Enter trên SĐT -> focus Nút Xác nhận
+		// 3. Enter trên SĐT -> focus Email
 		view.getTxtPhoneNguoiMua().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.getTxtEmailNguoiMua().requestFocusInWindow();
+			}
+		});
+
+		// 4. Enter trên SĐT -> focus Nút Xác nhận
+		view.getTxtEmailNguoiMua().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				view.getConfirmButton().requestFocusInWindow();
 			}
 		});
 
-		addClearErrorListener(view.getTxtCccdNguoiMua());
-		addClearErrorListener(view.getTxtTenNguoiMua());
-		addClearErrorListener(view.getTxtPhoneNguoiMua());
+		addValidateListener(view.getTxtCccdNguoiMua());
+		addValidateListener(view.getTxtTenNguoiMua());
+		addValidateListener(view.getTxtPhoneNguoiMua());
+		addValidateListener(view.getTxtEmailNguoiMua());
 	}
 
-	// Helper: Tự động ẩn lỗi khi user gõ
-	private void addClearErrorListener(JTextField textField) {
+	// Kiểm tra lỗi ngay khi gõ
+	private void addValidateListener(JTextField textField) {
 		textField.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				hideError();
+				validate(textField);
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				hideError();
+				validate(textField);
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				hideError();
+				validate(textField);
 			}
 		});
+	}
+
+	private boolean validate(JTextField textField) {
+		// 1. Check ID (CCCD/Hộ chiếu)
+		if (view.getTxtCccdNguoiMua().isFocusOwner()) {
+			String cccdNguoiMua = view.getTxtCccdNguoiMua().getText();
+			if (cccdNguoiMua.isEmpty()) {
+				showError("Vui lòng nhập CCCD/Hộ chiếu", view.getTxtCccdNguoiMua());
+				return false;
+			}
+			// Regex: Chỉ chấp nhận số, độ dài 9-15 (CCCD VN là 12)
+			if (!cccdNguoiMua.matches("^[0-9]{12}$")) {
+				showError("CCCD không đúng định dạng (12 ký số)", view.getTxtCccdNguoiMua());
+				return false;
+			}
+		}
+		// 2. Check Tên
+		else if (view.getTxtTenNguoiMua().isFocusOwner()) {
+			String tenNguoiMua = view.getTxtTenNguoiMua().getText();
+			if (tenNguoiMua.isEmpty()) {
+				showError("Vui lòng nhập họ tên", view.getTxtTenNguoiMua());
+				return false;
+			}
+			// Regex: Chấp nhận chữ cái unicode (tiếng Việt), khoảng trắng, dấu chấm (nếu
+			// cần)
+			// [^0-9!@#...] -> Đơn giản là không chứa số và ký tự đặc biệt cơ bản
+			if (tenNguoiMua.matches(".*\\d.*") || tenNguoiMua.matches(".*[!@#$%^&*()_+=<>?].*")) {
+				showError("Tên không được chứa số hoặc ký tự đặc biệt", view.getTxtTenNguoiMua());
+				return false;
+			}
+		}
+		// 3. Check số điện thoại
+		else if (view.getTxtPhoneNguoiMua().isFocusOwner()) {
+			String phoneNguoiMua = view.getTxtPhoneNguoiMua().getText();
+			if (phoneNguoiMua.isEmpty()) {
+				showError("Vui lòng nhập số điện thoại", view.getTxtPhoneNguoiMua());
+				return false;
+			}
+			// Regex: 10 số bắt đầu bằng 0
+			if (!phoneNguoiMua.matches("^0[0-9]{9}$")) {
+				showError("Số điện thoại gồm 10 số, bắt đầu bằng 0", view.getTxtPhoneNguoiMua());
+				return false;
+			}
+		}
+		// 4. Check email
+		else if (view.getTxtEmailNguoiMua().isFocusOwner()) {
+			String emailNguoiMua = view.getTxtEmailNguoiMua().getText();
+			if (emailNguoiMua.isEmpty()) {
+				showError("Vui lòng nhập số điện thoại", view.getTxtPhoneNguoiMua());
+				return false;
+			}
+			if (!emailNguoiMua.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+				showError("Email không hợp lệ", view.getTxtEmailNguoiMua());
+				return false;
+			}
+		}
+
+		hideError();
+		return true;
 	}
 
 	/**
@@ -123,12 +191,14 @@ public class PanelBuoc3Controller {
 			// Tìm thấy -> Cập nhật View
 			view.getTxtTenNguoiMua().setText(kh.getHoTen());
 			view.getTxtPhoneNguoiMua().setText(kh.getSoDienThoai());
+			view.getTxtEmailNguoiMua().setText(kh.getEmail());
 			// Lưu khách hàng tìm thấy vào session
 			bookingSession.setKhachHang(kh);
 		} else {
 			// Không tìm thấy -> Xóa dữ liệu cũ (nếu có)
 			view.getTxtTenNguoiMua().setText("");
 			view.getTxtPhoneNguoiMua().setText("");
+			view.getTxtEmailNguoiMua().setText("");
 			// Đặt session về null để handleConfirm biết là khách mới
 			bookingSession.setKhachHang(null);
 		}
@@ -183,9 +253,10 @@ public class PanelBuoc3Controller {
 		String tenNguoiMua = view.getTxtTenNguoiMua().getText().trim();
 		String cccdNguoiMua = view.getTxtCccdNguoiMua().getText().trim();
 		String phoneNguoiMua = view.getTxtPhoneNguoiMua().getText().trim();
+		String emailNguoiMua = view.getTxtEmailNguoiMua().getText().trim();
 
 		// 2. Validate
-		if (!validate(cccdNguoiMua, tenNguoiMua, phoneNguoiMua)) {
+		if (!validate(cccdNguoiMua, tenNguoiMua, phoneNguoiMua, emailNguoiMua)) {
 			return;
 		}
 
@@ -215,8 +286,9 @@ public class PanelBuoc3Controller {
 				System.out.println("Tạo hành khách mới: " + hanhKhach.getHoTen());
 			} else {
 				// Nếu đã có, cập nhật thông tin mới nhất từ UI (ví dụ tên có thể sửa)
-				// hanhKhach.setHoTen(row.getHoTen());
-				// khachHangBUS.capNhatKhachHang(hanhKhach);
+				hanhKhach.setHoTen(row.getHoTen());
+				hanhKhach.setLoaiDoiTuong(row.getLoaiDoiTuong());
+				khachHangBUS.capNhatKhachHang(hanhKhach);
 			}
 
 			// Bước 4: Lưu vào Map để dùng lại (cho vé khứ hồi hoặc cho người mua)
@@ -238,10 +310,10 @@ public class PanelBuoc3Controller {
 
 		if (nguoiMua != null) {
 			// === TRƯỜNG HỢP: NGƯỜI MUA ĐÃ TỒN TẠI (hoặc trùng với hành khách) ===
-
 			// Cập nhật thông tin người mua
 			nguoiMua.setHoTen(tenNguoiMua);
 			nguoiMua.setSoDienThoai(phoneNguoiMua);
+			nguoiMua.setEmail(emailNguoiMua);
 
 			// Logic cập nhật loại khách hàng
 			if (nguoiMua.getLoaiKhachHang() == LoaiKhachHang.HANH_KHACH) {
@@ -254,9 +326,8 @@ public class PanelBuoc3Controller {
 
 		} else {
 			// === TRƯỜNG HỢP: NGƯỜI MUA MỚI TINH (Và không đi tàu) ===
-			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, null,
-					cccdNguoiMua, null, null, // Người mua đơn thuần không có đối tượng giảm giá vé
-					LoaiKhachHang.KHACH_HANG);
+			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, emailNguoiMua,
+					cccdNguoiMua, null, null, LoaiKhachHang.KHACH_HANG);
 			khachHangBUS.themKhachHang(nguoiMua);
 			System.out.println("Tạo người mua mới: " + nguoiMua.getHoTen());
 		}
@@ -278,7 +349,7 @@ public class PanelBuoc3Controller {
 	 * @param phoneNguoiMua
 	 * @return
 	 */
-	private boolean validate(String cccdNguoiMua, String tenNguoiMua, String phoneNguoiMua) {
+	private boolean validate(String cccdNguoiMua, String tenNguoiMua, String phoneNguoiMua, String emailNguoiMua) {
 		// 1. Check ID (CCCD/Hộ chiếu)
 		if (cccdNguoiMua.isEmpty()) {
 			showError("Vui lòng nhập CCCD/Hộ chiếu", view.getTxtCccdNguoiMua());
@@ -286,7 +357,7 @@ public class PanelBuoc3Controller {
 		}
 		// Regex: Chỉ chấp nhận số, độ dài 9-15 (CCCD VN là 12)
 		if (!cccdNguoiMua.matches("^[0-9]{12}$")) {
-			showError("CCCD/Hộ chiếu không đúng định dạng (12 ký số)", view.getTxtCccdNguoiMua());
+			showError("CCCD không đúng định dạng (12 ký số)", view.getTxtCccdNguoiMua());
 			return false;
 		}
 
@@ -314,6 +385,15 @@ public class PanelBuoc3Controller {
 			return false;
 		}
 
+		if (emailNguoiMua.isEmpty()) {
+			showError("Vui lòng nhập số điện thoại", view.getTxtPhoneNguoiMua());
+			return false;
+		}
+		if (!emailNguoiMua.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+			showError("Email không hợp lệ", view.getTxtEmailNguoiMua());
+			return false;
+		}
+
 		hideError();
 		return true;
 	}
@@ -322,7 +402,6 @@ public class PanelBuoc3Controller {
 		view.getLblError().setText(msg);
 		view.getLblError().setVisible(true);
 		textField.requestFocusInWindow();
-		textField.putClientProperty("JComponent.outline", "error");
 	}
 
 	private void hideError() {

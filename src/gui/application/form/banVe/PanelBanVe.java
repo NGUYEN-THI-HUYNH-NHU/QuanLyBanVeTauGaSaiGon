@@ -17,6 +17,7 @@ import java.awt.CardLayout;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import gui.application.UngDung;
 
@@ -35,6 +36,8 @@ public class PanelBanVe extends JPanel {
 
 	public PanelBanVe() {
 		setLayout(new BorderLayout());
+
+		UIManager.put("ScrollBar.width", 8);
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
 		cardLayout = new CardLayout();

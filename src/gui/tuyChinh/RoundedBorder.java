@@ -74,14 +74,8 @@ public class RoundedBorder extends AbstractBorder {
 
 	@Override
 	public Insets getBorderInsets(Component c) {
-		int pad = thickness + radius / 3;
-		return new Insets(pad, pad, pad, pad);
-	}
-
-	@Override
-	public Insets getBorderInsets(Component c, Insets insets) {
-		int pad = thickness + radius / 3;
-		insets.left = insets.right = insets.top = insets.bottom = pad;
-		return insets;
+		int px = thickness + radius / 3;
+		int py = thickness + radius / 5;
+		return new Insets(py, px, py, px);
 	}
 }

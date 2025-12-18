@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
+import entity.type.TrangThaiVe;
 
 public class VeDoiRow {
 	private Ve ve;
@@ -28,6 +29,7 @@ public class VeDoiRow {
 	private boolean isSelected;
 	private String thoiGianConLai;
 	private boolean isDuDieuKien;
+	private String dieuKien;
 
 	public VeDoiRow(Ve ve, PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.ve = ve;
@@ -35,10 +37,20 @@ public class VeDoiRow {
 
 		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
 				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
-		calcThoiGianConLaiVaPhiDoi();
+
+		if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
+			calcThoiGianConLaiVaPhiDoi();
+		} else if (ve.isVeDoi()) {
+			this.isDuDieuKien = false;
+			this.dieuKien = String.format("<html>%s</html>",
+					"Không thể đổi do vé này được sinh ra từ giao dịch đổi vé trước đó (vé cấp 2)");
+		} else {
+			this.isDuDieuKien = false;
+			this.dieuKien = String.format("<html>%s</html>",
+					"Không thể đổi do vé không còn hiệu lực (vé " + ve.getTrangThai().getDescription() + ")");
+		}
 
 		this.lyDo = "Không còn nhu cầu";
-
 		this.isSelected = false;
 	}
 
@@ -53,7 +65,7 @@ public class VeDoiRow {
 			thoiGianConLai = "Đã khởi hành";
 			isDuDieuKien = false;
 			lePhiDoiVe = 0;
-			thongTinPhiDoi = "Không thể đổi vé (Tàu đã khởi hành, không thể đổi vé).";
+			dieuKien = String.format("<html>%s</html>", "Không thể đổi vé (Tàu đã khởi hành, không thể đổi vé).");
 			isSelected = false;
 		} else {
 			long hours = seconds / 3600;
@@ -64,11 +76,14 @@ public class VeDoiRow {
 			if (hours >= 24) {
 				isDuDieuKien = true;
 				lePhiDoiVe = 20000;
-				thongTinPhiDoi = "Đổi vé bình thường năm 2025, áp dụng phí 20.000VNĐ/vé";
+				dieuKien = "Đủ điều kiện";
+				thongTinPhiDoi = String.format("<html>%s</html>",
+						"Đổi vé bình thường năm 2025, áp dụng phí 20.000VNĐ/vé");
 			} else {
 				isDuDieuKien = false;
 				lePhiDoiVe = 0;
-				thongTinPhiDoi = "Không đủ điều kiện đổi vé (Thời gian còn lại dưới 24 giờ (Quy định đổi vé)).";
+				dieuKien = String.format("<html>%s</html>",
+						"Không đủ điều kiện đổi vé (Thời gian còn lại dưới 24 giờ).");
 				isSelected = false;
 			}
 		}
@@ -124,5 +139,9 @@ public class VeDoiRow {
 
 	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
 		this.phieuDungPhongVIP = phieuDungPhongVIP;
+	}
+
+	public String getDieuKien() {
+		return this.dieuKien;
 	}
 }

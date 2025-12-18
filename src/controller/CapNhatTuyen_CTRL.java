@@ -118,6 +118,12 @@ public class CapNhatTuyen_CTRL {
             panelCapNhatTuyen.getTxtMaTuyen().setText(tuyen.getTuyenID());
             panelCapNhatTuyen.getTxtMoTa().setText(tuyen.getMoTa());
 
+            if (tuyen.isTrangThai()) {
+                panelCapNhatTuyen.getCboTrangThai().setSelectedIndex(0); // Hoạt động
+            } else {
+                panelCapNhatTuyen.getCboTrangThai().setSelectedIndex(1); // Tạm ngưng/Không hoạt động
+            }
+
             panelCapNhatTuyen.getTxtGaXuatPhat().setSelectedItem(gaXP.getTenGa());
             panelCapNhatTuyen.getTxtGaDich().setSelectedItem(gaDich.getTenGa());
 
@@ -230,34 +236,92 @@ public class CapNhatTuyen_CTRL {
 
 
     private void xuLyChonGaTrungGian(){
+        // 1. Lấy thông tin từ giao diện
         Object item = panelCapNhatTuyen.getTxtGaTrungGian().getEditor().getItem();
         String tenGaMoi = item != null ? item.toString().trim() : "";
         if(tenGaMoi.isEmpty()) return;
 
         Object itemXP = panelCapNhatTuyen.getTxtGaXuatPhat().getEditor().getItem();
         Object itemDich = panelCapNhatTuyen.getTxtGaDich().getEditor().getItem();
-        String gaDi = itemXP != null ? itemXP.toString().trim() : "";
-        String gaDen = itemDich != null ? itemDich.toString().trim() : "";
+        String tenGaXP = itemXP != null ? itemXP.toString().trim() : "";
+        String tenGaDen = itemDich != null ? itemDich.toString().trim() : "";
 
+        // 2. Kiểm tra tính hợp lệ cơ bản
         if(!dsGaCoSan.containsKey(tenGaMoi)){
-            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Ga không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Tên ga không tồn tại trong hệ thống!", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if(tenGaMoi.equals(gaDi) || tenGaMoi.equals(gaDen)){
-            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Trùng với ga xuất phát/đích!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+        if(tenGaMoi.equals(tenGaXP) || tenGaMoi.equals(tenGaDen)){
+            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Ga trung gian không được trùng với Ga XP hoặc Ga Đích!", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
             return;
         }
         if(dsGaDaChon.stream().anyMatch(g -> g.getTenGa().equals(tenGaMoi))){
-            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Đã chọn ga này rồi!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Ga này đã có trong danh sách!", "Lỗi trùng lặp", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         Ga gaMoi = dsGaCoSan.get(tenGaMoi);
-        dsGaDaChon.add(gaMoi);
-        taovaThemTagGa(gaMoi);
+        Ga gaXP = dsGaCoSan.get(tenGaXP);
+        Ga gaDen = dsGaCoSan.get(tenGaDen);
 
-        panelCapNhatTuyen.getTxtGaTrungGian().setSelectedItem(null);
-        panelCapNhatTuyen.getTxtGaTrungGian().getEditor().setItem("");
+        // --- 3. KIỂM TRA LOGIC KHOẢNG CÁCH & THỨ TỰ (BỔ SUNG) ---
+        try {
+            // A. Tính tổng quãng đường (XP -> Đích)
+            int kcTong = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaDen.getGaID());
+            // B. Tính quãng đường từ XP -> Ga Mới
+            int kcTuDauDenMoi = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaMoi.getGaID());
+            // C. Tính quãng đường từ Ga Mới -> Đích
+            int kcTuMoiDenDich = tuyenBus.tinhKhoangCachTongDijsktra(gaMoi.getGaID(), gaDen.getGaID());
+
+            // Check lỗi DB/Không tìm thấy đường
+            if (kcTong == -1 || kcTuDauDenMoi == -1 || kcTuMoiDenDich == -1) {
+                JOptionPane.showMessageDialog(panelCapNhatTuyen,
+                        "Không thể tính toán khoảng cách. Vui lòng kiểm tra lại kết nối giữa các ga.",
+                        "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check 3.1: Ga Mới có nằm TRÊN tuyến đường không?
+            // (XP->Mới) + (Mới->Đích) ≈ (XP->Đích) (cho phép sai số nhỏ)
+            if (Math.abs((kcTuDauDenMoi + kcTuMoiDenDich) - kcTong) > 20) {
+                JOptionPane.showMessageDialog(panelCapNhatTuyen,
+                        "Ga " + tenGaMoi + " không nằm trên lộ trình từ " + tenGaXP + " đến " + tenGaDen + ".\n" +
+                                "Hoặc ga này nằm ngược chiều di chuyển.",
+                        "Sai lộ trình", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Check 3.2: Kiểm tra THỨ TỰ so với ga vừa nhập gần nhất
+            // (Chỉ kiểm tra nếu danh sách ga trung gian không rỗng)
+            if (!dsGaDaChon.isEmpty()) {
+                Ga gaCuoiCung = dsGaDaChon.get(dsGaDaChon.size() - 1);
+                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaCuoiCung.getGaID());
+
+                // Ga mới nhập vào phải xa Ga XP hơn so với ga đã nhập trước đó
+                if (kcTuDauDenMoi <= kcTuDauDenCuoiList) {
+                    JOptionPane.showMessageDialog(panelCapNhatTuyen,
+                            "Sai thứ tự hành trình!\n" +
+                                    "- Ga " + gaCuoiCung.getTenGa() + " cách " + tenGaXP + ": " + kcTuDauDenCuoiList + " km\n" +
+                                    "- Ga " + tenGaMoi + " cách " + tenGaXP + ": " + kcTuDauDenMoi + " km\n\n" +
+                                    "-> Ga " + tenGaMoi + " phải nằm TRƯỚC ga " + gaCuoiCung.getTenGa() + ".\n" +
+                                    "Vui lòng xóa ga " + gaCuoiCung.getTenGa() + " trước nếu muốn chèn ga này.",
+                            "Sai thứ tự nhập liệu", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            dsGaDaChon.add(gaMoi);
+            taovaThemTagGa(gaMoi);
+
+            panelCapNhatTuyen.getTxtGaTrungGian().setSelectedItem(null);
+            panelCapNhatTuyen.getTxtGaTrungGian().getEditor().setItem("");
+
+            capNhatDanhSachVaTinhKC();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(panelCapNhatTuyen, "Lỗi tính toán: " + ex.getMessage());
+        }
     }
 
     private void taovaThemTagGa(Ga ga){
@@ -335,7 +399,8 @@ public class CapNhatTuyen_CTRL {
         }
 
         try {
-            Tuyen tuyenCapNhat = new Tuyen(maTuyenMoi, moTa);
+            boolean trangThai = panelCapNhatTuyen.getCboTrangThai().getSelectedIndex() == 0;
+            Tuyen tuyenCapNhat = new Tuyen(maTuyenMoi, moTa, trangThai);
             List<TuyenChiTiet> dsChiTiet = new ArrayList<>();
             DefaultTableModel model = panelCapNhatTuyen.getModelGaChiTiet();
 

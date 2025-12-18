@@ -35,8 +35,6 @@ public class Chuyen_BUS {
 		gaDAO = new Ga_DAO();
 	}
 
-	// Lấy danh sách các ghế trong toa của tàu được chọn kèm trạng thái để hiện thị
-	// màu trong sơ đồ chỗ
 	public Map<String, String> layTrangThaiCacGheTrongToaCuaChuyen(String gaDiID, String gaDenID, String chuyenID,
 			String toaID) {
 		List<Ghe> gheList = gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
@@ -134,9 +132,20 @@ public class Chuyen_BUS {
 		return chuyenDAO.getAllTuyenID();
 	}
 
-	public boolean themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
-		return chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
+	public String themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
+
+		if (chuyenDAO.existsById(chuyen.getChuyenID())) {
+			return "Đã tồn tại chuyến " + chuyen.getChuyenID();
+		}
+
+		boolean ok = chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
+		if (!ok) {
+			return "Không thể thêm chuyến (lỗi lưu dữ liệu)";
+		}
+
+		return null;
 	}
+
 
 	public Map<String, String> getMapTenGaToID(){
 		return chuyenDAO.getMapTenGaToID();
@@ -144,5 +153,9 @@ public class Chuyen_BUS {
 
 	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh){
 		return chuyenDAO.capNhatChuyen(chuyen, lichTrinh);
+	}
+
+	public List<Ga> layDsGaCuaTuyen(String tuyenID) {
+		return chuyenDAO.getDsGaTheoTuyen(tuyenID);
 	}
 }

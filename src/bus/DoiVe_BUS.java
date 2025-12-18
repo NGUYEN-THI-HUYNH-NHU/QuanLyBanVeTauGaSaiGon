@@ -20,7 +20,6 @@ import java.util.Map;
 import connectDB.ConnectDB;
 import entity.DonDatCho;
 import entity.GiaoDichHoanDoi;
-import entity.GiaoDichThanhToan;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.KhachHang;
@@ -34,7 +33,6 @@ import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 
 public class DoiVe_BUS {
-	private final BanVe_BUS banVe_BUS = new BanVe_BUS();
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
@@ -71,10 +69,6 @@ public class DoiVe_BUS {
 			HoaDon hoaDon = hoaDonBUS.taoHoaDonDoiVe(exchangeSession);
 			hoaDonBUS.themHoaDon(conn, hoaDon);
 			exchangeSession.setHoaDon(hoaDon);
-
-			// 3. Lưu GiaoDichThanhToan
-			GiaoDichThanhToan gdtt = exchangeSession.getGiaoDichThanhToan();
-			banVe_BUS.luuThongTinThanhToan(conn, gdtt);
 
 			// 4. Tạo và Lưu Vé mới (Batch Insert)
 			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoExchangeSession(exchangeSession);

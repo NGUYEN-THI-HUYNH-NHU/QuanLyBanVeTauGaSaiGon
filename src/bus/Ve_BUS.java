@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dao.Ve_DAO;
@@ -23,6 +24,7 @@ import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
 import entity.KhuyenMai;
+import entity.NhanVien;
 import entity.Toa;
 import entity.Ve;
 import entity.type.TrangThaiVe;
@@ -150,17 +152,17 @@ public class Ve_BUS {
 	 */
 	public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
 		List<Ve> dsVe = new ArrayList<Ve>();
-		List<VeSession> dsVeMoi = exchangeSession.getListVeMoiDangChon();
 		DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
+		int n = exchangeSession.getListVeMoiDangChon().size();
 
-		for (VeSession v : dsVeMoi) {
-			Ve ve = v.getVe();
+		for (int i = 0; i < n; i++) {
+			Ve ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
 			String veID = taoVeIDDuyNhat(ve);
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
 
 			dsVe.add(ve);
-			v.setVe(ve);
+			exchangeSession.getListVeMoiDangChon().get(i).setVe(ve);
 		}
 
 		return dsVe;
@@ -190,15 +192,6 @@ public class Ve_BUS {
 	}
 
 	/**
-	 * @param donDatChoID
-	 * @param trangThai
-	 * @return
-	 */
-	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		return veDAO.getVeByDonDatChoID(donDatChoID, trangThai);
-	}
-
-	/**
 	 * @param conn
 	 * @param listVeHoanRow
 	 * @param trangThai
@@ -208,4 +201,67 @@ public class Ve_BUS {
 			veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
 		}
 	}
+
+	/**
+	 * @param nhanVien
+	 * @return
+	 */
+	public List<Ve> layCacVeTheoNhanVienID(NhanVien nhanVien) {
+		return veDAO.getVeByNhanVienID(nhanVien.getNhanVienID());
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param loaiHD
+	 * @param searchKeyword
+	 * @param searchID
+	 * @param tuNgay
+	 * @param denNgay
+	 * @param hinhThucTT
+	 * @return
+	 */
+	public List<Ve> locVeTheoCacTieuChi(NhanVien nhanVien, String loaiHD, String searchKeyword, String searchID,
+			Date tuNgay, Date denNgay, String hinhThucTT) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<Ve> layVeTheoKeyWord(NhanVien nhanVien, String keyword, String type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10KhachHangID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10DonDatChoID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10ChuyenID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
