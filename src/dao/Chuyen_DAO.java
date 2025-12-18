@@ -21,10 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import connectDB.ConnectDB;
-import entity.Chuyen;
-import entity.ChuyenGa;
-import entity.Tau;
-import entity.Tuyen;
+import entity.*;
 import entity.type.LoaiTau;
 
 public class Chuyen_DAO {
@@ -124,12 +121,24 @@ public class Chuyen_DAO {
 		Connection con = connectDB.getInstance().getConnection();
 		StringBuilder sql = new StringBuilder();
 
-		sql.append("SELECT c.*, t.tenTau, ");
+		sql.append("SELECT DISTINCT c.*, t.tenTau, ");
 		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, ");
 		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, ");
 		sql.append("(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, ");
 		sql.append("(SELECT TOP 1 cg.gioDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS GioDenThuc ");
-		sql.append("FROM Chuyen c JOIN Tau t ON c.tauID = t.tauID WHERE 1=1 ");
+		sql.append("FROM Chuyen c ");
+		sql.append("JOIN Tau t ON c.tauID = t.tauID ");
+
+		if (!gaDi.isEmpty()) {
+			sql.append(" JOIN ChuyenGa cgStart ON c.chuyenID = cgStart.chuyenID ");
+			sql.append(" JOIN Ga gStart ON cgStart.gaID = gStart.gaID ");
+		}
+		if (!gaDen.isEmpty()) {
+			sql.append(" JOIN ChuyenGa cgEnd ON c.chuyenID = cgEnd.chuyenID ");
+			sql.append(" JOIN Ga gEnd ON cgEnd.gaID = gEnd.gaID ");
+		}
+
+		sql.append("WHERE 1=1 ");
 
 		List<Object> params = new ArrayList<>();
 
@@ -146,12 +155,15 @@ public class Chuyen_DAO {
 			params.add(java.sql.Date.valueOf(ngayDi));
 		}
 		if (!gaDi.isEmpty()) {
-			sql.append(" AND (SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) LIKE ?");
+			sql.append(" AND gStart.tenGa LIKE ?");
 			params.add("%" + gaDi + "%");
 		}
 		if (!gaDen.isEmpty()) {
-			sql.append(" AND (SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) LIKE ?");
+			sql.append(" AND gEnd.tenGa LIKE ?");
 			params.add("%" + gaDen + "%");
+		}
+		if (!gaDi.isEmpty() && !gaDen.isEmpty()) {
+			sql.append(" AND cgStart.thuTu < cgEnd.thuTu ");
 		}
 
 		sql.append(" ORDER BY c.chuyenID");
@@ -399,4 +411,38 @@ public class Chuyen_DAO {
 		}
 		return success;
 	}
+
+	public List<Ga> getDsGaTheoTuyen(String tuyenID) {
+		List<Ga> list = new ArrayList<>();
+		String sql = "SELECT g.gaID, g.tenGa FROM TuyenChiTiet ct " +
+				"JOIN Ga g ON ct.gaID = g.gaID " +
+				"WHERE ct.tuyenID = ? " +
+				"ORDER BY ct.thuTu ASC";
+		try (Connection con = ConnectDB.getInstance().getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, tuyenID);
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					list.add(new Ga(rs.getString("gaID"), rs.getString("tenGa")));
+				}
+			}
+		} catch (SQLException e) { e.printStackTrace(); }
+		return list;
+	}
+
+	public boolean existsById(String chuyenID) {
+		String sql = "SELECT 1 FROM Chuyen WHERE chuyenID = ?";
+		try (Connection con = ConnectDB.getInstance().getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setString(1, chuyenID);
+			ResultSet rs = ps.executeQuery();
+			return rs.next();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 }

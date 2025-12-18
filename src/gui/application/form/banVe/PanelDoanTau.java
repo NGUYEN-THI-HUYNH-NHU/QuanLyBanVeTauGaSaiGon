@@ -16,13 +16,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -64,12 +64,11 @@ public class PanelDoanTau extends JPanel {
 		JScrollPane scr = new JScrollPane(flow, JScrollPane.VERTICAL_SCROLLBAR_NEVER,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scr.setBorder(BorderFactory.createEmptyBorder());
-		// Tăng tốc độ cuộn (tùy chọn)
+		// Tăng tốc độ cuộn
 		scr.getVerticalScrollBar().setUnitIncrement(16);
 		scr.getHorizontalScrollBar().setUnitIncrement(16);
 
 		add(scr, BorderLayout.CENTER);
-		setPreferredSize(new Dimension(10, 80));
 
 		// load ảnh gốc một lần
 		try {
@@ -101,7 +100,7 @@ public class PanelDoanTau extends JPanel {
 					onSelect.accept(t);
 					highlightButton(btnToa);
 				});
-				btnToa.addMouseListener(new java.awt.event.MouseAdapter() {
+				btnToa.addMouseListener(new MouseAdapter() {
 					@Override
 					public void mouseEntered(MouseEvent evt) {
 						// Chỉ đổi icon HVER nếu nút này KHÔNG đang được CHỌN

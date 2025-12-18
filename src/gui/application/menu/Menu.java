@@ -14,16 +14,9 @@ package gui.application.menu;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
-import java.awt.geom.Ellipse2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -49,10 +42,10 @@ public class Menu extends JPanel {
 	protected final int headerFullHgap = 5;
 	private final String[][] menuItems = { { "~Quản Lý~" }, // 0
 			{ "Dashboard" }, // 1
-			{ "Quản lý ga" }, // 2
-			{ "Bán vé" }, // 3
-			{ "Quản lý vé", "Hoàn vé", "Đổi vé" }, // 4
-			{ "Quản lý hóa đơn" }, // 5
+			{ "Bán vé" }, // 2
+			{ "Quản lý vé", "Hoàn vé", "Đổi vé", "Xem & In vé" }, // 3
+			{ "Quản lý hóa đơn" }, // 4
+			{ "Quản lý đơn đặt chỗ" }, // 5
 			{ "Quản lý tuyến" }, // 6
 			{ "Quản lý chuyến" }, // 7
 			{ "Quản lý biểu giá" }, // 8
@@ -64,33 +57,25 @@ public class Menu extends JPanel {
 			{ "Thống kê & Báo cáo ", "Thống kê", "Báo cáo" }, // 14
 			{ "Thống Kê & Báo cáo", "Doanh thu", "Vé", "Khách hàng" }, // 15
 			{ "Tài khoản cá nhân", "Thông tin", "Đổi Mật Khẩu" }, // 16
-			{ "About us" }, // 17
-			{ "Trợ giúp" }, // 18
-			{ "Đăng Xuất" } }; // 19
+			{ "Xem nhật ký Audit" }, // 17
+			{ "About us" }, // 18
+			{ "Trợ giúp" }, // 19
+			{ "Đăng Xuất" } }; // 20
 	private JLabel header;
 	private JScrollPane scroll;
 	private JPanel panelMenu;
 	private ImageIcon avatarIcon;
-	private final int AVATAR_SIZE = 40;
 
 	public Menu(NhanVien nhanVien) {
 		setLayout(new BorderLayout());
 		putClientProperty(FlatClientProperties.STYLE,
 				"" + "border:20,2,2,2;" + "background:$Menu.background;" + "arc:10");
-//		// Tạo Avatar từ byte[]
-//		if (nhanVien.getAvatar() != null) {
-//			this.avatarIcon = createCircleAvatar(nhanVien.getAvatar(), AVATAR_SIZE, AVATAR_SIZE);
-//		}
+
 		init(nhanVien.getVaiTroNhanVien());
 	}
 
 	private void init(VaiTroNhanVien vaiTroNhanVien) {
 		header = new JLabel(headerName);
-		// Cấu hình header có icon và text
-//		if (avatarIcon != null) {
-//			header.setIcon(avatarIcon);
-//			header.setIconTextGap(10);
-//		}
 		header.putClientProperty(FlatClientProperties.STYLE,
 				"" + "font:$Menu.header.font;" + "foreground:$Menu.foreground");
 
@@ -119,13 +104,12 @@ public class Menu extends JPanel {
 			if (menuName.startsWith("~") && menuName.endsWith("~")) {
 				panelMenu.add(createTitle(menuName));
 			} else {
-				// NV: {3, 4, 5, 10, 14, 16, 17, 18, 19}
 				if (vaiTroNhanVien == VaiTroNhanVien.NHAN_VIEN) {
-					if (i == 1 || i == 2 || i == 6 || i == 7 || i == 8 || i == 11 || i == 12 || i == 13 || i == 15) {
+					if (i == 1 || i == 6 || i == 8 || i == 11 || i == 12 || i == 13 || i == 15 || i == 17) {
 						continue;
 					}
 				} else {
-					if (i == 3 || i == 4 || i == 5 || i == 14) {
+					if (i == 2 || i == 3 || i == 4 || i == 5 || i == 14) {
 						continue;
 					}
 				}
@@ -230,53 +214,5 @@ public class Menu extends JPanel {
 
 	public int getMenuMinWidth() {
 		return menuMinWidth;
-	}
-
-	/**
-	 * Hàm chuyển đổi byte[] thành ImageIcon hình tròn
-	 * 
-	 * @param imageBytes: mảng byte ảnh từ CSDL
-	 * @param width:      chiều rộng mong muốn
-	 * @param height:     chiều cao mong muốn
-	 */
-	private ImageIcon createCircleAvatar(byte[] imageBytes, int width, int height) {
-		if (imageBytes == null || imageBytes.length == 0) {
-			// Trả về icon mặc định nếu nhân viên chưa có ảnh
-			return new ImageIcon(getClass().getResource("/path/to/default.png"));
-		}
-
-		try {
-			// 1. Chuyển byte[] thành BufferedImage
-			ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-			BufferedImage originalImg = ImageIO.read(bis);
-			if (originalImg == null) {
-				return null;
-			}
-
-			// 2. Thay đổi kích thước ảnh (Scale) cho vừa khung
-			Image scaledImg = originalImg.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-			BufferedImage bufferedScaledImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g2 = bufferedScaledImg.createGraphics();
-			g2.drawImage(scaledImg, 0, 0, null);
-			g2.dispose();
-
-			// 3. Cắt ảnh thành hình tròn
-			BufferedImage circleImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g2d = circleImg.createGraphics();
-
-			// Bật khử răng cưa để hình tròn mượt mà
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-			// Tạo vùng cắt hình tròn
-			g2d.setClip(new Ellipse2D.Float(0, 0, width, height));
-			g2d.drawImage(bufferedScaledImg, 0, 0, null);
-			g2d.dispose();
-
-			return new ImageIcon(circleImg);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 }

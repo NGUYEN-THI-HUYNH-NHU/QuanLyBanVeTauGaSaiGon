@@ -12,6 +12,7 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
@@ -45,9 +46,12 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 
 		JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btnCancel = new JButton("Quay lại");
+		btnConfirm = new JButton("Xác nhận");
+		btnConfirm.setBackground(new Color(36, 104, 155));
+		pnlSouth.add(btnCancel);
+		pnlSouth.add(btnConfirm);
 
-		pnlSouth.add(btnCancel = new JButton("Quay lại"));
-		pnlSouth.add(btnConfirm = new JButton("Xác nhận"));
 		add(pnlSouth, BorderLayout.SOUTH);
 	}
 
@@ -94,7 +98,7 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI).setCellEditor(veMoiEditor);
 	}
 
-	public void initFromBookingSession(ExchangeSession session) {
+	public void initFromExchangeSession(ExchangeSession session) {
 		model.clear();
 		if (session == null) {
 			return;

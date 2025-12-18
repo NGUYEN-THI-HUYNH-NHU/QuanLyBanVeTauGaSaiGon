@@ -13,6 +13,7 @@ package gui.application.form.quanLyChuyen;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.raven.datechooser.DateChooser;
+import com.raven.datechooser.SelectedAction;
 import controller.QuanLyChuyen_CTRL;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
@@ -54,7 +55,7 @@ public class PanelQuanLyChuyen extends JPanel {
 
     private final Font BASE_FONT = new Font("Segoe UI", Font.PLAIN, 15);
     private final Color COLOR_ACCENT = new Color(36,104,155);
-    private final Color COLOR_HEADER = new Color(30,41,58);
+    private final Color COLOR_HEADER = new Color(36,104,155);
     private final Color COLOR_BG = new Color(245, 250, 255);
 
     public PanelQuanLyChuyen(NhanVien nhanVien){
@@ -96,10 +97,14 @@ public class PanelQuanLyChuyen extends JPanel {
         panelTitleBar.setBackground(COLOR_BG);
         txtNgayDi = new JTextField(10);
         txtNgayDi.setFont(BASE_FONT);
-
         dateChooser = new DateChooser();
         dateChooser.setTextRefernce(txtNgayDi);
         dateChooser.setDateFormat("dd/MM/yyyy");
+        dateChooser.addEventDateChooser((action, date)->{
+            if(action.getAction() == SelectedAction.DAY_SELECTED){
+                dateChooser.hidePopup();
+            }
+        });
 
         JLabel lblGoiY = new JLabel("Chọn ngày để tìm kiếm chuyến!");
         lblGoiY.setFont(BASE_FONT.deriveFont(Font.ITALIC, 12f));

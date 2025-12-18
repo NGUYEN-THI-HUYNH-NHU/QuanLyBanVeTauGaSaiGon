@@ -38,5 +38,7 @@
 	<classpathentry kind="lib" path="lib/flatlaf-3.4.jar"/>
 	<classpathentry kind="lib" path="lib/poi-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/poi-ooxml-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

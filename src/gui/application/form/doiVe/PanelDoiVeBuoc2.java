@@ -58,6 +58,8 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
 
+	private static final Color disableBgColor = new Color(255, 120, 120, 60);
+
 	public PanelDoiVeBuoc2() {
 		setLayout(new BorderLayout());
 		setBorder(new LineBorder(new Color(220, 220, 220)));
@@ -75,21 +77,22 @@ public class PanelDoiVeBuoc2 extends JPanel {
 
 		JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnTiepTuc = new JButton("Tiếp tục");
+		btnTiepTuc.setBackground(new Color(36, 104, 155));
 		south.add(btnTiepTuc);
 
 		add(south, BorderLayout.SOUTH);
 	}
 
 	private void setupTable() {
-		table.setRowHeight(90);
-
-		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
+		table.setRowHeight(70);
 
 		// Cấu hình độ rộng cột
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(150);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(180);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setMaxWidth(30);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(130);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(160);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK).setMinWidth(100);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(100);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON).setMaxWidth(50);
 
 		// Áp dụng lớp Renderer nội tuyến để định dạng
 		TableCellRenderer currencyFormatRenderer = new DefaultTableCellRenderer() {
@@ -100,10 +103,8 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
 				setHorizontalAlignment(SwingConstants.RIGHT);
-				setVerticalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 
-				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.CENTER);
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
@@ -122,7 +123,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 				setHorizontalAlignment(SwingConstants.CENTER);
-				setVerticalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 
 				// Lấy row model để check logic riêng của cột này
 				int modelRow = table.convertRowIndexToModel(row);
@@ -151,7 +152,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 				setHorizontalAlignment(SwingConstants.LEFT);
-				setVerticalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 
 				applyRowStyle(c, table, row);
 				return c;
@@ -205,8 +206,8 @@ public class PanelDoiVeBuoc2 extends JPanel {
 					checkBox.setBackground(table.getSelectionBackground());
 					checkBox.setForeground(table.getSelectionForeground());
 				} else {
-					checkBox.setBackground(table.getBackground());
-					checkBox.setForeground(table.getForeground());
+					checkBox.setBackground(disableBgColor);
+					checkBox.setForeground(Color.GRAY);
 				}
 
 				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)
@@ -217,18 +218,21 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		};
 
 		// Cột checkbox
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON - 1).setCellRenderer(booleanRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON).setCellRenderer(booleanRenderer);
 
 		// Cột Thời gian
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 		// Cột Tiền
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
-		// Cột Text Area (Thông tin phí)
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setCellRenderer(wrappedTextAreaRenderer);
 		// Cột Text thường (Tên, Thông tin vé)
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK).setCellRenderer(topAlignRenderer);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setCellRenderer(topAlignRenderer);
+
+		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO));
 	}
 
 	/**
@@ -239,7 +243,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		VeDoiRow dataRow = model.getRows().get(modelRow);
 
 		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(new Color(240, 240, 240));
+			c.setBackground(disableBgColor);
 			if (c.getForeground() != Color.RED) {
 				c.setForeground(Color.GRAY);
 			}

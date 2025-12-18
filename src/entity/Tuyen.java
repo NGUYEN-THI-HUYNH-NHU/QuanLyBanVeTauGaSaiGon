@@ -18,6 +18,7 @@ import java.util.Objects;
 public class Tuyen {
 	private String tuyenID;
 	private String moTa;
+	private boolean trangThai;
 
 	public Tuyen() {
 		super();
@@ -26,6 +27,12 @@ public class Tuyen {
 	public Tuyen(String tuyenID, String moTa) {
 		this.tuyenID = tuyenID;
 		this.moTa = moTa;
+	}
+
+	public Tuyen(String tuyenID, String moTa, boolean trangThai) {
+		this.tuyenID = tuyenID;
+		this.moTa = moTa;
+		this.trangThai = trangThai;
 	}
 
 	public Tuyen(String tuyenID) {
@@ -50,6 +57,14 @@ public class Tuyen {
 
 	public void setMoTa(String moTa) {
 		this.moTa = moTa;
+	}
+
+	public boolean isTrangThai() {
+		return trangThai;
+	}
+
+	public void setTrangThai(boolean trangThai) {
+		this.trangThai = trangThai;
 	}
 
 	@Override

@@ -47,6 +47,7 @@ public class PanelQuanLyTuyen extends JPanel {
     private JTextField txtChiTietTenTuyen;
     private JTextField txtChiTietKhoangCach;
     private JTextArea txtChiTietMoTa;
+    private JTextField txtChiTietTrangThai;
 
 
     public PanelQuanLyTuyen(NhanVien nhanVien){
@@ -70,7 +71,7 @@ public class PanelQuanLyTuyen extends JPanel {
         panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        title.setForeground(new Color(30,41,58));
+        title.setForeground(new Color(36,104,155));
         panelHeader.add(title, "growx");
 
         // Input fields
@@ -134,7 +135,7 @@ public class PanelQuanLyTuyen extends JPanel {
         // --- 2. CENTER PANEL (SPLIT PANE) ---
 
         // A. Bảng Danh Sách Tuyến (LEFT)
-        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Quãng Đường (km)"};
+        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Quãng Đường (km)","Trạng Thái"};
         tableModelTuyen = new DefaultTableModel(columnNames, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
@@ -145,7 +146,7 @@ public class PanelQuanLyTuyen extends JPanel {
         // Table Style
         JTableHeader hd = tableTuyen.getTableHeader();
         hd.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        hd.setBackground(new Color(30,41,58));
+        hd.setBackground(new Color(36,104,155));
         hd.setForeground(Color.white);
         ((DefaultTableCellRenderer)hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -167,7 +168,7 @@ public class PanelQuanLyTuyen extends JPanel {
         });
 
         scrollPaneTable = new JScrollPane(tableTuyen);
-        scrollPaneTable.setMinimumSize(new Dimension(600, 0)); // Chiều rộng tối thiểu cho bảng
+        scrollPaneTable.setMinimumSize(new Dimension(600, 0));
 
         // B. Panel Chi Tiết (RIGHT)
         pnlChiTiet = new JPanel(new BorderLayout(0, 10));
@@ -221,6 +222,15 @@ public class PanelQuanLyTuyen extends JPanel {
         txtChiTietMoTa.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         pnlThongTinCuThe.add(new JScrollPane(txtChiTietMoTa), "growx, wrap");
 
+        pnlThongTinCuThe.add(new JLabel("Trạng Thái:"));
+        txtChiTietTrangThai = new JTextField();
+        txtChiTietTrangThai.setEditable(false);
+        txtChiTietTrangThai.setBackground(readOnlyColor);
+        txtChiTietTrangThai.setFont(textFont);
+        pnlThongTinCuThe.add(txtChiTietTrangThai, "growx, wrap");
+
+
+
         // B2. Panel Danh Sách Ga (Phía dưới)
         JPanel pnlDanhSachGa = new JPanel(new BorderLayout());
         pnlDanhSachGa.setBackground(Color.WHITE);
@@ -239,6 +249,7 @@ public class PanelQuanLyTuyen extends JPanel {
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         tableChiTietGa.setDefaultRenderer(Object.class, centerRenderer);
         tableChiTietGa.setRowHeight(25);
+        tableChiTietGa.setEnabled(false);
         tableChiTietGa.setShowGrid(true);
         tableChiTietGa.getTableHeader().setBackground(new Color(36, 104, 155));
         tableChiTietGa.getTableHeader().setForeground(Color.WHITE);
@@ -273,7 +284,7 @@ public class PanelQuanLyTuyen extends JPanel {
     }
 
     public void setMauBTN() {
-        Color mauNutChu = new Color(30,41,58);
+        Color mauNutChu = new Color(36,104,155);
         JButton[] buttons = { btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
@@ -285,7 +296,7 @@ public class PanelQuanLyTuyen extends JPanel {
         tableModelTuyen.setRowCount(0);
         for(Object[] row : dsTuyen){
 
-            Object[] rowData = { row[0], row[1], row[2], row[4] };
+            Object[] rowData = { row[0], row[1], row[2], row[4], row[5] };
             tableModelTuyen.addRow(rowData);
         }
     }
@@ -313,6 +324,8 @@ public class PanelQuanLyTuyen extends JPanel {
             return str != null && str.matches("^[0-9]+(\\.[0-9]{1,2})?$");
         }
     }
+
+
 
     public Tuyen_BUS getTuyen_bus() {
         return tuyen_bus;
@@ -456,6 +469,14 @@ public class PanelQuanLyTuyen extends JPanel {
     public JButton getBtnThemTuyen() { return btnThemTuyen; }
     public NhanVien getNhanVienThucHien() { return nhanVienThucHien; }
     public JButton getBtnLamMoiTuyen() { return btnLamMoiTuyen; }
+
+    public JTextField getTxtChiTietTrangThai() {
+        return txtChiTietTrangThai;
+    }
+
+    public void setTxtChiTietTrangThai(JTextField txtChiTietTrangThai) {
+        this.txtChiTietTrangThai = txtChiTietTrangThai;
+    }
 
     public JTextArea getTxtThongTinChung() { return txtThongTinChung; }
     public DefaultTableModel getModelChiTietGa() { return modelChiTietGa; }

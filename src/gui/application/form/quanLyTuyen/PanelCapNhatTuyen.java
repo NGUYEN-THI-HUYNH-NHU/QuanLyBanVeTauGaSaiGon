@@ -25,9 +25,10 @@ public class PanelCapNhatTuyen extends JPanel {
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JTextField txtGaXuatPhat;
-    private JTextField txtGaDich;
-    private JTextField txtGaTrungGian;
+    private JComboBox<String> txtGaXuatPhat;
+    private JComboBox<String> txtGaDich;
+    private JComboBox<String> txtGaTrungGian;
+    private JComboBox<String> cboTrangThai;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -74,9 +75,9 @@ public class PanelCapNhatTuyen extends JPanel {
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        txtGaXuatPhat = new JTextField();
-        txtGaDich = new JTextField();
+        txtGaXuatPhat = new JComboBox<>();
         txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn cập nhật");
+        txtGaDich = new JComboBox<>();
         txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn cập nhật");
         pnlContent.add(new JLabel("Ga Xuất Phát:"), "w 100%");
         pnlContent.add(txtGaXuatPhat,"growx");
@@ -84,10 +85,12 @@ public class PanelCapNhatTuyen extends JPanel {
         pnlContent.add(txtGaDich,"growx, wrap 20");
 
         txtMaTuyen = new JTextField();
-        txtMaTuyen.setEditable(true);
-        txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập Mã Tuyến để cập nhật");
+        txtMaTuyen.setEditable(false);
+        txtMaTuyen.setFocusable(false);
+        txtMaTuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mã Tuyến được tự động cập nhật!");
         txtDoDaiQuangDuong = new JTextField();
         txtDoDaiQuangDuong.setEditable(false);
+        txtDoDaiQuangDuong.setFocusable(false);
         txtDoDaiQuangDuong.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Khoảng cách được tính tự động!");
         txtDoDaiQuangDuong.setEditable(false);
         pnlContent.add(new JLabel("Mã Tuyến:"));
@@ -95,7 +98,7 @@ public class PanelCapNhatTuyen extends JPanel {
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        txtGaTrungGian = new JTextField();
+        txtGaTrungGian = new JComboBox<>();
         txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn cập nhật");
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
         pnlContent.add(txtGaTrungGian, "growx");
@@ -128,6 +131,11 @@ public class PanelCapNhatTuyen extends JPanel {
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
         pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
+
+        cboTrangThai = new JComboBox<>(new String[]{"Hoạt Động", "Không Hoạt Động"});
+        pnlContent.add(new JLabel("Trạng Thái Tuyến:"));
+        pnlContent.add(cboTrangThai, "growx, wrap 20");
+
 
         String[] columnNames = {"Tên Ga", "Loại Ga", "Khoảng Cách Từ Ga Xuất Phát (km)"};
         modelGaChiTiet = new DefaultTableModel(columnNames, 0){
@@ -171,7 +179,6 @@ public class PanelCapNhatTuyen extends JPanel {
     }
 
 
-
     public NhanVien getNhanVienThucHien() {
         return nhanVienThucHien;
     }
@@ -180,72 +187,144 @@ public class PanelCapNhatTuyen extends JPanel {
         return pnlGaTrungGianDaChon;
     }
 
-    public JTextField getTxtGaXuatPhat() {
+    public void setPnlGaTrungGianDaChon(JPanel pnlGaTrungGianDaChon) {
+        this.pnlGaTrungGianDaChon = pnlGaTrungGianDaChon;
+    }
+
+    public JComboBox<String> getTxtGaXuatPhat() {
         return txtGaXuatPhat;
     }
 
-    public JTextField getTxtGaDich() {
+    public void setTxtGaXuatPhat(JComboBox<String> txtGaXuatPhat) {
+        this.txtGaXuatPhat = txtGaXuatPhat;
+    }
+
+    public JComboBox<String> getTxtGaDich() {
         return txtGaDich;
     }
 
-    public JTextField getTxtGaTrungGian() {
+    public void setTxtGaDich(JComboBox<String> txtGaDich) {
+        this.txtGaDich = txtGaDich;
+    }
+
+    public JComboBox<String> getTxtGaTrungGian() {
         return txtGaTrungGian;
+    }
+
+    public void setTxtGaTrungGian(JComboBox<String> txtGaTrungGian) {
+        this.txtGaTrungGian = txtGaTrungGian;
     }
 
     public JPopupMenu getPpGaXuatPhat() {
         return ppGaXuatPhat;
     }
 
+    public void setPpGaXuatPhat(JPopupMenu ppGaXuatPhat) {
+        this.ppGaXuatPhat = ppGaXuatPhat;
+    }
+
     public JPopupMenu getPpGaDich() {
         return ppGaDich;
+    }
+
+    public void setPpGaDich(JPopupMenu ppGaDich) {
+        this.ppGaDich = ppGaDich;
     }
 
     public JPopupMenu getPpGaTrungGian() {
         return ppGaTrungGian;
     }
 
+    public void setPpGaTrungGian(JPopupMenu ppGaTrungGian) {
+        this.ppGaTrungGian = ppGaTrungGian;
+    }
+
     public JList<String> getListGaXuatPhat() {
         return listGaXuatPhat;
+    }
+
+    public void setListGaXuatPhat(JList<String> listGaXuatPhat) {
+        this.listGaXuatPhat = listGaXuatPhat;
     }
 
     public JList<String> getListGaDich() {
         return listGaDich;
     }
 
+    public void setListGaDich(JList<String> listGaDich) {
+        this.listGaDich = listGaDich;
+    }
+
     public JList<String> getListGaTrungGian() {
         return listGaTrungGian;
+    }
+
+    public void setListGaTrungGian(JList<String> listGaTrungGian) {
+        this.listGaTrungGian = listGaTrungGian;
     }
 
     public JButton getBtnLuu() {
         return btnLuu;
     }
 
+    public void setBtnLuu(JButton btnLuu) {
+        this.btnLuu = btnLuu;
+    }
+
     public JButton getBtnHuy() {
         return btnHuy;
+    }
+
+    public void setBtnHuy(JButton btnHuy) {
+        this.btnHuy = btnHuy;
     }
 
     public JButton getBtnXacNhanTinhKC() {
         return btnXacNhanTinhKC;
     }
 
+    public void setBtnXacNhanTinhKC(JButton btnXacNhanTinhKC) {
+        this.btnXacNhanTinhKC = btnXacNhanTinhKC;
+    }
+
     public JTextField getTxtMaTuyen() {
         return txtMaTuyen;
+    }
+
+    public void setTxtMaTuyen(JTextField txtMaTuyen) {
+        this.txtMaTuyen = txtMaTuyen;
     }
 
     public JTextField getTxtDoDaiQuangDuong() {
         return txtDoDaiQuangDuong;
     }
 
+    public void setTxtDoDaiQuangDuong(JTextField txtDoDaiQuangDuong) {
+        this.txtDoDaiQuangDuong = txtDoDaiQuangDuong;
+    }
+
     public JTextArea getTxtMoTa() {
         return txtMoTa;
+    }
+
+    public void setTxtMoTa(JTextArea txtMoTa) {
+        this.txtMoTa = txtMoTa;
     }
 
     public DefaultTableModel getModelGaChiTiet() {
         return modelGaChiTiet;
     }
 
+    public void setModelGaChiTiet(DefaultTableModel modelGaChiTiet) {
+        this.modelGaChiTiet = modelGaChiTiet;
+    }
+
     public JTable getTblGaChiTiet() {
         return tblGaChiTiet;
+    }
+
+    public void setTblGaChiTiet(JTable tblGaChiTiet) {
+        this.tblGaChiTiet = tblGaChiTiet;
     }
 
     public Color getCOLOR_PRIMARY_BG() {
@@ -266,5 +345,13 @@ public class PanelCapNhatTuyen extends JPanel {
 
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
+    }
+
+    public JComboBox<String> getCboTrangThai() {
+        return cboTrangThai;
+    }
+
+    public void setCboTrangThai(JComboBox<String> cboTrangThai) {
+        this.cboTrangThai = cboTrangThai;
     }
 }

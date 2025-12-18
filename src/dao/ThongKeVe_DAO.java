@@ -14,8 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * DAO cho PanelThongKeVe.
- * Cập nhật: Lấy thời gian từ DonDatCho (thoiDiemDatCho) thay vì Ve (thoiDiemBan).
+ * DAO xử lý thống kê vé.
+ * Cập nhật: Lấy dữ liệu thời gian từ DonDatCho (thoiDiemDatCho) thay vì Ve (thoiDiemBan).
  */
 public class ThongKeVe_DAO {
 
@@ -32,17 +32,16 @@ public class ThongKeVe_DAO {
     private final String TBL_TOA = "Toa";
     private final String TBL_HANG_TOA = "HangToa";
 
-    // === MỚI: Bảng Đơn Đặt Chỗ ===
+    // Bảng Đơn Đặt Chỗ (Mới)
     private final String TBL_DON_DAT_CHO = "DonDatCho";
     private final String COL_DDC_ID = "donDatChoID";
-    private final String COL_DDC_THOI_DIEM = "thoiDiemDatCho"; // Cột thời gian mới
+    private final String COL_DDC_THOI_DIEM = "thoiDiemDatCho";
 
     // Cột Ve
     private final String COL_VE_ID = "veID";
     private final String COL_TRANG_THAI = "trangThai";
     private final String COL_GIA_VE = "gia";
-    // private final String COL_THOI_DIEM_BAN = "thoiDiemBan"; // <-- ĐÃ BỎ
-    private final String COL_VE_DDC_ID = "donDatChoID"; // Khóa ngoại liên kết sang DonDatCho
+    private final String COL_VE_DDC_ID = "donDatChoID";
     private final String COL_VE_CHUYEN_ID = "chuyenID";
     private final String COL_GA_DI_ID = "gaDiID";
     private final String COL_GA_DEN_ID = "gaDenID";
@@ -50,17 +49,14 @@ public class ThongKeVe_DAO {
 
     // Cột Chuyen
     private final String COL_CHUYEN_ID = "chuyenID";
-    private final String COL_NGAY_DI = "ngayDi";
 
     // Cột Ga
     private final String COL_GA_ID = "gaID";
     private final String COL_TEN_GA = "tenGa";
 
-    // Cột HoaDonChiTiet
-    private final String COL_HDCT_HOA_DON_ID = "hoaDonID";
+    // Cột HoaDonChiTiet & HoaDon
     private final String COL_HDCT_VE_ID = "veID";
-
-    // Cột HoaDon
+    private final String COL_HDCT_HOA_DON_ID = "hoaDonID";
     private final String COL_HD_HOA_DON_ID = "hoaDonID";
     private final String COL_HD_NHAN_VIEN_ID = "nhanVienID";
 
@@ -68,24 +64,21 @@ public class ThongKeVe_DAO {
     private final String COL_NV_ID = "nhanVienID";
     private final String COL_NV_HO_TEN = "hoTen";
 
-    // Cột Ghe
+    // Cột Ghe, Toa, HangToa
     private final String COL_GHE_ID = "gheID";
     private final String COL_GHE_TOA_ID = "toaID";
-
-    // Cột Toa
     private final String COL_TOA_ID = "toaID";
     private final String COL_TOA_HANG_TOA_ID = "hangToaID";
-
-    // Cột HangToa
     private final String COL_HANG_TOA_ID = "hangToaID";
     private final String COL_HANG_TOA_MO_TA = "moTa";
 
-    // Trạng thái vé
+    // Trạng thái vé (Constants)
     private final String TT_DA_BAN = "DA_BAN";
     private final String TT_DA_DUNG = "DA_DUNG";
     private final String TT_DA_HOAN = "DA_HOAN";
     private final String TT_DA_DOI = "DA_DOI";
 
+    // Inner class DTO để hứng dữ liệu thống kê chi tiết
     public static class ThongKeVeChiTietItem {
         public String thoiGian;
         public int tongSoVeBan = 0;
@@ -102,7 +95,7 @@ public class ThongKeVe_DAO {
     }
 
     // ===========================================
-    // HÀM TẢI DỮ LIỆU COMBOBOX
+    // 1. CÁC HÀM HỖ TRỢ LẤY DỮ LIỆU COMBOBOX
     // ===========================================
 
     public List<String> getDanhSachTenGa() throws SQLException {
@@ -145,7 +138,7 @@ public class ThongKeVe_DAO {
     }
 
     // ===========================================
-    // HÀM THỐNG KÊ CHÍNH (Đã cập nhật JOIN DonDatCho)
+    // 2. HÀM THỐNG KÊ CHI TIẾT (BIỂU ĐỒ/BẢNG)
     // ===========================================
 
     public Map<String, ThongKeVeChiTietItem> getThongKeVeChiTietTheoThoiGian(
@@ -155,7 +148,7 @@ public class ThongKeVe_DAO {
 
         Map<String, ThongKeVeChiTietItem> results = new LinkedHashMap<>();
 
-        // Sử dụng ddc.thoiDiemDatCho thay cho v.thoiDiemBan
+        // Xử lý GROUP BY theo thời gian (Ngày/Tháng/Năm)
         String groupByClause, thoiGianSelect;
         switch (loaiThoiGian) {
             case "Theo ngày":
@@ -174,61 +167,46 @@ public class ThongKeVe_DAO {
                 break;
         }
 
-        // CTE: Join thêm bảng DonDatCho (alias ddc)
-        String cteSql = String.format(
-                "WITH ThongKeNhom AS ( " +
-                        "    SELECT DISTINCT v.%s, " +
-                        "        %s AS ThoiGian, " +
-                        "        g_di.%s AS TenGaDi, " +
-                        "        g_den.%s AS TenGaDen, " +
-                        "        CASE WHEN v.%s = ? THEN 1 ELSE 0 END AS IsVeConHieuLuc, " +
-                        "        CASE WHEN v.%s = ? THEN 1 ELSE 0 END AS IsVeDaDung, " +
-                        "        CASE WHEN v.%s = ? THEN 1 ELSE 0 END AS IsVeDaDoi, " +
-                        "        CASE WHEN v.%s = ? THEN 1 ELSE 0 END AS IsVeHoan, " +
-                        "        v.%s AS GiaVe " +
-                        "    FROM %s v " +
-                        "    LEFT JOIN %s ddc ON v.%s = ddc.%s " + // <<< JOIN MỚI: Ve -> DonDatCho
-                        "    LEFT JOIN %s c ON v.%s = c.%s " +
-                        "    LEFT JOIN %s g_di ON v.%s = g_di.%s " +
-                        "    LEFT JOIN %s g_den ON v.%s = g_den.%s " +
-                        "    LEFT JOIN %s hdct ON v.%s = hdct.%s " +
-                        "    LEFT JOIN %s hd ON hdct.%s = hd.%s " +
-                        "    LEFT JOIN %s g ON v.%s = g.%s " +
-                        "    LEFT JOIN %s toa ON g.%s = toa.%s " +
-                        "    WHERE (ddc.%s >= ? AND ddc.%s < ?) ", // <<< ĐK LỌC: ddc.thoiDiemDatCho
+        // Tạo câu truy vấn CTE (Common Table Expression)
+        StringBuilder cteSql = new StringBuilder();
+        cteSql.append("WITH ThongKeNhom AS ( ")
+                .append("    SELECT DISTINCT v.").append(COL_VE_ID).append(", ")
+                .append("        ").append(thoiGianSelect).append(" AS ThoiGian, ")
+                .append("        g_di.").append(COL_TEN_GA).append(" AS TenGaDi, ")
+                .append("        g_den.").append(COL_TEN_GA).append(" AS TenGaDen, ")
+                .append("        CASE WHEN v.").append(COL_TRANG_THAI).append(" = ? THEN 1 ELSE 0 END AS IsVeConHieuLuc, ")
+                .append("        CASE WHEN v.").append(COL_TRANG_THAI).append(" = ? THEN 1 ELSE 0 END AS IsVeDaDung, ")
+                .append("        CASE WHEN v.").append(COL_TRANG_THAI).append(" = ? THEN 1 ELSE 0 END AS IsVeDaDoi, ")
+                .append("        CASE WHEN v.").append(COL_TRANG_THAI).append(" = ? THEN 1 ELSE 0 END AS IsVeHoan, ")
+                .append("        v.").append(COL_GIA_VE).append(" AS GiaVe ")
+                .append("    FROM ").append(TBL_VE).append(" v ")
+                .append("    LEFT JOIN ").append(TBL_DON_DAT_CHO).append(" ddc ON v.").append(COL_VE_DDC_ID).append(" = ddc.").append(COL_DDC_ID)
+                .append("    LEFT JOIN ").append(TBL_CHUYEN).append(" c ON v.").append(COL_VE_CHUYEN_ID).append(" = c.").append(COL_CHUYEN_ID)
+                .append("    LEFT JOIN ").append(TBL_GA).append(" g_di ON v.").append(COL_GA_DI_ID).append(" = g_di.").append(COL_GA_ID)
+                .append("    LEFT JOIN ").append(TBL_GA).append(" g_den ON v.").append(COL_GA_DEN_ID).append(" = g_den.").append(COL_GA_ID)
+                .append("    LEFT JOIN ").append(TBL_HOA_DON_CHI_TIET).append(" hdct ON v.").append(COL_VE_ID).append(" = hdct.").append(COL_HDCT_VE_ID)
+                .append("    LEFT JOIN ").append(TBL_HOA_DON).append(" hd ON hdct.").append(COL_HDCT_HOA_DON_ID).append(" = hd.").append(COL_HD_HOA_DON_ID)
+                .append("    LEFT JOIN ").append(TBL_GHE).append(" g ON v.").append(COL_VE_GHE_ID).append(" = g.").append(COL_GHE_ID)
+                .append("    LEFT JOIN ").append(TBL_TOA).append(" toa ON g.").append(COL_GHE_TOA_ID).append(" = toa.").append(COL_TOA_ID)
+                .append("    WHERE (ddc.").append(COL_DDC_THOI_DIEM).append(" >= ? AND ddc.").append(COL_DDC_THOI_DIEM).append(" < ?) ");
 
-                COL_VE_ID, thoiGianSelect, COL_TEN_GA, COL_TEN_GA,
-                COL_TRANG_THAI, COL_TRANG_THAI, COL_TRANG_THAI, COL_TRANG_THAI, COL_GIA_VE,
-                TBL_VE,
-                TBL_DON_DAT_CHO, COL_VE_DDC_ID, COL_DDC_ID, // Tham số JOIN DonDatCho
-                TBL_CHUYEN, COL_VE_CHUYEN_ID, COL_CHUYEN_ID,
-                TBL_GA, COL_GA_DI_ID, COL_GA_ID,
-                TBL_GA, COL_GA_DEN_ID, COL_GA_ID,
-                TBL_HOA_DON_CHI_TIET, COL_VE_ID, COL_HDCT_VE_ID,
-                TBL_HOA_DON, COL_HDCT_HOA_DON_ID, COL_HD_HOA_DON_ID,
-                TBL_GHE, COL_VE_GHE_ID, COL_GHE_ID,
-                TBL_TOA, COL_GHE_TOA_ID, COL_TOA_ID,
-                COL_DDC_THOI_DIEM, COL_DDC_THOI_DIEM // Tham số WHERE
-        );
-
-        if (loaiTuyen.equals("Theo Ga đi/đến")) {
-            cteSql += String.format(" AND g_di.%s = ? AND g_den.%s = ? ", COL_TEN_GA, COL_TEN_GA);
+        // Các điều kiện lọc động trong CTE
+        if ("Theo Ga đi/đến".equals(loaiTuyen)) {
+            cteSql.append(" AND g_di.").append(COL_TEN_GA).append(" = ? AND g_den.").append(COL_TEN_GA).append(" = ? ");
         }
         if (nhanVienID != null) {
-            // Lưu ý: Nếu muốn lọc nhân viên theo người Đặt vé thì dùng ddc.nhanVienID,
-            // nếu lọc người Xuất hóa đơn thì giữ hd.nhanVienID. Ở đây giữ nguyên hd.
-            cteSql += String.format(" AND hd.%s = ? ", COL_HD_NHAN_VIEN_ID);
+            cteSql.append(" AND hd.").append(COL_HD_NHAN_VIEN_ID).append(" = ? ");
         }
         if (hangToaID != null) {
-            cteSql += String.format(" AND toa.%s = ? ", COL_TOA_HANG_TOA_ID);
+            cteSql.append(" AND toa.").append(COL_TOA_HANG_TOA_ID).append(" = ? ");
         }
         if (trangThai != null) {
-            cteSql += String.format(" AND v.%s = ? ", COL_TRANG_THAI);
+            cteSql.append(" AND v.").append(COL_TRANG_THAI).append(" = ? ");
         }
+        cteSql.append(") ");
 
-        cteSql += ") ";
-
-        String finalSql = cteSql +
+        // Query chính: Group by và Aggregate từ CTE
+        String finalSql = cteSql.toString() +
                 "SELECT ThoiGian, " +
                 "  COUNT(veID) AS TongSoVeBan, " +
                 "  SUM(IsVeConHieuLuc) AS TongVeConHieuLuc, " +
@@ -237,8 +215,8 @@ public class ThongKeVe_DAO {
                 "  SUM(IsVeHoan) AS TongVeHoan, " +
                 "  SUM(GiaVe) AS TongTienVe, " +
                 "  CASE WHEN ? = N'Theo Ga đi/đến' " +
-                "       THEN STRING_AGG(ISNULL(TenGaDi, 'N/A') + ' -> ' + ISNULL(TenGaDen, 'N/A'), ', ') WITHIN GROUP (ORDER BY TenGaDi, TenGaDen) " +
-                "       ELSE N'N/A' " +
+// Ép kiểu sang NVARCHAR(MAX) để tránh lỗi giới hạn 8000 ký tự
+                "       THEN STRING_AGG(CAST(ISNULL(TenGaDi, 'N/A') + ' -> ' + ISNULL(TenGaDen, 'N/A') AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY TenGaDi, TenGaDen) " +                "       ELSE N'N/A' " +
                 "  END AS TuyenDuong " +
                 "FROM ThongKeNhom " +
                 "WHERE ThoiGian IS NOT NULL " +
@@ -250,6 +228,7 @@ public class ThongKeVe_DAO {
 
             int paramIndex = 1;
 
+            // Set params cho CTE
             pstmt.setString(paramIndex++, TT_DA_BAN);
             pstmt.setString(paramIndex++, TT_DA_DUNG);
             pstmt.setString(paramIndex++, TT_DA_DOI);
@@ -258,7 +237,7 @@ public class ThongKeVe_DAO {
             pstmt.setDate(paramIndex++, java.sql.Date.valueOf(tuNgay));
             pstmt.setDate(paramIndex++, java.sql.Date.valueOf(denNgay.plusDays(1)));
 
-            if (loaiTuyen.equals("Theo Ga đi/đến")) {
+            if ("Theo Ga đi/đến".equals(loaiTuyen)) {
                 pstmt.setString(paramIndex++, tenGaDi);
                 pstmt.setString(paramIndex++, tenGaDen);
             }
@@ -272,6 +251,7 @@ public class ThongKeVe_DAO {
                 pstmt.setString(paramIndex++, trangThai);
             }
 
+            // Set param cho Query chính (biến loaiTuyen)
             pstmt.setString(paramIndex++, loaiTuyen);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -296,54 +276,43 @@ public class ThongKeVe_DAO {
     }
 
     // ===========================================
-    // Các hàm CARD (Tổng quan) - Đã cập nhật JOIN
+    // 3. CÁC HÀM CARD (TỔNG QUAN)
     // ===========================================
 
+    // Helper: Xây dựng câu SQL chung cho các Card
     private String buildCardSql(String loaiTuyen, String nhanVienID, String hangToaID, String trangThai, String countOrSumSql) {
-        // Subquery để lọc DISTINCT vé trước khi đếm
-        // Đã thêm LEFT JOIN DonDatCho ddc
-        // Đã sửa WHERE dùng ddc.thoiDiemDatCho
-        String sql = String.format(
-                "SELECT %s FROM (SELECT DISTINCT v.%s, v.%s, v.%s FROM %s v " +
-                        "    LEFT JOIN %s ddc ON v.%s = ddc.%s " + // <<< JOIN MỚI
-                        "    LEFT JOIN %s c ON v.%s = c.%s " +
-                        "    LEFT JOIN %s g_di ON v.%s = g_di.%s " +
-                        "    LEFT JOIN %s g_den ON v.%s = g_den.%s " +
-                        "    LEFT JOIN %s hdct ON v.%s = hdct.%s " +
-                        "    LEFT JOIN %s hd ON hdct.%s = hd.%s " +
-                        "    LEFT JOIN %s g ON v.%s = g.%s " +
-                        "    LEFT JOIN %s toa ON g.%s = toa.%s " +
-                        "    WHERE (ddc.%s >= ? AND ddc.%s < ?) ", // <<< ĐK LỌC MỚI
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT ").append(countOrSumSql).append(" FROM (SELECT DISTINCT v.").append(COL_VE_ID)
+                .append(", v.").append(COL_GIA_VE).append(", v.").append(COL_TRANG_THAI)
+                .append(" FROM ").append(TBL_VE).append(" v ")
+                .append("    LEFT JOIN ").append(TBL_DON_DAT_CHO).append(" ddc ON v.").append(COL_VE_DDC_ID).append(" = ddc.").append(COL_DDC_ID)
+                .append("    LEFT JOIN ").append(TBL_CHUYEN).append(" c ON v.").append(COL_VE_CHUYEN_ID).append(" = c.").append(COL_CHUYEN_ID)
+                .append("    LEFT JOIN ").append(TBL_GA).append(" g_di ON v.").append(COL_GA_DI_ID).append(" = g_di.").append(COL_GA_ID)
+                .append("    LEFT JOIN ").append(TBL_GA).append(" g_den ON v.").append(COL_GA_DEN_ID).append(" = g_den.").append(COL_GA_ID)
+                .append("    LEFT JOIN ").append(TBL_HOA_DON_CHI_TIET).append(" hdct ON v.").append(COL_VE_ID).append(" = hdct.").append(COL_HDCT_VE_ID)
+                .append("    LEFT JOIN ").append(TBL_HOA_DON).append(" hd ON hdct.").append(COL_HDCT_HOA_DON_ID).append(" = hd.").append(COL_HD_HOA_DON_ID)
+                .append("    LEFT JOIN ").append(TBL_GHE).append(" g ON v.").append(COL_VE_GHE_ID).append(" = g.").append(COL_GHE_ID)
+                .append("    LEFT JOIN ").append(TBL_TOA).append(" toa ON g.").append(COL_GHE_TOA_ID).append(" = toa.").append(COL_TOA_ID)
+                .append("    WHERE (ddc.").append(COL_DDC_THOI_DIEM).append(" >= ? AND ddc.").append(COL_DDC_THOI_DIEM).append(" < ?) ");
 
-                countOrSumSql, COL_VE_ID, COL_GIA_VE, COL_TRANG_THAI, TBL_VE,
-                TBL_DON_DAT_CHO, COL_VE_DDC_ID, COL_DDC_ID, // Tham số Join
-                TBL_CHUYEN, COL_VE_CHUYEN_ID, COL_CHUYEN_ID,
-                TBL_GA, COL_GA_DI_ID, COL_GA_ID,
-                TBL_GA, COL_GA_DEN_ID, COL_GA_ID,
-                TBL_HOA_DON_CHI_TIET, COL_VE_ID, COL_HDCT_VE_ID,
-                TBL_HOA_DON, COL_HDCT_HOA_DON_ID, COL_HD_HOA_DON_ID,
-                TBL_GHE, COL_VE_GHE_ID, COL_GHE_ID,
-                TBL_TOA, COL_GHE_TOA_ID, COL_TOA_ID,
-                COL_DDC_THOI_DIEM, COL_DDC_THOI_DIEM // Tham số Where
-        );
-
-        if (loaiTuyen.equals("Theo Ga đi/đến")) {
-            sql += String.format(" AND g_di.%s = ? AND g_den.%s = ? ", COL_TEN_GA, COL_TEN_GA);
+        if ("Theo Ga đi/đến".equals(loaiTuyen)) {
+            sql.append(" AND g_di.").append(COL_TEN_GA).append(" = ? AND g_den.").append(COL_TEN_GA).append(" = ? ");
         }
         if (nhanVienID != null) {
-            sql += String.format(" AND hd.%s = ? ", COL_HD_NHAN_VIEN_ID);
+            sql.append(" AND hd.").append(COL_HD_NHAN_VIEN_ID).append(" = ? ");
         }
         if (hangToaID != null) {
-            sql += String.format(" AND toa.%s = ? ", COL_TOA_HANG_TOA_ID);
+            sql.append(" AND toa.").append(COL_TOA_HANG_TOA_ID).append(" = ? ");
         }
         if (trangThai != null) {
-            sql += String.format(" AND v.%s = ? ", COL_TRANG_THAI);
+            sql.append(" AND v.").append(COL_TRANG_THAI).append(" = ? ");
         }
 
-        sql += ") AS UniqueVe";
-        return sql;
+        sql.append(") AS UniqueVe");
+        return sql.toString();
     }
 
+    // Helper: Set tham số cho PreparedStatement của Card
     private void setCardParameters(PreparedStatement pstmt, LocalDate tuNgay, LocalDate denNgay,
                                    String loaiTuyen, String tenGaDi, String tenGaDen,
                                    String nhanVienID, String hangToaID, String trangThai,
@@ -352,7 +321,7 @@ public class ThongKeVe_DAO {
         pstmt.setDate(paramIndex++, java.sql.Date.valueOf(tuNgay));
         pstmt.setDate(paramIndex++, java.sql.Date.valueOf(denNgay.plusDays(1)));
 
-        if (loaiTuyen.equals("Theo Ga đi/đến")) {
+        if ("Theo Ga đi/đến".equals(loaiTuyen)) {
             pstmt.setString(paramIndex++, tenGaDi);
             pstmt.setString(paramIndex++, tenGaDen);
         }
@@ -365,12 +334,14 @@ public class ThongKeVe_DAO {
         if (trangThai != null) {
             pstmt.setString(paramIndex++, trangThai);
         }
+        // Set thêm các tham số phụ (ví dụ: trạng thái cụ thể cho WHERE bên ngoài subquery)
         for (String param : extraParams) {
             pstmt.setString(paramIndex++, param);
         }
     }
 
-    // Các hàm getTong... (Giữ nguyên logic gọi buildCardSql)
+    // --- Các hàm Public lấy số liệu thẻ ---
+
     public int getTongSoVeBanTrongKhoang(LocalDate tuNgay, LocalDate denNgay, String loaiTuyen, String tenGaDi, String tenGaDen, String nhanVienID, String hangToaID, String trangThai) throws SQLException {
         String countSql = String.format("COUNT(%s)", COL_VE_ID);
         String sql = buildCardSql(loaiTuyen, nhanVienID, hangToaID, trangThai, countSql);
@@ -384,6 +355,7 @@ public class ThongKeVe_DAO {
     public int getTongVeConHieuLucTrongKhoang(LocalDate tuNgay, LocalDate denNgay, String loaiTuyen, String tenGaDi, String tenGaDen, String nhanVienID, String hangToaID, String trangThai) throws SQLException {
         String countSql = String.format("COUNT(%s)", COL_VE_ID);
         String sql = buildCardSql(loaiTuyen, nhanVienID, hangToaID, trangThai, countSql);
+        // Lọc thêm trạng thái cụ thể bên ngoài subquery
         sql += " WHERE " + COL_TRANG_THAI + " = ? ";
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai, TT_DA_BAN);

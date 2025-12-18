@@ -14,10 +14,10 @@ package gui.application.form.banVe;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import gui.application.UngDung;
 
@@ -36,7 +36,8 @@ public class PanelBanVe extends JPanel {
 
 	public PanelBanVe() {
 		setLayout(new BorderLayout());
-		setBackground(new Color(230, 230, 230));
+
+		UIManager.put("ScrollBar.width", 8);
 
 		// 1. Khởi tạo CardLayout và Panel chứa các bước
 		cardLayout = new CardLayout();

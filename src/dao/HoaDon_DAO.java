@@ -236,7 +236,6 @@ public class HoaDon_DAO {
 
 		// Xử lý tìm kiếm theo Loại
 		if (keyword != null && !keyword.trim().isEmpty()) {
-			String searchStr = "%" + keyword.trim() + "%";
 			if (type.equals("Mã hóa đơn")) {
 				sql.append(" AND hd.hoaDonID LIKE ?");
 			} else if (type.equals("Mã khách hàng")) {

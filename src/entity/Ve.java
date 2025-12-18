@@ -29,6 +29,8 @@ public class Ve {
 	private LocalDateTime ngayGioDi;
 	private double gia;
 	private TrangThaiVe trangThai;
+	// thuộc tính dẫn xuất
+	private boolean isVeDoi;
 
 	public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
 			LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
@@ -159,6 +161,14 @@ public class Ve {
 		this.trangThai = trangThai;
 	}
 
+	public boolean isVeDoi() {
+		return isVeDoi;
+	}
+
+	public void setVeDoi(boolean isVeDoi) {
+		this.isVeDoi = isVeDoi;
+	}
+
 	@Override
 	public String toString() {
 		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";" + khachHang + ";" + gia + ";" + ngayGioDi + ";"
@@ -201,5 +211,21 @@ public class Ve {
 		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
 				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
 				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+	}
+
+	/**
+	 * @return
+	 */
+	public String stringThongTinChuyen() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public String stringThongTinGhe() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

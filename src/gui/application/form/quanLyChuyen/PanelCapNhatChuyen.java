@@ -32,8 +32,8 @@ public class PanelCapNhatChuyen extends JPanel {
     private JTextField txtNgayDi;
     private JTextField txtGioDi;
     private JButton btnGioDi;
-    private JComboBox<String> comboGaDiMoi;
-    private JComboBox<String> comboGaDenMoi;
+    private JTextField txtGaDiMoi;
+    private JTextField txtGaDenMoi;
     private JTextField txtGioDenMoi;
     private JTextField txtNgayDenMoi;
     private JTextField txtGioDiMoi;
@@ -76,6 +76,8 @@ public class PanelCapNhatChuyen extends JPanel {
 
         pnlThongTin.add(new JLabel("Tuyến:"));
         comboTuyen = new JComboBox<>();
+        comboTuyen.setEditable(false);
+        comboTuyen.setFocusable(false);
         pnlThongTin.add(comboTuyen, "growx, wrap");
 
         pnlThongTin.add(new JLabel("Mã Tàu:"));
@@ -94,18 +96,9 @@ public class PanelCapNhatChuyen extends JPanel {
         });
         pnlThongTin.add(txtNgayDi, "growx, wrap");
 
-        pnlThongTin.add(new JLabel("Ga Xuất Phát:"));
-        comboGaXuatPhat = new JComboBox<>();
-        pnlThongTin.add(comboGaXuatPhat, "growx");
-
-        pnlThongTin.add(new JLabel("Ga Đích:"));
-        comboGaDich = new JComboBox<>();
-        pnlThongTin.add(comboGaDich, "growx, wrap");
-
         pnlThongTin.add(new JLabel("Giờ Đi:"));
         JPanel pnlGioDi = new JPanel(new BorderLayout());
         pnlGioDi.setBackground(Color.WHITE);
-
 
         txtGioDi = new JTextField();
         txtGioDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đi (HH:mm)");
@@ -115,7 +108,7 @@ public class PanelCapNhatChuyen extends JPanel {
         btnGioDi.setMargin(new Insets(2,5,2,5));
         pnlGioDi.add(txtGioDi, BorderLayout.CENTER);
         pnlGioDi.add(btnGioDi, BorderLayout.EAST);
-        pnlThongTin.add(pnlGioDi, "growx, wrap");
+        pnlThongTin.add(pnlGioDi, "growx");
 
         btnGioDi.addActionListener(e -> {
             timePicker.setDisplayText(txtGioDi);
@@ -130,13 +123,18 @@ public class PanelCapNhatChuyen extends JPanel {
 
         JPanel pnlNhapGa = new JPanel(new MigLayout("fillx", "[pref!]5[grow]10[pref!]5[grow]10[pref!]5[grow]", "[]"));
         pnlNhapGa.setBackground(Color.WHITE);
-
-        comboGaDiMoi = new JComboBox<>();
-        comboGaDenMoi = new JComboBox<>();
+        JLabel lblHuongDan = new JLabel("(*) Chọn chặng trên bảng thông tin lịch trình để cập nhập các thông tin ngày/giờ cho chặng!");
+        lblHuongDan.setForeground(Color.RED);
+        lblHuongDan.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+        pnlNhapGa.add(lblHuongDan, "span, wrap, gapbottom 10");
+        txtGaDiMoi = new JTextField();
+        txtGaDenMoi = new JTextField();
         pnlNhapGa.add(new JLabel("Ga Đi:"));
-        pnlNhapGa.add(comboGaDiMoi, "growx");
+        txtGaDiMoi.setFocusable(false);
+        pnlNhapGa.add(txtGaDiMoi, "growx");
         pnlNhapGa.add(new JLabel("Ga Đến:"));
-        pnlNhapGa.add(comboGaDenMoi, "growx, wrap");
+        txtGaDenMoi.setFocusable(false);
+        pnlNhapGa.add(txtGaDenMoi, "growx, wrap");
 
         txtNgayDiMoi = new JTextField();
         DateChooser dc1 = new DateChooser();
@@ -196,23 +194,14 @@ public class PanelCapNhatChuyen extends JPanel {
         pnlNhapGa.add(new JLabel("Giờ Đến:"));
         pnlNhapGa.add(pnlGioDenMoi, "growx");
 
-        btnCapNhatGa = new JButton("Thêm Chặng");
-        btnCapNhatGa.setBackground(new Color(36,104,155));
-        btnCapNhatGa.setForeground(Color.WHITE);
-        btnCapNhatGa.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnCapNhatChang = new JButton("Cập Nhật Chặng");
+        btnCapNhatChang = new JButton("Cập Nhật Giờ");
         btnCapNhatChang.setBackground(new Color(36,104,155));
         btnCapNhatChang.setForeground(Color.WHITE);
         btnCapNhatChang.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnCapNhatChang.setEnabled(false);
-        btnXoaGa = new JButton("Xóa Chặng");
-        btnXoaGa.setBackground(new Color(36,104,155));
-        btnXoaGa.setForeground(Color.WHITE);
-        btnXoaGa.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        pnlNhapGa.add(btnCapNhatGa, "w 100!, h 30!");
         pnlNhapGa.add(btnCapNhatChang, "w 150!, h 30!");
-        pnlNhapGa.add(btnXoaGa, "w 100!, h 30!");
+
 
         pnlLichTrinh.add(pnlNhapGa, BorderLayout.NORTH);
 
@@ -321,20 +310,20 @@ public class PanelCapNhatChuyen extends JPanel {
         this.btnGioDi = btnGioDi;
     }
 
-    public JComboBox<String> getComboGaDiMoi() {
-        return comboGaDiMoi;
+    public JTextField getTxtGaDiMoi() {
+        return txtGaDiMoi;
     }
 
-    public void setComboGaDiMoi(JComboBox<String> comboGaDiMoi) {
-        this.comboGaDiMoi = comboGaDiMoi;
+    public void setTxtGaDiMoi(JTextField txtGaDiMoi) {
+        this.txtGaDiMoi = txtGaDiMoi;
     }
 
-    public JComboBox<String> getComboGaDenMoi() {
-        return comboGaDenMoi;
+    public JTextField getTxtGaDenMoi() {
+        return txtGaDenMoi;
     }
 
-    public void setComboGaDenMoi(JComboBox<String> comboGaDenMoi) {
-        this.comboGaDenMoi = comboGaDenMoi;
+    public void setTxtGaDenMoi(JTextField txtGaDenMoi) {
+        this.txtGaDenMoi = txtGaDenMoi;
     }
 
     public JTextField getTxtGioDenMoi() {

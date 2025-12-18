@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dao.Ve_DAO;
@@ -23,6 +24,7 @@ import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
 import entity.KhuyenMai;
+import entity.NhanVien;
 import entity.Toa;
 import entity.Ve;
 import entity.type.TrangThaiVe;
@@ -66,6 +68,52 @@ public class Ve_BUS {
 		return new VeSession(ve, khuyenMai, giamKM, thoiDiemHetHan);
 	}
 
+	private String taoVeIDDuyNhat(Ve ve) {
+		// 1. Tạo Base ID chuẩn
+		String baseID = "VE-" + ve.getGaDi().getGaID() + ve.getGaDen().getGaID() + ve.getChuyen().getChuyenID() + "-"
+				+ String.format("%02d", ve.getGhe().getToa().getSoToa())
+				+ String.format("%02d", ve.getGhe().getSoGhe());
+
+		// 2. Lấy tất cả các ID trong DB đang bắt đầu bằng Base ID này
+		List<String> existingIDs = veDAO.getVeIDsStartingWith(baseID);
+
+		// Nếu chưa có vé nào trùng -> Dùng luôn Base ID
+		if (existingIDs.isEmpty()) {
+			return baseID;
+		}
+
+		// 3. Tìm phiên bản lớn nhất (i)
+		int maxVersion = -1; // -1 nghĩa là chưa có phiên bản chấm nào, 0 là bản gốc
+
+		for (String id : existingIDs) {
+			if (id.equals(baseID)) {
+				// Nếu tìm thấy bản gốc, ít nhất max là 0
+				if (maxVersion < 0) {
+					maxVersion = 0;
+				}
+			} else if (id.startsWith(baseID + ".")) {
+				// Nếu tìm thấy bản có đuôi .i (VD: .1, .2, .10)
+				try {
+					// Cắt bỏ phần base và dấu chấm để lấy số
+					String suffix = id.substring(baseID.length() + 1);
+					int version = Integer.parseInt(suffix);
+
+					if (version > maxVersion) {
+						maxVersion = version;
+					}
+				} catch (NumberFormatException e) {
+					// Bỏ qua nếu đuôi không phải số (phòng hờ dữ liệu rác)
+				}
+			}
+		}
+
+		// 4. Tạo ID mới
+		// Nếu maxVersion = -1 (chưa có gì) -> BaseID (đã return ở trên rồi)
+		// Nếu maxVersion = 0 (đã có bản gốc) -> BaseID.1
+		// Nếu maxVersion = 2 (đã có .2) -> BaseID.3
+		return baseID + "." + (maxVersion + 1);
+	}
+
 	/**
 	 * @param donDatCho
 	 * @param bookingSession
@@ -78,11 +126,8 @@ public class Ve_BUS {
 		DonDatCho donDatCho = bookingSession.getDonDatCho();
 
 		for (VeSession v : dsVeDi) {
-			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-"
-					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
-					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
 			Ve ve = v.getVe();
+			String veID = taoVeIDDuyNhat(ve);
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
 
@@ -90,11 +135,8 @@ public class Ve_BUS {
 			v.setVe(ve);
 		}
 		for (VeSession v : dsVeVe) {
-			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-"
-					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
-					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
 			Ve ve = v.getVe();
+			String veID = taoVeIDDuyNhat(ve);
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
 
@@ -110,20 +152,17 @@ public class Ve_BUS {
 	 */
 	public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
 		List<Ve> dsVe = new ArrayList<Ve>();
-		List<VeSession> dsVeMoi = exchangeSession.getListVeMoiDangChon();
 		DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
+		int n = exchangeSession.getListVeMoiDangChon().size();
 
-		for (VeSession v : dsVeMoi) {
-			String veID = "VE-" + v.getVe().getGaDi().getGaID() + v.getVe().getGaDen().getGaID()
-					+ v.getVe().getChuyen().getChuyenID() + "-"
-					+ String.format("%02d", v.getVe().getGhe().getToa().getSoToa())
-					+ String.format("%02d", v.getVe().getGhe().getSoGhe());
-			Ve ve = v.getVe();
+		for (int i = 0; i < n; i++) {
+			Ve ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
+			String veID = taoVeIDDuyNhat(ve);
 			ve.setVeID(veID);
 			ve.setDonDatCho(donDatCho);
 
 			dsVe.add(ve);
-			v.setVe(ve);
+			exchangeSession.getListVeMoiDangChon().get(i).setVe(ve);
 		}
 
 		return dsVe;
@@ -153,15 +192,6 @@ public class Ve_BUS {
 	}
 
 	/**
-	 * @param donDatChoID
-	 * @param trangThai
-	 * @return
-	 */
-	public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID, TrangThaiVe trangThai) {
-		return veDAO.getVeByDonDatChoID(donDatChoID, trangThai);
-	}
-
-	/**
 	 * @param conn
 	 * @param listVeHoanRow
 	 * @param trangThai
@@ -171,4 +201,67 @@ public class Ve_BUS {
 			veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
 		}
 	}
+
+	/**
+	 * @param nhanVien
+	 * @return
+	 */
+	public List<Ve> layCacVeTheoNhanVienID(NhanVien nhanVien) {
+		return veDAO.getVeByNhanVienID(nhanVien.getNhanVienID());
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param loaiHD
+	 * @param searchKeyword
+	 * @param searchID
+	 * @param tuNgay
+	 * @param denNgay
+	 * @param hinhThucTT
+	 * @return
+	 */
+	public List<Ve> locVeTheoCacTieuChi(NhanVien nhanVien, String loaiHD, String searchKeyword, String searchID,
+			Date tuNgay, Date denNgay, String hinhThucTT) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<Ve> layVeTheoKeyWord(NhanVien nhanVien, String keyword, String type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10KhachHangID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10DonDatChoID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10ChuyenID(String keyword) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

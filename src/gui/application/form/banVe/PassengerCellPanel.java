@@ -76,8 +76,8 @@ public class PassengerCellPanel extends JPanel {
 		lblError.setVisible(false);
 		add(lblError, gbc);
 
-		addClearErrorListener(txtID);
-		addClearErrorListener(txtTen);
+		addValidateListener(txtID);
+		addValidateListener(txtTen);
 
 		// 1. Enter trên txtID -> Tìm kiếm VÀ focus txtTen
 		txtID.addActionListener(new ActionListener() {
@@ -107,13 +107,56 @@ public class PassengerCellPanel extends JPanel {
 		});
 	}
 
-	private boolean isFullInfo() {
-		if (txtID.getText().trim().isEmpty()) {
-			return false;
+	private void addValidateListener(JTextField textField) {
+		textField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+		});
+	}
+
+	private boolean validate(JTextField textField) {
+		// 1. Check ID (CCCD/Hộ chiếu)
+		if (txtID.isFocusOwner()) {
+			String cccd = txtID.getText();
+			if (cccd.isEmpty()) {
+				showError("Vui lòng nhập CCCD/Hộ chiếu", txtID);
+				return false;
+			}
+			// Regex: Chỉ chấp nhận số, độ dài 9-15 (CCCD VN là 12)
+			if (!cccd.matches("^[0-9]{12}$")) {
+				showError("CCCD không đúng định dạng (12 ký số)", txtID);
+				return false;
+			}
 		}
-		if (txtTen.getText().trim().isEmpty()) {
-			return false;
+		// 2. Check Tên
+		else if (txtTen.isFocusOwner()) {
+			String ten = txtTen.getText();
+			if (ten.isEmpty()) {
+				showError("Vui lòng nhập họ tên", txtTen);
+				return false;
+			}
+			// Regex: Chấp nhận chữ cái unicode (tiếng Việt), khoảng trắng, dấu chấm (nếu
+			// cần)
+			// [^0-9!@#...] -> Đơn giản là không chứa số và ký tự đặc biệt cơ bản
+			if (ten.matches(".*\\d.*") || ten.matches(".*[!@#$%^&*()_+=<>?].*")) {
+				showError("Tên không được chứa số hoặc ký tự đặc biệt", txtTen);
+				return false;
+			}
 		}
+
+		hideError();
 		return true;
 	}
 
@@ -165,26 +208,6 @@ public class PassengerCellPanel extends JPanel {
 		lblError.setText("");
 	}
 
-	// Helper: Tự động ẩn lỗi khi user gõ
-	private void addClearErrorListener(JTextField txt) {
-		txt.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				hideError();
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				hideError();
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				hideError();
-			}
-		});
-	}
-
 	/**
 	 * Hàm tìm kiếm hành khách (gọi Controller)
 	 */
@@ -203,6 +226,8 @@ public class PassengerCellPanel extends JPanel {
 				// Cập nhật View (các trường) từ Model vừa sửa
 				setData(currentRowData);
 			} else {
+				txtTen.setText("");
+				cbType.setSelectedIndex(0);
 				// Không tìm thấy, set hành khách là null để controller thêm hành khách mới
 				currentRowData.getVeSession().getVe().setKhachHang(null);
 			}

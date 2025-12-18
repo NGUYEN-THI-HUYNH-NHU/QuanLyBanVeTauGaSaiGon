@@ -35,7 +35,7 @@ public class GiaoDichHoanDoi_DAO {
 			ps.setString(2, giaoDichHoanDoi.getNhanVien().getNhanVienID());
 			ps.setString(3, giaoDichHoanDoi.getHoaDon().getHoaDonID());
 			ps.setString(4, giaoDichHoanDoi.getVeGoc().getVeID());
-			ps.setNull(5, 0);
+			ps.setString(5, giaoDichHoanDoi.getVeMoi().getVeID());
 			ps.setString(6, giaoDichHoanDoi.getLoaiGiaoDich().toString());
 			ps.setString(7, giaoDichHoanDoi.getLyDo());
 			ps.setTimestamp(8, java.sql.Timestamp.valueOf(giaoDichHoanDoi.getThoiDiemGiaoDich()));

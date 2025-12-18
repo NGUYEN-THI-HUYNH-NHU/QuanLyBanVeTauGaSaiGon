@@ -19,17 +19,19 @@ import java.util.function.Consumer;
 import javax.swing.table.AbstractTableModel;
 
 public class VeDoiTableModel extends AbstractTableModel {
-	private final String[] columnNames = { "Hành khách", "Thông tin vé đổi", "Thành tiền", "Lệ phí", "Thông tin phí",
-			"Lý do đổi", "TG còn lại", "Chọn" };
+	private final String[] columnNames = { "STT", "Hành khách", "Thông tin vé đổi", "Thành tiền", "Đủ điều kiện",
+			"Lệ phí", "Thông tin phí", "Lý do đổi", "TG còn lại", "Chọn" };
 
-	public static final int COL_TEN = 0;
-	public static final int COL_THONG_TIN_VE_DOI = 1;
-	public static final int COL_THANH_TIEN = 2;
-	public static final int COL_LE_PHI = 3;
-	public static final int COL_THONG_TIN_PHI = 4;
-	public static final int COL_LY_DO = 5;
-	public static final int COL_TG_CON_LAI = 6;
-	public static final int COL_CHON = 7;
+	public static final int COL_STT = 0;
+	public static final int COL_TEN = 1;
+	public static final int COL_THONG_TIN_VE_DOI = 2;
+	public static final int COL_THANH_TIEN = 3;
+	public static final int COL_DU_DK = 4;
+	public static final int COL_LE_PHI = 5;
+	public static final int COL_THONG_TIN_PHI = 6;
+	public static final int COL_LY_DO = 7;
+	public static final int COL_TG_CON_LAI = 8;
+	public static final int COL_CHON = 9;
 
 	private List<VeDoiRow> rows;
 
@@ -89,12 +91,16 @@ public class VeDoiTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		VeDoiRow row = rows.get(rowIndex);
 		switch (columnIndex) {
+		case COL_STT:
+			return rowIndex + 1;
 		case COL_TEN:
 			return row.getHanhKhach();
 		case COL_THONG_TIN_VE_DOI:
 			return row.getVe().thongTinVeDoi(row.getPhieuDungPhongVIP());
 		case COL_THANH_TIEN:
 			return row.getVe().getGia();
+		case COL_DU_DK:
+			return row.getDieuKien();
 		case COL_LE_PHI:
 			return row.getLePhiDoiVe();
 		case COL_THONG_TIN_PHI:
@@ -110,7 +116,7 @@ public class VeDoiTableModel extends AbstractTableModel {
 		}
 	}
 
-	// Quan trọng: Cập nhật model khi người dùng tick vào checkbox
+	// Cập nhật model khi người dùng tick vào checkbox
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		if (columnIndex == COL_CHON) {
