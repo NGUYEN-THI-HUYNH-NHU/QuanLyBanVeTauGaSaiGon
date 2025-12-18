@@ -212,4 +212,20 @@ public class Ve {
 				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
 				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
 	}
+
+	/**
+	 * @return
+	 */
+	public String stringThongTinChuyen() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public String stringThongTinGhe() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

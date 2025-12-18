@@ -192,7 +192,7 @@ public class DoiVe2Controller {
 
 							// 5. Tải lại bảng Buoc6
 							if (p6 != null) {
-								p6.initFromBookingSession(exchangeSession);
+								p6.initFromExchangeSession(exchangeSession);
 							}
 
 						} else {
@@ -250,7 +250,7 @@ public class DoiVe2Controller {
 						exchangeSession.setPhieuGiuCho(pgc);
 
 						view.setBuoc6Enabled(true);
-						p6.initFromBookingSession(exchangeSession);
+						p6.initFromExchangeSession(exchangeSession);
 
 					} else {
 						JOptionPane.showMessageDialog(view, "Không thể giữ chỗ: \n" + errorMessage, "Lỗi giữ chỗ",
@@ -368,7 +368,7 @@ public class DoiVe2Controller {
 
 				SwingUtilities.invokeLater(() -> {
 					if (p6 != null) {
-						p6.initFromBookingSession(exchangeSession);
+						p6.initFromExchangeSession(exchangeSession);
 					}
 				});
 			}
