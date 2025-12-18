@@ -19,10 +19,19 @@ public class Dashboard_DAO {
     // =========================================================================
     // 1. KPI & TỔNG QUAN
     // =========================================================================
+
+    /**
+     * Tính tổng doanh thu.
+     * Đã xóa "trangThai = 1".
+     * Thêm điều kiện loại trừ hóa đơn hoàn/đổi (HDHV, HDDV) để ra doanh thu thực bán.
+     */
     public double getKpiTotalRevenue(LocalDate startDate, LocalDate endDate) {
-        StringBuilder sql = new StringBuilder("SELECT SUM(tongTien) AS TongDoanhThu FROM HoaDon WHERE trangThai = 1");
+        // Chỉ tính tổng tiền của các hóa đơn bán vé (Không tính hóa đơn hoàn/đổi)
+        StringBuilder sql = new StringBuilder("SELECT SUM(tongTien) AS TongDoanhThu FROM HoaDon WHERE (hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%')");
+
         if (startDate != null) sql.append(" AND thoiDiemTao >= ?");
         if (endDate != null) sql.append(" AND thoiDiemTao < ?");
+
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             int idx = 1;
             if (startDate != null) pstmt.setObject(idx++, startDate.atStartOfDay());
@@ -65,7 +74,8 @@ public class Dashboard_DAO {
     public Map<LocalDate, Double> getRevenueOverTimeByYear(LocalDate startDate, LocalDate endDate) { return getRevenueData(startDate, endDate, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)"); }
 
     private Map<LocalDate, Double> getRevenueData(LocalDate s, LocalDate e, String datePart) {
-        StringBuilder sql = new StringBuilder("SELECT " + datePart + " AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE trangThai = 1 ");
+        // Đã xóa "trangThai = 1", thêm điều kiện loại trừ HDHV/HDDV
+        StringBuilder sql = new StringBuilder("SELECT " + datePart + " AS KeyDate, SUM(tongTien) AS DoanhThu FROM HoaDon WHERE (hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%') ");
         if (s != null) sql.append(" AND thoiDiemTao >= ?"); if (e != null) sql.append(" AND thoiDiemTao < ?");
         sql.append(" GROUP BY " + datePart + " ORDER BY KeyDate");
         return executeQueryForDateMap(sql.toString(), s, e, "KeyDate");
@@ -79,7 +89,9 @@ public class Dashboard_DAO {
     public Map<LocalDate, Integer> getInvoicesRefundedByYear(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", true); }
 
     private Map<LocalDate, Integer> getInvoiceData(LocalDate s, LocalDate e, String datePart, boolean isRefund) {
-        String cond = isRefund ? "(hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%')" : "trangThai = 1 AND hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%'";
+        // Điều kiện lọc dựa trên mã hóa đơn thay vì trangThai
+        String cond = isRefund ? "(hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%')" : "(hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%')";
+
         StringBuilder sql = new StringBuilder("SELECT " + datePart + " AS Ngay, COUNT(hoaDonID) AS SoLuong FROM HoaDon WHERE " + cond);
         if (s != null) sql.append(" AND thoiDiemTao >= ?"); if (e != null) sql.append(" AND thoiDiemTao < ?");
         sql.append(" GROUP BY " + datePart + " ORDER BY Ngay");
@@ -87,6 +99,7 @@ public class Dashboard_DAO {
     }
 
     public Map<LocalDate, Map<String, Integer>> getTicketsBySeatTypeOverTime(LocalDate startDate, LocalDate endDate) {
+        // Query này join qua HoaDon nhưng điều kiện quan trọng là Ve.trangThai ('DA_BAN') nên không ảnh hưởng nhiều
         StringBuilder sql = new StringBuilder(
                 "SELECT CAST(hd.thoiDiemTao AS DATE) AS Ngay, " +
                         "    CASE WHEN t.hangToaID = 'GN_K4' THEN N'Giường nằm 4' WHEN t.hangToaID = 'GN_K6' THEN N'Giường nằm 6' WHEN t.hangToaID = 'NM_CLC' THEN N'Ghế ngồi' ELSE N'Khác' END AS LoaiGhe, " +
@@ -115,14 +128,8 @@ public class Dashboard_DAO {
     // 3. CẢNH BÁO & CHI TIẾT CHUYẾN TÀU (QUAN TRỌNG)
     // =========================================================================
 
-    /**
-     * Đếm số lượng chuyến tàu cảnh báo.
-     * index 0: High Occupancy (>=90%)
-     * index 1: Low Occupancy (<40% & sắp chạy trong 48h)
-     */
     public int[] getTripOccupancyAlerts(LocalDate startDate, LocalDate endDate) {
         int[] counts = {0, 0};
-        // Dùng lại hàm lấy danh sách chi tiết để đếm size, tránh lặp logic
         List<Object[]> highList = getOccupancyList(startDate, endDate, true);
         List<Object[]> lowList = getOccupancyList(startDate, endDate, false);
         counts[0] = highList.size();
@@ -130,17 +137,14 @@ public class Dashboard_DAO {
         return counts;
     }
 
-    /** Lấy danh sách chi tiết chuyến sắp hết vé */
     public List<Object[]> getHighOccupancyList(LocalDate startDate, LocalDate endDate) {
         return getOccupancyList(startDate, endDate, true);
     }
 
-    /** Lấy danh sách chi tiết chuyến bán thấp */
     public List<Object[]> getLowOccupancyList(LocalDate startDate, LocalDate endDate) {
         return getOccupancyList(startDate, endDate, false);
     }
 
-    // Hàm core xử lý logic lọc chuyến tàu
     private List<Object[]> getOccupancyList(LocalDate startDate, LocalDate endDate, boolean isHighOccupancy) {
         List<Object[]> list = new ArrayList<>();
         String sql = "SELECT c.chuyenID, c.tuyenID, c.ngayDi, c.gioDi, " +
@@ -168,7 +172,6 @@ public class Dashboard_DAO {
                     java.sql.Date ngayDi = rs.getDate("ngayDi");
                     java.sql.Time gioDi = rs.getTime("gioDi");
 
-                    // Tách ga đi/đến từ mô tả (VD: "Hà Nội - Sài Gòn")
                     String gaDi = "N/A", gaDen = "N/A";
                     if (moTaTuyen != null && moTaTuyen.contains("-")) {
                         String[] parts = moTaTuyen.split("-");
@@ -179,7 +182,6 @@ public class Dashboard_DAO {
                     if (isHighOccupancy) {
                         if (tyLe >= 90) match = true;
                     } else {
-                        // Logic bán thấp: < 40% VÀ Sắp chạy (trong 48h)
                         if (tyLe < 40) {
                             LocalDateTime now = LocalDateTime.now();
                             LocalDateTime departure = LocalDateTime.of(ngayDi.toLocalDate(), gioDi.toLocalTime());
@@ -190,7 +192,6 @@ public class Dashboard_DAO {
                     }
 
                     if (match) {
-                        // Object[] trả về: ChuyenID, TuyenID, GaDi, GaDen, NgayDi, GioDi, SoVe, TyLe
                         list.add(new Object[]{ chuyenID, tuyenID, gaDi, gaDen, ngayDi.toLocalDate(), gioDi.toLocalTime(), soVe, Math.round(tyLe * 100.0) / 100.0 });
                     }
                 }
