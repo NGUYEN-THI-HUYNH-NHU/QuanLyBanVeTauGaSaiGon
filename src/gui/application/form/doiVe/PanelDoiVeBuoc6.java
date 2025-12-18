@@ -98,7 +98,7 @@ public class PanelDoiVeBuoc6 extends JPanel {
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI).setCellEditor(veMoiEditor);
 	}
 
-	public void initFromBookingSession(ExchangeSession session) {
+	public void initFromExchangeSession(ExchangeSession session) {
 		model.clear();
 		if (session == null) {
 			return;
