@@ -5,7 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -18,25 +17,27 @@ import java.util.Objects;
 
 public class NhatKyAudit {
 	private String nhatKyAuditID;
-	private String veID;
+	private String doiTuongID;
 	private String nhanVienID;
 	private LocalDateTime thoiDiemThaoTac;
 	private String chiTiet;
+	private String doiTuongThaoTac;
 
-	public NhatKyAudit(String nhatKyAuditID, String veID, String nhanVienID, LocalDateTime thoiDiemThaoTac, String chiTiet) {
+	public NhatKyAudit(String nhatKyAuditID, String doiTuongID, String nhanVienID, LocalDateTime thoiDiemThaoTac, String chiTiet,  String doiTuongThaoTac) {
 		this.nhatKyAuditID = nhatKyAuditID;
-		this.veID = veID;
+		this.doiTuongID = doiTuongID;
 		this.nhanVienID = nhanVienID;
 		this.thoiDiemThaoTac = thoiDiemThaoTac;
 		this.chiTiet = chiTiet;
+		this.doiTuongThaoTac = doiTuongThaoTac;
 	}
 
 	public String getNhatKyAuditID() {
 		return nhatKyAuditID;
 	}
 
-	public String getVeID() {
-		return veID;
+	public String getDoiTuongThaoTac() {
+		return doiTuongThaoTac;
 	}
 
 	public String getNhanVienID() {
@@ -46,6 +47,8 @@ public class NhatKyAudit {
 	public LocalDateTime getThoiDiemThaoTac() {
 		return thoiDiemThaoTac;
 	}
+
+	public String getDoiTuongID() {return doiTuongID;}
 
 	public String getChiTiet() {
 		return chiTiet;
@@ -58,9 +61,11 @@ public class NhatKyAudit {
 		this.nhatKyAuditID = nhatKyAuditID;
 	}
 
-	public void setVeID(String veID) {
-		this.veID = veID;
+	public void setDoiTuongThaoTac(String doiTuongThaoTac) {
+		this.doiTuongThaoTac = doiTuongThaoTac;
 	}
+
+	public void setDoiTuongID(String doiTuongID) {this.doiTuongID = doiTuongID;}
 
 	public void setNhanVienID(String nhanVienID) {
 		this.nhanVienID = nhanVienID;
@@ -77,7 +82,8 @@ public class NhatKyAudit {
 	@Override
 	public String toString() {
 		return nhanVienID + ";"
-				+ veID + ";"
+				+ doiTuongThaoTac + ";"
+				+ doiTuongID + ";"
 				+ nhanVienID + ";"
 				+ thoiDiemThaoTac + ";"
 				+ chiTiet;
