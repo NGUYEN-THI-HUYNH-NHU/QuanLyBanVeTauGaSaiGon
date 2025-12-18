@@ -1,7 +1,7 @@
 package bus;/*
 			* @ (#) Tuyen_BUS.java   1.0     30/09/2025
-			
-			
+
+
 			/**
 			* @description :
 			* @author : Vy, Pham Kha Vy
@@ -98,8 +98,16 @@ public class Tuyen_BUS {
 					gaTrungGian = "-";
 				}
 
-				Object[] rowData = new Object[] { tuyen.getTuyenID(), gaDiTCT.getGa().getTenGa(),
-						gaDenTCT.getGa().getTenGa(), gaTrungGian, khoangCach };
+				String trangThaiHienThi = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
+
+				Object[] rowData = new Object[] {
+						tuyen.getTuyenID(),
+						gaDiTCT.getGa().getTenGa(),
+						gaDenTCT.getGa().getTenGa(),
+						gaTrungGian,
+						khoangCach,
+						trangThaiHienThi
+				};
 				dsDuLieuBang.add(rowData);
 			}
 		}
@@ -108,7 +116,7 @@ public class Tuyen_BUS {
 
 	/**
 	 * Lấy dữ liệu bảng cho GUI dựa trên Mã Tuyến gần đúng.
-	 * 
+	 *
 	 * @param tuyenID Mã tuyến cần tìm kiếm.
 	 * @return List<Object[]> dữ liệu bảng.
 	 */
@@ -126,7 +134,7 @@ public class Tuyen_BUS {
 
 	/**
 	 * Lấy dữ liệu bảng cho GUI dựa trên Ga Đi và Ga Đến.
-	 * 
+	 *
 	 * @param gaDi  Tên ga xuất phát.
 	 * @param gaDen Tên ga đích.
 	 * @return List<Object[]> dữ liệu bảng.
@@ -153,11 +161,13 @@ public class Tuyen_BUS {
 
 
 		Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
+		String trangThaiStr = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
 		StringBuilder sb = new StringBuilder();
 		sb.append(
 				"__________________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________________________\n");
 		sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
 		sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
+		sb.append("Trạng Thái: ").append(trangThaiStr).append("\n");
 		sb.append("Khoảng cách từ ga xuất phát đến ga đích: ")
 				.append(dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1).getKhoangCachTuGaXuatPhatKm()).append(" km\n");
 		sb.append("\n Danh sách các ga trung gian trên tuyến:\n");
@@ -169,7 +179,7 @@ public class Tuyen_BUS {
 	/**
 	 * Lấy chi tiết các ga trung gian của một tuyến để hiển thị thông tin chi tiết
 	 * cho bảng tuyến.
-	 * 
+	 *
 	 * @param tuyenID Mã tuyến cần lấy chi tiết.
 	 * @return List<Object[]> danh sách chi tiết ga trung gian.
 	 */
@@ -200,7 +210,7 @@ public class Tuyen_BUS {
 	/**
 	 * Lấy danh sách TuyenChiTiet của một tuyến. Dùng để tải dữ liệu lên form cập
 	 * nhật
-	 * 
+	 *
 	 * @param tuyenID Mã tuyến cần lấy chi tiết.
 	 * @return List<TuyenChiTiet> danh sách chi tiết tuyến.
 	 */
@@ -218,14 +228,14 @@ public class Tuyen_BUS {
 		if (gaDi == null || gaDen == null) {
 			return "";
 		}
-		
+
 		String maTuyen = gaDi.getGaID() + "-" + gaDen.getGaID();
 		return maTuyen;
 	}
 
 	/**
 	 * Kiểm tra xem một Mã Tuyến đã tồn tại trong CSDL hay chưa
-	 * 
+	 *
 	 * @param maTuyen Ma Tuyen can kiem tra
 	 * @return true nếu mã đã tồn tại, false nếu chưa.
 	 */
@@ -287,7 +297,7 @@ public class Tuyen_BUS {
 	/**
 	 * Tính khoảng cách tổng Sử dụng thuật toán Dijkstra để tìm đường đi ngắn nhất
 	 * nếu không có đoạn trực tiếp.
-	 * 
+	 *
 	 * @param gaID_Dau  Ga xuất phát
 	 * @param gaID_Cuoi Ga đích
 	 * @return Khoảng cách tổng, hoặc -1 nếu không tìm thấy đường đi.
@@ -341,7 +351,7 @@ public class Tuyen_BUS {
 
 	/**
 	 * Cung cấp đồ thị khoảng cách (Graph) đã được tải vào bộ nhớ
-	 * 
+	 *
 	 * @return Map<String, Map<String, Integer>> (Đồ thị GaID -> (GaID liền kề ->
 	 *         KC)
 	 */

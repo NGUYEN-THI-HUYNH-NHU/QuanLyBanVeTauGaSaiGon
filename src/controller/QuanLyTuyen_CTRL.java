@@ -156,23 +156,37 @@ public class QuanLyTuyen_CTRL {
         int row = table.getSelectedRow();
 
         if(row == -1) return;
-
         int modelRow = table.convertRowIndexToModel(row);
-        String tuyenID = table.getValueAt(modelRow, 0).toString();
+
+        Object objID = table.getValueAt(modelRow, 0);
+        String tuyenID = (objID != null) ? objID.toString() : "";
 
         Tuyen tuyen = tuyen_bus.getTuyenTheoMa(tuyenID);
 
         List<Object[]> dsGaChiTiet = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
 
         if (tuyen != null) {
-            String khoangCach = table.getValueAt(modelRow, 3).toString() + " km";
+            Object objKC = table.getValueAt(modelRow, 3);
+            String khoangCach = (objKC != null) ? objKC.toString() + " km" : "";
 
-            String tenTuyen = pnlTuyen.getTableTuyen().getValueAt(row, 1) + " - " + pnlTuyen.getTableTuyen().getValueAt(row, 2);
+            Object objTrangThai = table.getValueAt(modelRow, 4);
+            String trangThai = (objTrangThai != null) ? objTrangThai.toString() : "Không xác định";
+
+            Object objTenGaXP = table.getValueAt(modelRow, 1);
+            Object objTenGaDen = table.getValueAt(modelRow, 2);
+            String tenTuyen = "";
+            if (objTenGaXP != null && objTenGaDen != null) {
+                tenTuyen = objTenGaXP.toString() + " - " + objTenGaDen.toString();
+            }
 
             pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getTuyenID());
             pnlTuyen.getTxtChiTietTenTuyen().setText(tenTuyen);
             pnlTuyen.getTxtChiTietKhoangCach().setText(khoangCach);
             pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
+
+            if (pnlTuyen.getTxtChiTietTrangThai() != null) {
+                pnlTuyen.getTxtChiTietTrangThai().setText(trangThai);
+            }
         }
 
         DefaultTableModel modelChiTiet = pnlTuyen.getModelChiTietGa();

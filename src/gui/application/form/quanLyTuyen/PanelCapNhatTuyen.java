@@ -28,6 +28,7 @@ public class PanelCapNhatTuyen extends JPanel {
     private JComboBox<String> txtGaXuatPhat;
     private JComboBox<String> txtGaDich;
     private JComboBox<String> txtGaTrungGian;
+    private JComboBox<String> cboTrangThai;
 
     private JPopupMenu ppGaXuatPhat;
     private JPopupMenu ppGaDich;
@@ -130,6 +131,11 @@ public class PanelCapNhatTuyen extends JPanel {
         JScrollPane scrollMoTa = new JScrollPane(txtMoTa);
         pnlContent.add(new JLabel("Mô Tả Tuyến:"));
         pnlContent.add(scrollMoTa, "span 3, growx, pushx, wrap 20");
+
+        cboTrangThai = new JComboBox<>(new String[]{"Hoạt Động", "Không Hoạt Động"});
+        pnlContent.add(new JLabel("Trạng Thái Tuyến:"));
+        pnlContent.add(cboTrangThai, "growx, wrap 20");
+
 
         String[] columnNames = {"Tên Ga", "Loại Ga", "Khoảng Cách Từ Ga Xuất Phát (km)"};
         modelGaChiTiet = new DefaultTableModel(columnNames, 0){
@@ -339,5 +345,13 @@ public class PanelCapNhatTuyen extends JPanel {
 
     public Color getCOLOR_TABLE_BG() {
         return COLOR_TABLE_BG;
+    }
+
+    public JComboBox<String> getCboTrangThai() {
+        return cboTrangThai;
+    }
+
+    public void setCboTrangThai(JComboBox<String> cboTrangThai) {
+        this.cboTrangThai = cboTrangThai;
     }
 }

@@ -504,9 +504,12 @@ public class ThemTuyen_CTRL {
             JOptionPane.showMessageDialog(panelThemTuyen, "Tuyến phải có ít nhất ga xuất phát và ga đích.", "Lỗi Lưu Tuyến", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        String luaChonTrangThai = panelThemTuyen.getCboTrangThai().getSelectedItem().toString();
+        boolean trangThai = luaChonTrangThai.equals("Hoạt Động");
         try {
             Integer.parseInt(doDaiKCStr);
-            Tuyen tuyenMoi = new Tuyen(maTuyen, moTa);
+            Tuyen tuyenMoi = new Tuyen(maTuyen, moTa, trangThai);
 
             List<TuyenChiTiet> dsTuyenChiTiet = new ArrayList<>();
             DefaultTableModel modelChiTiet = panelThemTuyen.getModelGaChiTiet();
