@@ -124,7 +124,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			// UC cua QUAN_LY
 			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
+			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
 
 			case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien));

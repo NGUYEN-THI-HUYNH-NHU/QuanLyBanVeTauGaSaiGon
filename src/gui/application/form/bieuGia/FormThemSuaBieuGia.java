@@ -26,6 +26,7 @@ import java.awt.event.WindowEvent;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -50,7 +51,7 @@ import entity.type.HangToa;
 import entity.type.LoaiTau;
 
 public class FormThemSuaBieuGia extends JDialog {
-	private JTextField txtTuyenSuggest;
+	private JComboBox<String> cboTuyenSuggest;
 	private JComboBox<String> cboLoaiTau;
 	private JComboBox<String> cboHangToa;
 	private JTextField txtMinKm;
@@ -71,9 +72,10 @@ public class FormThemSuaBieuGia extends JDialog {
 
 	public FormThemSuaBieuGia(Frame parent) {
 		super(parent, "Thiết lập biểu giá vé", true);
-		setSize(700, 540);
+		setSize(900, 540);
 		setLocationRelativeTo(parent);
 		setLayout(new BorderLayout());
+
 
 		// --- CONTENT ---
 		JPanel pnlContent = new JPanel(new GridBagLayout());
@@ -88,13 +90,15 @@ public class FormThemSuaBieuGia extends JDialog {
 		addSectionTitle(pnlContent, "A. Điều kiện áp dụng", 0, gbc);
 
 		gbc.gridy = 1;
-		addLabelAndComp(pnlContent, "Tuyến áp dụng:", txtTuyenSuggest = createSearchField(), 0, 1, gbc);
-		addLabelAndComp(pnlContent, "Loại tàu:", cboLoaiTau = new JComboBox<>(new String[] { "Tất cả", "SE1", "TN1" }),
+		cboTuyenSuggest = new JComboBox<>();
+		cboTuyenSuggest.setEditable(true);
+		addLabelAndComp(pnlContent, "Tuyến áp dụng:", cboTuyenSuggest, 0, 1, gbc);
+		addLabelAndComp(pnlContent, "Loại tàu:", cboLoaiTau = new JComboBox<>(),
 				2, 1, gbc);
 
 		gbc.gridy = 2;
 		addLabelAndComp(pnlContent, "Hạng toa:",
-				cboHangToa = new JComboBox<>(new String[] { "Tất cả", "Ngồi mềm", "Giường nằm" }), 0, 2, gbc);
+				cboHangToa = new JComboBox<>(), 0, 2, gbc);
 		addLabelAndComp(pnlContent, "Khoảng cách (Km):", createKmPanel(), 2, 2, gbc);
 
 		gbc.gridy = 3;
@@ -154,7 +158,7 @@ public class FormThemSuaBieuGia extends JDialog {
 		pnlBtn.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
 
 		btnHuy = new JButton("Hủy bỏ");
-		btnLuu = new JButton("Lưu thay đổi");
+		btnLuu = new JButton("Lưu");
 		btnLuu.setBackground(new Color(38, 117, 191));
 		btnLuu.setForeground(Color.WHITE);
 		btnLuu.setIcon(new FlatSVGIcon("gui/icon/svg/save.svg", 0.8f));
@@ -164,6 +168,50 @@ public class FormThemSuaBieuGia extends JDialog {
 		add(pnlBtn, BorderLayout.SOUTH);
 
 		btnHuy.addActionListener(e -> dispose());
+
+		loadEnumData();
+	}
+
+	private void loadEnumData() {
+		cboLoaiTau.removeAllItems();
+		cboLoaiTau.addItem("Tất cả");
+		for (LoaiTau lt : LoaiTau.values()) {
+			cboLoaiTau.addItem(lt.getDescription());
+		}
+
+		cboHangToa.removeAllItems();
+		cboHangToa.addItem("Tất cả");
+		for (HangToa ht : HangToa.values()) {
+			cboHangToa.addItem(ht.getDescription());
+		}
+	}
+
+	public void loadTuyenData(List<String> listTuyen) {
+		cboTuyenSuggest.removeAllItems();
+		cboTuyenSuggest.addItem("Tất cả");
+		if (listTuyen != null) {
+			for (String t : listTuyen) {
+				cboTuyenSuggest.addItem(t);
+			}
+		}
+	}
+
+	private LoaiTau getLoaiTauByDescription(String desc) {
+		for (LoaiTau lt : LoaiTau.values()) {
+			if (lt.getDescription().equals(desc)) {
+				return lt;
+			}
+		}
+		return null;
+	}
+
+	private HangToa getHangToaByDescription(String desc) {
+		for (HangToa ht : HangToa.values()) {
+			if (ht.getDescription().equals(desc)) {
+				return ht;
+			}
+		}
+		return null;
 	}
 
 	private GridBagConstraints gbcPos(int x, int y, GridBagConstraints gbc) {
@@ -219,8 +267,8 @@ public class FormThemSuaBieuGia extends JDialog {
 		return p;
 	}
 
-	public JTextField getTxtTuyenSuggest() {
-		return txtTuyenSuggest;
+	public JComboBox<String> getCboTuyenSuggest() {
+		return cboTuyenSuggest;
 	}
 
 	public void addBtnLuuListener(java.awt.event.ActionListener l) {
@@ -231,23 +279,42 @@ public class FormThemSuaBieuGia extends JDialog {
 		BieuGiaVe bg = new BieuGiaVe();
 		bg.setBieuGiaVeID(this.currentID);
 
-		// 1. Lấy dữ liệu từ combo ("Tất cả" -> null)
-		if (!txtTuyenSuggest.getText().trim().equals("")) {
-			bg.setTuyenApDung(new Tuyen(txtTuyenSuggest.getText().trim()));
-		}
-
 		if (cboLoaiTau.getSelectedIndex() > 0) {
-			bg.setLoaiTauApDung(LoaiTau.valueOf(cboLoaiTau.getSelectedItem().toString()));
+			String selectedDesc = cboLoaiTau.getSelectedItem().toString();
+			bg.setLoaiTauApDung(getLoaiTauByDescription(selectedDesc));
+		} else {
+			bg.setLoaiTauApDung(null);
 		}
 
 		if (cboHangToa.getSelectedIndex() > 0) {
-			bg.setHangToaApDung(HangToa.valueOf(cboHangToa.getSelectedItem().toString()));
+			String selectedDesc = cboHangToa.getSelectedItem().toString();
+			bg.setHangToaApDung(getHangToaByDescription(selectedDesc));
+		} else {
+			bg.setHangToaApDung(null);
 		}
 
-		// 2. Parse số liệu
+		Object selectedObj = cboTuyenSuggest.getSelectedItem();
+		String rawTuyen = (selectedObj != null) ? selectedObj.toString().trim() : "";
+
+		if (rawTuyen.isEmpty() || rawTuyen.equalsIgnoreCase("Tất cả")) {
+			bg.setTuyenApDung(null);
+		} else {
+			String tuyenID = rawTuyen;
+			if (rawTuyen.contains("(") && rawTuyen.contains(")")) {
+				try {
+					tuyenID = rawTuyen.substring(0, rawTuyen.indexOf("(")).trim();
+				} catch (Exception e) {
+					tuyenID = rawTuyen;
+				}
+			}
+			bg.setTuyenApDung(new Tuyen(tuyenID));
+		}
+
 		try {
-			bg.setMinKm(Integer.parseInt(txtMinKm.getText().trim()));
-			bg.setMaxKm(Integer.parseInt(txtMaxKm.getText().trim()));
+			String sMin = txtMinKm.getText().trim();
+			String sMax = txtMaxKm.getText().trim();
+			bg.setMinKm(sMin.isEmpty() ? 0 : Integer.parseInt(sMin));
+			bg.setMaxKm(sMax.isEmpty() ? 0 : Integer.parseInt(sMax));
 			bg.setPhuPhiCaoDiem(Double.parseDouble(txtPhuPhi.getText().trim()));
 
 			if (radTheoKm.isSelected()) {
@@ -260,15 +327,12 @@ public class FormThemSuaBieuGia extends JDialog {
 		} catch (NumberFormatException e) {
 			throw new RuntimeException("Dữ liệu số (Km/Giá) không hợp lệ!");
 		}
-
 		bg.setDoUuTien((int) spinUuTien.getValue());
 
-		// 3. Parse ngày
 		try {
 			bg.setNgayBatDau(toLocalDate(dateBatDau.getDate()));
 			bg.setNgayKetThuc(toLocalDate(dateKetThuc.getDate()));
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e.getMessage());
+		} catch (Exception e) {
 		}
 
 		return bg;
@@ -277,12 +341,36 @@ public class FormThemSuaBieuGia extends JDialog {
 	public void setModelToForm(BieuGiaVe bg) {
 		this.currentID = bg.getBieuGiaVeID();
 
-		// 1. Set ComboBox
-		txtTuyenSuggest.setText(bg.getTuyenApDung() == null ? "Tất cả" : bg.getTuyenApDung().getTuyenID());
-		cboLoaiTau.setSelectedItem(bg.getLoaiTauApDung() == null ? "Tất cả" : bg.getLoaiTauApDung().toString());
-		cboHangToa.setSelectedItem(bg.getHangToaApDung() == null ? "Tất cả" : bg.getHangToaApDung().toString());
+		if (bg.getLoaiTauApDung() != null) {
+			cboLoaiTau.setSelectedItem(bg.getLoaiTauApDung().getDescription());
+		} else {
+			cboLoaiTau.setSelectedIndex(0);
+		}
 
-		// 2. Set Textfield
+		if (bg.getHangToaApDung() != null) {
+			cboHangToa.setSelectedItem(bg.getHangToaApDung().getDescription());
+		} else {
+			cboHangToa.setSelectedIndex(0);
+		}
+
+		if (bg.getTuyenApDung() == null) {
+			cboTuyenSuggest.setSelectedItem("Tất cả");
+		} else {
+			String idCanTim = bg.getTuyenApDung().getTuyenID();
+			boolean found = false;
+			for(int i=0; i<cboTuyenSuggest.getItemCount(); i++) {
+				String item = cboTuyenSuggest.getItemAt(i);
+				if(item.startsWith(idCanTim)) {
+					cboTuyenSuggest.setSelectedIndex(i);
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				cboTuyenSuggest.setSelectedItem(idCanTim);
+			}
+		}
+
 		txtMinKm.setText(String.valueOf(bg.getMinKm()));
 		txtMaxKm.setText(String.valueOf(bg.getMaxKm()));
 		txtPhuPhi.setText(String.valueOf(bg.getPhuPhiCaoDiem()));
@@ -331,19 +419,28 @@ public class FormThemSuaBieuGia extends JDialog {
 		btnHuy.setText("Đóng");
 		btnHuy.setFocusable(true);
 
-		txtTuyenSuggest.setEditable(false);
+		cboTuyenSuggest.setEditable(false);
+		cboTuyenSuggest.setEnabled(false);
+		cboTuyenSuggest.setFocusable(false);
 		cboLoaiTau.setEnabled(false);
 		cboHangToa.setEnabled(false);
 		txtMinKm.setEditable(false);
+		txtMinKm.setFocusable(false);
 		txtMaxKm.setEditable(false);
+		txtMaxKm.setFocusable(false);
 		dateBatDau.setEnabled(false);
 		dateKetThuc.setEnabled(false);
 
 		radTheoKm.setEnabled(false);
+		radTheoKm.setFocusable(false);
 		radCoDinh.setEnabled(false);
+		radCoDinh.setFocusable(false);
 		txtDonGiaKm.setEditable(false);
+		txtDonGiaKm.setFocusable(false);
 		txtGiaCoDinh.setEditable(false);
+		txtGiaCoDinh.setFocusable(false);
 		txtPhuPhi.setEditable(false);
+		txtPhuPhi.setFocusable(false);
 
 		spinUuTien.setEnabled(false);
 

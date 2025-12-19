@@ -12,14 +12,25 @@ package bus;
  * @version: 1.0
  */
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import dao.BieuGiaVe_DAO;
 import entity.BieuGiaVe;
+import entity.NhanVien;
+import entity.type.NhatKyAudit;
 
 public class BieuGiaVe_BUS {
-	private final BieuGiaVe_DAO dao = new BieuGiaVe_DAO();
+	private final BieuGiaVe_DAO dao ;
+	private final NhatKyAudit_BUS nhatKyAuditBus;
+
+	public BieuGiaVe_BUS(){
+		dao = new BieuGiaVe_DAO();
+		nhatKyAuditBus = new NhatKyAudit_BUS();
+	}
 
 	public List<BieuGiaVe> layDanhSachBieuGia() {
 		return dao.getAllBieuGia();
@@ -29,7 +40,7 @@ public class BieuGiaVe_BUS {
 		return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID);
 	}
 
-	public String themBieuGia(BieuGiaVe bg) {
+	public String themBieuGia(BieuGiaVe bg, NhanVien nv) {
 		// Validation
 		String loi = kiemTraHopLe(bg);
 		if (loi != null) {
@@ -39,7 +50,31 @@ public class BieuGiaVe_BUS {
 		String newID = taoMaBieuGia(bg.getNgayBatDau(), bg.getNgayKetThuc());
 		bg.setBieuGiaVeID(newID);
 
-		return dao.themBieuGia(bg) ? "Thêm thành công" : "Thêm thất bại (Lỗi DB)";
+		try {
+			if (dao.themBieuGia(bg)) {
+				String tenChucVu = (nv.getVaiTroNhanVien() != null) ? nv.getVaiTroNhanVien().getDescription() : "";
+				String giaLog = (bg.getDonGiaTrenKm() > 0)
+						? String.format("%.0f đ/km", bg.getDonGiaTrenKm())
+						: String.format("Cố định %.0f VNĐ", bg.getGiaCoBan());
+
+				String chiTietLog = String.format("%s %s Thêm Biểu giá: %s (Độ ưu tiên: %s, Giá: %s)",
+						tenChucVu, nv.getHoTen(), bg.getBieuGiaVeID(), bg.getDoUuTien(), giaLog
+				);
+
+				ghiLogAudit(bg.getBieuGiaVeID(), nv, NhatKyAudit.THEM, chiTietLog);
+				return "Thêm thành công";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage().contains("FOREIGN KEY")) {
+				return "Lỗi: Tuyến tàu hoặc Loại tàu không tồn tại trong hệ thống.";
+			}
+			if (e.getMessage().contains("PRIMARY KEY")) {
+				return "Lỗi: Mã biểu giá này đã tồn tại.";
+			}
+			return "Lỗi cơ sở dữ liệu: " + e.getMessage();
+		}
+		return "Thêm thất bại (Lỗi không xác định)";
 	}
 
 	private String taoMaBieuGia(LocalDate ngayBD, LocalDate ngayKT) {
@@ -49,19 +84,123 @@ public class BieuGiaVe_BUS {
 		String start = ngayBD.format(fmt);
 		String end = (ngayKT != null)
 				? ngayKT.format(fmt)
-				: "VOHIEULUC";
+				: "VTH";
 
 		return "BGV_" + start + "_" + end;
 	}
 
 
-	public String capNhatBieuGia(BieuGiaVe bg) {
-		String loi = kiemTraHopLe(bg);
+	public String capNhatBieuGia(BieuGiaVe bgMoi, NhanVien nv) {
+		String loi = kiemTraHopLe(bgMoi);
 		if (loi != null) {
 			return loi;
 		}
+		BieuGiaVe bgCu = dao.getBieuGiaByID(bgMoi.getBieuGiaVeID());
+		try{
+		if (dao.capNhatBieuGia(bgMoi)) {
+			List<String> thayDoi = new ArrayList<>();
 
-		return dao.capNhatBieuGia(bg) ? "Cập nhật thành công" : "Cập nhật thất bại";
+			if (bgCu != null) {
+
+				String tuyenCu = (bgCu.getTuyenApDung() != null) ? bgCu.getTuyenApDung().getTuyenID() : "Tất cả";
+				String tuyenMoi = (bgMoi.getTuyenApDung() != null) ? bgMoi.getTuyenApDung().getTuyenID() : "Tất cả";
+				if (!tuyenCu.equals(tuyenMoi)) {
+					thayDoi.add(String.format("Tuyến (%s -> %s)", tuyenCu, tuyenMoi));
+				}
+
+				// 2. So sánh Loại Tàu
+				String tauCu = (bgCu.getLoaiTauApDung() != null) ? bgCu.getLoaiTauApDung().getDescription() : "Tất cả";
+				String tauMoi = (bgMoi.getLoaiTauApDung() != null) ? bgMoi.getLoaiTauApDung().getDescription() : "Tất cả";
+				if (!tauCu.equals(tauMoi)) {
+					thayDoi.add(String.format("Loại tàu (%s -> %s)", tauCu, tauMoi));
+				}
+
+				// 3. So sánh Hạng Toa
+				String toaCu = (bgCu.getHangToaApDung() != null) ? bgCu.getHangToaApDung().getDescription() : "Tất cả";
+				String toaMoi = (bgMoi.getHangToaApDung() != null) ? bgMoi.getHangToaApDung().getDescription() : "Tất cả";
+				if (!toaCu.equals(toaMoi)) {
+					thayDoi.add(String.format("Hạng toa (%s -> %s)", toaCu, toaMoi));
+				}
+
+				// 4. So sánh Đơn giá / Km
+				if (Double.compare(bgCu.getDonGiaTrenKm(), bgMoi.getDonGiaTrenKm()) != 0) {
+					thayDoi.add(String.format("Đơn giá/km (%.0f -> %.0f)", bgCu.getDonGiaTrenKm(), bgMoi.getDonGiaTrenKm()));
+				}
+
+				// 5. So sánh Giá cơ bản
+				if (Double.compare(bgCu.getGiaCoBan(), bgMoi.getGiaCoBan()) != 0) {
+					thayDoi.add(String.format("Giá cơ bản (%.0f -> %.0f)", bgCu.getGiaCoBan(), bgMoi.getGiaCoBan()));
+				}
+
+				// 6. So sánh Phụ phí cao điểm
+				if (Double.compare(bgCu.getPhuPhiCaoDiem(), bgMoi.getPhuPhiCaoDiem()) != 0) {
+					thayDoi.add(String.format("Phụ phí (%.0f -> %.0f)", bgCu.getPhuPhiCaoDiem(), bgMoi.getPhuPhiCaoDiem()));
+				}
+
+				// 7. So sánh Phạm vi Km
+				if (bgCu.getMinKm() != bgMoi.getMinKm() || bgCu.getMaxKm() != bgMoi.getMaxKm()) {
+					thayDoi.add(String.format("Phạm vi Km (%d-%d -> %d-%d)",
+							bgCu.getMinKm(), bgCu.getMaxKm(), bgMoi.getMinKm(), bgMoi.getMaxKm()));
+				}
+
+				// 8. So sánh Ngày Bắt đầu
+				if (!Objects.equals(bgCu.getNgayBatDau(), bgMoi.getNgayBatDau())) {
+					thayDoi.add(String.format("Ngày bắt đầu (%s -> %s)", bgCu.getNgayBatDau(), bgMoi.getNgayBatDau()));
+				}
+
+				// 9. So sánh Ngày Kết thúc
+				boolean oldDateNull = bgCu.getNgayKetThuc() == null;
+				boolean newDateNull = bgMoi.getNgayKetThuc() == null;
+				if (oldDateNull != newDateNull || (!oldDateNull && !bgCu.getNgayKetThuc().equals(bgMoi.getNgayKetThuc()))) {
+					String d1 = oldDateNull ? "Vô thời hạn" : bgCu.getNgayKetThuc().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					String d2 = newDateNull ? "Vô thời hạn" : bgMoi.getNgayKetThuc().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					thayDoi.add(String.format("Ngày kết thúc (%s -> %s)", d1, d2));
+				}
+
+				// 10. So sánh Độ ưu tiên
+				if (bgCu.getDoUuTien() != bgMoi.getDoUuTien()) {
+					thayDoi.add(String.format("Độ ưu tiên (%d -> %d)", bgCu.getDoUuTien(), bgMoi.getDoUuTien()));
+				}
+			}
+
+			if (!thayDoi.isEmpty()) {
+				String tenChucVu = (nv.getVaiTroNhanVien() != null) ? nv.getVaiTroNhanVien().getDescription() : "";
+				StringBuilder sbLog = new StringBuilder();
+				sbLog.append(String.format("%s %s Cập nhật biểu giá %s", tenChucVu, nv.getHoTen(), bgMoi.getBieuGiaVeID()));
+				sbLog.append(" : ").append(String.join(", ", thayDoi));
+
+				ghiLogAudit(bgMoi.getBieuGiaVeID(), nv, NhatKyAudit.SUA, sbLog.toString());
+			}
+
+			return "Cập nhật thành công";
+		}
+		}catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage().contains("FOREIGN KEY")) {
+				return "Lỗi cập nhật: Dữ liệu liên quan (Tuyến/Tàu) không hợp lệ.";
+			}
+			return "Lỗi cập nhật: " + e.getMessage();
+		}
+		return "Cập nhật thất bại (Lỗi không xác định)";
+	}
+
+	private void ghiLogAudit(String doiTuongID, NhanVien nv, NhatKyAudit loaiThaoTac, String chiTiet) {
+		if (nv == null) return;
+		try {
+			String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
+			entity.NhatKyAudit log = new entity.NhatKyAudit(
+					maLog,
+					doiTuongID,
+					nv.getNhanVienID(),
+					LocalDateTime.now(),
+					loaiThaoTac,
+					chiTiet,
+					"BieuGiaVe"
+			);
+			nhatKyAuditBus.ghiNhatKyAudit(log);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean xoaBieuGia(String id) {

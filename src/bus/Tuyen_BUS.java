@@ -442,4 +442,19 @@ public class Tuyen_BUS {
 		return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen);
 	}
 
+	public List<String> getAllMaVaTenTuyen() {
+		List<Tuyen> dsTuyen = tuyen_dao.getAllTuyen();
+		List<String> dsHienThi = new ArrayList<>();
+
+		if (dsTuyen != null) {
+			for (Tuyen t : dsTuyen) {
+				String moTa = (t.getMoTa() != null) ? t.getMoTa() : "Không có mô tả";
+				// Định dạng: "SE1 (Sài Gòn - Hà Nội)"
+				String item = String.format("%s (%s)", t.getTuyenID(), moTa);
+				dsHienThi.add(item);
+			}
+		}
+		return dsHienThi;
+	}
+
 }

@@ -54,6 +54,8 @@ public class BieuGiaVe {
 		this.ngayKetThuc = ngayKetThuc;
 	}
 
+
+
 	public String getBieuGiaVeID() {
 		return bieuGiaVeID;
 	}

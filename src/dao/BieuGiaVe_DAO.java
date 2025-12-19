@@ -131,7 +131,7 @@ public class BieuGiaVe_DAO {
 		return bg;
 	}
 
-	public boolean themBieuGia(BieuGiaVe bg) {
+	public boolean themBieuGia(BieuGiaVe bg) throws SQLException {
 		String sql = "INSERT INTO BieuGiaVe(bieuGiaVeID, tuyenApDungID, loaiTauApDungID, hangToaApDungID, "
 				+ "minKm, maxKm, donGiaTrenKm, giaCoBan, phuPhiCaoDiem, doUuTien, ngayBatDau, ngayKetThuc) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -212,5 +212,96 @@ public class BieuGiaVe_DAO {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public BieuGiaVe getBieuGiaByID(String id) {
+		BieuGiaVe bg = null;
+		ConnectDB.getInstance();
+		Connection con = ConnectDB.getInstance().getConnection();
+		PreparedStatement pstm = null;
+		ResultSet rs = null;
+
+		try {
+
+			String sql = "SELECT * FROM BieuGiaVe WHERE bieuGiaVeID = ?";
+			pstm = con.prepareStatement(sql);
+			pstm.setString(1, id);
+			rs = pstm.executeQuery();
+
+			if (rs.next()) {
+				String bieuGiaVeID = rs.getString("bieuGiaVeID");
+
+				java.sql.Date sqlDateBD = rs.getDate("ngayBatDau");
+				LocalDate ngayBatDau = (sqlDateBD != null) ? sqlDateBD.toLocalDate() : null;
+
+				java.sql.Date sqlDateKT = rs.getDate("ngayKetThuc");
+				LocalDate ngayKetThuc = (sqlDateKT != null) ? sqlDateKT.toLocalDate() : null;
+
+				int minKm = rs.getInt("minKm");
+				int maxKm = rs.getInt("maxKm");
+				double donGiaTrenKm = rs.getDouble("donGiaTrenKm");
+				double giaCoBan = rs.getDouble("giaCoBan");
+				double phuPhiCaoDiem = rs.getDouble("phuPhiCaoDiem"); // Mới thêm
+				int doUuTien = rs.getInt("doUuTien");                 // Mới thêm
+
+				String tuyenID = rs.getString("tuyenApDungID");
+				Tuyen tuyen = new Tuyen(tuyenID);
+
+				String loaiTauStr = rs.getString("loaiTauApDungID");
+				LoaiTau loaiTau = null;
+				if (loaiTauStr != null) {
+					try {
+						loaiTau = LoaiTau.valueOf(loaiTauStr);
+					} catch (IllegalArgumentException e) {
+						for (LoaiTau lt : LoaiTau.values()) {
+							if (lt.getDescription().equalsIgnoreCase(loaiTauStr)) {
+								loaiTau = lt;
+								break;
+							}
+						}
+					}
+				}
+
+				String hangToaStr = rs.getString("hangToaApDungID");
+				HangToa hangToa = null;
+				if (hangToaStr != null) {
+					try {
+						hangToa = HangToa.valueOf(hangToaStr);
+					} catch (IllegalArgumentException e) {
+						for (HangToa ht : HangToa.values()) {
+							if (ht.name().equalsIgnoreCase(hangToaStr)) {
+								hangToa = ht;
+								break;
+							}
+						}
+					}
+				}
+
+				bg = new BieuGiaVe(
+						bieuGiaVeID,
+						tuyen,
+						loaiTau,
+						hangToa,
+						minKm,
+						maxKm,
+						donGiaTrenKm,
+						giaCoBan,
+						phuPhiCaoDiem,
+						doUuTien,
+						ngayBatDau,
+						ngayKetThuc
+				);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) rs.close();
+				if (pstm != null) pstm.close();
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+			}
+		}
+		return bg;
 	}
 }
