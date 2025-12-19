@@ -116,7 +116,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			}
 			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
 			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyDonDatCho());
-			case 6 -> {
+			case 14 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
@@ -124,7 +124,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			}
 
 			// UC cua QUAN_LY
-			case 14 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
 			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
 

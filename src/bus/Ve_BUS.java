@@ -24,7 +24,6 @@ import entity.DonDatCho;
 import entity.Ga;
 import entity.Ghe;
 import entity.KhuyenMai;
-import entity.NhanVien;
 import entity.Toa;
 import entity.Ve;
 import entity.type.TrangThaiVe;
@@ -206,8 +205,8 @@ public class Ve_BUS {
 	 * @param nhanVien
 	 * @return
 	 */
-	public List<Ve> layCacVeTheoNhanVienID(NhanVien nhanVien) {
-		return veDAO.getVeByNhanVienID(nhanVien.getNhanVienID());
+	public List<Ve> layCacVe() {
+		return veDAO.getAllVe();
 	}
 
 	/**
@@ -220,30 +219,9 @@ public class Ve_BUS {
 	 * @param hinhThucTT
 	 * @return
 	 */
-	public List<Ve> locVeTheoCacTieuChi(NhanVien nhanVien, String loaiHD, String searchKeyword, String searchID,
-			Date tuNgay, Date denNgay, String hinhThucTT) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @param nhanVien
-	 * @param keyword
-	 * @param type
-	 * @return
-	 */
-	public List<Ve> layVeTheoKeyWord(NhanVien nhanVien, String keyword, String type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/**
-	 * @param keyword
-	 * @return
-	 */
-	public List<String> layTop10KhachHangID(String keyword) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Ve> locVeTheoCacTieuChi(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
+			Date denNgay) {
+		return veDAO.searchVeByFilter(trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay);
 	}
 
 	/**
@@ -251,17 +229,33 @@ public class Ve_BUS {
 	 * @return
 	 */
 	public List<String> layTop10DonDatChoID(String keyword) {
-		// TODO Auto-generated method stub
-		return null;
+		return veDAO.getTop10DonDatChoID(keyword);
+	}
+
+	/**
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<Ve> layVeTheoKeyword(String keyword, String type) {
+		return veDAO.searchVeByKeyword(keyword, type);
 	}
 
 	/**
 	 * @param keyword
 	 * @return
 	 */
-	public List<String> layTop10ChuyenID(String keyword) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<String> layTop10VeID(String keyword) {
+		return veDAO.getTop10VeID(keyword);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10SoGiayToKhachHang(String keyword) {
+		return veDAO.getTop10SoGiayToKhachHang(keyword);
+
 	}
 
 }

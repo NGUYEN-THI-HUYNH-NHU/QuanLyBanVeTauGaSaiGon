@@ -20,7 +20,6 @@ import connectDB.ConnectDB;
 import entity.HoaDon;
 import entity.KhachHang;
 import entity.NhanVien;
-import entity.type.VaiTroNhanVien;
 
 public class HoaDon_DAO {
 	private final ConnectDB connectDB = ConnectDB.getInstance();
@@ -103,15 +102,14 @@ public class HoaDon_DAO {
 	 * @param hinhThucTT
 	 * @return
 	 */
-	public List<HoaDon> searchHoaDonByFilter(NhanVien nhanVien, String loaiHD, String khachHang, String khachHangID,
-			Date tuNgay, Date denNgay, String hinhThucTT) {
+	public List<HoaDon> searchHoaDonByFilter(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
+			Date denNgay, String hinhThucTT) {
 		List<HoaDon> list = new ArrayList<>();
 		Connection conn = connectDB.getConnection();
 
 		// 1. Khởi tạo câu truy vấn cơ bản (Join bảng để lấy thông tin khách)
 		StringBuilder sql = new StringBuilder("SELECT hd.*, kh.hoTen, kh.soDienThoai, kh.soGiayTo "
-				+ "FROM HoaDon hd JOIN KhachHang kh ON hd.khachHangID = kh.khachHangID "
-				+ "WHERE 1=1 AND hd.nhanVienID = ").append("'" + nhanVien.getNhanVienID() + "'");
+				+ "FROM HoaDon hd JOIN KhachHang kh ON hd.khachHangID = kh.khachHangID " + "WHERE 1=1 AND ");
 
 		List<Object> params = new ArrayList<>();
 
@@ -184,7 +182,7 @@ public class HoaDon_DAO {
 					HoaDon hd = new HoaDon();
 					hd.setHoaDonID(rs.getString("hoaDonID"));
 					hd.setKhachHang(kh);
-					hd.setNhanVien(nhanVien);
+					hd.setNhanVien(new NhanVien(rs.getString("nhanVienID")));
 
 					// Chuyển đổi Timestamp sang LocalDateTime
 					Timestamp ts = rs.getTimestamp("thoiDiemTao");
@@ -228,7 +226,7 @@ public class HoaDon_DAO {
 		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
-	public List<HoaDon> searchHoaDonByKeyword(NhanVien nhanVien, String keyword, String type) {
+	public List<HoaDon> searchHoaDonByKeyword(String keyword, String type) {
 		List<HoaDon> list = new ArrayList<>();
 		StringBuilder sql = new StringBuilder("SELECT hd.*, kh.hoTen, kh.soDienThoai, kh.soGiayTo "
 				+ "FROM HoaDon hd JOIN KhachHang kh ON hd.khachHangID = kh.khachHangID " + "WHERE 1=1 ");
@@ -245,11 +243,6 @@ public class HoaDon_DAO {
 			}
 		}
 
-		// Nhân viên chỉ thấy đơn mình bán
-		if (nhanVien != null && nhanVien.getVaiTroNhanVien() != VaiTroNhanVien.QUAN_LY) {
-			sql.append(" AND hd.nhanVienID = ?");
-		}
-
 		sql.append(" ORDER BY hd.thoiDiemTao DESC");
 
 		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
@@ -258,13 +251,8 @@ public class HoaDon_DAO {
 				ps.setString(index++, "%" + keyword.trim() + "%");
 			}
 
-			if (nhanVien != null && nhanVien.getVaiTroNhanVien() != VaiTroNhanVien.QUAN_LY) {
-				ps.setString(index, nhanVien.getNhanVienID());
-			}
-
 			try (ResultSet rs = ps.executeQuery()) {
 				while (rs.next()) {
-					// (Code map dữ liệu giống các phần trước - tôi viết gọn lại)
 					HoaDon hd = new HoaDon();
 					hd.setHoaDonID(rs.getString("hoaDonID"));
 
@@ -325,5 +313,38 @@ public class HoaDon_DAO {
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	/**
+	 * @return
+	 */
+	public List<HoaDon> getAllHoaDon() {
+		String sql = "SELECT H.hoaDonID, H.khachHangID, K.hoTen, K.soGiayTo, H.thoiDiemTao, H.tongTien, H.tienNhan, H.tienHoan, H.isThanhToanTienMat, H.maGD\r\n"
+				+ "FROM HoaDon H JOIN KhachHang K ON H.khachHangID = K.khachHangID\r\n" + "ORDER BY H.thoiDiemTao DESC";
+		Connection con = connectDB.getConnection();
+		PreparedStatement pstmt = null;
+		ResultSet resultSet = null;
+		List<HoaDon> dsHoaDon = new ArrayList<HoaDon>();
+		try {
+			pstmt = con.prepareStatement(sql);
+			resultSet = pstmt.executeQuery();
+			while (resultSet.next()) {
+				HoaDon hoaDon = new HoaDon();
+				hoaDon.setHoaDonID(resultSet.getString("hoaDonID"));
+				hoaDon.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+						resultSet.getString("soGiayTo")));
+				hoaDon.setThoiDiemTao(resultSet.getTimestamp("thoiDiemTao").toLocalDateTime());
+				hoaDon.setTongTien(resultSet.getDouble("tongTien"));
+				hoaDon.setTienNhan(resultSet.getDouble("tienNhan"));
+				hoaDon.setTienHoan(resultSet.getDouble("tienHoan"));
+				hoaDon.setThanhToanTienMat(resultSet.getBoolean("isThanhToanTienMat"));
+				hoaDon.setMaGD(resultSet.getString("maGD"));
+
+				dsHoaDon.add(hoaDon);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dsHoaDon;
 	}
 }

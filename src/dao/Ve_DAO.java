@@ -15,7 +15,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import connectDB.ConnectDB;
@@ -199,20 +203,21 @@ public class Ve_DAO {
 		return false;
 	}
 
-	public List<Ve> getVeByNhanVienID(String nhanVienID) {
-		String sql = "SELECT V.veID, V.donDatChoID, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
+	public List<Ve> getAllVe() {
+		String sql = "SELECT V.veID, V.donDatChoID, D.thoiDiemDatCho, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
 				+ "CASE WHEN GD.veMoiID IS NOT NULL THEN 1 ELSE 0 END AS isVeDoi "
 				+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID " + "JOIN Ghe g ON V.gheID = G.gheID "
 				+ "JOIN TOA T ON G.toaID = T.toaID " + "JOIN Tau TAU ON T.tauID = TAU.tauID "
 				+ "JOIN GA Ga1 ON V.gaDiID = Ga1.gaID " + "JOIN GA Ga2 ON V.gaDenID = Ga2.gaID "
-				+ "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "WHERE nhanVienID = ?";
+				+ "JOIN DonDatCho D ON V.donDatChoID = D.donDatChoID "
+				+ "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "ORDER BY D.thoiDiemDatCho DESC";
 		Connection con = connectDB.getConnection();
 		PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
 		List<Ve> dsVe = new ArrayList<Ve>();
+
 		try {
 			pstmt = con.prepareStatement(sql);
-			pstmt.setString(1, nhanVienID);
 			resultSet = pstmt.executeQuery();
 			while (resultSet.next()) {
 				Ve ve = new Ve();
@@ -239,5 +244,228 @@ public class Ve_DAO {
 			e.printStackTrace();
 		}
 		return dsVe;
+	}
+
+	public List<Ve> searchVeByFilter(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay) {
+		List<Ve> list = new ArrayList<>();
+		Connection conn = connectDB.getConnection();
+
+		// 1. Khởi tạo câu truy vấn cơ bản (Join bảng để lấy thông tin khách)
+		StringBuilder sql = new StringBuilder(
+				"SELECT V.veID, V.donDatChoID, D.thoiDiemDatCho, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.khachHangID, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
+						+ "CASE WHEN GD.veMoiID IS NOT NULL THEN 1 ELSE 0 END AS isVeDoi "
+						+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID "
+						+ "JOIN Ghe g ON V.gheID = G.gheID " + "JOIN TOA T ON G.toaID = T.toaID "
+						+ "JOIN Tau TAU ON T.tauID = TAU.tauID " + "JOIN GA Ga1 ON V.gaDiID = Ga1.gaID "
+						+ "JOIN GA Ga2 ON V.gaDenID = Ga2.gaID " + "JOIN DonDatCho D ON V.donDatChoID = D.donDatChoID "
+						+ "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "WHERE 1=1 ");
+
+		List<Object> params = new ArrayList<>();
+
+		// 2. Xử lý điều kiện NGÀY (Từ ngày ... Đến ngày)
+		if (tuNgay != null) {
+			sql.append(" AND D.thoiDiemDatCho >= ?");
+			// Chuyển về đầu ngày (00:00:00)
+			params.add(new Timestamp(atStartOfDay(tuNgay).getTime()));
+		}
+		if (denNgay != null) {
+			sql.append(" AND D.thoiDiemDatCho <= ?");
+			// Chuyển về cuối ngày (23:59:59)
+			params.add(new Timestamp(atEndOfDay(denNgay).getTime()));
+		}
+
+		// 3. Xử lý điều kiện KHÁCH HÀNG (Tên, SĐT, CCCD, ID)
+		if (soGiayTo != null) {
+			// Ưu tiên 1: Nếu có ID chính xác (do chọn từ auto-suggest)
+			// Tìm chính xác cực nhanh (Index Scan)
+			sql.append(" AND K.soGiayTo = ?");
+			params.add(soGiayTo);
+		} else if (khachHang != null && !khachHang.trim().isEmpty()) {
+			// Ưu tiên 2: Nếu không có ID, tìm theo từ khóa (Table Scan / Like)
+			sql.append(" AND (K.hoTen LIKE ? OR K.soDienThoai LIKE ? OR K.khachHangID LIKE ? OR K.soGiayTo LIKE ?)");
+			String keyword = "%" + khachHang.trim() + "%";
+			params.add(keyword);
+			params.add(keyword);
+			params.add(keyword);
+			params.add(keyword);
+		}
+
+		// 5. Xử lý loại vé (trạng thái)
+		if (trangThaiVe != null && !trangThaiVe.equals("Tất cả")) {
+			if (trangThaiVe.equalsIgnoreCase("Vé đã bán")) {
+				sql.append(" AND V.trangThai = " + String.format("'%s'", TrangThaiVe.DA_BAN));
+			} else if (trangThaiVe.equalsIgnoreCase("Vé đã dùng")) {
+				sql.append(" AND V.trangThai = " + String.format("'%s'", TrangThaiVe.DA_DUNG));
+			} else if (trangThaiVe.equalsIgnoreCase("Vé đã hoàn")) {
+				sql.append(" AND V.trangThai = " + String.format("'%s'", TrangThaiVe.DA_HOAN));
+			} else if (trangThaiVe.equalsIgnoreCase("Vé đã đổi")) {
+				sql.append(" AND V.trangThai = " + String.format("'%s'", TrangThaiVe.DA_DOI));
+			}
+		}
+
+		// Sắp xếp giảm dần theo ngày tạo (Mới nhất lên đầu)
+		sql.append(" ORDER BY D.thoiDiemDatCho DESC");
+
+		// 6. Thực thi truy vấn
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			// Gán tham số
+			for (int i = 0; i < params.size(); i++) {
+				ps.setObject(i + 1, params.get(i));
+			}
+
+			try (ResultSet resultSet = ps.executeQuery()) {
+				while (resultSet.next()) {
+					Ve ve = new Ve();
+					ve.setVeID(resultSet.getString("veID"));
+					ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+							LoaiDoiTuong.valueOf(resultSet.getString("loaiDoiTuongID")),
+							resultSet.getString("soGiayTo")));
+					ve.setDonDatCho(new DonDatCho(resultSet.getString("donDatChoID")));
+					ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+					ve.setGhe(new Ghe(resultSet.getString("gheID"),
+							new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+									HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+							resultSet.getInt("soGhe")));
+					ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+					ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
+					java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+					ve.setNgayGioDi(t.toLocalDateTime());
+					ve.setGia(resultSet.getDouble("gia"));
+					ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+					ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
+
+					list.add(ve);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return list;
+	}
+
+	// --- Helper Methods xử lý ngày giờ ---
+
+	private Date atStartOfDay(Date date) {
+		LocalDateTime localDateTime = dateToLocalDateTime(date);
+		LocalDateTime startOfDay = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0);
+		return localDateTimeToDate(startOfDay);
+	}
+
+	private Date atEndOfDay(Date date) {
+		LocalDateTime localDateTime = dateToLocalDateTime(date);
+		LocalDateTime endOfDay = localDateTime.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+		return localDateTimeToDate(endOfDay);
+	}
+
+	private LocalDateTime dateToLocalDateTime(Date date) {
+		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	private Date localDateTimeToDate(LocalDateTime localDateTime) {
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	/**
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<Ve> searchVeByKeyword(String keyword, String type) {
+		List<Ve> list = new ArrayList<>();
+		StringBuilder sql = new StringBuilder(
+				"SELECT V.veID, V.donDatChoID, D.thoiDiemDatCho, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.khachHangID, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
+						+ "CASE WHEN GD.veMoiID IS NOT NULL THEN 1 ELSE 0 END AS isVeDoi "
+						+ "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID "
+						+ "JOIN Ghe g ON V.gheID = G.gheID " + "JOIN TOA T ON G.toaID = T.toaID "
+						+ "JOIN Tau TAU ON T.tauID = TAU.tauID " + "JOIN GA Ga1 ON V.gaDiID = Ga1.gaID "
+						+ "JOIN GA Ga2 ON V.gaDenID = Ga2.gaID " + "JOIN DonDatCho D ON V.donDatChoID = D.donDatChoID "
+						+ "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "WHERE 1=1 ");
+		Connection conn = connectDB.getConnection();
+
+		// Xử lý tìm kiếm theo Loại
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			if (type.equals("Mã vé")) {
+				sql.append(" AND V.veID LIKE ?");
+			} else if (type.equals("Mã đặt chỗ")) {
+				sql.append(" AND V.donDatChoID LIKE ?");
+			} else if (type.equals("Số giấy tờ khách hàng")) {
+				sql.append(" AND K.soGiayTo LIKE ?");
+			}
+		}
+
+		sql.append(" ORDER BY D.thoiDiemDatCho DESC");
+
+		try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+			int index = 1;
+			if (keyword != null && !keyword.trim().isEmpty()) {
+				ps.setString(index++, "%" + keyword.trim() + "%");
+			}
+
+			try (ResultSet resultSet = ps.executeQuery()) {
+				while (resultSet.next()) {
+					Ve ve = new Ve();
+					ve.setVeID(resultSet.getString("veID"));
+					ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+							LoaiDoiTuong.valueOf(resultSet.getString("loaiDoiTuongID")),
+							resultSet.getString("soGiayTo")));
+					ve.setDonDatCho(new DonDatCho(resultSet.getString("donDatChoID")));
+					ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+					ve.setGhe(new Ghe(resultSet.getString("gheID"),
+							new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+									HangToa.valueOf(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+							resultSet.getInt("soGhe")));
+					ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
+					ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
+					java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+					ve.setNgayGioDi(t.toLocalDateTime());
+					ve.setGia(resultSet.getDouble("gia"));
+					ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+					ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
+
+					list.add(ve);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	// CÁC HÀM HỖ TRỢ SUGGESTION (Auto-complete)
+	// Lấy Top 10 Mã Hóa Đơn gần đúng
+	public List<String> getTop10VeID(String keyword) {
+		return getTop10String("veID", "Ve", keyword);
+	}
+
+	// Lấy Top 10 Mã Giao Dịch gần đúng
+	public List<String> getTop10DonDatChoID(String keyword) {
+		return getTop10String("donDatChoID", "DonDatCho", keyword);
+	}
+
+	// Lấy Top 10 Mã Khách Hàng (Tìm trong bảng KhachHang để gợi ý ID tồn tại)
+	public List<String> getTop10SoGiayToKhachHang(String keyword) {
+		return getTop10String("soGiayTo", "KhachHang", keyword);
+	}
+
+	// Hàm chung để query string
+	private List<String> getTop10String(String colName, String tableName, String keyword) {
+		List<String> list = new ArrayList<>();
+		String sql = "SELECT TOP 10 " + colName + " FROM " + tableName + " WHERE " + colName + " LIKE ?";
+		Connection conn = connectDB.getConnection();
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, "%" + keyword + "%");
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					String val = rs.getString(1);
+					if (val != null) {
+						list.add(val);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 }
