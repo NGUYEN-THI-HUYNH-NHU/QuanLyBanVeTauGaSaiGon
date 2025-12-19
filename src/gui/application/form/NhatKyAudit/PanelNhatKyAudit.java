@@ -1,488 +1,368 @@
-//package gui.application.form.NhatKyAudit;
-//
-//
-//import com.toedter.calendar.JDateChooser;
-//import controller.NhanVien_CTRL;
-//import controller.NhatKyAudit_CTRL;
-//import dao.NhatKyAudit_DAO;
-//import entity.NhanVien;
-//import entity.NhatKyAudit;
-//import javax.swing.*;
-//import javax.swing.border.EmptyBorder;
-//import javax.swing.table.*;
-//import java.awt.*;
-//import java.awt.event.*;
-//import java.time.*;
-//import java.time.format.DateTimeFormatter;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Objects;
-//
-//public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseListener, KeyListener {
-//    private final NhatKyAudit_CTRL nhatKyAudit_ctrl;
-//    private final NhanVien nhanVien;
-//
-//    public PanelNhatKyAudit(NhanVien nhanVien) {
-//        this.nhanVien = nhanVien;
-//        this.nhatKyAudit_ctrl = new NhatKyAudit_CTRL();
-//
-//        setLayout(new BorderLayout(10, 10));
-//        setBorder(new EmptyBorder(10, 10, 10, 10));
-//
-//        add(createFilterPanel(), BorderLayout.NORTH);
-//        add(createTablePanel(), BorderLayout.CENTER);
-//        add(createDetailPanel(), BorderLayout.SOUTH);
-//
-//        initCombos();
-//        initTableStyle();
-//        wireEvents();
-//
-//        // Default: 7 ngày gần nhất
-//        setRangeLast7Days();
-//        reloadData();
-//    }
-//
-//    private final JDateChooser dcTuNgay = new JDateChooser();
-//    private final JDateChooser dcDenNgay = new JDateChooser();
-//
-//    private final JComboBox<String> cbLoaiThaoTac = new JComboBox<>();
-//    private final JComboBox<String> cbNhanVien = new JComboBox<>();
-//
-//    private final JTextField txtKeyword = new JTextField(22);
-//
-//    private final JButton btnHomNay = new JButton("Hôm nay");
-//    private final JButton btn7Ngay = new JButton("7 ngày");
-//    private final JButton btnLoc = new JButton("Lọc");
-//    private final JButton btnLamMoi = new JButton("Làm mới");
-//
-//    private JTable tblNhatKy;
-//    private DefaultTableModel model;
-//
-//    // ===== Detail =====
-//    private final JLabel lblNhatKyID = new JLabel("-");
-//    private final JLabel lblThoiDiem = new JLabel("-");
-//    private final JLabel lblLoai = new JLabel("-");
-//    private final JLabel lblNhanVien = new JLabel("-");
-//    private final JLabel lblDoiTuong = new JLabel("-");
-//    private final JTextArea txtChiTietFull = new JTextArea(6, 10);
-//
-//    // Data hiện tại đang hiển thị
-//    private List<NhatKyAudit> current = new ArrayList<>();
-//
-//    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-//
-//    // ===================== UI =====================
-//
-//    private JPanel createFilterPanel() {
-//        JPanel p = new JPanel(new GridBagLayout());
-//        p.setBorder(BorderFactory.createTitledBorder("Bộ lọc nhật ký Audit"));
-//
-//        dcTuNgay.setDateFormatString("dd/MM/yyyy");
-//        dcDenNgay.setDateFormatString("dd/MM/yyyy");
-//
-//        GridBagConstraints g = new GridBagConstraints();
-//        g.insets = new Insets(6, 6, 6, 6);
-//        g.fill = GridBagConstraints.HORIZONTAL;
-//
-//        // Row 0
-//        g.gridy = 0;
-//
-//        g.gridx = 0;
-//        p.add(new JLabel("Từ ngày:"), g);
-//        g.gridx = 1;
-//        p.add(dcTuNgay, g);
-//
-//        g.gridx = 2;
-//        p.add(new JLabel("Đến ngày:"), g);
-//        g.gridx = 3;
-//        p.add(dcDenNgay, g);
-//
-//        g.gridx = 4;
-//        p.add(btnHomNay, g);
-//        g.gridx = 5;
-//        p.add(btn7Ngay, g);
-//
-//        // Row 1
-//        g.gridy = 1;
-//
-//        g.gridx = 0;
-//        p.add(new JLabel("Loại thao tác:"), g);
-//        g.gridx = 1;
-//        p.add(cbLoaiThaoTac, g);
-//
-//        g.gridx = 2;
-//        p.add(new JLabel("Nhân viên:"), g);
-//        g.gridx = 3;
-//        p.add(cbNhanVien, g);
-//
-//        g.gridx = 4;
-//        p.add(new JLabel("Từ khóa:"), g);
-//        g.gridx = 5;
-//        p.add(txtKeyword, g);
-//
-//        // Row 2 buttons
-//        g.gridy = 2;
-//        g.gridx = 0;
-//        g.gridwidth = 6;
-//
-//        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-//        btnPanel.add(btnLamMoi);
-//        btnPanel.add(btnLoc);
-//
-//        p.add(btnPanel, g);
-//
-//        return p;
-//    }
-//
-//    private JComponent createTablePanel() {
-//        model = new DefaultTableModel(
-//                new Object[]{"Thời điểm", "Loại", "Nhân viên", "Đối tượng", "Mã đối tượng", "Chi tiết (rút gọn)"},
-//                0
-//        ) {
-//            @Override
-//            public boolean isCellEditable(int row, int col) {
-//                return false;
-//            }
-//        };
-//
-//        tblNhatKy = new JTable(model);
-//        tblNhatKy.setRowHeight(28);
-//        tblNhatKy.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//        tblNhatKy.getTableHeader().setReorderingAllowed(false);
-//
-//        // Sort
-//        TableRowSorter<TableModel> sorter = new TableRowSorter<>(model);
-//        tblNhatKy.setRowSorter(sorter);
-//
-//        JScrollPane sp = new JScrollPane(tblNhatKy);
-//        sp.setBorder(BorderFactory.createTitledBorder("Danh sách nhật ký"));
-//        return sp;
-//    }
-//
-//    private JPanel createDetailPanel() {
-//        JPanel p = new JPanel(new BorderLayout(10, 10));
-//        p.setBorder(BorderFactory.createTitledBorder("Chi tiết nhật ký"));
-//
-//        JPanel info = new JPanel(new GridLayout(2, 5, 10, 4));
-//        info.add(new JLabel("Nhật ký ID:"));
-//        info.add(new JLabel("Thời điểm:"));
-//        info.add(new JLabel("Loại:"));
-//        info.add(new JLabel("Nhân viên:"));
-//        info.add(new JLabel("Đối tượng:"));
-//
-//        info.add(lblNhatKyID);
-//        info.add(lblThoiDiem);
-//        info.add(lblLoai);
-//        info.add(lblNhanVien);
-//        info.add(lblDoiTuong);
-//
-//        txtChiTietFull.setLineWrap(true);
-//        txtChiTietFull.setWrapStyleWord(true);
-//        txtChiTietFull.setEditable(false);
-//
-//        JPanel bottom = new JPanel(new BorderLayout());
-//        bottom.add(new JScrollPane(txtChiTietFull), BorderLayout.CENTER);
-//
-//        JButton btnXemDialog = new JButton("Xem dialog");
-////        btnXemDialog.addActionListener(e -> openSelectedDialog());
-//
-//        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-//        right.add(btnXemDialog);
-//        bottom.add(right, BorderLayout.SOUTH);
-//
-//        p.add(info, BorderLayout.NORTH);
-//        p.add(bottom, BorderLayout.CENTER);
-//
-//        return p;
-//    }
-//
-//    private void initTableStyle() {
-//        // Center vài cột
-//        centerCol(0);
-//        centerCol(1);
-//        centerCol(2);
-//        centerCol(3);
-//        centerCol(4);
-//
-//        // Cột chi tiết rộng hơn
-//        tblNhatKy.getColumnModel().getColumn(5).setPreferredWidth(450);
-//    }
-//
-//    private void centerCol(int idx) {
-//        DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-//        r.setHorizontalAlignment(SwingConstants.CENTER);
-//        tblNhatKy.getColumnModel().getColumn(idx).setCellRenderer(r);
-//    }
-//
-//    // ===================== INIT DATA =====================
-//
-//    private void initCombos() {
-//        // Loại thao tác: bạn có enum thì load enum, ở đây demo:
-//        cbLoaiThaoTac.removeAllItems();
-//        cbLoaiThaoTac.addItem("TẤT CẢ");
-//        cbLoaiThaoTac.addItem("VE_BAN");
-//        cbLoaiThaoTac.addItem("VE_HUY");
-//        cbLoaiThaoTac.addItem("NHANVIEN_THEM");
-//        cbLoaiThaoTac.addItem("NHANVIEN_SUA");
-//        cbLoaiThaoTac.addItem("KHUYENMAI_THEM");
-//        cbLoaiThaoTac.addItem("AUTH_LOGIN");
-//        cbLoaiThaoTac.addItem("AUTH_LOGIN_FAIL");
-//        cbLoaiThaoTac.addItem("AUTH_LOGOUT");
-//
-//        // Nhân viên: nên load từ DB (nhanVien_ctrl). Demo:
-//        cbNhanVien.removeAllItems();
-//        cbNhanVien.addItem("TẤT CẢ");
-//        cbNhanVien.addItem("NV001");
-//        cbNhanVien.addItem("NV002");
-//        cbNhanVien.addItem("NV003");
-//    }
-//
-//    private void wireEvents() {
-//        btnLoc.addActionListener(e -> reloadData());
-//
-//        btnLamMoi.addActionListener(e -> {
-//            txtKeyword.setText("");
-//            cbLoaiThaoTac.setSelectedIndex(0);
-//            cbNhanVien.setSelectedIndex(0);
-//            setRangeLast7Days();
-//            reloadData();
-//        });
-//
-//        btnHomNay.addActionListener(e -> {
-//            LocalDate today = LocalDate.now();
-//            setRange(today, today);
-//            reloadData();
-//        });
-//
-//        btn7Ngay.addActionListener(e -> {
-//            setRangeLast7Days();
-//            reloadData();
-//        });
-//
-//        txtKeyword.addActionListener(e -> reloadData());
-//
-//        tblNhatKy.getSelectionModel().addListSelectionListener(e -> {
-////            if (!e.getValueIsAdjusting()) showSelectedDetail();
-//        });
-//
-//        tblNhatKy.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-////                    openSelectedDialog();
-//                }
-//            }
-//        });
-//    }
-//
-//    // ===================== LOAD / FILTER =====================
-//
-//    private void reloadData() {
-//        LocalDate tu = getLocalDate(dcTuNgay);
-//        LocalDate den = getLocalDate(dcDenNgay);
-//
-//        if (tu == null || den == null) {
-//            JOptionPane.showMessageDialog(this, "Vui lòng chọn đủ Từ ngày và Đến ngày.");
-//            return;
-//        }
-//        if (den.isBefore(tu)) {
-//            JOptionPane.showMessageDialog(this, "Đến ngày phải >= Từ ngày.");
-//            return;
-//        }
-//
-//        String loai = Objects.toString(cbLoaiThaoTac.getSelectedItem(), "TẤT CẢ");
-//        String nv = Objects.toString(cbNhanVien.getSelectedItem(), "TẤT CẢ");
-//        String keyword = txtKeyword.getText() == null ? "" : txtKeyword.getText().trim();
-//
-//        // 1) Lấy theo thời gian (DAO bạn đã có)
-//        List<NhatKyAudit> ds = nhatKyAudit_ctrl.locNhatKyTheoKhoangThoiGian(tu, den);
-//
-//        // 2) Filter tiếp theo loại/nv/keyword (tại client cho dễ ghép)
-//        current = filterClient(ds, loai, nv, keyword);
-//
-//        // 3) fill table
-////        fillTable(current);
-//
-//        if (!current.isEmpty()) {
-//            tblNhatKy.setRowSelectionInterval(0, 0);
-//        } else {
-//            clearDetail();
-//        }
-//    }
-//
-//    private List<NhatKyAudit> filterClient(List<NhatKyAudit> raw, String loai, String nv, String keyword) {
-//        List<NhatKyAudit> out = new ArrayList<>();
-//        for (NhatKyAudit x : raw) {
-//            boolean ok = true;
-//
-//            if (!"TẤT CẢ".equalsIgnoreCase(loai)) {
-////                ok &= loai.equalsIgnoreCase(x.getLoaiThaoTac());
-//            }
-//
-//            if (!"TẤT CẢ".equalsIgnoreCase(nv)) {
-//                ok &= nv.equalsIgnoreCase(x.getNhanVienID());
-//            }
-//
-//            if (!keyword.isBlank()) {
-//                ok &= (x.getChiTiet() != null && x.getChiTiet().toLowerCase().contains(keyword.toLowerCase()));
-//            }
-//
-//            if (ok) out.add(x);
-//        }
-//        return out;
-//    }
-//
-////    private void fillTable(List<NhatKyAudit> list) {
-////        model.setRowCount(0);
-////        for (NhatKyAudit x : list) {
-////            String time = x.getThoiDiemThaoTac() == null ? "-" : x.getThoiDiemThaoTac().format(FMT);
-////
-////            // Map "đối tượng" + "mã đối tượng"
-////            // Nếu bạn chưa có doiTuongLoai/doiTuongID thì có thể set đối tượng = "VE" và mã = getVeID()
-////            String doiTuongLoai = nullToDash(getDoiTuongLoai(x));
-////            String doiTuongId = nullToDash(getDoiTuongID(x));
-////
-////            model.addRow(new Object[]{
-////                    time,
-////                    nullToDash(x.getLoaiThaoTac()),
-////                    nullToDash(x.getNhanVienID()),
-////                    doiTuongLoai,
-////                    doiTuongId,
-////                    shorten(x.getChiTiet(), 90)
-////            });
-////        }
-////    }
-//
-////    private void showSelectedDetail() {
-////        int viewRow = tblNhatKy.getSelectedRow();
-////        if (viewRow < 0) return;
-////
-////        int modelRow = tblNhatKy.convertRowIndexToModel(viewRow);
-////        if (modelRow < 0 || modelRow >= current.size()) return;
-////
-////        NhatKyAudit x = current.get(modelRow);
-////
-////        lblNhatKyID.setText(nullToDash(x.getNhatKyID()));
-////        lblThoiDiem.setText(x.getThoiDiemThaoTac() == null ? "-" : x.getThoiDiemThaoTac().format(FMT));
-////        lblLoai.setText(nullToDash(x.getLoaiThaoTac()));
-////        lblNhanVien.setText(nullToDash(x.getNhanVienID()));
-////
-////        lblDoiTuong.setText(nullToDash(getDoiTuongLoai(x)) + " - " + nullToDash(getDoiTuongID(x)));
-////
-////        txtChiTietFull.setText(x.getChiTiet() == null ? "" : x.getChiTiet());
-////        txtChiTietFull.setCaretPosition(0);
-////    }
-//
-////    private void openSelectedDialog() {
-////        int viewRow = tblNhatKy.getSelectedRow();
-////        if (viewRow < 0) return;
-////
-////        int modelRow = tblNhatKy.convertRowIndexToModel(viewRow);
-////        if (modelRow < 0 || modelRow >= current.size()) return;
-////
-////        NhatKyAudit x = current.get(modelRow);
-////
-////        JTextArea area = new JTextArea(12, 60);
-////        area.setLineWrap(true);
-////        area.setWrapStyleWord(true);
-////        area.setEditable(false);
-////
-////        area.setText("""
-////                Nhật ký ID: %s
-////                Thời điểm : %s
-////                Loại      : %s
-////                Nhân viên : %s
-////                Đối tượng : %s - %s
-////
-////                Chi tiết:
-////                %s
-////                """.formatted(
-////                nullToDash(x.getNhatKyID()),
-////                x.getThoiDiemThaoTac() == null ? "-" : x.getThoiDiemThaoTac().format(FMT),
-////                nullToDash(x.getLoaiThaoTac()),
-////                nullToDash(x.getNhanVienID()),
-////                nullToDash(getDoiTuongLoai(x)),
-////                nullToDash(getDoiTuongID(x)),
-////                x.getChiTiet() == null ? "" : x.getChiTiet()
-////        ));
-////        area.setCaretPosition(0);
-////
-////        JOptionPane.showMessageDialog(this, new JScrollPane(area), "Chi tiết nhật ký", JOptionPane.INFORMATION_MESSAGE);
-////    }
-//
-//    private void clearDetail() {
-//        lblNhatKyID.setText("-");
-//        lblThoiDiem.setText("-");
-//        lblLoai.setText("-");
-//        lblNhanVien.setText("-");
-//        lblDoiTuong.setText("-");
-//        txtChiTietFull.setText("");
-//    }
-//
-//    // ===================== MAP FIELD =====================
-//    // Chỗ này để bạn chỉnh theo entity thật của bạn (veID hay doiTuongID...)
-//
-////    private String getDoiTuongLoai(NhatKyAudit x) {
-////        // Nếu entity bạn có getDoiTuongThaoTac() hoặc getDoiTuongLoai() thì đổi lại:
-////        // return x.getDoiTuongThaoTac();
-////        // Tạm suy luận theo veID:
-////        if (x.getVeID() != null && !x.getVeID().isBlank()) return "VE";
-////        return "-";
-////    }
-////
-////    private String getDoiTuongID(NhatKyAudit x) {
-////        // Nếu entity bạn có getDoiTuongID() thì đổi lại:
-////        // return x.getDoiTuongID();
-////        return x.getVeID(); // hoặc null
-////    }
-//
-//    // ===================== DATE HELPERS =====================
-//
-//    private void setRangeLast7Days() {
-//        LocalDate den = LocalDate.now();
-//        LocalDate tu = den.minusDays(6);
-//        setRange(tu, den);
-//    }
-//
-//    private void setRange(LocalDate tu, LocalDate den) {
-//        dcTuNgay.setDate(java.sql.Date.valueOf(tu));
-//        dcDenNgay.setDate(java.sql.Date.valueOf(den));
-//    }
-//
-//    private LocalDate getLocalDate(JDateChooser dc) {
-//        if (dc.getDate() == null) return null;
-//        return dc.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//    }
-//
-//    private String shorten(String s, int max) {
-//        if (s == null) return "-";
-//        s = s.replaceAll("\\s+", " ").trim();
-//        if (s.length() <= max) return s;
-//        return s.substring(0, max - 3) + "...";
-//    }
-//
-//    private String nullToDash(String s) {
-//        return (s == null || s.isBlank()) ? "-" : s;
-//    }
-//
-//    @Override public void actionPerformed(ActionEvent e) {}
-//    @Override public void keyTyped(KeyEvent e) {}
-//    @Override public void keyPressed(KeyEvent e) {
-//    }
-//    @Override public void keyReleased(KeyEvent e) {}
-//    @Override public void mouseClicked(MouseEvent e) {
-//
-//    }
-//    @Override public void mousePressed(MouseEvent e) {
-//
-//    }
-//    @Override public void mouseReleased(MouseEvent e) {
-//
-//    }
-//    @Override public void mouseEntered(MouseEvent e) {
-//
-//    }
-//    @Override public void mouseExited(MouseEvent e) {
-//
-//    }
-//}
+package gui.application.form.NhatKyAudit;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.toedter.calendar.JDateChooser;
+import controller.NhanVien_CTRL;
+import controller.NhatKyAudit_CTRL;
+import entity.NhanVien;
+import entity.NhatKyAudit;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseListener {
+
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    private JDateChooser dcTuNgay, dcDenNgay;
+    private JComboBox<entity.type.NhatKyAudit> cboLoai;
+    private JComboBox<String> cboNhanVien;
+    private JButton btnLamMoi, btnLoc, btnHomNay, btn7Ngay;
+
+    private final NhatKyAudit_CTRL nhatKyAudit_ctrl;
+    private final NhanVien_CTRL nhanVien_ctrl;
+    private final NhanVien nhanVienHienTai;
+
+    private final Color base_color = new Color(36, 104, 155);
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    private List<NhatKyAudit> current = new ArrayList<>();
+
+    public PanelNhatKyAudit(NhanVien nhanVien) {
+        setLayout(new BorderLayout(10, 10));
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        this.nhanVienHienTai = nhanVien;
+
+        this.nhatKyAudit_ctrl = new NhatKyAudit_CTRL();
+        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai); // ✅ FIX: truyền người đăng nhập
+
+        initUI();
+
+        // default UI hiển thị 7 ngày gần nhất nhưng KHÔNG lọc tự động
+        loadDefault7Days();
+        loadDataToTable(nhatKyAudit_ctrl.layDanhSachNhatKy());
+    }
+
+    private void initUI() {
+        // ===== TITLE =====
+        JLabel lblTitle = new JLabel("NHẬT KÝ AUDIT");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setForeground(base_color);
+        lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // ===== 1) PANEL LỌC =====
+        JPanel pnlLoc = new JPanel(new BorderLayout());
+        pnlLoc.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(base_color),
+                "Bộ lọc", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 16),
+                base_color
+        ));
+
+        JPanel panelTimKiem = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+
+        dcTuNgay = new JDateChooser();
+        dcDenNgay = new JDateChooser();
+        dcTuNgay.setDateFormatString("dd/MM/yyyy");
+        dcDenNgay.setDateFormatString("dd/MM/yyyy");
+
+        cboLoai = new JComboBox<>();
+        cboNhanVien = new JComboBox<>();
+
+        btnHomNay = new JButton("Hôm nay");
+        btn7Ngay = new JButton("7 ngày");
+
+        btnLamMoi = new JButton("(F5) Làm mới");
+        btnLamMoi.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.8f));
+        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnLamMoi.setBackground(base_color);
+        btnLamMoi.setForeground(Color.WHITE);
+
+        btnLoc = new JButton("Lọc");
+        btnLoc.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.8f));
+        btnLoc.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnLoc.setBackground(base_color);
+        btnLoc.setForeground(Color.WHITE);
+
+        panelTimKiem.add(new JLabel("Từ ngày:"));
+        panelTimKiem.add(dcTuNgay);
+        panelTimKiem.add(new JLabel("Đến ngày:"));
+        panelTimKiem.add(dcDenNgay);
+
+        panelTimKiem.add(new JLabel("Loại:"));
+        panelTimKiem.add(cboLoai);
+
+        panelTimKiem.add(new JLabel("Nhân viên:"));
+        panelTimKiem.add(cboNhanVien);
+
+        panelTimKiem.add(btnHomNay);
+        panelTimKiem.add(btn7Ngay);
+        panelTimKiem.add(btnLamMoi);
+        panelTimKiem.add(btnLoc);
+
+        pnlLoc.add(panelTimKiem, BorderLayout.CENTER);
+
+        // ===== NORTH CONTAINER =====
+        JPanel pnlNorthContainer = new JPanel();
+        pnlNorthContainer.setLayout(new BoxLayout(pnlNorthContainer, BoxLayout.Y_AXIS));
+
+        lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        pnlLoc.setMaximumSize(new Dimension(Integer.MAX_VALUE, pnlLoc.getPreferredSize().height));
+
+        pnlNorthContainer.add(lblTitle);
+        pnlNorthContainer.add(pnlLoc);
+
+        add(pnlNorthContainer, BorderLayout.NORTH);
+
+        // ===== 2) TABLE =====
+        String[] columns = {
+                "Mã nhật ký",
+                "Đối tượng thao tác",
+                "Nhân viên",
+                "Loại thao tác",
+                "Đối tượng ID",
+                "Thời điểm",
+                "Chi tiết"
+        };
+
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+
+        table = new JTable(tableModel);
+        table.setRowHeight(40);
+        table.setFont(table.getFont().deriveFont(14f));
+        table.setShowGrid(true);
+        table.setGridColor(new Color(220, 220, 220));
+
+        // set độ rộng cột (đúng 7 cột)
+        table.getColumnModel().getColumn(0).setPreferredWidth(100); // Mã nhật ký
+        table.getColumnModel().getColumn(1).setPreferredWidth(140); // Đối tượng thao tác
+        table.getColumnModel().getColumn(2).setPreferredWidth(110); // Nhân viên
+        table.getColumnModel().getColumn(3).setPreferredWidth(120); // Loại thao tác
+        table.getColumnModel().getColumn(4).setPreferredWidth(110); // Đối tượng ID
+        table.getColumnModel().getColumn(5).setPreferredWidth(160); // Thời điểm
+        table.getColumnModel().getColumn(6).setPreferredWidth(520); // Chi tiết
+
+        // căn giữa 1 số cột (trừ Chi tiết)
+        DefaultTableCellRenderer center = new DefaultTableCellRenderer();
+        center.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            if (i != 6) table.getColumnModel().getColumn(i).setCellRenderer(center);
+        }
+
+        // header style (giữ màu)
+        JTableHeader header = table.getTableHeader();
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column) {
+                JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                lbl.setBackground(base_color);
+                lbl.setForeground(Color.WHITE);
+                lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                lbl.setHorizontalAlignment(SwingConstants.CENTER);
+                lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.WHITE));
+                return lbl;
+            }
+        });
+
+        // sorter
+        table.setRowSorter(new TableRowSorter<>(tableModel));
+
+        add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // events
+        table.addMouseListener(this);
+        btnLoc.addActionListener(this);
+        btn7Ngay.addActionListener(this);
+        btnHomNay.addActionListener(this);
+        btnLamMoi.addActionListener(this);
+
+        initCombos();
+    }
+
+    private void initCombos() {
+        cboLoai.removeAllItems();
+        cboLoai.addItem(null);
+        for (entity.type.NhatKyAudit loai : entity.type.NhatKyAudit.values()) {
+            cboLoai.addItem(loai);
+        }
+        cboLoai.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) setText("TẤT CẢ");
+                return this;
+            }
+        });
+        cboLoai.setSelectedItem(null);
+
+        cboNhanVien.removeAllItems();
+        cboNhanVien.addItem("TẤT CẢ");
+
+        // thêm nv hiện tại lên đầu cho dễ chọn
+        if (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) {
+            cboNhanVien.addItem(nhanVienHienTai.getNhanVienID());
+        }
+
+        for (NhanVien nv : nhanVien_ctrl.layDanhSachNhanVien()) {
+            if (nv != null && nv.getNhanVienID() != null) {
+                cboNhanVien.addItem(nv.getNhanVienID());
+            }
+        }
+    }
+
+    private void loadDataToTable(List<NhatKyAudit> list) {
+        current = (list == null) ? new ArrayList<>() : list;
+        tableModel.setRowCount(0);
+
+        for (NhatKyAudit a : current) {
+            String loai = (a.getLoaiThaoTac() == null) ? "" : a.getLoaiThaoTac().name();
+            String time = (a.getThoiDiemThaoTac() == null) ? "" : a.getThoiDiemThaoTac().format(FMT);
+
+            tableModel.addRow(new Object[]{
+                    a.getNhatKyAuditID(),
+                    a.getDoiTuongThaoTac(),
+                    a.getNhanVienID(),
+                    loai,
+                    a.getDoiTuongID(),
+                    time,
+                    a.getChiTiet()
+            });
+        }
+    }
+
+    // ================= FILTER =================
+
+    private void locTheoKhoangThoiGian() {
+        LocalDate tu = getLocalDate(dcTuNgay);
+        LocalDate den = getLocalDate(dcDenNgay);
+
+        if (tu == null || den == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn đủ Từ ngày và Đến ngày.");
+            return;
+        }
+        if (den.isBefore(tu)) {
+            JOptionPane.showMessageDialog(this, "Đến ngày phải >= Từ ngày.");
+            return;
+        }
+
+        String nhanVien = (String) cboNhanVien.getSelectedItem();
+        if ("TẤT CẢ".equals(nhanVien)) nhanVien = null;
+
+        entity.type.NhatKyAudit loaiEnum = (entity.type.NhatKyAudit) cboLoai.getSelectedItem();
+        String loai = (loaiEnum == null) ? null : loaiEnum.name();
+
+        String doiTuongID = null;
+
+        List<NhatKyAudit> list = nhatKyAudit_ctrl.locNhatKy(tu, den, nhanVien, loai, doiTuongID);
+        loadDataToTable(list);
+    }
+
+    private void onLoc() { locTheoKhoangThoiGian(); }
+
+    private void onLamMoi() {
+        cboNhanVien.setSelectedItem("TẤT CẢ");
+        cboLoai.setSelectedItem(null);
+
+        loadDefault7Days();
+
+        // làm mới = load full (không lọc)
+        List<NhatKyAudit> list = nhatKyAudit_ctrl.layDanhSachNhatKy();
+        loadDataToTable(list);
+    }
+
+    private void onHomNay() {
+        LocalDate today = LocalDate.now();
+        dcTuNgay.setDate(java.sql.Date.valueOf(today));
+        dcDenNgay.setDate(java.sql.Date.valueOf(today));
+        locTheoKhoangThoiGian();
+    }
+
+    private void on7Ngay() {
+        loadDefault7Days();
+        locTheoKhoangThoiGian();
+    }
+
+    // ================= DIALOG =================
+
+    private void openDialogSelectedRow() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) return;
+
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        if (modelRow < 0 || modelRow >= current.size()) return;
+
+        NhatKyAudit audit = current.get(modelRow);
+
+        String tenNV = nhatKyAudit_ctrl.layTenNhanVienTheoMaNV(audit.getNhanVienID());
+        if (tenNV == null || tenNV.isBlank()) tenNV = "-";
+
+        Window w = SwingUtilities.getWindowAncestor(this);
+        DialogChiTietAudit dlg = new DialogChiTietAudit(w, audit, tenNV);
+        dlg.setVisible(true);
+    }
+
+    // ================= HELPERS =================
+
+    private void loadDefault7Days() {
+        LocalDate den = LocalDate.now();
+        LocalDate tu = den.minusDays(6);
+        setRange(tu, den);
+    }
+
+    private void setRange(LocalDate tu, LocalDate den) {
+        dcTuNgay.setDate(java.sql.Date.valueOf(tu));
+        dcDenNgay.setDate(java.sql.Date.valueOf(den));
+    }
+
+    private LocalDate getLocalDate(JDateChooser dc) {
+        if (dc.getDate() == null) return null;
+        return dc.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    // ================= EVENTS =================
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btnLoc) {
+            onLoc();
+        } else if (e.getSource() == btnLamMoi) {
+            onLamMoi();
+        } else if (e.getSource() == btnHomNay) {
+            onHomNay();
+        } else if (e.getSource() == btn7Ngay) {
+            on7Ngay();
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getSource() == table &&
+                e.getClickCount() == 2 &&
+                SwingUtilities.isLeftMouseButton(e)) {
+            int viewRow = table.rowAtPoint(e.getPoint());
+            if (viewRow >= 0) {
+                table.setRowSelectionInterval(viewRow, viewRow);
+                openDialogSelectedRow();
+            }
+        }
+    }
+
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
+}

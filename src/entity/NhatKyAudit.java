@@ -20,20 +20,30 @@ public class NhatKyAudit {
 	private String doiTuongID;
 	private String nhanVienID;
 	private LocalDateTime thoiDiemThaoTac;
+	private entity.type.NhatKyAudit loaiThaoTac;
 	private String chiTiet;
 	private String doiTuongThaoTac;
 
-	public NhatKyAudit(String nhatKyAuditID, String doiTuongID, String nhanVienID, LocalDateTime thoiDiemThaoTac, String chiTiet,  String doiTuongThaoTac) {
+	public NhatKyAudit(String nhatKyAuditID, String doiTuongID, String nhanVienID, LocalDateTime thoiDiemThaoTac, entity.type.NhatKyAudit loaiThaoTac, String chiTiet, String doiTuongThaoTac) {
 		this.nhatKyAuditID = nhatKyAuditID;
 		this.doiTuongID = doiTuongID;
 		this.nhanVienID = nhanVienID;
 		this.thoiDiemThaoTac = thoiDiemThaoTac;
+		this.loaiThaoTac = loaiThaoTac;
 		this.chiTiet = chiTiet;
 		this.doiTuongThaoTac = doiTuongThaoTac;
 	}
 
 	public String getNhatKyAuditID() {
 		return nhatKyAuditID;
+	}
+
+	public entity.type.NhatKyAudit getLoaiThaoTac() {
+		return loaiThaoTac;
+	}
+
+	public void setLoaiThaoTac(entity.type.NhatKyAudit loaiThaoTac) {
+		this.loaiThaoTac = loaiThaoTac;
 	}
 
 	public String getDoiTuongThaoTac() {
@@ -86,6 +96,7 @@ public class NhatKyAudit {
 				+ doiTuongID + ";"
 				+ nhanVienID + ";"
 				+ thoiDiemThaoTac + ";"
+				+ loaiThaoTac + ";"
 				+ chiTiet;
 	}
 

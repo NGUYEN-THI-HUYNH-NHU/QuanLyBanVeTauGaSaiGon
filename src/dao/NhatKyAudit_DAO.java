@@ -3,10 +3,9 @@ package dao;
 import connectDB.ConnectDB;
 import entity.NhatKyAudit;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,29 +16,23 @@ public class NhatKyAudit_DAO {
         connectDB = ConnectDB.getInstance();
     }
 
-//    /**
-//     * Ghi nhật ký audit vào cơ sở dữ liệu.
-//     * @param nhatKy Loại nhật ký audit
-//     * @param chiTiet Mô tả chi tiết về hành động
-//     * @param nhanVienID Người thực hiện hành động
-//     * @param thoiGian Thời gian thực hiện hành động
-//     * @param doiTuongThaoTac Đối tượng bị thao tác (ví dụ: "VE", "TUYEN")
-//     * @param doiTuongID ID của đối tượng bị thao tác
-//     */
-
-    //ghi vào nhât ký
+    // ghi vào nhật ký
     public void ghiNhatKyAudit(NhatKyAudit nhatKy) {
-        String sql = "INSERT INTO NhatKyAudit (nhatKyID, doiTuongID, nhanVienID, thoiDiemThaoTac, chiTiet, doiTuongThaoTac)" +
-                " VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NhatKyAudit " +
+                "(nhatKyID, doiTuongID, nhanVienID, thoiDiemThaoTac, loaiThaoTac, chiTiet, doiTuongThaoTac) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = connectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nhatKy.getNhatKyAuditID());
             ps.setString(2, nhatKy.getDoiTuongID());
             ps.setString(3, nhatKy.getNhanVienID());
-            ps.setString(4, nhatKy.getThoiDiemThaoTac().toString());
-            ps.setString(5, nhatKy.getChiTiet());
-            ps.setString(6, nhatKy.getDoiTuongThaoTac());
+            ps.setTimestamp(4, Timestamp.valueOf(nhatKy.getThoiDiemThaoTac()));
+            ps.setString(5, nhatKy.getLoaiThaoTac().name());
+            ps.setString(6, nhatKy.getChiTiet());
+            ps.setString(7, nhatKy.getDoiTuongThaoTac());
+
             ps.executeUpdate();
 
         } catch (Exception e) {
@@ -47,127 +40,157 @@ public class NhatKyAudit_DAO {
         }
     }
 
-    //Lấy danh sách nhật ký
+    // lấy danh sách nhật ký
     public List<NhatKyAudit> layDanhSachNhatKy() {
-        String sql = "SELECT * FROM NhatKyAudit";
+        String sql = "SELECT * FROM NhatKyAudit ORDER BY thoiDiemThaoTac DESC";
         List<NhatKyAudit> danhSachNhatKy = new ArrayList<>();
 
         try (Connection con = connectDB.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                NhatKyAudit nhatKy = new NhatKyAudit(
-                        rs.getString("nhatKyID"),
-                        rs.getString("doiTuongID"),
-                        rs.getString("nhanVienID"),
-                        rs.getObject("thoiDiemThaoTac", java.time.LocalDateTime.class),
-                        rs.getString("chiTiet"),
-                        rs.getString("doiTuongThaoTac")
-                );
-                danhSachNhatKy.add(nhatKy);
+                danhSachNhatKy.add(mapRow(rs));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return danhSachNhatKy;
     }
 
-    //get danh sach nhat ky audit theo nhan vien ID
-    public List<NhatKyAudit> layDanhSachNhatKyTheoNhanVien(String NhanVienID){
-        String sql = "SELECT * FROM NhatKyAudit WHERE nhanVienID = ?";
-        List<NhatKyAudit> danhSachNhatKy = new ArrayList<>();
-        try(Connection con = connectDB.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-            ps.setString(1, NhanVienID);
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
-            while(rs.next()){
-                NhatKyAudit nhatKy = new NhatKyAudit(
-                        rs.getString("nhatKyID"),
-                        rs.getString("doiTuongID"),
-                        rs.getString("nhanVienID"),
-                        rs.getObject("thoiDiemThaoTac", java.time.LocalDateTime.class),
-                        rs.getString("chiTiet"),
-                        rs.getString("doiTuongThaoTac")
-                );
-                danhSachNhatKy.add(nhatKy);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return danhSachNhatKy;
-    }
-
-    //get danh sach nhat ky audit theo doi tuong thao tac
-    public List<NhatKyAudit> layDanhSachNhatKyTheoDoiTuong(String doiTuongThaoTac){
-        String sql = "SELECT * FROM NhatKyAudit WHERE doiTuongThaoTac = ?";
-        List<NhatKyAudit> danhSachNhatKy = new ArrayList<>();
-        try(Connection con = connectDB.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-            ps.setString(1, doiTuongThaoTac);
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
-            while(rs.next()){
-                NhatKyAudit nhatKy = new NhatKyAudit(
-                        rs.getString("nhatKyID"),
-                        rs.getString("doiTuongID"),
-                        rs.getString("nhanVienID"),
-                        rs.getObject("thoiDiemThaoTac", java.time.LocalDateTime.class),
-                        rs.getString("chiTiet"),
-                        rs.getString("doiTuongThaoTac")
-                );
-                danhSachNhatKy.add(nhatKy);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return danhSachNhatKy;
-    }
-
-    //get danh sach nhat ky audit theo khoang thoi gian
-    public List<NhatKyAudit> layDanhSachNhatKyTheoKhoangThoiGian(LocalDate tu, LocalDate den){
-        String sql = "SELECT * FROM NhatKyAudit WHERE thoiDiemThaoTac BETWEEN ? AND ?";
-        List<NhatKyAudit> danhSachNhatKy = new ArrayList<>();
-        try(Connection con = connectDB.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-
-            ps.setObject(1, tu.atStartOfDay());
-            ps.setObject(2, den.atTime(23, 59, 59));
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
-            while(rs.next()){
-                NhatKyAudit nhatKy = new NhatKyAudit(
-                        rs.getString("nhatKyID"),
-                        rs.getString("doiTuongID"),
-                        rs.getString("nhanVienID"),
-                        rs.getObject("thoiDiemThaoTac", java.time.LocalDateTime.class),
-                        rs.getString("chiTiet"),
-                        rs.getString("doiTuongThaoTac")
-                );
-                danhSachNhatKy.add(nhatKy);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return danhSachNhatKy;
-    }
-
-    //tạo mã nhật ký audit mới
-    public String maNhatKyMoi(){
+    // tạo mã nhật ký audit mới
+    public String maNhatKyMoi() {
         String sql = "SELECT COUNT(*) AS soLuong FROM NhatKyAudit";
-        try(Connection con = connectDB.getConnection();
-            PreparedStatement ps = con.prepareStatement(sql)){
-            ps.executeQuery();
-            ResultSet rs = ps.getResultSet();
-            if(rs.next()){
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
                 int soLuong = rs.getInt("soLuong") + 1;
                 return "NK" + String.format("%05d", soLuong);
             }
-    }catch(Exception e){
-        e.printStackTrace();
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
+    // lọc/tìm kiếm nhật ký theo nhiều tiêu chí kết hợp
+    public List<NhatKyAudit> timKiemNhatKy(LocalDate tuNgay,
+                                           LocalDate denNgay,
+                                           String nhanVienID,
+                                           String loaiThaoTac,
+                                           String doiTuongID) {
+
+        List<NhatKyAudit> ds = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT * FROM NhatKyAudit WHERE 1=1");
+
+        if (tuNgay != null && denNgay != null) {
+            sql.append(" AND CAST(thoiDiemThaoTac AS DATE) BETWEEN ? AND ?");
+        }
+
+        if (nhanVienID != null && !nhanVienID.equals("TẤT CẢ")) {
+            sql.append(" AND nhanVienID = ?");
+        }
+
+        if (loaiThaoTac != null && !loaiThaoTac.isBlank() && !loaiThaoTac.equals("TẤT CẢ")) {
+            sql.append(" AND loaiThaoTac = ?"); // ✅ sửa chỗ bị trống "AND  = ?"
+        }
+
+        if (doiTuongID != null && !doiTuongID.isBlank()) {
+            sql.append(" AND doiTuongID LIKE ?");
+        }
+
+        sql.append(" ORDER BY thoiDiemThaoTac DESC");
+
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+
+            int i = 1;
+
+            if (tuNgay != null && denNgay != null) {
+                ps.setDate(i++, Date.valueOf(tuNgay));
+                ps.setDate(i++, Date.valueOf(denNgay));
+            }
+
+            if (nhanVienID != null && !nhanVienID.equals("TẤT CẢ")) {
+                ps.setString(i++, nhanVienID);
+            }
+
+            if (loaiThaoTac != null && !loaiThaoTac.isBlank() && !loaiThaoTac.equals("TẤT CẢ")) {
+                ps.setString(i++, loaiThaoTac);
+            }
+
+            if (doiTuongID != null && !doiTuongID.isBlank()) {
+                ps.setString(i++, "%" + doiTuongID + "%");
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ds;
+    }
+
+    // ánh xạ 1 dòng ResultSet -> NhatKyAudit
+    private NhatKyAudit mapRow(ResultSet rs) throws SQLException {
+        return new NhatKyAudit(
+                rs.getString("nhatKyID"),
+                rs.getString("doiTuongID"),
+                rs.getString("nhanVienID"),
+                rs.getTimestamp("thoiDiemThaoTac").toLocalDateTime(),
+                entity.type.NhatKyAudit.valueOf(rs.getString("loaiThaoTac")),
+                rs.getString("chiTiet"),
+                rs.getString("doiTuongThaoTac")
+        );
+    }
+
+    // lấy tên nhân viên theo mã
+    public String layTenNhanVienTheoMaNV(String nhanVienID) {
+        String sql = "SELECT hoTen FROM NhanVien WHERE nhanVienID = ?";
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nhanVienID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("hoTen");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // lọc theo khoảng thời gian
+    public List<NhatKyAudit> locNhatKyTheoKhoangThoiGian(LocalDate ngayBatDau, LocalDate ngayKetThuc) {
+        List<NhatKyAudit> ds = new ArrayList<>();
+        String sql = "SELECT * FROM NhatKyAudit " +
+                "WHERE CAST(thoiDiemThaoTac AS DATE) BETWEEN ? AND ? " +
+                "ORDER BY thoiDiemThaoTac DESC";
+
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(ngayBatDau));
+            ps.setDate(2, Date.valueOf(ngayKetThuc));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapRow(rs));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ds;
+    }
 }
