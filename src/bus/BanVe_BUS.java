@@ -16,9 +16,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import connectDB.ConnectDB;
-import dao.GiaoDichThanhToan_DAO;
 import entity.DonDatCho;
-import entity.GiaoDichThanhToan;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.PhieuDungPhongVIP;
@@ -28,8 +26,6 @@ import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
 public class BanVe_BUS {
-	private final GiaoDichThanhToan_DAO gdttDAO = new GiaoDichThanhToan_DAO();
-
 	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 	private final Ve_BUS veBUS = new Ve_BUS();
 	private final PhieuDungPhongVIP_BUS phieuDungPhongChoVIPBUS = new PhieuDungPhongVIP_BUS();
@@ -37,13 +33,6 @@ public class BanVe_BUS {
 	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 	private final SuDungKhuyenMai_BUS suDungKhuyenMaiBUS = new SuDungKhuyenMai_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
-
-	/**
-	 * @param giaoDichThanhToan
-	 */
-	public void luuThongTinThanhToan(Connection conn, GiaoDichThanhToan giaoDichThanhToan) {
-		gdttDAO.createGiaoDichThanhToan(conn, giaoDichThanhToan);
-	}
 
 	/**
 	 * Gói toàn bộ nghiệp vụ thanh toán vào một Transaction CSDL duy nhất.
@@ -74,10 +63,6 @@ public class BanVe_BUS {
 			HoaDon hoaDon = hoaDonBUS.taoHoaDon(session);
 			hoaDonBUS.themHoaDon(conn, hoaDon);
 			session.setHoaDon(hoaDon);
-
-			// 5. Lưu GiaoDichThanhToan
-			GiaoDichThanhToan gdtt = session.getGiaoDichThanhToan();
-			luuThongTinThanhToan(conn, gdtt);
 
 			// 6. Tạo và Lưu Vé (Batch Insert)
 			List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(session);

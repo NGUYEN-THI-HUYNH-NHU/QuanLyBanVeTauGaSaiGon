@@ -46,7 +46,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     public PanelQuanLyTaiKhoan(NhanVien nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
         taiKhoan_ctrl = new TaiKhoan_CTRL();
-        nhanVien_ctrl = new NhanVien_CTRL();
+        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
 
 
         setLayout(new BorderLayout(10, 10));

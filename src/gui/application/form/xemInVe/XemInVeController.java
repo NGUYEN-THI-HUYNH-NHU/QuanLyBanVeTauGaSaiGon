@@ -1,19 +1,12 @@
-package gui.application.form.hoaDon;
-
+package gui.application.form.xemInVe;
 /*
- * @(#) HoaDonController.java  1.0  [2:58:25 PM] Nov 24, 2025
+ * @(#) XemInVeController.java  1.0  [7:11:00 PM] Dec 17, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Nov 24, 2025
- * @version: 1.0
- */
+
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -31,32 +24,39 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.MenuElement;
 import javax.swing.MenuSelectionManager;
-import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-import bus.HoaDon_BUS;
 import bus.KhachHang_BUS;
-import entity.HoaDon;
-import entity.HoaDonChiTiet;
+import bus.Ve_BUS;
 import entity.KhachHang;
 import entity.NhanVien;
+import entity.Ve;
+import entity.type.TrangThaiVe;
 import gui.application.AuthService;
+import gui.application.paymentHelper.PdfTicketExporter;
 
-public class HoaDonController {
-	private PanelQuanLyHoaDon view;
+/*
+ * @description
+ * @author: NguyenThiHuynhNhu
+ * @date: Dec 17, 2025
+ * @version: 1.0
+ */
+
+public class XemInVeController {
+	private PanelXemInVe view;
 	private JPopupMenu traCuuSuggestionPopup;
 	private JPopupMenu khachHangSuggestionPopup;
 
-	private final HoaDon_BUS hoaDonBUS;
+	private final Ve_BUS veBUS;
 	private final KhachHang_BUS khachHangBUS;
 
 	private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
 	private KhachHang selectedKhachHang = null;
 
-	public HoaDonController(PanelQuanLyHoaDon view) {
+	public XemInVeController(PanelXemInVe view) {
 		this.view = view;
 		this.traCuuSuggestionPopup = new JPopupMenu();
 		this.khachHangSuggestionPopup = new JPopupMenu();
@@ -64,16 +64,16 @@ public class HoaDonController {
 		this.traCuuSuggestionPopup.setFocusable(false);
 		this.khachHangSuggestionPopup.setFocusable(false);
 
-		this.hoaDonBUS = new HoaDon_BUS();
+		this.veBUS = new Ve_BUS();
 		this.khachHangBUS = new KhachHang_BUS();
 
-		loadAllHoaDon();
+		loadAllVe();
 
 		init();
 	}
 
-	private void loadAllHoaDon() {
-		this.view.getTableModel().setRows(hoaDonBUS.layTatCaHoaDon());
+	private void loadAllVe() {
+		this.view.getTableModel().setRows(veBUS.layCacVe());
 	}
 
 	private void init() {
@@ -99,10 +99,7 @@ public class HoaDonController {
 		view.getCheckBoxTatCaNgay().addActionListener(e -> handleNgayLoc());
 
 		// 1. Gán Renderer cho cột Button
-		view.getTable().getColumnModel().getColumn(HoaDonTableModel.COL_XEM)
-				.setCellRenderer(new HoaDonTableButtonRenderer());
-		view.getTable().getColumnModel().getColumn(HoaDonTableModel.COL_IN)
-				.setCellRenderer(new HoaDonTableButtonRenderer());
+		view.getTable().getColumnModel().getColumn(VeTableModel.COL_IN).setCellRenderer(new VeTableButtonRenderer());
 
 		// 2. Xử lý sự kiện click trên Table (Thay vì dùng CellEditor)
 		view.getTable().addMouseListener(new MouseAdapter() {
@@ -116,13 +113,11 @@ public class HoaDonController {
 					return;
 				}
 
-				// Lấy đối tượng Hóa đơn tại dòng click
-				HoaDon selectedHoaDon = view.getTableModel().getRow(row);
+				// Lấy đối tượng vé tại dòng click
+				Ve selectedVe = view.getTableModel().getRow(row);
 
-				if (column == HoaDonTableModel.COL_XEM) {
-					handleXemChiTiet(selectedHoaDon);
-				} else if (column == HoaDonTableModel.COL_IN) {
-					handleInHoaDon(selectedHoaDon);
+				if (column == VeTableModel.COL_IN) {
+					handleInVe(selectedVe);
 				}
 			}
 		});
@@ -134,7 +129,7 @@ public class HoaDonController {
 				JTable table = (JTable) e.getSource();
 				int column = table.columnAtPoint(e.getPoint());
 				int row = table.rowAtPoint(e.getPoint());
-				if (row >= 0 && (column == HoaDonTableModel.COL_XEM || column == HoaDonTableModel.COL_IN)) {
+				if (row >= 0 && column == VeTableModel.COL_IN) {
 					table.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				} else {
 					table.setCursor(Cursor.getDefaultCursor());
@@ -152,12 +147,11 @@ public class HoaDonController {
 	// Xử lý khi bấm nút Lọc
 	private void handleLoc() {
 		// 1. Lấy dữ liệu từ View
-		String loaiHD = (String) view.getCboLoaiHoaDon().getSelectedItem();
+		String loaiVe = (String) view.getCboLoaiVe().getSelectedItem();
 		String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
 		boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
 		Date tuNgay = view.getDateChooserTuNgay().getDate();
 		Date denNgay = view.getDateChooserDenNgay().getDate();
-		String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
 
 		String searchKeyword = null; // Dùng tìm theo tên/sđt/cccd (LIKE)
 		String searchID = null; // Dùng tìm chính xác theo ID (=)
@@ -182,18 +176,17 @@ public class HoaDonController {
 			return;
 		}
 
-		System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiHD, searchKeyword,
+		System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiVe, searchKeyword,
 				searchID, tuNgay, denNgay));
 
-		// 4. Lọc hóa đơn theo tiêu chí
-		List<HoaDon> results = hoaDonBUS.locHoaDonTheoCacTieuChi(loaiHD, searchKeyword, searchID, tuNgay, denNgay,
-				hinhThucTT);
+		// 4. Lọc vé theo tiêu chí
+		List<Ve> results = veBUS.locVeTheoCacTieuChi(loaiVe, searchKeyword, searchID, tuNgay, denNgay);
 
 		// 5. Cập nhật UI và thông báo kết quả
 		view.getTableModel().setRows(results);
 
 		if (results.isEmpty()) {
-			JOptionPane.showMessageDialog(view, "Không tìm thấy hóa đơn nào phù hợp!", "Thông báo",
+			JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!", "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else {
 			view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
@@ -202,14 +195,15 @@ public class HoaDonController {
 
 	// Xử lý khi bấm nút Xóa bộ lọc
 	private void handleReset() {
-		view.getCboLoaiHoaDon().setSelectedIndex(0);
+		view.getCboLoaiVe().setSelectedIndex(0);
 		view.getTxtKhachHangSuggest().setText("");
-		view.getCboHinhThucTT().setSelectedIndex(0);
 		view.getCheckBoxTatCaNgay().setSelected(true);
 		view.getDateChooserTuNgay().setDate(new Date());
 		view.getDateChooserDenNgay().setDate(new Date());
 		view.getDateChooserTuNgay().setEnabled(false);
 		view.getDateChooserDenNgay().setEnabled(false);
+
+		loadAllVe();
 	}
 
 	private void handleTraCuu() {
@@ -217,8 +211,8 @@ public class HoaDonController {
 		String keyword = view.getTxtTuKhoa().getText().trim();
 		String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-		// 2. Lấy các hóa đơn theo keyword và loại tra cứu
-		List<HoaDon> result = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type);
+		// 2. Lấy các vé theo keyword và loại tra cứu
+		List<Ve> result = veBUS.layVeTheoKeyword(keyword, type);
 
 		// 3. Update Table
 		view.getTableModel().setRows(result);
@@ -237,14 +231,14 @@ public class HoaDonController {
 		view.getCboLoaiTimKiem().setSelectedIndex(0);
 
 		handleReset();
-		loadAllHoaDon();
+		loadAllVe();
 	}
 
 	private void setupTraCuuSuggestion() {
 		JTextField txtSearch = view.getTxtTuKhoa();
 		JComboBox<String> cboType = view.getCboLoaiTimKiem();
 
-		// 1. Reset text khi đổi loại tìm kiếm (để tránh user tìm ID hóa đơn bằng mã KH)
+		// 1. Reset text khi đổi loại tìm kiếm (để tránh user tìm ID vé bằng mã KH)
 		cboType.addActionListener(e -> {
 			txtSearch.setText("");
 			traCuuSuggestionPopup.setVisible(false);
@@ -295,12 +289,12 @@ public class HoaDonController {
 		List<String> suggestions = new ArrayList<>();
 
 		// 4. Lấy danh sách gợi ý dựa trên loại đang chọn
-		if ("Mã hóa đơn".equals(type)) {
-			suggestions = hoaDonBUS.layTop10HoaDonID(keyword);
-		} else if ("Mã khách hàng".equals(type)) {
-			suggestions = hoaDonBUS.layTop10KhachHangID(keyword);
-		} else if ("Mã giao dịch".equals(type)) {
-			suggestions = hoaDonBUS.layTop10MaGD(keyword);
+		if ("Mã vé".equals(type)) {
+			suggestions = veBUS.layTop10VeID(keyword);
+		} else if ("Mã đặt chỗ".equals(type)) {
+			suggestions = veBUS.layTop10DonDatChoID(keyword);
+		} else if ("Số giấy tờ khách hàng".equals(type)) {
+			suggestions = veBUS.layTop10SoGiayToKhachHang(keyword);
 		}
 
 		// 5. Hiển thị Popup
@@ -308,12 +302,12 @@ public class HoaDonController {
 			for (String s : suggestions) {
 				JMenuItem item = new JMenuItem(s);
 				// Highlight icon khác nhau cho đẹp
-				if ("Mã hóa đơn".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/order.svg", 0.6f));
-				} else if ("Mã khách hàng".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/person.svg", 0.6f));
-				} else if ("Mã giao dịch".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/payment.svg", 0.6f));
+				if ("Mã vé".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/ticket.svg", 0.6f));
+				} else if ("Mã đặt chỗ".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/booking.svg", 0.6f));
+				} else if ("Số giấy tờ khách hàng".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/idcard.svg", 0.6f));
 				}
 
 				item.addActionListener(e -> {
@@ -376,7 +370,7 @@ public class HoaDonController {
 		}
 
 		// Lấy danh sách gợi ý
-		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHangChoHoaDon(keyword);
+		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHangChoVe(keyword);
 
 		if (!listSuggest.isEmpty()) {
 			for (KhachHang kh : listSuggest) {
@@ -407,25 +401,18 @@ public class HoaDonController {
 		}
 	}
 
-	private void handleXemChiTiet(HoaDon hoaDon) {
-		// 1. Lấy danh sách chi tiết
-		List<HoaDonChiTiet> listCT = hoaDonBUS.layCacHoaDonChiTietTheoHoaDonID(hoaDon.getHoaDonID());
+	private void handleInVe(Ve ve) {
+		if (ve.getTrangThai() != TrangThaiVe.DA_BAN) {
+			JOptionPane.showMessageDialog(view, "Vé " + ve.getTrangThai().getDescription() + ". Không thể in");
+			return;
+		}
 
-		// 2. Lấy JFrame chứa nó để làm parent cho Modal
-		Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(view);
-
-		ModalHoaDon modal = new ModalHoaDon(parentFrame, hoaDon, listCT);
-		modal.setVisible(true);
-	}
-
-	private void handleInHoaDon(HoaDon hd) {
-		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in hóa đơn " + hd.getHoaDonID() + " không?",
+		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in vé " + ve.getVeID() + " không?",
 				"Xác nhận in", JOptionPane.YES_NO_OPTION);
 
 		if (confirm == JOptionPane.YES_OPTION) {
-			System.out.println("Đang in hóa đơn: " + hd.getHoaDonID());
-
-			// TODO: logic in hóa đơn
+			PdfTicketExporter exporter = new PdfTicketExporter();
+			exporter.exportTicketsToPdf(ve);
 		}
 	}
 

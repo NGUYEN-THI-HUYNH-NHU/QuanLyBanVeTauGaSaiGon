@@ -11,6 +11,7 @@ package bus;
  */
 
 import entity.type.VaiTroNhanVien;
+import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 
 public class PhanQuyen_BUS {
@@ -25,6 +26,17 @@ public class PhanQuyen_BUS {
             pnlQLTuyen.getTxtGaDi().setEditable(true);
             pnlQLTuyen.getTxtGaDen().setEditable(true);
             pnlQLTuyen.getTxtTimKiem().setEditable(true);
+        }
+    }
+
+    public static void phanQuyenQuanLyChuyen(PanelQuanLyChuyen pnlQLChuyen, VaiTroNhanVien vaiTro){
+        if(vaiTro == VaiTroNhanVien.NHAN_VIEN){
+            pnlQLChuyen.getBtnThemChuyen().setEnabled(false);
+            pnlQLChuyen.getBtnCapNhatChuen().setEnabled(false);
+        }else if(vaiTro == VaiTroNhanVien.QUAN_LY){
+            pnlQLChuyen.getBtnThemChuyen().setEnabled(true);
+            pnlQLChuyen.getBtnCapNhatChuen().setEnabled(true);
+            pnlQLChuyen.getBtnLamMoi().setEnabled(true);
         }
     }
 }

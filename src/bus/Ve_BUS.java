@@ -15,6 +15,7 @@ import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dao.Ve_DAO;
@@ -199,4 +200,62 @@ public class Ve_BUS {
 			veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
 		}
 	}
+
+	/**
+	 * @param nhanVien
+	 * @return
+	 */
+	public List<Ve> layCacVe() {
+		return veDAO.getAllVe();
+	}
+
+	/**
+	 * @param nhanVien
+	 * @param loaiHD
+	 * @param searchKeyword
+	 * @param searchID
+	 * @param tuNgay
+	 * @param denNgay
+	 * @param hinhThucTT
+	 * @return
+	 */
+	public List<Ve> locVeTheoCacTieuChi(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
+			Date denNgay) {
+		return veDAO.searchVeByFilter(trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10DonDatChoID(String keyword) {
+		return veDAO.getTop10DonDatChoID(keyword);
+	}
+
+	/**
+	 * @param keyword
+	 * @param type
+	 * @return
+	 */
+	public List<Ve> layVeTheoKeyword(String keyword, String type) {
+		return veDAO.searchVeByKeyword(keyword, type);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10VeID(String keyword) {
+		return veDAO.getTop10VeID(keyword);
+	}
+
+	/**
+	 * @param keyword
+	 * @return
+	 */
+	public List<String> layTop10SoGiayToKhachHang(String keyword) {
+		return veDAO.getTop10SoGiayToKhachHang(keyword);
+
+	}
+
 }

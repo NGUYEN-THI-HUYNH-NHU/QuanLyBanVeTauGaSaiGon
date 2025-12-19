@@ -45,7 +45,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 
     public PanelQuanLyNhanVien(NhanVien nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
-        this.nhanVien_ctrl = new NhanVien_CTRL();
+        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
 
 
         setLayout(new BorderLayout(10, 10));

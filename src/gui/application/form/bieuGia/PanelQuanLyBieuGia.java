@@ -48,6 +48,8 @@ public class PanelQuanLyBieuGia extends JPanel {
 		lblTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 24));
 		lblTitle.setForeground(base_color);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
+
+
 		// --- 1. PANEL LỌC ---
 		JPanel pnlLoc = new JPanel(new BorderLayout());
 		pnlLoc.setBorder(new TitledBorder("Bộ lọc tìm kiếm"));

@@ -11,8 +11,10 @@ package controller;
  */
 
 import bus.Chuyen_BUS;
+import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.*;
+import entity.type.VaiTroNhanVien;
 import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
 import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
 import gui.application.form.quanLyChuyen.PanelThemChuyen;
@@ -44,6 +46,9 @@ public class QuanLyChuyen_CTRL {
     private final Tuyen_BUS tuyenBus;
     private boolean isAdjusting = false;
     private List<String> lastSuggestionData = new ArrayList<>();
+    private VaiTroNhanVien vaiTroNhanVien;
+
+    private PhanQuyen_BUS phanQuyenBus;
 
     private String currentSearchGaDi = "";
     private String currentSearchGaDen = "";
@@ -62,6 +67,9 @@ public class QuanLyChuyen_CTRL {
         this.panelQuanLyChuyen = panelQuanLyChuyen;
         this.chuyenBus = new Chuyen_BUS();
         this.tuyenBus = new Tuyen_BUS();
+        this.vaiTroNhanVien = panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien();
+
+        phanQuyenBus.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVien);
 
         loadDataToTable(chuyenBus.layDanhSachChuyen());
         initEvents();

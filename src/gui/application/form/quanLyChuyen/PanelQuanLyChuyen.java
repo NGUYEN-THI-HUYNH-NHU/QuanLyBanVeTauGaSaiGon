@@ -93,8 +93,8 @@ public class PanelQuanLyChuyen extends JPanel {
         JPanel panelNorth = new JPanel(new MigLayout("wrap 1, fillx, insets 10 10 0 10", "[fill, grow]", "[]10[]"));
         panelNorth.setBackground(COLOR_BG);
 
-        JPanel panelTitleBar = new JPanel(new MigLayout("fillx, insets 0", "[pref!][grow, center][pref!]", "[]"));
-        panelTitleBar.setBackground(COLOR_BG);
+        JPanel headerPanel = new JPanel(new MigLayout("insets 0, fill", "[grow]", "[50!]"));
+        headerPanel.setBackground(COLOR_BG);
         txtNgayDi = new JTextField(10);
         txtNgayDi.setFont(BASE_FONT);
         dateChooser = new DateChooser();
@@ -107,25 +107,23 @@ public class PanelQuanLyChuyen extends JPanel {
         });
 
         JLabel lblGoiY = new JLabel("Chọn ngày để tìm kiếm chuyến!");
-        lblGoiY.setFont(BASE_FONT.deriveFont(Font.ITALIC, 12f));
+        lblGoiY.setFont(BASE_FONT.deriveFont(Font.ITALIC, 14));
         lblGoiY.setForeground(Color.GRAY);
-
-
 
         JPanel panelDate = new JPanel(new MigLayout("insets 0"));
         panelDate.setBackground(COLOR_BG);
         panelDate.add(new JLabel("Ngày:")).setFont(BASE_FONT);
         panelDate.add(txtNgayDi, "w 110!");
-        panelDate.add(lblGoiY, "wrap");
+        panelDate.add(lblGoiY);
 
-        panelTitleBar.add(panelDate, "align left");
+        headerPanel.add(panelDate, "pos 0 0.5al n n");
 
         JLabel title = new JLabel("QUẢN LÝ CHUYẾN TÀU", SwingConstants.CENTER);
-        title.setFont(BASE_FONT.deriveFont(Font.BOLD, 28f));
+        title.setFont(BASE_FONT.deriveFont(Font.BOLD, 24));
         title.setForeground(COLOR_HEADER);
-        panelTitleBar.add(title, "growx, center");
+        headerPanel.add(title, "cell 0 0, grow, center");
 
-        panelNorth.add(panelTitleBar, "growx");
+        panelNorth.add(headerPanel, "growx, h 50!");
 
         //Tìm kiếm chi tiết
         JPanel panelSearch = new JPanel(new MigLayout("fillx, insets 5 0 5 0",
@@ -226,16 +224,16 @@ public class PanelQuanLyChuyen extends JPanel {
     private JPanel createDetailPanel(){
         JPanel detailPanel = new JPanel(new BorderLayout(0,10));
         detailPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200,200,200)),
+                BorderFactory.createLineBorder(COLOR_HEADER),
                 "THÔNG TIN CHI TIẾT CHUYẾN",
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                BASE_FONT.deriveFont(Font.BOLD)
+                BASE_FONT.deriveFont(Font.BOLD),
+                COLOR_HEADER
         ));
-        detailPanel.setBackground(COLOR_BG);
+
 
         JPanel pnlThongTin = new JPanel(new MigLayout("wrap 2, fillx, insets 10", "[110!, shrink 0][]", "5[]5"));
-        pnlThongTin.setBackground(COLOR_BG);
 
         txtChiTietMaChuyen = createReadOnlyTextField();
         txtChiTietTenChuyen = createReadOnlyTextField();
@@ -265,8 +263,8 @@ public class PanelQuanLyChuyen extends JPanel {
         pnlThongTin.add(txtChiTietTau, "growx");
 
         JPanel pnlLichTrinh = new JPanel(new BorderLayout());
-        pnlLichTrinh.setBackground(COLOR_BG);
-        pnlLichTrinh.setBorder(BorderFactory.createTitledBorder(null, "LỊCH TRÌNH", 0, 0, labelFont));
+        pnlLichTrinh.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(COLOR_HEADER), "LỊCH TRÌNH", 0, 0, labelFont,
+                COLOR_HEADER));
 
         String[] columns = {"STT", "Ga Đi", "Ngày Đi", "Giờ Đi", "Ga Đến","Ngày Đến", "Giờ Đến"};
         modelLichTrinh = new DefaultTableModel(columns, 0){
@@ -285,8 +283,9 @@ public class PanelQuanLyChuyen extends JPanel {
         tableLichTrinh.setGridColor(new Color(210,210,210));
 
         JTableHeader headerLT = tableLichTrinh.getTableHeader();
-        headerLT.setFont(BASE_FONT.deriveFont(Font.BOLD, 13f));
-        headerLT.setBackground(new Color(230, 230, 230));
+        headerLT.setFont(BASE_FONT.deriveFont(Font.BOLD, 14));
+        headerLT.setBackground(COLOR_HEADER);
+        headerLT.setForeground(Color.WHITE);
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -644,4 +643,6 @@ public class PanelQuanLyChuyen extends JPanel {
     public void setListTau(JList<String> listTau) {
         this.listTau = listTau;
     }
+
+
 }
