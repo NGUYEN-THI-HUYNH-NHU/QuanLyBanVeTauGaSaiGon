@@ -21,7 +21,7 @@ import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-import controller.BieuGiaController;
+import controller.BieuGia_CTRL;
 import entity.BieuGiaVe;
 
 public class PanelQuanLyBieuGia extends JPanel {
@@ -34,18 +34,18 @@ public class PanelQuanLyBieuGia extends JPanel {
 	private JButton btnThemMoi;
 	private JButton btnTimKiem;
 
-	private final BieuGiaController controller;
+	private final BieuGia_CTRL controller;
 
 	public PanelQuanLyBieuGia() {
 		setLayout(new BorderLayout(10, 10));
 		initUI();
-		this.controller = new BieuGiaController(this);
+		this.controller = new BieuGia_CTRL(this);
 	}
 
 	private void initUI() {
 		Color base_color = new Color(36, 104, 155);
 		JLabel lblTitle = new JLabel("QUẢN LÝ BIỂU GIÁ VÉ");
-		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+		lblTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 24));
 		lblTitle.setForeground(base_color);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		// --- 1. PANEL LỌC ---
@@ -64,13 +64,13 @@ public class PanelQuanLyBieuGia extends JPanel {
 
 		btnLamMoi = new JButton("(F5) Làm mới");
 		btnLamMoi.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.8f));
-		btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		btnLamMoi.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
 		btnLamMoi.setBackground(new Color(36, 104, 155));
 		btnLamMoi.setForeground(Color.WHITE);
 
 		btnThemMoi = new JButton("Thêm biểu giá");
 		btnThemMoi.setIcon(new FlatSVGIcon("gui/icon/svg/add-1.svg", 0.8f));
-		btnThemMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		btnThemMoi.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
 		btnThemMoi.setBackground(new Color(36, 104, 155));
 		btnThemMoi.setForeground(Color.WHITE);
 
@@ -99,14 +99,14 @@ public class PanelQuanLyBieuGia extends JPanel {
 		tableModel = new BieuGiaVeTableModel();
 		table = new JTable(tableModel);
 		table.setRowHeight(40);
-		table.setFont(table.getFont().deriveFont(14f));
+//		table.setFont(table.getFont().deriveFont(14f));
 
-		table.getColumnModel().getColumn(0).setPreferredWidth(200); // Mã biểu giá
+		table.getColumnModel().getColumn(0).setPreferredWidth(100); // Mã biểu giá
 		table.getColumnModel().getColumn(1).setPreferredWidth(50);  // Ưu tiên
 		table.getColumnModel().getColumn(2).setPreferredWidth(150); // Tuyến
 		table.getColumnModel().getColumn(3).setPreferredWidth(150); // Tàu
 		table.getColumnModel().getColumn(4).setPreferredWidth(80); // Toa
-		table.getColumnModel().getColumn(5).setPreferredWidth(80); // Khoảng cách
+		table.getColumnModel().getColumn(5).setPreferredWidth(100); // Khoảng cách
 		table.getColumnModel().getColumn(6).setPreferredWidth(120); // Hiệu lực
 		table.getColumnModel().getColumn(7).setPreferredWidth(150); // Giá
 		table.getColumnModel().getColumn(8).setPreferredWidth(80);  // Xem
@@ -136,7 +136,7 @@ public class PanelQuanLyBieuGia extends JPanel {
 
 				lbl.setBackground(base_color);
 				lbl.setForeground(Color.WHITE);
-				lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
+				lbl.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
 				lbl.setHorizontalAlignment(SwingConstants.CENTER);
 				lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.WHITE)); // Viền trắng nhẹ giữa các cột header
 				return lbl;
@@ -232,7 +232,7 @@ public class PanelQuanLyBieuGia extends JPanel {
 		this.cboLocTau = cboLocTau;
 	}
 
-	public BieuGiaController getController() {
+	public BieuGia_CTRL getController() {
 		return controller;
 	}
 }

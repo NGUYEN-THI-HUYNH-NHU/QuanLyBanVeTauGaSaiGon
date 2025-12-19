@@ -1,6 +1,6 @@
 package controller;
 /*
- * @(#) BieuGiaController.java  1.0  [8:36:14 PM] Nov 27, 2025
+ * @(#) BieuGia_CTRL.java  1.0  [8:36:14 PM] Nov 27, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -17,7 +17,6 @@ import java.awt.Frame;
 import java.awt.event.*;
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -35,7 +34,7 @@ import gui.application.form.bieuGia.BieuGiaVeTableModel;
 import gui.application.form.bieuGia.FormThemSuaBieuGia;
 import gui.application.form.bieuGia.PanelQuanLyBieuGia;
 
-public class BieuGiaController {
+public class BieuGia_CTRL {
 	private final PanelQuanLyBieuGia view;
 
 	private final BieuGiaVe_BUS bieuGiaVeBUS;
@@ -54,7 +53,7 @@ public class BieuGiaController {
 
 	private boolean isAdjusting = false;
 
-	public BieuGiaController(PanelQuanLyBieuGia view) {
+	public BieuGia_CTRL(PanelQuanLyBieuGia view) {
 		this.view = view;
 		this.bieuGiaVeBUS = new BieuGiaVe_BUS();
 		this.tuyenBus = new Tuyen_BUS();
