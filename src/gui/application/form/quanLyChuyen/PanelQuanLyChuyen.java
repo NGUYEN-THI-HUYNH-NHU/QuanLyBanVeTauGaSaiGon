@@ -178,7 +178,8 @@ public class PanelQuanLyChuyen extends JPanel {
     }
 
     private JScrollPane createTablePanel(){
-        String[] columnNames = {"Mã Chuyến","Tên Chuyến", "Ga Xuất Phát", "Ga Đích", "Tàu", "Ngày Đi", "Giờ Đi", "Ngày Đến", "Giờ Đến"};
+        String[] columnNames = {"Mã Chuyến", "Tên Chuyến", "Tàu", "Loại Tàu",
+                "Ngày Đi", "Giờ Đi", "Ngày Đến", "Giờ Đến"};
         tableModel = new DefaultTableModel(columnNames, 0){
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -208,16 +209,14 @@ public class PanelQuanLyChuyen extends JPanel {
 
         tableChuyen.getColumnModel().getColumn(1).setPreferredWidth(170);
 
-        tableChuyen.getColumnModel().getColumn(2).setPreferredWidth(100);
-        tableChuyen.getColumnModel().getColumn(3).setPreferredWidth(100);
+        tableChuyen.getColumnModel().getColumn(2).setPreferredWidth(80);
+        tableChuyen.getColumnModel().getColumn(3).setPreferredWidth(120);
 
-        tableChuyen.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tableChuyen.getColumnModel().getColumn(4).setPreferredWidth(100);
 
-        tableChuyen.getColumnModel().getColumn(5).setPreferredWidth(100);
-        tableChuyen.getColumnModel().getColumn(6).setPreferredWidth(60);
+        tableChuyen.getColumnModel().getColumn(5).setPreferredWidth(60);
+        tableChuyen.getColumnModel().getColumn(6).setPreferredWidth(100);
 
-        tableChuyen.getColumnModel().getColumn(7).setPreferredWidth(100);
-        tableChuyen.getColumnModel().getColumn(8).setPreferredWidth(60);
         return new JScrollPane(tableChuyen);
     }
 

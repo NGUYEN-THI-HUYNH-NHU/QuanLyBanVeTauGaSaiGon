@@ -33,6 +33,11 @@ public class PanelThemChuyen extends JPanel {
     private JTextField txtGioDi;
     private JButton btnGioDi;
 
+    private JComboBox<String> comboChuKy;
+    private JCheckBox chkKetThuc;
+    private JTextField txtNgayKetThuc;
+    private DateChooser dateKetThuc;
+
     private DefaultTableModel modelLichTrinh;
     private JTable tableLichTrinh;
     private JButton btnThemChuyen;
@@ -131,6 +136,37 @@ public class PanelThemChuyen extends JPanel {
         pnlLichTrinh.add(new JScrollPane(tableLichTrinh), BorderLayout.CENTER);
 
         add(pnlLichTrinh, BorderLayout.CENTER);
+        JPanel pnlChuKy = new JPanel(new MigLayout("fillx, insets 10", "[pref!]10[grow]20[pref!]10[grow]", "[]"));
+        pnlChuKy.setBackground(Color.WHITE);
+        pnlChuKy.setBorder(BorderFactory.createTitledBorder("Thiết lập chu kỳ chạy tàu"));
+
+        pnlChuKy.add(new JLabel("Chu kỳ lặp:"));
+        String[] chuKyOptions = {"Chuyến phát sinh", "Hàng ngày", "Hàng tuần", "Hàng tháng", "Hàng năm"};
+        comboChuKy = new JComboBox<>(chuKyOptions);
+        pnlChuKy.add(comboChuKy, "w 200!");
+
+        chkKetThuc = new JCheckBox("Ngày kết thúc chu kỳ:");
+        chkKetThuc.setBackground(Color.WHITE);
+        pnlChuKy.add(chkKetThuc);
+
+        txtNgayKetThuc = new JTextField();
+        txtNgayKetThuc.setEnabled(false);
+        dateKetThuc = new DateChooser();
+        dateKetThuc.setTextRefernce(txtNgayKetThuc);
+        dateKetThuc.setDateFormat("dd/MM/yyyy");
+        dateKetThuc.addEventDateChooser((action, date)->{
+            if(action.getAction() == SelectedAction.DAY_SELECTED){
+                dateKetThuc.hidePopup();
+            }
+        });
+        pnlChuKy.add(txtNgayKetThuc, "growx");
+
+        pnlLichTrinh.add(pnlChuKy, BorderLayout.SOUTH);
+
+        chkKetThuc.addActionListener(e -> {
+            txtNgayKetThuc.setEnabled(chkKetThuc.isSelected());
+            if(!chkKetThuc.isSelected()) txtNgayKetThuc.setText("");
+        });
 
         JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         pnlSouth.setBackground(Color.WHITE);
@@ -238,5 +274,45 @@ public class PanelThemChuyen extends JPanel {
 
     public void setBtnThemChuyen(JButton btnThemChuyen) {
         this.btnThemChuyen = btnThemChuyen;
+    }
+
+    public JComboBox<String> getComboChuKy() {
+        return comboChuKy;
+    }
+
+    public void setComboChuKy(JComboBox<String> comboChuKy) {
+        this.comboChuKy = comboChuKy;
+    }
+
+    public JCheckBox getChkKetThuc() {
+        return chkKetThuc;
+    }
+
+    public void setChkKetThuc(JCheckBox chkKetThuc) {
+        this.chkKetThuc = chkKetThuc;
+    }
+
+    public JTextField getTxtNgayKetThuc() {
+        return txtNgayKetThuc;
+    }
+
+    public void setTxtNgayKetThuc(JTextField txtNgayKetThuc) {
+        this.txtNgayKetThuc = txtNgayKetThuc;
+    }
+
+    public DateChooser getDateKetThuc() {
+        return dateKetThuc;
+    }
+
+    public void setDateKetThuc(DateChooser dateKetThuc) {
+        this.dateKetThuc = dateKetThuc;
+    }
+
+    public TimePicker getTimePicker() {
+        return timePicker;
+    }
+
+    public void setTimePicker(TimePicker timePicker) {
+        this.timePicker = timePicker;
     }
 }

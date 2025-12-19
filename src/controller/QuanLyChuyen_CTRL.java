@@ -560,12 +560,16 @@ public class QuanLyChuyen_CTRL {
             String ngayDiStr = (c.getNgayDi() != null) ? c.getNgayDi().format(dateTimeFormatter) : "N/A";
             String gioDiStr = (c.getGioDi() != null) ? c.getGioDi().format(timeFormatter) : "N/A";
 
+            String loaiTauHienThi = "N/A";
+            if (c.getTau() != null && c.getTau().getLoaiTau() != null) {
+                loaiTauHienThi = c.getTau().getLoaiTau().getDescription();
+            }
+
             model.addRow(new Object[]{
                     c.getChuyenID(),
                     c.getTenChuyenHienThi(),
-                    c.getTenGaDiHienThi(),
-                    c.getTenGaDenHienThi(),
-                    c.getTau().getTenTau(),
+                    (c.getTau() != null) ? c.getTau().getTenTau() : "N/A",
+                    loaiTauHienThi,
                     ngayDiStr,
                     gioDiStr,
                     ngayDenStr,
@@ -718,7 +722,7 @@ public class QuanLyChuyen_CTRL {
 
                     // Chạy hành động tùy chỉnh (nếu có)
                     if (onSelected != null) {
-                        SwingUtilities.invokeLater(onSelected);
+                        onSelected.run();
                     }
                 }
             }
@@ -755,11 +759,22 @@ public class QuanLyChuyen_CTRL {
                     }
 
                     if (onSelected != null) {
-                        SwingUtilities.invokeLater(onSelected);
+                        onSelected.run();
                     }
 
                     e.consume();
                 }
+            }
+        });
+        txt.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (txt.getText().trim().isEmpty()) {
+                    hienThiGoiY(txt, lst, pp, timKiem); // Gọi hiển thị với chuỗi rỗng để lấy toàn bộ
+                }
+            }
+            @Override public void focusLost(FocusEvent e) {
+                SwingUtilities.invokeLater(() -> pp.setVisible(false));
             }
         });
 
@@ -998,100 +1013,114 @@ public class QuanLyChuyen_CTRL {
 
     private void xuLyLuuChuyen() {
         try {
-
             String rawTuyen = (String) panelThemChuyen.getComboTuyen().getSelectedItem();
-            if (rawTuyen == null || rawTuyen.trim().isEmpty()) {
-                baoLoiVaFocus(panelThemChuyen.getComboTuyen(), "Vui lòng chọn Tuyến tàu!");
-                return;
-            }
-
             String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
-            if (rawTau == null || rawTau.trim().isEmpty()) {
-                baoLoiVaFocus(panelThemChuyen.getComboTau(), "Vui lòng chọn Tàu!");
-                return;
-            }
-
             String sNgayDi = panelThemChuyen.getTxtNgayDi().getText().trim();
-            if (sNgayDi.isEmpty()) {
-                baoLoiVaFocus(panelThemChuyen.getTxtNgayDi(), "Vui lòng nhập Ngày đi!");
-                return;
-            }
-            if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayDi)) {
-                baoLoiVaFocus(panelThemChuyen.getTxtNgayDi(), "Ngày đi không đúng định dạng (dd/MM/yyyy)!");
-                return;
-            }
-
             DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
-            if (model.getRowCount() < 1) {
-                JOptionPane.showMessageDialog(dialogThem, "Lịch trình trống! Vui lòng chọn Tuyến để tải lịch trình.", "Thiếu thông tin", JOptionPane.WARNING_MESSAGE);
-                panelThemChuyen.getComboTuyen().requestFocus();
-                return;
-            }
+
+            if (rawTuyen == null || rawTuyen.isEmpty()) { baoLoiVaFocus(panelThemChuyen.getComboTuyen(), "Chọn tuyến!"); return; }
+            if (rawTau == null || rawTau.isEmpty()) { baoLoiVaFocus(panelThemChuyen.getComboTau(), "Chọn tàu!"); return; }
+            if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayDi)) { baoLoiVaFocus(panelThemChuyen.getTxtNgayDi(), "Ngày đi sai!"); return; }
+            if (model.getRowCount() < 1) { JOptionPane.showMessageDialog(dialogThem, "Lịch trình trống!"); return; }
 
             String sGioDi = model.getValueAt(0, 3).toString().trim();
-            if (sGioDi.isEmpty()) {
-                baoLoiVaFocus(panelThemChuyen.getTxtGioDi(), "Vui lòng nhập Giờ khởi hành!");
-                return;
-            }
-            if (!PanelQuanLyChuyen.Validator.isValidGio(sGioDi)) {
-                baoLoiVaFocus(panelThemChuyen.getTxtGioDi(), "Giờ khởi hành không hợp lệ (HH:mm)!");
-                return;
-            }
 
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String gioDiChang = model.getValueAt(i, 3).toString();
-                String gioDenChang = model.getValueAt(i, 6).toString();
+            String chuKy = panelThemChuyen.getComboChuKy().getSelectedItem().toString();
+            boolean coKetThuc = panelThemChuyen.getChkKetThuc().isSelected();
+            String sNgayKetThuc = panelThemChuyen.getTxtNgayKetThuc().getText().trim();
 
-                if (gioDiChang.isEmpty() || gioDenChang.isEmpty()) {
+            LocalDate ngayBatDau = LocalDate.parse(sNgayDi, dateTimeFormatter);
+            LocalDate ngayKetThuc = ngayBatDau;
 
-                    panelThemChuyen.getTableLichTrinh().setRowSelectionInterval(i, i);
-
-                    fillDataFromTableToInput_Them(i);
-
+            if (coKetThuc) {
+                if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayKetThuc)) {
+                    baoLoiVaFocus(panelThemChuyen.getTxtNgayKetThuc(), "Ngày kết thúc không hợp lệ!");
+                    return;
+                }
+                ngayKetThuc = LocalDate.parse(sNgayKetThuc, dateTimeFormatter);
+                if (ngayKetThuc.isBefore(ngayBatDau)) {
+                    JOptionPane.showMessageDialog(dialogThem, "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!");
                     return;
                 }
             }
 
             String tuyenID = layMaTuChuoiHienThi(rawTuyen);
             String tauID = layMaTuChuoiHienThi(rawTau);
+            NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
 
-            if (panelThemChuyen.getTxtMaChuyen().getText().isEmpty()) {
-                genCode();
+            if (chuKy.equals("Chuyến phát sinh") || !coKetThuc) {
+                if (thucThiLuuMotChuyen(ngayBatDau, sGioDi, tuyenID, tauID, model, nv)) {
+                    JOptionPane.showMessageDialog(panelThemChuyen, "Thêm chuyến phát sinh thành công!");
+                    dialogThem.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialogThem, "Thêm chuyến thất bại (vui lòng kiểm tra mã chuyến)!");
+                }
+            } else {
+                LocalDate ngayChayHienTai = ngayBatDau;
+                int countSuccess = 0;
+                int countTotal = 0;
+
+                while (!ngayChayHienTai.isAfter(ngayKetThuc)) {
+                    countTotal++;
+                    if (thucThiLuuMotChuyen(ngayChayHienTai, sGioDi, tuyenID, tauID, model, nv)) {
+                        countSuccess++;
+                    }
+
+                    ngayChayHienTai = switch (chuKy) {
+                        case "Hàng ngày" -> ngayChayHienTai.plusDays(1);
+                        case "Hàng tuần" -> ngayChayHienTai.plusWeeks(1);
+                        case "Hàng tháng" -> ngayChayHienTai.plusMonths(1);
+                        case "Hàng năm" -> ngayChayHienTai.plusYears(1);
+                        default -> ngayKetThuc.plusDays(1); // Để thoát vòng lặp
+                    };
+                }
+
+                String thongBao = String.format("Hoàn tất chu kỳ! Thành công: %d/%d chuyến.", countSuccess, countTotal);
+                JOptionPane.showMessageDialog(panelThemChuyen, thongBao);
+                dialogThem.dispose();
             }
-            String maChuyen = panelThemChuyen.getTxtMaChuyen().getText();
 
-            LocalDate ngayDi = LocalDate.parse(sNgayDi, dateTimeFormatter);
-            LocalTime gioDi = LocalTime.parse(sGioDi, timeFormatter);
+            timKiemChuyen();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(dialogThem, "Lỗi hệ thống: " + ex.getMessage());
+        }
+    }
+
+    private boolean thucThiLuuMotChuyen(LocalDate ngayDiChuyen, String sGioDi, String tuyenID, String tauID, DefaultTableModel model, NhanVien nv) {
+        try {
+
+            LocalTime t = LocalTime.parse(sGioDi, timeFormatter);
+            String maChuyen = tauID.toUpperCase() + "_" + ngayDiChuyen.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "_" + t.format(DateTimeFormatter.ofPattern("HHmm"));
 
             Chuyen c = new Chuyen(maChuyen);
             c.setTuyen(new Tuyen(tuyenID));
             c.setTau(new Tau(tauID, ""));
-            c.setNgayDi(ngayDi);
-            c.setGioDi(gioDi);
+            c.setNgayDi(ngayDiChuyen);
+            c.setGioDi(t);
 
             String tenGaDau = model.getValueAt(0, 1).toString();
             String tenGaCuoi = model.getValueAt(model.getRowCount() - 1, 4).toString();
             String idGaDau = mapGaToID.get(tenGaDau);
             String idGaCuoi = mapGaToID.get(tenGaCuoi);
 
-            if (idGaDau == null || idGaCuoi == null) {
-                JOptionPane.showMessageDialog(dialogThem, "Lỗi dữ liệu: Không tìm thấy ID của ga " + (idGaDau==null?tenGaDau:tenGaCuoi), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             c.setGaDi(new Ga(idGaDau, tenGaDau));
             c.setGaDen(new Ga(idGaCuoi, tenGaCuoi));
             c.setTenChuyenHienThi(tenGaDau + " - " + tenGaCuoi);
-            c.setTenGaDiHienThi(tenGaDau);
-            c.setTenGaDenHienThi(tenGaCuoi);
+
+
+            LocalDate ngayGocTrongBang = LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter);
+            long dayOffset = java.time.temporal.ChronoUnit.DAYS.between(ngayGocTrongBang, ngayDiChuyen);
 
             List<ChuyenGa> listStops = new ArrayList<>();
+
             ChuyenGa startNode = new ChuyenGa();
             startNode.setChuyen(c);
             startNode.setGa(new Ga(idGaDau, tenGaDau));
             startNode.setThuTu(1);
-            startNode.setNgayDi(LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter));
-            startNode.setGioDi(LocalTime.parse(model.getValueAt(0, 3).toString(), timeFormatter));
+            startNode.setNgayDi(ngayDiChuyen);
+            startNode.setGioDi(t);
             listStops.add(startNode);
 
             for (int i = 0; i < model.getRowCount(); i++) {
@@ -1103,37 +1132,22 @@ public class QuanLyChuyen_CTRL {
                 stopNode.setChuyen(c);
                 stopNode.setGa(new Ga(idGaDen, tenGaDen));
                 stopNode.setThuTu(i + 2);
+                stopNode.setNgayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter).plusDays(dayOffset));
                 stopNode.setGioDen(LocalTime.parse(model.getValueAt(i, 6).toString(), timeFormatter));
-                stopNode.setNgayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter));
 
                 if (i < model.getRowCount() - 1) {
-                    stopNode.setNgayDi(LocalDate.parse(model.getValueAt(i + 1, 2).toString(), dateTimeFormatter));
+                    stopNode.setNgayDi(LocalDate.parse(model.getValueAt(i + 1, 2).toString(), dateTimeFormatter).plusDays(dayOffset));
                     stopNode.setGioDi(LocalTime.parse(model.getValueAt(i + 1, 3).toString(), timeFormatter));
                 }
                 listStops.add(stopNode);
             }
 
-            NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
             String error = chuyenBus.themChuyen(c, listStops, nv);
-
-            if (error == null) {
-                JOptionPane.showMessageDialog(panelThemChuyen, "Thêm chuyến thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                dialogThem.dispose();
-                timKiemChuyen();
-            } else {
-                if (error.contains("Đã tồn tại")) {
-                    baoLoiVaFocus(panelThemChuyen.getTxtMaChuyen(), "Mã chuyến này đã tồn tại! Vui lòng kiểm tra lại Tàu và Ngày đi.");
-                } else {
-                    JOptionPane.showMessageDialog(dialogThem, "Thêm thất bại: " + error, "Lỗi Server", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(dialogThem, "Lỗi không xác định: " + ex.getMessage(), "Lỗi Exception", JOptionPane.ERROR_MESSAGE);
+            return error == null;
+        } catch (Exception e) {
+            return false;
         }
     }
-
     /**
      * Hàm phụ trợ: Hiển thị thông báo lỗi và Focus ngay vào Component bị lỗi
      */
@@ -1277,7 +1291,7 @@ public class QuanLyChuyen_CTRL {
         if (input.contains("(")) {
             return input.substring(0, input.indexOf("(")).trim();
         }
-        return input.trim().split(" ")[0];
+        return input.trim();
     }
 
     private String taoHienThiTuyen(String maTuyen, Map<String, String> mapIDToTenGa) {

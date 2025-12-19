@@ -82,7 +82,7 @@ public class Chuyen_DAO {
 	public List<Chuyen> getAllChuyen() {
 		List<Chuyen> list = new ArrayList<>();
 		Connection con = connectDB.getInstance().getConnection();
-		String sql = "SELECT c.*, t.tenTau, " +
+		String sql = "SELECT c.*, t.tenTau, t.loaiTauID, " +
 				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, " +
 				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, " +
 
@@ -100,7 +100,7 @@ public class Chuyen_DAO {
 		Chuyen chuyen = null;
 		Connection con = connectDB.getInstance().getConnection();
 
-		String sql = "SELECT c.*, t.tenTau, " +
+		String sql = "SELECT c.*, t.tenTau, t.loaiTauID ," +
 				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, " +
 				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, " +
 				"(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, " +
@@ -121,7 +121,7 @@ public class Chuyen_DAO {
 		Connection con = connectDB.getInstance().getConnection();
 		StringBuilder sql = new StringBuilder();
 
-		sql.append("SELECT DISTINCT c.*, t.tenTau, ");
+		sql.append("SELECT DISTINCT c.*, t.tenTau, t.loaiTauID, ");
 		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, ");
 		sql.append("(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, ");
 		sql.append("(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, ");
@@ -183,10 +183,18 @@ public class Chuyen_DAO {
 				while (rs.next()) {
 					String maChuyen = rs.getString("chuyenID");
 					String tenTau = rs.getString("tenTau");
-					String tenGaDi = rs.getString("tenGaDi");   // Lấy từ subquery ORDER BY ASC
-					String tenGaDen = rs.getString("tenGaDen"); // Lấy từ subquery ORDER BY DESC
-
+					String loaiTauStr = rs.getString("loaiTauID");
+					String tenGaDi = rs.getString("tenGaDi");
+					String tenGaDen = rs.getString("tenGaDen");
 					String tenChuyen = (tenGaDi != null ? tenGaDi : "N/A") + " - " + (tenGaDen != null ? tenGaDen : "N/A");
+					LoaiTau loaiTau = null;
+					if (loaiTauStr != null) {
+						try {
+							loaiTau = LoaiTau.valueOf(loaiTauStr);
+						} catch (IllegalArgumentException e) {
+
+						}
+					}
 
 					Date sqlDateDi = rs.getDate("ngayDi");
 					Time sqlTimeDi = rs.getTime("gioDi");
@@ -199,17 +207,18 @@ public class Chuyen_DAO {
 					LocalTime timeDen = (sqlTimeDen != null) ? sqlTimeDen.toLocalTime() : null;
 
 					Chuyen c = new Chuyen(maChuyen);
-					c.setTau(new Tau(rs.getString("tauID"), tenTau));
+					c.setTenChuyenHienThi(tenChuyen);
+					c.setTenGaDiHienThi(tenGaDi);
+					c.setTenGaDenHienThi(tenGaDen);
+					Tau tau = new Tau(rs.getString("tauID"), tenTau);
+					tau.setLoaiTau(loaiTau);
+					c.setTau(tau);
 					if (rs.getString("tuyenID") != null) c.setTuyen(new Tuyen(rs.getString("tuyenID")));
 
 					c.setNgayDi(dateDi);
 					c.setGioDi(timeDi);
 					c.setNgayDen(dateDen);
 					c.setGioDen(timeDen);
-
-					c.setTenGaDiHienThi(tenGaDi);
-					c.setTenGaDenHienThi(tenGaDen);
-					c.setTenChuyenHienThi(tenChuyen);
 
 					list.add(c);
 				}
