@@ -12,7 +12,6 @@ package gui;
 
 import java.awt.Component;
 import java.awt.Font;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;

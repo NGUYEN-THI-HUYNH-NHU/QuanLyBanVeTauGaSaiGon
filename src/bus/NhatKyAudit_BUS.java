@@ -1,6 +1,10 @@
 package bus;
 
 import dao.NhatKyAudit_DAO;
+import entity.NhatKyAudit;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class NhatKyAudit_BUS {
     private final NhatKyAudit_DAO nhatKyAudit_dao;
@@ -26,22 +30,19 @@ public class NhatKyAudit_BUS {
         return nhatKyAudit_dao.maNhatKyMoi();
     }
 
-
-    // lọc nhật ký audit theo khoang thời gian
-    public java.util.List<entity.NhatKyAudit> locNhatKyTheoKhoangThoiGian(java.time.LocalDate ngayBatDau, java.time.LocalDate ngayKetThuc) {
-        return nhatKyAudit_dao.layDanhSachNhatKyTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
+    //lọc audit với nhiều tiêu chí (khoảng thời gian, nhân viên, đối tượng thao tác)
+    public List<NhatKyAudit> locNhatKy(LocalDate ngayBatDau, LocalDate ngayKetThuc, String nhanVienID, String doiTuongThaoTac, String doiTuongID) {
+        return nhatKyAudit_dao.timKiemNhatKy(ngayBatDau, ngayKetThuc, nhanVienID, doiTuongThaoTac, doiTuongID);
     }
 
-
-    // lọc nhật ký audit theo nhân viên
-    public java.util.List<entity.NhatKyAudit> locNhatKyTheoNhanVien(String nhanVienID) {
-        return nhatKyAudit_dao.layDanhSachNhatKyTheoNhanVien(nhanVienID);
+    //lay ten nhan vien theo ma nhan vien
+    public String layTenNhanVienTheoMaNV(String maNV) {
+        return nhatKyAudit_dao.layTenNhanVienTheoMaNV(maNV);
     }
 
-
-    // lọc nhật ký audit theo đối tượng thao tác
-    public java.util.List<entity.NhatKyAudit> locNhatKyTheoDoiTuongThaoTac(String doiTuongThaoTac) {
-        return nhatKyAudit_dao.layDanhSachNhatKyTheoDoiTuong(doiTuongThaoTac);
+    //lọc audit theo khoảng thời gian
+    public List<NhatKyAudit> locNhatKyTheoThoiGian(LocalDate ngayBatDau, LocalDate ngayKetThuc) {
+        return nhatKyAudit_dao.locNhatKyTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
     }
 
 }

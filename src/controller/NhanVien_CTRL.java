@@ -1,6 +1,7 @@
 package controller;
 
 import bus.NhanVien_BUS;
+import bus.NhatKyAudit_BUS;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
 
@@ -9,77 +10,59 @@ import java.util.List;
 
 public class NhanVien_CTRL {
     private final NhanVien_BUS nhanVien_bus;
+    private final NhanVien nhanVienHienTai;
 
-    public NhanVien_CTRL() {
-        nhanVien_bus = new NhanVien_BUS();
+    public NhanVien_CTRL(NhanVien nhanVienHienTai) {
+        this.nhanVienHienTai = nhanVienHienTai;
+
+        NhatKyAudit_BUS auditBus = new NhatKyAudit_BUS();
+        this.nhanVien_bus = new NhanVien_BUS(auditBus);
     }
 
-    //lấy danh sách nhân viên
+//    public NhanVien_CTRL() {
+//        this(null);
+//    }
+
     public List<NhanVien> layDanhSachNhanVien() {
         return nhanVien_bus.layDanhSachNhanVien();
     }
 
-    //lấy nhân viên bàng mã nhân viên
-    public NhanVien layNhanVienBangMaNV(String maNV){
+    public NhanVien layNhanVienBangMaNV(String maNV) {
         return nhanVien_bus.layNhanVienBangMaNV(maNV);
     }
 
-    //them nhân viên
-    public boolean themNhanVien(entity.NhanVien nv){
-        return nhanVien_bus.themNhanVien(nv);
+    public boolean themNhanVien(NhanVien nv) {
+        String nguoiThucHienID =
+                (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
+        return nhanVien_bus.themNhanVien(nv, nguoiThucHienID);
     }
 
-    //sửa nhân viên
-    public boolean suaNhanVien(entity.NhanVien nv){
+    public boolean suaNhanVien(NhanVien nv) {
         return nhanVien_bus.suaNhanvVien(nv);
     }
-    //regex
-    //==1. Ho ten
-    public boolean validHoTen(String hoTen){
-        return nhanVien_bus.validHoTen(hoTen);
-    }
-    //==2. So dien thoai
-    public boolean validSDT(String sdt){
-        return nhanVien_bus.validSDT(sdt);
-    }
-    //==3. Email
-    public boolean validEmail(String email){
-        return nhanVien_bus.validEmail(email);
-    }
-    //==4. Dia chi
-    public boolean validDiaChi(String diaChi){
-        return nhanVien_bus.validDiaChi(diaChi);
-    }
-    //==5. Ca lam
-    public boolean validCaLam(String caLam){
-        return nhanVien_bus.validCaLam(caLam);
-    }
-    //==6. Ngay sinh
-    public boolean ngaySinh(LocalDate ngaySinh){
-        return nhanVien_bus.ngaySinh(ngaySinh);
-    }
-    //==7. Ngay tham gia
-    public boolean ngayThamGia(LocalDate ngayThamGia){
-        return nhanVien_bus.ngayThamGia(ngayThamGia);
-    }
-    //==8. Gioi tinh
-    public boolean validGioiTinh(boolean isNu){
-        return nhanVien_bus.validGioiTinh(isNu);
-    }
 
-    //tao ma nhan vien
-    public String taoMaNhanVien(){
+    public boolean validHoTen(String hoTen) { return nhanVien_bus.validHoTen(hoTen); }
+    public boolean validSDT(String sdt) { return nhanVien_bus.validSDT(sdt); }
+    public boolean validEmail(String email) { return nhanVien_bus.validEmail(email); }
+    public boolean validDiaChi(String diaChi) { return nhanVien_bus.validDiaChi(diaChi); }
+    public boolean validCaLam(String caLam) { return nhanVien_bus.validCaLam(caLam); }
+    public boolean ngaySinh(LocalDate ngaySinh) { return nhanVien_bus.ngaySinh(ngaySinh); }
+    public boolean ngayThamGia(LocalDate ngayThamGia) { return nhanVien_bus.ngayThamGia(ngayThamGia); }
+    public boolean validGioiTinh(boolean isNu) { return nhanVien_bus.validGioiTinh(isNu); }
+
+    public String taoMaNhanVien() {
         return nhanVien_bus.taoMaNhanVienTuDong();
     }
 
-    //tim nhan vien
     public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVien vaiTro, Boolean isHoatDong) {
         return nhanVien_bus.timKiemNhanVien(ten, sdt, vaiTro, isHoatDong);
     }
 
-    //lay vai tro nhan vien theo ma nhan vien
-    public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV){
+    public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV) {
         return nhanVien_bus.layVaiTroNhanVienTheoMaNV(maNV);
     }
 
+//    public List<String> layDanhSachMaNhanVien() {
+//        return nhanVien_bus.layDanhSachMaNhanVien();
+//    }
 }
