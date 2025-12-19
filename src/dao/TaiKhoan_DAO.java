@@ -22,8 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import connectDB.ConnectDB;
 import entity.NhanVien;
 import entity.TaiKhoan;
@@ -100,7 +98,8 @@ public class TaiKhoan_DAO {
 			connection = connectDB.getConnection();
 			String sql = "UPDATE TaiKhoan SET matKhauHash = ? WHERE nhanVienID = ?";
 			preparedStatement = connection.prepareStatement(sql);
-			preparedStatement.setString(1, BCrypt.hashpw(newMatKhau, BCrypt.gensalt()));
+//			preparedStatement.setString(1, BCrypt.hashpw(newMatKhau, BCrypt.gensalt()));
+			preparedStatement.setString(1, newMatKhau);
 			preparedStatement.setString(2, nhanVienID);
 
 			int rowsUpdated = preparedStatement.executeUpdate();
@@ -372,5 +371,55 @@ public class TaiKhoan_DAO {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * @param maNV
+	 * @param cccd
+	 * @param email
+	 * @return
+	 */
+	public boolean checkForgotPasswordInfo(String nhanVienID, String cccd, String email) {
+		String sql = "SELECT COUNT(*) FROM NhanVien WHERE nhanVienID = ? AND soDienThoai = ? AND email = ?";
+
+		try (Connection con = connectDB.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+			stmt.setString(1, nhanVienID);
+			stmt.setString(2, cccd);
+			stmt.setString(3, email);
+
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt(1) > 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * @param text
+	 * @param newPass
+	 * @return
+	 */
+	public boolean checkDuplicatingPasswords(String nhanVienID, String newPass) {
+		String sql = "SELECT COUNT(*) FROM TaiKhoan WHERE nhanVienID = ? AND matKhauHash = ?";
+
+		try (Connection con = connectDB.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+
+			stmt.setString(1, nhanVienID);
+			stmt.setString(2, newPass);
+
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) {
+					return rs.getInt(1) > 0;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
