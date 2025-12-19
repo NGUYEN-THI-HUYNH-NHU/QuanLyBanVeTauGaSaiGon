@@ -250,6 +250,7 @@ public class QuanLyChuyen_CTRL {
         mapGaToID = chuyenBus.getMapTenGaToID();
         loadDataToComboCapNhat();
         panelCapNhatChuyen.getComboTuyen().setEnabled(false);
+        panelCapNhatChuyen.getComboTau().setEnabled(false);
 
         fillDataToUpdateForm(maChuyen);
 
@@ -428,7 +429,7 @@ public class QuanLyChuyen_CTRL {
 
             // Tính toán cho chặng kế tiếp (nếu có)
             if (currentRow < model.getRowCount() - 1) {
-                int thoiGianNghi = 20; // Nghỉ 20 phút tại ga trung gian
+                int thoiGianNghi = 15;
                 LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianNghi);
 
                 String ngayNext = dtDiTiep.format(dateTimeFormatter);
@@ -1412,7 +1413,7 @@ public class QuanLyChuyen_CTRL {
 
 
                 if (row < model.getRowCount() - 1) {
-                    int thoiGianDungDo = 20; // 15 phút
+                    int thoiGianDungDo = 15; // 15 phút
                     java.time.LocalDateTime dtDenn = java.time.LocalDateTime.parse(
                             sNgayDen + " " + sGioDen, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
                     java.time.LocalDateTime dtDiTiep = dtDenn.plusMinutes(thoiGianDungDo);
@@ -1466,7 +1467,7 @@ public class QuanLyChuyen_CTRL {
             model.setValueAt(gioDenMoi, currentRow, 6);
 
             if (currentRow < model.getRowCount() - 1) {
-                int thoiGianDungDo = 20;
+                int thoiGianDungDo = 15;
                 java.time.LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianDungDo);
 
                 String ngayDiTiep = dtDiTiep.format(dateTimeFormatter);
