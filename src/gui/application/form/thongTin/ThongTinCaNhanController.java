@@ -14,17 +14,23 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import bus.NhanVien_BUS;
+import bus.NhatKyAudit_BUS;
 import entity.NhanVien;
+import entity.NhatKyAudit;
 
 public class ThongTinCaNhanController {
 
-	private final NhanVien_BUS nhanVienBUS = new NhanVien_BUS();
+	private final NhanVien_BUS nhanVienBUS;
 	private final FormThongTinCaNhan view;
 	private final NhanVien nhanVien;
 
 	public ThongTinCaNhanController(FormThongTinCaNhan view) {
 		this.view = view;
 		this.nhanVien = view.getNhanVien();
+
+		NhatKyAudit_BUS auditBus = new NhatKyAudit_BUS();
+		this.nhanVienBUS = new NhanVien_BUS(auditBus);
+
 		initController();
 	}
 

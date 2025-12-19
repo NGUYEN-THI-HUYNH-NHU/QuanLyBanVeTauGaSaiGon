@@ -19,22 +19,20 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
-
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
-
 import entity.NhanVien;
 import gui.application.AboutUsHelper;
 import gui.application.UngDung;
 import gui.application.form.KhuyenMai.PanelQuanLyKhuyenMai;
 import gui.application.form.NhanVien.PanelQuanLyNhanVien;
+import gui.application.form.NhatKyAudit.PanelNhatKyAudit;
 import gui.application.form.TaiKhoan.PanelQuanLyTaiKhoan;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.bieuGia.PanelQuanLyBieuGia;
@@ -116,7 +114,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			}
 			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
 			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyDonDatCho());
-			case 6 -> {
+			case 14 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
 				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
@@ -124,7 +122,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			}
 
 			// UC cua QUAN_LY
-			case 14 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
 			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
 
@@ -149,7 +147,7 @@ public class GiaoDienChinh extends JLayeredPane {
 				default -> action.cancel();
 				}
 			}
-//			case 17 -> UngDung.showGiaoDienChinh(new PanelXemNhatKy());
+			case 17 -> UngDung.showGiaoDienChinh(new PanelNhatKyAudit(nhanVien));
 			case 18 -> {
 				if (JOptionPane.showConfirmDialog(this,
 						"Bạn xác nhận điều hướng sang trình duyệt để mở trang About us?", "Xác nhận",

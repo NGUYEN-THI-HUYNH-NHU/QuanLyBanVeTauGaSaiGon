@@ -65,7 +65,7 @@ public class NhanVien_DAO {
 		}
 	}
 
-	// tạo mã nhân viên tự độgn
+	// tạo mã nhân viên tự động
 	public String taoMaNhanVienTuDong() {
 		String maMoi = "NV001";
 		String sql = "SELECT MAX(nhanVienID) AS maCuoi FROM NhanVien";
@@ -275,6 +275,22 @@ public class NhanVien_DAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	//lấy danh sách mã nhân viên
+	public List<String> layDanhSachMaNhanVien() {
+		List<String> danhSachMaNV = new ArrayList<>();
+		String sql = "SELECT nhanVienID FROM NhanVien";
+		try (Connection con = connectDB.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				danhSachMaNV.add(rs.getString("nhanVienID"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return danhSachMaNV;
 	}
 
 
