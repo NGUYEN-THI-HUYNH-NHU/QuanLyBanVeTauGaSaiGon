@@ -1,6 +1,7 @@
 package entity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 import entity.type.TrangThaiVe;
@@ -217,15 +218,14 @@ public class Ve {
 	 * @return
 	 */
 	public String stringThongTinChuyen() {
-		// TODO Auto-generated method stub
-		return null;
+		return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
+				gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
 	}
 
 	/**
 	 * @return
 	 */
 	public String stringThongTinGhe() {
-		// TODO Auto-generated method stub
-		return null;
+		return String.format("<html>Toa: %s - Chỗ: %s</html>", ghe.getToa().getSoToa(), ghe.getSoGhe());
 	}
 }

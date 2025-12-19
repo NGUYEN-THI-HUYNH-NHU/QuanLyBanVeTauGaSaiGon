@@ -40,6 +40,12 @@ public class VeSession {
 		this.thoiDiemHetHan = thoiDiemHetHan;
 	}
 
+	public VeSession(Ve ve) {
+		super();
+		this.ve = ve;
+		this.thoiDiemHetHan = null;
+	}
+
 	public int getGiamDoiTuong() {
 		return giamDoiTuong;
 	}

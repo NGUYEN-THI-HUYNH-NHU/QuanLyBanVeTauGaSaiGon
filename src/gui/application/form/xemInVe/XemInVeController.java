@@ -34,7 +34,9 @@ import bus.Ve_BUS;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.Ve;
+import entity.type.TrangThaiVe;
 import gui.application.AuthService;
+import gui.application.paymentHelper.PdfTicketExporter;
 
 /*
  * @description
@@ -71,7 +73,7 @@ public class XemInVeController {
 	}
 
 	private void loadAllVe() {
-		this.view.getTableModel().setRows(veBUS.layCacVeTheoNhanVienID(this.nhanVien));
+		this.view.getTableModel().setRows(veBUS.layCacVe());
 	}
 
 	private void init() {
@@ -111,7 +113,7 @@ public class XemInVeController {
 					return;
 				}
 
-				// Lấy đối tượng Hóa đơn tại dòng click
+				// Lấy đối tượng vé tại dòng click
 				Ve selectedVe = view.getTableModel().getRow(row);
 
 				if (column == VeTableModel.COL_IN) {
@@ -145,12 +147,11 @@ public class XemInVeController {
 	// Xử lý khi bấm nút Lọc
 	private void handleLoc() {
 		// 1. Lấy dữ liệu từ View
-		String loaiHD = (String) view.getCboLoaiVe().getSelectedItem();
+		String loaiVe = (String) view.getCboLoaiVe().getSelectedItem();
 		String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
 		boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
 		Date tuNgay = view.getDateChooserTuNgay().getDate();
 		Date denNgay = view.getDateChooserDenNgay().getDate();
-		String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
 
 		String searchKeyword = null; // Dùng tìm theo tên/sđt/cccd (LIKE)
 		String searchID = null; // Dùng tìm chính xác theo ID (=)
@@ -175,18 +176,17 @@ public class XemInVeController {
 			return;
 		}
 
-		System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiHD, searchKeyword,
+		System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiVe, searchKeyword,
 				searchID, tuNgay, denNgay));
 
-		// 4. Lọc hóa đơn theo tiêu chí
-		List<Ve> results = veBUS.locVeTheoCacTieuChi(this.nhanVien, loaiHD, searchKeyword, searchID, tuNgay, denNgay,
-				hinhThucTT);
+		// 4. Lọc vé theo tiêu chí
+		List<Ve> results = veBUS.locVeTheoCacTieuChi(loaiVe, searchKeyword, searchID, tuNgay, denNgay);
 
 		// 5. Cập nhật UI và thông báo kết quả
 		view.getTableModel().setRows(results);
 
 		if (results.isEmpty()) {
-			JOptionPane.showMessageDialog(view, "Không tìm thấy hóa đơn nào phù hợp!", "Thông báo",
+			JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!", "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else {
 			view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
@@ -197,12 +197,13 @@ public class XemInVeController {
 	private void handleReset() {
 		view.getCboLoaiVe().setSelectedIndex(0);
 		view.getTxtKhachHangSuggest().setText("");
-		view.getCboHinhThucTT().setSelectedIndex(0);
 		view.getCheckBoxTatCaNgay().setSelected(true);
 		view.getDateChooserTuNgay().setDate(new Date());
 		view.getDateChooserDenNgay().setDate(new Date());
 		view.getDateChooserTuNgay().setEnabled(false);
 		view.getDateChooserDenNgay().setEnabled(false);
+
+		loadAllVe();
 	}
 
 	private void handleTraCuu() {
@@ -210,8 +211,8 @@ public class XemInVeController {
 		String keyword = view.getTxtTuKhoa().getText().trim();
 		String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-		// 2. Lấy các hóa đơn theo keyword và loại tra cứu
-		List<Ve> result = veBUS.layVeTheoKeyWord(this.nhanVien, keyword, type);
+		// 2. Lấy các vé theo keyword và loại tra cứu
+		List<Ve> result = veBUS.layVeTheoKeyword(keyword, type);
 
 		// 3. Update Table
 		view.getTableModel().setRows(result);
@@ -237,7 +238,7 @@ public class XemInVeController {
 		JTextField txtSearch = view.getTxtTuKhoa();
 		JComboBox<String> cboType = view.getCboLoaiTimKiem();
 
-		// 1. Reset text khi đổi loại tìm kiếm (để tránh user tìm ID hóa đơn bằng mã KH)
+		// 1. Reset text khi đổi loại tìm kiếm (để tránh user tìm ID vé bằng mã KH)
 		cboType.addActionListener(e -> {
 			txtSearch.setText("");
 			traCuuSuggestionPopup.setVisible(false);
@@ -288,12 +289,12 @@ public class XemInVeController {
 		List<String> suggestions = new ArrayList<>();
 
 		// 4. Lấy danh sách gợi ý dựa trên loại đang chọn
-		if ("Mã đơn đặt chỗ".equals(type)) {
+		if ("Mã vé".equals(type)) {
+			suggestions = veBUS.layTop10VeID(keyword);
+		} else if ("Mã đặt chỗ".equals(type)) {
 			suggestions = veBUS.layTop10DonDatChoID(keyword);
-		} else if ("Mã khách hàng".equals(type)) {
-			suggestions = veBUS.layTop10KhachHangID(keyword);
-		} else if ("Mã chuyến".equals(type)) {
-			suggestions = veBUS.layTop10ChuyenID(keyword);
+		} else if ("Số giấy tờ khách hàng".equals(type)) {
+			suggestions = veBUS.layTop10SoGiayToKhachHang(keyword);
 		}
 
 		// 5. Hiển thị Popup
@@ -301,12 +302,12 @@ public class XemInVeController {
 			for (String s : suggestions) {
 				JMenuItem item = new JMenuItem(s);
 				// Highlight icon khác nhau cho đẹp
-				if ("Mã đơn đặt chỗ".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/order.svg", 0.6f));
-				} else if ("Mã khách hàng".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/person.svg", 0.6f));
-				} else if ("Mã chuyến".equals(type)) {
-					item.setIcon(new FlatSVGIcon("gui/icon/svg/payment.svg", 0.6f));
+				if ("Mã vé".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/ticket.svg", 0.6f));
+				} else if ("Mã đặt chỗ".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/booking.svg", 0.6f));
+				} else if ("Số giấy tờ khách hàng".equals(type)) {
+					item.setIcon(new FlatSVGIcon("gui/icon/svg/idcard.svg", 0.6f));
 				}
 
 				item.addActionListener(e -> {
@@ -400,14 +401,18 @@ public class XemInVeController {
 		}
 	}
 
-	private void handleInVe(Ve hd) {
-		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in hóa đơn " + hd.getVeID() + " không?",
+	private void handleInVe(Ve ve) {
+		if (ve.getTrangThai() != TrangThaiVe.DA_BAN) {
+			JOptionPane.showMessageDialog(view, "Vé " + ve.getTrangThai().getDescription() + ". Không thể in");
+			return;
+		}
+
+		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in vé " + ve.getVeID() + " không?",
 				"Xác nhận in", JOptionPane.YES_NO_OPTION);
 
 		if (confirm == JOptionPane.YES_OPTION) {
-			System.out.println("Đang in hóa đơn: " + hd.getVeID());
-
-			// TODO: logic in hóa đơn
+			PdfTicketExporter exporter = new PdfTicketExporter();
+			exporter.exportTicketsToPdf(ve);
 		}
 	}
 

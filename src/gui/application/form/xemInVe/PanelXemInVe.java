@@ -7,6 +7,7 @@ package gui.application.form.xemInVe;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -24,13 +25,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 
+import entity.type.TrangThaiVe;
 import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.DateTimeRenderer;
 import gui.tuyChinh.LeftCenterAlignRenderer;
 
 /*
@@ -50,7 +52,6 @@ public class PanelXemInVe extends JPanel {
 	private JTextField txtKhachHangSuggest;
 	private JDateChooser dateChooserTuNgay;
 	private JDateChooser dateChooserDenNgay;
-	private JComboBox<String> cboHinhThucTT;
 	private JButton btnLoc;
 	private JButton btnReset;
 
@@ -74,7 +75,7 @@ public class PanelXemInVe extends JPanel {
 		JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
 
-		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã đơn đặt chỗ", "Mã khách hàng", "Mã chuyến" });
+		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã vé", "Mã đặt chỗ", "Số giấy tờ khách hàng" });
 		txtTuKhoa = new JTextField(18);
 		btnTraCuu = new JButton("Tra cứu");
 		btnTraCuu.setBackground(new Color(36, 104, 155));
@@ -125,18 +126,6 @@ public class PanelXemInVe extends JPanel {
 		txtKhachHangSuggest.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ tên/SĐT/CCCD/ID");
 		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT, CCCD hoặc ID");
 		pnlInput.add(txtKhachHangSuggest, gbc);
-
-		// 3. Hình thức thanh toán
-		gbc.gridx = 4;
-		gbc.gridy = 0;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Thanh toán:"), gbc);
-
-		gbc.gridx = 5;
-		gbc.gridy = 0;
-		gbc.weightx = 0.2;
-		cboHinhThucTT = new JComboBox<>(new String[] { "Tất cả", "Tiền mặt", "Chuyển khoản" });
-		pnlInput.add(cboHinhThucTT, gbc);
 
 		// 4. Checkbox Tất cả ngày
 		gbc.gridx = 0;
@@ -205,22 +194,19 @@ public class PanelXemInVe extends JPanel {
 		table.getTableHeader().setFont(new Font(getFont().getFontName(), Font.BOLD, getFont().getSize()));
 		table.setRowHeight(36);
 
-		table.getColumnModel().getColumn(0).setMaxWidth(34);
-		table.getColumnModel().getColumn(1).setMinWidth(170);
-		table.getColumnModel().getColumn(2).setPreferredWidth(70);
-		table.getColumnModel().getColumn(3).setMinWidth(150);
-		table.getColumnModel().getColumn(4).setMinWidth(96);
-		table.getColumnModel().getColumn(5).setMinWidth(116);
-		table.getColumnModel().getColumn(6).setMinWidth(76);
-		table.getColumnModel().getColumn(7).setMinWidth(76);
-		table.getColumnModel().getColumn(8).setMinWidth(76);
-		table.getColumnModel().getColumn(9).setMinWidth(50);
-		table.getColumnModel().getColumn(10).setMaxWidth(34);
+		table.getColumnModel().getColumn(0).setMaxWidth(30);
+		table.getColumnModel().getColumn(1).setMinWidth(180);
+		table.getColumnModel().getColumn(2).setMinWidth(130);
+		table.getColumnModel().getColumn(3).setMinWidth(100);
+		table.getColumnModel().getColumn(4).setMinWidth(110);
+		table.getColumnModel().getColumn(5).setMinWidth(100);
+		table.getColumnModel().getColumn(6).setMinWidth(70);
+		table.getColumnModel().getColumn(7).setMaxWidth(70);
+		table.getColumnModel().getColumn(8).setMaxWidth(70);
+		table.getColumnModel().getColumn(9).setMaxWidth(40);
 
 		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-
-		table.getColumnModel().getColumn(VeTableModel.COL_NGAY_GIO_DI).setCellRenderer(new DateTimeRenderer());
 
 		table.getColumnModel().getColumn(VeTableModel.COL_VE_ID).setCellRenderer(leftCenterRenderer);
 		table.getColumnModel().getColumn(VeTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
@@ -229,6 +215,26 @@ public class PanelXemInVe extends JPanel {
 		table.getColumnModel().getColumn(VeTableModel.COL_GHE).setCellRenderer(leftCenterRenderer);
 
 		table.getColumnModel().getColumn(VeTableModel.COL_GIA).setCellRenderer(currencyRenderer);
+
+		table.getColumnModel().getColumn(VeTableModel.COL_TRANG_THAI).setCellRenderer(new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				String status = (String) value;
+				if (status.equals(TrangThaiVe.DA_BAN.getDescription())) {
+					c.setForeground(Color.GREEN);
+					setFont(getFont().deriveFont(Font.ITALIC));
+				} else if (status.equals(TrangThaiVe.DA_DUNG.getDescription())) {
+					c.setForeground(Color.BLACK);
+				} else if (status.equals(TrangThaiVe.DA_HOAN.getDescription())) {
+					c.setForeground(Color.RED);
+				} else if (status.equals(TrangThaiVe.DA_DOI.getDescription())) {
+					c.setForeground(Color.ORANGE);
+				}
+				return c;
+			}
+		});
 
 		JScrollPane scrollPane = new JScrollPane(table);
 
@@ -262,10 +268,6 @@ public class PanelXemInVe extends JPanel {
 
 	public JDateChooser getDateChooserDenNgay() {
 		return dateChooserDenNgay;
-	}
-
-	public JComboBox<String> getCboHinhThucTT() {
-		return cboHinhThucTT;
 	}
 
 	public JTable getTable() {
@@ -306,10 +308,6 @@ public class PanelXemInVe extends JPanel {
 
 	public void setDateChooserDenNgay(JDateChooser dateChooserDenNgay) {
 		this.dateChooserDenNgay = dateChooserDenNgay;
-	}
-
-	public void setCboHinhThucTT(JComboBox<String> cboHinhThucTT) {
-		this.cboHinhThucTT = cboHinhThucTT;
 	}
 
 	public void setTable(JTable table) {

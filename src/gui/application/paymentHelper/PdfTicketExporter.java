@@ -31,6 +31,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import entity.DonDatCho;
+import entity.Ve;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
@@ -47,6 +48,23 @@ public class PdfTicketExporter {
 
 	private PDType0Font fontRegular;
 	private PDType0Font fontBold;
+
+	public void exportTicketsToPdf(Ve ve) {
+		if (ve == null) {
+			JOptionPane.showMessageDialog(null, "Không có vé nào để xuất.", "Lỗi", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Lưu vé tàu (Khổ in nhiệt K80)");
+		fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Documents", "pdf"));
+		String suggestedFileName = ve.getDonDatCho().getDonDatChoID() + "_" + ve.getKhachHang().getHoTen() + ".pdf";
+		fileChooser.setSelectedFile(new File(suggestedFileName));
+
+		if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			processExport(fileChooser.getSelectedFile(), ve);
+		}
+	}
 
 	public void exportTicketsToPdf(BookingSession session) {
 		if (session == null || session.getAllSelectedTickets().isEmpty()) {
@@ -132,6 +150,49 @@ public class PdfTicketExporter {
 		}
 	}
 
+	private void processExport(File fileToSave, Ve ve) {
+		if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
+			fileToSave = new File(fileToSave.getAbsolutePath() + ".pdf");
+		}
+
+		try (PDDocument document = new PDDocument()) {
+			// 1. Load Font
+			try {
+				InputStream fontStreamReg = getClass().getResourceAsStream("/fonts/Roboto-Regular.ttf");
+				InputStream fontStreamBold = getClass().getResourceAsStream("/fonts/Roboto-Bold.ttf");
+
+				if (fontStreamReg == null || fontStreamBold == null) {
+					throw new IOException("Không tìm thấy file font trong /fonts/");
+				}
+				fontRegular = PDType0Font.load(document, fontStreamReg);
+				fontBold = PDType0Font.load(document, fontStreamBold);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Lỗi font: " + e.getMessage());
+				return;
+			}
+
+			PDPage page = new PDPage(new PDRectangle(PAGE_WIDTH, PAGE_HEIGHT));
+			document.addPage(page);
+
+			try (PDPageContentStream cs = new PDPageContentStream(document, page)) {
+				// [NEW] Truyền thêm 'document' vào hàm vẽ để tạo ảnh QR
+				drawTicketK80(document, cs, new VeSession(ve), ve.getDonDatCho().getDonDatChoID());
+			}
+
+			document.save(fileToSave);
+
+			if (Desktop.isDesktopSupported()) {
+				Desktop.getDesktop().open(fileToSave);
+			} else {
+				JOptionPane.showMessageDialog(null, "Xuất vé thành công!");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Lỗi xuất PDF: " + e.getMessage());
+		}
+	}
+
 	// --- HÀM VẼ CHÍNH ---
 	private void drawTicketK80(PDDocument document, PDPageContentStream cs, VeSession ticket, String donDatChoID)
 			throws IOException {
@@ -155,14 +216,16 @@ public class PdfTicketExporter {
 		float qrSize = 100; // Kích thước hiển thị trên PDF
 		float qrX = (PAGE_WIDTH - qrSize) / 2;
 
+		Ve ve = ticket.getVe();
+
 		try {
 			// A. Tạo nội dung chuỗi QR
 			// Tạo chuỗi JSON thủ công
-			String qrContent = "{" + "\"id\":\"" + ticket.getVe().getVeID() + "\"," + "\"trangThai\":\"" + "TODO"
-					+ "\"," + "\"tau\":\"" + ticket.getVe().getGhe().getToa().getTau().getTauID() + "\"," + "\"toa\":\""
-					+ ticket.getVe().getGhe().getToa().getSoToa() + "\"," + "\"ghe\":\"" + ticket.getSoGhe() + "\","
-					+ "\"cccd\":\"" + ticket.getVe().getKhachHang().getSoGiayTo() + "\"," + "\"hoTen\":\""
-					+ ticket.getVe().getKhachHang().getHoTen() + "\"" + "}";
+			String qrContent = "{" + "\"id\":\"" + ve.getVeID() + "\"," + "\"trangThai\":\"" + "TODO" + "\","
+					+ "\"tau\":\"" + ve.getGhe().getToa().getTau().getTauID() + "\"," + "\"toa\":\""
+					+ ve.getGhe().getToa().getSoToa() + "\"," + "\"ghe\":\"" + ve.getGhe().getSoGhe() + "\","
+					+ "\"cccd\":\"" + ve.getKhachHang().getSoGiayTo() + "\"," + "\"hoTen\":\""
+					+ ve.getKhachHang().getHoTen() + "\"" + "}";
 
 			// B. Tạo BufferedImage từ ZXing
 			BufferedImage qrImage = createQRCode(qrContent, 200, 200);
@@ -183,7 +246,7 @@ public class PdfTicketExporter {
 		y -= (qrSize + 15);
 
 		// 4. MÃ VÉ + ĐƠN ĐẶT CHỖ
-		drawCenteredText(cs, fontRegular, 9, "Mã vé/TicketID: " + ticket.getVe().getVeID(), centerX, y);
+		drawCenteredText(cs, fontRegular, 9, "Mã vé/TicketID: " + ve.getVeID(), centerX, y);
 		y -= 15;
 		drawCenteredText(cs, fontRegular, 9, "Mã đặt chỗ/BookingID: " + donDatChoID, centerX, y);
 		y -= 25;
@@ -196,40 +259,39 @@ public class PdfTicketExporter {
 		drawRightText(cs, fontRegular, 9, "Ga đến", rightX, y);
 		y -= 15;
 
-		String gaDi = ticket.getVe().getGaDi().getTenGa().toUpperCase();
-		String gaDen = ticket.getVe().getGaDen().getTenGa().toUpperCase();
+		String gaDi = ve.getGaDi().getTenGa().toUpperCase();
+		String gaDen = ve.getGaDen().getTenGa().toUpperCase();
 
 		drawLeftText(cs, fontBold, 12, gaDi, leftX, y);
 		drawRightText(cs, fontBold, 12, gaDen, rightX, y);
 		y -= 25;
 
 		// 6. THÔNG TIN CHI TIẾT
-		y = drawRow(cs, "Tàu/Train:", ticket.getVe().getGhe().getToa().getTau().getTauID(), y);
-		y = drawRow(cs, "Ngày đi/Date:", ticket.getVe().getNgayGioDi().format(dtfDate), y);
-		y = drawRow(cs, "Giờ đi/Time:", ticket.getVe().getNgayGioDi().format(dtfTime), y);
+		y = drawRow(cs, "Tàu/Train:", ve.getGhe().getToa().getTau().getTauID(), y);
+		y = drawRow(cs, "Ngày đi/Date:", ve.getNgayGioDi().format(dtfDate), y);
+		y = drawRow(cs, "Giờ đi/Time:", ve.getNgayGioDi().format(dtfTime), y);
 
 		// Dòng Toa/Chỗ
 		cs.beginText();
 		cs.setFont(fontBold, 9);
 		cs.newLineAtOffset(leftX, y);
-		cs.showText("Toa/Coach: " + ticket.getVe().getGhe().getToa().getSoToa());
+		cs.showText("Toa/Coach: " + ve.getGhe().getToa().getSoToa());
 		cs.endText();
 
 		cs.beginText();
 		cs.setFont(fontBold, 9);
 		cs.newLineAtOffset(centerX + 10, y);
-		cs.showText("Chỗ/Seat: " + ticket.getSoGhe());
+		cs.showText("Chỗ/Seat: " + ve.getGhe().getSoGhe());
 		cs.endText();
 		y -= 15;
 
-		y = drawRow(cs, "Loại chỗ/Class:", ticket.getVe().getGhe().getToa().getHangToa().getDescription(), y);
-		y = drawRow(cs, "Đối tượng:", ticket.getVe().getKhachHang().getLoaiDoiTuong().getDescription(), y);
+		y = drawRow(cs, "Loại chỗ/Class:", ve.getGhe().getToa().getHangToa().getDescription(), y);
+		y = drawRow(cs, "Đối tượng:", ve.getKhachHang().getLoaiDoiTuong().getDescription(), y);
 
-		String tenKH = ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getHoTen().toUpperCase()
-				: "";
+		String tenKH = ve.getKhachHang() != null ? ve.getKhachHang().getHoTen().toUpperCase() : "";
 		y = drawRow(cs, "Họ tên/Name:", tenKH, y);
 
-		String giayTo = ticket.getVe().getKhachHang() != null ? ticket.getVe().getKhachHang().getSoGiayTo() : "";
+		String giayTo = ve.getKhachHang() != null ? ve.getKhachHang().getSoGiayTo() : "";
 		y = drawRow(cs, "Số giấy tờ/ID:", giayTo, y);
 
 		// Footer

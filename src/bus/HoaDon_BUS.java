@@ -279,9 +279,9 @@ public class HoaDon_BUS {
 	 * @param hinhThucTT
 	 * @return
 	 */
-	public List<HoaDon> locHoaDonTheoCacTieuChi(NhanVien nhanVien, String loaiHD, String khachHang, String khachHangID,
-			Date tuNgay, Date denNgay, String hinhThucTT) {
-		return hoaDonDAO.searchHoaDonByFilter(nhanVien, loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT);
+	public List<HoaDon> locHoaDonTheoCacTieuChi(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
+			Date denNgay, String hinhThucTT) {
+		return hoaDonDAO.searchHoaDonByFilter(loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT);
 	}
 
 	/**
@@ -290,8 +290,8 @@ public class HoaDon_BUS {
 	 * @param type
 	 * @return
 	 */
-	public List<HoaDon> layHoaDonTheoKeyWord(NhanVien nhanVien, String keyword, String type) {
-		return hoaDonDAO.searchHoaDonByKeyword(nhanVien, keyword, type);
+	public List<HoaDon> layHoaDonTheoKeyWord(String keyword, String type) {
+		return hoaDonDAO.searchHoaDonByKeyword(keyword, type);
 	}
 
 	/**
@@ -325,5 +325,12 @@ public class HoaDon_BUS {
 	 */
 	public List<HoaDonChiTiet> layCacHoaDonChiTietTheoHoaDonID(String hoaDonID) {
 		return hoaDonChiTietDAO.getHoaDonChiTietByHoaDonID(hoaDonID);
+	}
+
+	/**
+	 * @return
+	 */
+	public List<HoaDon> layTatCaHoaDon() {
+		return hoaDonDAO.getAllHoaDon();
 	}
 }

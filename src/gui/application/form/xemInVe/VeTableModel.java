@@ -5,13 +5,6 @@ package gui.application.form.xemInVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Dec 17, 2025
- * @version: 1.0
- */
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -28,13 +21,12 @@ public class VeTableModel extends AbstractTableModel {
 	public static final int COL_DDC_ID = 4;
 	public static final int COL_CHUYEN = 5;
 	public static final int COL_GHE = 6;
-	public static final int COL_NGAY_GIO_DI = 7;
-	public static final int COL_GIA = 8;
-	public static final int COL_TRANG_THAI = 9;
-	public static final int COL_IN = 10;
+	public static final int COL_GIA = 7;
+	public static final int COL_TRANG_THAI = 8;
+	public static final int COL_IN = 9;
 
-	private final String[] columnNames = { "STT", "Vé ID", "Tên khách hàng", "CCCD KH", "Đơn đặt chỗ ID",
-			"Thông tin chuyến", "Thông tin ghế", "Ngày giờ đi", "Giá", "Trạng thái", "In" };
+	private final String[] columnNames = { "STT", "Vé ID", "Tên khách hàng", "CCCD KH", "Đơn đặt chỗ ID", "TT chuyến",
+			"TT ghế", "Giá", "Trạng thái", "In" };
 
 	private List<Ve> rows;
 
@@ -73,9 +65,7 @@ public class VeTableModel extends AbstractTableModel {
 		if (columnIndex == COL_GIA) {
 			return Double.class;
 		}
-		if (columnIndex == COL_NGAY_GIO_DI) {
-			return LocalDateTime.class;
-		}
+
 		return Object.class; // Để render button hoặc string
 	}
 
@@ -104,12 +94,10 @@ public class VeTableModel extends AbstractTableModel {
 			return row.stringThongTinChuyen();
 		case COL_GHE:
 			return row.stringThongTinGhe();
-		case COL_NGAY_GIO_DI:
-			return row.getNgayGioDi();
 		case COL_GIA:
 			return row.getGia();
 		case COL_TRANG_THAI:
-			return row.getTrangThai();
+			return row.getTrangThai().getDescription();
 		case COL_IN:
 			return ""; // Trả về text để renderer vẽ thành nút
 		default:
