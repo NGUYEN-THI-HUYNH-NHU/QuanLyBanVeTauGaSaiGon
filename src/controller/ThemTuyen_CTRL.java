@@ -14,6 +14,7 @@ import bus.Ga_BUS;
 import bus.Tuyen_BUS;
 import dao.KhoangCachChuan_DAO;
 import entity.Ga;
+import entity.NhanVien;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
@@ -529,7 +530,8 @@ public class ThemTuyen_CTRL {
                 TuyenChiTiet tct = new TuyenChiTiet(tuyenMoi, ga, i + 1, kcXP);
                 dsTuyenChiTiet.add(tct);
             }
-            boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoi, dsTuyenChiTiet);
+            NhanVien nv = panelThemTuyen.getNhanVienThucHien();
+            boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoi, dsTuyenChiTiet,nv);
             if (luuTuyenThanhCong) {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Đã lưu tuyến mới " + maTuyen + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose();
