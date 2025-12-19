@@ -18,8 +18,6 @@ import entity.type.VaiTroNhanVien;
 import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.FormDangNhap;
-import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
 import gui.application.paymentHelper.NgrokRunner;
 
 public class DangNhap_Ctrl {
@@ -68,9 +66,9 @@ public class DangNhap_Ctrl {
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
-				ungDung.showGiaoDienChinh(new PanelBanVe());
+				UngDung.setSelectedMenu(2, 0);
 			} else {
-				ungDung.showGiaoDienChinh(new Dashboard());
+				UngDung.setSelectedMenu(1, 0);
 			}
 			NgrokRunner.startNgrok();
 			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());

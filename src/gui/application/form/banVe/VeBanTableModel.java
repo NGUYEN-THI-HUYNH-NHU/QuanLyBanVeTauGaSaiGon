@@ -184,4 +184,11 @@ public class VeBanTableModel extends AbstractTableModel {
 		rows.clear();
 		fireTableDataChanged();
 	}
+
+	public void removeRow(int rowIndex) {
+		if (rowIndex >= 0 && rowIndex < rows.size()) {
+			rows.remove(rowIndex);
+			fireTableRowsDeleted(rowIndex, rowIndex);
+		}
+	}
 }

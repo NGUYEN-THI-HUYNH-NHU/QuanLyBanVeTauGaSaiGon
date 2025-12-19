@@ -12,6 +12,7 @@ package gui;
 
 import java.awt.Component;
 import java.awt.Font;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -99,6 +100,7 @@ public class UngDung extends JFrame {
 		UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
 		UIManager.put("PasswordField.showRevealButton", true);
 		FlatMacLightLaf.setup();
+
 		SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
 
 		try {

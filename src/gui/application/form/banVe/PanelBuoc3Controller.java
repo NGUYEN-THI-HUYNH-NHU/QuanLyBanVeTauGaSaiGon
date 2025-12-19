@@ -5,6 +5,7 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.awt.Component;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -13,30 +14,43 @@ package gui.application.form.banVe;
  */
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+import javax.swing.MenuElement;
+import javax.swing.MenuSelectionManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import bus.DatCho_BUS;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 import bus.KhachHang_BUS;
 import entity.KhachHang;
 import entity.type.LoaiKhachHang;
+import gui.application.UngDung;
 
 public class PanelBuoc3Controller {
 
 	private final PanelBuoc3 view;
+	private JPopupMenu khachHangSuggestionPopup;
 
 	private final BookingSession bookingSession;
-	private final DatCho_BUS datChoBUS = new DatCho_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
 
+	private KhachHang selectedKhachHang = null;
+
 	// Listeners để báo cho Controller Mediator (BanVe1Controller)
+	private Runnable onRefreshListener;
 	private Runnable onConfirmListener;
 	private Runnable onCancelListener;
 
@@ -44,13 +58,185 @@ public class PanelBuoc3Controller {
 
 	public PanelBuoc3Controller(PanelBuoc3 view, BookingSession bookingSession) {
 		this.view = view;
+		this.khachHangSuggestionPopup = new JPopupMenu();
+		this.khachHangSuggestionPopup.setFocusable(false);
+
 		this.bookingSession = bookingSession;
+
 		this.view.setController(this);
+
 		attachListeners();
+		setupKhachHangSuggestion();
+	}
+
+	// Gợi ý kiểu google search trong phạm vi hoTen/soDienThoai/soGiayTo/khachHangID
+	private void setupKhachHangSuggestion() {
+		JTextField txtSuggest = view.getTxtCccdNguoiMua();
+
+		// 1. Lắng nghe sự kiện thay đổi text
+		txtSuggest.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				showKhachHangSuggestions();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				showKhachHangSuggestions();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				showKhachHangSuggestions();
+			}
+		});
+
+		// 2. Ẩn popup khi click ra ngoài hoặc click vào textfield mà không gõ
+		txtSuggest.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (txtSuggest.getText().trim().isEmpty()) {
+					khachHangSuggestionPopup.setVisible(false);
+				}
+			}
+		});
+
+		addSuggestionKeyListeners(txtSuggest, khachHangSuggestionPopup, null);
+	}
+
+	private void addSuggestionKeyListeners(JTextField textField, JPopupMenu popup, Runnable defaultEnterAction) {
+		textField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					if (popup.isVisible()) {
+						navigatePopup(popup, 1); // Đi xuống
+					}
+				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
+					if (popup.isVisible()) {
+						navigatePopup(popup, -1); // Đi lên
+					}
+				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					// Kiểm tra xem có item nào trong popup đang được chọn không
+					MenuElement[] path = MenuSelectionManager.defaultManager().getSelectedPath();
+
+					// Nếu popup đang hiện VÀ có item đang được highlight (path > 0)
+					// VÀ item đó thuộc về popup hiện tại
+					if (popup.isVisible() && path != null && path.length > 0 && isMenuPathInPopup(path, popup)) {
+						// Lấy item cuối cùng trong đường dẫn (chính là JMenuItem đang chọn)
+						Component selectedComp = path[path.length - 1].getComponent();
+						if (selectedComp instanceof JMenuItem) {
+							((JMenuItem) selectedComp).doClick(); // Kích hoạt sự kiện click của item
+						}
+					} else {
+						// Nếu không chọn item nào trong popup -> Thực hiện hành động mặc định (VD: Nút
+						// Tra Cứu)
+						if (defaultEnterAction != null) {
+							defaultEnterAction.run();
+							popup.setVisible(false); // Ẩn popup đi
+						}
+					}
+				}
+			}
+		});
+	}
+
+	// Helper: Điều hướng lên xuống trong Popup
+	private void navigatePopup(JPopupMenu popup, int direction) {
+		MenuSelectionManager menuManager = MenuSelectionManager.defaultManager();
+		MenuElement[] selection = menuManager.getSelectedPath();
+		MenuElement[] items = popup.getSubElements();
+
+		if (items.length == 0) {
+			return;
+		}
+
+		int selectedIndex = -1;
+		// Tìm vị trí item đang được chọn hiện tại
+		if (selection != null && selection.length > 0) {
+			Component current = selection[selection.length - 1].getComponent();
+			for (int i = 0; i < items.length; i++) {
+				if (items[i].getComponent() == current) {
+					selectedIndex = i;
+					break;
+				}
+			}
+		}
+
+		// Tính toán chỉ số mới
+		int nextIndex;
+		if (selectedIndex == -1) {
+			// Chưa chọn gì -> Bấm xuống chọn cái đầu, Bấm lên chọn cái cuối
+			nextIndex = (direction > 0) ? 0 : items.length - 1;
+		} else {
+			nextIndex = (selectedIndex + direction + items.length) % items.length; // Cộng vòng tròn
+		}
+
+		// Set highlight cho item mới
+		MenuElement[] newSelection = new MenuElement[] { popup, items[nextIndex] };
+		menuManager.setSelectedPath(newSelection);
+	}
+
+	// Helper: Kiểm tra xem path đang chọn có thuộc popup này không
+	private boolean isMenuPathInPopup(MenuElement[] path, JPopupMenu popup) {
+		if (path.length == 0) {
+			return false;
+		}
+		// Phần tử đầu tiên của path thường là JPopupMenu cha
+		return path[0].getComponent() == popup;
+	}
+
+	private void showKhachHangSuggestions() {
+		String keyword = view.getTxtCccdNguoiMua().getText().trim();
+		khachHangSuggestionPopup.setVisible(false);
+		khachHangSuggestionPopup.removeAll();
+
+		if (keyword.length() < 1) {
+			selectedKhachHang = null;
+			return;
+		}
+
+		// Lấy danh sách gợi ý
+		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
+		int limit = 4;
+		int i = 0;
+
+		if (!listSuggest.isEmpty()) {
+			for (KhachHang kh : listSuggest) {
+				if (i++ == limit) {
+					break;
+				}
+				// Tạo text hiển thị: "Tên - SĐT - CCCD - ID"
+				String displayText = String.format(
+						"<html><b>%s</b> - %s <br><i style='color:gray; font-size:9px'>%s - %s</i></html>",
+						kh.getHoTen(), (kh.getSoDienThoai() == null ? "N/A" : kh.getSoDienThoai()), kh.getSoGiayTo(),
+						kh.getKhachHangID());
+
+				JMenuItem item = new JMenuItem(displayText);
+				item.setIcon(new FlatSVGIcon("gui/icon/svg/person.svg", 0.6f));
+
+				// Sự kiện khi chọn 1 dòng gợi ý
+				item.addActionListener(e -> {
+					// 1. Điền tên vào TextField
+					view.getTxtCccdNguoiMua().setText(kh.getSoGiayTo());
+					// 2. Lưu đối tượng được chọn để xử lý lọc chính xác hơn
+					selectedKhachHang = kh;
+					// 3. Ẩn popup
+					khachHangSuggestionPopup.setVisible(false);
+				});
+				khachHangSuggestionPopup.add(item);
+			}
+
+			// Hiển thị Popup ngay dưới TextField
+			khachHangSuggestionPopup.show(view.getTxtCccdNguoiMua(), 0, view.getTxtCccdNguoiMua().getHeight());
+			// Focus lại vào textfield để user gõ
+			view.getTxtCccdNguoiMua().requestFocus();
+		}
 	}
 
 	// Gắn listener vào các nút của View
 	private void attachListeners() {
+		view.getRefreshButton().addActionListener(e -> handleRefresh());
 		view.getConfirmButton().addActionListener(e -> handleConfirm());
 		view.getCancelButton().addActionListener(e -> handleCancel());
 		view.setPassengerDeleteListener(row -> {
@@ -94,6 +280,12 @@ public class PanelBuoc3Controller {
 		addValidateListener(view.getTxtTenNguoiMua());
 		addValidateListener(view.getTxtPhoneNguoiMua());
 		addValidateListener(view.getTxtEmailNguoiMua());
+	}
+
+	private void handleRefresh() {
+		if (onRefreshListener != null) {
+			onRefreshListener.run();
+		}
 	}
 
 	// Kiểm tra lỗi ngay khi gõ
@@ -201,6 +393,13 @@ public class PanelBuoc3Controller {
 			view.getTxtEmailNguoiMua().setText("");
 			// Đặt session về null để handleConfirm biết là khách mới
 			bookingSession.setKhachHang(null);
+			int choice = JOptionPane.showConfirmDialog(view, "Khách hàng chưa tồn tại. Bạn có muốn thêm mới không?",
+					"Thông báo", JOptionPane.YES_NO_OPTION);
+
+			if (choice == JOptionPane.YES_OPTION) {
+				// Điều hướng sang màn hình Quản lý khách hàng
+				UngDung.setSelectedMenu(10, 0);
+			}
 		}
 	}
 
@@ -258,6 +457,21 @@ public class PanelBuoc3Controller {
 		// 2. Validate
 		if (!validate(cccdNguoiMua, tenNguoiMua, phoneNguoiMua, emailNguoiMua)) {
 			return;
+		}
+
+		// Kiểm tra toàn bộ danh sách
+		for (int i = 0; i < rows.size(); i++) {
+			PassengerRow row = rows.get(i);
+			String cccd = row.getSoGiayTo();
+			String ten = row.getHoTen(); // Nên kiểm tra cả tên nữa
+
+			// Kiểm tra null HOẶC rỗng
+			if (cccd == null || cccd.trim().isEmpty() || ten == null || ten.trim().isEmpty()) {
+				JOptionPane.showMessageDialog(view,
+						"Vui lòng nhập đầy đủ Tên và CCCD cho hành khách thứ " + (i + 1) + "!");
+				view.focusErrorRow(i);
+				return;
+			}
 		}
 
 		// --- DÙNG MAP ĐỂ TRÁNH TRÙNG LẶP TRONG PHIÊN XỬ LÝ ---
@@ -413,22 +627,24 @@ public class PanelBuoc3Controller {
 	 * Xử lý logic khi bấm "Hủy"
 	 */
 	private void handleCancel() {
-		// 1. Gọi BUS để hủy phiếu giữ chỗ
-		if (bookingSession.getPhieuGiuCho() == null) {
-			return;
-		}
-		datChoBUS.xoaPhieuGiuChoChiTietByPgcID(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
+		if (JOptionPane.showConfirmDialog(view,
+				"Bạn xác nhận hủy giữ chỗ cho " + bookingSession.getAllSelectedTickets().size() + " vé", "Lưu ý",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 
-		// 2. Nếu sau khi xóa mà không còn vé nào thì xóa luôn Phiếu giữ chỗ
-		datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
+			view.getModel().clear();
 
-		// 3. Báo cho Controller cha biết
-		if (onCancelListener != null) {
-			onCancelListener.run();
+			// Báo cho Controller cha biết
+			if (onCancelListener != null) {
+				onCancelListener.run();
+			}
 		}
 	}
 
 	// Setter cho các listener
+	public void setOnRefreshListener(Runnable listener) {
+		this.onRefreshListener = listener;
+	}
+
 	public void setOnConfirmListener(Runnable listener) {
 		this.onConfirmListener = listener;
 	}

@@ -147,13 +147,26 @@ public class PhieuGiuCho_DAO {
 	}
 
 	/**
+	 * @param conn
+	 * @param phieuGiuChoID
+	 * @return
+	 */
+	public boolean deletePhieuGiuChoByID(Connection conn, String phieuGiuChoID) throws Exception {
+		String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, phieuGiuChoID);
+			return ps.executeUpdate() > 0;
+		}
+	}
+
+	/**
 	 * @param phieuGiuChoID
 	 * @return
 	 */
 	public boolean deletePhieuGiuChoByID(String phieuGiuChoID) {
-		Connection conn = connectDB.getConnection();
 		String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
-
+		Connection conn = connectDB.getConnection();
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, phieuGiuChoID);
 			return ps.executeUpdate() > 0;

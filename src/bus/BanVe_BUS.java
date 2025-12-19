@@ -99,7 +99,7 @@ public class BanVe_BUS {
 			if (conn != null) {
 				try {
 					conn.rollback();
-					datChoBUS.hoaTacGiuCho(session.getPhieuGiuCho());
+					datChoBUS.hoanTacGiuCho(session.getPhieuGiuCho());
 				} catch (SQLException ex) {
 					ex.printStackTrace();
 				}

@@ -35,10 +35,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import gui.tuyChinh.CurrencyRenderer;
 
@@ -47,7 +49,6 @@ public class PanelBuoc3 extends JPanel {
 	private final JTable table;
 	private final JButton btnConfirm;
 	private final JButton btnCancel;
-	private final JLabel lblInfo;
 	private JPanel formKhachHang;
 	private JTextField txtTen;
 	private JTextField txtCccd;
@@ -58,6 +59,7 @@ public class PanelBuoc3 extends JPanel {
 
 	private PanelBuoc3Controller controller;
 	private JTextField txtEmail;
+	private JButton btnRefresh;
 
 	public PanelBuoc3() {
 		setLayout(new BorderLayout(8, 8));
@@ -110,8 +112,9 @@ public class PanelBuoc3 extends JPanel {
 		add(sp, BorderLayout.CENTER);
 
 		JPanel south = new JPanel(new BorderLayout());
-		lblInfo = new JLabel("Nhập thông tin hành khách cho các vé đã chọn", SwingConstants.LEFT);
-		south.add(lblInfo, BorderLayout.WEST);
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.6f));
+		south.add(btnRefresh, BorderLayout.WEST);
 
 		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnCancel = new JButton("Hủy");
@@ -227,6 +230,10 @@ public class PanelBuoc3 extends JPanel {
 		return model;
 	}
 
+	public JButton getRefreshButton() {
+		return btnRefresh;
+	}
+
 	public JButton getConfirmButton() {
 		return btnConfirm;
 	}
@@ -249,7 +256,6 @@ public class PanelBuoc3 extends JPanel {
 		}
 		List<VeSession> vs = session.getAllSelectedTickets();
 		if (vs == null || vs.isEmpty()) {
-			lblInfo.setText("Không có vé nào để nhập hành khách.");
 			return;
 		}
 
@@ -274,6 +280,31 @@ public class PanelBuoc3 extends JPanel {
 		super.setEnabled(enabled);
 		for (Component comp : this.getComponents()) {
 			comp.setEnabled(enabled);
+		}
+	}
+
+	public void focusErrorRow(int rowIndex) {
+		int vColIndex = VeBanTableModel.COL_HANH_KHACH;
+
+		// 1. Cuộn màn hình đến dòng lỗi (nếu danh sách dài)
+		table.scrollRectToVisible(table.getCellRect(rowIndex, vColIndex, true));
+
+		// 2. Chọn dòng đó (về mặt giao diện)
+		table.setRowSelectionInterval(rowIndex, rowIndex);
+
+		// 3. Kích hoạt chế độ chỉnh sửa (Edit Mode)
+		// Nếu không edit, JTable chỉ vẽ hình ảnh (Renderer) chứ không phải Component
+		// thật
+		if (table.editCellAt(rowIndex, vColIndex)) {
+
+			// 4. Lấy component đang edit (Chính là PassengerCellPanel thực sự đang sống)
+			Component editorComp = table.getEditorComponent();
+
+			if (editorComp instanceof PassengerCellPanel) {
+				SwingUtilities.invokeLater(() -> {
+					((PassengerCellPanel) editorComp).focusTxtCCCD();
+				});
+			}
 		}
 	}
 }
