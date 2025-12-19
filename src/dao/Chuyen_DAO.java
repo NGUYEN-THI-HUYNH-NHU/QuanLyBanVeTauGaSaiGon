@@ -445,4 +445,60 @@ public class Chuyen_DAO {
 		return false;
 	}
 
+	public int getTocDoTau(String tauID) {
+		String sql = "SELECT loaiTauID FROM Tau WHERE tauID = ?";
+		try (java.sql.Connection con = ConnectDB.getInstance().getConnection();
+			 java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, tauID);
+			try (java.sql.ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					String loaiTau = rs.getString("loaiTauID");
+					if ("TAU_NHANH".equalsIgnoreCase(loaiTau)) {
+						return 60;
+					} else if ("TAU_DU_LICH".equalsIgnoreCase(loaiTau)) {
+						return 40;
+					}
+				}
+			}
+		} catch (java.sql.SQLException e) {
+			e.printStackTrace();
+		}
+		return 40;
+	}
+
+	public List<String[]> getTauHoatDong() {
+		List<String[]> list = new ArrayList<>();
+		String sql = "SELECT tauID, loaiTauID FROM Tau WHERE trangThai = N'HOAT_DONG'";
+		try (java.sql.Connection con = ConnectDB.getInstance().getConnection();
+			 java.sql.Statement stmt = con.createStatement();
+			 java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+			while (rs.next()) {
+				list.add(new String[]{ rs.getString("tauID"), rs.getString("loaiTauID") });
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public List<Ga> getDsGaVaTrangThaiLonTheoTuyen(String tuyenID) {
+		List<Ga> list = new ArrayList<>();
+		String sql = "SELECT g.gaID, g.tenGa, g.isGaLon FROM TuyenChiTiet ct " +
+				"JOIN Ga g ON ct.gaID = g.gaID " +
+				"WHERE ct.tuyenID = ? " +
+				"ORDER BY ct.thuTu ASC";
+		try (java.sql.Connection con = ConnectDB.getInstance().getConnection();
+			 java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, tuyenID);
+			try (java.sql.ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					Ga g = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
+					g.setGaLon(rs.getBoolean("isGaLon"));
+					list.add(g);
+				}
+			}
+		} catch (Exception e) { e.printStackTrace(); }
+		return list;
+	}
+
 }

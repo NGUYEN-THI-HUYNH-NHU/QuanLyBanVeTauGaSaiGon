@@ -457,4 +457,16 @@ public class Tuyen_BUS {
 		return dsHienThi;
 	}
 
+
+	public int getKhoangCachGiuaHaiGa(String gaDiID, String gaDenID) {
+		if (graphKhoangCachChuan != null && graphKhoangCachChuan.containsKey(gaDiID)) {
+			Map<String, Integer> neighbors = graphKhoangCachChuan.get(gaDiID);
+			if (neighbors != null && neighbors.containsKey(gaDenID)) {
+				return neighbors.get(gaDenID);
+			}
+		}
+
+		return tinhKhoangCachTongDijsktra(gaDiID, gaDenID);
+	}
+
 }

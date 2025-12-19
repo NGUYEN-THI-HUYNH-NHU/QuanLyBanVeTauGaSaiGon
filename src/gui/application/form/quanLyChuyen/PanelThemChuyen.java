@@ -32,18 +32,9 @@ public class PanelThemChuyen extends JPanel {
     private JTextField txtNgayDi;
     private JTextField txtGioDi;
     private JButton btnGioDi;
-    private JTextField txtGaDiMoi;
-    private JTextField txtGaDenMoi;
-    private JTextField txtGioDenMoi;
-    private JTextField txtNgayDenMoi;
-    private JTextField txtGioDiMoi;
-    private JButton btnGioDiMoi;
-    private JButton btnGioDenMoi;
-    private JTextField txtNgayDiMoi;
+
     private DefaultTableModel modelLichTrinh;
     private JTable tableLichTrinh;
-    private JButton btnThemGa;
-    private JButton btnXoaGa;
     private JButton btnThemChuyen;
 
     private TimePicker timePicker;
@@ -119,94 +110,6 @@ public class PanelThemChuyen extends JPanel {
         JPanel pnlLichTrinh = new JPanel(new BorderLayout(0,10));
         pnlLichTrinh.setBorder(BorderFactory.createTitledBorder("Lịch trình chi tiết:"));
         pnlLichTrinh.setBackground(Color.WHITE);
-
-        JPanel pnlNhapGa = new JPanel(new MigLayout("fillx", "[pref!]5[grow]10[pref!]5[grow]10[pref!]5[grow]", "[]"));
-        pnlNhapGa.setBackground(Color.WHITE);
-        JLabel lblHuongDan = new JLabel("(*) Chọn chặng trên bảng thông tin lịch trình để nhập các thông tin ngày/giờ cho chặng!");
-        lblHuongDan.setForeground(Color.RED);
-        lblHuongDan.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-        pnlNhapGa.add(lblHuongDan, "span, wrap, gapbottom 10");
-        txtGaDiMoi = new JTextField();
-        txtGaDenMoi = new JTextField();
-        pnlNhapGa.add(new JLabel("Ga Đi:"));
-        txtGaDiMoi.setEditable(false);
-        txtGaDiMoi.setFocusable(false);
-        pnlNhapGa.add(txtGaDiMoi, "growx");
-        pnlNhapGa.add(new JLabel("Ga Đến:"));
-        txtGaDenMoi.setEditable(false);
-        txtGaDenMoi.setFocusable(false);
-        pnlNhapGa.add(txtGaDenMoi, "growx, wrap");
-
-        txtNgayDiMoi = new JTextField();
-        DateChooser dc1 = new DateChooser();
-        dc1.setTextRefernce(txtNgayDiMoi);
-        dc1.setDateFormat("dd/MM/yyyy");
-        dc1.addEventDateChooser((action, date)->{
-            if(action.getAction() == SelectedAction.DAY_SELECTED){
-                dc1.hidePopup();
-            }
-        });
-
-        JPanel pnlGioDiMoi = new JPanel(new BorderLayout());
-        txtGioDiMoi = new JTextField();
-        txtGioDiMoi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đi (HH:mm)");
-        btnGioDiMoi = new JButton("Chọn Giờ");
-        btnGioDiMoi.setMargin(new Insets(2,2,2,2));
-        btnGioDiMoi.setBackground(new Color(36,104,155));
-        btnGioDiMoi.setForeground(Color.WHITE);
-        pnlGioDiMoi.add(txtGioDiMoi, BorderLayout.CENTER);
-        pnlGioDiMoi.add(btnGioDiMoi, BorderLayout.EAST);
-
-        btnGioDiMoi.addActionListener(e -> {
-            timePicker.setDisplayText(txtGioDiMoi);
-            timePicker.showPopup(pnlGioDiMoi,0,pnlGioDiMoi.getHeight());
-        });
-
-        pnlNhapGa.add(new JLabel("Ngày Đi:"));
-        pnlNhapGa.add(txtNgayDiMoi, "growx");
-        pnlNhapGa.add(new JLabel("Giờ Đi:"));
-        pnlNhapGa.add(pnlGioDiMoi, "growx, wrap");
-
-        txtNgayDenMoi = new JTextField();
-        DateChooser dc2 = new DateChooser();
-        dc2.setTextRefernce(txtNgayDenMoi);
-        dc2.setDateFormat("dd/MM/yyyy");
-        dc2.addEventDateChooser((action, date)->{
-            if(action.getAction() == SelectedAction.DAY_SELECTED){
-                dc2.hidePopup();
-            }
-        });
-        JPanel pnlGioDenMoi = new JPanel(new BorderLayout());
-        txtGioDenMoi = new JTextField();
-        txtGioDenMoi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập giờ đến (HH:mm)");
-        btnGioDenMoi = new JButton("Chọn Giờ");
-        btnGioDenMoi.setMargin(new Insets(2,2,2,2));
-        btnGioDenMoi.setBackground(new Color(36,104,155));
-        btnGioDenMoi.setForeground(Color.WHITE);
-        pnlGioDenMoi.add(txtGioDenMoi, BorderLayout.CENTER);
-        pnlGioDenMoi.add(btnGioDenMoi, BorderLayout.EAST);
-
-        btnGioDenMoi.addActionListener(e -> {
-            timePicker.setDisplayText(txtGioDenMoi);
-            timePicker.showPopup(pnlGioDenMoi,0,pnlGioDenMoi.getHeight());
-        });
-        pnlNhapGa.add(new JLabel("Ngày Đến:"));
-        pnlNhapGa.add(txtNgayDenMoi, "growx");
-        pnlNhapGa.add(new JLabel("Giờ Đến:"));
-        pnlNhapGa.add(pnlGioDenMoi, "growx");
-
-        btnThemGa = new JButton("Thêm Chặng");
-        btnThemGa.setBackground(new Color(36,104,155));
-        btnThemGa.setForeground(Color.WHITE);
-        btnThemGa.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnXoaGa = new JButton("Xóa Chặng");
-        btnXoaGa.setBackground(new Color(36,104,155));
-        btnXoaGa.setForeground(Color.WHITE);
-        btnXoaGa.setFont(new Font("Segoe UI", Font.BOLD, 14));
-
-        pnlNhapGa.add(btnThemGa, "w 100!, h 30!");
-
-        pnlLichTrinh.add(pnlNhapGa, BorderLayout.NORTH);
 
         String[] cols = {"STT", "Ga Đi","Ngày Đi","Giờ Đi","Ga Đến", "Ngày Đến", "Giờ Đến"};
         modelLichTrinh = new DefaultTableModel(cols, 0){
@@ -313,78 +216,6 @@ public class PanelThemChuyen extends JPanel {
         this.btnGioDi = btnGioDi;
     }
 
-    public JTextField getTxtGaDiMoi() {
-        return txtGaDiMoi;
-    }
-
-    public void setTxtGaDiMoi(JTextField txtGaDiMoi) {
-        this.txtGaDiMoi = txtGaDiMoi;
-    }
-
-    public JTextField getTxtGaDenMoi() {
-        return txtGaDenMoi;
-    }
-
-    public void setTxtGaDenMoi(JTextField txtGaDenMoi) {
-        this.txtGaDenMoi = txtGaDenMoi;
-    }
-
-    public JButton getBtnGioDiMoi() {
-        return btnGioDiMoi;
-    }
-
-    public void setBtnGioDiMoi(JButton btnGioDiMoi) {
-        this.btnGioDiMoi = btnGioDiMoi;
-    }
-
-    public JButton getBtnGioDenMoi() {
-        return btnGioDenMoi;
-    }
-
-    public void setBtnGioDenMoi(JButton btnGioDenMoi) {
-        this.btnGioDenMoi = btnGioDenMoi;
-    }
-
-    public TimePicker getTimePicker() {
-        return timePicker;
-    }
-
-    public void setTimePicker(TimePicker timePicker) {
-        this.timePicker = timePicker;
-    }
-
-    public JTextField getTxtGioDenMoi() {
-        return txtGioDenMoi;
-    }
-
-    public void setTxtGioDenMoi(JTextField txtGioDenMoi) {
-        this.txtGioDenMoi = txtGioDenMoi;
-    }
-
-    public JTextField getTxtNgayDenMoi() {
-        return txtNgayDenMoi;
-    }
-
-    public void setTxtNgayDenMoi(JTextField txtNgayDenMoi) {
-        this.txtNgayDenMoi = txtNgayDenMoi;
-    }
-
-    public JTextField getTxtGioDiMoi() {
-        return txtGioDiMoi;
-    }
-
-    public void setTxtGioDiMoi(JTextField txtGioDiMoi) {
-        this.txtGioDiMoi = txtGioDiMoi;
-    }
-
-    public JTextField getTxtNgayDiMoi() {
-        return txtNgayDiMoi;
-    }
-
-    public void setTxtNgayDiMoi(JTextField txtNgayDiMoi) {
-        this.txtNgayDiMoi = txtNgayDiMoi;
-    }
-
     public DefaultTableModel getModelLichTrinh() {
         return modelLichTrinh;
     }
@@ -399,22 +230,6 @@ public class PanelThemChuyen extends JPanel {
 
     public void setTableLichTrinh(JTable tableLichTrinh) {
         this.tableLichTrinh = tableLichTrinh;
-    }
-
-    public JButton getBtnThemGa() {
-        return btnThemGa;
-    }
-
-    public void setBtnThemGa(JButton btnThemGa) {
-        this.btnThemGa = btnThemGa;
-    }
-
-    public JButton getBtnXoaGa() {
-        return btnXoaGa;
-    }
-
-    public void setBtnXoaGa(JButton btnXoaGa) {
-        this.btnXoaGa = btnXoaGa;
     }
 
     public JButton getBtnThemChuyen() {

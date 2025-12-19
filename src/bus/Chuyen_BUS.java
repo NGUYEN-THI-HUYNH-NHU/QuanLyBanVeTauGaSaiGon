@@ -266,4 +266,43 @@ public class Chuyen_BUS {
 	public List<Ga> layDsGaCuaTuyen(String tuyenID) {
 		return chuyenDAO.getDsGaTheoTuyen(tuyenID);
 	}
+
+	public int layTocDoTau(String tauID) {
+		return chuyenDAO.getTocDoTau(tauID);
+	}
+
+	public List<String> getListTauHoatDongFormatted() {
+		List<String[]> rawData = chuyenDAO.getTauHoatDong();
+		List<String> result = new ArrayList<>();
+		for (String[] row : rawData) {
+			result.add(row[0] + " (" + row[1] + ")");
+		}
+		return result;
+	}
+
+	public List<Ga> layDsGaChoLichTrinh(String tuyenID, String loaiTau) {
+		List<Ga> allGa = chuyenDAO.getDsGaVaTrangThaiLonTheoTuyen(tuyenID);
+
+		if (loaiTau.toUpperCase().contains("DU_LICH") || loaiTau.toUpperCase().contains("TAU_DU_LICH")) {
+			return allGa;
+		}
+
+		if (loaiTau.toUpperCase().contains("NHANH") || loaiTau.toUpperCase().contains("TAU_NHANH")) {
+			List<Ga> filtered = new ArrayList<>();
+			if (allGa.isEmpty()) return filtered;
+			filtered.add(allGa.get(0));
+
+			for (int i = 1; i < allGa.size() - 1; i++) {
+				if (allGa.get(i).isGaLon()) {
+					filtered.add(allGa.get(i));
+				}
+			}
+
+			if (allGa.size() > 1) {
+				filtered.add(allGa.get(allGa.size() - 1));
+			}
+			return filtered;
+		}
+		return allGa;
+	}
 }

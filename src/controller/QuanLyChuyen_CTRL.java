@@ -27,6 +27,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ public class QuanLyChuyen_CTRL {
         this.tuyenBus = new Tuyen_BUS();
         this.vaiTroNhanVien = panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien();
 
+        this.phanQuyenBus = new PhanQuyen_BUS();
         phanQuyenBus.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVien);
 
         loadDataToTable(chuyenBus.layDanhSachChuyen());
@@ -263,15 +265,27 @@ public class QuanLyChuyen_CTRL {
 
         panelCapNhatChuyen.getTxtMaChuyen().setText(c.getChuyenID());
         setComboText(panelCapNhatChuyen.getComboTuyen(), c.getTuyen().getTuyenID());
-        setComboText(panelCapNhatChuyen.getComboTau(), c.getTau().getTauID());
 
+        String dbTauID = c.getTau().getTauID();
+        String displayTau = dbTauID;
+
+        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) panelCapNhatChuyen.getComboTau().getModel();
+        for (int i = 0; i < model.getSize(); i++) {
+            String item = model.getElementAt(i);
+
+            if (layMaTuChuoiHienThi(item).equals(dbTauID)) {
+                displayTau = item;
+                break;
+            }
+        }
+        setComboText(panelCapNhatChuyen.getComboTau(), displayTau);
         if (c.getNgayDi() != null)
             panelCapNhatChuyen.getTxtNgayDi().setText(c.getNgayDi().format(dateTimeFormatter));
         if (c.getGioDi() != null)
             panelCapNhatChuyen.getTxtGioDi().setText(c.getGioDi().format(timeFormatter));
 
-        DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
-        model.setRowCount(0);
+        DefaultTableModel modelTable = panelCapNhatChuyen.getModelLichTrinh();
+        modelTable.setRowCount(0);
 
         if (lichTrinh != null && lichTrinh.size() > 1) {
             for (int i = 0; i < lichTrinh.size() - 1; i++) {
@@ -284,7 +298,7 @@ public class QuanLyChuyen_CTRL {
                 String ngayDenStr = (gaDen.getNgayDen() != null) ? gaDen.getNgayDen().format(dateTimeFormatter) : "";
                 String gioDenStr = (gaDen.getGioDen() != null) ? gaDen.getGioDen().format(timeFormatter) : "";
 
-                model.addRow(new Object[]{
+                modelTable.addRow(new Object[]{
                         (i + 1),
                         gaDi.getGa().getTenGa(),
                         ngayDiStr,
@@ -321,101 +335,114 @@ public class QuanLyChuyen_CTRL {
     }
 
     private void loadDataToComboCapNhat() {
-        List<String> dsGa = chuyenBus.getListTenGa();
-        List<String> dsTau = chuyenBus.getAllTauID();
         List<String> dsTuyen = chuyenBus.getAllTuyenID();
-
         setupCombo(panelCapNhatChuyen.getComboTuyen(), dsTuyen);
-        setupCombo(panelCapNhatChuyen.getComboTau(), dsTau);
+
+        List<String> dsTauFormatted = chuyenBus.getListTauHoatDongFormatted();
+
+        setupCombo(panelCapNhatChuyen.getComboTau(), dsTauFormatted);
     }
 
     private void initCapNhatEvents() {
-        panelCapNhatChuyen.getTableLichTrinh().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = panelCapNhatChuyen.getTableLichTrinh().getSelectedRow();
-                if (row >= 0) {
-                    fillDataFromTableToInput_CapNhat(row);
-                    panelCapNhatChuyen.getBtnCapNhatChang().setEnabled(true);
-                }
-            }
-        });
+        DocumentListener triggerCalcUpdate = new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
+            @Override public void removeUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
+            @Override public void changedUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
+        };
+        panelCapNhatChuyen.getTimePicker().addActionListener(e -> khaoSatVaTinhToanCapNhat());
+        panelCapNhatChuyen.getTxtNgayDi().getDocument().addDocumentListener(triggerCalcUpdate);
+        panelCapNhatChuyen.getTxtGioDi().getDocument().addDocumentListener(triggerCalcUpdate);
 
-
-        panelCapNhatChuyen.getBtnCapNhatChang().setEnabled(true);
-        panelCapNhatChuyen.getBtnCapNhatChang().setText("Cập Nhật Giờ");
-
-        for(ActionListener al : panelCapNhatChuyen.getBtnCapNhatChang().getActionListeners())
-            panelCapNhatChuyen.getBtnCapNhatChang().removeActionListener(al);
-        panelCapNhatChuyen.getBtnCapNhatChang().addActionListener(e -> capNhatChangTrongBang());
-
-        panelCapNhatChuyen.getTxtGaDiMoi().setEditable(false);
-        panelCapNhatChuyen.getTxtGaDenMoi().setEditable(false);
 
         panelCapNhatChuyen.getBtnCapNhatChuyen().addActionListener(e -> xuLyLuuCapNhat());
     }
 
+    private void khaoSatVaTinhToanCapNhat() {
+        if (panelCapNhatChuyen == null) return;
 
-    private void capNhatChangTrongBang() {
-        String headerNgayDi = panelCapNhatChuyen.getTxtNgayDi().getText().trim();
-        String headerGioDi = panelCapNhatChuyen.getTxtGioDi().getText().trim();
+        String ngayDiStr = panelCapNhatChuyen.getTxtNgayDi().getText().trim();
+        String gioDiStr = panelCapNhatChuyen.getTxtGioDi().getText().trim();
 
-        xuLyLuuGioVaoBang(
-                panelCapNhatChuyen.getTableLichTrinh(),
-                panelCapNhatChuyen.getTxtNgayDiMoi(),
-                panelCapNhatChuyen.getTxtGioDiMoi(),
-                panelCapNhatChuyen.getTxtNgayDenMoi(),
-                panelCapNhatChuyen.getTxtGioDenMoi(),
-                headerNgayDi,
-                headerGioDi,
-                dialogCapNhat
-        );
+        // Lấy giá trị từ Editor của ComboBox (giống bên Thêm chuyến)
+        Object item = panelCapNhatChuyen.getComboTau().getEditor().getItem();
+        String rawTau = (item != null) ? item.toString().trim() : "";
 
-
-        int row = panelCapNhatChuyen.getTableLichTrinh().getSelectedRow();
-        if (row >= 0) {
-            fillDataFromTableToInput_CapNhat(row);
-        }
-    }
-
-    private void fillDataFromTableToInput_CapNhat(int row) {
         DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
 
-        if (row > 0) {
-            String prevNgayDen = model.getValueAt(row - 1, 5).toString();
-            String prevGioDen = model.getValueAt(row - 1, 6).toString();
+        if (!ngayDiStr.isEmpty() && !gioDiStr.isEmpty() && !rawTau.isEmpty() && model.getRowCount() > 0) {
 
-            if (prevNgayDen.isEmpty() || prevGioDen.isEmpty()) {
-                JOptionPane.showMessageDialog(dialogCapNhat,
-                        "Vui lòng nhập hoàn thiện thông tin cho chặng trước (" +
-                                model.getValueAt(row-1, 1) + " - " + model.getValueAt(row-1, 4) + ")!",
-                        "Cảnh báo thứ tự", JOptionPane.WARNING_MESSAGE);
+            // Chuẩn hóa giờ (VD: 8:0 -> 08:00) để parse không lỗi
+            if (gioDiStr.contains(":") && gioDiStr.indexOf(":") == 1) {
+                gioDiStr = "0" + gioDiStr;
+            }
 
-                panelCapNhatChuyen.getTableLichTrinh().setRowSelectionInterval(row - 1, row - 1);
-                fillDataFromTableToInput_CapNhat(row - 1);
+            // Kiểm tra định dạng trước khi tính
+            if (!ngayDiStr.matches("\\d{2}/\\d{2}/\\d{4}") || !gioDiStr.matches("\\d{2}:\\d{2}")) {
                 return;
             }
+
+            // Gán vào dòng đầu tiên của bảng lịch trình
+            model.setValueAt(ngayDiStr, 0, 2);
+            model.setValueAt(gioDiStr, 0, 3);
+
+            // Bắt đầu chuỗi tính toán đệ quy
+            tinhTuDongThoiGianDen_Update(0, ngayDiStr, gioDiStr);
         }
-        panelCapNhatChuyen.getTxtGaDiMoi().setText(model.getValueAt(row, 1).toString());
-        panelCapNhatChuyen.getTxtNgayDiMoi().setText(model.getValueAt(row, 2).toString());
-        panelCapNhatChuyen.getTxtGioDiMoi().setText(model.getValueAt(row, 3).toString());
-        panelCapNhatChuyen.getTxtGaDenMoi().setText(model.getValueAt(row, 4).toString());
-        panelCapNhatChuyen.getTxtNgayDenMoi().setText(model.getValueAt(row, 5).toString());
-        panelCapNhatChuyen.getTxtGioDenMoi().setText(model.getValueAt(row, 6).toString());
     }
 
-    private void clearInputLichTrinh_CapNhat() {
-        panelCapNhatChuyen.getTxtGaDiMoi().setText("");
-        panelCapNhatChuyen.getTxtGaDenMoi().setText("");
-        panelCapNhatChuyen.getTxtNgayDiMoi().setText("");
-        panelCapNhatChuyen.getTxtGioDiMoi().setText("");
-        panelCapNhatChuyen.getTxtNgayDenMoi().setText("");
-        panelCapNhatChuyen.getTxtGioDenMoi().setText("");
-    }
+    private void tinhTuDongThoiGianDen_Update(int currentRow, String ngayDiStr, String gioDiStr) {
+        try {
+            if (panelCapNhatChuyen == null) return;
 
-    private void reIndexTable(DefaultTableModel model) {
-        for(int i=0; i<model.getRowCount(); i++) {
-            model.setValueAt(i+1, i, 0);
+            // Lấy mã tàu sạch (đã loại bỏ phần trạng thái trong ngoặc)
+            Object item = panelCapNhatChuyen.getComboTau().getEditor().getItem();
+            if (item == null) return;
+
+            String tauID = layMaTuChuoiHienThi(item.toString());
+            int vanToc = chuyenBus.layTocDoTau(tauID);
+            if (vanToc <= 0) vanToc = 40; // Mặc định nếu không có vận tốc
+
+            DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
+
+            // Lấy Ga đi và Ga đến của chặng hiện tại
+            Object gaDiObj = model.getValueAt(currentRow, 1);
+            Object gaDenObj = model.getValueAt(currentRow, 4);
+            if (gaDiObj == null || gaDenObj == null) return;
+
+            String idGaDi = mapGaToID.get(gaDiObj.toString());
+            String idGaDen = mapGaToID.get(gaDenObj.toString());
+            if (idGaDi == null || idGaDen == null) return;
+
+            // Tính khoảng cách và thời gian di chuyển
+            int khoangCachKm = tuyenBus.getKhoangCachGiuaHaiGa(idGaDi, idGaDen);
+            double phutDiChuyen = (khoangCachKm > 0) ? ((double) khoangCachKm / vanToc) * 40 : 0;
+
+            // Parse thời gian đi để tính thời gian đến
+            DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime dtDi = LocalDateTime.parse(ngayDiStr + " " + gioDiStr, parseFormat);
+            LocalDateTime dtDen = dtDi.plusMinutes((long) Math.ceil(phutDiChuyen));
+
+            // Cập nhật kết quả vào bảng
+            model.setValueAt(dtDen.format(dateTimeFormatter), currentRow, 5);
+            model.setValueAt(dtDen.format(timeFormatter), currentRow, 6);
+
+            // Tính toán cho chặng kế tiếp (nếu có)
+            if (currentRow < model.getRowCount() - 1) {
+                int thoiGianNghi = 20; // Nghỉ 20 phút tại ga trung gian
+                LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianNghi);
+
+                String ngayNext = dtDiTiep.format(dateTimeFormatter);
+                String gioNext = dtDiTiep.format(timeFormatter);
+
+                // Gán thông tin đi cho dòng tiếp theo
+                model.setValueAt(ngayNext, currentRow + 1, 2);
+                model.setValueAt(gioNext, currentRow + 1, 3);
+
+                // Đệ quy
+                tinhTuDongThoiGianDen_Update(currentRow + 1, ngayNext, gioNext);
+            }
+        } catch (Exception e) {
+            // Bắt lỗi im lặng để không treo giao diện khi user đang gõ dở
         }
     }
 
@@ -428,17 +455,23 @@ public class QuanLyChuyen_CTRL {
             }
 
             String maChuyen = panelCapNhatChuyen.getTxtMaChuyen().getText();
-            String tuyenID = ((JTextField)panelCapNhatChuyen.getComboTuyen().getEditor().getEditorComponent()).getText();
-            String tauID = ((JTextField)panelCapNhatChuyen.getComboTau().getEditor().getEditorComponent()).getText();
 
-            LocalDate ngayDi = LocalDate.parse(panelCapNhatChuyen.getTxtNgayDi().getText(), dateTimeFormatter);
+            Object itemTuyen = panelCapNhatChuyen.getComboTuyen().getEditor().getItem();
+            String tuyenID = layMaTuChuoiHienThi(itemTuyen != null ? itemTuyen.toString() : "");
 
-            String gioDiStr = panelCapNhatChuyen.getTxtGioDi().getText();
-            if(gioDiStr.isEmpty()) {
-                JOptionPane.showMessageDialog(dialogCapNhat, "Vui lòng nhập giờ đi!");
-                return;
+            // Lấy Tàu ID an toàn (kể cả khi bị disabled)
+            Object itemTau = panelCapNhatChuyen.getComboTau().getEditor().getItem();
+            String tauID = layMaTuChuoiHienThi(itemTau != null ? itemTau.toString() : "");
+
+            // Kiểm tra dự phòng nếu lấy từ Editor không được (tùy thuộc vào Look and Feel)
+            if (tuyenID.isEmpty()) {
+                Chuyen cGoc = chuyenBus.layChuyenTheoMa(maChuyen);
+                tuyenID = cGoc.getTuyen().getTuyenID();
+                tauID = cGoc.getTau().getTauID();
             }
-            LocalTime gioDi = LocalTime.parse(gioDiStr, timeFormatter);
+            // 2. Thu thập dữ liệu đối tượng
+            LocalDate ngayDi = LocalDate.parse(panelCapNhatChuyen.getTxtNgayDi().getText(), dateTimeFormatter);
+            LocalTime gioDi = LocalTime.parse(panelCapNhatChuyen.getTxtGioDi().getText(), timeFormatter);
 
             Chuyen c = new Chuyen(maChuyen);
             c.setTuyen(new Tuyen(tuyenID));
@@ -452,23 +485,20 @@ public class QuanLyChuyen_CTRL {
             String idGaCuoi = mapGaToID.get(tenGaCuoi);
 
             if(idGaDau == null || idGaCuoi == null) {
-                JOptionPane.showMessageDialog(dialogCapNhat, "Tên ga không tồn tại!");
+                JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Ga " + (idGaDau == null ? tenGaDau : tenGaCuoi) + " không tồn tại!");
                 return;
             }
             c.setGaDi(new Ga(idGaDau, tenGaDau));
             c.setGaDen(new Ga(idGaCuoi, tenGaCuoi));
 
             List<ChuyenGa> listStops = new ArrayList<>();
-
+            // ... (Logic khởi tạo startNode và vòng lặp listStops giữ nguyên của bạn)
             ChuyenGa startNode = new ChuyenGa();
             startNode.setChuyen(c);
             startNode.setGa(new Ga(idGaDau, tenGaDau));
             startNode.setThuTu(1);
-            String startNgayDiStr = model.getValueAt(0, 2).toString();
-            String startGioDiStr = model.getValueAt(0, 3).toString();
-            startNode.setNgayDi(LocalDate.parse(startNgayDiStr, dateTimeFormatter));
-            startNode.setGioDi(LocalTime.parse(startGioDiStr, timeFormatter));
-            startNode.setGioDen(null); startNode.setNgayDen(null);
+            startNode.setNgayDi(LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter));
+            startNode.setGioDi(LocalTime.parse(model.getValueAt(0, 3).toString(), timeFormatter));
             listStops.add(startNode);
 
             for (int i = 0; i < model.getRowCount(); i++) {
@@ -476,37 +506,40 @@ public class QuanLyChuyen_CTRL {
                 String idGaDen = mapGaToID.get(tenGaDen);
                 if(idGaDen == null) continue;
 
-                String ngayDenStr = model.getValueAt(i, 5).toString();
-                String gioDenStr = model.getValueAt(i, 6).toString();
-
                 ChuyenGa stopNode = new ChuyenGa();
                 stopNode.setChuyen(c);
                 stopNode.setGa(new Ga(idGaDen, tenGaDen));
                 stopNode.setThuTu(i + 2);
-                stopNode.setGioDen(LocalTime.parse(gioDenStr, timeFormatter));
-                stopNode.setNgayDen(LocalDate.parse(ngayDenStr, dateTimeFormatter));
+                stopNode.setGioDen(LocalTime.parse(model.getValueAt(i, 6).toString(), timeFormatter));
+                stopNode.setNgayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter));
 
                 if (i < model.getRowCount() - 1) {
-                    String nextNgayDi = model.getValueAt(i + 1, 2).toString();
-                    String nextGioDi = model.getValueAt(i + 1, 3).toString();
-                    stopNode.setNgayDi(LocalDate.parse(nextNgayDi, dateTimeFormatter));
-                    stopNode.setGioDi(LocalTime.parse(nextGioDi, timeFormatter));
-                } else {
-                    stopNode.setNgayDi(null); stopNode.setGioDi(null);
+                    String nextNgay = model.getValueAt(i + 1, 2).toString();
+                    String nextGio = model.getValueAt(i + 1, 3).toString();
+                    if (!nextNgay.isEmpty()) stopNode.setNgayDi(LocalDate.parse(nextNgay, dateTimeFormatter));
+                    if (!nextGio.isEmpty()) stopNode.setGioDi(LocalTime.parse(nextGio, timeFormatter));
                 }
                 listStops.add(stopNode);
             }
 
-            if (chuyenBus.capNhatChuyen(c, listStops, panelQuanLyChuyen.getNhanVienThucHien())) {
+            // 3. Thực hiện cập nhật và thông báo lỗi đích danh
+            boolean ketQua = chuyenBus.capNhatChuyen(c, listStops, panelQuanLyChuyen.getNhanVienThucHien());
+
+            if (ketQua) {
                 JOptionPane.showMessageDialog(dialogCapNhat, "Cập nhật thành công!");
                 dialogCapNhat.dispose();
                 timKiemChuyen();
             } else {
-                JOptionPane.showMessageDialog(dialogCapNhat, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialogCapNhat,
+                        "Cập nhật thất bại: Tàu hoặc Tuyến không tồn tại, hoặc lỗi kết nối cơ sở dữ liệu!",
+                        "Lỗi Cập Nhật",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
+        } catch (java.time.format.DateTimeParseException ex) {
+            JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Định dạng ngày (dd/MM/yyyy) hoặc giờ (HH:mm) không hợp lệ!");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi dữ liệu: " + ex.getMessage());
+            JOptionPane.showMessageDialog(dialogCapNhat, "Đã xảy ra lỗi: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -801,12 +834,11 @@ public class QuanLyChuyen_CTRL {
 
         panelThemChuyen.getTxtMaChuyen().setText("");
         panelThemChuyen.getTxtNgayDi().setText("");
+        panelThemChuyen.getTxtGioDi().setText("");
         panelThemChuyen.getModelLichTrinh().setRowCount(0);
 
         setComboText(panelThemChuyen.getComboTuyen(), "");
         setComboText(panelThemChuyen.getComboTau(), "");
-        panelThemChuyen.getTxtGaDiMoi().setText("");
-        panelThemChuyen.getTxtGaDenMoi().setText("");
         dialogThem.setVisible(true);
     }
 
@@ -833,7 +865,8 @@ public class QuanLyChuyen_CTRL {
 
         setupComboTuyen(panelThemChuyen.getComboTuyen(), dsTuyenHienThi);
 
-        setupCombo(panelThemChuyen.getComboTau(), dsTau);
+        List<String> dsTauFormatted = chuyenBus.getListTauHoatDongFormatted();
+        setupCombo(panelThemChuyen.getComboTau(), dsTauFormatted);
 
     }
 
@@ -852,93 +885,114 @@ public class QuanLyChuyen_CTRL {
     }
 
     private void initThemChuyenEvents() {
-        DocumentListener autoCode = new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                genCode();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                genCode();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                genCode();
-            }
+        DocumentListener triggerCalc = new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
+            @Override public void removeUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
+            @Override public void changedUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
         };
 
-        DocumentListener headerTimeListener = new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                syncHeaderToTable();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                syncHeaderToTable();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                syncHeaderToTable();
-            }
-
-            private void syncHeaderToTable() {
-                if (panelThemChuyen.getModelLichTrinh().getRowCount() > 0) {
-                    panelThemChuyen.getModelLichTrinh().setValueAt(panelThemChuyen.getTxtNgayDi().getText(), 0, 2);
-                    panelThemChuyen.getModelLichTrinh().setValueAt(panelThemChuyen.getTxtGioDi().getText(), 0, 3);
-                }
-                genCode();
-            }
-        };
-
-        if (panelThemChuyen.getComboTau().getEditor().getEditorComponent() instanceof JTextField txt) {
-            txt.getDocument().addDocumentListener(autoCode);
-        }
-        panelThemChuyen.getTxtNgayDi().getDocument().addDocumentListener(headerTimeListener);
-        panelThemChuyen.getTxtGioDi().getDocument().addDocumentListener(headerTimeListener);
+        panelThemChuyen.getTxtNgayDi().getDocument().addDocumentListener(triggerCalc);
+        panelThemChuyen.getTxtGioDi().getDocument().addDocumentListener(triggerCalc);
 
         if (panelThemChuyen.getComboTuyen().getEditor().getEditorComponent() instanceof JTextField) {
             panelThemChuyen.getComboTuyen().addActionListener(e -> {
                 Object selected = panelThemChuyen.getComboTuyen().getSelectedItem();
                 if (selected == null) return;
-
                 String rawValue = selected.toString().trim();
                 if (rawValue.isEmpty()) return;
 
                 String maTuyen = layMaTuChuoiHienThi(rawValue);
-
                 setComboText(panelThemChuyen.getComboTuyen(), maTuyen);
 
-                loadLichTrinhMau(maTuyen);
+                panelThemChuyen.getModelLichTrinh().setRowCount(0);
+
+                triggerLoadTableIfReady();
             });
         }
-        panelThemChuyen.getBtnThemGa().setText("Lưu Giờ");
-        for (ActionListener al : panelThemChuyen.getBtnThemGa().getActionListeners())
-            panelThemChuyen.getBtnThemGa().removeActionListener(al);
-        panelThemChuyen.getBtnThemGa().addActionListener(e -> updateTimeIntoTable_Them());
-        panelThemChuyen.getTableLichTrinh().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = panelThemChuyen.getTableLichTrinh().getSelectedRow();
-                if (row >= 0) fillDataFromTableToInput_Them(row);
-            }
+
+        panelThemChuyen.getComboTau().addActionListener(e -> {
+            triggerLoadTableIfReady();
         });
+
+        Component editorTau = panelThemChuyen.getComboTau().getEditor().getEditorComponent();
+        if (editorTau instanceof JTextField) {
+            ((JTextField) editorTau).getDocument().addDocumentListener(triggerCalc);
+
+            editorTau.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    triggerLoadTableIfReady();
+                }
+            });
+        }
 
         panelThemChuyen.getBtnThemChuyen().addActionListener(e -> xuLyLuuChuyen());
     }
 
-    private void genCode(){
-        try{
-            String tau = panelThemChuyen.getComboTau().getEditor().getItem().toString().trim();
-            String ngayDiStr = panelThemChuyen.getTxtNgayDi().getText().trim();
-            if (!tau.isEmpty() && !ngayDiStr.isEmpty()) {
-                LocalDate d = LocalDate.parse(ngayDiStr, dateTimeFormatter);
-                panelThemChuyen.getTxtMaChuyen().setText(tau.toUpperCase() + "_" + d.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+    private void triggerLoadTableIfReady() {
+        String rawTuyen = (String) panelThemChuyen.getComboTuyen().getSelectedItem();
+        String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
+
+        if (rawTuyen != null && !rawTuyen.isEmpty() && rawTau != null && !rawTau.isEmpty()) {
+            String maTuyen = layMaTuChuoiHienThi(rawTuyen);
+
+            String loaiTau = "TAU_DU_LICH";
+            if (rawTau.contains("(") && rawTau.contains(")")) {
+                loaiTau = rawTau.substring(rawTau.indexOf("(") + 1, rawTau.indexOf(")"));
+            } else {
+                loaiTau = "TAU_NHANH";
             }
-        }catch (Exception ex){}
+
+            loadLichTrinhMau(maTuyen, loaiTau);
+            khaoSatVaTinhToan();
+        }
+    }
+
+    private void khaoSatVaTinhToan() {
+        genCode();
+
+        String ngayDiStr = panelThemChuyen.getTxtNgayDi().getText().trim();
+        String gioDiStr = panelThemChuyen.getTxtGioDi().getText().trim();
+        String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
+
+        DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
+
+        if (!ngayDiStr.isEmpty() && !gioDiStr.isEmpty()
+                && rawTau != null && !rawTau.isEmpty()
+                && model.getRowCount() > 0) {
+
+            if (!ngayDiStr.matches("\\d{2}/\\d{2}/\\d{4}") || !gioDiStr.matches("\\d{2}:\\d{2}")) {
+                return;
+            }
+
+            model.setValueAt(ngayDiStr, 0, 2);
+            model.setValueAt(gioDiStr, 0, 3);
+
+            tinhTuDongThoiGianDen(0, ngayDiStr, gioDiStr);
+        }
+    }
+
+    private void genCode() {
+        try {
+            Object item = panelThemChuyen.getComboTau().getEditor().getItem();
+            String rawTau = (item != null) ? item.toString().trim() : "";
+
+            String ngayDiStr = panelThemChuyen.getTxtNgayDi().getText().trim();
+            String gioDiStr = panelThemChuyen.getTxtGioDi().getText().trim();
+
+            if (!rawTau.isEmpty() && !ngayDiStr.isEmpty() && !gioDiStr.isEmpty()) {
+                String tauID = layMaTuChuoiHienThi(rawTau);
+
+                LocalDate d = LocalDate.parse(ngayDiStr, dateTimeFormatter);
+                String strNgay = d.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+                LocalTime t = LocalTime.parse(gioDiStr, timeFormatter);
+                String strGio = t.format(DateTimeFormatter.ofPattern("HHmm"));
+
+                String maChuyenMoi = tauID.toUpperCase() + "_" + strNgay + "_" + strGio;
+                panelThemChuyen.getTxtMaChuyen().setText(maChuyenMoi);
+            }
+        } catch (Exception ex) {
+        }
     }
 
     private void xuLyLuuChuyen() {
@@ -993,11 +1047,6 @@ public class QuanLyChuyen_CTRL {
 
                     fillDataFromTableToInput_Them(i);
 
-                    if (gioDiChang.isEmpty()) {
-                        baoLoiVaFocus(panelThemChuyen.getTxtGioDiMoi(), "Chặng " + (i + 1) + ": Thiếu Giờ Đi!");
-                    } else {
-                        baoLoiVaFocus(panelThemChuyen.getTxtGioDenMoi(), "Chặng " + (i + 1) + ": Thiếu Giờ Đến!");
-                    }
                     return;
                 }
             }
@@ -1215,8 +1264,6 @@ public class QuanLyChuyen_CTRL {
 
         pp.setVisible(false);
 
-        loadLichTrinhMau(maTuyen);
-
         isAdjusting = false;
         if (next != null) {
             SwingUtilities.invokeLater(next);
@@ -1229,7 +1276,7 @@ public class QuanLyChuyen_CTRL {
         if (input.contains("(")) {
             return input.substring(0, input.indexOf("(")).trim();
         }
-        return input.trim();
+        return input.trim().split(" ")[0];
     }
 
     private String taoHienThiTuyen(String maTuyen, Map<String, String> mapIDToTenGa) {
@@ -1247,29 +1294,18 @@ public class QuanLyChuyen_CTRL {
         return maTuyen;
     }
 
-    private void loadLichTrinhMau(String tuyenID) {
-        List<Ga> dsGa = chuyenBus.layDsGaCuaTuyen(tuyenID);
+    private void loadLichTrinhMau(String tuyenID, String loaiTau) {
+        List<Ga> dsGa = chuyenBus.layDsGaChoLichTrinh(tuyenID, loaiTau);
+
         DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
         model.setRowCount(0);
 
         if (dsGa == null || dsGa.isEmpty()) return;
 
-        String ngayKhoiHanh = panelThemChuyen.getTxtNgayDi().getText().trim();
-        String gioKhoiHanh = panelThemChuyen.getTxtGioDi().getText().trim();
-
         for (int i = 0; i < dsGa.size() - 1; i++) {
             Ga gaDi = dsGa.get(i);
-            Ga gaDen = dsGa.get(i+1);
-
-            String valNgayDi = "";
-            String valGioDi = "";
-
-            if (i == 0) {
-                valNgayDi = ngayKhoiHanh;
-                valGioDi = gioKhoiHanh;
-            }
-
-            model.addRow(new Object[]{ (i + 1), gaDi.getTenGa(), valNgayDi, valGioDi, gaDen.getTenGa(), "", "" });
+            Ga gaDen = dsGa.get(i + 1);
+            model.addRow(new Object[]{ (i + 1), gaDi.getTenGa(), "", "", gaDen.getTenGa(), "", "" });
         }
     }
 
@@ -1293,17 +1329,6 @@ public class QuanLyChuyen_CTRL {
             }
         }
 
-        panelThemChuyen.getTxtGaDiMoi().setText(model.getValueAt(row, 1).toString());
-        panelThemChuyen.getTxtNgayDiMoi().setText(model.getValueAt(row, 2).toString());
-        panelThemChuyen.getTxtGioDiMoi().setText(model.getValueAt(row, 3).toString());
-        panelThemChuyen.getTxtGaDenMoi().setText(model.getValueAt(row, 4).toString());
-        panelThemChuyen.getTxtNgayDenMoi().setText(model.getValueAt(row, 5).toString());
-        panelThemChuyen.getTxtGioDenMoi().setText(model.getValueAt(row, 6).toString());
-
-        panelThemChuyen.getTxtGaDiMoi().setEditable(false);
-        panelThemChuyen.getTxtGaDenMoi().setEditable(false);
-
-        panelThemChuyen.getTxtNgayDiMoi().requestFocus();
     }
 
 
@@ -1376,16 +1401,30 @@ public class QuanLyChuyen_CTRL {
 
             model.setValueAt(sNgayDi, row, 2);
             model.setValueAt(sGioDi, row, 3);
-            model.setValueAt(sNgayDen, row, 5);
-            model.setValueAt(sGioDen, row, 6);
+            if (sNgayDen.isEmpty() || sGioDen.isEmpty()) {
+                tinhTuDongThoiGianDen(row, sNgayDi, sGioDi);
 
-            if (row < model.getRowCount() - 1) {
-
-                model.setValueAt(sNgayDen, row + 1, 2);
-                table.setRowSelectionInterval(row + 1, row + 1);
-
+                sNgayDen = model.getValueAt(row, 5).toString();
+                sGioDen = model.getValueAt(row, 6).toString();
             } else {
-                JOptionPane.showMessageDialog(parentComponent, "Đã hoàn thành nhập liệu lịch trình!");
+                model.setValueAt(sNgayDen, row, 5);
+                model.setValueAt(sGioDen, row, 6);
+
+
+                if (row < model.getRowCount() - 1) {
+                    int thoiGianDungDo = 20; // 15 phút
+                    java.time.LocalDateTime dtDenn = java.time.LocalDateTime.parse(
+                            sNgayDen + " " + sGioDen, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    java.time.LocalDateTime dtDiTiep = dtDenn.plusMinutes(thoiGianDungDo);
+
+                    String nextNgay = dtDiTiep.format(dateTimeFormatter);
+                    String nextGio = dtDiTiep.format(timeFormatter);
+
+                    model.setValueAt(nextNgay, row + 1, 2);
+                    model.setValueAt(nextGio, row + 1, 3);
+
+                    tinhTuDongThoiGianDen(row + 1, nextNgay, nextGio);
+                }
             }
 
         } catch (Exception e) {
@@ -1393,21 +1432,54 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void updateTimeIntoTable_Them() {
-        xuLyLuuGioVaoBang(
-                panelThemChuyen.getTableLichTrinh(),
-                panelThemChuyen.getTxtNgayDiMoi(),
-                panelThemChuyen.getTxtGioDiMoi(),
-                panelThemChuyen.getTxtNgayDenMoi(),
-                panelThemChuyen.getTxtGioDenMoi(),
-                panelThemChuyen.getTxtNgayDi().getText().trim(), // Header Ngày
-                panelThemChuyen.getTxtGioDi().getText().trim(), // Header Giờ
-                dialogThem
-        );
 
-        int row = panelThemChuyen.getTableLichTrinh().getSelectedRow();
-        if (row >= 0) {
-            fillDataFromTableToInput_Them(row);
+    private void tinhTuDongThoiGianDen(int currentRow, String ngayDiStr, String gioDiStr) {
+        try {
+            String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
+            if (rawTau == null || rawTau.isEmpty()) return;
+            String tauID = layMaTuChuoiHienThi(rawTau);
+            int vanToc = chuyenBus.layTocDoTau(tauID);
+
+            DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
+            String tenGaDi = model.getValueAt(currentRow, 1).toString();
+            String tenGaDen = model.getValueAt(currentRow, 4).toString();
+            String idGaDi = mapGaToID.get(tenGaDi);
+            String idGaDen = mapGaToID.get(tenGaDen);
+
+            if (idGaDi == null || idGaDen == null) return;
+
+            int khoangCachKm = tuyenBus.getKhoangCachGiuaHaiGa(idGaDi, idGaDen);
+            if (khoangCachKm <= 0) return;
+
+            double thoiGianDiChuyenPhut = ((double) khoangCachKm / vanToc) * 40;
+
+            DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            String chuoiThoiGian = ngayDiStr + " " + gioDiStr;
+            LocalDateTime dtDi = LocalDateTime.parse(chuoiThoiGian,parseFormat);
+
+            LocalDateTime dtDen = dtDi.plusMinutes((long) Math.ceil(thoiGianDiChuyenPhut));
+
+            String ngayDenMoi = dtDen.format(dateTimeFormatter);
+            String gioDenMoi = dtDen.format(timeFormatter);
+
+            model.setValueAt(ngayDenMoi, currentRow, 5);
+            model.setValueAt(gioDenMoi, currentRow, 6);
+
+            if (currentRow < model.getRowCount() - 1) {
+                int thoiGianDungDo = 20;
+                java.time.LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianDungDo);
+
+                String ngayDiTiep = dtDiTiep.format(dateTimeFormatter);
+                String gioDiTiep = dtDiTiep.format(timeFormatter);
+
+                model.setValueAt(ngayDiTiep, currentRow + 1, 2);
+                model.setValueAt(gioDiTiep, currentRow + 1, 3);
+
+                tinhTuDongThoiGianDen(currentRow + 1, ngayDiTiep, gioDiTiep);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
