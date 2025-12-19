@@ -73,7 +73,7 @@ public class HoaDonController {
 	}
 
 	private void loadAllHoaDon() {
-		this.view.getTableModel().setRows(hoaDonBUS.layCacHoaDonTheoNhanVienID(this.nhanVien));
+		this.view.getTableModel().setRows(hoaDonBUS.layTatCaHoaDon());
 	}
 
 	private void init() {
@@ -186,8 +186,8 @@ public class HoaDonController {
 				searchID, tuNgay, denNgay));
 
 		// 4. Lọc hóa đơn theo tiêu chí
-		List<HoaDon> results = hoaDonBUS.locHoaDonTheoCacTieuChi(this.nhanVien, loaiHD, searchKeyword, searchID, tuNgay,
-				denNgay, hinhThucTT);
+		List<HoaDon> results = hoaDonBUS.locHoaDonTheoCacTieuChi(loaiHD, searchKeyword, searchID, tuNgay, denNgay,
+				hinhThucTT);
 
 		// 5. Cập nhật UI và thông báo kết quả
 		view.getTableModel().setRows(results);
@@ -218,7 +218,7 @@ public class HoaDonController {
 		String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
 		// 2. Lấy các hóa đơn theo keyword và loại tra cứu
-		List<HoaDon> result = hoaDonBUS.layHoaDonTheoKeyWord(this.nhanVien, keyword, type);
+		List<HoaDon> result = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type);
 
 		// 3. Update Table
 		view.getTableModel().setRows(result);
