@@ -208,7 +208,7 @@ public class DatCho_BUS {
 		}
 	}
 
-	public void hoaTacGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
+	public boolean hoanTacGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
 		Connection conn = null;
 
 		try {
@@ -220,7 +220,7 @@ public class DatCho_BUS {
 			pgcctDAO.deletePhieuGiuChoChiTietByPgcID(conn, phieuGiuCho.getPhieuGiuChoID());
 
 			// 3. Xóa phiếu giữ chỗ
-			pgcDAO.deletePhieuGiuChoByID(phieuGiuCho.getPhieuGiuChoID());
+			pgcDAO.deletePhieuGiuChoByID(conn, phieuGiuCho.getPhieuGiuChoID());
 
 			// 4. COMMIT
 			conn.commit();
@@ -232,6 +232,7 @@ public class DatCho_BUS {
 				} catch (SQLException ex) {
 					ex.printStackTrace();
 				}
+				return false;
 			}
 			throw e;
 
@@ -241,10 +242,13 @@ public class DatCho_BUS {
 				if (conn != null) {
 					conn.setAutoCommit(true);
 					conn.close();
+
+					return true;
 				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
 			}
 		}
+		return false;
 	}
 }

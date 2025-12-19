@@ -12,6 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -256,6 +257,28 @@ public class PassengerCellPanel extends JPanel {
 		if (nextRow < table.getRowCount()) {
 			// Còn dòng tiếp theo -> Edit ô đầu tiên của dòng đó
 			table.editCellAt(nextRow, 0);
+			int vColIndex = VeBanTableModel.COL_HANH_KHACH;
+
+			// 1. Cuộn màn hình đến dòng lỗi (nếu danh sách dài)
+			table.scrollRectToVisible(table.getCellRect(nextRow, vColIndex, true));
+
+			// 2. Chọn dòng đó (về mặt giao diện)
+			table.setRowSelectionInterval(nextRow, nextRow);
+
+			// 3. Kích hoạt chế độ chỉnh sửa (Edit Mode)
+			// Nếu không edit, JTable chỉ vẽ hình ảnh (Renderer) chứ không phải Component
+			// thật
+			if (table.editCellAt(nextRow, vColIndex)) {
+
+				// 4. Lấy component đang edit (Chính là PassengerCellPanel thực sự đang sống)
+				Component editorComp = table.getEditorComponent();
+
+				if (editorComp instanceof PassengerCellPanel) {
+					SwingUtilities.invokeLater(() -> {
+						((PassengerCellPanel) editorComp).focusTxtCCCD();
+					});
+				}
+			}
 		} else {
 			// Hết dòng -> Focus vào trường CCCD của người mua
 			try {
@@ -346,5 +369,10 @@ public class PassengerCellPanel extends JPanel {
 
 	public JComboBox<String> getCbType() {
 		return cbType;
+	}
+
+	public void focusTxtCCCD() {
+		this.txtID.requestFocusInWindow();
+		this.txtID.selectAll();
 	}
 }

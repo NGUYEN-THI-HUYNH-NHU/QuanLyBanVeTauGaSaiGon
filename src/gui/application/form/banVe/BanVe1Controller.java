@@ -50,7 +50,12 @@ public class BanVe1Controller {
 
 	private final DatCho_BUS datChoBUS;
 
+	private Runnable onRefreshListener;
 	private Runnable onPanel1CompleteListener;
+
+	protected void addRefreshListener(Runnable listener) {
+		this.onRefreshListener = listener;
+	}
 
 	protected void addPanel1CompleteListener(Runnable listener) {
 		this.onPanel1CompleteListener = listener;
@@ -133,6 +138,7 @@ public class BanVe1Controller {
 
 				// 4. Mặc định chọn tab "Chiều đi" và refresh giỏ vé
 				p2.getTabbedPane().setSelectedIndex(0);
+
 				refreshGioVe();
 			}
 
@@ -169,7 +175,7 @@ public class BanVe1Controller {
 			handleMuaVe();
 		});
 
-		// 2. Lắng nghe sự kiện CHỌN GHẾ từ cả 2 controller
+		// 2. Lắng nghe sự kiện chọn/bỏ chọn ghế từ cả 2 controller
 		SeatSelectedListener seatSelectOnlyListener = new SeatSelectedListener() {
 			@Override
 			public void onSeatSelected(VeSession veSession) {
@@ -202,66 +208,15 @@ public class BanVe1Controller {
 		this.buoc2ControllerDi.addSeatSelectedListener(seatSelectOnlyListener);
 		this.buoc2ControllerVe.addSeatSelectedListener(seatSelectOnlyListener);
 
-		// Lắng nghe sự kiện từ Buoc3 (Bấm nút xóa hàng vé)
+		// Lắng nghe sự kiện từ Buoc3
+		this.buoc3Controller.setOnRefreshListener(() -> {
+			if (onRefreshListener != null) {
+				onRefreshListener.run();
+			}
+		});
+
 		this.buoc3Controller.setOnDeleteListener(veSession -> {
-			// Tìm xem vé này thuộc controller nào (đi hay về)
-			final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
-					&& bookingSession.getReturnSelectedTickets().contains(veSession)) ? buoc2ControllerVe
-							: buoc2ControllerDi;
-			// 1. Gọi BUS để xóa phiếu giữ chỗ chi tiết TRONG DB
-			new SwingWorker<Boolean, Void>() {
-				private String errorMessage = "Lỗi không xác định khi xóa phiếu.";
-
-				@Override
-				protected Boolean doInBackground() throws Exception {
-					try {
-						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
-								veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
-
-					} catch (Exception e) {
-						errorMessage = e.getMessage();
-						e.printStackTrace();
-						return false;
-					}
-				}
-
-				@Override
-				protected void done() {
-					try {
-						Boolean deleteSuccess = get();
-						if (deleteSuccess) {
-							// 1. Gọi onRemoveVe 1 LẦN (để xóa khỏi session và refresh SoDoCho)
-							if (correctController != null) {
-								correctController.onRemoveVe(veSession);
-							}
-							// 2. Dừng timer (logic đã chuyển về đây)
-							stopCountdownForVe(veSession);
-							// 3. Refresh giỏ vé (Mediator tự làm)
-							refreshGioVe();
-							// 4. Xóa PGC nếu giỏ rỗng
-							if (bookingSession.getAllSelectedTickets().isEmpty()) {
-								if (bookingSession.getPhieuGiuCho() != null) {
-									datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
-								}
-							}
-
-							// 5. Tải lại bảng Buoc3 (Giữ nguyên)
-							if (p3 != null) {
-								p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
-							}
-
-						} else {
-							// Báo lỗi nếu xóa DB thất bại
-							JOptionPane.showMessageDialog(view, "Lỗi: " + errorMessage, "Lỗi xóa vé",
-									JOptionPane.ERROR_MESSAGE);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						JOptionPane.showMessageDialog(view, "Lỗi hệ thống khi xóa phiếu giữ chỗ.", "Lỗi",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}.execute();
+			handleXoaHangVe(veSession);
 		});
 
 		this.buoc3Controller.setOnConfirmListener(() -> {
@@ -273,12 +228,23 @@ public class BanVe1Controller {
 		// Lắng nghe sự kiện "Hủy" từ Buoc 3
 		this.buoc3Controller.setOnCancelListener(() -> {
 			view.setBuoc3Enabled(false);
-			// (Logic hủy phiếu giữ chỗ đã được chuyển vào handleCancel của buoc3Controller)
+			// Xoá tất cả vé trong giỏ
+			for (VeSession ve : bookingSession.getAllSelectedTickets()) {
+				handleXoaHangVe(ve);
+			}
 		});
 	}
 
+	private void handleXoaHangVe(VeSession veSession) {
+		// Tìm xem vé này thuộc controller nào (đi hay về)
+		final PanelBuoc2Controller correctController = (bookingSession.getReturnSelectedTickets() != null
+				&& bookingSession.getReturnSelectedTickets().contains(veSession)) ? buoc2ControllerVe
+						: buoc2ControllerDi;
+		goiBusHuyGiuCho(correctController, veSession);
+	}
+
 	/**
-	 * Hàm này thực hiện gọi BUS trong luồng nền
+	 * Hàm này thực hiện gọi BUS giữ chỗ cho các vé (trong giỏ) trong luồng nền
 	 */
 	private void goiBusGiuCho(List<VeSession> veTrongGio) {
 		new SwingWorker<PhieuGiuCho, Void>() {
@@ -315,6 +281,66 @@ public class BanVe1Controller {
 					JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + e.getMessage(), "Lỗi",
 							JOptionPane.ERROR_MESSAGE);
 					// (Tùy chọn: refresh lại sơ đồ ghế để thấy ghế bị trùng)
+				}
+			}
+		}.execute();
+	}
+
+	/**
+	 * Hàm này thực hiện gọi BUS hủy giữ chỗ cho 1 vé trong luồng nền
+	 */
+	private void goiBusHuyGiuCho(PanelBuoc2Controller correctController, VeSession veSession) {
+		// 1. Gọi BUS để xóa phiếu giữ chỗ chi tiết TRONG DB
+		new SwingWorker<Boolean, Void>() {
+			private String errorMessage = "Lỗi không xác định khi xóa phiếu.";
+
+			@Override
+			protected Boolean doInBackground() throws Exception {
+				try {
+					return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
+							veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+
+				} catch (Exception e) {
+					errorMessage = e.getMessage();
+					e.printStackTrace();
+					return false;
+				}
+			}
+
+			@Override
+			protected void done() {
+				try {
+					Boolean deleteSuccess = get();
+					if (deleteSuccess) {
+						// 1. Gọi onRemoveVe 1 LẦN (để xóa khỏi session và refresh SoDoCho)
+						if (correctController != null) {
+							correctController.onRemoveVe(veSession);
+						}
+						// 2. Dừng timer (logic đã chuyển về đây)
+						stopCountdownForVe(veSession);
+						// 3. Refresh giỏ vé (Mediator tự làm)
+						refreshGioVe();
+						// 4. Xóa PGC nếu giỏ rỗng
+						if (bookingSession.getAllSelectedTickets().isEmpty()) {
+							if (bookingSession.getPhieuGiuCho() != null) {
+								datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
+							}
+						}
+
+						// 5. Tải lại bảng Buoc3 (Giữ nguyên)
+						if (p3 != null) {
+							p3.initFromBookingSession(bookingSession, p2.getTabbedPane().getSelectedIndex());
+						}
+
+					} else {
+						// Báo lỗi nếu xóa DB thất bại
+						JOptionPane.showMessageDialog(view, "Lỗi: " + errorMessage, "Lỗi xóa vé",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(view, "Lỗi hệ thống khi xóa phiếu giữ chỗ.", "Lỗi",
+							JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		}.execute();
