@@ -23,6 +23,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import controller.BieuGia_CTRL;
 import entity.BieuGiaVe;
+import entity.NhanVien;
 
 public class PanelQuanLyBieuGia extends JPanel {
 	private JTable table;
@@ -35,11 +36,13 @@ public class PanelQuanLyBieuGia extends JPanel {
 	private JButton btnTimKiem;
 
 	private final BieuGia_CTRL controller;
+	private final NhanVien nhanVienThucHien;
 
-	public PanelQuanLyBieuGia() {
+	public PanelQuanLyBieuGia(NhanVien nhanVienThucHien) {
 		setLayout(new BorderLayout(10, 10));
 		initUI();
 		this.controller = new BieuGia_CTRL(this);
+		this.nhanVienThucHien = nhanVienThucHien;
 	}
 
 	private void initUI() {
@@ -144,6 +147,7 @@ public class PanelQuanLyBieuGia extends JPanel {
 				return lbl;
 			}
 		});
+		header.setFocusable(false);
 
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
@@ -236,5 +240,8 @@ public class PanelQuanLyBieuGia extends JPanel {
 
 	public BieuGia_CTRL getController() {
 		return controller;
+	}
+	public NhanVien getNhanVienThucHien() {
+		return nhanVienThucHien;
 	}
 }
