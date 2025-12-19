@@ -93,7 +93,7 @@ public class PanelQuanLyChuyen extends JPanel {
         JPanel panelNorth = new JPanel(new MigLayout("wrap 1, fillx, insets 10 10 0 10", "[fill, grow]", "[]10[]"));
         panelNorth.setBackground(COLOR_BG);
 
-        JPanel panelTitleBar = new JPanel(new MigLayout("fillx, insets 0", "[pref!][grow, center][pref!]", "[]"));
+        JPanel panelTitleBar = new JPanel(new MigLayout("fillx, insets 0", "[grow]", "[]"));
         panelTitleBar.setBackground(COLOR_BG);
         txtNgayDi = new JTextField(10);
         txtNgayDi.setFont(BASE_FONT);
