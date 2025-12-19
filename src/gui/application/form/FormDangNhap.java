@@ -43,7 +43,7 @@ public class FormDangNhap extends JPanel {
 	private JPanel pnlLogin;
 	private JLabel lblTitle;
 	private Image backgroundImage;
-	private JLabel lblQuenMK;
+	private JButton btnQuenMK;
 
 	private final DangNhap_Ctrl dangNhap_Ctrl;
 
@@ -67,9 +67,11 @@ public class FormDangNhap extends JPanel {
 		pnlLogin.add(new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
 		txtMatKhau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mật khẩu");
-		pnlLogin.add(lblQuenMK = new JLabel("Quên mật khẩu?", JLabel.RIGHT));
-		lblQuenMK.setForeground(new Color(7, 43, 143));
+		pnlLogin.add(btnQuenMK = new JButton("Quên mật khẩu?"));
+		btnQuenMK.setForeground(new Color(7, 43, 143));
 		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
+		btnLogin.setBackground(new Color(36, 104, 155));
+		btnLogin.setForeground(Color.WHITE);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -114,5 +116,9 @@ public class FormDangNhap extends JPanel {
 
 	public JButton getBtnLogin() {
 		return btnLogin;
+	}
+
+	public JButton getBtnQuenMK() {
+		return btnQuenMK;
 	}
 }

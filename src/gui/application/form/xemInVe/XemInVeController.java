@@ -370,7 +370,7 @@ public class XemInVeController {
 		}
 
 		// Lấy danh sách gợi ý
-		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHangChoVe(keyword);
+		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
 
 		if (!listSuggest.isEmpty()) {
 			for (KhachHang kh : listSuggest) {

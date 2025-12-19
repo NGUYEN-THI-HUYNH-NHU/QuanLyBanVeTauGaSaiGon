@@ -5,10 +5,14 @@ package controller;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dao.TaiKhoan_DAO;
@@ -18,8 +22,7 @@ import entity.type.VaiTroNhanVien;
 import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.FormDangNhap;
-import gui.application.form.banVe.PanelBanVe;
-import gui.application.form.dashboard.Dashboard;
+import gui.application.form.thongTin.ModalQuenMatKhau;
 import gui.application.paymentHelper.NgrokRunner;
 
 public class DangNhap_Ctrl {
@@ -32,7 +35,7 @@ public class DangNhap_Ctrl {
 	}
 
 	private void initController() {
-
+		view.getBtnQuenMK().addActionListener(e -> handleQuenMatKhau());
 		view.getBtnLogin().addActionListener(e -> dangNhap());
 		view.getTxtTenDangNhap().addKeyListener(new KeyAdapter() {
 			@Override
@@ -53,6 +56,42 @@ public class DangNhap_Ctrl {
 		});
 	}
 
+	private void handleQuenMatKhau() {
+		// 1. Cấu hình Overlay
+		JPanel overlay = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				g.setColor(new Color(0, 0, 0, 150));
+				g.fillRect(0, 0, getWidth(), getHeight());
+			}
+		};
+		overlay.setOpaque(false);
+		overlay.setLayout(null);
+
+		UngDung.getInstance().setGlassPane(overlay);
+		overlay.setVisible(true);
+
+		// 2. Tạo JDialog (Modal)
+		JDialog dialog = new JDialog(UngDung.getInstance(), "Quên mật khẩu", true);
+
+		dialog.setSize(500, 700);
+
+		// 3. Khởi tạo Panel và đưa vào Dialog
+		ModalQuenMatKhau panel = new ModalQuenMatKhau(dialog);
+		panel.addResetPasswordListener(() -> {
+			view.getTxtTenDangNhap().requestFocusInWindow();
+		});
+
+		dialog.setContentPane(panel);
+
+		// Căn giữa Dialog so với 
+		dialog.setLocationRelativeTo(view);
+
+		dialog.setVisible(true);
+
+		overlay.setVisible(false);
+	}
+
 	private void dangNhap() {
 		String tenDangNhap = view.getTxtTenDangNhap().getText();
 		String matKhau = view.getTxtMatKhau().getText();
@@ -68,9 +107,9 @@ public class DangNhap_Ctrl {
 			ungDung.createGiaoDienChinh(nhanVien);
 			ungDung.setContentPane(ungDung.getGiaoDienChinh());
 			if (nhanVien.getVaiTroNhanVien() == VaiTroNhanVien.NHAN_VIEN) {
-				ungDung.showGiaoDienChinh(new PanelBanVe());
+				UngDung.setSelectedMenu(2, 0);
 			} else {
-				ungDung.showGiaoDienChinh(new Dashboard());
+				UngDung.setSelectedMenu(1, 0);
 			}
 			NgrokRunner.startNgrok();
 			SwingUtilities.updateComponentTreeUI(ungDung.getGiaoDienChinh());
