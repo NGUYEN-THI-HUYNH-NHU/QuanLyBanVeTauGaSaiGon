@@ -53,7 +53,7 @@ public class PanelQuanLyChuyen extends JPanel {
     private JTextArea txtChiTietChuyen;
     private JButton btnThemChuyen, btnCapNhatChuen;
 
-    private final Font BASE_FONT = new Font("Segoe UI", Font.PLAIN, 15);
+    private final Font BASE_FONT = new Font(getFont().getFontName(), Font.PLAIN, 14);
     private final Color COLOR_ACCENT = new Color(36,104,155);
     private final Color COLOR_HEADER = new Color(36,104,155);
     private final Color COLOR_BG = new Color(245, 250, 255);
@@ -196,7 +196,7 @@ public class PanelQuanLyChuyen extends JPanel {
         tableChuyen.setGridColor(new Color(210,210,210));
 
         JTableHeader hd = tableChuyen.getTableHeader();
-        hd.setFont(BASE_FONT.deriveFont(Font.BOLD, 16f));
+        hd.setFont(BASE_FONT.deriveFont(Font.BOLD, 14));
         hd.setBackground(COLOR_HEADER);
         hd.setForeground(Color.WHITE);
 

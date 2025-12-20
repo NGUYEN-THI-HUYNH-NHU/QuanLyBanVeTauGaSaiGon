@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import connectDB.ConnectDB;
+import entity.type.TrangThaiTau;
 
 public class Tau_DAO {
 	private ConnectDB connectDB;
@@ -27,5 +28,23 @@ public class Tau_DAO {
         connectDB.connect();
     }
 
+    public TrangThaiTau layTrangThaiTau(String tauID) {
+        Connection con = connectDB.getConnection();
+        String sql = "SELECT trangThai FROM Tau WHERE tauID = ?";
+        try (PreparedStatement pst = con.prepareStatement(sql)) {
+            pst.setString(1, tauID);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String statusStr = rs.getString("trangThai");
+                    if (statusStr != null) {
+                        return TrangThaiTau.valueOf(statusStr);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Tàu không tồn tại
+    }
 
 }

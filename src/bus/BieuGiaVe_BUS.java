@@ -11,12 +11,13 @@ package bus;
  * @date: Nov 27, 2025
  * @version: 1.0
  */
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import dao.BieuGiaVe_DAO;
 import entity.BieuGiaVe;
@@ -41,13 +42,12 @@ public class BieuGiaVe_BUS {
 	}
 
 	public String themBieuGia(BieuGiaVe bg, NhanVien nv) {
-		// Validation
 		String loi = kiemTraHopLe(bg);
 		if (loi != null) {
 			return loi;
 		}
 
-		String newID = taoMaBieuGia(bg.getNgayBatDau(), bg.getNgayKetThuc());
+		String newID = taoMaBieuGiaNgauNhien();
 		bg.setBieuGiaVeID(newID);
 
 		try {
@@ -77,18 +77,20 @@ public class BieuGiaVe_BUS {
 		return "Thêm thất bại (Lỗi không xác định)";
 	}
 
-	private String taoMaBieuGia(LocalDate ngayBD, LocalDate ngayKT) {
+	private String taoMaBieuGiaNgauNhien() {
+		Random random = new Random();
+		String newID;
+		boolean biTrung;
 
-		DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyyMMdd");
+		do {
+			int number = random.nextInt(1000);
+			newID = String.format("BGV_%03d", number);
+			biTrung = (dao.getBieuGiaByID(newID) != null);
 
-		String start = ngayBD.format(fmt);
-		String end = (ngayKT != null)
-				? ngayKT.format(fmt)
-				: "VTH";
+		} while (biTrung);
 
-		return "BGV_" + start + "_" + end;
+		return newID;
 	}
-
 
 	public String capNhatBieuGia(BieuGiaVe bgMoi, NhanVien nv) {
 		String loi = kiemTraHopLe(bgMoi);

@@ -1,6 +1,5 @@
 package controller;
 
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Frame;
 import java.awt.event.*;
@@ -12,7 +11,6 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import bus.BieuGiaVe_BUS;
 import bus.Tuyen_BUS;
@@ -32,9 +30,7 @@ public class BieuGia_CTRL {
 	private List<BieuGiaVe> listCache;
 	private List<String> lastSuggestionData = new ArrayList<>();
 
-	// Suggestion Components (Only for search field now)
 	private JPopupMenu tuyenSuggestionPopup;
-	private Tuyen selectedTuyenSuggest = null;
 
 	private List<String> listMaBieuGia = new ArrayList<>();
 	private List<String> listMaTuyen = new ArrayList<>();
@@ -423,4 +419,5 @@ public class BieuGia_CTRL {
 		JList<String> lst = new JList<>();
 		taoPopupGoiY(txtEditor, pp, lst, input -> locDuLieu(data, input));
 	}
+
 }

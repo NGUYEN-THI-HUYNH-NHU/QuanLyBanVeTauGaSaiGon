@@ -454,27 +454,6 @@ public class Chuyen_DAO {
 		return false;
 	}
 
-	public int getTocDoTau(String tauID) {
-		String sql = "SELECT loaiTauID FROM Tau WHERE tauID = ?";
-		try (java.sql.Connection con = ConnectDB.getInstance().getConnection();
-			 java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setString(1, tauID);
-			try (java.sql.ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					String loaiTau = rs.getString("loaiTauID");
-					if ("TAU_NHANH".equalsIgnoreCase(loaiTau)) {
-						return 60;
-					} else if ("TAU_DU_LICH".equalsIgnoreCase(loaiTau)) {
-						return 40;
-					}
-				}
-			}
-		} catch (java.sql.SQLException e) {
-			e.printStackTrace();
-		}
-		return 40;
-	}
-
 	public List<String[]> getTauHoatDong() {
 		List<String[]> list = new ArrayList<>();
 		String sql = "SELECT tauID, loaiTauID FROM Tau WHERE trangThai = N'HOAT_DONG'";
@@ -508,6 +487,154 @@ public class Chuyen_DAO {
 			}
 		} catch (Exception e) { e.printStackTrace(); }
 		return list;
+	}
+
+	public int getTocDoTau(String tauID) {
+		// Truy vấn trực tiếp cột vanTocTB từ bảng Tau
+		String sql = "SELECT vanTocTB FROM Tau WHERE tauID = ?";
+		try (java.sql.Connection con = ConnectDB.getInstance().getConnection();
+			 java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, tauID);
+			try (java.sql.ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					int tocDo = rs.getInt("vanTocTB");
+					return (tocDo > 0) ? tocDo : 60;
+				}
+			}
+		} catch (java.sql.SQLException e) {
+			e.printStackTrace();
+		}
+		return 60;
+	}
+
+	public boolean themChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh) {
+		Connection con = null;
+		try {
+			con = ConnectDB.getInstance().getConnection();
+			con.setAutoCommit(false); // Bắt đầu Transaction
+
+			String sqlChuyen = "INSERT INTO Chuyen (chuyenID, tuyenID, tauID, ngayDi, gioDi) VALUES (?, ?, ?, ?, ?)";
+			String sqlChuyenGa = "INSERT INTO ChuyenGa (chuyenID, gaID, thuTu, ngayDen, gioDen, NgayDi, gioDi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+			try (PreparedStatement pstC = con.prepareStatement(sqlChuyen);
+				 PreparedStatement pstCG = con.prepareStatement(sqlChuyenGa)) {
+
+				for (int i = 0; i < dsChuyen.size(); i++) {
+					Chuyen c = dsChuyen.get(i);
+					pstC.setString(1, c.getChuyenID());
+					pstC.setString(2, c.getTuyen().getTuyenID());
+					pstC.setString(3, c.getTau().getTauID());
+					pstC.setDate(4, java.sql.Date.valueOf(c.getNgayDi()));
+					pstC.setTime(5, java.sql.Time.valueOf(c.getGioDi()));
+					pstC.addBatch();
+
+					for (ChuyenGa cg : dsLichTrinh.get(i)) {
+						pstCG.setString(1, c.getChuyenID());
+						pstCG.setString(2, cg.getGa().getGaID());
+						pstCG.setInt(3, cg.getThuTu());
+						pstCG.setDate(4, cg.getNgayDen() != null ? Date.valueOf(cg.getNgayDen()) : null);
+						pstCG.setTime(5, cg.getGioDen() != null ? Time.valueOf(cg.getGioDen()) : null);
+						pstCG.setDate(6, cg.getNgayDi() != null ? Date.valueOf(cg.getNgayDi()) : null);
+						pstCG.setTime(7, cg.getGioDi() != null ? Time.valueOf(cg.getGioDi()) : null);
+						pstCG.addBatch();
+					}
+				}
+				pstC.executeBatch();
+				pstCG.executeBatch();
+				con.commit();
+				return true;
+			}
+		} catch (SQLException e) {
+			try { if (con != null) con.rollback(); } catch (Exception ex) {}
+			e.printStackTrace();
+			return false;
+		} finally {
+			try { if (con != null) con.setAutoCommit(true); } catch (Exception ex) {}
+		}
+	}
+
+	public boolean capNhatChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh) {
+		Connection con = null;
+		try {
+			con = connectDB.getConnection();
+			con.setAutoCommit(false); // Bắt đầu Transaction
+
+			// 1. Xóa các chuyến cũ để chuẩn bị nạp bản mới (Dựa trên ChuyenID đã có hậu tố _CK)
+			String sqlDeleteCG = "DELETE FROM ChuyenGa WHERE chuyenID = ?";
+			String sqlDeleteC = "DELETE FROM Chuyen WHERE chuyenID = ?";
+
+			try (PreparedStatement pstDelCG = con.prepareStatement(sqlDeleteCG);
+				 PreparedStatement pstDelC = con.prepareStatement(sqlDeleteC)) {
+
+				for (Chuyen c : dsChuyen) {
+					pstDelCG.setString(1, c.getChuyenID());
+					pstDelC.setString(1, c.getChuyenID());
+					pstDelCG.addBatch();
+					pstDelC.addBatch();
+				}
+				pstDelCG.executeBatch();
+				pstDelC.executeBatch();
+			}
+
+			// 2. Tận dụng hàm themChuyenBatch đã có để chèn dữ liệu mới
+			// Lưu ý: Phải truyền connection đang xử lý Transaction vào nếu muốn tối ưu,
+			// hoặc gọi trực tiếp logic insert ở đây.
+
+			String sqlInsertC = "INSERT INTO Chuyen (chuyenID, tuyenID, tauID, ngayDi, gioDi) VALUES (?, ?, ?, ?, ?)";
+			String sqlInsertCG = "INSERT INTO ChuyenGa (chuyenID, gaID, thuTu, ngayDen, gioDen, NgayDi, gioDi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+			try (PreparedStatement pstInsC = con.prepareStatement(sqlInsertC);
+				 PreparedStatement pstInsCG = con.prepareStatement(sqlInsertCG)) {
+
+				for (int i = 0; i < dsChuyen.size(); i++) {
+					Chuyen c = dsChuyen.get(i);
+					pstInsC.setString(1, c.getChuyenID());
+					pstInsC.setString(2, c.getTuyen().getTuyenID());
+					pstInsC.setString(3, c.getTau().getTauID());
+					pstInsC.setDate(4, java.sql.Date.valueOf(c.getNgayDi()));
+					pstInsC.setTime(5, java.sql.Time.valueOf(c.getGioDi()));
+					pstInsC.addBatch();
+
+					for (ChuyenGa cg : dsLichTrinh.get(i)) {
+						pstInsCG.setString(1, c.getChuyenID());
+						pstInsCG.setString(2, cg.getGa().getGaID());
+						pstInsCG.setInt(3, cg.getThuTu());
+						pstInsCG.setDate(4, cg.getNgayDen() != null ? java.sql.Date.valueOf(cg.getNgayDen()) : null);
+						pstInsCG.setTime(5, cg.getGioDen() != null ? java.sql.Time.valueOf(cg.getGioDen()) : null);
+						pstInsCG.setDate(6, cg.getNgayDi() != null ? java.sql.Date.valueOf(cg.getNgayDi()) : null);
+						pstInsCG.setTime(7, cg.getGioDi() != null ? java.sql.Time.valueOf(cg.getGioDi()) : null);
+						pstInsCG.addBatch();
+					}
+				}
+				pstInsC.executeBatch();
+				pstInsCG.executeBatch();
+			}
+
+			con.commit(); // Hoàn tất thành công
+			return true;
+		} catch (SQLException e) {
+			if (con != null) try { con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (con != null) try { con.setAutoCommit(true); } catch (SQLException ex) { ex.printStackTrace(); }
+		}
+	}
+
+	public List<Chuyen> getChuyenTheoNgay(LocalDate ngay) {
+		List<Chuyen> list = new ArrayList<>();
+		Connection con = connectDB.getInstance().getConnection();
+		String sql = "SELECT c.*, t.tenTau, t.loaiTauID, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu ASC) AS tenGaDi, " +
+				"(SELECT TOP 1 g.tenGa FROM ChuyenGa cg JOIN Ga g ON cg.gaID = g.gaID WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS tenGaDen, " +
+				"(SELECT TOP 1 cg.ngayDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS NgayDenThuc, " +
+				"(SELECT TOP 1 cg.gioDen FROM ChuyenGa cg WHERE cg.chuyenID = c.chuyenID ORDER BY cg.thuTu DESC) AS GioDenThuc " +
+				"FROM Chuyen c " +
+				"JOIN Tau t ON c.tauID = t.tauID " +
+				"WHERE c.ngayDi = ? " +
+				"ORDER BY c.gioDi ASC";
+
+		return getListChuyenFromResultSet(con, sql, java.sql.Date.valueOf(ngay));
 	}
 
 }

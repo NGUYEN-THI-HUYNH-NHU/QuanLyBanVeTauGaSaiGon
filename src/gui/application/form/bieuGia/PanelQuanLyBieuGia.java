@@ -33,7 +33,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 	private JComboBox<String> cboLocTau;
 	private JButton btnLamMoi;
 	private JButton btnThemMoi;
-	private JButton btnTimKiem;
 
 	private final BieuGia_CTRL controller;
 	private final NhanVien nhanVienThucHien;
@@ -62,11 +61,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 		cboLocTuyen = new JComboBox<>();
 		cboLocTau = new JComboBox<>();
 
-//		btnTimKiem = new JButton("Tìm");
-//		btnTimKiem.setIcon(new FlatSVGIcon("gui/icon/svg/search.svg", 0.8f));
-//		btnTimKiem.setBackground(base_color);
-//		btnTimKiem.setForeground(Color.WHITE);
-
 		btnLamMoi = new JButton("(F5) Làm mới");
 		btnLamMoi.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.8f));
 		btnLamMoi.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
@@ -85,7 +79,7 @@ public class PanelQuanLyBieuGia extends JPanel {
 		pnlLocLeft.add(cboLocTuyen);
 		pnlLocLeft.add(new JLabel("Tàu:"));
 		pnlLocLeft.add(cboLocTau);
-//		pnlLocLeft.add(btnTimKiem);
+
 		pnlLocLeft.add(btnLamMoi);
 		pnlLocLeft.add(btnThemMoi);
 
@@ -104,7 +98,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 		tableModel = new BieuGiaVeTableModel();
 		table = new JTable(tableModel);
 		table.setRowHeight(40);
-//		table.setFont(table.getFont().deriveFont(14f));
 
 		table.getColumnModel().getColumn(0).setPreferredWidth(100); // Mã biểu giá
 		table.getColumnModel().getColumn(1).setPreferredWidth(50);  // Ưu tiên
@@ -152,18 +145,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
 
-	public void hienThiDanhSach(List<BieuGiaVe> list) {
-		tableModel.setRowCount(0);
-
-		for (BieuGiaVe bg : list) {
-			tableModel.addRow(bg);
-		}
-	}
-
-	public int getSelectedRow() {
-		return table.getSelectedRow();
-	}
-
 	public String getSelectedID() {
 		int row = table.getSelectedRow();
 		if (row < 0) {
@@ -188,54 +169,21 @@ public class PanelQuanLyBieuGia extends JPanel {
 		return btnThemMoi;
 	}
 
-
-
-	public void setBtnLamMoi(JButton btnLamMoi) {
-		this.btnLamMoi = btnLamMoi;
-	}
-
-	public void setBtnThemMoi(JButton btnThemMoi) {
-		this.btnThemMoi = btnThemMoi;
-	}
-
-	public void setBtnTimKiem(JButton btnTimKiem) {
-		this.btnTimKiem = btnTimKiem;
-	}
-
-	public JButton getBtnTimKiem() {
-		return btnTimKiem;
-	}
-
 	public JComboBox<String> getTxtTimKiem() {
 		return txtTimKiem;
-	}
-
-	public void setTxtTimKiem(JComboBox<String> txtTimKiem) {
-		this.txtTimKiem = txtTimKiem;
 	}
 
 	public void setTable(JTable table) {
 		this.table = table;
 	}
 
-	public void setTableModel(BieuGiaVeTableModel tableModel) {
-		this.tableModel = tableModel;
-	}
-
 	public JComboBox<String> getCboLocTuyen() {
 		return cboLocTuyen;
 	}
 
-	public void setCboLocTuyen(JComboBox<String> cboLocTuyen) {
-		this.cboLocTuyen = cboLocTuyen;
-	}
 
 	public JComboBox<String> getCboLocTau() {
 		return cboLocTau;
-	}
-
-	public void setCboLocTau(JComboBox<String> cboLocTau) {
-		this.cboLocTau = cboLocTau;
 	}
 
 	public BieuGia_CTRL getController() {
@@ -244,4 +192,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 	public NhanVien getNhanVienThucHien() {
 		return nhanVienThucHien;
 	}
+
+
 }
