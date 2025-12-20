@@ -55,6 +55,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private JTextField txtPhone;
 
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
+	private static final Color disableBgColor = new Color(255, 120, 120, 60);
 
 	public PanelHoanVeBuoc2() {
 		setLayout(new BorderLayout());
@@ -87,14 +88,12 @@ public class PanelHoanVeBuoc2 extends JPanel {
 	private void setupTable() {
 		table.setRowHeight(90);
 
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
-
 		// Cấu hình độ rộng cột
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(170);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setMinWidth(120);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setMaxWidth(50);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON).setMaxWidth(50);
 
 		// 1. Renderer cho tiền (căn phải, định dạng)
 		// Áp dụng lớp Renderer nội tuyến để định dạng
@@ -106,7 +105,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 						column);
 				label.setHorizontalAlignment(SwingConstants.RIGHT);
-				label.setVerticalAlignment(SwingConstants.CENTER);
+				label.setVerticalAlignment(SwingConstants.TOP);
 				if (value instanceof Double) {
 					label.setText(df.format(value));
 				}
@@ -128,7 +127,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				int modelRow = table.convertRowIndexToModel(row);
 				VeHoanRow dataRow = model.getRows().get(modelRow);
 
-				// Logic riêng: Tô màu đỏ chữ cảnh báo
+				// Tô màu đỏ chữ cảnh báo
 				if (!dataRow.isDuDieuKien()) {
 					c.setForeground(Color.RED);
 					setFont(getFont().deriveFont(Font.BOLD));
@@ -152,7 +151,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 				setHorizontalAlignment(SwingConstants.LEFT);
-				setVerticalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 
 				// ÁP DỤNG STYLE XÁM
 				applyRowStyle(c, table, row);
@@ -221,10 +220,10 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		};
 
 		// Cột checkbox
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1).setCellRenderer(booleanRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON).setCellRenderer(booleanRenderer);
 
 		// Cột Thời gian
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI - 1).setCellRenderer(timeRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 		// Cột Tiền
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
@@ -232,8 +231,11 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		// Cột Text Area (Thông tin phí)
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI).setCellRenderer(wrappedTextAreaRenderer);
 		// Cột Text thường (Tên, Thông tin vé)
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(topAlignRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(topAlignRenderer);
+
+		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO));
 	}
 
 	/**
@@ -244,9 +246,24 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		VeHoanRow dataRow = model.getRows().get(modelRow);
 
 		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(new Color(240, 240, 240));
-			if (c.getForeground() != Color.RED) {
-				c.setForeground(Color.GRAY);
+			if (c instanceof JCheckBox) {
+				c.setBackground(new Color(251, 219, 219));
+			} else {
+				c.setBackground(disableBgColor);
+				if (c.getForeground() != Color.RED) {
+					c.setForeground(Color.GRAY);
+				}
+			}
+		} else {
+			if (table.isRowSelected(row)) {
+				c.setBackground(table.getSelectionBackground());
+				c.setForeground(table.getSelectionForeground());
+			} else {
+				c.setBackground(table.getBackground());
+				// Reset màu chữ về mặc định (tránh bị dính màu Xám của dòng trên)
+				if (c.getForeground() == Color.GRAY) {
+					c.setForeground(table.getForeground());
+				}
 			}
 		}
 	}

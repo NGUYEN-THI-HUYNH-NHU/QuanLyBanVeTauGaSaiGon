@@ -57,7 +57,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 
 	// Renderer
 	private static final DecimalFormat df = new DecimalFormat("#,##0đ");
-
 	private static final Color disableBgColor = new Color(255, 120, 120, 60);
 
 	public PanelDoiVeBuoc2() {
@@ -242,9 +241,24 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		VeDoiRow dataRow = model.getRows().get(modelRow);
 
 		if (!dataRow.isDuDieuKien()) {
-			c.setBackground(disableBgColor);
-			if (c.getForeground() != Color.RED) {
-				c.setForeground(Color.GRAY);
+			if (c instanceof JCheckBox) {
+				c.setBackground(new Color(251, 219, 219));
+			} else {
+				c.setBackground(disableBgColor);
+				if (c.getForeground() != Color.RED) {
+					c.setForeground(Color.GRAY);
+				}
+			}
+		} else {
+			if (table.isRowSelected(row)) {
+				c.setBackground(table.getSelectionBackground());
+				c.setForeground(table.getSelectionForeground());
+			} else {
+				c.setBackground(table.getBackground());
+				// Reset màu chữ về mặc định (tránh bị dính màu Xám của dòng trên)
+				if (c.getForeground() == Color.GRAY) {
+					c.setForeground(table.getForeground());
+				}
 			}
 		}
 	}

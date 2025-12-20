@@ -33,6 +33,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.LeftTopRenderer;
+import gui.tuyChinh.SimpleComboBoxRenderer;
 
 public class PanelDoiVeBuoc3 extends JPanel {
 	private VeDoiTableModel model;
@@ -68,6 +69,7 @@ public class PanelDoiVeBuoc3 extends JPanel {
 		JComboBox<String> cbLyDoHoan = new JComboBox<>(lyDoHoan);
 		DefaultCellEditor cellEditor = new DefaultCellEditor(cbLyDoHoan);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setCellEditor(cellEditor);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setCellRenderer(new SimpleComboBoxRenderer());
 
 		table.setRowHeight(80);
 
@@ -105,7 +107,6 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK));
 		table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 1));
-
 	}
 
 	public void displayConfirmation(List<VeDoiRow> selectedRows) {

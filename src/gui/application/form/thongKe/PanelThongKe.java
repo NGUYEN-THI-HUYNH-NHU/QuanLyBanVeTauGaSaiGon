@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -27,13 +25,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import connectDB.ConnectDB;
 import dao.ThongKeNhanVien_DAO;
+import entity.CaLam;
 import entity.NhanVien;
 import gui.application.AuthService;
 
@@ -312,25 +309,13 @@ public class PanelThongKe extends JPanel {
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 		final LocalDate currentDay = LocalDate.now();
-		final LocalTime currentTime = LocalTime.now();
 
-		String tempCaLamViecText = "Ngoài ca làm việc";
-		LocalTime tempGioBatDauCa = LocalTime.MIN;
-		LocalTime tempGioKetThucCa = LocalTime.MAX;
-
-		if (currentTime.isAfter(LocalTime.of(8, 0)) && currentTime.isBefore(LocalTime.of(16, 0))) {
-			tempCaLamViecText = "Ca 1 (08:00 - 16:00)";
-			tempGioBatDauCa = LocalTime.of(8, 0);
-			tempGioKetThucCa = LocalTime.of(16, 0).minusSeconds(1);
-		} else if (currentTime.isAfter(LocalTime.of(16, 0)) && currentTime.isBefore(LocalTime.of(22, 0))) {
-			tempCaLamViecText = "Ca 2 (16:00 - 22:00)";
-			tempGioBatDauCa = LocalTime.of(16, 0);
-			tempGioKetThucCa = LocalTime.of(22, 0).minusSeconds(1);
-		}
-
-		final String finalCaLamViecText = tempCaLamViecText;
-		final LocalTime finalGioBatDauCa = tempGioBatDauCa;
-		final LocalTime finalGioKetThucCa = tempGioKetThucCa;
+		CaLam caLam = nhanVien.getCaLam();
+		final String finalCaLamViecText = String.format("%s (%s - %s)", caLam.getCaLamID(),
+				caLam.getGioVaoCa().format(DateTimeFormatter.ofPattern("HH:mm")),
+				caLam.getGioKetCa().format(DateTimeFormatter.ofPattern("HH:mm")));
+		final LocalTime finalGioBatDauCa = caLam.getGioVaoCa();
+		final LocalTime finalGioKetThucCa = caLam.getGioKetCa();
 		final String finalMaNhanVien = nhanVien.getNhanVienID();
 
 		SwingWorker<ThongKeResult, Void> worker = new SwingWorker<>() {
@@ -550,60 +535,5 @@ public class PanelThongKe extends JPanel {
 			g2d.drawString("Chuyển khoản: " + percentFormatter.format(transferPercentage), legendX + 150 + boxSize + 5,
 					legendY + boxSize - 1);
 		}
-	}
-
-	public static void main(String[] args) {
-		ConnectDB.getInstance().connect();
-		if (ConnectDB.getInstance().getConnection() == null) {
-			System.err.println("Không thể kết nối CSDL. Vui lòng kiểm tra cấu hình ConnectDB.");
-			return;
-		}
-
-		SwingUtilities.invokeLater(() -> {
-			JFrame frame = new JFrame("Quản lý Bán vé Tàu Ga Sài Gòn");
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-			JPanel mainAppPanel = new JPanel(new BorderLayout());
-			mainAppPanel.setBackground(new Color(240, 242, 245));
-
-			JPanel pnlMenu = new JPanel();
-			pnlMenu.setBackground(new Color(34, 49, 63));
-			pnlMenu.setPreferredSize(new Dimension(200, 0));
-			pnlMenu.setLayout(new BorderLayout());
-
-			JLabel lblLogo = new JLabel("Ga Sài Gòn", SwingConstants.CENTER);
-			lblLogo.setForeground(Color.WHITE);
-			lblLogo.setFont(new Font("Roboto", Font.BOLD, 20));
-			lblLogo.setBorder(new EmptyBorder(10, 0, 20, 0));
-			pnlMenu.add(lblLogo, BorderLayout.NORTH);
-
-			JPanel menuItems = new JPanel(new GridLayout(0, 1, 0, 5));
-			menuItems.setOpaque(false);
-			String[] menuNames = { "Quản lý", "Bán vé", "Quản lý vé", "Quản lý hóa đơn", "Quản lý khách hàng",
-					"Thống kê & Báo cáo", "About", "Trợ giúp", "Đăng xuất" };
-			for (String name : menuNames) {
-				JButton btn = new JButton(name);
-				btn.setHorizontalAlignment(SwingConstants.LEFT);
-				btn.setBackground(new Color(34, 49, 63));
-				btn.setForeground(Color.WHITE);
-				btn.setBorder(new EmptyBorder(10, 20, 10, 20));
-				btn.setFocusPainted(false);
-				btn.setFont(new Font("Roboto", Font.PLAIN, 14));
-				if (name.equals("Thống kê & Báo cáo")) {
-					btn.setBackground(new Color(52, 73, 94));
-				}
-				menuItems.add(btn);
-			}
-			pnlMenu.add(menuItems, BorderLayout.CENTER);
-
-			PanelThongKe pnlThongKe = new PanelThongKe();
-			mainAppPanel.add(pnlMenu, BorderLayout.WEST);
-			mainAppPanel.add(pnlThongKe, BorderLayout.CENTER);
-
-			frame.setContentPane(mainAppPanel);
-			frame.setSize(1200, 700);
-			frame.setLocationRelativeTo(null);
-			frame.setVisible(true);
-		});
 	}
 }

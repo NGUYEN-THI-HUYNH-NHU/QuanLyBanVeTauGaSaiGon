@@ -13,6 +13,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTable;
 
 import entity.KhuyenMai;
+import gui.application.form.banVe.KhuyenMaiListRenderer;
 import gui.application.form.banVe.VeSession;
 
 /*
@@ -33,6 +34,7 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 		this.cbKhuyenMai = cbKhuyenMai;
 		this.khuyenMaiProvider = khuyenMaiProvider;
 		this.model = model;
+		this.cbKhuyenMai.setRenderer(new KhuyenMaiListRenderer());
 	}
 
 	@Override
