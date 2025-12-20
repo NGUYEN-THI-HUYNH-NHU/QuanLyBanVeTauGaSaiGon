@@ -51,7 +51,6 @@ public class QuanLyChuyen_CTRL {
     private List<String> lastSuggestionData = new ArrayList<>();
     private VaiTroNhanVien vaiTroNhanVien;
 
-    private PhanQuyen_BUS phanQuyenBus;
 
     private String currentSearchGaDi = "";
     private String currentSearchGaDen = "";
@@ -71,7 +70,9 @@ public class QuanLyChuyen_CTRL {
         this.chuyenBus = new Chuyen_BUS();
         this.tuyenBus = new Tuyen_BUS();
         this.vaiTroNhanVien = panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien();
-        this.phanQuyenBus = new PhanQuyen_BUS();
+
+        PhanQuyen_BUS.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVien);
+
         initEvents();
         taiDuLieuBanDauNgam();
     }
@@ -267,7 +268,17 @@ public class QuanLyChuyen_CTRL {
                 public void windowOpened(WindowEvent e) {
                     panelCapNhatChuyen.requestFocusInWindow();
                 }
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    lamMoi();
+                }
+
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    xuLyHuyBoCapNhat();
+                }
             });
+            dialogCapNhat.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
             initCapNhatEvents();
         }
@@ -881,6 +892,17 @@ public class QuanLyChuyen_CTRL {
             dialogThem.setSize(1000,750);
             dialogThem.setLocationRelativeTo(null);
             dialogThem.setModal(true);
+            dialogThem.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            dialogThem.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                     lamMoi();
+                }
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    xuLyHuyBoThem();
+                }
+            });
 
             initThemChuyenEvents();
 
@@ -954,6 +976,7 @@ public class QuanLyChuyen_CTRL {
         ActionListener comboTrigger = e -> {
             if (!isAdjusting) {
                 triggerLoadTableIfReady();
+                genCode();
             }
         };
         panelThemChuyen.getComboTuyen().addActionListener(comboTrigger);
@@ -969,19 +992,16 @@ public class QuanLyChuyen_CTRL {
 
                 if (isTauKhongHopLe(rawTau)) {
 
-                    JOptionPane.showMessageDialog(
-                            dialogThem,
-                            "Tàu " + layMaTuChuoiHienThi(rawTau)
-                                    + " đang ngừng hoạt động hoặc bảo trì!",
-                            "Cảnh báo",
-                            JOptionPane.ERROR_MESSAGE
-                    );
-
                     isAdjusting = true;
                     panelThemChuyen.getComboTau().setSelectedIndex(-1);
                     panelThemChuyen.getComboTau().getEditor().setItem("");
                     panelThemChuyen.getModelLichTrinh().setRowCount(0);
                     isAdjusting = false;
+                    if (panelThemChuyen.getComboTau().isPopupVisible()) {
+                        JOptionPane.showMessageDialog(dialogThem,
+                                "Tàu " + layMaTuChuoiHienThi(rawTau) + " đang bảo trì!",
+                                "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                    }
                     return;
                 }
 
@@ -997,7 +1017,7 @@ public class QuanLyChuyen_CTRL {
             @Override public void removeUpdate(DocumentEvent e) { trigger(); }
             @Override public void changedUpdate(DocumentEvent e) { trigger(); }
             private void trigger() {
-                if (!isAdjusting) triggerLoadTableIfReady();
+                if (!isAdjusting) triggerLoadTableIfReady(); genCode();
             }
         };
         txtEditorTuyen.getDocument().addDocumentListener(editorListener);
@@ -1063,6 +1083,10 @@ public class QuanLyChuyen_CTRL {
 
     private void genCode() {
         try {
+            Object itemTuyen = panelThemChuyen.getComboTuyen().getEditor().getItem();
+            String rawTuyen = (itemTuyen != null) ? itemTuyen.toString().trim() : "";
+            String tuyenID = layMaTuChuoiHienThi(rawTuyen);
+
             Object item = panelThemChuyen.getComboTau().getEditor().getItem();
             String rawTau = (item != null) ? item.toString().trim() : "";
 
@@ -1070,7 +1094,7 @@ public class QuanLyChuyen_CTRL {
             String gioDiStr = panelThemChuyen.getTxtGioDi().getText().trim();
             String chuKy = panelThemChuyen.getComboChuKy().getSelectedItem().toString();
 
-            if (!rawTau.isEmpty() && !ngayDiStr.isEmpty() && !gioDiStr.isEmpty()) {
+            if (!tuyenID.isEmpty() && !rawTau.isEmpty() && !ngayDiStr.isEmpty() && !gioDiStr.isEmpty()) {
                 String tauID = layMaTuChuoiHienThi(rawTau);
 
                 LocalDate d = LocalDate.parse(ngayDiStr, dateTimeFormatter);
@@ -1080,7 +1104,7 @@ public class QuanLyChuyen_CTRL {
 
                 String hauTo = getHauToTheoChuKy(chuKy);
 
-                String maChuyenMoi = tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
+                String maChuyenMoi = tuyenID.toUpperCase()+ "_" + tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
                 panelThemChuyen.getTxtMaChuyen().setText(maChuyenMoi);
             }
         } catch (Exception ex) {
@@ -1453,7 +1477,7 @@ public class QuanLyChuyen_CTRL {
         String strGio = t.format(DateTimeFormatter.ofPattern("HHmm"));
 
         String hauTo = getHauToTheoChuKy(chuKy);
-        String maChuyen = tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
+        String maChuyen = tuyenID.toUpperCase() + "_" + tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
 
         Chuyen c = new Chuyen(maChuyen);
         c.setTuyen(new Tuyen(tuyenID));
@@ -1745,6 +1769,33 @@ public class QuanLyChuyen_CTRL {
             default -> "PS"; // Bao gồm cả "Chuyến phát sinh"
         };
     }
+
+    private void xuLyHuyBoThem() {
+        int choice = JOptionPane.showConfirmDialog(
+                panelThemChuyen,
+                "Bạn có chắc chắn muốn hủy bỏ thao tác thêm tuyến?\nMọi thay đổi chưa lưu sẽ bị mất.",
+                "Xác nhận Hủy",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (choice == JOptionPane.YES_OPTION) {
+            dialogThem.dispose();
+        }
+    }
+
+    private void xuLyHuyBoCapNhat() {
+        int choice = JOptionPane.showConfirmDialog(
+                panelCapNhatChuyen,
+                "Bạn có chắc chắn muốn hủy bỏ thao tác thêm tuyến?\nMọi thay đổi chưa lưu sẽ bị mất.",
+                "Xác nhận Hủy",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (choice == JOptionPane.YES_OPTION) {
+            dialogCapNhat.dispose();
+        }
+    }
+
 }
 
 

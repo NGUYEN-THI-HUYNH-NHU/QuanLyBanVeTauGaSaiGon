@@ -58,6 +58,20 @@ public class CapNhatTuyen_CTRL {
         dsGaDaChon = new ArrayList<>();
         listTenGaGoc = new ArrayList<>();
 
+        this.dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+        this.dialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                xuLyHuyBo();
+            }
+        });
+
         khoiTaoDuLieuBanDau();
         thietLapListener();
         taiDuLieuTuyen(tuyenIDCanCapNhat);
@@ -532,7 +546,14 @@ public class CapNhatTuyen_CTRL {
     }
 
     private void xuLyHuyBo() {
-        if (JOptionPane.showConfirmDialog(panelCapNhatTuyen, "Hủy cập nhật?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+        int choice = JOptionPane.showConfirmDialog(
+                panelCapNhatTuyen,
+                "Bạn có chắc chắn muốn hủy bỏ thao tác thêm tuyến?\nMọi thay đổi chưa lưu sẽ bị mất.",
+                "Xác nhận Hủy",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (choice == JOptionPane.YES_OPTION) {
             dialog.dispose();
         }
     }

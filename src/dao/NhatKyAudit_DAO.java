@@ -59,21 +59,30 @@ public class NhatKyAudit_DAO {
         return danhSachNhatKy;
     }
 
-    // tạo mã nhật ký audit mới
+
     public String maNhatKyMoi() {
-        String sql = "SELECT COUNT(*) AS soLuong FROM NhatKyAudit";
+        String sql = "SELECT MAX(nhatKyID) AS MaxID FROM NhatKyAudit";
+
         try (Connection con = connectDB.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                int soLuong = rs.getInt("soLuong") + 1;
-                return "NK" + String.format("%05d", soLuong);
+                String maxID = rs.getString("MaxID");
+
+
+                if (maxID == null) {
+                    return "NK00001";
+                }
+
+                int number = Integer.parseInt(maxID.substring(2));
+                return "NK" + String.format("%05d", number + 1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+
+        return "NK00001";
     }
 
     // lọc/tìm kiếm nhật ký theo nhiều tiêu chí kết hợp

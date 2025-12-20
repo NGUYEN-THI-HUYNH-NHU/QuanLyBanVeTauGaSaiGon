@@ -41,6 +41,8 @@ public class ThemTuyen_CTRL {
     private final Ga_BUS gaBus;
     private final KhoangCachChuan_DAO khoangCachChuanDao;
 
+    private List<String> lastSuggestionTuyen = new ArrayList<>();
+
     private final Map<String, Ga> dsGaCoSan;
     private final List<Ga> dsGaDaChon;
     private List<String> listTenGaGoc;
@@ -67,6 +69,7 @@ public class ThemTuyen_CTRL {
 
         khoiTaoDuLieuBanDau();
         thietLapListener();
+        this.dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         this.dialog.addWindowListener(new WindowAdapter() {
             @Override
@@ -76,7 +79,7 @@ public class ThemTuyen_CTRL {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                lamMoi();
+                xuLyHuyBo();
             }
         });
     }
@@ -161,13 +164,13 @@ public class ThemTuyen_CTRL {
         List<String> ds = timKiem.apply(input);
         if(ds == null || ds.isEmpty()){
             pp.setVisible(false);
+            lastSuggestionTuyen.clear();
             return;
         }
-
-        if (ds.size() == 1 && ds.get(0).equalsIgnoreCase(input)) {
-            pp.setVisible(false);
+        if (ds.equals(lastSuggestionTuyen) && pp.isVisible()) {
             return;
         }
+        lastSuggestionTuyen = new ArrayList<>(ds);
 
         lst.setListData(ds.toArray(new String[0]));
         lst.setVisibleRowCount(Math.min(ds.size(), 10));
@@ -266,7 +269,9 @@ public class ThemTuyen_CTRL {
         txt.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-//                SwingUtilities.invokeLater(() -> hienThiGoiY(txt, lst, pp, timKiem));
+//                if (!txt.getText().trim().isEmpty()) {
+//            SwingUtilities.invokeLater(() -> hienThiGoiY(txt, lst, pp, timKiem));
+//        }
             }
 
             @Override
