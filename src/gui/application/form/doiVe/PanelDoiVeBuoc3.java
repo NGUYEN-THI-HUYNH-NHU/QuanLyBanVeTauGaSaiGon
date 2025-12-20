@@ -15,7 +15,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.List;
 import java.util.function.Consumer;
@@ -30,6 +29,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.LeftTopRenderer;
 
@@ -37,6 +38,7 @@ public class PanelDoiVeBuoc3 extends JPanel {
 	private VeDoiTableModel model;
 	private JTable table;
 	private JButton btnXacNhan;
+	private JButton btnRefresh;
 
 	public PanelDoiVeBuoc3() {
 		setLayout(new BorderLayout());
@@ -51,9 +53,12 @@ public class PanelDoiVeBuoc3 extends JPanel {
 		sp.setPreferredSize(new Dimension(0, 300));
 		add(sp, BorderLayout.CENTER);
 
-		JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel south = new JPanel(new BorderLayout());
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.6f));
+		south.add(btnRefresh, BorderLayout.WEST);
 		btnXacNhan = new JButton("Xác nhận");
-		south.add(btnXacNhan);
+		south.add(btnXacNhan, BorderLayout.EAST);
 
 		add(south, BorderLayout.SOUTH);
 	}
@@ -109,6 +114,10 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 	public JButton getBtnXacNhan() {
 		return btnXacNhan;
+	}
+
+	public JButton getBtnRefresh() {
+		return btnRefresh;
 	}
 
 	/**

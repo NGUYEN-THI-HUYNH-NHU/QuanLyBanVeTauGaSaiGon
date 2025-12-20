@@ -12,6 +12,9 @@ package gui;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -36,6 +39,9 @@ public class UngDung extends JFrame {
 	private static UngDung ungDung;
 	private final FormDangNhap formDangNhap;
 	private GiaoDienChinh giaoDienChinh;
+
+	// Biến để lưu trữ các màn hình cần giữ trạng thái
+	private Map<String, Component> panelCache = new HashMap<>();
 
 	private UngDung() {
 		super("Quản Lý Bán Vé Tàu Ga Sài Gòn");
@@ -135,8 +141,25 @@ public class UngDung extends JFrame {
 		}
 	}
 
+	// Hỗ trợ lấy Panel từ Cache
+	// key: Tên định danh
+	// creator: Hàm tạo mới nếu chưa có trong cache
+	public Component getOrCreatePanel(String key, Supplier<Component> creator) {
+		if (!panelCache.containsKey(key)) {
+			Component newComp = creator.get();
+			panelCache.put(key, newComp);
+		}
+
+		return panelCache.get(key);
+	}
+
+	public void removePanelFromCache(String key) {
+		panelCache.remove(key);
+	}
+
 	public static void reloadPanelBanVe() {
-		showGiaoDienChinh(new PanelBanVe());
+		UngDung.getInstance().removePanelFromCache("PanelBanVe");
+		UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
 	}
 
 	public static void reloadPanelHoanVe() {
@@ -144,6 +167,7 @@ public class UngDung extends JFrame {
 	}
 
 	public static void reloadPanelDoiVe() {
-		showGiaoDienChinh(new PanelDoiVe());
+		UngDung.getInstance().removePanelFromCache("PanelDoiVe");
+		UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
 	}
 }

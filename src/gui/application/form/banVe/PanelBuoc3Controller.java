@@ -198,7 +198,7 @@ public class PanelBuoc3Controller {
 
 		// Lấy danh sách gợi ý
 		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
-		int limit = 4;
+		int limit = 3;
 		int i = 0;
 
 		if (!listSuggest.isEmpty()) {
@@ -283,8 +283,11 @@ public class PanelBuoc3Controller {
 	}
 
 	private void handleRefresh() {
-		if (onRefreshListener != null) {
-			onRefreshListener.run();
+		if (JOptionPane.showConfirmDialog(view, "Bạn xác nhận làm mới phiên bán vé?", "Lưu ý",
+				JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+			if (onRefreshListener != null) {
+				onRefreshListener.run();
+			}
 		}
 	}
 

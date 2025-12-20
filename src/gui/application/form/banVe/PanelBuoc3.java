@@ -15,10 +15,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -112,17 +112,22 @@ public class PanelBuoc3 extends JPanel {
 		add(sp, BorderLayout.CENTER);
 
 		JPanel south = new JPanel(new BorderLayout());
-		btnRefresh = new JButton("Làm mới");
-		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.6f));
-		south.add(btnRefresh, BorderLayout.WEST);
 
-		JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btnCancel = new JButton("Hủy");
 		btnConfirm = new JButton("Xác nhận");
 		btnConfirm.setBackground(new Color(36, 104, 155));
-		btns.add(btnCancel);
-		btns.add(btnConfirm);
-		south.add(btns, BorderLayout.EAST);
+		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.6f));
+
+		JPanel leftPanel = new JPanel(new GridLayout(1, 1));
+		leftPanel.add(btnRefresh);
+
+		JPanel rightPanel = new JPanel(new GridLayout(1, 2, 5, 0));
+		rightPanel.add(btnCancel);
+		rightPanel.add(btnConfirm);
+
+		south.add(leftPanel, BorderLayout.WEST);
+		south.add(rightPanel, BorderLayout.EAST);
 
 		add(south, BorderLayout.SOUTH);
 

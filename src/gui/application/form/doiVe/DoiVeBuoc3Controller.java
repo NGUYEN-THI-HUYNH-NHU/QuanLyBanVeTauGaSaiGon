@@ -34,6 +34,12 @@ public class DoiVeBuoc3Controller {
 
 	private RowSelectionChangeListener selectionChangeListener;
 
+	private Runnable onRefreshListener;
+
+	protected void addRefreshListener(Runnable listener) {
+		this.onRefreshListener = listener;
+	}
+
 	public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel, ExchangeSession exchangeSession) {
 		this.panel = panel;
 		this.exchangeSession = exchangeSession;
@@ -53,7 +59,12 @@ public class DoiVeBuoc3Controller {
 			}
 		});
 
-		// Lắng nghe nút xác nhận
+		this.panel.getBtnRefresh().addActionListener(e -> {
+			if (onRefreshListener != null) {
+				onRefreshListener.run();
+			}
+		});
+
 		this.panel.getBtnXacNhan().addActionListener(e -> {
 			List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
 			exchangeSession.setListVeCuCanDoi(listVeDoiRow);

@@ -19,9 +19,6 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
@@ -68,9 +65,6 @@ public class GiaoDienChinh extends JLayeredPane {
 	private JPanel panelBody;
 	private JButton menuButton;
 
-	// 1. Thêm biến để lưu trữ các màn hình cần giữ trạng thái
-	private Map<String, Component> panelCache = new HashMap<>();
-
 	public GiaoDienChinh(NhanVien nhanVien) {
 		init(nhanVien);
 	}
@@ -112,11 +106,13 @@ public class GiaoDienChinh extends JLayeredPane {
 			switch (index) {
 			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
-			case 2 -> UngDung.showGiaoDienChinh(getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
+			case 2 ->
+				UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
 			case 3 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe());
-				case 2 -> UngDung.showGiaoDienChinh(new PanelDoiVe());
+				case 2 -> UngDung.showGiaoDienChinh(
+						UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
 				case 3 -> UngDung.showGiaoDienChinh(new PanelXemInVe());
 				default -> action.cancel();
 				}
@@ -263,23 +259,5 @@ public class GiaoDienChinh extends JLayeredPane {
 			return panelBody.getComponent(0);
 		}
 		return null;
-	}
-
-	// 2. Thêm hàm hỗ trợ lấy Panel từ Cache
-	// key: Tên định danh (ví dụ: "BanVe")
-	// creator: Hàm tạo mới nếu chưa có trong cache
-	// Trong GiaoDienChinh.java
-	private Component getOrCreatePanel(String key, Supplier<Component> creator) {
-		if (!panelCache.containsKey(key)) {
-			Component newComp = creator.get();
-			panelCache.put(key, newComp);
-		}
-
-		return panelCache.get(key);
-	}
-
-	// 4. Thêm phương thức để PanelBanVe có thể tự reset khi Bán vé hoàn tất
-	public void removePanelFromCache(String key) {
-		panelCache.remove(key);
 	}
 }

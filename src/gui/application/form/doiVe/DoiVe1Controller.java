@@ -35,10 +35,15 @@ public class DoiVe1Controller {
 
 	private final ExchangeSession exchangeSession;
 
+	private Runnable onPanel1RefreshListener;
 	private Runnable onPanel1CompleteListener;
 
 	protected void addPanel1CompleteListener(Runnable listener) {
 		this.onPanel1CompleteListener = listener;
+	}
+
+	protected void addPanel1RefreshListner(Runnable listener) {
+		this.onPanel1RefreshListener = listener;
 	}
 
 	public DoiVe1Controller(PanelDoiVe1 view, ExchangeSession exchangeSession) {
@@ -116,6 +121,12 @@ public class DoiVe1Controller {
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
 				exchangeSession.getListVeCuCanDoi().remove(row);
 				p2Controller.refreshRowDisplay(row);
+			}
+		});
+
+		this.p3Controller.addRefreshListener(() -> {
+			if (onPanel1RefreshListener != null) {
+				onPanel1RefreshListener.run();
 			}
 		});
 
