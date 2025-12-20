@@ -35,15 +35,10 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/nguyen-thi-huynh-nhu
 import bus.BieuGiaVe_BUS;
 import bus.Tuyen_BUS;
 import entity.BieuGiaVe;
 import entity.NhanVien;
-import entity.Tuyen;
 import gui.application.form.bieuGia.BieuGiaVeTableButtonRenderer;
 import gui.application.form.bieuGia.BieuGiaVeTableModel;
 import gui.application.form.bieuGia.FormThemSuaBieuGia;

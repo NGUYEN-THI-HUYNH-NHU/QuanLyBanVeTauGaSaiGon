@@ -24,6 +24,7 @@ import dao.ChuyenGa_DAO;
 import dao.Chuyen_DAO;
 import dao.Ga_DAO;
 import dao.Ghe_DAO;
+import dao.Tau_DAO;
 import dao.Toa_DAO;
 import entity.Chuyen;
 import entity.ChuyenGa;
@@ -314,11 +315,12 @@ public class Chuyen_BUS {
 		return allGa;
 	}
 
-<<<<<<< HEAD
 	public String themChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh, NhanVien nv) {
 		// Gọi sang DAO xử lý Batch
 		boolean ok = chuyenDAO.themChuyenBatch(dsChuyen, dsLichTrinh);
-		if (!ok) return "Lỗi hệ thống khi lưu hàng loạt dữ liệu!";
+		if (!ok) {
+			return "Lỗi hệ thống khi lưu hàng loạt dữ liệu!";
+		}
 
 		// Ghi log audit tổng quát để giảm tải ghi log
 		String chiTietLog = String.format("%s đã tạo hàng loạt %d chuyến theo chu kỳ.", nv.getHoTen(), dsChuyen.size());
@@ -331,15 +333,17 @@ public class Chuyen_BUS {
 	}
 
 	public String capNhatChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh, NhanVien nv) {
-		if (dsChuyen == null || dsChuyen.isEmpty()) return "Danh sách cập nhật trống!";
+		if (dsChuyen == null || dsChuyen.isEmpty()) {
+			return "Danh sách cập nhật trống!";
+		}
 
 		// Gọi DAO xử lý
 		boolean ok = chuyenDAO.capNhatChuyenBatch(dsChuyen, dsLichTrinh);
 
 		if (ok) {
 			// Ghi log tổng quát cho chu kỳ
-			String chiTiet = String.format("%s cập nhật chu kỳ cho tàu %s, tổng số %d chuyến.",
-					nv.getHoTen(), dsChuyen.get(0).getTau().getTauID(), dsChuyen.size());
+			String chiTiet = String.format("%s cập nhật chu kỳ cho tàu %s, tổng số %d chuyến.", nv.getHoTen(),
+					dsChuyen.get(0).getTau().getTauID(), dsChuyen.size());
 			ghiLogAudit("BATCH_UPDATE", nv, NhatKyAudit.SUA, chiTiet);
 			return null; // Thành công
 		}
@@ -349,7 +353,8 @@ public class Chuyen_BUS {
 
 	public List<Chuyen> layDanhSachChuyenTheoNgay(LocalDate ngay) {
 		return chuyenDAO.getChuyenTheoNgay(ngay);
-=======
+	}
+
 	/**
 	 * @param chuyenID
 	 * @param gaDiID
@@ -359,6 +364,5 @@ public class Chuyen_BUS {
 	public int[] layThongKeCho(String chuyenID, String gaDiID, String gaDenID) {
 		// TODO Auto-generated method stub
 		return chuyenDAO.getThongKeCho(chuyenID, gaDiID, gaDenID);
->>>>>>> feature/nguyen-thi-huynh-nhu
 	}
 }
