@@ -34,7 +34,7 @@ public class TaiKhoan_BUS {
 
 	// kiem tra ten dang nhap da ton tai
 	public boolean kiemTraTenDangNhapTonTai(String tenDN) {
-		return taiKhoan_dao.kiemTranTenDangNhapTonTai(tenDN);
+		return taiKhoan_dao.kiemTraTenDangNhap(tenDN);
 	}
 
 	// doi mat khau
