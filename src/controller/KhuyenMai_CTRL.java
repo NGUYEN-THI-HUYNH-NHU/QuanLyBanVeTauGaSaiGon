@@ -3,14 +3,21 @@ package controller;
 import bus.KhuyenMai_BUS;
 import entity.DieuKienKhuyenMai;
 import entity.KhuyenMai;
+import entity.NhanVien;
 import entity.Tuyen;
+import entity.type.HangToa;
+import entity.type.LoaiDoiTuong;
+import entity.type.LoaiTau;
+import gui.application.AuthService;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public class KhuyenMai_CTRL {
     private final KhuyenMai_BUS khuyenMai_bus;
+    private final NhanVien nhanVienHienTai;
     public KhuyenMai_CTRL() {
+        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
         khuyenMai_bus = new KhuyenMai_BUS();
     }
 
@@ -24,15 +31,19 @@ public class KhuyenMai_CTRL {
     }
     //thêm khách hàng
     public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm){
+        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
         return khuyenMai_bus.themKhuyenMai(km, dkkm);
     }
     //sửa khách hàng
     public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm){
+        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
         return khuyenMai_bus.suaKhuyenMai(km, dkkm);
     }
     //tìm khuyến mãi
-    public List<KhuyenMai> timKhuyenMai(String tuKhoa, String maTuyen, Boolean trangThai, LocalDate tuNgay, LocalDate denNgay) {
-        return khuyenMai_bus.timKhuyenMai(tuKhoa, maTuyen, trangThai, tuNgay, denNgay);
+    public List<KhuyenMai> timKhuyenMai(String tuKhoa, String maTuyen, Boolean trangThai,
+                                        LocalDate ngayBatDau, LocalDate ngayKetThuc,
+                                        LoaiTau loaiTau, HangToa hangToa, LoaiDoiTuong loaiDoiTuong) {
+        return khuyenMai_bus.timKiemKhuyenMai(tuKhoa, maTuyen, trangThai, ngayBatDau, ngayKetThuc, loaiTau, hangToa, loaiDoiTuong);
     }
 
     //lay ma dieu kien khuyen mai theo ma khuyen mai
@@ -91,6 +102,11 @@ public class KhuyenMai_CTRL {
     //tu dong cap nhat trang thai
     public boolean tuDongCapNhatTrangThai(){
         return khuyenMai_bus.capNhatTrangThaiKhuyenMai();
+    }
+
+    //tim khuyen mai theo ID
+    public KhuyenMai layKhuyenMaiTheoID(String khuyenMaiID){
+        return khuyenMai_bus.layKhuyenMaiTheoID(khuyenMaiID);
     }
 
 

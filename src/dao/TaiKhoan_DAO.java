@@ -119,28 +119,6 @@ public class TaiKhoan_DAO {
 		return success;
 	}
 
-	public boolean isTaiKhoanTonTai(String tenDangNhap) {
-		Connection connection = connectDB.getConnection();
-		PreparedStatement stmt = null;
-		ResultSet resultSet = null;
-
-		try {
-			stmt = connection.prepareStatement("SELECT * FROM TaiKhoan WHERE tenDangNhap = ?");
-			stmt.setString(1, tenDangNhap);
-			resultSet = stmt.executeQuery();
-
-			if (resultSet.next()) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			connectDB.close(stmt, resultSet);
-		}
-		return false;
-	}
 
 	public TaiKhoan getTaiKhoanVoiNhanVienID(String nhanVienIDtim) {
 		Connection connection = connectDB.getConnection();
@@ -244,7 +222,30 @@ public class TaiKhoan_DAO {
 		return dsTaiKhoan;
 	}
 
-	public boolean kiemTraTenDangNhap(String tenDN) {
+	//tao ma tai khoan moi
+	public String taoMaTaiKhoanMoi() {
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT TOP 1 taiKhoanID FROM TaiKhoan ORDER BY taiKhoanID DESC";
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		String newID = "TK0001";
+		try {
+			stmt = con.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				String lastID = rs.getString("taiKhoanID");
+				int numericPart = Integer.parseInt(lastID.substring(2));
+				numericPart++;
+				newID = String.format("TK%04d", numericPart);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return newID;
+	}
+
+
+	public boolean kiemTranTenDangNhapTonTai(String tenDN) {
 		Connection con = connectDB.getConnection();
 		String sql = "SELECT *FROM TaiKhoan WHERE tenDangNhap = ?";
 		PreparedStatement stmt = null;
@@ -263,59 +264,57 @@ public class TaiKhoan_DAO {
 	}
 
 	public boolean capNhatTaiKhoan(TaiKhoan tkMoi) {
-		Connection con = connectDB.getConnection();
-		String sql = "UPDATE TaiKhoan SET tenDangNhap = ?, matKhauHash = ?, trangThai = ? WHERE taiKhoanID = ?";
-		try (PreparedStatement stmt = con.prepareStatement(sql)) {
-			stmt.setString(1, tkMoi.getTenDangNhap());
-			stmt.setString(2, tkMoi.getMatKhauHash());
-			stmt.setBoolean(3, tkMoi.isHoatDong());
-			stmt.setString(4, tkMoi.getTaiKhoanID());
+		if (tkMoi == null || tkMoi.getTaiKhoanID() == null || tkMoi.getTaiKhoanID().isBlank()) {
+			return false;
+		}
+
+		boolean capNhatMatKhau = tkMoi.getMatKhauHash() != null && !tkMoi.getMatKhauHash().isBlank();
+
+		StringBuilder sql = new StringBuilder(
+				"UPDATE TaiKhoan SET vaiTroTaiKhoanID = ?, nhanVienID = ?, tenDangNhap = ?, trangThai = ?"
+		);
+		if (capNhatMatKhau) {
+			sql.append(", matKhauHash = ?");
+		}
+		sql.append(" WHERE taiKhoanID = ?");
+
+		try (Connection con = connectDB.getConnection();
+			 PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+
+			int i = 1;
+
+			// 1) vaiTroTaiKhoanID (bảng bạn đang lưu dạng string enum name())
+			stmt.setString(i++, tkMoi.getVaiTroTaiKhoan().name());
+
+			// 2) nhanVienID
+			stmt.setString(i++, tkMoi.getNhanVien().getNhanVienID());
+
+			// 3) tenDangNhap
+			stmt.setString(i++, tkMoi.getTenDangNhap());
+
+			// 4) trangThai
+			stmt.setBoolean(i++, tkMoi.isHoatDong());
+
+			// 5) matKhauHash (nếu có)
+			if (capNhatMatKhau) {
+				stmt.setString(i++, tkMoi.getMatKhauHash());
+			}
+
+			// 6) WHERE taiKhoanID
+			stmt.setString(i, tkMoi.getTaiKhoanID());
 
 			int n = stmt.executeUpdate();
 			return n > 0;
+
 		} catch (SQLException e) {
-			System.out.print("Cap nhat tai khoan that bai: " + e.getMessage());
+			System.err.println("Cap nhat tai khoan that bai: " + e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
 	}
 
-	public String taoMaTaiKhoanMoi() {
-		String maMoi = "TK001";
-		Connection con = connectDB.getConnection();
-		String sql = "SELECT MAX(TaiKhoanID) AS maCuoi FROM TaiKhoan";
-		try (PreparedStatement stmt = con.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
-			if (rs.next()) {
-				String maCuoi = rs.getString("maCuoi");
-				if (maCuoi != null) {
-					int so = Integer.parseInt(maCuoi.substring(2)) + 1;
-					maMoi = String.format("TK%03d", so);
-				}
-			}
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return maMoi;
-	}
 
-	public String goiYTenDangNhap(String tenDN) {
-		Connection con = connectDB.getConnection();
-		String sql = "SELECT tenDangNhap FROM TaiKhoan WHERE tenDangNhap LIKE ?";
-		try (PreparedStatement stmt = con.prepareStatement(sql)) {
-			stmt.setString(1, tenDN + "%");
-			ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				String tenDangNhap = rs.getString(1);
-				int soThuTu = Integer.parseInt(tenDangNhap.substring(tenDN.length()));
-				soThuTu++;
-				return tenDN + soThuTu;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return tenDN;
-	}
 
 	// tim kiem tong hop (maNV, tenDangNhap, vaiTro, trangThai)
 	public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai) {
@@ -373,4 +372,31 @@ public class TaiKhoan_DAO {
 		}
 		return null;
 	}
+
+	//tim kiem tai khoan theo ID
+	public TaiKhoan timTaiKhoanTheoID(String taiKhoanID) {
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT * FROM TaiKhoan WHERE taiKhoanID = ?";
+		try (PreparedStatement stmt = con.prepareStatement(sql)) {
+			stmt.setString(1, taiKhoanID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				String vaiTroStr = rs.getString(2);
+				VaiTroTaiKhoan vaiTroTaiKhoan = VaiTroTaiKhoan.valueOf(vaiTroStr);
+				String nhanVienID = rs.getString(3);
+				String tenDangNhap = rs.getString(4);
+				String matKhauHash = rs.getString(5);
+				LocalDateTime thoiDiemTao = rs.getTimestamp(6).toLocalDateTime();
+				boolean isHoatDong = rs.getBoolean(7);
+
+				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienID),
+						tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+			}
+		} catch (SQLException e) {
+			System.out.print("Tim tai khoan theo ID that bai: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

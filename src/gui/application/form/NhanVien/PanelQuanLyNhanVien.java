@@ -33,6 +33,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
     private DefaultTableModel model;
     private JButton btnAdd, btnEdit, btnFind, btnClean;
     private boolean isEditing = false;
+    private Font font = new Font("Roboto", Font.PLAIN, 14);
 
     // màu sắc giao diện
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
@@ -48,38 +49,42 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
 
 
+        btnAdd  = createButton("Thêm", "/gui/icon/png/save.png");
+        btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
+        btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
+        btnClean= createButton("Xóa trắng", "/gui/icon/png/clean.png");
+        btnFind.setToolTipText("Tìm theo: Tên, Số điện thoại, Vai trò, Trạng thái");
+
+
         setLayout(new BorderLayout(10, 10));
         setBackground(COLOR_BG_MAIN);
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Tiêu đề
         JLabel lblTitle = new JLabel("QUẢN LÝ NHÂN VIÊN", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Roboto", Font.ITALIC | Font.BOLD, 26));
+        lblTitle.setFont(new Font("Roboto", Font.BOLD, 26));
         lblTitle.setForeground(COLOR_TEXT_TITLE);
         add(lblTitle, BorderLayout.NORTH);
 
-        // Panel chính chia đôi
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panelInput(), panelChiTiet());
         splitPane.setDividerLocation(550);
         splitPane.setResizeWeight(0.5);
         splitPane.setContinuousLayout(true);
         add(splitPane, BorderLayout.CENTER);
 
-        // Bảng danh sách
         add(panelTable(), BorderLayout.SOUTH);
 
 
-        // Load dữ liệu ban đầu
-        loadDataToTable();
-        initPlaceholders();
-
-        //add su kien cho cac nut
         table.addMouseListener(this);
         btnAdd.addActionListener(this);
         btnClean.addActionListener(this);
         btnEdit.addActionListener(this);
         btnFind.addActionListener(this);
+
+        loadDataToTable();
+        initPlaceholders();
     }
+
 
     private JPanel panelInput() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
@@ -107,11 +112,14 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         cbVaiTro = new JComboBox<>(VaiTroNhanVien.values());
         txtNgaySinh = new JDateChooser();
         txtNgaySinh.setDateFormatString("dd/MM/yyyy");
+        txtNgaySinh.setCalendar(java.util.Calendar.getInstance());
         txtSDT = new JTextField();
         txtEmail = new JTextField();
         txtDiaChi = new JTextField();
         txtNgayThamGia = new JDateChooser();
         txtNgayThamGia.setDateFormatString("dd/MM/yyyy");
+        txtNgayThamGia.setCalendar(java.util.Calendar.getInstance());
+
         cbCaLam = new JComboBox<>(new String[]{"Sáng", "Chiều", "Tối"});
         rbtnNu = new JRadioButton("Nữ");
         rbtnNam = new JRadioButton("Nam");
@@ -144,6 +152,9 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
             comp.addKeyListener(this);
         }
 
+        // Thiết lập gõ phím cho JComboBoxs
+        setupComboKeyboard(cbVaiTro);
+        setupComboKeyboard(cbCaLam);
 
         addField(form, gbc, "Mã nhân viên:", txtMaNV, font);
         addField(form, gbc, "Tên nhân viên:", txtTenNV, font);
@@ -158,30 +169,45 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         addField(form, gbc, "Ca làm:", cbCaLam, font);
 
         //Nút chức năng
+        JPanel footer = new JPanel(new GridBagLayout());
+        footer.setBackground(new Color(245, 245, 245));
+
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         btnPanel.setBackground(new Color(245, 245, 245));
-
-        btnAdd = createButton("Thêm", "/gui/icon/png/save.png");
-        btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
-        btnClean = createButton("Xóa trắng", "/gui/icon/png/clean.png");
-
-        //tạo tooltip cho nút
-        btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
-        btnFind.setToolTipText("Tìm theo: Tên, Số điện thoại, Vai trò, Trạng thái");
-
 
         btnPanel.add(btnAdd);
         btnPanel.add(btnEdit);
         btnPanel.add(btnFind);
         btnPanel.add(btnClean);
 
-        setupComboKeyboard(cbVaiTro);
-        setupComboKeyboard(cbCaLam);
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.EAST;
+        g.insets = new Insets(0, 10, 0, 10);
+        footer.add(btnPanel, g);
+
+
+        JLabel lblTieuChi = new JLabel(
+                "<html><b><i>Tìm kiếm theo:</i></b> Tên, SĐT, Vai trò, Trạng thái</html>"
+        );
+        lblTieuChi.setFont(new Font("Roboto", Font.ITALIC, 12));
+        lblTieuChi.setForeground(COLOR_TEXT_LABEL);
+
+        g.gridy = 1;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(0, 12, 6, 10);
+        footer.add(lblTieuChi, g);
 
 
         p.add(form, BorderLayout.CENTER);
-        p.add(btnPanel, BorderLayout.SOUTH);
+        p.add(footer, BorderLayout.SOUTH);
         return p;
+
     }
 
     private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent comp, Font font) {
@@ -246,7 +272,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         JPanel details = new JPanel(new GridLayout(11, 2, 10, 5));
         details.setBackground(new Color(245, 245, 245));
 
-        Font font = new Font("Roboto", Font.PLAIN, 14);
         Color color = COLOR_TEXT_LABEL;
 
         lblMaNVDetail = createValueLabel();
@@ -288,6 +313,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 if (field.getText().equals(placeholder)) {
                     field.setText("");
                     field.setForeground(Color.BLACK);
+                    field.setFont(font);
                 }
             }
 
@@ -296,6 +322,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 if (field.getText().trim().isEmpty()) {
                     field.setForeground(Color.GRAY);
                     field.setText(placeholder);
+                    field.setFont(font);
                 }
             }
         });
@@ -314,7 +341,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
     private void initPlaceholders() {
         applyPlaceholder(txtTenNV,   "VD: Nguyễn Văn A");
         applyPlaceholder(txtSDT,     "VD: 0912345678");
-        applyPlaceholder(txtEmail,   "VD: email123@gamil.com");
+        applyPlaceholder(txtEmail, "VD: email123@gmail.com");
         applyPlaceholder(txtDiaChi,  "VD: 45/2 Nguyễn Huệ, Quận 1");
     }
 
@@ -516,11 +543,13 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         txtMaNV.setText("");
         txtTenNV.setText("");
         cbVaiTro.setSelectedIndex(0);
-        txtNgaySinh.setDate(null);
+        txtNgaySinh.setDateFormatString("dd/MM/yyyy");
+        txtNgaySinh.setCalendar(java.util.Calendar.getInstance());
         txtSDT.setText("");
         txtEmail.setText("");
         txtDiaChi.setText("");
-        txtNgayThamGia.setDate(null);
+        txtNgayThamGia.setDateFormatString("dd/MM/yyyy");
+        txtNgayThamGia.setCalendar(java.util.Calendar.getInstance());
         cbCaLam.setSelectedIndex(0);
         rbtnNam.setSelected(true);
         chkDangHoatDong.setSelected(true);

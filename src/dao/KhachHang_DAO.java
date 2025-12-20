@@ -210,4 +210,20 @@ public class KhachHang_DAO {
 		}
 		return list;
 	}
+	//tìm khách hàng theo id
+	public KhachHang timKhachHangTheoID(String khachHangID) {
+		String sql = "SELECT * FROM KhachHang WHERE khachHangID = ?";
+		try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+
+			pstmt.setString(1, khachHangID);
+			ResultSet rs = pstmt.executeQuery();
+			if (rs.next()) {
+				return taoKhachHangTuResultSet(rs);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

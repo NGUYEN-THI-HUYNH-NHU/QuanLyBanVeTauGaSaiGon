@@ -2,21 +2,28 @@ package controller;
 
 import bus.KhachHang_BUS;
 import entity.KhachHang;
+import entity.NhanVien;
+import gui.application.AuthService;
 
 import java.util.List;
 
 public class KhachHang_CTRL {
     private final KhachHang_BUS khachHang_bus;
+    private final NhanVien nhanVienHienTai;
+
 
     public KhachHang_CTRL() {
         khachHang_bus = new KhachHang_BUS();
+        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
     }
 
     public boolean themKhachHang(KhachHang kh) {
+        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
         return khachHang_bus.themKhachHang(kh);
     }
 
     public boolean capNhatKhachHang(KhachHang kh) {
+        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
         return khachHang_bus.capNhatKhachHang(kh);
     }
 

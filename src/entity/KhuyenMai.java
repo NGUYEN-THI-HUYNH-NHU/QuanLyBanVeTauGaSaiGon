@@ -113,18 +113,26 @@ public class KhuyenMai {
 	}
 
 	public void setNgayBatDau(LocalDate ngayBatDau) {
-		if (ngayBatDau.isAfter(ngayKetThuc)) {
-			throw new IllegalArgumentException("Ngày bắt đầu phải trước ngày kết thúc!");
-		}
 		this.ngayBatDau = ngayBatDau;
+
+		if (this.ngayBatDau == null || this.ngayKetThuc == null) return;
+
+		if (this.ngayBatDau.isAfter(this.ngayKetThuc)) {
+			throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc!");
+		}
 	}
 
+
 	public void setNgayKetThuc(LocalDate ngayKetThuc) {
-		if (ngayKetThuc.isBefore(ngayBatDau)) {
-			throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu!");
-		}
 		this.ngayKetThuc = ngayKetThuc;
+
+		if (this.ngayBatDau == null || this.ngayKetThuc == null) return;
+
+		if (this.ngayKetThuc.isBefore(this.ngayBatDau)) {
+			throw new IllegalArgumentException("Ngày kết thúc không được trước ngày bắt đầu!");
+		}
 	}
+
 
 	public void setSoLuong(double soLuong) {
 		this.soLuong = soLuong;

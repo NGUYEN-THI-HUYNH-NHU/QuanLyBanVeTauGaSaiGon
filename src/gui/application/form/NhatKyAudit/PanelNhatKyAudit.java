@@ -44,11 +44,10 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
         this.nhanVienHienTai = nhanVien;
 
         this.nhatKyAudit_ctrl = new NhatKyAudit_CTRL();
-        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai); // ✅ FIX: truyền người đăng nhập
+        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
 
         initUI();
 
-        // default UI hiển thị 7 ngày gần nhất nhưng KHÔNG lọc tự động
         loadDefault7Days();
         loadDataToTable(nhatKyAudit_ctrl.layDanhSachNhatKy());
     }
@@ -223,6 +222,7 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
             }
         }
     }
+
 
     private void loadDataToTable(List<NhatKyAudit> list) {
         current = (list == null) ? new ArrayList<>() : list;

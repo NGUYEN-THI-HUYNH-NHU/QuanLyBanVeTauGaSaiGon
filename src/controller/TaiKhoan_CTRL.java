@@ -3,13 +3,17 @@ package controller;
 import java.util.List;
 
 import bus.TaiKhoan_BUS;
+import entity.NhanVien;
 import entity.TaiKhoan;
+import gui.application.AuthService;
 
 public class TaiKhoan_CTRL {
 	private final TaiKhoan_BUS taiKhoan_bus;
+	private final NhanVien nhanVienHienTai;
 
 	public TaiKhoan_CTRL() {
 		taiKhoan_bus = new TaiKhoan_BUS();
+		this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
 	}
 
 	// lay danh sach tai khoan
@@ -19,12 +23,14 @@ public class TaiKhoan_CTRL {
 
 	// them tai khoan
 	public boolean themTaiKhoan(TaiKhoan tk) {
+		String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
 		return taiKhoan_bus.themTaiKhoan(tk);
 	}
 
 	// cap nhat tai khoan
 	public boolean capNhatTaiKhoan(TaiKhoan tk) {
-		return taiKhoan_bus.capNhatTaiKhoan(tk);
+		String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
+		return taiKhoan_bus.suaTaiKhoan(tk);
 	}
 
 	// lay tai khoan theo ten dang nhap
@@ -35,11 +41,6 @@ public class TaiKhoan_CTRL {
 	// tao ma tai khoan
 	public String taoMaTaiKhoan() {
 		return taiKhoan_bus.taoMaTaiKhoan();
-	}
-
-	// lay tai khoan theo ma nhan vien
-	public TaiKhoan layTKTheoMaNV(String maNV) {
-		return taiKhoan_bus.layTKTheoMaNV(maNV);
 	}
 
 	// kiem tra ten dang nhap da ton tai
@@ -66,5 +67,13 @@ public class TaiKhoan_CTRL {
 	public List<TaiKhoan> timKiemTongHop(String maNV, String vaiTro, String tenDN, Boolean trangThai) {
 		return taiKhoan_bus.timKiemTongHop(maNV, vaiTro, tenDN, trangThai);
 	}
+
+	//lấy tài khoản bằng tên mã nhân viên
+	public TaiKhoan layTKTheoMaNV(String maNV) {
+		return taiKhoan_bus.layTKTheoMaNV(maNV);
+	}
+
+
+
 
 }
