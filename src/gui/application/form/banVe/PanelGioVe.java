@@ -31,12 +31,16 @@ import javax.swing.border.EmptyBorder;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.itextpdf.text.Font;
 
+import gui.application.form.doiVe.DoiVe2Controller;
+
 public class PanelGioVe extends JPanel {
 	private JPanel container;
-	private BanVe1Controller mediator;
 	private JLabel lblGioVe;
 	private JScrollPane scr;
 	private JButton btnMuaVe;
+
+	private BanVe1Controller mediator;
+	private DoiVe2Controller mediatorDoiVe;
 
 	public PanelGioVe() {
 		setLayout(new BorderLayout());
@@ -49,6 +53,8 @@ public class PanelGioVe extends JPanel {
 		scr = new JScrollPane(container, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scr.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+		// Tăng tốc độ cuộn
+		scr.getVerticalScrollBar().setUnitIncrement(16);
 
 		lblGioVe = new JLabel("Giỏ vé");
 		lblGioVe.setIcon(new FlatSVGIcon(getClass().getResource("/gui/icon/svg/shopping-cart.svg")));
@@ -65,6 +71,10 @@ public class PanelGioVe extends JPanel {
 
 	public void setMediator(BanVe1Controller c) {
 		this.mediator = c;
+	}
+
+	public void setMediatorDoiVe(DoiVe2Controller c) {
+		this.mediatorDoiVe = c;
 	}
 
 	public void addBuyButtonListener(ActionListener l) {
@@ -119,6 +129,8 @@ public class PanelGioVe extends JPanel {
 		btnTrash.addActionListener(e -> {
 			if (mediator != null) {
 				mediator.handleGioVeRemove(v);
+			} else if (mediatorDoiVe != null) {
+				mediatorDoiVe.handleGioVeRemove(v);
 			}
 		});
 
@@ -132,6 +144,8 @@ public class PanelGioVe extends JPanel {
 
 		if (mediator != null) {
 			mediator.registerCountdownLabelForVe(v, lblTimer);
+		} else if (mediatorDoiVe != null) {
+			mediatorDoiVe.registerCountdownLabelForVe(v, lblTimer);
 		}
 
 		return row;

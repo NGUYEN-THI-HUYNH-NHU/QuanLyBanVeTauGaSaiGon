@@ -206,8 +206,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
 					checkBox.setBackground(table.getSelectionBackground());
 					checkBox.setForeground(table.getSelectionForeground());
 				} else {
-					checkBox.setBackground(disableBgColor);
-					checkBox.setForeground(Color.GRAY);
+					checkBox.setBackground(table.getBackground());
 				}
 
 				// 4. ÁP DỤNG MÀU NỀN (Xử lý vấn đề màu xanh khi click)

@@ -71,7 +71,7 @@ public class PanelSoDoChoDoiVe extends JPanel {
 	private static final String SEAT_SIZE_CONSTRAINTS = String.format("w %d!, h %d!", SEAT_WIDTH, SEAT_HEIGHT);
 
 	// Kích thước viewport (có thể điều chỉnh)
-	private static final int VIEWPORT_HEIGHT = 200;
+	private static final int VIEWPORT_HEIGHT = 180;
 	private static final int VIEWPORT_WIDTH = 500;
 
 	public PanelSoDoChoDoiVe() {
@@ -139,8 +139,6 @@ public class PanelSoDoChoDoiVe extends JPanel {
 		lblToaInfo.setText("Toa số " + t.getSoToa() + ": "
 				+ (t.getHangToa() != null ? t.getHangToa().getDescription() : "Chưa xác định"));
 
-//		showLoadingState();
-
 		if (controller != null) {
 			new LoadSeatWorker(t).execute();
 		}
@@ -148,15 +146,8 @@ public class PanelSoDoChoDoiVe extends JPanel {
 
 	public void showMessage(String text) {
 		pnlGridChoNgoi.removeAll();
-//		pnlGridChoNgoi.setLayout(new BorderLayout());
-//		pnlGridChoNgoi.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
-//		pnlGridChoNgoi.revalidate();
 		pnlGridChoNgoi.repaint();
 	}
-
-//	public void showLoadingState() {
-//		showMessage("Đang tải ...");
-//	}
 
 	/**
 	 * Cập nhật trạng thái trực quan cho MỘT nút ghế

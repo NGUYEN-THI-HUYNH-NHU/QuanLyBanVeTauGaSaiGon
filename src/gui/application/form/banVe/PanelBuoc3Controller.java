@@ -497,6 +497,9 @@ public class PanelBuoc3Controller {
 
 			// Bước 3: Nếu chưa có ở đâu cả -> Tạo mới
 			if (hanhKhach == null) {
+				if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccdHanhKhach) != null) {
+					return;
+				}
 				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getHoTen(), null, null,
 						cccdHanhKhach, null, row.getLoaiDoiTuong(), LoaiKhachHang.HANH_KHACH);
 				khachHangBUS.themKhachHang(hanhKhach);

@@ -370,7 +370,8 @@ public class DoiVe3Controller {
 					boolean saveSuccess = get();
 					if (saveSuccess) {
 						int choice = JOptionPane.showConfirmDialog(view,
-								"Bán vé thành công! Bạn có muốn in vé ngay không?", "In vé", JOptionPane.YES_NO_OPTION);
+								"Đổi vé thành công! Bạn có muốn in vé mới ngay không?", "In vé",
+								JOptionPane.YES_NO_OPTION);
 
 						if (choice == JOptionPane.YES_OPTION) {
 							PdfTicketExporter exporter = new PdfTicketExporter();

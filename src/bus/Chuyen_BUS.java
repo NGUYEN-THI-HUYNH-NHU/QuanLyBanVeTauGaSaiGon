@@ -20,8 +20,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import dao.*;
-import entity.*;
+import dao.ChuyenGa_DAO;
+import dao.Chuyen_DAO;
+import dao.Ga_DAO;
+import dao.Ghe_DAO;
+import dao.Toa_DAO;
+import entity.Chuyen;
+import entity.ChuyenGa;
+import entity.Ga;
+import entity.Ghe;
+import entity.NhanVien;
+import entity.Toa;
 import entity.type.NhatKyAudit;
 
 public class Chuyen_BUS {
@@ -97,22 +106,22 @@ public class Chuyen_BUS {
 		return 0;
 	}
 
-	public List<Chuyen> layDanhSachChuyen(){
+	public List<Chuyen> layDanhSachChuyen() {
 		return chuyenDAO.getAllChuyen();
 	}
 
-	public List<ChuyenGa> layChiTietHanhTrinh(String maChuyen){
+	public List<ChuyenGa> layChiTietHanhTrinh(String maChuyen) {
 		return chuyenGaDao.getChiTietHanhTrinh(maChuyen);
 	}
 
-	public Chuyen layChuyenTheoMa(String maChuyen){
-		if(maChuyen == null || maChuyen.isEmpty()){
+	public Chuyen layChuyenTheoMa(String maChuyen) {
+		if (maChuyen == null || maChuyen.isEmpty()) {
 			return null;
 		}
 		return chuyenDAO.layChuyenTheoMa(maChuyen);
 	}
 
-	public List<Chuyen> timKiemChuyen(String maChuyen, String gaDi, String gaDen, String tenTau, LocalDate ngayDi){
+	public List<Chuyen> timKiemChuyen(String maChuyen, String gaDi, String gaDen, String tenTau, LocalDate ngayDi) {
 		if (maChuyen.isEmpty() && gaDi.isEmpty() && gaDen.isEmpty() && tenTau.isEmpty() && ngayDi == null) {
 			return chuyenDAO.getAllChuyen();
 		}
@@ -120,27 +129,27 @@ public class Chuyen_BUS {
 		return chuyenDAO.timKiemChuyen(maChuyen, gaDi, gaDen, tenTau, ngayDi);
 	}
 
-	public List<String> getListMaChuyen(){
+	public List<String> getListMaChuyen() {
 		return chuyenDAO.getAllMaChuyenID();
 	}
 
-	public List<String> getListTenGa(){
+	public List<String> getListTenGa() {
 		return chuyenDAO.getAllTenGa();
 	}
 
-	public List<String> getListTenTau(){
+	public List<String> getListTenTau() {
 		return chuyenDAO.getAllTenTau();
 	}
 
-	public List<String> getAllTauID(){
+	public List<String> getAllTauID() {
 		return chuyenDAO.getAllTauID();
 	}
 
-	public List<String> getAllTuyenID(){
+	public List<String> getAllTuyenID() {
 		return chuyenDAO.getAllTuyenID();
 	}
 
-	public String themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien){
+	public String themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien) {
 
 		if (chuyenDAO.existsById(chuyen.getChuyenID())) {
 			return "Đã tồn tại chuyến " + chuyen.getChuyenID();
@@ -151,25 +160,22 @@ public class Chuyen_BUS {
 			return "Không thể thêm chuyến (lỗi lưu dữ liệu)";
 		}
 
-		String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null)  ? nhanVienThucHien.getVaiTroNhanVien().getDescription() : "";
-		String chiTietLog = String.format("%s %s Thêm Chuyến mới: %s (Tàu: %s, Ngày đi: %s, Giờ đi: %s)",
-				tenChucVu,
-				nhanVienThucHien.getHoTen(),
-				chuyen.getChuyenID(),
-				chuyen.getTau().getTauID(),
-				chuyen.getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-				chuyen.getGioDi().toString());
+		String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null)
+				? nhanVienThucHien.getVaiTroNhanVien().getDescription()
+				: "";
+		String chiTietLog = String.format("%s %s Thêm Chuyến mới: %s (Tàu: %s, Ngày đi: %s, Giờ đi: %s)", tenChucVu,
+				nhanVienThucHien.getHoTen(), chuyen.getChuyenID(), chuyen.getTau().getTauID(),
+				chuyen.getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), chuyen.getGioDi().toString());
 		ghiLogAudit(chuyen.getChuyenID(), nhanVienThucHien, NhatKyAudit.THEM, chiTietLog);
 
 		return null;
 	}
 
-
-	public Map<String, String> getMapTenGaToID(){
+	public Map<String, String> getMapTenGaToID() {
 		return chuyenDAO.getMapTenGaToID();
 	}
 
-	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien){
+	public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien) {
 		String chuyenID = chuyen.getChuyenID();
 		Chuyen chuyenCu = chuyenDAO.layChuyenTheoMa(chuyenID);
 		List<ChuyenGa> lichTrinhCu = chuyenGaDao.getChiTietHanhTrinh(chuyenID);
@@ -179,10 +185,11 @@ public class Chuyen_BUS {
 
 		boolean ketQua = chuyenDAO.capNhatChuyen(chuyen, lichTrinh);
 
-		if(ketQua){
+		if (ketQua) {
 			List<String> cacThayDoi = new ArrayList<>();
-			if(chuyenCu != null && !chuyenCu.getTau().getTauID().equals(chuyen.getTau().getTauID())){
-				cacThayDoi.add(String.format("Cập nhật tàu (Cũ: %s -> Mới: %s)", chuyenCu.getTau().getTauID(), chuyen.getTau().getTauID()));
+			if (chuyenCu != null && !chuyenCu.getTau().getTauID().equals(chuyen.getTau().getTauID())) {
+				cacThayDoi.add(String.format("Cập nhật tàu (Cũ: %s -> Mới: %s)", chuyenCu.getTau().getTauID(),
+						chuyen.getTau().getTauID()));
 			}
 
 			boolean doiNgay = !chuyenCu.getNgayDi().equals(chuyen.getNgayDi());
@@ -195,17 +202,19 @@ public class Chuyen_BUS {
 			}
 
 			if (!strLichTrinhCu.equals(strLichTrinhMoi)) {
-				cacThayDoi.add(String.format("Cập nhật thông tin chặng (Cũ: [%s] -> Mới: [%s])",
-						strLichTrinhCu, strLichTrinhMoi));
+				cacThayDoi.add(String.format("Cập nhật thông tin chặng (Cũ: [%s] -> Mới: [%s])", strLichTrinhCu,
+						strLichTrinhMoi));
 			}
 
 			else if (lichTrinhCu.size() == lichTrinh.size()) {
-				if(kiemTraThayDoiGioChiTiet(lichTrinhCu, lichTrinh)){
+				if (kiemTraThayDoiGioChiTiet(lichTrinhCu, lichTrinh)) {
 					cacThayDoi.add("Điều chỉnh giờ đến/đi tại các ga trung gian");
 				}
 			}
 
-			String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null) ? nhanVienThucHien.getVaiTroNhanVien().getDescription() : "";
+			String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null)
+					? nhanVienThucHien.getVaiTroNhanVien().getDescription()
+					: "";
 			StringBuilder sbLog = new StringBuilder();
 
 			sbLog.append(String.format("%s %s Cập nhật chuyến %s", tenChucVu, nhanVienThucHien.getHoTen(), chuyenID));
@@ -222,21 +231,21 @@ public class Chuyen_BUS {
 	}
 
 	private String layChuoiLichTrinh(List<ChuyenGa> list) {
-		if (list == null || list.isEmpty()) return "";
+		if (list == null || list.isEmpty()) {
+			return "";
+		}
 		list.sort((o1, o2) -> Integer.compare(o1.getThuTu(), o2.getThuTu()));
 
-		return list.stream()
-				.map(cg -> cg.getGa().getTenGa())
-				.collect(Collectors.joining(" -> "));
+		return list.stream().map(cg -> cg.getGa().getTenGa()).collect(Collectors.joining(" -> "));
 	}
 
 	private boolean kiemTraThayDoiGioChiTiet(List<ChuyenGa> cu, List<ChuyenGa> moi) {
-		for(int i=0; i<cu.size(); i++) {
+		for (int i = 0; i < cu.size(); i++) {
 			ChuyenGa c = cu.get(i);
 			ChuyenGa m = moi.get(i);
 			// So sánh giờ đến hoặc giờ đi
-			if((c.getGioDen() != null && !c.getGioDen().equals(m.getGioDen())) ||
-					(c.getGioDi() != null && !c.getGioDi().equals(m.getGioDi()))) {
+			if ((c.getGioDen() != null && !c.getGioDen().equals(m.getGioDen()))
+					|| (c.getGioDi() != null && !c.getGioDi().equals(m.getGioDi()))) {
 				return true;
 			}
 		}
@@ -244,24 +253,18 @@ public class Chuyen_BUS {
 	}
 
 	private void ghiLogAudit(String doiTuongID, NhanVien nv, entity.type.NhatKyAudit loaiThaoTac, String chiTiet) {
-		if (nv == null) return;
+		if (nv == null) {
+			return;
+		}
 		try {
 			String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
-			entity.NhatKyAudit log = new entity.NhatKyAudit(
-					maLog,
-					doiTuongID,
-					nv.getNhanVienID(),
-					LocalDateTime.now(),
-					loaiThaoTac,
-					chiTiet,
-					"Chuyen"
-			);
+			entity.NhatKyAudit log = new entity.NhatKyAudit(maLog, doiTuongID, nv.getNhanVienID(), LocalDateTime.now(),
+					loaiThaoTac, chiTiet, "Chuyen");
 			nhatKyAuditBus.ghiNhatKyAudit(log);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	public List<Ga> layDsGaCuaTuyen(String tuyenID) {
 		return chuyenDAO.getDsGaTheoTuyen(tuyenID);
@@ -289,7 +292,9 @@ public class Chuyen_BUS {
 
 		if (loaiTau.toUpperCase().contains("NHANH") || loaiTau.toUpperCase().contains("TAU_NHANH")) {
 			List<Ga> filtered = new ArrayList<>();
-			if (allGa.isEmpty()) return filtered;
+			if (allGa.isEmpty()) {
+				return filtered;
+			}
 			filtered.add(allGa.get(0));
 
 			for (int i = 1; i < allGa.size() - 1; i++) {
@@ -304,5 +309,16 @@ public class Chuyen_BUS {
 			return filtered;
 		}
 		return allGa;
+	}
+
+	/**
+	 * @param chuyenID
+	 * @param gaDiID
+	 * @param gaDenID
+	 * @return
+	 */
+	public int[] layThongKeCho(String chuyenID, String gaDiID, String gaDenID) {
+		// TODO Auto-generated method stub
+		return chuyenDAO.getThongKeCho(chuyenID, gaDiID, gaDenID);
 	}
 }
