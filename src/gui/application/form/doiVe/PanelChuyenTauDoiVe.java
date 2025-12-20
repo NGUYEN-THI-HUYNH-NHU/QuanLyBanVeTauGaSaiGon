@@ -25,7 +25,9 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
@@ -43,11 +45,14 @@ public class PanelChuyenTauDoiVe extends JPanel {
 	private JPanel flowPanel;
 	private JScrollPane scroll;
 	private JPanel selectedCard = null;
-	private DoiVeBuoc5Controller controller;
 
-	private Color hoverBg = new Color(230, 240, 255, 120);
+	// Map để lưu trữ JLabel thống kê theo ChuyenID
+	private Map<String, JLabel> mapSeatLabels = new HashMap<>();
+
 	private Border normalBorder = new RoundedBorder(20, new Color(200, 200, 200), 2, true, new Color(230, 230, 230));
 	private Border selectedBorder = new RoundedBorder(20, new Color(30, 120, 220), 2, true, new Color(30, 150, 220));
+
+	private DoiVeBuoc5Controller controllerDoiVe;
 
 	public PanelChuyenTauDoiVe() {
 		setBorder(new TitledBorder("Chuyến tàu có sẵn"));
@@ -60,26 +65,23 @@ public class PanelChuyenTauDoiVe extends JPanel {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		// Tăng tốc độ cuộn
-		scroll.getVerticalScrollBar().setUnitIncrement(16);
 		scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
 		add(scroll, BorderLayout.CENTER);
 	}
 
-	public void setController(DoiVeBuoc5Controller controller) {
-		this.controller = controller;
-	}
-
 	public void showChuyenList(List<Chuyen> list) {
 		flowPanel.removeAll();
 		selectedCard = null;
+		mapSeatLabels.clear(); // Clear map cũ
+
 		if (list == null || list.isEmpty()) {
 			flowPanel.add(new JLabel("Không có chuyến"));
 		} else {
 			for (Chuyen c : list) {
 				JPanel card = createChuyenCard(c, sel -> {
-					if (controller != null) {
-						controller.onChuyenSelected(c);
+					if (controllerDoiVe != null) {
+						controllerDoiVe.onChuyenSelected(c);
 					}
 				});
 				card.putClientProperty("chuyenID", c.getChuyenID());
@@ -91,7 +93,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
 	}
 
 	private JPanel createChuyenCard(Chuyen c, Consumer<Chuyen> onSelect) {
-		int cardW = 100;
+		int cardW = 108;
 		int cardH = 75;
 		Font fontLbl = new Font("", Font.PLAIN, 10);
 
@@ -131,15 +133,16 @@ public class PanelChuyenTauDoiVe extends JPanel {
 		overlay.add(lblNgayGioDen, gbc);
 
 		// seat info ở bottom (dạng badge)
-		JLabel lblCho = new JLabel(
-				String.format("Đặt: %d  Trống: %d", /* c.getBookedSeatsCount() */ 0, /* c.getAvailableSeatsCount() */0),
-				SwingConstants.CENTER);
+		JLabel lblCho = new JLabel(String.format("Đặt: %d  Trống: %d", 0, 0), SwingConstants.CENTER);
 		lblCho.setBorder(BorderFactory.createEmptyBorder(1, 2, 1, 2));
 		lblCho.setBackground(new Color(255, 255, 255, 200));
 		lblCho.setFont(fontLbl);
 		gbc.gridy = 3;
 		gbc.insets = new Insets(1, 6, 0, 6);
 		overlay.add(lblCho, gbc);
+
+		// Lưu label vào Map để update sau
+		mapSeatLabels.put(c.getChuyenID(), lblCho);
 
 		// thêm overlay và bottom label
 		p.add(overlay, BorderLayout.NORTH);
@@ -179,6 +182,38 @@ public class PanelChuyenTauDoiVe extends JPanel {
 		return p;
 	}
 
+	/**
+	 * Cập nhật số chỗ trên giao diện cho một chuyến cụ thể
+	 */
+	public void updateSeatCount(String chuyenID, int soChoDat, int soChoTrong) {
+		JLabel lbl = mapSeatLabels.get(chuyenID);
+		if (lbl != null) {
+			lbl.setText(String.format("Đặt: %d  Trống: %d", soChoDat, soChoTrong));
+			// Có thể đổi màu chữ nếu hết chỗ
+			if (soChoTrong == 0) {
+				lbl.setForeground(Color.RED);
+			}
+		}
+	}
+
+	// Lấy số chỗ hiện tại (để cộng trừ phía Client)
+	public int[] getCurrentSeatCount(String chuyenID) {
+		JLabel lbl = mapSeatLabels.get(chuyenID);
+		if (lbl != null) {
+			String text = lbl.getText();
+			try {
+				String[] parts = text.split("\\s+"); // Split by whitespace
+				if (parts.length >= 4) {
+					int dat = Integer.parseInt(parts[1]);
+					int trong = Integer.parseInt(parts[3]);
+					return new int[] { dat, trong };
+				}
+			} catch (Exception e) {
+			}
+		}
+		return new int[] { 0, 0 };
+	}
+
 	public void setSelectedCard(JPanel card) {
 		if (selectedCard != null) {
 			selectedCard.setBorder(normalBorder);
@@ -203,5 +238,13 @@ public class PanelChuyenTauDoiVe extends JPanel {
 				}
 			}
 		}
+	}
+
+	public DoiVeBuoc5Controller getController() {
+		return controllerDoiVe;
+	}
+
+	public void setController(DoiVeBuoc5Controller controllerDoiVe) {
+		this.controllerDoiVe = controllerDoiVe;
 	}
 }

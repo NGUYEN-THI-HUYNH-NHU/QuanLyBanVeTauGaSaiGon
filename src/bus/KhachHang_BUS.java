@@ -15,54 +15,39 @@ public class KhachHang_BUS {
 	private final NhanVien nhanVienHienTai;
 	private final NhatKyAudit_BUS nhatKyAudit_bus;
 
-
-
 	public KhachHang_BUS() {
 		khachHang_dao = new KhachHang_DAO();
 		this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
 		this.nhatKyAudit_bus = new NhatKyAudit_BUS();
 	}
 
-	//them khach hang
+	// them khach hang
 	public boolean themKhachHang(KhachHang kh) {
 		boolean ok = khachHang_dao.themKhachHang(kh);
 
 		if (ok) {
-			ghiLog(
-					kh.getKhachHangID(),
-					nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
-					entity.type.NhatKyAudit.THEM,
-					"Thêm khách hàng: " + kh.getHoTen() + " - " + kh.getSoDienThoai()
-			);
+			ghiLog(kh.getKhachHangID(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
+					entity.type.NhatKyAudit.THEM, "Thêm khách hàng: " + kh.getHoTen() + " - " + kh.getSoDienThoai());
 		}
 		return ok;
 	}
+
 	// ghi log
-	public void ghiLog(
-			String doiTuongID,
-			String nguoiThucHienID,
-			entity.type.NhatKyAudit loai,
-			String chiTiet
-	){
-		if (nhatKyAudit_bus == null) return;
+	public void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+		if (nhatKyAudit_bus == null) {
+			return;
+		}
 
 		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
 
-		NhatKyAudit audit = new NhatKyAudit(
-				nhatKyAudit_bus.taoMaNhatKyAuditMoi(),
-				doiTuongID,
-				nguoi,
-				LocalDateTime.now(),
-				loai,
-				chiTiet,
-				"KHACH_HANG"
-		);
+		NhatKyAudit audit = new NhatKyAudit(nhatKyAudit_bus.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
+				LocalDateTime.now(), loai, String.format("<html>̀%s</html>", chiTiet), "KHACH_HANG");
 
 		nhatKyAudit_bus.ghiNhatKyAudit(audit);
 
 	}
 
-	//tim kiem khach hang
+	// tim kiem khach hang
 //	public KhachHang timKiemKhachHangTheoID(String khachHangID) {
 //		return khachHang_dao.timKhachHangTheoID(khachHangID);
 //	}
@@ -161,30 +146,35 @@ public class KhachHang_BUS {
 		return khachHang_dao.getTop10KhachHangSuggest(keyword);
 	}
 
-	//================= LẤY THÀNH PHẦN BỊ THAY ĐỔI ===================
-	public String thanhPhanDaBiSua(KhachHang cu, KhachHang moi){
+	// ================= LẤY THÀNH PHẦN BỊ THAY ĐỔI ===================
+	public String thanhPhanDaBiSua(KhachHang cu, KhachHang moi) {
 		StringBuilder thayDoi = new StringBuilder();
 
-		if(!cu.getHoTen().equals(moi.getHoTen())) {
+		if (!cu.getHoTen().equals(moi.getHoTen())) {
 			thayDoi.append("Cập nhật tên khách hàng: (" + "" + cu.getHoTen() + ")" + " -> (" + moi.getHoTen() + ")\n");
 		}
-		if(!cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
-			thayDoi.append("Cập nhật số điện thoại: (" + "" + cu.getSoDienThoai() + ")" + " -> (" + moi.getSoDienThoai() + ")\n");
+		if (moi.getSoDienThoai() != null && !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
+			thayDoi.append("Cập nhật số điện thoại: (" + "" + cu.getSoDienThoai() + ")" + " -> (" + moi.getSoDienThoai()
+					+ ")\n");
 		}
-		if(!cu.getEmail().equals(moi.getEmail())) {
+		if (moi.getEmail() != null && !cu.getEmail().equals(moi.getEmail())) {
 			thayDoi.append("Cập nhật email: (" + "" + cu.getEmail() + ")" + " -> (" + moi.getEmail() + ")\n");
 		}
-		if(!cu.getDiaChi().equals(moi.getDiaChi())) {
+		if (moi.getDiaChi() != null && !cu.getDiaChi().equals(moi.getDiaChi())) {
 			thayDoi.append("Cập nhật địa chỉ: (" + "" + cu.getDiaChi() + ")" + " -> (" + moi.getDiaChi() + ")\n");
 		}
-		if(!cu.getSoGiayTo().equals(moi.getSoGiayTo())) {
-			thayDoi.append("Cập nhật số giấy tờ: (" + "" + cu.getSoGiayTo() + ")" + " -> (" + moi.getSoGiayTo() + ")\n");
+		if (!cu.getSoGiayTo().equals(moi.getSoGiayTo())) {
+			thayDoi.append(
+					"Cập nhật số giấy tờ: (" + "" + cu.getSoGiayTo() + ")" + " -> (" + moi.getSoGiayTo() + ")\n");
 		}
-		if(!cu.getLoaiKhachHang().equals(moi.getLoaiKhachHang())) {
-			thayDoi.append("Cập nhật loại khách hàng: (" + "" + cu.getLoaiKhachHang() + ")" + " -> (" + moi.getLoaiKhachHang() + ")\n");
+		if (!cu.getLoaiKhachHang().equals(moi.getLoaiKhachHang())) {
+			thayDoi.append("Cập nhật loại khách hàng: (" + "" + cu.getLoaiKhachHang() + ")" + " -> ("
+					+ moi.getLoaiKhachHang() + ")\n");
 		}
-		if(cu.getLoaiDoiTuong() != null && moi.getLoaiDoiTuong() != null && !cu.getLoaiDoiTuong().equals(moi.getLoaiDoiTuong())) {
-			thayDoi.append("Cập nhật ngày sinh: (" + "" + cu.getLoaiDoiTuong() + ")" + " -> (" + moi.getLoaiDoiTuong() + ")\n");
+		if (moi.getLoaiDoiTuong() != null && moi.getLoaiDoiTuong() != null
+				&& !cu.getLoaiDoiTuong().equals(moi.getLoaiDoiTuong())) {
+			thayDoi.append("Cập nhật ngày sinh: (" + "" + cu.getLoaiDoiTuong() + ")" + " -> (" + moi.getLoaiDoiTuong()
+					+ ")\n");
 		}
 		return thayDoi.toString();
 	}
@@ -192,31 +182,31 @@ public class KhachHang_BUS {
 	// Cập nhật khách hàng
 	public boolean capNhatKhachHang(KhachHang kh) {
 
-		//1. Lấy thông tin khách hàng cũ
+		// 1. Lấy thông tin khách hàng cũ
 		KhachHang khachHangCu = khachHang_dao.timKhachHangTheoID(kh.getKhachHangID());
-		if(khachHangCu == null) return false;
+		if (khachHangCu == null) {
+			return false;
+		}
 
-		//2. Cập nhật khách hàng
+		// 2. Cập nhật khách hàng
 		boolean ok = khachHang_dao.capNhatKhachHang(kh);
-		if(!ok) return false;
+		if (!ok) {
+			return false;
+		}
 
-		//3. build chi tiet thay doi
+		// 3. build chi tiet thay doi
 		String thanhPhan = thanhPhanDaBiSua(khachHangCu, kh);
-		if(thanhPhan == null || thanhPhan.isBlank()) return true;
+		if (thanhPhan == null || thanhPhan.isBlank()) {
+			return true;
+		}
 
-		//4. Ghi log
+		// 4. Ghi log
 		if (ok) {
-			ghiLog(
-					kh.getKhachHangID(),
-					AuthService.getInstance().getCurrentUser().getNhanVienID(),
-					entity.type.NhatKyAudit.SUA,
-					"Cập nhật khách hàng: " + thanhPhan
-			);
+			ghiLog(kh.getKhachHangID(), AuthService.getInstance().getCurrentUser().getNhanVienID(),
+					entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
 		}
 		System.out.println("thanhPhan=" + thanhPhan);
 		return ok;
 	}
-
-
 
 }

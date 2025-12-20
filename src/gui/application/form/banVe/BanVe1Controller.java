@@ -302,6 +302,9 @@ public class BanVe1Controller {
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
+					if (bookingSession.getPhieuGiuCho() == null) {
+						return true;
+					}
 					return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
 							veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
 

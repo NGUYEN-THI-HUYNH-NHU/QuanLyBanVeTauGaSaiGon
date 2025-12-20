@@ -2,16 +2,43 @@ package controller;
 
 import java.awt.Cursor;
 import java.awt.Frame;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.InputMap;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature/nguyen-thi-huynh-nhu
 import bus.BieuGiaVe_BUS;
 import bus.Tuyen_BUS;
 import entity.BieuGiaVe;
@@ -89,7 +116,9 @@ public class BieuGia_CTRL {
 			public void mouseClicked(MouseEvent e) {
 				int row = view.getTable().rowAtPoint(e.getPoint());
 				int col = view.getTable().columnAtPoint(e.getPoint());
-				if (row < 0) return;
+				if (row < 0) {
+					return;
+				}
 
 				BieuGiaVe bg = view.getTableModel().getRow(row);
 
@@ -124,9 +153,15 @@ public class BieuGia_CTRL {
 		Set<String> setTau = new HashSet<>();
 
 		for (BieuGiaVe bg : listCache) {
-			if (bg.getBieuGiaVeID() != null) setMa.add(bg.getBieuGiaVeID());
-			if (bg.getTuyenApDung() != null) setTuyen.add(bg.getTuyenApDung().getTuyenID());
-			if (bg.getLoaiTauApDung() != null) setTau.add(bg.getLoaiTauApDung().toString());
+			if (bg.getBieuGiaVeID() != null) {
+				setMa.add(bg.getBieuGiaVeID());
+			}
+			if (bg.getTuyenApDung() != null) {
+				setTuyen.add(bg.getTuyenApDung().getTuyenID());
+			}
+			if (bg.getLoaiTauApDung() != null) {
+				setTau.add(bg.getLoaiTauApDung().toString());
+			}
 		}
 
 		listMaBieuGia.addAll(setMa);
@@ -142,10 +177,10 @@ public class BieuGia_CTRL {
 	}
 
 	private void handleTimKiem() {
-		String tuKhoa = ((JTextField)view.getTxtTimKiem().getEditor().getEditorComponent()).getText().trim();
-		String textTuyen = ((JTextField)view.getCboLocTuyen().getEditor().getEditorComponent()).getText().trim();
+		String tuKhoa = ((JTextField) view.getTxtTimKiem().getEditor().getEditorComponent()).getText().trim();
+		String textTuyen = ((JTextField) view.getCboLocTuyen().getEditor().getEditorComponent()).getText().trim();
 		String maTuyen = textTuyen.isEmpty() ? "Tất cả" : textTuyen;
-		String textTau = ((JTextField)view.getCboLocTau().getEditor().getEditorComponent()).getText().trim();
+		String textTau = ((JTextField) view.getCboLocTau().getEditor().getEditorComponent()).getText().trim();
 		String loaiTau = textTau.isEmpty() ? "Tất cả" : textTau;
 
 		List<BieuGiaVe> listSearch = bieuGiaVeBUS.timKiem(tuKhoa, maTuyen, loaiTau);
@@ -180,7 +215,8 @@ public class BieuGia_CTRL {
 					JOptionPane.showMessageDialog(form, res, "Lỗi", JOptionPane.ERROR_MESSAGE);
 				}
 			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(form, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi Exception", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(form, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi Exception",
+						JOptionPane.ERROR_MESSAGE);
 				ex.printStackTrace();
 			}
 		});
@@ -300,7 +336,8 @@ public class BieuGia_CTRL {
 	}
 
 	// --- Suggestion Logic for MAIN SEARCH PANEL ONLY ---
-	private void taoPopupGoiY(JTextField txt, JPopupMenu pp, JList<String> lst, Function<String, List<String>> timKiem) {
+	private void taoPopupGoiY(JTextField txt, JPopupMenu pp, JList<String> lst,
+			Function<String, List<String>> timKiem) {
 		pp.setFocusable(false);
 		lst.setFocusable(false);
 		lst.setRequestFocusEnabled(false);
@@ -309,14 +346,32 @@ public class BieuGia_CTRL {
 
 		txt.getDocument().addDocumentListener(new DocumentListener() {
 			private Timer timer;
-			@Override public void insertUpdate(DocumentEvent e) { update(); }
-			@Override public void removeUpdate(DocumentEvent e) { update(); }
-			@Override public void changedUpdate(DocumentEvent e) {}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+
 			private void update() {
-				if (isAdjusting) return;
-				if (timer != null && timer.isRunning()) timer.stop();
+				if (isAdjusting) {
+					return;
+				}
+				if (timer != null && timer.isRunning()) {
+					timer.stop();
+				}
 				timer = new Timer(200, ev -> SwingUtilities.invokeLater(() -> {
-					if (txt.isFocusOwner()) hienThiGoiY(txt, lst, pp, timKiem);
+					if (txt.isFocusOwner()) {
+						hienThiGoiY(txt, lst, pp, timKiem);
+					}
 				}));
 				timer.setRepeats(false);
 				timer.start();
@@ -324,7 +379,8 @@ public class BieuGia_CTRL {
 		});
 
 		lst.addMouseListener(new MouseAdapter() {
-			@Override public void mousePressed(MouseEvent e) {
+			@Override
+			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isLeftMouseButton(e) && lst.getSelectedIndex() != -1) {
 					txt.setText(lst.getSelectedValue());
 					pp.setVisible(false);
@@ -335,17 +391,24 @@ public class BieuGia_CTRL {
 		});
 
 		txt.addKeyListener(new KeyAdapter() {
-			@Override public void keyPressed(KeyEvent e) {
-				if (!pp.isVisible()) return;
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (!pp.isVisible()) {
+					return;
+				}
 				if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 					isAdjusting = true;
 					int index = lst.getSelectedIndex();
-					if (index < lst.getModel().getSize() - 1) lst.setSelectedIndex(index + 1);
+					if (index < lst.getModel().getSize() - 1) {
+						lst.setSelectedIndex(index + 1);
+					}
 					e.consume();
 				} else if (e.getKeyCode() == KeyEvent.VK_UP) {
 					isAdjusting = true;
 					int index = lst.getSelectedIndex();
-					if (index > 0) lst.setSelectedIndex(index - 1);
+					if (index > 0) {
+						lst.setSelectedIndex(index - 1);
+					}
 					e.consume();
 				} else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					isAdjusting = true;
@@ -358,11 +421,16 @@ public class BieuGia_CTRL {
 					e.consume();
 				}
 			}
-			@Override public void keyReleased(KeyEvent e) { isAdjusting = false; }
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				isAdjusting = false;
+			}
 		});
 
 		txt.addFocusListener(new FocusAdapter() {
-			@Override public void focusLost(FocusEvent e) {
+			@Override
+			public void focusLost(FocusEvent e) {
 				SwingUtilities.invokeLater(() -> {
 					pp.setVisible(false);
 					lastSuggestionData.clear();
@@ -384,12 +452,16 @@ public class BieuGia_CTRL {
 			lastSuggestionData.clear();
 			return;
 		}
-		if (ds.equals(lastSuggestionData) && pp.isVisible()) return;
+		if (ds.equals(lastSuggestionData) && pp.isVisible()) {
+			return;
+		}
 
 		lastSuggestionData = new ArrayList<>(ds);
 		lst.setListData(ds.toArray(new String[0]));
 		lst.setVisibleRowCount(Math.min(ds.size(), 10));
-		if (lst.getSelectedIndex() == -1) lst.setSelectedIndex(0);
+		if (lst.getSelectedIndex() == -1) {
+			lst.setSelectedIndex(0);
+		}
 
 		if (txt.isFocusOwner()) {
 			int popupWidth = Math.max(txt.getWidth(), 100);
@@ -399,9 +471,12 @@ public class BieuGia_CTRL {
 	}
 
 	private List<String> locDuLieu(List<String> source, String input) {
-		if (source == null || source.isEmpty()) return new ArrayList<>();
+		if (source == null || source.isEmpty()) {
+			return new ArrayList<>();
+		}
 		String inputLower = input.toLowerCase();
-		return source.stream().filter(s -> s.toLowerCase().contains(inputLower)).limit(10).collect(java.util.stream.Collectors.toList());
+		return source.stream().filter(s -> s.toLowerCase().contains(inputLower)).limit(10)
+				.collect(java.util.stream.Collectors.toList());
 	}
 
 	private void thietLapAutoComplete() {

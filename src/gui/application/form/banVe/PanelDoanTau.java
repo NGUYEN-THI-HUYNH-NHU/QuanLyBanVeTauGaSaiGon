@@ -42,10 +42,10 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import entity.Toa;
+import gui.application.form.doiVe.DoiVeBuoc5Controller;
 
 public class PanelDoanTau extends JPanel {
 	private JPanel flow;
-	private PanelBuoc2Controller controller;
 	private JButton selectedButton = null;
 	// ảnh nguồn (gốc, trong suốt)
 	private BufferedImage baseToaImage;
@@ -56,6 +56,9 @@ public class PanelDoanTau extends JPanel {
 	private final Color colorSelected = new Color(22, 171, 56); // màu khi chọn
 	private final Color colorHover = colorSelected.brighter();
 	private BufferedImage baseDauTauImage;
+
+	private PanelBuoc2Controller controller;
+	private DoiVeBuoc5Controller controllerDoiVe;
 
 	public PanelDoanTau() {
 		setBorder(new TitledBorder("Sơ đồ đoàn tàu"));
@@ -83,6 +86,10 @@ public class PanelDoanTau extends JPanel {
 
 	public void setController(PanelBuoc2Controller controller) {
 		this.controller = controller;
+	}
+
+	public void setControllerDoiVe(DoiVeBuoc5Controller controller) {
+		this.controllerDoiVe = controller;
 	}
 
 	public void showToaList(List<Toa> list, Consumer<Toa> onSelect) {

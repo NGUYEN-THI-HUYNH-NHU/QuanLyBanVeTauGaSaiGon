@@ -11,10 +11,22 @@ package gui.application.form.bieuGia;
  * @date: Nov 27, 2025
  * @version: 1.0
  */
-import java.awt.*;
-import java.util.List;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -22,7 +34,6 @@ import javax.swing.table.JTableHeader;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import controller.BieuGia_CTRL;
-import entity.BieuGiaVe;
 import entity.NhanVien;
 
 public class PanelQuanLyBieuGia extends JPanel {
@@ -50,7 +61,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 		lblTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 24));
 		lblTitle.setForeground(base_color);
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-
 
 		// --- 1. PANEL LỌC ---
 		JPanel pnlLoc = new JPanel(new BorderLayout());
@@ -99,17 +109,18 @@ public class PanelQuanLyBieuGia extends JPanel {
 		table = new JTable(tableModel);
 		table.setRowHeight(40);
 
+		table.getTableHeader().setEnabled(false);
+
 		table.getColumnModel().getColumn(0).setPreferredWidth(100); // Mã biểu giá
-		table.getColumnModel().getColumn(1).setPreferredWidth(50);  // Ưu tiên
+		table.getColumnModel().getColumn(1).setPreferredWidth(50); // Ưu tiên
 		table.getColumnModel().getColumn(2).setPreferredWidth(150); // Tuyến
 		table.getColumnModel().getColumn(3).setPreferredWidth(150); // Tàu
 		table.getColumnModel().getColumn(4).setPreferredWidth(80); // Toa
 		table.getColumnModel().getColumn(5).setPreferredWidth(100); // Khoảng cách
 		table.getColumnModel().getColumn(6).setPreferredWidth(120); // Hiệu lực
 		table.getColumnModel().getColumn(7).setPreferredWidth(150); // Giá
-		table.getColumnModel().getColumn(8).setPreferredWidth(80);  // Xem
-		table.getColumnModel().getColumn(9).setPreferredWidth(120);  // Cập nhật
-
+		table.getColumnModel().getColumn(8).setPreferredWidth(80); // Xem
+		table.getColumnModel().getColumn(9).setPreferredWidth(120); // Cập nhật
 
 		table.setShowGrid(true);
 		table.setShowVerticalLines(true);
@@ -118,10 +129,10 @@ public class PanelQuanLyBieuGia extends JPanel {
 
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-		for(int i = 0; i<table.getColumnCount(); i++){
-			if(i == BieuGiaVeTableModel.COL_XEM || i == BieuGiaVeTableModel.COL_SUA){
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			if (i == BieuGiaVeTableModel.COL_XEM || i == BieuGiaVeTableModel.COL_SUA) {
 				table.getColumnModel().getColumn(i).setCellRenderer(new BieuGiaVeTableButtonRenderer());
-			}else{
+			} else {
 				table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 			}
 		}
@@ -129,14 +140,17 @@ public class PanelQuanLyBieuGia extends JPanel {
 		JTableHeader header = table.getTableHeader();
 		header.setDefaultRenderer(new DefaultTableCellRenderer() {
 			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+						column);
 
 				lbl.setBackground(base_color);
 				lbl.setForeground(Color.WHITE);
 				lbl.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
 				lbl.setHorizontalAlignment(SwingConstants.CENTER);
-				lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.WHITE)); // Viền trắng nhẹ giữa các cột header
+				lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, Color.WHITE)); // Viền trắng nhẹ giữa các cột
+																							// header
 				return lbl;
 			}
 		});
@@ -169,6 +183,14 @@ public class PanelQuanLyBieuGia extends JPanel {
 		return btnThemMoi;
 	}
 
+	public void setBtnLamMoi(JButton btnLamMoi) {
+		this.btnLamMoi = btnLamMoi;
+	}
+
+	public void setBtnThemMoi(JButton btnThemMoi) {
+		this.btnThemMoi = btnThemMoi;
+	}
+
 	public JComboBox<String> getTxtTimKiem() {
 		return txtTimKiem;
 	}
@@ -181,7 +203,6 @@ public class PanelQuanLyBieuGia extends JPanel {
 		return cboLocTuyen;
 	}
 
-
 	public JComboBox<String> getCboLocTau() {
 		return cboLocTau;
 	}
@@ -189,9 +210,8 @@ public class PanelQuanLyBieuGia extends JPanel {
 	public BieuGia_CTRL getController() {
 		return controller;
 	}
+
 	public NhanVien getNhanVienThucHien() {
 		return nhanVienThucHien;
 	}
-
-
 }

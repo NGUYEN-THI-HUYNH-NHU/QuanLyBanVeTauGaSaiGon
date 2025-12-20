@@ -54,7 +54,6 @@ public class PanelSoDoCho extends JPanel {
 	private final JLabel lblToaInfo;
 	private final JPanel pnlNorth;
 
-	private PanelBuoc2Controller panelBuoc2Controller;
 	private Toa currentToa;
 	private List<Toa> toaList;
 	private int currentIndex = 0;
@@ -73,6 +72,8 @@ public class PanelSoDoCho extends JPanel {
 	// Kích thước viewport (có thể điều chỉnh)
 	private static final int VIEWPORT_HEIGHT = 180;
 	private static final int VIEWPORT_WIDTH = 500;
+
+	private PanelBuoc2Controller panelBuoc2Controller;
 
 	public PanelSoDoCho() {
 		setBorder(new TitledBorder("Sơ đồ chỗ"));
@@ -96,7 +97,6 @@ public class PanelSoDoCho extends JPanel {
 		scroll.setPreferredSize(new Dimension(VIEWPORT_WIDTH, VIEWPORT_HEIGHT));
 		scroll.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 		// Tăng tốc độ cuộn
-		scroll.getVerticalScrollBar().setUnitIncrement(16);
 		scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
 		btnChiem.setBackground(new Color(207, 207, 207, 220));
@@ -675,9 +675,5 @@ public class PanelSoDoCho extends JPanel {
 
 	public Map<Integer, JButton> getSeatButtonMap() {
 		return seatButtonMap;
-	}
-
-	public void deselectSeat(Toa toa, Ghe ghe) {
-
 	}
 }

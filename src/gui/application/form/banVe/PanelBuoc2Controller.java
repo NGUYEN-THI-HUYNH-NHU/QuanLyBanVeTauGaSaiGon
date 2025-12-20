@@ -8,7 +8,9 @@ package gui.application.form.banVe;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -109,10 +111,51 @@ public class PanelBuoc2Controller {
 				+ chuyens.get(0).getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
 		panelChuyenTau.showChuyenList(chuyens);
 
+		// Load thống kê ghế cho từng chuyến
+		loadSeatStatsForChuyens(chuyens, criteria);
+
 		if (chuyens != null && !chuyens.isEmpty()) {
 			panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
 			onChuyenSelected(chuyens.get(0));
 		}
+	}
+
+	/**
+	 * @param chuyens
+	 * @param criteria
+	 */
+	private void loadSeatStatsForChuyens(List<Chuyen> chuyens, SearchCriteria criteria) {
+		if (chuyens == null) {
+			return;
+		}
+
+		String gaDiID = criteria.getGaDiId();
+		String gaDenID = criteria.getGaDenId();
+
+		new SwingWorker<Map<String, int[]>, Void>() {
+			@Override
+			protected Map<String, int[]> doInBackground() throws Exception {
+				Map<String, int[]> stats = new HashMap<>();
+				for (Chuyen c : chuyens) {
+					int[] stat = getChuyenBUS().layThongKeCho(c.getChuyenID(), gaDiID, gaDenID);
+					stats.put(c.getChuyenID(), stat);
+				}
+				return stats;
+			}
+
+			@Override
+			protected void done() {
+				try {
+					Map<String, int[]> result = get();
+					for (Map.Entry<String, int[]> entry : result.entrySet()) {
+						// Update UI
+						panelChuyenTau.updateSeatCount(entry.getKey(), entry.getValue()[0], entry.getValue()[1]);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.execute();
 	}
 
 	public void onChuyenSelected(Chuyen c) {
@@ -315,7 +358,8 @@ public class PanelBuoc2Controller {
 						for (SeatSelectedListener listener : seatSelectedListeners) {
 							listener.onSeatSelected(v);
 						}
-
+						// Cập nhật số lượng trên card chuyến tàu
+						updateSeatCountLocal(selectedChuyen.getChuyenID(), 1); // +1 đặt
 						panelSoDoCho.setCurrentToa(toa);
 					} else {
 						JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi tạo vé).");
@@ -326,6 +370,27 @@ public class PanelBuoc2Controller {
 				}
 			}
 		}.execute();
+	}
+
+	/**
+	 * @param chuyenID
+	 * @param i
+	 */
+	private void updateSeatCountLocal(String chuyenID, int deltaDat) {
+		// Lấy số hiện tại từ Panel (hoặc từ cache nếu có biến lưu trữ trong
+		// Controller)
+		int[] current = panelChuyenTau.getCurrentSeatCount(chuyenID);
+		int newDat = current[0] + deltaDat;
+		int newTrong = current[1] - deltaDat;
+
+		if (newDat < 0) {
+			newDat = 0;
+		}
+		if (newTrong < 0) {
+			newTrong = 0;
+		}
+
+		panelChuyenTau.updateSeatCount(chuyenID, newDat, newTrong);
 	}
 
 	/**
@@ -356,6 +421,8 @@ public class PanelBuoc2Controller {
 			for (SeatSelectedListener listener : seatSelectedListeners) {
 				listener.onSeatDeselected(veToRemove);
 			}
+			// Cập nhật số lượng trên card chuyến tàu
+			updateSeatCountLocal(currentChuyenID, -1); // -1 đặt
 		} else {
 			// Lỗi: Không tìm thấy vé để xóa
 			if (selectedToa != null) {

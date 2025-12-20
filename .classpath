@@ -40,5 +40,8 @@
 	<classpathentry kind="lib" path="lib/poi-ooxml-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/javax.mail.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmlbeans-3.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.21.jar"/>
+	<classpathentry kind="lib" path="lib/poi-ooxml-schemas-4.1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

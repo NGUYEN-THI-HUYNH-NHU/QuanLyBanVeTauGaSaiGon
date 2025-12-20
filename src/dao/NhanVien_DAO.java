@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import connectDB.ConnectDB;
+import entity.CaLam;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
 
@@ -35,25 +36,27 @@ public class NhanVien_DAO {
 
 	public List<NhanVien> getNhanVienVoiHoTen(String hoTenTim) {
 		Connection connection = connectDB.getConnection();
-		String querySQL = "SELECT nhanVienID, vaiTroNhanVienID, hoTen, isNu, ngaySinh,"
-				+ " soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLam FROM NhanVien" + " where hoTen LIKE ?";
+		String querySQL = " SELECT N.nhanVienID, N.vaiTroNhanVienID, N.hoTen, N.isNu, N.ngaySinh,\r\n"
+				+ " N.soDienThoai, N.email, N.diaChi, N.ngayThamGia, N.isHoatDong, N.caLamID, C.gioVaoCa, C.gioKetCa\r\n"
+				+ " FROM NhanVien N JOIN CaLam C on N.caLamID = C.caLamID\r\n" + " where N.hoTen LIKE ?";
+
 		List<NhanVien> nhanVienList = new ArrayList<NhanVien>();
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(querySQL);
 			preparedStatement.setString(1, "%" + hoTenTim + "%");
 			ResultSet resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				String nhanVienID = resultSet.getString(1);
+				String nhanVienID = resultSet.getString("nhanVienID");
 				VaiTroNhanVien vaiTroNhanVien = VaiTroNhanVien.valueOf(resultSet.getString(2));
-				String hoTen = resultSet.getString(3);
-				boolean isNu = resultSet.getBoolean(4);
-				LocalDate ngaySinh = resultSet.getDate(5).toLocalDate();
-				String soDienThoai = resultSet.getString(6);
-				String email = resultSet.getString(7);
-				String diaChi = resultSet.getString(8);
-				LocalDate ngayThamGia = resultSet.getDate(9).toLocalDate();
-				boolean isHoatDong = resultSet.getBoolean(10);
-				String caLam = resultSet.getString(11);
+				String hoTen = resultSet.getString("hoTen");
+				boolean isNu = resultSet.getBoolean("isNu");
+				LocalDate ngaySinh = resultSet.getDate("ngaySinh").toLocalDate();
+				String soDienThoai = resultSet.getString("soDienThoai");
+				String email = resultSet.getString("email");
+				String diaChi = resultSet.getString("diaChi");
+				LocalDate ngayThamGia = resultSet.getDate("ngayThamGia").toLocalDate();
+				boolean isHoatDong = resultSet.getBoolean("isHoatDong");
+				CaLam caLam = new CaLam(resultSet.getString("caLamID"));
 
 				nhanVienList.add(new NhanVien(nhanVienID, vaiTroNhanVien, hoTen, isNu, ngaySinh, soDienThoai, email,
 						diaChi, ngayThamGia, isHoatDong, caLam));
@@ -86,7 +89,8 @@ public class NhanVien_DAO {
 		return maMoi;
 	}
 
-	// tìm kiếm nhân viên bằng: sdt, ten, vai tro, trang thai (có thể mà 1 hay nhiều tiêu chí cùng 1 lúc)
+	// tìm kiếm nhân viên bằng: sdt, ten, vai tro, trang thai (có thể mà 1 hay nhiều
+	// tiêu chí cùng 1 lúc)
 	public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVien vaiTro, Boolean isHoatDong) {
 		Connection connection = connectDB.getConnection();
 		List<NhanVien> ds = new ArrayList<>();
@@ -127,7 +131,7 @@ public class NhanVien_DAO {
 						VaiTroNhanVien.valueOf(rs.getString("vaiTroNhanVienID")), rs.getString("hoTen"),
 						rs.getBoolean("isNu"), rs.getDate("ngaySinh").toLocalDate(), rs.getString("soDienThoai"),
 						rs.getString("email"), rs.getString("diaChi"), rs.getDate("ngayThamGia").toLocalDate(),
-						rs.getBoolean("isHoatDong"), rs.getString("caLam"));
+						rs.getBoolean("isHoatDong"), new CaLam(rs.getString("caLamID")));
 				ds.add(nv);
 			}
 		} catch (SQLException e) {
@@ -170,7 +174,7 @@ public class NhanVien_DAO {
 		LocalDate ngayThamGia = ngayThamGiaSQL != null ? ngayThamGiaSQL.toLocalDate() : null;
 
 		boolean isHoatDong = rs.getBoolean("isHoatDong");
-		String caLam = rs.getString("caLam");
+		CaLam caLam = new CaLam(rs.getString("caLamID"));
 		byte[] avatar = rs.getBytes("avatar");
 
 		NhanVien nv = new NhanVien(nhanVienID, vaiTro, hoTen, isNu, ngaySinh, sdt, email, diaChi, ngayThamGia,
@@ -181,7 +185,7 @@ public class NhanVien_DAO {
 
 	public List<NhanVien> getAllNhanVien() {
 		String sql = "SELECT nhanVienID, vaiTroNhanVienID, hoTen, isNu, ngaySinh,"
-				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLam, avatar FROM NhanVien";
+				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLamID, avatar FROM NhanVien";
 		List<NhanVien> ds = new ArrayList<>();
 
 		try (Connection con = connectDB.getConnection();
@@ -198,7 +202,7 @@ public class NhanVien_DAO {
 
 	public NhanVien getNhanVienVoiID(String nhanVienIDTim) {
 		String querySQL = "SELECT nhanVienID, vaiTroNhanVienID, hoTen, isNu, ngaySinh,"
-				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLam, avatar FROM NhanVien WHERE nhanVienID = ?";
+				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLamID, avatar FROM NhanVien WHERE nhanVienID = ?";
 		try (Connection con = connectDB.getConnection(); PreparedStatement ps = con.prepareStatement(querySQL)) {
 			ps.setString(1, nhanVienIDTim);
 			try (ResultSet rs = ps.executeQuery()) {
@@ -214,7 +218,7 @@ public class NhanVien_DAO {
 
 	public boolean themNhanVien(NhanVien nv) {
 		String sql = "INSERT INTO NhanVien (nhanVienID, vaiTroNhanVienID, hoTen, isNu, ngaySinh, "
-				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLam, avatar) "
+				+ "soDienThoai, email, diaChi, ngayThamGia, isHoatDong, caLamID, avatar) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try (Connection con = connectDB.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -228,7 +232,7 @@ public class NhanVien_DAO {
 			ps.setString(8, nv.getDiaChi());
 			ps.setDate(9, java.sql.Date.valueOf(nv.getNgayThamGia()));
 			ps.setBoolean(10, nv.isHoatDong());
-			ps.setString(11, nv.getCaLam());
+			ps.setString(11, nv.getCaLam().getCaLamID());
 			ps.setBytes(12, nv.getAvatar()); // Lưu ảnh
 
 			return ps.executeUpdate() > 0;
@@ -240,7 +244,7 @@ public class NhanVien_DAO {
 
 	public boolean capNhatNhanVien(NhanVien nv) {
 		String sql = "UPDATE NhanVien SET vaiTroNhanVienID = ?, hoTen = ?, isNu = ?, ngaySinh = ?, "
-				+ "soDienThoai = ?, email = ?, diaChi = ?, ngayThamGia = ?, isHoatDong = ?, caLam = ?, avatar = ? "
+				+ "soDienThoai = ?, email = ?, diaChi = ?, ngayThamGia = ?, isHoatDong = ?, caLamID = ?, avatar = ? "
 				+ "WHERE nhanVienID = ?";
 		try (Connection con = connectDB.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -253,7 +257,7 @@ public class NhanVien_DAO {
 			ps.setString(7, nv.getDiaChi());
 			ps.setDate(8, Date.valueOf(nv.getNgayThamGia()));
 			ps.setBoolean(9, nv.isHoatDong());
-			ps.setString(10, nv.getCaLam());
+			ps.setString(10, nv.getCaLam().getCaLamID());
 			ps.setBytes(11, nv.getAvatar());
 			ps.setString(12, nv.getNhanVienID());
 
@@ -277,7 +281,7 @@ public class NhanVien_DAO {
 		return false;
 	}
 
-	//lấy danh sách mã nhân viên
+	// lấy danh sách mã nhân viên
 	public List<String> layDanhSachMaNhanVien() {
 		List<String> danhSachMaNV = new ArrayList<>();
 		String sql = "SELECT nhanVienID FROM NhanVien";
@@ -293,7 +297,7 @@ public class NhanVien_DAO {
 		return danhSachMaNV;
 	}
 
-	//lấy danh sách nhân viên chưa có tài khoản
+	// lấy danh sách nhân viên chưa có tài khoản
 	public List<NhanVien> layNhanVienChuaCoTaiKhoan() {
 		List<NhanVien> danhSachNV = new ArrayList<>();
 		String sql = "SELECT * FROM NhanVien WHERE nhanVienID NOT IN (SELECT nhanVienID FROM TaiKhoan)";
@@ -308,7 +312,5 @@ public class NhanVien_DAO {
 		}
 		return danhSachNV;
 	}
-
-
 
 }
