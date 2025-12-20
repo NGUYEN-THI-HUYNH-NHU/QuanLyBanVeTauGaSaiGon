@@ -214,21 +214,8 @@ public class ThongKeNhanVien_DAO {
 				}
 
 				// === BỎ CỘT TRẠNG THÁI KHỎI MẢNG OBJECT TRẢ VỀ ===
-				list.add(new Object[] { maHD, t != null ? t.toLocalDateTime().format(f) : "N/A", tongTien, hinhThuc, tt // Cột
-																														// Trạng
-																														// thái
-																														// (đã
-																														// xử
-																														// lý)
-																														// được
-																														// đặt
-																														// vào
-																														// vị
-																														// trí
-																														// cột
-																														// thứ
-																														// 5
-				});
+				list.add(new Object[] { maHD, t != null ? t.toLocalDateTime().format(f) : "N/A", tongTien, hinhThuc, tt
+                });
 			}
 
 		} catch (SQLException e) {
