@@ -78,4 +78,32 @@ public class TaiKhoan_BUS {
 		return taiKhoan_dao.getTaiKhoanVoiNhanVienID(nhanVienID).getMatKhauHash().equals(matKhau);
 	}
 
+	/**
+	 * @param maNV
+	 * @param cccd
+	 * @param email
+	 * @return
+	 */
+	public boolean kiemTraThongTinQuenMatKhau(String nhanVienID, String cccd, String email) {
+		return taiKhoan_dao.checkForgotPasswordInfo(nhanVienID, cccd, email);
+	}
+
+	/**
+	 * @param text
+	 * @param newPass
+	 * @return
+	 */
+	public boolean kiemTraDatLaiMatKhauTrung(String nhanVienID, String newPass) {
+		return taiKhoan_dao.checkDuplicatingPasswords(nhanVienID, newPass);
+	}
+
+	/**
+	 * @param verifiedMaNV
+	 * @param newPass
+	 * @return
+	 */
+	public boolean capNhatMatKhau(String nhanVienID, String newPass) {
+		return taiKhoan_dao.capNhatMatKhau(nhanVienID, newPass);
+	}
+
 }

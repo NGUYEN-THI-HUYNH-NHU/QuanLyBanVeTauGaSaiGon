@@ -109,7 +109,7 @@ public class DonDatChoTableModel extends AbstractTableModel {
 		case COL_THOI_DIEM_DAT:
 			return row.getDonDatCho().getThoiDiemDatCho();
 		case COL_NGUOI_LAP:
-			return row.getDonDatCho().getNhanVien().getHoTen();
+			return row.getDonDatCho().getNhanVien().getNhanVienID();
 		case COL_XEM:
 			return ""; // Render button
 		default:

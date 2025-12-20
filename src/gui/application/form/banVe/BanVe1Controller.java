@@ -210,6 +210,11 @@ public class BanVe1Controller {
 
 		// Lắng nghe sự kiện từ Buoc3
 		this.buoc3Controller.setOnRefreshListener(() -> {
+			view.setBuoc3Enabled(false);
+			// Xoá tất cả vé trong giỏ
+			for (VeSession ve : bookingSession.getAllSelectedTickets()) {
+				handleXoaHangVe(ve);
+			}
 			if (onRefreshListener != null) {
 				onRefreshListener.run();
 			}

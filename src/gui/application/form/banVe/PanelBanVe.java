@@ -62,7 +62,7 @@ public class PanelBanVe extends JPanel {
 
 		// 6. Liên kết các Controller (Logic chính)
 		banVe1Controller.addRefreshListener(() -> {
-			UngDung.getInstance().reloadPanelBanVe();
+			UngDung.reloadPanelBanVe();
 		});
 
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
@@ -84,8 +84,7 @@ public class PanelBanVe extends JPanel {
 			// 2. Clear BookingSession
 			this.bookingSession = new BookingSession();
 			// 3. Tạo panel mới hoàn toàn cho lượt khách sau:
-			UngDung.getInstance().getGiaoDienChinh().removePanelFromCache("PanelBanVe");
-			UngDung.getInstance().reloadPanelBanVe();
+			UngDung.reloadPanelBanVe();
 		});
 	}
 

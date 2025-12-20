@@ -138,19 +138,15 @@ public class PanelQuanLyDonDatCho extends JPanel {
 		table.getTableHeader().setFont(fontBold);
 		table.setRowHeight(36);
 
-		// Cho phep copy du lieu tren table
-//		TableCopyHelper.enableCopy(table);
-
 		// Cấu hình độ rộng cột
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_STT).setMaxWidth(36);
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_DDC_ID).setPreferredWidth(100);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(150);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(150);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(100);
+		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(130);
+		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(130);
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TONG_VE).setMaxWidth(50);
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_HOAN).setMaxWidth(50);
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_DOI).setMaxWidth(50);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setPreferredWidth(120);
+		table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setPreferredWidth(100);
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_XEM).setMaxWidth(40);
 
 		table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setCellRenderer(new DateTimeRenderer());

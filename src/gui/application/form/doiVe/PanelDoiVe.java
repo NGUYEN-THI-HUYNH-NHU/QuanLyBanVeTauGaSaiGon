@@ -64,6 +64,10 @@ public class PanelDoiVe extends JPanel {
 		doiVe3Controller = new DoiVe3Controller(panelDoiVe3, exchangeSession);
 
 		// 6. Liên kết các Controller (Logic chính)
+		doiVe1Controller.addPanel1RefreshListner(() -> {
+			UngDung.reloadPanelDoiVe();
+			showPanel("step1");
+		});
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
 		doiVe1Controller.addPanel1CompleteListener(() -> {
 			// 1. Chuẩn bị dữ liệu cho PanelDoiVe2

@@ -2,10 +2,9 @@ package bus;
 
 import java.sql.Connection;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import dao.KhuyenMai_DAO;
 import dao.SuDungKhuyenMai_DAO;
@@ -137,11 +136,9 @@ public class KhuyenMai_BUS {
 	}
 
 	public void ganDanhSachSuDungKhuyenMai(List<VeSession> listVeSession) {
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HHmmss");
 		for (VeSession ve : listVeSession) {
 			if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
-				String sdkmID = "SD-" + ve.getKhuyenMaiApDung().getKhuyenMaiID() + "-"
-						+ ve.getVe().getKhachHang().getKhachHangID() + "-" + LocalDateTime.now().format(dtf).toString();
+				String sdkmID = "SD-" + UUID.randomUUID();
 				ve.setSuDungKhuyenMai(
 						new SuDungKhuyenMai(sdkmID, ve.getKhuyenMaiApDung(), null, TrangThaiSDKM.DA_AP_DUNG));
 			}

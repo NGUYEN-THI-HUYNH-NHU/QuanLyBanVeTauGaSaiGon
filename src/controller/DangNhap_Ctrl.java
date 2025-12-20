@@ -72,19 +72,20 @@ public class DangNhap_Ctrl {
 		overlay.setVisible(true);
 
 		// 2. Tạo JDialog (Modal)
-		JDialog dialog = new JDialog(UngDung.getInstance(), "Quên mật khẩu", true);
+		JDialog dialog = new JDialog(UngDung.getInstance(), "Lấy lại mật khẩu - Hệ thống quản lý bán vé tàu Ga Sài Gòn",
+				true);
 
 		dialog.setSize(500, 700);
 
 		// 3. Khởi tạo Panel và đưa vào Dialog
-		ModalQuenMatKhau panel = new ModalQuenMatKhau(dialog);
-		panel.addResetPasswordListener(() -> {
+		ModalQuenMatKhau modal = new ModalQuenMatKhau(dialog);
+		modal.getController().addResetPasswordListener(() -> {
 			view.getTxtTenDangNhap().requestFocusInWindow();
 		});
 
-		dialog.setContentPane(panel);
+		dialog.setContentPane(modal);
 
-		// Căn giữa Dialog so với 
+		// Căn giữa Dialog so với
 		dialog.setLocationRelativeTo(view);
 
 		dialog.setVisible(true);

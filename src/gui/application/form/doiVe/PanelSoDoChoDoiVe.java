@@ -43,6 +43,7 @@ import entity.Ghe;
 import entity.Toa;
 import entity.type.TrangThaiGhe;
 import gui.application.form.banVe.SearchCriteria;
+import gui.tuyChinh.ColorIcon;
 import gui.tuyChinh.RoundedBorder;
 import net.miginfocom.swing.MigLayout;
 
@@ -62,7 +63,6 @@ public class PanelSoDoChoDoiVe extends JPanel {
 	// Lưu trữ các nút ghế để dễ truy cập (tùy chọn)
 	private final Map<Integer, JButton> seatButtonMap = new HashMap<>();
 
-	private static final JButton btnTrong = new JButton();
 	private static final JButton btnChiem = new JButton();
 	private static final JButton btnBan = new JButton();
 
@@ -99,11 +99,9 @@ public class PanelSoDoChoDoiVe extends JPanel {
 		scroll.getVerticalScrollBar().setUnitIncrement(16);
 		scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
-		btnTrong.setBackground(UIManager.getColor("Button.background"));
-		btnTrong.setForeground(UIManager.getColor("Button.foreground"));
-		btnChiem.setBackground(Color.GRAY);
-		btnChiem.setForeground(Color.DARK_GRAY);
-		btnBan.setBackground(new Color(220, 53, 53));
+		btnChiem.setBackground(new Color(207, 207, 207, 220));
+		btnChiem.setForeground(new Color(60, 60, 60));
+		btnBan.setBackground(new Color(220, 53, 53, 220));
 		btnBan.setForeground(Color.WHITE);
 
 		add(pnlNorth, BorderLayout.NORTH);
@@ -292,28 +290,29 @@ public class PanelSoDoChoDoiVe extends JPanel {
 			b.setToolTipText(String.format("<html><span style='color:green'>Chỗ %s trống</span><br>Giá: %s</html>",
 					g.getSoGhe(), tooltipPrice));
 		} else if (status == TrangThaiGhe.DA_BAN) {
-			b.setToolTipText(String.format("<html>Chỗ %s đã bán<br>Không thể đặt</html>", g.getSoGhe()));
+			b.setToolTipText(String.format("<html><span style='color:red'>Chỗ %s đã bán</span><br>Không thể đặt</html>",
+					g.getSoGhe()));
 		} else if (status == TrangThaiGhe.BI_CHIEM) {
-			b.setToolTipText(String.format("<html>Chỗ %s đang bị giữ<br>Không thể đặt</html>", g.getSoGhe()));
+			b.setToolTipText(String.format("<html><span style='gray'>Chỗ %s đang bị giữ</span><br>Không thể đặt</html>",
+					g.getSoGhe()));
 		}
 
 		// --- Xác định trạng thái và màu ban đầu ---
+		b.setEnabled(isAvailable);
+
 		if (isSelectedInSession && isAvailable) {
 			b.setBackground(new Color(40, 167, 69));
 			b.setForeground(Color.WHITE);
-			b.setEnabled(true);
 		} else if (status == TrangThaiGhe.DA_BAN) {
-			b.setBackground(btnBan.getBackground());
+			b.setIcon(new ColorIcon(btnBan.getBackground(), SEAT_WIDTH, SEAT_HEIGHT));
+			b.setHorizontalTextPosition(SwingConstants.CENTER);
+			b.setVerticalTextPosition(SwingConstants.CENTER);
 			b.setForeground(btnBan.getForeground());
-			b.setEnabled(false);
 		} else if (status == TrangThaiGhe.BI_CHIEM) {
-			b.setBackground(Color.GRAY);
-			b.setForeground(Color.WHITE);
-			b.setEnabled(false);
-		} else {
-			b.setBackground(Color.WHITE);
-			b.setForeground(UIManager.getColor("Button.foreground"));
-			b.setEnabled(true);
+			b.setIcon(new ColorIcon(btnChiem.getBackground(), SEAT_WIDTH, SEAT_HEIGHT));
+			b.setHorizontalTextPosition(SwingConstants.CENTER);
+			b.setVerticalTextPosition(SwingConstants.CENTER);
+			b.setForeground(btnChiem.getForeground());
 		}
 
 		b.addActionListener(e -> {
@@ -324,14 +323,12 @@ public class PanelSoDoChoDoiVe extends JPanel {
 
 			if (controller != null) {
 				if (wasSelectedNow) {
-					// ---- GIẢI QUYẾT TỨC THÌ (BỎ CHỌN) ----
 					b.setBackground(UIManager.getColor("Button.background"));
 					b.setForeground(UIManager.getColor("Button.foreground"));
 					b.setOpaque(false);
 
 					controller.handleSeatDeselection(currentToa, g);
 				} else {
-					// ---- GIẢI QUYẾT TỨC THÌ ----
 					b.setBackground(new Color(40, 167, 69));
 					b.setForeground(Color.WHITE);
 					b.setOpaque(true);
