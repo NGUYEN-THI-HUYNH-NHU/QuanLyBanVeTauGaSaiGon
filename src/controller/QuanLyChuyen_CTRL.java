@@ -14,6 +14,7 @@ import bus.Chuyen_BUS;
 import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.*;
+import entity.type.TrangThaiTau;
 import entity.type.VaiTroNhanVien;
 import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
 import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
@@ -31,6 +32,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -69,18 +71,41 @@ public class QuanLyChuyen_CTRL {
         this.chuyenBus = new Chuyen_BUS();
         this.tuyenBus = new Tuyen_BUS();
         this.vaiTroNhanVien = panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien();
-
         this.phanQuyenBus = new PhanQuyen_BUS();
-        phanQuyenBus.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVien);
-
-        loadDataToTable(chuyenBus.layDanhSachChuyen());
         initEvents();
-        thietLapAutoComplete();
+        taiDuLieuBanDauNgam();
+    }
+    private void taiDuLieuBanDauNgam() {
+        panelQuanLyChuyen.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        String homNay = LocalDate.now().format(dateTimeFormatter);
-        panelQuanLyChuyen.getTxtNgayDi().setText(homNay);
+        LocalDate homNay = LocalDate.now();
+        panelQuanLyChuyen.getTxtNgayDi().setText(homNay.format(dateTimeFormatter));
 
-        timKiemChuyen();
+        SwingWorker<List<Chuyen>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Chuyen> doInBackground() throws Exception {
+
+                return chuyenBus.layDanhSachChuyenTheoNgay(homNay);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Chuyen> dsChuyen = get();
+                    loadDataToTable(dsChuyen);
+
+                    Timer timer = new Timer(100, e -> thietLapAutoComplete());
+                    timer.setRepeats(false);
+                    timer.start();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    panelQuanLyChuyen.setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        };
+        worker.execute();
     }
 
     private void tinhKhoangToMau() {
@@ -149,12 +174,11 @@ public class QuanLyChuyen_CTRL {
 
 
     private void initEvents(){
-        panelQuanLyChuyen.getTableChuyen().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
+        panelQuanLyChuyen.getTableChuyen().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
                 int row = panelQuanLyChuyen.getTableChuyen().getSelectedRow();
-                if(row>=0){
-                    String maChuyen = panelQuanLyChuyen.getTableChuyen().getValueAt(row,0).toString();
+                if (row >= 0) {
+                    String maChuyen = panelQuanLyChuyen.getTableChuyen().getValueAt(row, 0).toString();
                     hienThiChiTiet(maChuyen);
                 }
             }
@@ -246,6 +270,20 @@ public class QuanLyChuyen_CTRL {
             });
 
             initCapNhatEvents();
+        }
+        if (maChuyen.contains("_CK")) {
+            panelCapNhatChuyen.getPnlChuKy().setVisible(true);
+            panelCapNhatChuyen.getComboChuKy().setEnabled(false); // Khóa không cho sửa loại chu kỳ
+
+            if (maChuyen.endsWith("_CKHN")) panelCapNhatChuyen.getComboChuKy().setSelectedItem("Hàng ngày");
+            else if (maChuyen.endsWith("_CKHT")) panelCapNhatChuyen.getComboChuKy().setSelectedItem("Hàng tuần");
+            else if (maChuyen.endsWith("_CKTN")) panelCapNhatChuyen.getComboChuKy().setSelectedItem("Hàng tháng");
+            else if (maChuyen.endsWith("_CKHN")) panelCapNhatChuyen.getComboChuKy().setSelectedItem("Hàng năm");
+
+            panelCapNhatChuyen.getChkKetThuc().setSelected(true);
+            panelCapNhatChuyen.getTxtNgayKetThuc().setEnabled(true);
+        } else {
+            panelCapNhatChuyen.getPnlChuKy().setVisible(false);
         }
         mapGaToID = chuyenBus.getMapTenGaToID();
         loadDataToComboCapNhat();
@@ -470,6 +508,20 @@ public class QuanLyChuyen_CTRL {
                 tuyenID = cGoc.getTuyen().getTuyenID();
                 tauID = cGoc.getTau().getTauID();
             }
+            if (maChuyen.endsWith("_PS")) {
+                // Trường hợp 1: Chuyến phát sinh -> Chỉ cập nhật 1 chuyến
+                thucThiCapNhatDonLe();
+            }
+            else if (maChuyen.endsWith("_CK")) {
+                // Trường hợp 2: Chuyến chu kỳ -> Cập nhật hàng loạt các chuyến tương lai
+                int confirm = JOptionPane.showConfirmDialog(dialogCapNhat,
+                        "Đây là chuyến theo chu kỳ. Hệ thống sẽ cập nhật lịch trình cho tất cả các chuyến từ ngày này trở đi. Bạn có chắc chắn?",
+                        "Xác nhận cập nhật chu kỳ", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    thucThiCapNhatChuKyBatch();
+                }
+            }
             // 2. Thu thập dữ liệu đối tượng
             LocalDate ngayDi = LocalDate.parse(panelCapNhatChuyen.getTxtNgayDi().getText(), dateTimeFormatter);
             LocalTime gioDi = LocalTime.parse(panelCapNhatChuyen.getTxtGioDi().getText(), timeFormatter);
@@ -650,26 +702,15 @@ public class QuanLyChuyen_CTRL {
         List<String> dataTenGa = chuyenBus.getListTenGa();
         List<String> dataTenTau = chuyenBus.getListTenTau();
 
-        Runnable actionTimkiem = this::timKiemChuyen;
-        taoPopupGoiY(panelQuanLyChuyen.getTxtMaChuyen(), panelQuanLyChuyen.getPpMaChuyen(),
-                panelQuanLyChuyen.getListMaChuyen(),
-                input -> locDuLieu(dataMaChuyen, input),
-                actionTimkiem);
-
         taoPopupGoiY(panelQuanLyChuyen.getTxtGaXuatPhat(), panelQuanLyChuyen.getPpGaDi(),
                 panelQuanLyChuyen.getListGaDi(),
-                input -> locDuLieu(dataTenGa, input),
-                actionTimkiem);
-
-        taoPopupGoiY(panelQuanLyChuyen.getTxtGaDich(), panelQuanLyChuyen.getPpGaDen(),
-                panelQuanLyChuyen.getListGaDen(),
-                input -> locDuLieu(dataTenGa, input),
-                actionTimkiem);
-
-        taoPopupGoiY(panelQuanLyChuyen.getTxtTau(), panelQuanLyChuyen.getPpTau(),
-                panelQuanLyChuyen.getListTau(),
-                input -> locDuLieu(dataTenTau, input),
-                actionTimkiem);
+                input -> {
+                    if(input.length() < 2) return new ArrayList<>();
+                    return chuyenBus.goiYGaDi(input, 10).stream()
+                            .map(Ga::getTenGa)
+                            .collect(Collectors.toList());
+                },
+                this::timKiemChuyen);
 
     }
 
@@ -910,59 +951,91 @@ public class QuanLyChuyen_CTRL {
         panelThemChuyen.getTxtNgayDi().getDocument().addDocumentListener(triggerCalc);
         panelThemChuyen.getTxtGioDi().getDocument().addDocumentListener(triggerCalc);
 
-        if (panelThemChuyen.getComboTuyen().getEditor().getEditorComponent() instanceof JTextField) {
-            panelThemChuyen.getComboTuyen().addActionListener(e -> {
-                Object selected = panelThemChuyen.getComboTuyen().getSelectedItem();
+        ActionListener comboTrigger = e -> {
+            if (!isAdjusting) {
+                triggerLoadTableIfReady();
+            }
+        };
+        panelThemChuyen.getComboTuyen().addActionListener(comboTrigger);
+        panelThemChuyen.getComboTau().addActionListener(e -> {
+
+            if (isAdjusting) return;
+
+            SwingUtilities.invokeLater(() -> {
+                Object selected = panelThemChuyen.getComboTau().getSelectedItem();
                 if (selected == null) return;
-                String rawValue = selected.toString().trim();
-                if (rawValue.isEmpty()) return;
 
-                String maTuyen = layMaTuChuoiHienThi(rawValue);
-                setComboText(panelThemChuyen.getComboTuyen(), maTuyen);
+                String rawTau = selected.toString();
 
-                panelThemChuyen.getModelLichTrinh().setRowCount(0);
+                if (isTauKhongHopLe(rawTau)) {
+
+                    JOptionPane.showMessageDialog(
+                            dialogThem,
+                            "Tàu " + layMaTuChuoiHienThi(rawTau)
+                                    + " đang ngừng hoạt động hoặc bảo trì!",
+                            "Cảnh báo",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+
+                    isAdjusting = true;
+                    panelThemChuyen.getComboTau().setSelectedIndex(-1);
+                    panelThemChuyen.getComboTau().getEditor().setItem("");
+                    panelThemChuyen.getModelLichTrinh().setRowCount(0);
+                    isAdjusting = false;
+                    return;
+                }
 
                 triggerLoadTableIfReady();
             });
-        }
-
-        panelThemChuyen.getComboTau().addActionListener(e -> {
-            triggerLoadTableIfReady();
         });
 
-        Component editorTau = panelThemChuyen.getComboTau().getEditor().getEditorComponent();
-        if (editorTau instanceof JTextField) {
-            ((JTextField) editorTau).getDocument().addDocumentListener(triggerCalc);
+        JTextField txtEditorTuyen = (JTextField) panelThemChuyen.getComboTuyen().getEditor().getEditorComponent();
+        JTextField txtEditorTau = (JTextField) panelThemChuyen.getComboTau().getEditor().getEditorComponent();
 
-            editorTau.addFocusListener(new FocusAdapter() {
-                @Override
-                public void focusLost(FocusEvent e) {
-                    triggerLoadTableIfReady();
-                }
-            });
-        }
+        DocumentListener editorListener = new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { trigger(); }
+            @Override public void removeUpdate(DocumentEvent e) { trigger(); }
+            @Override public void changedUpdate(DocumentEvent e) { trigger(); }
+            private void trigger() {
+                if (!isAdjusting) triggerLoadTableIfReady();
+            }
+        };
+        txtEditorTuyen.getDocument().addDocumentListener(editorListener);
+        txtEditorTau.getDocument().addDocumentListener(editorListener);
 
+        panelThemChuyen.getComboChuKy().addActionListener(e -> genCode());
         panelThemChuyen.getBtnThemChuyen().addActionListener(e -> xuLyLuuChuyen());
     }
 
     private void triggerLoadTableIfReady() {
-        String rawTuyen = (String) panelThemChuyen.getComboTuyen().getSelectedItem();
-        String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
+        if (isAdjusting) return;
 
-        if (rawTuyen != null && !rawTuyen.isEmpty() && rawTau != null && !rawTau.isEmpty()) {
-            String maTuyen = layMaTuChuoiHienThi(rawTuyen);
+        SwingUtilities.invokeLater(() -> {
+            Object selectedTau = panelThemChuyen.getComboTau().getSelectedItem();
+            if (selectedTau == null) return;
 
-            String loaiTau = "TAU_DU_LICH";
-            if (rawTau.contains("(") && rawTau.contains(")")) {
-                loaiTau = rawTau.substring(rawTau.indexOf("(") + 1, rawTau.indexOf(")"));
-            } else {
-                loaiTau = "TAU_NHANH";
+            String rawTau = getRawTauText();
+            if (rawTau.isEmpty()) return;
+
+            if (!kiemTraTrangThaiTauHopLe(rawTau)) {
+                isAdjusting = true;
+                panelThemChuyen.getComboTau().setSelectedIndex(-1);
+                panelThemChuyen.getComboTau().getEditor().setItem("");
+                panelThemChuyen.getModelLichTrinh().setRowCount(0);
+                isAdjusting = false;
+                return;
             }
 
-            loadLichTrinhMau(maTuyen, loaiTau);
-            khaoSatVaTinhToan();
-        }
+            String rawTuyen = getSafeText(panelThemChuyen.getComboTuyen());
+            if (!rawTuyen.isEmpty()) {
+                String maTuyen = layMaTuChuoiHienThi(rawTuyen);
+                String loaiTau = rawTau.toUpperCase().contains("DU_LICH") ? "TAU_DU_LICH" : "TAU_NHANH";
+                loadLichTrinhMau(maTuyen, loaiTau);
+                khaoSatVaTinhToan();
+            }
+        });
     }
+
 
     private void khaoSatVaTinhToan() {
         genCode();
@@ -995,6 +1068,7 @@ public class QuanLyChuyen_CTRL {
 
             String ngayDiStr = panelThemChuyen.getTxtNgayDi().getText().trim();
             String gioDiStr = panelThemChuyen.getTxtGioDi().getText().trim();
+            String chuKy = panelThemChuyen.getComboChuKy().getSelectedItem().toString();
 
             if (!rawTau.isEmpty() && !ngayDiStr.isEmpty() && !gioDiStr.isEmpty()) {
                 String tauID = layMaTuChuoiHienThi(rawTau);
@@ -1004,7 +1078,9 @@ public class QuanLyChuyen_CTRL {
                 LocalTime t = LocalTime.parse(gioDiStr, timeFormatter);
                 String strGio = t.format(DateTimeFormatter.ofPattern("HHmm"));
 
-                String maChuyenMoi = tauID.toUpperCase() + "_" + strNgay + "_" + strGio;
+                String hauTo = getHauToTheoChuKy(chuKy);
+
+                String maChuyenMoi = tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
                 panelThemChuyen.getTxtMaChuyen().setText(maChuyenMoi);
             }
         } catch (Exception ex) {
@@ -1013,8 +1089,16 @@ public class QuanLyChuyen_CTRL {
 
     private void xuLyLuuChuyen() {
         try {
-            String rawTuyen = (String) panelThemChuyen.getComboTuyen().getSelectedItem();
-            String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
+            String rawTuyen = panelThemChuyen.getComboTuyen().getEditor().getItem().toString();
+            if (rawTuyen.trim().isEmpty()) {
+                baoLoiVaFocus(panelThemChuyen.getComboTuyen(), "Vui lòng chọn tuyến!");
+                return;
+            }
+            String rawTau = getRawTauText();
+            if (!kiemTraTrangThaiTauHopLe(rawTau)) {
+                panelThemChuyen.getComboTau().requestFocusInWindow();
+                return;
+            }
             String sNgayDi = panelThemChuyen.getTxtNgayDi().getText().trim();
             DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
 
@@ -1031,6 +1115,21 @@ public class QuanLyChuyen_CTRL {
 
             LocalDate ngayBatDau = LocalDate.parse(sNgayDi, dateTimeFormatter);
             LocalDate ngayKetThuc = ngayBatDau;
+            LocalDate ngayHienTai = LocalDate.now();
+            final LocalDate ngayKetThucWorker = coKetThuc ? LocalDate.parse(sNgayKetThuc, dateTimeFormatter) : ngayBatDau;
+
+            if (ngayBatDau.isBefore(ngayHienTai)) {
+                JOptionPane.showMessageDialog(dialogThem,
+                        "Ngày đi không được trước ngày hiện tại!",
+                        "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
+                panelThemChuyen.getTxtNgayDi().requestFocusInWindow();
+                return;
+            }
+
+            if (coKetThuc && ngayKetThucWorker.isBefore(ngayBatDau)) {
+                JOptionPane.showMessageDialog(dialogThem, "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!");
+                return;
+            }
 
             if (coKetThuc) {
                 if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayKetThuc)) {
@@ -1042,112 +1141,86 @@ public class QuanLyChuyen_CTRL {
                     JOptionPane.showMessageDialog(dialogThem, "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!");
                     return;
                 }
+                if (ngayKetThuc.isAfter(ngayBatDau.plusYears(10))) {
+                    JOptionPane.showMessageDialog(dialogThem,
+                            "Độ dài chu kỳ chuyến cố định chỉ có thể trong vòng 10 năm",
+                            "Cảnh báo chu kỳ", JOptionPane.WARNING_MESSAGE);
+                    panelThemChuyen.getTxtNgayKetThuc().requestFocusInWindow();
+                    return;
+                }
             }
+
+
 
             String tuyenID = layMaTuChuoiHienThi(rawTuyen);
             String tauID = layMaTuChuoiHienThi(rawTau);
             NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
 
-            if (chuKy.equals("Chuyến phát sinh") || !coKetThuc) {
-                if (thucThiLuuMotChuyen(ngayBatDau, sGioDi, tuyenID, tauID, model, nv)) {
-                    JOptionPane.showMessageDialog(panelThemChuyen, "Thêm chuyến phát sinh thành công!");
-                    dialogThem.dispose();
-                } else {
-                    JOptionPane.showMessageDialog(dialogThem, "Thêm chuyến thất bại (vui lòng kiểm tra mã chuyến)!");
+            int rows = model.getRowCount();
+            int cols = model.getColumnCount();
+            Object[][] dataSnapshot = new Object[rows][cols];
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    dataSnapshot[i][j] = model.getValueAt(i, j);
                 }
-            } else {
-                LocalDate ngayChayHienTai = ngayBatDau;
-                int countSuccess = 0;
-                int countTotal = 0;
-
-                while (!ngayChayHienTai.isAfter(ngayKetThuc)) {
-                    countTotal++;
-                    if (thucThiLuuMotChuyen(ngayChayHienTai, sGioDi, tuyenID, tauID, model, nv)) {
-                        countSuccess++;
-                    }
-
-                    ngayChayHienTai = switch (chuKy) {
-                        case "Hàng ngày" -> ngayChayHienTai.plusDays(1);
-                        case "Hàng tuần" -> ngayChayHienTai.plusWeeks(1);
-                        case "Hàng tháng" -> ngayChayHienTai.plusMonths(1);
-                        case "Hàng năm" -> ngayChayHienTai.plusYears(1);
-                        default -> ngayKetThuc.plusDays(1); // Để thoát vòng lặp
-                    };
-                }
-
-                String thongBao = String.format("Hoàn tất chu kỳ! Thành công: %d/%d chuyến.", countSuccess, countTotal);
-                JOptionPane.showMessageDialog(panelThemChuyen, thongBao);
-                dialogThem.dispose();
             }
 
-            timKiemChuyen();
+            panelThemChuyen.getBtnThemChuyen().setEnabled(false);
+            panelThemChuyen.getBtnThemChuyen().setText("Đang lưu...");
 
+            SwingWorker<String, Void> worker = new SwingWorker<>() {
+                private int soLuongChuyenDuLien = 0;
+                @Override
+                protected String doInBackground() throws Exception {
+                    List<Chuyen> dsMoi = new ArrayList<>();
+                    List<List<ChuyenGa>> dsLichTrinhMoi = new ArrayList<>();
+                    LocalDate ngayChay = ngayBatDau;
+
+                    while (!ngayChay.isAfter(ngayKetThucWorker)) {
+
+                        Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot,chuKy);
+                        List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayChay);
+
+                        dsMoi.add(c);
+                        dsLichTrinhMoi.add(stops);
+
+                        if (chuKy.equals("Chuyến phát sinh") || !coKetThuc) break;
+
+                        ngayChay = updateNgayTheoChuKy(ngayChay, chuKy);
+                    }
+                    soLuongChuyenDuLien = dsMoi.size();
+                    return chuyenBus.themChuyenBatch(dsMoi, dsLichTrinhMoi, nv);
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        String error = get();
+                        if (error == null) {
+                            String message = String.format("Đã lưu thành công tất cả các chuyến!\n(Số chuyến được tạo: %d/%d)",
+                                    soLuongChuyenDuLien, soLuongChuyenDuLien);
+                            JOptionPane.showMessageDialog(panelThemChuyen, message,"Thành công",JOptionPane.INFORMATION_MESSAGE);
+                            dialogThem.dispose();
+                            timKiemChuyen();
+                        } else {
+                            JOptionPane.showMessageDialog(dialogThem, "Lỗi: " + error);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        JOptionPane.showMessageDialog(dialogThem, "Lỗi hệ thống khi lưu ngầm!", "Lỗi hệ thống", JOptionPane.INFORMATION_MESSAGE);
+                    } finally {
+                        panelThemChuyen.getBtnThemChuyen().setEnabled(true);
+                        panelThemChuyen.getBtnThemChuyen().setText("Lưu Chuyến Tàu");
+                    }
+                }
+            };
+            worker.execute();
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(dialogThem, "Lỗi hệ thống: " + ex.getMessage());
+            JOptionPane.showMessageDialog(dialogThem, "Dữ liệu không hợp lệ: " + ex.getMessage());
         }
     }
 
-    private boolean thucThiLuuMotChuyen(LocalDate ngayDiChuyen, String sGioDi, String tuyenID, String tauID, DefaultTableModel model, NhanVien nv) {
-        try {
-
-            LocalTime t = LocalTime.parse(sGioDi, timeFormatter);
-            String maChuyen = tauID.toUpperCase() + "_" + ngayDiChuyen.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "_" + t.format(DateTimeFormatter.ofPattern("HHmm"));
-
-            Chuyen c = new Chuyen(maChuyen);
-            c.setTuyen(new Tuyen(tuyenID));
-            c.setTau(new Tau(tauID, ""));
-            c.setNgayDi(ngayDiChuyen);
-            c.setGioDi(t);
-
-            String tenGaDau = model.getValueAt(0, 1).toString();
-            String tenGaCuoi = model.getValueAt(model.getRowCount() - 1, 4).toString();
-            String idGaDau = mapGaToID.get(tenGaDau);
-            String idGaCuoi = mapGaToID.get(tenGaCuoi);
-
-            c.setGaDi(new Ga(idGaDau, tenGaDau));
-            c.setGaDen(new Ga(idGaCuoi, tenGaCuoi));
-            c.setTenChuyenHienThi(tenGaDau + " - " + tenGaCuoi);
-
-
-            LocalDate ngayGocTrongBang = LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter);
-            long dayOffset = java.time.temporal.ChronoUnit.DAYS.between(ngayGocTrongBang, ngayDiChuyen);
-
-            List<ChuyenGa> listStops = new ArrayList<>();
-
-            ChuyenGa startNode = new ChuyenGa();
-            startNode.setChuyen(c);
-            startNode.setGa(new Ga(idGaDau, tenGaDau));
-            startNode.setThuTu(1);
-            startNode.setNgayDi(ngayDiChuyen);
-            startNode.setGioDi(t);
-            listStops.add(startNode);
-
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String tenGaDen = model.getValueAt(i, 4).toString();
-                String idGaDen = mapGaToID.get(tenGaDen);
-                if (idGaDen == null) continue;
-
-                ChuyenGa stopNode = new ChuyenGa();
-                stopNode.setChuyen(c);
-                stopNode.setGa(new Ga(idGaDen, tenGaDen));
-                stopNode.setThuTu(i + 2);
-                stopNode.setNgayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter).plusDays(dayOffset));
-                stopNode.setGioDen(LocalTime.parse(model.getValueAt(i, 6).toString(), timeFormatter));
-
-                if (i < model.getRowCount() - 1) {
-                    stopNode.setNgayDi(LocalDate.parse(model.getValueAt(i + 1, 2).toString(), dateTimeFormatter).plusDays(dayOffset));
-                    stopNode.setGioDi(LocalTime.parse(model.getValueAt(i + 1, 3).toString(), timeFormatter));
-                }
-                listStops.add(stopNode);
-            }
-
-            String error = chuyenBus.themChuyen(c, listStops, nv);
-            return error == null;
-        } catch (Exception e) {
-            return false;
-        }
-    }
     /**
      * Hàm phụ trợ: Hiển thị thông báo lỗi và Focus ngay vào Component bị lỗi
      */
@@ -1324,138 +1397,15 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void fillDataFromTableToInput_Them(int row) {
-        DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
-
-        if (row > 0) {
-
-            String prevNgayDen = model.getValueAt(row - 1, 5).toString();
-            String prevGioDen = model.getValueAt(row - 1, 6).toString();
-
-            if (prevNgayDen.isEmpty() || prevGioDen.isEmpty()) {
-                JOptionPane.showMessageDialog(dialogThem,
-                        "Vui lòng nhập hoàn thiện thông tin cho chặng trước đó (" +
-                                model.getValueAt(row-1, 1) + " - " + model.getValueAt(row-1, 4) + ")!",
-                        "Cảnh báo thứ tự", JOptionPane.WARNING_MESSAGE);
-
-                panelThemChuyen.getTableLichTrinh().setRowSelectionInterval(row - 1, row - 1);
-                fillDataFromTableToInput_Them(row - 1);
-                return;
-            }
-        }
-
-    }
-
-
-    private void xuLyLuuGioVaoBang(JTable table, JTextField txtNgayDi, JTextField txtGioDi,
-                                   JTextField txtNgayDen, JTextField txtGioDen,
-                                   String headerNgayDi, String headerGioDi, Component parentComponent) {
-        int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(parentComponent, "Vui lòng chọn chặng cần nhập giờ!");
-            return;
-        }
-
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        String sNgayDi = txtNgayDi.getText().trim();
-        String sGioDi = txtGioDi.getText().trim();
-        String sNgayDen = txtNgayDen.getText().trim();
-        String sGioDen = txtGioDen.getText().trim();
-
-        if (sNgayDi.isEmpty() || sGioDi.isEmpty() || sNgayDen.isEmpty() || sGioDen.isEmpty()) {
-            JOptionPane.showMessageDialog(parentComponent, "Vui lòng nhập đầy đủ ngày và giờ!");
-            return;
-        }
-
-        if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayDi) || !PanelQuanLyChuyen.Validator.isValidGio(sGioDi) ||
-                !PanelQuanLyChuyen.Validator.isValidNgay(sNgayDen) || !PanelQuanLyChuyen.Validator.isValidGio(sGioDen)) {
-            JOptionPane.showMessageDialog(parentComponent, "Định dạng ngày (dd/MM/yyyy) hoặc giờ (HH:mm) không hợp lệ!");
-            return;
-        }
-
-        if (row == 0) {
-            if (!sNgayDi.equals(headerNgayDi) || !sGioDi.equals(headerGioDi)) {
-                JOptionPane.showMessageDialog(parentComponent,
-                        "Ngày đi và Giờ đi của chặng đầu tiên phải trùng khớp với thông tin chung của chuyến!\n" +
-                                "Thông tin chung: " + headerNgayDi + " " + headerGioDi,
-                        "Lỗi Logic", JOptionPane.ERROR_MESSAGE);
-
-                txtNgayDi.setText(headerNgayDi);
-                txtGioDi.setText(headerGioDi);
-                return;
-            }
-        }
-
-        try {
-            java.time.LocalDateTime dtDi = java.time.LocalDateTime.parse(
-                    sNgayDi + " " + sGioDi, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            java.time.LocalDateTime dtDen = java.time.LocalDateTime.parse(
-                    sNgayDen + " " + sGioDen, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-            if (!dtDen.isAfter(dtDi)) {
-                JOptionPane.showMessageDialog(parentComponent, "Thời gian Đến phải sau thời gian Đi!", "Lỗi Logic", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (row > 0) {
-                String sPrevNgayDen = model.getValueAt(row - 1, 5).toString();
-                String sPrevGioDen = model.getValueAt(row - 1, 6).toString();
-
-                if (!sPrevNgayDen.isEmpty() && !sPrevGioDen.isEmpty()) {
-                    java.time.LocalDateTime dtPrevDen = java.time.LocalDateTime.parse(
-                            sPrevNgayDen + " " + sPrevGioDen, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-
-                    if (dtDi.isBefore(dtPrevDen)) {
-                        JOptionPane.showMessageDialog(parentComponent,
-                                "Tàu chưa tới ga này! Thời gian Đi phải sau khi tàu Đến ga trước (" + sPrevGioDen + " " + sPrevNgayDen + ")",
-                                "Lỗi Logic", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                }
-            }
-
-            model.setValueAt(sNgayDi, row, 2);
-            model.setValueAt(sGioDi, row, 3);
-            if (sNgayDen.isEmpty() || sGioDen.isEmpty()) {
-                tinhTuDongThoiGianDen(row, sNgayDi, sGioDi);
-
-                sNgayDen = model.getValueAt(row, 5).toString();
-                sGioDen = model.getValueAt(row, 6).toString();
-            } else {
-                model.setValueAt(sNgayDen, row, 5);
-                model.setValueAt(sGioDen, row, 6);
-
-
-                if (row < model.getRowCount() - 1) {
-                    int thoiGianDungDo = 15; // 15 phút
-                    java.time.LocalDateTime dtDenn = java.time.LocalDateTime.parse(
-                            sNgayDen + " " + sGioDen, java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-                    java.time.LocalDateTime dtDiTiep = dtDenn.plusMinutes(thoiGianDungDo);
-
-                    String nextNgay = dtDiTiep.format(dateTimeFormatter);
-                    String nextGio = dtDiTiep.format(timeFormatter);
-
-                    model.setValueAt(nextNgay, row + 1, 2);
-                    model.setValueAt(nextGio, row + 1, 3);
-
-                    tinhTuDongThoiGianDen(row + 1, nextNgay, nextGio);
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
     private void tinhTuDongThoiGianDen(int currentRow, String ngayDiStr, String gioDiStr) {
         try {
-            String rawTau = (String) panelThemChuyen.getComboTau().getSelectedItem();
-            if (rawTau == null || rawTau.isEmpty()) return;
+            String rawTau = getSafeText(panelThemChuyen.getComboTau());
+            if (rawTau.isEmpty()) return;
             String tauID = layMaTuChuoiHienThi(rawTau);
+
             int vanToc = chuyenBus.layTocDoTau(tauID);
 
-            DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
+            DefaultTableModel model = (DefaultTableModel) panelThemChuyen.getTableLichTrinh().getModel();
             String tenGaDi = model.getValueAt(currentRow, 1).toString();
             String tenGaDen = model.getValueAt(currentRow, 4).toString();
             String idGaDi = mapGaToID.get(tenGaDi);
@@ -1466,36 +1416,334 @@ public class QuanLyChuyen_CTRL {
             int khoangCachKm = tuyenBus.getKhoangCachGiuaHaiGa(idGaDi, idGaDen);
             if (khoangCachKm <= 0) return;
 
-            double thoiGianDiChuyenPhut = ((double) khoangCachKm / vanToc) * 40;
+            double thoiGianDiChuyenPhut = ((double) khoangCachKm / vanToc) * 60;
 
             DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            String chuoiThoiGian = ngayDiStr + " " + gioDiStr;
-            LocalDateTime dtDi = LocalDateTime.parse(chuoiThoiGian,parseFormat);
+            LocalDateTime dtDi = LocalDateTime.parse(ngayDiStr + " " + gioDiStr, parseFormat);
 
             LocalDateTime dtDen = dtDi.plusMinutes((long) Math.ceil(thoiGianDiChuyenPhut));
 
-            String ngayDenMoi = dtDen.format(dateTimeFormatter);
-            String gioDenMoi = dtDen.format(timeFormatter);
-
-            model.setValueAt(ngayDenMoi, currentRow, 5);
-            model.setValueAt(gioDenMoi, currentRow, 6);
+            model.setValueAt(dtDen.format(dateTimeFormatter), currentRow, 5);
+            model.setValueAt(dtDen.format(timeFormatter), currentRow, 6);
 
             if (currentRow < model.getRowCount() - 1) {
-                int thoiGianDungDo = 15;
-                java.time.LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianDungDo);
+                int thoiGianDungDo = 10;
+                LocalDateTime dtDiTiep = dtDen.plusMinutes(thoiGianDungDo);
 
-                String ngayDiTiep = dtDiTiep.format(dateTimeFormatter);
-                String gioDiTiep = dtDiTiep.format(timeFormatter);
+                model.setValueAt(dtDiTiep.format(dateTimeFormatter), currentRow + 1, 2);
+                model.setValueAt(dtDiTiep.format(timeFormatter), currentRow + 1, 3);
 
-                model.setValueAt(ngayDiTiep, currentRow + 1, 2);
-                model.setValueAt(gioDiTiep, currentRow + 1, 3);
-
-                tinhTuDongThoiGianDen(currentRow + 1, ngayDiTiep, gioDiTiep);
+                tinhTuDongThoiGianDen(currentRow + 1, dtDiTiep.format(dateTimeFormatter), dtDiTiep.format(timeFormatter));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getSafeText(JComboBox<String> combo) {
+        if (combo == null) return "";
+        // Lấy giá trị trực tiếp từ Editor để hỗ trợ cả Autocomplete và chọn từ danh sách
+        Object item = combo.getEditor().getItem();
+        return (item != null) ? item.toString().trim() : "";
+    }
+
+    private Chuyen buildChuyenObject(LocalDate ngayChay, String sGioDi, String tuyenID, String tauID, Object[][] dataSnapshot, String chuKy) {
+        LocalTime t = LocalTime.parse(sGioDi, timeFormatter);
+        String strNgay = ngayChay.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String strGio = t.format(DateTimeFormatter.ofPattern("HHmm"));
+
+        String hauTo = getHauToTheoChuKy(chuKy);
+        String maChuyen = tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
+
+        Chuyen c = new Chuyen(maChuyen);
+        c.setTuyen(new Tuyen(tuyenID));
+        c.setTau(new Tau(tauID, ""));
+        c.setNgayDi(ngayChay);
+        c.setGioDi(t);
+
+        // Lấy tên ga từ snapshot dữ liệu (Ga đầu và Ga cuối)
+        String tenGaDau = dataSnapshot[0][1].toString();
+        String tenGaCuoi = dataSnapshot[dataSnapshot.length - 1][4].toString();
+
+        c.setGaDi(new Ga(mapGaToID.get(tenGaDau), tenGaDau));
+        c.setGaDen(new Ga(mapGaToID.get(tenGaCuoi), tenGaCuoi));
+        c.setTenChuyenHienThi(tenGaDau + " - " + tenGaCuoi);
+
+        return c;
+    }
+
+    private List<ChuyenGa> buildLichTrinhList(Chuyen c, Object[][] dataSnapshot, LocalDate ngayDiChuyen) {
+        List<ChuyenGa> listStops = new ArrayList<>();
+
+        // Tính độ lệch ngày so với lịch trình gốc trên bảng giao diện
+        LocalDate ngayGocTrongBang = LocalDate.parse(dataSnapshot[0][2].toString(), dateTimeFormatter);
+        long dayOffset = java.time.temporal.ChronoUnit.DAYS.between(ngayGocTrongBang, ngayDiChuyen);
+
+        // 1. Ga xuất phát (STT 1)
+        ChuyenGa startNode = new ChuyenGa();
+        startNode.setChuyen(c);
+        startNode.setGa(c.getGaDi());
+        startNode.setThuTu(1);
+        startNode.setNgayDi(ngayDiChuyen);
+        startNode.setGioDi(c.getGioDi());
+        listStops.add(startNode);
+
+        // 2. Các chặng tiếp theo dựa trên snapshot dữ liệu bảng
+        for (int i = 0; i < dataSnapshot.length; i++) {
+            String tenGaDen = dataSnapshot[i][4].toString();
+            String idGaDen = mapGaToID.get(tenGaDen);
+            if (idGaDen == null) continue;
+
+            ChuyenGa stopNode = new ChuyenGa();
+            stopNode.setChuyen(c);
+            stopNode.setGa(new Ga(idGaDen, tenGaDen));
+            stopNode.setThuTu(i + 2);
+
+            // Cộng dồn độ lệch ngày cho thời gian Đến và Đi
+            stopNode.setNgayDen(LocalDate.parse(dataSnapshot[i][5].toString(), dateTimeFormatter).plusDays(dayOffset));
+            stopNode.setGioDen(LocalTime.parse(dataSnapshot[i][6].toString(), timeFormatter));
+
+            if (i < dataSnapshot.length - 1) {
+                stopNode.setNgayDi(LocalDate.parse(dataSnapshot[i + 1][2].toString(), dateTimeFormatter).plusDays(dayOffset));
+                stopNode.setGioDi(LocalTime.parse(dataSnapshot[i + 1][3].toString(), timeFormatter));
+            }
+            listStops.add(stopNode);
+        }
+        return listStops;
+    }
+
+    private LocalDate updateNgayTheoChuKy(LocalDate current, String chuKy) {
+        return switch (chuKy) {
+            case "Hàng ngày" -> current.plusDays(1);
+            case "Hàng tuần" -> current.plusWeeks(1);
+            case "Hàng tháng" -> current.plusMonths(1);
+            case "Hàng năm" -> current.plusYears(1);
+            default -> current.plusDays(1);
+        };
+    }
+
+    private boolean isTauKhongHopLe(String rawTau) {
+        if (rawTau == null || rawTau.isEmpty()) return true;
+
+        String descNgung = TrangThaiTau.KHONG_HOAT_DONG.getDescription();
+        String descBaoTri = TrangThaiTau.BAO_TRI.getDescription();
+
+        return rawTau.contains(descNgung) || rawTau.contains(descBaoTri);
+    }
+
+    private String getRawTauText() {
+        Object editorItem = panelThemChuyen.getComboTau()
+                .getEditor()
+                .getItem();
+        return editorItem == null ? "" : editorItem.toString().trim();
+    }
+
+
+    private boolean kiemTraTrangThaiTauHopLe(String rawText) {
+        if (rawText == null || rawText.trim().isEmpty()) return false;
+
+        String tauID = layMaTuChuoiHienThi(rawText);
+
+        TrangThaiTau status = chuyenBus.layTrangThaiTauTheoID(tauID);
+
+        if (status == null) {
+            JOptionPane.showMessageDialog(dialogThem,
+                    "Mã tàu [" + tauID + "] không tồn tại trong hệ thống!",
+                    "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (status != TrangThaiTau.HOAT_DONG) {
+            String moTa = (status == TrangThaiTau.BAO_TRI) ? "đang bảo trì" : "ngừng hoạt động";
+            JOptionPane.showMessageDialog(dialogThem,
+                    "Tàu " + tauID + " hiện " + moTa + ", không thể thêm chuyến!",
+                    "Ràng buộc tàu", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void thucThiCapNhatChuKyBatch() {
+        // 1. Thu thập dữ liệu từ giao diện
+        String chuKy = panelCapNhatChuyen.getComboChuKy().getSelectedItem().toString();
+        String sNgayKT = panelCapNhatChuyen.getTxtNgayKetThuc().getText().trim();
+        String sNgayDi = panelCapNhatChuyen.getTxtNgayDi().getText().trim();
+        String sGioDi = panelCapNhatChuyen.getTxtGioDi().getText().trim();
+
+        // Validate ngày kết thúc
+        if (sNgayKT.isEmpty()) {
+            JOptionPane.showMessageDialog(dialogCapNhat, "Vui lòng chọn ngày kết thúc chu kỳ!", "Thiếu dữ liệu", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        LocalDate ngayBatDau = LocalDate.parse(sNgayDi, dateTimeFormatter);
+        LocalDate ngayKetThuc = LocalDate.parse(sNgayKT, dateTimeFormatter);
+        LocalDate ngayHienTai = LocalDate.now();
+
+        if (ngayBatDau.isBefore(ngayHienTai)) {
+            JOptionPane.showMessageDialog(dialogCapNhat, "Ngày đi không được trước ngày hiện tại!");
+            return;
+        }
+
+        if (ngayKetThuc.isAfter(ngayBatDau.plusYears(10))) {
+            JOptionPane.showMessageDialog(dialogCapNhat,
+                    "Độ dài chu kỳ chuyến cố định chỉ có thể trong vòng 10 năm",
+                    "Lỗi chu kỳ", JOptionPane.ERROR_MESSAGE);
+            panelCapNhatChuyen.getTxtNgayKetThuc().requestFocusInWindow();
+            return;
+        }
+
+        if (ngayKetThuc.isBefore(ngayBatDau)) {
+            JOptionPane.showMessageDialog(dialogCapNhat, "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
+        // Lấy thông tin ID
+        String tuyenID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTuyen().getEditor().getItem().toString());
+        String tauID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTau().getEditor().getItem().toString());
+        NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
+
+        // 2. Chụp Snapshot dữ liệu bảng lịch trình (Bản ghi ga trung gian)
+        DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
+        int rows = model.getRowCount();
+        int cols = model.getColumnCount();
+        Object[][] dataSnapshot = new Object[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                dataSnapshot[i][j] = model.getValueAt(i, j);
+            }
+        }
+
+        // 3. Thực thi luồng ngầm
+        panelCapNhatChuyen.getBtnCapNhatChuyen().setEnabled(false);
+        panelCapNhatChuyen.getBtnCapNhatChuyen().setText("Đang cập nhật...");
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            private int soLuongThanhCong = 0;
+
+            @Override
+            protected String doInBackground() throws Exception {
+                List<Chuyen> dsMoi = new ArrayList<>();
+                List<List<ChuyenGa>> dsLichTrinhMoi = new ArrayList<>();
+                LocalDate ngayChay = ngayBatDau;
+
+                // Lặp để tạo danh sách chuyến theo chu kỳ
+                while (!ngayChay.isAfter(ngayKetThuc)) {
+                    // Tạo đối tượng Chuyến (Sử dụng hàm buildChuyenObject 6 tham số đã sửa trước đó)
+                    Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
+
+                    // Tạo danh sách lịch trình ga (ChuyenGa) tương ứng
+                    List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayChay);
+
+                    dsMoi.add(c);
+                    dsLichTrinhMoi.add(stops);
+
+                    // Tăng ngày theo chu kỳ (Hàng ngày, Hàng tuần...)
+                    ngayChay = updateNgayTheoChuKy(ngayChay, chuKy);
+                }
+
+                soLuongThanhCong = dsMoi.size();
+                // Gọi BUS xử lý: Xóa các chuyến cũ trong khoảng thời gian này và Insert lại
+                return chuyenBus.capNhatChuyenBatch(dsMoi, dsLichTrinhMoi, nv);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String error = get();
+                    if (error == null) {
+                        String msg = String.format("Cập nhật chu kỳ thành công!\n(Đã đồng bộ %d chuyến trong hệ thống)", soLuongThanhCong);
+                        JOptionPane.showMessageDialog(panelCapNhatChuyen, msg, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                        dialogCapNhat.dispose();
+                        timKiemChuyen();
+                    } else {
+                        JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi cập nhật: " + error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi hệ thống: " + e.getMessage());
+                } finally {
+                    panelCapNhatChuyen.getBtnCapNhatChuyen().setEnabled(true);
+                    panelCapNhatChuyen.getBtnCapNhatChuyen().setText("Lưu Chuyến Tàu");
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void thucThiCapNhatDonLe() {
+        // 1. Thu thập dữ liệu cơ bản
+        String maChuyen = panelCapNhatChuyen.getTxtMaChuyen().getText().trim();
+        String sNgayDi = panelCapNhatChuyen.getTxtNgayDi().getText().trim();
+        String sGioDi = panelCapNhatChuyen.getTxtGioDi().getText().trim();
+        String tuyenID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTuyen().getEditor().getItem().toString());
+        String tauID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTau().getEditor().getItem().toString());
+        NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
+
+        // 2. Chụp Snapshot bảng lịch trình hiện tại trên Form
+        DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
+        Object[][] dataSnapshot = new Object[model.getRowCount()][model.getColumnCount()];
+        for (int i = 0; i < model.getRowCount(); i++) {
+            for (int j = 0; j < model.getColumnCount(); j++) {
+                dataSnapshot[i][j] = model.getValueAt(i, j);
+            }
+        }
+
+        // 3. Thực thi cập nhật ngầm
+        panelCapNhatChuyen.getBtnCapNhatChuyen().setEnabled(false);
+        panelCapNhatChuyen.getBtnCapNhatChuyen().setText("Đang lưu...");
+
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            private int soLuongThanhCong = 0;
+            @Override
+            protected String doInBackground() throws Exception {
+                LocalDate ngayDi = LocalDate.parse(sNgayDi, dateTimeFormatter);
+                Chuyen c = buildChuyenObject(ngayDi, sGioDi, tuyenID, tauID, dataSnapshot, "Chuyến phát sinh");
+
+                List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayDi);
+
+                List<Chuyen> dsMoi = Collections.singletonList(c);
+                List<List<ChuyenGa>> dsLT = Collections.singletonList(stops);
+
+                String res = chuyenBus.capNhatChuyenBatch(dsMoi, dsLT, nv);
+                if (res == null) soLuongThanhCong = 1;
+                return res;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String error = get();
+                    if (error == null) {
+                        String msg = String.format("Cập nhật chuyến phát sinh thành công!\n(Số lượng: %d chuyến)", soLuongThanhCong);
+                        JOptionPane.showMessageDialog(panelCapNhatChuyen, msg, "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                        dialogCapNhat.dispose();
+                        timKiemChuyen();
+                    } else {
+                        JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: " + error);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    panelCapNhatChuyen.getBtnCapNhatChuyen().setEnabled(true);
+                    panelCapNhatChuyen.getBtnCapNhatChuyen().setText("Lưu Chuyến Tàu");
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private String getHauToTheoChuKy(String chuKy) {
+        if (chuKy == null) return "PS";
+        return switch (chuKy) {
+            case "Hàng ngày" -> "CKHN";
+            case "Hàng tuần" -> "CKHT";
+            case "Hàng tháng" -> "CKTH";
+            case "Hàng năm" -> "CKHN";
+            default -> "PS"; // Bao gồm cả "Chuyến phát sinh"
+        };
     }
 }
 

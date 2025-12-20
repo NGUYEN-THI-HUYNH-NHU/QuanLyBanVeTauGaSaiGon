@@ -145,7 +145,7 @@ public class PanelQuanLyTuyen extends JPanel {
 
         // Table Style
         JTableHeader hd = tableTuyen.getTableHeader();
-        hd.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
+        hd.setFont(new Font(getFont().getFontName(), Font.BOLD, 12));
         hd.setBackground(new Color(36,104,155));
         hd.setForeground(Color.white);
         ((DefaultTableCellRenderer)hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);

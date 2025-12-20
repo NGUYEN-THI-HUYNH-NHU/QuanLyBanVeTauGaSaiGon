@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import dao.*;
 import entity.*;
 import entity.type.NhatKyAudit;
+import entity.type.TrangThaiTau;
 
 public class Chuyen_BUS {
 	private Ghe_DAO gheDAO;
@@ -30,6 +31,7 @@ public class Chuyen_BUS {
 	private Chuyen_DAO chuyenDAO;
 	private ChuyenGa_DAO chuyenGaDao;
 	private Ga_DAO gaDAO;
+	private Tau_DAO tauDao;
 
 	private final NhatKyAudit_BUS nhatKyAuditBus;
 
@@ -39,6 +41,7 @@ public class Chuyen_BUS {
 		chuyenDAO = new Chuyen_DAO();
 		chuyenGaDao = new ChuyenGa_DAO();
 		gaDAO = new Ga_DAO();
+		tauDao = new Tau_DAO();
 
 		nhatKyAuditBus = new NhatKyAudit_BUS();
 	}
@@ -304,5 +307,41 @@ public class Chuyen_BUS {
 			return filtered;
 		}
 		return allGa;
+	}
+
+	public String themChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh, NhanVien nv) {
+		// Gọi sang DAO xử lý Batch
+		boolean ok = chuyenDAO.themChuyenBatch(dsChuyen, dsLichTrinh);
+		if (!ok) return "Lỗi hệ thống khi lưu hàng loạt dữ liệu!";
+
+		// Ghi log audit tổng quát để giảm tải ghi log
+		String chiTietLog = String.format("%s đã tạo hàng loạt %d chuyến theo chu kỳ.", nv.getHoTen(), dsChuyen.size());
+		ghiLogAudit("BATCH_GEN", nv, NhatKyAudit.THEM, chiTietLog);
+		return null;
+	}
+
+	public TrangThaiTau layTrangThaiTauTheoID(String tauID) {
+		return tauDao.layTrangThaiTau(tauID);
+	}
+
+	public String capNhatChuyenBatch(List<Chuyen> dsChuyen, List<List<ChuyenGa>> dsLichTrinh, NhanVien nv) {
+		if (dsChuyen == null || dsChuyen.isEmpty()) return "Danh sách cập nhật trống!";
+
+		// Gọi DAO xử lý
+		boolean ok = chuyenDAO.capNhatChuyenBatch(dsChuyen, dsLichTrinh);
+
+		if (ok) {
+			// Ghi log tổng quát cho chu kỳ
+			String chiTiet = String.format("%s cập nhật chu kỳ cho tàu %s, tổng số %d chuyến.",
+					nv.getHoTen(), dsChuyen.get(0).getTau().getTauID(), dsChuyen.size());
+			ghiLogAudit("BATCH_UPDATE", nv, NhatKyAudit.SUA, chiTiet);
+			return null; // Thành công
+		}
+
+		return "Lỗi hệ thống khi cập nhật chu kỳ!";
+	}
+
+	public List<Chuyen> layDanhSachChuyenTheoNgay(LocalDate ngay) {
+		return chuyenDAO.getChuyenTheoNgay(ngay);
 	}
 }

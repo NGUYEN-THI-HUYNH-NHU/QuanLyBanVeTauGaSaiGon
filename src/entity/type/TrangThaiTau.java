@@ -15,7 +15,7 @@ package entity.type;
 public enum TrangThaiTau {
 	HOAT_DONG("Hoạt động"),
 	BAO_TRI("Bảo trì"),
-	NGUNG_HOAT_DONG("Ngừng hoạt động");
+	KHONG_HOAT_DONG("Không hoạt động");
 	
 	private final String description;
 

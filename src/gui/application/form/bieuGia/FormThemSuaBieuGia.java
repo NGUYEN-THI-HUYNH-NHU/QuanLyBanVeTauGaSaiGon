@@ -247,13 +247,6 @@ public class FormThemSuaBieuGia extends JDialog {
 		p.add(comp, gbc);
 	}
 
-	private JTextField createSearchField() {
-		JTextField txt = new JTextField();
-		txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên hoặc mã tuyến...");
-		txt.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
-				new FlatSVGIcon("gui/icon/svg/search.svg", 0.6f));
-		return txt;
-	}
 
 	private JPanel createKmPanel() {
 		JPanel p = new JPanel(new GridLayout(1, 2, 5, 0));
@@ -267,9 +260,6 @@ public class FormThemSuaBieuGia extends JDialog {
 		return p;
 	}
 
-	public JComboBox<String> getCboTuyenSuggest() {
-		return cboTuyenSuggest;
-	}
 
 	public void addBtnLuuListener(java.awt.event.ActionListener l) {
 		btnLuu.addActionListener(l);
@@ -451,4 +441,5 @@ public class FormThemSuaBieuGia extends JDialog {
 			}
 		});
 	}
+
 }
