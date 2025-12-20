@@ -22,6 +22,7 @@ public class Tau {
 	private LoaiTau loaiTau;
 	private int soLuongToa;
 	private String trangThai;
+	private int vanTocTB;
 	
 	public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, String trangThai) {
 		super();
@@ -30,6 +31,15 @@ public class Tau {
 		this.loaiTau = loaiTau;
 		this.soLuongToa = soLuongToa;
 		this.trangThai = trangThai;
+	}
+
+	public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, String trangThai, int vanTocTB) {
+		this.tauID = tauID;
+		this.tenTau = tenTau;
+		this.loaiTau = loaiTau;
+		this.soLuongToa = soLuongToa;
+		this.trangThai = trangThai;
+		this.vanTocTB = vanTocTB;
 	}
 
 	public Tau(String tauID) {
@@ -87,6 +97,14 @@ public class Tau {
 
 	public void setTrangThai(String trangThai) {
 		this.trangThai = trangThai;
+	}
+
+	public int getVanTocTB() {
+		return vanTocTB;
+	}
+
+	public void setVanTocTB(int vanTocTB) {
+		this.vanTocTB = vanTocTB;
 	}
 
 	@Override
