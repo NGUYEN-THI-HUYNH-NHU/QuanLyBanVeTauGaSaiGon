@@ -61,6 +61,10 @@ public class PanelBanVe extends JPanel {
 		banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
 
 		// 6. Liên kết các Controller (Logic chính)
+		banVe1Controller.addRefreshListener(() -> {
+			UngDung.getInstance().reloadPanelBanVe();
+		});
+
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
 		banVe1Controller.addPanel1CompleteListener(() -> {
 			// 1. Chuẩn bị dữ liệu cho PanelBanVe2
@@ -77,8 +81,11 @@ public class PanelBanVe extends JPanel {
 		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
 			// 1. Dừng timer cũ
 			banVe1Controller.stopAllTimers();
-			// 2. Tạo lại giao diện mới hoàn toàn
-			UngDung.reloadPanelBanVe();
+			// 2. Clear BookingSession
+			this.bookingSession = new BookingSession();
+			// 3. Tạo panel mới hoàn toàn cho lượt khách sau:
+			UngDung.getInstance().getGiaoDienChinh().removePanelFromCache("PanelBanVe");
+			UngDung.getInstance().reloadPanelBanVe();
 		});
 	}
 

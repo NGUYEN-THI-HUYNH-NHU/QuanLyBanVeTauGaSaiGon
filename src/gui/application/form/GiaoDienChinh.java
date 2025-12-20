@@ -19,14 +19,20 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.util.UIScale;
+
 import entity.NhanVien;
 import gui.application.AboutUsHelper;
 import gui.application.UngDung;
@@ -61,6 +67,9 @@ public class GiaoDienChinh extends JLayeredPane {
 	private Menu menu;
 	private JPanel panelBody;
 	private JButton menuButton;
+
+	// 1. Thêm biến để lưu trữ các màn hình cần giữ trạng thái
+	private Map<String, Component> panelCache = new HashMap<>();
 
 	public GiaoDienChinh(NhanVien nhanVien) {
 		init(nhanVien);
@@ -103,7 +112,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			switch (index) {
 			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
 			// UC cua NHAN_VIEN
-			case 2 -> UngDung.showGiaoDienChinh(new PanelBanVe());
+			case 2 -> UngDung.showGiaoDienChinh(getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
 			case 3 -> {
 				switch (subIndex) {
 				case 1 -> UngDung.showGiaoDienChinh(new PanelHoanVe());
@@ -124,7 +133,7 @@ public class GiaoDienChinh extends JLayeredPane {
 			// UC cua QUAN_LY
 			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
 			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia());
+			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
 
 			case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
 			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien));
@@ -254,5 +263,23 @@ public class GiaoDienChinh extends JLayeredPane {
 			return panelBody.getComponent(0);
 		}
 		return null;
+	}
+
+	// 2. Thêm hàm hỗ trợ lấy Panel từ Cache
+	// key: Tên định danh (ví dụ: "BanVe")
+	// creator: Hàm tạo mới nếu chưa có trong cache
+	// Trong GiaoDienChinh.java
+	private Component getOrCreatePanel(String key, Supplier<Component> creator) {
+		if (!panelCache.containsKey(key)) {
+			Component newComp = creator.get();
+			panelCache.put(key, newComp);
+		}
+
+		return panelCache.get(key);
+	}
+
+	// 4. Thêm phương thức để PanelBanVe có thể tự reset khi Bán vé hoàn tất
+	public void removePanelFromCache(String key) {
+		panelCache.remove(key);
 	}
 }

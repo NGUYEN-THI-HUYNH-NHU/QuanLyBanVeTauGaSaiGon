@@ -111,4 +111,35 @@ public class EmailService {
 		sb.append("</div></div></body></html>");
 		return sb.toString();
 	}
+
+	public static boolean sendForgotPasswordEmail(String toEmail, String code) {
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", "smtp.gmail.com");
+		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+		Session session = Session.getInstance(props, new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(SENDER_EMAIL, SENDER_PASSWORD);
+			}
+		});
+
+		try {
+			MimeMessage msg = new MimeMessage(session);
+			msg.setFrom(new InternetAddress(SENDER_EMAIL, "F4 GA SÀI GÒN"));
+			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+			msg.setSubject("Mã xác nhận cấp lại mật khẩu - Phần mềm quản lý hệ thống bán vé tàu Ga Sài Gòn");
+			msg.setText("Xin chào,\n\nMã xác nhận để đặt lại mật khẩu của bạn là: " + code
+					+ "\n\nVui lòng không chia sẻ mã này cho người khác.\n\nTrân trọng.");
+
+			Transport.send(msg);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

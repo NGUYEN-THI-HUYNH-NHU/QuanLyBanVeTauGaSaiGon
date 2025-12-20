@@ -9,6 +9,7 @@ package bus;/*
 			* @created : 30/09/2025
 			*/
 
+import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,9 +24,7 @@ import dao.Ga_DAO;
 import dao.KhoangCachChuan_DAO;
 import dao.TuyenChiTiet_DAO;
 import dao.Tuyen_DAO;
-import entity.Ga;
-import entity.Tuyen;
-import entity.TuyenChiTiet;
+import entity.*;
 
 public class Tuyen_BUS {
 	private final Tuyen_DAO tuyen_dao;
@@ -33,12 +32,14 @@ public class Tuyen_BUS {
 	private final TuyenChiTiet_DAO tuyenChiTietDao;
 	private final KhoangCachChuan_DAO khoangCachChuanDao;
 	private final Map<String, Map<String, Integer>> graphKhoangCachChuan;
+	private final NhatKyAudit_BUS nhatKyAuditBus;
 
 	public Tuyen_BUS() {
 		tuyen_dao = new Tuyen_DAO();
 		ga_dao = new Ga_DAO();
 		tuyenChiTietDao = new TuyenChiTiet_DAO();
 		khoangCachChuanDao = new KhoangCachChuan_DAO();
+		nhatKyAuditBus = new NhatKyAudit_BUS();
 
 		// Tải đồ thị khoảng cách vào bộ nhớ khi BUS khởi động
 		graphKhoangCachChuan = khoangCachChuanDao.getAllKhoangCachMap();
@@ -247,7 +248,7 @@ public class Tuyen_BUS {
 		return (tuyen != null);
 	}
 
-	public boolean themTuyen(Tuyen tuyenMoi, List<TuyenChiTiet> dsTCT) {
+	public boolean themTuyen(Tuyen tuyenMoi, List<TuyenChiTiet> dsTCT, NhanVien nhanVienThucHien) {
 		if (tuyenMoi == null || dsTCT == null || dsTCT.isEmpty()) {
 			return false;
 		}
@@ -258,8 +259,12 @@ public class Tuyen_BUS {
 				boolean themChiTiet = tuyenChiTietDao.themDanhSachChiTiet(dsTCT);
 				if (themChiTiet) {
 					themTuyenThanhCong = true;
+					String chiTietLog = String.format("%s %s Thêm Tuyến Mới: %s",
+							nhanVienThucHien.getVaiTroNhanVien(),
+							nhanVienThucHien.getHoTen(),
+							tuyenMoi.getMoTa());
+					ghiNhatKy(tuyenMoi.getTuyenID(), nhanVienThucHien, entity.type.NhatKyAudit.THEM,chiTietLog);
 				} else {
-					// Xoá tuyến nếu thêm chi tiết thất bại
 					tuyen_dao.xoaTuyen(tuyenMoi.getTuyenID());
 				}
 			}
@@ -269,30 +274,96 @@ public class Tuyen_BUS {
 		return themTuyenThanhCong;
 	}
 
-	public boolean capNhatTuyen(Tuyen tuyenCapNhat, List<TuyenChiTiet> dsChiTietMoi) {
+	public boolean capNhatTuyen(Tuyen tuyenCapNhat, List<TuyenChiTiet> dsChiTietMoi, NhanVien nhanVienThucHien) {
 		if (tuyenCapNhat == null || dsChiTietMoi == null || dsChiTietMoi.size() < 2) {
 			return false;
 		}
 		String tuyenID = tuyenCapNhat.getTuyenID();
-		try {
+
+		Tuyen tuyenCu = tuyen_dao.getTuyenByExactID(tuyenID);
+		List<TuyenChiTiet> dsChiTietCu = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
+
+		String chuoiGaCu = layChuoiGaTrungGian(dsChiTietCu);
+		String chuoiGaMoi = layChuoiGaTrungGian(dsChiTietMoi);
+
+		try{
 			boolean updateTuyen = tuyen_dao.capNhatTuyen(tuyenCapNhat);
-			if (!updateTuyen) {
-				return false;
-			}
+			if (!updateTuyen) return false;
+
 			boolean xoaChiTietCu = tuyenChiTietDao.xoaChiTietTheoTuyenID(tuyenID);
-			if (!xoaChiTietCu) {
-				return false;
-			}
+			if (!xoaChiTietCu) return false;
+
 			boolean themChiTietMoi = tuyenChiTietDao.themDanhSachChiTiet(dsChiTietMoi);
-			if (!themChiTietMoi) {
-				return false;
+			if (!themChiTietMoi) return false;
+
+			List<String> cacThayDoi = new ArrayList<>();
+
+			if (tuyenCu != null && !tuyenCu.getMoTa().equals(tuyenCapNhat.getMoTa())) {
+				cacThayDoi.add(String.format("Cập nhật mô tả (Cũ: '%s' -> Mới: '%s')",
+						tuyenCu.getMoTa(), tuyenCapNhat.getMoTa()));
 			}
+
+			if (tuyenCu != null && tuyenCu.isTrangThai() != tuyenCapNhat.isTrangThai()) {
+				String ttCu = tuyenCu.isTrangThai() ? "Hoạt động" : "Không hoạt động";
+				String ttMoi = tuyenCapNhat.isTrangThai() ? "Hoạt động" : "Không hoạt động";
+				cacThayDoi.add(String.format("Cập nhật trạng thái (%s -> %s)", ttCu, ttMoi));
+			}
+
+			if (!chuoiGaCu.equals(chuoiGaMoi)) {
+				cacThayDoi.add(String.format("Cập nhật lộ trình (Ga TG Cũ: [%s] -> Mới: [%s])",
+						chuoiGaCu.isEmpty() ? "Không có" : chuoiGaCu,
+						chuoiGaMoi.isEmpty() ? "Không có" : chuoiGaMoi));
+			}
+			String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null) ? nhanVienThucHien.getVaiTroNhanVien().getDescription() : "";
+
+			StringBuilder sbLog = new StringBuilder();
+			sbLog.append(String.format("%s %s Cập nhật tuyến %s",
+					tenChucVu,
+					nhanVienThucHien.getHoTen(),
+					tuyenID));
+
+			if (!cacThayDoi.isEmpty()) {
+				sbLog.append(" : ").append(String.join(", ", cacThayDoi));
+			} else {
+				sbLog.append(" : (Không có thay đổi nội dung)");
+			}
+
+			ghiNhatKy(tuyenID, nhanVienThucHien, entity.type.NhatKyAudit.SUA, sbLog.toString());
+
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
+
+	private void ghiNhatKy(String doiTuongID, NhanVien nv, entity.type.NhatKyAudit loaiThaoTac, String chiTiet){
+		if(nv == null) return;
+		try{
+			String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
+
+			NhatKyAudit log = new NhatKyAudit(maLog,
+					doiTuongID,
+					nv.getNhanVienID(),
+					LocalDateTime.now(),
+					loaiThaoTac,
+					chiTiet,
+					"Tuyen");
+			nhatKyAuditBus.ghiNhatKyAudit(log);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private String layChuoiGaTrungGian(List<TuyenChiTiet> list) {
+		if (list == null || list.size() <= 2) {
+			return "";
+		}
+		return list.subList(1, list.size() - 1).stream()
+				.map(tct -> tct.getGa().getTenGa())
+				.collect(Collectors.joining(", "));
+	}
+
 
 	/**
 	 * Tính khoảng cách tổng Sử dụng thuật toán Dijkstra để tìm đường đi ngắn nhất
@@ -369,6 +440,21 @@ public class Tuyen_BUS {
 
 	public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
 		return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen);
+	}
+
+	public List<String> getAllMaVaTenTuyen() {
+		List<Tuyen> dsTuyen = tuyen_dao.getAllTuyen();
+		List<String> dsHienThi = new ArrayList<>();
+
+		if (dsTuyen != null) {
+			for (Tuyen t : dsTuyen) {
+				String moTa = (t.getMoTa() != null) ? t.getMoTa() : "Không có mô tả";
+				// Định dạng: "SE1 (Sài Gòn - Hà Nội)"
+				String item = String.format("%s (%s)", t.getTuyenID(), moTa);
+				dsHienThi.add(item);
+			}
+		}
+		return dsHienThi;
 	}
 
 }

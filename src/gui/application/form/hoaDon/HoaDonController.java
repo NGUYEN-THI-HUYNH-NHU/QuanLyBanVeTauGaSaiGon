@@ -42,8 +42,6 @@ import bus.KhachHang_BUS;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.KhachHang;
-import entity.NhanVien;
-import gui.application.AuthService;
 
 public class HoaDonController {
 	private PanelQuanLyHoaDon view;
@@ -53,7 +51,6 @@ public class HoaDonController {
 	private final HoaDon_BUS hoaDonBUS;
 	private final KhachHang_BUS khachHangBUS;
 
-	private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
 	private KhachHang selectedKhachHang = null;
 
 	public HoaDonController(PanelQuanLyHoaDon view) {
@@ -376,7 +373,7 @@ public class HoaDonController {
 		}
 
 		// Lấy danh sách gợi ý
-		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHangChoHoaDon(keyword);
+		List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
 
 		if (!listSuggest.isEmpty()) {
 			for (KhachHang kh : listSuggest) {
@@ -387,6 +384,7 @@ public class HoaDonController {
 						kh.getKhachHangID());
 
 				JMenuItem item = new JMenuItem(displayText);
+				item.setIcon(new FlatSVGIcon("gui/icon/svg/person.svg", 0.6f));
 
 				// Sự kiện khi chọn 1 dòng gợi ý
 				item.addActionListener(e -> {

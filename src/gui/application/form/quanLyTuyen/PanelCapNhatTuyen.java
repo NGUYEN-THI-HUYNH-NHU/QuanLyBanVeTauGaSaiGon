@@ -25,9 +25,9 @@ public class PanelCapNhatTuyen extends JPanel {
 
     private JPanel pnlGaTrungGianDaChon;
 
-    private JComboBox<String> txtGaXuatPhat;
-    private JComboBox<String> txtGaDich;
-    private JComboBox<String> txtGaTrungGian;
+    private JTextField txtGaXuatPhat;
+    private JTextField txtGaDich;
+    private JTextField txtGaTrungGian;
     private JComboBox<String> cboTrangThai;
 
     private JPopupMenu ppGaXuatPhat;
@@ -75,9 +75,9 @@ public class PanelCapNhatTuyen extends JPanel {
         lblTieuDe.setForeground(new Color(30,41,58));
         pnlContent.add(lblTieuDe, "span 4, left, wrap 25 ");
 
-        txtGaXuatPhat = new JComboBox<>();
+        txtGaXuatPhat = new JTextField();
         txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát muốn cập nhật");
-        txtGaDich = new JComboBox<>();
+        txtGaDich = new JTextField();
         txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích muốn cập nhật");
         pnlContent.add(new JLabel("Ga Xuất Phát:"), "w 100%");
         pnlContent.add(txtGaXuatPhat,"growx");
@@ -98,7 +98,7 @@ public class PanelCapNhatTuyen extends JPanel {
         pnlContent.add(new JLabel("Khoảng cách từ ga xuất phát đến ga đích (km):"));
         pnlContent.add(txtDoDaiQuangDuong, "growx, wrap 20");
 
-        txtGaTrungGian = new JComboBox<>();
+        txtGaTrungGian = new JTextField();
         txtGaTrungGian.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên các Ga Trung Gian muốn cập nhật");
         pnlContent.add(new JLabel("Ga Trung Gian:"), "w 150");
         pnlContent.add(txtGaTrungGian, "growx");
@@ -191,27 +191,27 @@ public class PanelCapNhatTuyen extends JPanel {
         this.pnlGaTrungGianDaChon = pnlGaTrungGianDaChon;
     }
 
-    public JComboBox<String> getTxtGaXuatPhat() {
+    public JTextField getTxtGaXuatPhat() {
         return txtGaXuatPhat;
     }
 
-    public void setTxtGaXuatPhat(JComboBox<String> txtGaXuatPhat) {
+    public void setTxtGaXuatPhat(JTextField txtGaXuatPhat) {
         this.txtGaXuatPhat = txtGaXuatPhat;
     }
 
-    public JComboBox<String> getTxtGaDich() {
+    public JTextField getTxtGaDich() {
         return txtGaDich;
     }
 
-    public void setTxtGaDich(JComboBox<String> txtGaDich) {
+    public void setTxtGaDich(JTextField txtGaDich) {
         this.txtGaDich = txtGaDich;
     }
 
-    public JComboBox<String> getTxtGaTrungGian() {
+    public JTextField getTxtGaTrungGian() {
         return txtGaTrungGian;
     }
 
-    public void setTxtGaTrungGian(JComboBox<String> txtGaTrungGian) {
+    public void setTxtGaTrungGian(JTextField txtGaTrungGian) {
         this.txtGaTrungGian = txtGaTrungGian;
     }
 

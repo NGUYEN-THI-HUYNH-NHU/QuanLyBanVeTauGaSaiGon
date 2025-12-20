@@ -60,7 +60,7 @@ public class PanelQuanLyTuyen extends JPanel {
     }
 
     public void initComponents(){
-        Font baseFont = new Font("Segoe UI", Font.PLAIN, 15);
+        Font baseFont = new Font(getFont().getFontName(), Font.PLAIN, 14);
 
         // --- 1. HEADER PANEL (NORTH) ---
         JPanel panelNorth = new JPanel(new BorderLayout());
@@ -145,7 +145,7 @@ public class PanelQuanLyTuyen extends JPanel {
 
         // Table Style
         JTableHeader hd = tableTuyen.getTableHeader();
-        hd.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        hd.setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
         hd.setBackground(new Color(36,104,155));
         hd.setForeground(Color.white);
         ((DefaultTableCellRenderer)hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
@@ -175,7 +175,7 @@ public class PanelQuanLyTuyen extends JPanel {
         pnlChiTiet.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(36, 104, 155)),
                 "THÔNG TIN CHI TIẾT",
-                0, 0, new Font("Segoe UI", Font.BOLD, 16), new Color(36, 104, 155))
+                0, 0, new Font(getFont().getFontName(), Font.BOLD, 14), new Color(36, 104, 155))
         );
         pnlChiTiet.setBackground(Color.WHITE);
 
@@ -183,8 +183,8 @@ public class PanelQuanLyTuyen extends JPanel {
         JPanel pnlThongTinCuThe = new JPanel(new MigLayout("fillx, insets 5", "[pref!][grow]", "[]10[]10[]10[]"));
         pnlThongTinCuThe.setBackground(Color.WHITE);
 
-        Font labelFont = new Font("Segoe UI", Font.BOLD, 14);
-        Font textFont = new Font("Segoe UI", Font.PLAIN, 14);
+        Font labelFont = new Font(getFont().getFontName(),Font.BOLD, 14);
+        Font textFont = new Font(getFont().getFontName(), Font.PLAIN, 14);
         Color readOnlyColor = new Color(245, 245, 245);
 
         // Mã Tuyến
@@ -237,7 +237,7 @@ public class PanelQuanLyTuyen extends JPanel {
 
         // Label tiêu đề cho bảng
         JLabel lblTableTitle = new JLabel("Danh sách các ga trung gian trên tuyến:");
-        lblTableTitle.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 14));
+        lblTableTitle.setFont(new Font(getFont().getFontName(),Font.BOLD | Font.ITALIC, 14));
         lblTableTitle.setForeground(new Color(36, 104, 155));
         lblTableTitle.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 

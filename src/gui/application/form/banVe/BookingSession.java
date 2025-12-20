@@ -167,6 +167,11 @@ public class BookingSession {
 		return allSelectedTickets;
 	}
 
+	public void removeAllSelectedTickets() {
+		outboundResults = new ArrayList<Chuyen>();
+		returnResults = new ArrayList<Chuyen>();
+	}
+
 	/**
 	 * Thêm ticket theo tripIndex
 	 */
