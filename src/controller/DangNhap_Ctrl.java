@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalTime;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -103,6 +104,10 @@ public class DangNhap_Ctrl {
 			JOptionPane.showMessageDialog(view, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
 					"Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
 			view.resetDangNhap();
+		} else if (!checkDungCaLam(nhanVien)) {
+			JOptionPane.showMessageDialog(view,
+					"Không thể đăng nhập vào ứng dụng Quản lý Bán vé tàu Ga Sài Gòn vì đây không phải ca làm của bạn.\nVui lòng đăng nhập khi đến ca làm của bạn!");
+			view.resetDangNhap();
 		} else {
 			AuthService.getInstance().setCurrentUser(nhanVien);
 			ungDung.createGiaoDienChinh(nhanVien);
@@ -130,5 +135,19 @@ public class DangNhap_Ctrl {
 //			return false;
 //		}
 		return true;
+	}
+
+	private boolean checkDungCaLam(NhanVien nhanVien) {
+		LocalTime gioVao = nhanVien.getCaLam().getGioVaoCa();
+		LocalTime gioKet = nhanVien.getCaLam().getGioKetCa();
+		LocalTime hienTai = LocalTime.now();
+
+		// Ca không qua đêm
+		if (gioVao.isBefore(gioKet)) {
+			return !hienTai.isBefore(gioVao) && hienTai.isBefore(gioKet);
+		} else {
+			// Ca qua đêm
+			return !hienTai.isBefore(gioVao) || hienTai.isBefore(gioKet);
+		}
 	}
 }

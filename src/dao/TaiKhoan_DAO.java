@@ -22,9 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import connectDB.ConnectDB;
+import entity.CaLam;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import entity.type.VaiTroNhanVien;
@@ -178,8 +177,9 @@ public class TaiKhoan_DAO {
 		Connection connection = connectDB.getConnection();
 		PreparedStatement statement = null;
 		ResultSet resultSet = null;
-		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong, NV.caLam, NV.avatar"
-				+ " from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID" + " WHERE TK.tenDangNhap = ?";
+		String sqlQuery = "select NV.nhanVienID, NV.vaiTroNhanVienID, NV.hoTen, NV.isNu, NV.ngaySinh, NV.soDienThoai, NV.email, NV.diaChi, NV.ngayThamGia, NV.isHoatDong, NV.caLamID, NV.avatar, C.gioVaoCa, C.gioKetCa\r\n"
+				+ "from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID join CaLam C on NV.caLamID = C.caLamID\r\n"
+				+ "WHERE TK.tenDangNhap = ?;";
 
 		if (getTaiKhoanVoiTenDangNhap(tenDangNhap) != null && xacThuc) {
 			try {
@@ -188,22 +188,23 @@ public class TaiKhoan_DAO {
 				resultSet = statement.executeQuery();
 
 				if (resultSet.next()) {
-					String nhanVienID = resultSet.getString(1);
-					VaiTroNhanVien vaiTroNhanVien = VaiTroNhanVien.valueOf(resultSet.getString(2));
-					String hoTen = resultSet.getString(3);
-					boolean isNu = resultSet.getBoolean(4);
-					LocalDate ngaySinh = resultSet.getDate(5).toLocalDate();
-					String soDienThoai = resultSet.getString(6);
-					String email = resultSet.getString(7);
-					String diaChi = resultSet.getString(8);
-					LocalDate ngayThamGia = resultSet.getDate(9).toLocalDate();
-					boolean isHoatDong = resultSet.getBoolean(10);
-					String caLam = resultSet.getString(11);
+					String nhanVienID = resultSet.getString("nhanVienID");
+					VaiTroNhanVien vaiTroNhanVien = VaiTroNhanVien.valueOf(resultSet.getString("vaiTroNhanVienID"));
+					String hoTen = resultSet.getString("hoTen");
+					boolean isNu = resultSet.getBoolean("isNu");
+					LocalDate ngaySinh = resultSet.getDate("ngaySinh").toLocalDate();
+					String soDienThoai = resultSet.getString("soDienThoai");
+					String email = resultSet.getString("email");
+					String diaChi = resultSet.getString("diaChi");
+					LocalDate ngayThamGia = resultSet.getDate("ngayThamGia").toLocalDate();
+					boolean isHoatDong = resultSet.getBoolean("isHoatDong");
+					CaLam caLam = new CaLam(resultSet.getString("caLamID"), resultSet.getTime("gioVaoCa").toLocalTime(),
+							resultSet.getTime("gioKetCa").toLocalTime());
 
 					byte[] avatar = resultSet.getBytes("avatar");
 
 					nhanVien = new NhanVien(nhanVienID, vaiTroNhanVien, hoTen, isNu, ngaySinh, soDienThoai, email,
-							diaChi, ngayThamGia, isHoatDong, caLam, avatar);
+							diaChi, ngayThamGia, isHoatDong, avatar, caLam);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -425,7 +426,7 @@ public class TaiKhoan_DAO {
 		return false;
 	}
 
-	//tim kiem tai khoan theo ID
+	// tim kiem tai khoan theo ID
 	public TaiKhoan timTaiKhoanTheoID(String taiKhoanID) {
 		Connection con = connectDB.getConnection();
 		String sql = "SELECT * FROM TaiKhoan WHERE taiKhoanID = ?";
@@ -441,8 +442,8 @@ public class TaiKhoan_DAO {
 				LocalDateTime thoiDiemTao = rs.getTimestamp(6).toLocalDateTime();
 				boolean isHoatDong = rs.getBoolean(7);
 
-				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienID),
-						tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienID), tenDangNhap,
+						matKhauHash, thoiDiemTao, isHoatDong);
 			}
 		} catch (SQLException e) {
 			System.out.print("Tim tai khoan theo ID that bai: " + e.getMessage());

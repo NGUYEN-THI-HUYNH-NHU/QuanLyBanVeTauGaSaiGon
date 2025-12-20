@@ -86,11 +86,7 @@ public class PanelBaoCao extends JPanel {
 
 	public PanelBaoCao() {
 		NhanVien current = AuthService.getInstance().getCurrentUser();
-		if (current == null) {
-			// Giả lập nhân viên
-			current = new NhanVien("NV001", null, "Nhân Viên Test", false, null, "0000000000", null, null, null, true,
-					null);
-		}
+
 		this.nhanVien = current;
 		this.tenNV = nhanVien.getHoTen() != null ? nhanVien.getHoTen() : "Không xác định";
 

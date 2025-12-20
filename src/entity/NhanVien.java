@@ -28,12 +28,27 @@ public class NhanVien {
 	private String diaChi;
 	private LocalDate ngayThamGia;
 	private boolean isHoatDong;
-	private String caLam;
 	private byte[] avatar;
+	private CaLam caLam;
 
 	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
-			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, String caLam,
-			byte[] avatar) {
+			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, byte[] avatar) {
+		super();
+		this.nhanVienID = nhanVienID;
+		this.vaiTroNhanVien = vaiTroNhanVien;
+		this.hoTen = hoTen;
+		this.isNu = isNu;
+		this.ngaySinh = ngaySinh;
+		this.soDienThoai = soDienThoai;
+		this.email = email;
+		this.diaChi = diaChi;
+		this.ngayThamGia = ngayThamGia;
+		this.isHoatDong = isHoatDong;
+		this.avatar = avatar;
+	}
+
+	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, CaLam caLam) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
@@ -46,11 +61,11 @@ public class NhanVien {
 		this.ngayThamGia = ngayThamGia;
 		this.isHoatDong = isHoatDong;
 		this.caLam = caLam;
-		this.avatar = avatar;
 	}
 
 	public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
-			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, String caLam) {
+			String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, byte[] avatar,
+			CaLam caLam) {
 		super();
 		this.nhanVienID = nhanVienID;
 		this.vaiTroNhanVien = vaiTroNhanVien;
@@ -62,6 +77,7 @@ public class NhanVien {
 		this.diaChi = diaChi;
 		this.ngayThamGia = ngayThamGia;
 		this.isHoatDong = isHoatDong;
+		this.avatar = avatar;
 		this.caLam = caLam;
 	}
 
@@ -78,14 +94,6 @@ public class NhanVien {
 
 	public NhanVien() {
 
-	}
-
-	public String getCaLam() {
-		return caLam;
-	}
-
-	public void setCaLma(String caLam) {
-		this.caLam = caLam;
 	}
 
 	public String getNhanVienID() {
@@ -187,12 +195,16 @@ public class NhanVien {
 		return avatar;
 	}
 
-	public void setCaLam(String caLam) {
-		this.caLam = caLam;
-	}
-
 	public void setAvatar(byte[] avatar) {
 		this.avatar = avatar;
+	}
+
+	public CaLam getCaLam() {
+		return caLam;
+	}
+
+	public void setCaLam(CaLam caLam) {
+		this.caLam = caLam;
 	}
 
 	@Override

@@ -41,7 +41,7 @@ public class KhachHang_BUS {
 		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
 
 		NhatKyAudit audit = new NhatKyAudit(nhatKyAudit_bus.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
-				LocalDateTime.now(), loai, chiTiet, "KHACH_HANG");
+				LocalDateTime.now(), loai, String.format("<html>̀%s</html>", chiTiet), "KHACH_HANG");
 
 		nhatKyAudit_bus.ghiNhatKyAudit(audit);
 
