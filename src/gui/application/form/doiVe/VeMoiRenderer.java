@@ -5,6 +5,9 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -13,57 +16,56 @@ package gui.application.form.doiVe;
  */
 
 import java.awt.Component;
-import java.text.DecimalFormat;
 
-import javax.swing.DefaultListCellRenderer;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
-import entity.Toa;
-import gui.application.form.banVe.VeSession;
+import gui.tuyChinh.ArrowIcon;
 
-public class VeMoiRenderer extends DefaultListCellRenderer {
+public class VeMoiRenderer implements TableCellRenderer {
+	private final JPanel panel;
+	private final JLabel textLabel;
+	private final JLabel arrowLabel;
 
-	private static final DecimalFormat df = new DecimalFormat("#,##0");
+	public VeMoiRenderer() {
+		panel = new JPanel(new BorderLayout());
+		textLabel = new JLabel();
+		arrowLabel = new JLabel();
 
-	// Renderer cho items trong ComboBox (ListCellRenderer)
+		// Cấu hình mũi tên (Dùng icon tự vẽ cho đơn giản và nhẹ)
+		arrowLabel.setIcon(new ArrowIcon());
+		arrowLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5)); // Padding cho mũi tên
+
+		// Cấu hình text
+		textLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0)); // Padding cho text
+
+		panel.add(textLabel, BorderLayout.CENTER);
+		panel.add(arrowLabel, BorderLayout.EAST);
+	}
+
 	@Override
-	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-			boolean cellHasFocus) {
-		JLabel lbl = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		formatLabel(lbl, value);
-		return lbl;
-	}
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+			int row, int column) {
+		// 1. Render text bằng logic chung
+		VeMoiListRenderer.renderVeMoi(textLabel, value);
 
-	// Helper để format text thống nhất
-	public static void formatLabel(JLabel lbl, Object value) {
-		if (value instanceof VeSession) {
-			VeSession v = (VeSession) value;
-			Toa toa = v.getVe().getGhe().getToa();
-			String text = String.format("<html>Toa %s - %s<br/>Chỗ %s<br/>Giá: <b>%s</b></html>", toa.getSoToa(),
-					toa.getHangToa(), v.getSoGhe(), df.format(v.getVe().getGia()));
-			lbl.setText(text);
-			lbl.setToolTipText(v.prettyString()); // Tooltip chi tiết
-		} else if (value == null) {
-			lbl.setText("Chọn vé mới");
+		// 2. Xử lý màu sắc (Quan trọng để đồng bộ với bảng)
+		if (isSelected) {
+			panel.setBackground(table.getSelectionBackground());
+			textLabel.setForeground(table.getSelectionForeground());
+			// Mũi tên màu trắng khi selected
+			arrowLabel.setIcon(new ArrowIcon(table.getSelectionForeground()));
 		} else {
-			lbl.setText(value.toString());
+			panel.setBackground(table.getBackground());
+			textLabel.setForeground(table.getForeground());
+			// Mũi tên màu xám khi bình thường
+			arrowLabel.setIcon(new ArrowIcon(Color.GRAY));
 		}
-	}
 
-	// Static method trả về TableCellRenderer để dùng cho ô JTable (khi không edit)
-	public static DefaultTableCellRenderer getTableCellRenderer() {
-		return new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-						column);
-				formatLabel(lbl, value);
-				return lbl;
-			}
-		};
+		textLabel.setFont(table.getFont());
+		return panel;
 	}
 }

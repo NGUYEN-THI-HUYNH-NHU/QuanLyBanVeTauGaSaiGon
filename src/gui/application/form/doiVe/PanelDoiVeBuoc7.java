@@ -78,7 +78,6 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		cbKhuyenMai = new JComboBox<>();
 		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
 		khuyenMaiCol.setCellRenderer(renderer);
-		cbKhuyenMai.setRenderer(renderer);
 
 		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();

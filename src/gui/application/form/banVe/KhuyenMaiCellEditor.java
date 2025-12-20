@@ -31,6 +31,8 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 		this.cbKhuyenMai = cbKhuyenMai;
 		this.khuyenMaiProvider = khuyenMaiProvider;
 		this.model = model;
+		// Để danh sách khi xổ xuống cũng hiện đúng format "Mã (-%)"
+		this.cbKhuyenMai.setRenderer(new KhuyenMaiListRenderer());
 	}
 
 	@Override

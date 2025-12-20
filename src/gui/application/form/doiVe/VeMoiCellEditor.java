@@ -33,7 +33,6 @@ public class VeMoiCellEditor extends AbstractCellEditor implements TableCellEdit
 		this.allVeMoiAvailable = allVeMoi;
 
 		comboBox = new JComboBox<>();
-		comboBox.setRenderer(new VeMoiRenderer());
 
 		// Khi chọn xong thì stop editing để update model
 		comboBox.addActionListener(new ActionListener() {
@@ -42,6 +41,8 @@ public class VeMoiCellEditor extends AbstractCellEditor implements TableCellEdit
 				fireEditingStopped();
 			}
 		});
+
+		this.comboBox.setRenderer(new VeMoiListRenderer());
 	}
 
 	// Cập nhật lại danh sách nguồn (nếu cần thiết khi controller thay đổi dữ liệu)

@@ -68,7 +68,6 @@ public class PanelBuoc4 extends JPanel {
 		cbKhuyenMai = new JComboBox<>();
 		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
 		khuyenMaiCol.setCellRenderer(renderer);
-		cbKhuyenMai.setRenderer(renderer);
 
 		table.getColumnModel().getColumn(1).setCellRenderer(new PassengerCellRenderer());
 

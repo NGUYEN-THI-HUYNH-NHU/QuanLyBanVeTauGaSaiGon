@@ -31,7 +31,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.LeftCenterAlignRenderer;
+import gui.tuyChinh.LeftTopRenderer;
+import gui.tuyChinh.SimpleComboBoxRenderer;
 
 public class PanelHoanVeBuoc3 extends JPanel {
 	private VeHoanTableModel model;
@@ -63,13 +64,15 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		JComboBox<String> cbLyDoHoan = new JComboBox<>(lyDoHoan);
 		DefaultCellEditor cellEditor = new DefaultCellEditor(cbLyDoHoan);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellEditor(cellEditor);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellRenderer(new SimpleComboBoxRenderer());
 
-		table.setRowHeight(90);
+		table.setRowHeight(70);
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(150);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(130);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(180);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setMinWidth(120);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON).setMaxWidth(50);
 
 		// RENDERER CHO CỘT THỜI GIAN
@@ -80,7 +83,7 @@ public class PanelHoanVeBuoc3 extends JPanel {
 
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 				setHorizontalAlignment(SwingConstants.CENTER);
-				setVerticalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 				c.setForeground(Color.GREEN);
 				setFont(getFont().deriveFont(Font.BOLD));
 				return c;
@@ -94,10 +97,9 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
 
-		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellRenderer(leftCenterRenderer);
+		LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(leftTopRenderer);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
 	}
