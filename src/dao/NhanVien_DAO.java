@@ -293,5 +293,22 @@ public class NhanVien_DAO {
 		return danhSachMaNV;
 	}
 
+	//lấy danh sách nhân viên chưa có tài khoản
+	public List<NhanVien> layNhanVienChuaCoTaiKhoan() {
+		List<NhanVien> danhSachNV = new ArrayList<>();
+		String sql = "SELECT * FROM NhanVien WHERE nhanVienID NOT IN (SELECT nhanVienID FROM TaiKhoan)";
+		try (Connection con = connectDB.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql);
+				ResultSet rs = ps.executeQuery()) {
+			while (rs.next()) {
+				danhSachNV.add(mapResultSetToNhanVien(rs));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return danhSachNV;
+	}
+
+
 
 }

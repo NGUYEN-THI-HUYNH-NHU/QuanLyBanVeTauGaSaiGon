@@ -19,10 +19,6 @@ public class NhanVien_CTRL {
         this.nhanVien_bus = new NhanVien_BUS(auditBus);
     }
 
-//    public NhanVien_CTRL() {
-//        this(null);
-//    }
-
     public List<NhanVien> layDanhSachNhanVien() {
         return nhanVien_bus.layDanhSachNhanVien();
     }
@@ -38,7 +34,12 @@ public class NhanVien_CTRL {
     }
 
     public boolean suaNhanVien(NhanVien nv) {
-        return nhanVien_bus.suaNhanvVien(nv);
+        String nguoiThucHienID =
+                (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null)
+                        ? nhanVienHienTai.getNhanVienID()
+                        : null;
+
+        return nhanVien_bus.suaNhanvVien(nv, nguoiThucHienID);
     }
 
     public boolean validHoTen(String hoTen) { return nhanVien_bus.validHoTen(hoTen); }
@@ -62,7 +63,4 @@ public class NhanVien_CTRL {
         return nhanVien_bus.layVaiTroNhanVienTheoMaNV(maNV);
     }
 
-//    public List<String> layDanhSachMaNhanVien() {
-//        return nhanVien_bus.layDanhSachMaNhanVien();
-//    }
 }

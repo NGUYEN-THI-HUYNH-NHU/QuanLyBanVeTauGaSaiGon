@@ -114,12 +114,19 @@ public class TaiKhoan {
 	}
 
 	public void setMatKhauHash(String matKhauHash) {
-		if(matKhauHash != null && !matKhauHash.trim().isEmpty()) {
-			this.matKhauHash = matKhauHash;
-		}else{
+		if (matKhauHash == null) {
+			this.matKhauHash = null;
+			return;
+		}
+
+		if (matKhauHash.isBlank()) {
 			throw new IllegalArgumentException("Mật khẩu không được để trống!");
 		}
+
+		this.matKhauHash = matKhauHash;
 	}
+
+
 
 	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
 		this.thoiDiemTao = thoiDiemTao;

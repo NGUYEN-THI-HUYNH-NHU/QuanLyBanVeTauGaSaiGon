@@ -22,6 +22,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import connectDB.ConnectDB;
 import entity.NhanVien;
 import entity.TaiKhoan;
@@ -422,4 +424,31 @@ public class TaiKhoan_DAO {
 		}
 		return false;
 	}
+
+	//tim kiem tai khoan theo ID
+	public TaiKhoan timTaiKhoanTheoID(String taiKhoanID) {
+		Connection con = connectDB.getConnection();
+		String sql = "SELECT * FROM TaiKhoan WHERE taiKhoanID = ?";
+		try (PreparedStatement stmt = con.prepareStatement(sql)) {
+			stmt.setString(1, taiKhoanID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				String vaiTroStr = rs.getString(2);
+				VaiTroTaiKhoan vaiTroTaiKhoan = VaiTroTaiKhoan.valueOf(vaiTroStr);
+				String nhanVienID = rs.getString(3);
+				String tenDangNhap = rs.getString(4);
+				String matKhauHash = rs.getString(5);
+				LocalDateTime thoiDiemTao = rs.getTimestamp(6).toLocalDateTime();
+				boolean isHoatDong = rs.getBoolean(7);
+
+				return new TaiKhoan(taiKhoanID, vaiTroTaiKhoan, nhanVien_DAO.getNhanVienVoiID(nhanVienID),
+						tenDangNhap, matKhauHash, thoiDiemTao, isHoatDong);
+			}
+		} catch (SQLException e) {
+			System.out.print("Tim tai khoan theo ID that bai: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 }

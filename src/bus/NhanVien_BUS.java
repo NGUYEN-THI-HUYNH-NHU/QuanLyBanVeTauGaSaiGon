@@ -2,7 +2,9 @@ package bus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import dao.NhanVien_DAO;
 import entity.NhanVien;
@@ -43,27 +45,6 @@ public class NhanVien_BUS {
 			);
 		}
 		return ok;
-	}
-
-	// ================= SỬA NHÂN VIÊN =================
-
-	public boolean suaNhanvVien(NhanVien nv, String nguoiThucHienID) {
-		boolean ok = nhanVien_dao.capNhatNhanVien(nv);
-
-		if (ok) {
-			ghiAudit(
-					nv.getNhanVienID(),
-					nguoiThucHienID,
-					entity.type.NhatKyAudit.SUA,
-					"Cập nhật thông tin nhân viên: " + nv.getHoTen()
-			);
-		}
-		return ok;
-	}
-
-	// giữ hàm cũ để không vỡ code
-	public boolean suaNhanvVien(NhanVien nv) {
-		return suaNhanvVien(nv, null);
 	}
 
 	// ================= CẬP NHẬT AVATAR =================
@@ -167,6 +148,51 @@ public class NhanVien_BUS {
 		return nhanVien_dao.layDanhSachMaNhanVien();
 	}
 
-	//so sanh khi co su cap nhat
-//	public
+
+	//======================== TÌM RA THÀNH PHẦN ĐÃ BỊ CHỈNH SỬA ===========================
+	private String thanhPhanBiChinhSua(NhanVien cu, NhanVien moi) {
+		StringBuilder sb = new StringBuilder();
+
+		if (!Objects.equals(cu.getVaiTroNhanVien(), moi.getVaiTroNhanVien())) sb.append("Cập nhật vai trò nhân viên: (" + cu.getVaiTroNhanVien() + " -> " + moi.getVaiTroNhanVien() + "), ");
+		if (!Objects.equals(cu.getHoTen(), moi.getHoTen())) sb.append("Cập nhật họ tên: (" + cu.getHoTen() + " -> " + moi.getHoTen() + "), ");
+		if (cu.isNu() != moi.isNu()) sb.append("Giới tính: (" + (cu.isNu() ? "Nữ" : "Nam") + " -> " + (moi.isNu() ? "Nữ" : "Nam") + "),");
+		if (!Objects.equals(cu.getNgaySinh(), moi.getNgaySinh())) sb.append("Ngày sinh: [" + cu.getNgaySinh() + " -> " + moi.getNgaySinh() + "], ");
+		if (!Objects.equals(cu.getSoDienThoai(), moi.getSoDienThoai())) sb.append("Số điện thoại: [" + cu.getSoDienThoai() + " -> " + moi.getSoDienThoai() +"], ");
+		if (!Objects.equals(cu.getEmail(), moi.getEmail())) sb.append("Email: (" + cu.getEmail() + " -> " + moi.getEmail() + "), ");
+		if (!Objects.equals(cu.getDiaChi(), moi.getDiaChi())) sb.append("Địa chỉ: (" + cu.getDiaChi() + " -> " + moi.getDiaChi() + "), ");
+		if (!Objects.equals(cu.getNgayThamGia(), moi.getNgayThamGia())) sb.append("Ngày tham gia: (" + cu.getNgayThamGia() + " -> " + moi.getNgayThamGia() + "), ");
+		if (cu.isHoatDong() != moi.isHoatDong()) sb.append("Trạng thái hoạt động: " + (cu.isHoatDong() ? "Hoạt động" : "Không hoạt động") + " -> " + (moi.isHoatDong() ? "Hoạt động" : "Không hoạt động") + ", ");
+		if (!Objects.equals(cu.getCaLam(), moi.getCaLam())) sb.append("Ca làm: [" + cu.getCaLam() + " -> " + moi.getCaLam() + "]" + ", ");
+		if (!Arrays.equals(cu.getAvatar(), moi.getAvatar())) sb.append("Avatar: [Đã thay đổi]" + ", ");
+
+		if (sb.length() > 0) sb.setLength(sb.length() - 2);
+		return sb.toString();
+	}
+
+	// ================= SỬA NHÂN VIÊN =================
+
+	public boolean suaNhanvVien(NhanVien nv, String nguoiThucHienID) {
+
+		//1. Lấy thông tin nhân viên cũ
+		NhanVien nvCu = nhanVien_dao.getNhanVienVoiID(nv.getNhanVienID());
+		if (nv == null) return false;
+
+		//2. Cập nhật nhân viên
+		boolean ok = nhanVien_dao.capNhatNhanVien(nv);
+		if (!ok) return false;
+
+		// 3) build chi tiết thay đổi
+		String thanhPhan = thanhPhanBiChinhSua(nvCu, nv);
+		if (thanhPhan == null || thanhPhan.isBlank()) return true;
+
+		//4. Ghi nhật ký audit
+		ghiAudit(
+				nv.getNhanVienID(),
+				nguoiThucHienID,
+				entity.type.NhatKyAudit.SUA,
+				"Cập nhật nhân viên. " + thanhPhan
+		);
+		return true;
+	}
+
 }

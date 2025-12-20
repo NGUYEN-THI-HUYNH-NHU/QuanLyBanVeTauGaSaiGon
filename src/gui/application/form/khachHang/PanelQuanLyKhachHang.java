@@ -37,7 +37,6 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 
     // màu sắc chủ đạo
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
-    private final Color COLOR_ACCENT = new Color(74, 163, 208);
     private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
     private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
     private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
@@ -47,12 +46,15 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     public PanelQuanLyKhachHang(NhanVien nhanVienThucHien) {
         this.khachHang_ctrl = new KhachHang_CTRL();
         this.nhanVienThucHien = nhanVienThucHien;
+
+
+
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(COLOR_BG_MAIN);
 
         JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Roboto", Font.BOLD | Font.ITALIC, 26));
+        lblTitle.setFont(new Font("Roboto", Font.BOLD, 26));
         lblTitle.setForeground(COLOR_TEXT_TITLE);
         add(lblTitle, BorderLayout.NORTH);
 
@@ -84,7 +86,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         panelTop.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(
                 COLOR_PRIMARY), "Thông tin khách hàng",
                 TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Roboto", Font.BOLD, 15),
+                new Font("Roboto", Font.BOLD, 13),
                 COLOR_PRIMARY));
         panelTop.setBackground(COLOR_BG_PANEL);
 
@@ -95,7 +97,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
         gbc.weighty = 1;
-        Font font = new Font("Roboto", Font.PLAIN, 14);
+        Font font = new Font("Roboto", Font.PLAIN, 13);
 
 
 
@@ -115,7 +117,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         listText = Arrays.asList(txtMaKH, txtTenKH, txtSDT, txtEmail, txtSoGiayTo, txtDiaChi);
         // Các nút thao tác
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        btnPanel.setBackground(Color.WHITE);
+        btnPanel.setBackground(COLOR_BG_PANEL);
         btnAdd = createButton("Thêm", "/gui/icon/png/save.png");
         btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
         btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
@@ -134,11 +136,38 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         for (JTextField txtField : listText) {
             txtField.addKeyListener(this);
         }
+        cbLDT.addActionListener(this);
+        cbLKH.addActionListener(this);
 
+
+        JPanel footer = new JPanel(new GridBagLayout());
+        footer.setBackground(COLOR_BG_PANEL);
+
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.EAST;
+        g.insets = new Insets(0, 10, 0, 10);
+        footer.add(btnPanel, g);
+
+        JLabel lblTieuChi = new JLabel(
+                "<html><b><i>Tìm kiếm theo:</i></b> SĐT hoặc Số giấy tờ</html>"
+        );
+        lblTieuChi.setFont(new Font("Roboto", Font.ITALIC, 12));
+        lblTieuChi.setForeground(COLOR_TEXT_LABEL);
+
+        g.gridy = 1;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(0, 12, 6, 10);
+        footer.add(lblTieuChi, g);
 
         panelTop.add(form, BorderLayout.CENTER);
-        panelTop.add(btnPanel, BorderLayout.SOUTH);
+        panelTop.add(footer, BorderLayout.SOUTH);
         return panelTop;
+
     }
 
     // Chọn 1 dòng trong table
@@ -159,7 +188,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         JPanel details = new JPanel(new GridLayout(8,2, 10, 5));
         details.setBackground(new Color(245, 245, 245));
 
-        titleFont = new Font("Roboto", Font.PLAIN, 14);
+        titleFont = new Font("Roboto", Font.PLAIN, 13);
 
         lblChiTietTen = lableInfor();
         lblChiTietSDT = lableInfor();
@@ -197,7 +226,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     // gắn giá trị ban đầu cho cái panel này nè
     private JLabel lableInfor() {
         JLabel lbl = new JLabel("");
-        lbl.setFont(new Font("Roboto", Font.PLAIN, 14));
+        lbl.setFont(new Font("Roboto", Font.PLAIN, 13));
         lbl.setForeground(COLOR_TEXT_LABEL);
         return lbl;
     }
@@ -278,7 +307,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         JTableHeader header = table.getTableHeader();
         header.setBackground(COLOR_PRIMARY);
         header.setForeground(Color.WHITE);
-        header.setFont(new Font("Roboto", Font.BOLD, 14));
+        header.setFont(new Font("Roboto", Font.BOLD, 13));
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
             @Override
@@ -301,6 +330,18 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
                 "Danh sách khách hàng", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Roboto", Font.BOLD, 15)));
         scroll.setPreferredSize(new Dimension(1000, 2000));
+
+        //chỉnh kích thước cột
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);  // STT
+        table.getColumnModel().getColumn(1).setPreferredWidth(80); // Mã KH
+        table.getColumnModel().getColumn(2).setPreferredWidth(160); // Tên KH
+        table.getColumnModel().getColumn(3).setPreferredWidth(100); // SĐT
+        table.getColumnModel().getColumn(4).setPreferredWidth(170); // Email
+        table.getColumnModel().getColumn(5).setPreferredWidth(130); // Giấy tờ
+        table.getColumnModel().getColumn(6).setPreferredWidth(250); // Địa chỉ
+        table.getColumnModel().getColumn(7).setPreferredWidth(130); // Loại đối tượng
+        table.getColumnModel().getColumn(8).setPreferredWidth(230); // Loại KH
+
 
         return scroll;
     }
@@ -643,6 +684,8 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
                     Editing = false;
                     btnEdit.setText("Sửa");
                     clearInputFields();
+                    resetLableInfor();
+                    resetErrorLabels();
                 } else {
                     JOptionPane.showMessageDialog(this, "Cập nhật khách hàng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
@@ -652,8 +695,28 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     }
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-            JTextField current = (JTextField) e.getSource();
+        if (e.getKeyCode() != KeyEvent.VK_ENTER) return;
+
+        Object src = e.getSource();
+
+        if (src == txtSoGiayTo) {
+            cbLDT.requestFocus();
+            return;
+        }
+        if (src == cbLDT) {
+            cbLKH.requestFocus();
+            return;
+        }
+        if (src == cbLKH) {
+            txtDiaChi.requestFocus();
+            return;
+        }
+        if (src == txtDiaChi) {
+            btnAdd.requestFocus();
+            return;
+        }
+
+        if (src instanceof JTextField current) {
             int index = listText.indexOf(current);
             if (index != -1) {
                 if (index + 1 < listText.size()) {
@@ -665,6 +728,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
             }
         }
     }
+
 
 
     //bắt phím cho combox

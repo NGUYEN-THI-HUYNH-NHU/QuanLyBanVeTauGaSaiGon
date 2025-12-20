@@ -36,12 +36,14 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     private JTextField txtTaiKhoanID;
     private JComboBox<VaiTroTaiKhoan> cbVaiTro;
     private JComboBox<Object> cbNhanVien;
-    private JTextField txtTenDangNhap, txtThoiDiemTao, txtMatKhau, txtXacNhanMatKhau;
+    private JTextField txtTenDangNhap, txtThoiDiemTao;
+    private JPasswordField txtMatKhau, txtXacNhanMatKhau;
     private JCheckBox cbHoatDong;
     private JButton btnAdd, btnEdit, btnFind, btnClean;
     private DefaultTableModel model;
     private JTable table;
     private List<JComponent> allFields;
+    private String tenDangNhapCu = "";
 
     public PanelQuanLyTaiKhoan(NhanVien nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
@@ -54,7 +56,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JLabel lblTitle = new JLabel("QUẢN LÝ TÀI KHOẢN", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Roboto", Font.BOLD | Font.ITALIC, 26));
+        lblTitle.setFont(new Font("Roboto", Font.BOLD, 26));
         lblTitle.setForeground(COLOR_TEXT_TITLE);
         add(lblTitle, BorderLayout.NORTH);
 
@@ -115,6 +117,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
                 if (field.getText().equals(placeholder)) {
                     field.setText("");
                     field.setForeground(Color.BLACK);
+                    field.setFont(new Font("Roboto", Font.PLAIN, 13));
                 }
             }
 
@@ -123,6 +126,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
                 if (field.getText().trim().isEmpty()) {
                     field.setForeground(Color.GRAY);
                     field.setText(placeholder);
+                    field.setFont(new Font("Roboto", Font.PLAIN, 13));
                 }
             }
         });
@@ -161,7 +165,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         gbc.weightx = 1;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        Font font = new Font("Roboto", Font.PLAIN, 14);
+        Font font = new Font("Roboto", Font.PLAIN, 13);
 
         //Text
         txtTaiKhoanID = new JTextField();
@@ -184,13 +188,14 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
             }
         });
 
-        cbVaiTro.setEnabled(false);
-
 
         cbNhanVien = new JComboBox<>();
+        cbNhanVien.removeAllItems();
         cbNhanVien.addItem("Chọn mã nhân viên");
-        nhanVien_ctrl.layDanhSachNhanVien().forEach(nv -> cbNhanVien.addItem(nv.getNhanVienID()));
+        nhanVien_ctrl.layDanhSachNhanVien()
+                .forEach(nv -> cbNhanVien.addItem(nv.getNhanVienID()));
         cbNhanVien.setSelectedIndex(0);
+
         txtTenDangNhap = new JTextField();
         txtMatKhau = new JPasswordField();
         txtXacNhanMatKhau = new JPasswordField();
@@ -199,6 +204,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         cbHoatDong = new JCheckBox("Đang hoạt động");
         cbHoatDong.setSelected(true);
 
+        //gán sự kiện key listener cho tất cả các field
         allFields = List.of(txtTaiKhoanID, cbVaiTro, cbNhanVien, txtTenDangNhap,
                 txtMatKhau, txtXacNhanMatKhau, txtThoiDiemTao, cbHoatDong);
 
@@ -224,7 +230,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
         btnClean = createButton("Xóa trắng", "/gui/icon/png/clean.png");
 
-        //tạo tooltip cho nút tìm kiếm
+        // tooltips
         btnFind.setToolTipText("Tìm kiếm: Mã nhân viên, Tên đăng nhập, Vai trò và Trạng thái hoạt động.");
 
         btnPanel.add(btnAdd);
@@ -232,12 +238,34 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         btnPanel.add(btnFind);
         btnPanel.add(btnClean);
 
+        JPanel footer = new JPanel(new GridBagLayout());
+        footer.setBackground(COLOR_BG_PANEL);
+
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+
+        g.gridy = 0;
+        g.anchor = GridBagConstraints.EAST;
+        g.insets = new Insets(0, 10, 0, 10);
+        footer.add(btnPanel, g);
+
+        JLabel lblTieuChi = new JLabel(
+                "<html><b><i>Tìm kiếm theo:</i></b> Mã nhân viên, Tên đăng nhập, Vai trò, Trạng thái</html>"
+        );
+        lblTieuChi.setFont(new Font("Roboto", Font.ITALIC, 12));
+        lblTieuChi.setForeground(COLOR_TEXT_LABEL);
+
+        g.gridy = 1;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(0, 12, 6, 10);
+        footer.add(lblTieuChi, g);
+
         p.add(form, BorderLayout.CENTER);
-        p.add(btnPanel, BorderLayout.SOUTH);
+        p.add(footer, BorderLayout.SOUTH);
 
         return p;
-
-
     }
 
     private void addField(JPanel panel, GridBagConstraints gbc, String labelText, JComponent field, Font labelFont) {
@@ -283,9 +311,9 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         };
         table = new JTable(model);
         table.setRowHeight(25);
-        table.setFont(new Font("Roboto", Font.PLAIN, 14));
+        table.setFont(new Font("Roboto", Font.PLAIN, 13));
         JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Roboto", Font.BOLD, 14));
+        header.setFont(new Font("Roboto", Font.BOLD, 13));
         header.setForeground(Color.WHITE);
         header.setBackground(COLOR_PRIMARY);
 
@@ -319,7 +347,6 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         if(source == btnAdd){
             TaiKhoan tk = new TaiKhoan();
             themTaiKhoan(tk);
-            clearForm();
         }else if(source == btnFind){
             String maNV = null;
             Object nvSelected = cbNhanVien.getSelectedItem();
@@ -339,7 +366,6 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
                 hoatDong = false;
             }
             timKiemTaiKhoan(maNV, tenDN, vaiTro, hoatDong);
-            clearForm();
 
         }else if(source == btnEdit){
         if (txtTaiKhoanID.getText().trim().isEmpty()) {
@@ -365,13 +391,25 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         int row = table.getSelectedRow();
         if (row != -1) {
             txtTaiKhoanID.setText(model.getValueAt(row, 0).toString());
+
             cbVaiTro.setSelectedItem(VaiTroTaiKhoan.valueOf(model.getValueAt(row, 1).toString()));
+            cbVaiTro.setEnabled(false);
+
             cbNhanVien.setSelectedItem(model.getValueAt(row, 2).toString());
-            txtTenDangNhap.setText(model.getValueAt(row, 3).toString());
+            cbNhanVien.setEnabled(false);
+
+            tenDangNhapCu = model.getValueAt(row, 3).toString().trim();
+            txtTenDangNhap.setForeground(Color.BLACK);
+            txtTenDangNhap.setText(tenDangNhapCu);
+
             txtThoiDiemTao.setText(model.getValueAt(row, 4).toString());
             cbHoatDong.setSelected(model.getValueAt(row, 5).toString().equals("Hoạt động"));
+
+            txtMatKhau.setText("");
+            txtXacNhanMatKhau.setText("");
         }
     }
+
 
     //load dữ liệu lên table
     private void loadDataToTable(){
@@ -392,10 +430,16 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     //xóa trắng form
     private void clearForm(){
         txtTaiKhoanID.setText("");
+        txtTaiKhoanID.setEnabled(false);
+
         cbVaiTro.setSelectedIndex(0);
+        cbVaiTro.setEnabled(true);
+
         if (cbNhanVien.getItemCount() > 0) {
             cbNhanVien.setSelectedIndex(0);
         }
+        cbNhanVien.setEnabled(true);
+
         txtTenDangNhap.setText("");
         txtMatKhau.setText("");
         txtXacNhanMatKhau.setText("");
@@ -404,9 +448,10 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         initPlaceholders();
     }
 
+
     //them tai khoan
     private boolean themTaiKhoan(TaiKhoan tk){
-        if(!validateForm()){
+        if(!validateformThem()){
             return false;
         }
         try{
@@ -415,7 +460,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
                 JOptionPane.showMessageDialog(this, "Tạo mã tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return false;
             }
-            String maNV = (String) cbNhanVien.getSelectedItem();
+            String maNV = cbNhanVien.getSelectedItem().toString();
             NhanVien nv = nhanVien_ctrl.layNhanVienBangMaNV(maNV);
             VaiTroTaiKhoan vaiTro = (VaiTroTaiKhoan) cbVaiTro.getSelectedItem();
             String tenDangNhap = getRealText(txtTenDangNhap, "VD: user123").trim();
@@ -429,6 +474,20 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
             tk.setMatKhauHash(BCrypt.hashpw(matKhauPlain, BCrypt.gensalt(12)));
             tk.setHoatDong(cbHoatDong.isSelected());
             tk.setThoiDiemTao(thoiDiemTao);
+
+            if (cbNhanVien.getSelectedIndex() == 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                cbNhanVien.requestFocus();
+                return false;
+            }
+
+            if (taiKhoan_ctrl.layTKTheoMaNV(maNV)!= null) {
+                JOptionPane.showMessageDialog(this,
+                        "Nhân viên này đã có tài khoản rồi. Vui lòng chọn nhân viên khác!",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
 
             if(taiKhoan_ctrl.themTaiKhoan(tk)){
                 JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -445,34 +504,45 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         }
 
     }
+
+
     //cap nhat tai khoan
     private boolean capNhatTaiKhoan(TaiKhoan tk){
+        if(!validateFormSua()){
+            return false;
+        }
+
         try {
             String taiKhoanID = txtTaiKhoanID.getText().trim();
-            String maNV = (String) cbNhanVien.getSelectedItem();
+            String maNV = cbNhanVien.getSelectedItem().toString();
             NhanVien nv = nhanVien_ctrl.layNhanVienBangMaNV(maNV);
+
             String tenDangNhap = getRealText(txtTenDangNhap, "VD: user123").trim();
+
             String matKhauPlain = getRealText((JPasswordField) txtMatKhau, "VD: P@ssw0rd").trim();
-            LocalDateTime thoiDiemTao = LocalDateTime.now();
+            boolean coDoiMatKhau = !matKhauPlain.isBlank();
 
             tk.setTaiKhoanID(taiKhoanID);
             tk.setVaiTroTaiKhoan((VaiTroTaiKhoan) cbVaiTro.getSelectedItem());
             tk.setNhanVien(nv);
             tk.setTenDangNhap(tenDangNhap);
-            tk.setMatKhauHash(BCrypt.hashpw(matKhauPlain, BCrypt.gensalt(12)));
             tk.setHoatDong(cbHoatDong.isSelected());
-            tk.setThoiDiemTao(thoiDiemTao);
+
+
+            // Chỉ set matKhauHash nếu có đổi mật khẩu
+            if (coDoiMatKhau) {
+                tk.setMatKhauHash(BCrypt.hashpw(matKhauPlain, BCrypt.gensalt(12)));
+            } else {
+                tk.setMatKhauHash(null);
+            }
 
             int confirm = JOptionPane.showConfirmDialog(
                     this,
                     "Bạn có chắc chắn muốn cập nhật tài khoản này?",
                     "Xác nhận cập nhật",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
+                    JOptionPane.YES_NO_OPTION
             );
-            if (confirm != JOptionPane.YES_OPTION) {
-                return false;
-            }
+            if (confirm != JOptionPane.YES_OPTION) return false;
 
             if(taiKhoan_ctrl.capNhatTaiKhoan(tk)){
                 JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
@@ -480,12 +550,23 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
                 clearForm();
                 return true;
             }
-        }catch(Exception e){
+
             JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return false;
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Cập nhật tài khoản thất bại!\nChi tiết: " + ex.getMessage(),
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            ex.printStackTrace();
+            return false;
         }
-        return false;
+
     }
+
 
     //tim kiem tai khoan
     private void timKiemTaiKhoan(String maNV, String tenDN, String vaiTro, Boolean trangThai) {
@@ -516,35 +597,110 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     }
 
     //vailid form
-    private boolean validateForm(){
+    private boolean validateformThem(){
         String tenDangNhap = txtTenDangNhap.getText().trim();
-        String matKhau = txtMatKhau.getText().trim();
-        String xacNhanMatKhau = txtXacNhanMatKhau.getText().trim();
+        String matKhau = getRealText(txtMatKhau, "VD: P@ssw0rd").trim();
+        String xacNhanMatKhau = getRealText(txtXacNhanMatKhau, "VD: P@ssw0rd").trim();
 
         if(cbNhanVien.getSelectedIndex() == 0){
             JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            cbNhanVien.requestFocus();
             return false;
         }
         if (tenDangNhap.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
             return false;
-        }else if(taiKhoan_ctrl.kiemTraTenDangNhapTonTai(tenDangNhap)){
+        }
+        if(taiKhoan_ctrl.kiemTraTenDangNhapTonTai(tenDangNhap)){
             JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
             return false;
-        }else if(!taiKhoan_ctrl.kiemTraTenDangNhap(tenDangNhap)){
+        }
+        if(!taiKhoan_ctrl.kiemTraTenDangNhap(tenDangNhap)){
             JOptionPane.showMessageDialog(this, "Tên đăng nhập không hợp lệ. VD: user123", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
             return false;
         }
         if (matKhau.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Mật khẩu không được để trống.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtMatKhau.requestFocus();
             return false;
         }
         if (!taiKhoan_ctrl.kiemTraMatKhau(matKhau, xacNhanMatKhau)) {
             JOptionPane.showMessageDialog(this, "Xác nhận mật khẩu không khớp.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtXacNhanMatKhau.requestFocus();
             return false;
         }
         return true;
     }
+
+    //valid form sua
+    private boolean validateFormSua() {
+        String taiKhoanID = txtTaiKhoanID.getText().trim();
+        if (taiKhoanID.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn tài khoản cần sửa từ bảng.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        if (cbNhanVien.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            cbNhanVien.requestFocus();
+            return false;
+        }
+
+        String tenDangNhap = getRealText(txtTenDangNhap, "VD: user123").trim();
+        if (tenDangNhap.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên đăng nhập không được để trống.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
+            return false;
+        }
+
+        if (!taiKhoan_ctrl.kiemTraTenDangNhap(tenDangNhap)) {
+            JOptionPane.showMessageDialog(this, "Tên đăng nhập không hợp lệ. VD: user123", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
+            return false;
+        }
+
+        if (!tenDangNhap.equalsIgnoreCase(tenDangNhapCu)
+                && taiKhoan_ctrl.kiemTraTenDangNhapTonTai(tenDangNhap)) {
+            JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            txtTenDangNhap.requestFocus();
+            return false;
+        }
+
+        // Nếu đổi mật khẩu thì mới check confirm
+        String mk = getRealText((JPasswordField) txtMatKhau, "VD: P@ssw0rd").trim();
+        String mk2 = getRealText((JPasswordField) txtXacNhanMatKhau, "VD: P@ssw0rd").trim();
+        if (!mk.isBlank() || !mk2.isBlank()) {
+            if (mk.isBlank() || mk2.isBlank()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đủ mật khẩu và xác nhận mật khẩu.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                txtMatKhau.requestFocus();
+                return false;
+            }
+            if (!taiKhoan_ctrl.kiemTraMatKhau(mk, mk2)) {
+                JOptionPane.showMessageDialog(this, "Xác nhận mật khẩu không khớp.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                txtXacNhanMatKhau.requestFocus();
+                return false;
+            }
+        }
+        VaiTroTaiKhoan vaiTro = (VaiTroTaiKhoan) cbVaiTro.getSelectedItem();
+        if (vaiTro == null) {
+            updateVaiTroTheoMaNV();
+            vaiTro = (VaiTroTaiKhoan) cbVaiTro.getSelectedItem();
+            if (vaiTro == null) {
+                JOptionPane.showMessageDialog(this, "Không xác định được vai trò tài khoản.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
+
+
+
+        return true;
+    }
+
+
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -566,29 +722,22 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     }
 
 
-
-    @Override
-    public void mousePressed(MouseEvent e) {
+    @Override public void mousePressed(MouseEvent e) {
 
     }
-    @Override
-    public void mouseReleased(MouseEvent e) {
+    @Override public void mouseReleased(MouseEvent e) {
 
     }
-    @Override
-    public void mouseEntered(MouseEvent e) {
+    @Override public void mouseEntered(MouseEvent e) {
 
     }
-    @Override
-    public void mouseExited(MouseEvent e) {
+    @Override public void mouseExited(MouseEvent e) {
 
     }
-    @Override
-    public void keyTyped(KeyEvent e) {
+    @Override public void keyTyped(KeyEvent e) {
 
     }
-    @Override
-    public void keyReleased(KeyEvent e) {
+    @Override public void keyReleased(KeyEvent e) {
 
     }
 }
