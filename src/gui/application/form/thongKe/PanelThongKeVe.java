@@ -266,6 +266,7 @@ public class PanelThongKeVe extends JPanel {
 
 
         tableChiTiet = new JTable(chiTietTableModel);
+        tableChiTiet.getColumnModel().getColumn(0).setMaxWidth(34);
 
 		// --- Tạo Panel Chi Tiết & Header ---
 
