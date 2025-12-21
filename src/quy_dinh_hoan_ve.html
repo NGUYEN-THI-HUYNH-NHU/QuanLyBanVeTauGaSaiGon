@@ -1,0 +1,156 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Quy định Hoàn Vé</h1>
+    <p>Chức năng cho phép khách hàng trả lại vé đã mua. Mức phí hoàn vé được tính dựa trên thời gian trả vé so với giờ
+        tàu chạy.</p>
+
+    <div class="warning">
+        <b>Quy định chung:</b>
+        Mức phí trả vé tối thiểu cho mọi trường hợp là <b>10.000đ / vé</b>.
+    </div>
+
+    <h2> Bảng quy định hoàn vé</h2>
+
+    <div class="step-group">
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Thời gian trả vé (Trước giờ tàu chạy)</th>
+                    <th>Mức phí (% Giá vé)</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-left">Dưới 4 giờ</td>
+                    <td><b>Không được trả</b></td>
+                    <td class="text-left" style="color: red;">Vé không còn giá trị hoàn lại</td>
+                </tr>
+                <tr>
+                    <td class="text-left">Từ 4 giờ đến dưới 24 giờ</td>
+                    <td><b>20%</b></td>
+                    <td class="text-left">Tối thiểu 10.000đ</td>
+                </tr>
+                <tr>
+                    <td class="text-left">Trên 24 giờ</td>
+                    <td><b>10%</b></td>
+                    <td class="text-left">Tối thiểu 10.000đ</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Quy trình thực hiện trên phần mềm</h2>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 1:</b> Tìm kiếm vé cần hoàn bằng Mã đặt chỗ và Giấy tờ tùy thân.
+        </div>
+        <div class="step-item">
+            <b>Bước 2:</b> Chọn vé cần trả. Hệ thống sẽ tự động tính toán phí dựa trên giờ hệ thống và giờ tàu chạy.
+        </div>
+        <div class="step-item">
+            <b>Bước 3:</b> Xác nhận số tiền hoàn lại sau khi trừ phí. Nhấn <span class="highlight">Hoàn vé</span> để hủy
+            vé và in biên lai hoàn tiền.
+        </div>
+    </div>
+
+</body>
+
+</html>

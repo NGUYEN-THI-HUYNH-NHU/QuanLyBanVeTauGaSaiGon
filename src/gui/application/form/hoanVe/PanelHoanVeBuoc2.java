@@ -293,7 +293,7 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		gbc.insets = new Insets(2, 2, 6, 2);
 		JLabel lblNguoiMuaVe = new JLabel("Người mua vé");
 		lblNguoiMuaVe.setFont(lblNguoiMuaVe.getFont().deriveFont(Font.BOLD, 14f));
-		lblNguoiMuaVe.setForeground(new Color(232, 75, 2));
+		lblNguoiMuaVe.setForeground(new Color(0, 145, 212));
 		formKhachHang.add(lblNguoiMuaVe, gbc);
 
 		gbc.insets = new Insets(2, 30, 2, 30);

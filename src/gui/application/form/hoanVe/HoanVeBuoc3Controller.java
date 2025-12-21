@@ -30,6 +30,7 @@ public class HoanVeBuoc3Controller {
 		void onConfirm();
 	}
 
+	private Runnable refreshListener;
 	private ConfirmListener confirmListener;
 
 	public HoanVeBuoc3Controller(PanelHoanVeBuoc3 panel) {
@@ -46,6 +47,15 @@ public class HoanVeBuoc3Controller {
 					if (selectionChangeListener != null) {
 						selectionChangeListener.onRowSelectionChanged(row);
 					}
+				}
+			}
+		});
+
+		this.panel.getBtnRefresh().addActionListener(e -> {
+			if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận làm mới phiên hoàn vé?", "Lưu ý",
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+				if (refreshListener != null) {
+					refreshListener.run();
 				}
 			}
 		});
@@ -72,5 +82,9 @@ public class HoanVeBuoc3Controller {
 
 	public void addConfirmListener(ConfirmListener listener) {
 		this.confirmListener = listener;
+	}
+
+	public void addRefreshListener(Runnable listener) {
+		this.refreshListener = listener;
 	}
 }

@@ -58,6 +58,10 @@ public class PanelHoanVe extends JPanel {
 		hoanVe2Controller = new HoanVe2Controller(panelHoanVe2);
 
 		// 5. Liên kết các Controller (Logic chính)
+		hoanVe1Controller.addRefreshListener(() -> {
+			UngDung.reloadPanelHoanVe();
+		});
+
 		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
 		hoanVe1Controller.addPanel1CompleteListener(() -> {
 			// 1. Chuẩn bị dữ liệu cho PanelHoanVe2

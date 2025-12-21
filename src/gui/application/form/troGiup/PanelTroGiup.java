@@ -41,13 +41,13 @@ public class PanelTroGiup extends JPanel {
 		contentPane.setEditable(false);
 		contentPane.setContentType("text/html");
 		JScrollPane contentView = new JScrollPane(contentPane);
+		contentView.getVerticalScrollBar().setUnitIncrement(20);
 
 		// 3. Ghép 2 phần bằng JSplitPane
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setLeftComponent(treeView);
 		splitPane.setRightComponent(contentView);
-		splitPane.setDividerLocation(240); // Chiều rộng menu
-
+		splitPane.setDividerLocation(240);
 		add(splitPane, BorderLayout.CENTER);
 
 		// 4. Sự kiện click vào menu
@@ -67,15 +67,20 @@ public class PanelTroGiup extends JPanel {
 
 	private void createNodes(DefaultMutableTreeNode top) {
 		DefaultMutableTreeNode category1 = new DefaultMutableTreeNode("Bán vé");
+		category1.add(new DefaultMutableTreeNode("quy_dinh_ban_ve"));
 		category1.add(new DefaultMutableTreeNode("quy_trinh_ban_ve"));
-		category1.add(new DefaultMutableTreeNode("tra_cuu_tau"));
-		category1.add(new DefaultMutableTreeNode("chon_ghe"));
 
-		DefaultMutableTreeNode category2 = new DefaultMutableTreeNode("Đổi trả vé");
-		category2.add(new DefaultMutableTreeNode("quy_dinh_doi_ve"));
+		DefaultMutableTreeNode category2 = new DefaultMutableTreeNode("Hoàn vé");
+		category2.add(new DefaultMutableTreeNode("quy_dinh_hoan_ve"));
+		category2.add(new DefaultMutableTreeNode("quy_trinh_hoan_ve"));
+
+		DefaultMutableTreeNode category3 = new DefaultMutableTreeNode("Đổi vé");
+		category3.add(new DefaultMutableTreeNode("quy_dinh_doi_ve"));
+		category3.add(new DefaultMutableTreeNode("quy_trinh_doi_ve"));
 
 		top.add(category1);
 		top.add(category2);
+		top.add(category3);
 	}
 
 	private void loadPage(String nodeName) {
@@ -84,6 +89,10 @@ public class PanelTroGiup extends JPanel {
 
 	private void displayURL(String filename) {
 		URL url = getClass().getResource("/" + filename);
+		if (filename.contains(" ")) {
+			return;
+		}
+
 		try {
 			if (url != null) {
 				contentPane.setPage(url);
