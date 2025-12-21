@@ -41,6 +41,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -105,6 +106,38 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		add(panelBody, BorderLayout.CENTER);
 		loadDataToTable();
 		initPlaceholders();
+	}
+
+	public PanelQuanLyKhachHang(NhanVien nhanVienThucHien, String cccd) {
+		this.khachHang_ctrl = new KhachHang_CTRL();
+		this.nhanVienThucHien = nhanVienThucHien;
+
+		setLayout(new BorderLayout(10, 10));
+		setBorder(new EmptyBorder(10, 10, 10, 10));
+		setBackground(COLOR_BG_MAIN);
+
+		JLabel lblTitle = new JLabel("QUẢN LÝ KHÁCH HÀNG", SwingConstants.CENTER);
+		lblTitle.setFont(new Font("Roboto", Font.BOLD, 26));
+		lblTitle.setForeground(COLOR_TEXT_TITLE);
+		add(lblTitle, BorderLayout.NORTH);
+
+		JPanel panelBody = new JPanel(new BorderLayout());
+		panelBody.setBackground(COLOR_BG_MAIN);
+
+		panelBody.add(createTopSplitPanel(), BorderLayout.NORTH);
+
+		panelBody.add(createTablePanel(), BorderLayout.CENTER);
+		add(panelBody, BorderLayout.CENTER);
+		loadDataToTable();
+		initPlaceholders();
+
+		txtSoGiayTo.setText(cccd);
+		txtSoGiayTo.setForeground(getForeground());
+		// Dùng invokeLater để đảm bảo giao diện đã chuyển xong mới focus
+		SwingUtilities.invokeLater(() -> {
+			txtTenKH.requestFocusInWindow();
+		});
+		cbLKH.setSelectedItem(LoaiKhachHang.KHACH_HANG);
 	}
 
 	// tạo panel chia đôi ở phía trên

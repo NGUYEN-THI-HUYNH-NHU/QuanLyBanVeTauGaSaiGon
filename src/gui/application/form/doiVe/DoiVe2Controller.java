@@ -82,6 +82,9 @@ public class DoiVe2Controller {
 
 		panelGioVe.setMediator(this);
 
+		view.setBuoc5Enabled(false);
+		view.setBuoc6Enabled(false);
+
 		initMediatorLogic();
 	}
 

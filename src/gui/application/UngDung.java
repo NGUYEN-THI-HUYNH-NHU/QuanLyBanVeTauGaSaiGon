@@ -32,6 +32,7 @@ import gui.application.form.GiaoDienChinh;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoanVe.PanelHoanVe;
+import gui.application.form.khachHang.PanelQuanLyKhachHang;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 public class UngDung extends JFrame {
@@ -169,5 +170,10 @@ public class UngDung extends JFrame {
 	public static void reloadPanelDoiVe() {
 		UngDung.getInstance().removePanelFromCache("PanelDoiVe");
 		UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
+	}
+
+	public static void loadDataForCreatingNewKhachHang(NhanVien nhanVien, String cccd) {
+		setSelectedMenu(10, 0);
+		UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien, cccd));
 	}
 }

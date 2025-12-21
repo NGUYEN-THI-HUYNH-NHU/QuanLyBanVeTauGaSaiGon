@@ -73,11 +73,11 @@ public class PanelBuoc2 extends JPanel {
 
 	public void setComponentsEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		if (tabbedPane != null) {
-			tabbedPane.setEnabled(enabled);
-		}
+		panelChieuDi.setEnabled(enabled);
+		panelChieuVe.setEnabled(enabled);
 		if (panelGioVe != null) {
 			panelGioVe.setEnabled(enabled);
+			panelGioVe.getBtnMuaVe().setEnabled(enabled);
 		}
 	}
 }
