@@ -305,9 +305,11 @@ public class BanVe1Controller {
 					if (bookingSession.getPhieuGiuCho() == null) {
 						return true;
 					}
-					return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
-							veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
-
+					if (veSession.getPhieuGiuChoChiTiet() != null) {
+						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
+								veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+					}
+					return true;
 				} catch (Exception e) {
 					errorMessage = e.getMessage();
 					e.printStackTrace();

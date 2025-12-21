@@ -257,13 +257,8 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		} else {
 			if (table.isRowSelected(row)) {
 				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
 			} else {
 				c.setBackground(table.getBackground());
-				// Reset màu chữ về mặc định (tránh bị dính màu Xám của dòng trên)
-				if (c.getForeground() == Color.GRAY) {
-					c.setForeground(table.getForeground());
-				}
 			}
 		}
 	}
