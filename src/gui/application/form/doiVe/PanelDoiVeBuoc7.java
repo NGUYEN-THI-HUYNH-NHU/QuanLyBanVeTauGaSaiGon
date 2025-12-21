@@ -28,8 +28,8 @@ import javax.swing.table.TableColumn;
 import entity.KhuyenMai;
 import gui.application.form.banVe.KhuyenMaiRenderer;
 import gui.application.form.banVe.VeSession;
-import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.LeftCenterAlignRenderer;
+import gui.tuyChinh.CurrencyTopRenderer;
+import gui.tuyChinh.LeftTopRenderer;
 
 public class PanelDoiVeBuoc7 extends JPanel {
 	private final MappingVeTableModel model;
@@ -79,8 +79,8 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
 		khuyenMaiCol.setCellRenderer(renderer);
 
-		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
-		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
+		CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
+		LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
 
 		// Cột Tiền
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
@@ -90,10 +90,10 @@ public class PanelDoiVeBuoc7 extends JPanel {
 		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
 
 		// Cột Text thường (Tên, Thông tin vé)
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(leftCenterRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(leftTopRenderer);
 	}
 
 	public void setKhuyenMaiProvider(KhuyenMaiProvider provider) {

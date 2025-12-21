@@ -22,8 +22,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.LineBorder;
 
-import gui.tuyChinh.CurrencyRenderer;
-import gui.tuyChinh.LeftCenterAlignRenderer;
+import gui.tuyChinh.CurrencyTopRenderer;
+import gui.tuyChinh.LeftTopRenderer;
 
 public class PanelHoanVeBuoc4 extends JPanel {
 	private VeHoanTableModel model;
@@ -44,7 +44,7 @@ public class PanelHoanVeBuoc4 extends JPanel {
 	}
 
 	private void setupTable() {
-		table.setRowHeight(90);
+		table.setRowHeight(80);
 
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(140);
@@ -52,19 +52,20 @@ public class PanelHoanVeBuoc4 extends JPanel {
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setMinWidth(120);
 
 		// Áp dụng lớp Renderer nội tuyến để định dạng
-		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
 
-		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI).setCellRenderer(leftCenterRenderer);
+		LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setCellRenderer(leftTopRenderer);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI).setCellRenderer(leftTopRenderer);
 
 		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_PHI));
-		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 1));
+		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI - 1));
+		table.removeColumn(table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON - 2));
 	}
 
 	/**

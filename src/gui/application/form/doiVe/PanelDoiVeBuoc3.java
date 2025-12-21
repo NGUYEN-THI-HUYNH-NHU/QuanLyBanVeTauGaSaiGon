@@ -31,7 +31,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-import gui.tuyChinh.CurrencyRenderer;
+import gui.tuyChinh.CurrencyTopRenderer;
 import gui.tuyChinh.LeftTopRenderer;
 import gui.tuyChinh.SimpleComboBoxRenderer;
 
@@ -75,8 +75,8 @@ public class PanelDoiVeBuoc3 extends JPanel {
 
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setMaxWidth(30);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(180);
-		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(160);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(130);
+		table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(200);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setMinWidth(120);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_CHON).setMaxWidth(50);
 
@@ -96,7 +96,7 @@ public class PanelDoiVeBuoc3 extends JPanel {
 		};
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 
-		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 

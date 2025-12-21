@@ -29,7 +29,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import gui.tuyChinh.CurrencyRenderer;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
+import gui.tuyChinh.CurrencyTopRenderer;
 import gui.tuyChinh.LeftTopRenderer;
 import gui.tuyChinh.SimpleComboBoxRenderer;
 
@@ -54,6 +56,7 @@ public class PanelHoanVeBuoc3 extends JPanel {
 
 		JPanel south = new JPanel(new BorderLayout());
 		btnRefresh = new JButton("Làm mới");
+		btnRefresh.setIcon(new FlatSVGIcon("gui/icon/svg/refresh-1.svg", 0.6f));
 		btnXacNhan = new JButton("Xác nhận");
 		south.add(btnRefresh, BorderLayout.WEST);
 		south.add(btnXacNhan, BorderLayout.EAST);
@@ -73,7 +76,7 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		// Cấu hình độ rộng cột (dùng chỉ số mới)
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_STT).setMaxWidth(30);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TEN).setMinWidth(130);
-		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(180);
+		table.getColumnModel().getColumn(VeHoanTableModel.COL_THONG_TIN_VE).setMinWidth(200);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LY_DO).setMinWidth(120);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_CHON).setMaxWidth(50);
 
@@ -94,7 +97,7 @@ public class PanelHoanVeBuoc3 extends JPanel {
 
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
 
-		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+		CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_THANH_TIEN).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
 		table.getColumnModel().getColumn(VeHoanTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);

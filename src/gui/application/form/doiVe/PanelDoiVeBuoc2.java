@@ -252,7 +252,9 @@ public class PanelDoiVeBuoc2 extends JPanel {
 		} else {
 			if (table.isRowSelected(row)) {
 				c.setBackground(table.getSelectionBackground());
-				c.setForeground(table.getSelectionForeground());
+				if (c.getForeground() != Color.GREEN) {
+					c.setForeground(table.getSelectionForeground());
+				}
 			} else {
 				c.setBackground(getBackground());
 				if (c.getForeground() != Color.GREEN) {
