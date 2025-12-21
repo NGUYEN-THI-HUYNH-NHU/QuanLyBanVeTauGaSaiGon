@@ -153,14 +153,15 @@ public class KhachHang_BUS {
 		if (!cu.getHoTen().equals(moi.getHoTen())) {
 			thayDoi.append("Cập nhật tên khách hàng: (" + "" + cu.getHoTen() + ")" + " -> (" + moi.getHoTen() + ")\n");
 		}
-		if (moi.getSoDienThoai() != null && !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
+		if (moi.getSoDienThoai() != null && cu.getSoDienThoai() != null
+				&& !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
 			thayDoi.append("Cập nhật số điện thoại: (" + "" + cu.getSoDienThoai() + ")" + " -> (" + moi.getSoDienThoai()
 					+ ")\n");
 		}
-		if (moi.getEmail() != null && !cu.getEmail().equals(moi.getEmail())) {
+		if (moi.getEmail() != null && cu.getEmail() != null && !cu.getEmail().equals(moi.getEmail())) {
 			thayDoi.append("Cập nhật email: (" + "" + cu.getEmail() + ")" + " -> (" + moi.getEmail() + ")\n");
 		}
-		if (moi.getDiaChi() != null && !cu.getDiaChi().equals(moi.getDiaChi())) {
+		if (moi.getDiaChi() != null && cu.getDiaChi() != null && !cu.getDiaChi().equals(moi.getDiaChi())) {
 			thayDoi.append("Cập nhật địa chỉ: (" + "" + cu.getDiaChi() + ")" + " -> (" + moi.getDiaChi() + ")\n");
 		}
 		if (!cu.getSoGiayTo().equals(moi.getSoGiayTo())) {

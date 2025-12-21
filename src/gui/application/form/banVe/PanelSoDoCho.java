@@ -676,4 +676,13 @@ public class PanelSoDoCho extends JPanel {
 	public Map<Integer, JButton> getSeatButtonMap() {
 		return seatButtonMap;
 	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		scroll.setEnabled(enabled);
+		btnPrev.setEnabled(enabled);
+		btnNext.setEnabled(enabled);
+		lblToaInfo.setEnabled(enabled);
+	}
 }

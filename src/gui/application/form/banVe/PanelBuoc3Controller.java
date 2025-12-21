@@ -237,7 +237,9 @@ public class PanelBuoc3Controller {
 	// Gắn listener vào các nút của View
 	private void attachListeners() {
 		view.getRefreshButton().addActionListener(e -> handleRefresh());
-		view.getConfirmButton().addActionListener(e -> handleConfirm());
+		view.getConfirmButton().addActionListener(e -> {
+			handleConfirm();
+		});
 		view.getCancelButton().addActionListener(e -> handleCancel());
 		view.setPassengerDeleteListener(row -> {
 			handleDelete(row);
@@ -503,7 +505,7 @@ public class PanelBuoc3Controller {
 				hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getHoTen(), null, null,
 						cccdHanhKhach, null, row.getLoaiDoiTuong(), LoaiKhachHang.HANH_KHACH);
 				khachHangBUS.themKhachHang(hanhKhach);
-				System.out.println("Tạo hành khách mới: " + hanhKhach.getHoTen());
+//				System.out.println("Tạo hành khách mới: " + hanhKhach.getHoTen());
 			} else {
 				// Nếu đã có, cập nhật thông tin mới nhất từ UI (ví dụ tên có thể sửa)
 				hanhKhach.setHoTen(row.getHoTen());
@@ -542,20 +544,20 @@ public class PanelBuoc3Controller {
 			}
 
 			khachHangBUS.capNhatKhachHang(nguoiMua);
-			System.out.println("Cập nhật thông tin người mua: " + nguoiMua.getHoTen());
+//			System.out.println("Cập nhật thông tin người mua: " + nguoiMua.getHoTen());
 
 		} else {
 			// === TRƯỜNG HỢP: NGƯỜI MUA MỚI TINH (Và không đi tàu) ===
 			nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, emailNguoiMua,
 					cccdNguoiMua, null, null, LoaiKhachHang.KHACH_HANG);
 			khachHangBUS.themKhachHang(nguoiMua);
-			System.out.println("Tạo người mua mới: " + nguoiMua.getHoTen());
+//			System.out.println("Tạo người mua mới: " + nguoiMua.getHoTen());
 		}
 
 		// Lưu vào session
 		bookingSession.setKhachHang(nguoiMua);
 
-		System.out.println("BookingSession đã được cập nhật.");
+//		System.out.println("BookingSession đã được cập nhật.");
 
 		// 4. Báo cho Controller cha
 		if (onConfirmListener != null) {

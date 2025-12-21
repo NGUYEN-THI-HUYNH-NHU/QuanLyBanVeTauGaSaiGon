@@ -13,6 +13,8 @@ package gui.application.form.hoanVe;
  */
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.Ve;
@@ -135,12 +137,14 @@ public class HoanVe1Controller {
 		});
 
 		this.p3Controller.addConfirmListener(new ConfirmListener() {
-
 			@Override
 			public void onConfirm() {
-				// Bắt đầu xử lý nghiệp vụ hoàn vé (gọi BUS)
-				// Dùng this.listRowHoan để biết vé nào cần hoàn
-				// Dùng this.ddc, this.nguoiMua
+				if (listRowHoan == null || listRowHoan.size() == 0) {
+					JOptionPane.showMessageDialog(p3, "Chưa có vé nào được chọn. Vui lòng chọn vé cần hoàn!", "Lưu ý",
+							JOptionPane.CLOSED_OPTION);
+					return;
+				}
+
 				if (onPanel1CompleteListener != null) {
 					onPanel1CompleteListener.run();
 				}

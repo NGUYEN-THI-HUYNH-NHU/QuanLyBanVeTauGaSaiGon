@@ -56,4 +56,12 @@ public class PanelChuyen extends JPanel {
 	public PanelSoDoCho getPanelSoDoCho() {
 		return panelSoDoCho;
 	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		panelChieuLabel.setEnabled(enabled);
+		panelChuyenTau.setEnabled(enabled);
+		panelDoanTau.setEnabled(enabled);
+		panelSoDoCho.setEnabled(enabled);
+	}
 }
