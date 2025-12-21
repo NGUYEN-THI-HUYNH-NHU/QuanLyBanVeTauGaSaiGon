@@ -78,9 +78,24 @@ public class PanelTroGiup extends JPanel {
 		category3.add(new DefaultMutableTreeNode("quy_dinh_doi_ve"));
 		category3.add(new DefaultMutableTreeNode("quy_trinh_doi_ve"));
 
+		DefaultMutableTreeNode category4 = new DefaultMutableTreeNode("Thêm Tuyến");
+		category4.add(new DefaultMutableTreeNode("quy_dinh_them_tuyen"));
+		category4.add(new DefaultMutableTreeNode("quy_trinh_them_tuyen"));
+
+		DefaultMutableTreeNode category5 = new DefaultMutableTreeNode("Thêm Chuyến");
+		category5.add(new DefaultMutableTreeNode("quy_dinh_them_chuyen"));
+		category5.add(new DefaultMutableTreeNode("quy_trinh_them_chuyen"));
+
+		DefaultMutableTreeNode category6 = new DefaultMutableTreeNode("Thêm Biểu Giá");
+		category6.add(new DefaultMutableTreeNode("quy_dinh_them_bieu_gia"));
+		category6.add(new DefaultMutableTreeNode("quy_trinh_them_bieu_gia"));
+
 		top.add(category1);
 		top.add(category2);
 		top.add(category3);
+		top.add(category4);
+		top.add(category5);
+		top.add(category6);
 	}
 
 	private void loadPage(String nodeName) {

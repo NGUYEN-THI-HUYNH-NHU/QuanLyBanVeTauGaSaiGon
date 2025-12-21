@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Quy Định Thiết Lập Tuyến Đường Sắt</h1>
+
+    <h2>1. Mục Đích</h2>
+    <p>Quy định này đảm bảo việc khởi tạo dữ liệu tuyến mới trên hệ thống chính xác với thực tế hạ tầng đường sắt quốc gia, phục vụ việc lập lịch trình và tính giá vé.</p>
+
+    <h2>2. Tiêu Chuẩn Kỹ Thuật</h2>
+    <div class="step-group">
+        <div class="step-item">
+            <b>Ràng buộc Ga đầu và Ga cuối:</b>
+            <p>Mỗi tuyến phải có duy nhất một <span class="highlight">Ga đi (Ga đầu)</span> và một <span class="highlight">Ga đến (Ga cuối)</span>. Hai ga này không được trùng nhau.</p>
+        </div>
+        <div class="step-item">
+            <b>Ràng buộc Ga trung gian:</b>
+            <p>Danh sách ga trung gian phải được sắp xếp theo <span class="highlight">Thứ tự (Order)</span> tăng dần từ ga đi đến ga đến. Khoảng cách giữa các ga phải là số dương (Km > 0).</p>
+        </div>
+        <div class="step-item">
+            <b>Mã Tuyến:</b>
+            <p>Mã tuyến phải được đặt theo quy tắc: <span class="highlight">[MãGaĐi]-[MãGaDen]</span>. Hệ thống không cho phép tạo hai tuyến trùng mã.</p>
+        </div>
+    </div>
+
+
+
+    <h2>3. Phân Cấp Vận Hành</h2>
+    <table class="info-table">
+        <tr>
+            <th>Loại Tuyến</th>
+            <th>Quy định quản lý</th>
+        </tr>
+        <tr>
+            <td>Tuyến Bắc - Nam</td>
+            <td>Tuyến trục chính, yêu cầu dữ liệu ga lớn đầy đủ.</td>
+        </tr>
+        <tr>
+            <td>Tuyến Nội Đô</td>
+            <td>Yêu cầu khoảng cách giữa các ga chính xác đến từng mét (nếu có thể).</td>
+        </tr>
+        <tr>
+            <td>Tuyến Du Lịch</td>
+            <td>Cần chỉ định rõ các ga dừng nghỉ đặc thù.</td>
+        </tr>
+    </table>
+
+    <div class="warning">
+        <b>Cảnh báo:</b> Việc xóa hoặc thay đổi thứ tự ga trong một tuyến đã có chuyến tàu đang hoạt động sẽ gây lỗi nghiêm trọng cho việc tính giá vé của hành khách đã đặt chỗ.
+    </div>
+
+    <div class="note">
+        Lưu ý: Mọi tuyến mới phải được bộ phận Hạ tầng nghiệm thu thực tế trước khi cập nhật dữ liệu vào phần mềm quản lý.
+    </div>
+</body>
+</html>
