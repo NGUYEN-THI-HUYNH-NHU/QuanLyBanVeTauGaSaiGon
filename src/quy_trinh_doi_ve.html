@@ -1,0 +1,206 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Quy trình Đổi Vé</h1>
+    <p>Chức năng hỗ trợ khách hàng thay đổi thời gian hoặc chỗ ngồi. Quy trình gồm <b>3 giai đoạn</b> để đảm bảo tính
+        chính xác khi hoán đổi vé cũ và vé mới.</p>
+
+    <h2>Giai đoạn 1: Chọn vé cần đổi</h2>
+
+    <div class="img-container">
+        <img src="html_images/doive1.png" width="700">
+        <br>
+        <span class="img-caption">Hình 1: Tra cứu và chọn vé đủ điều kiện đổi</span>
+    </div>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 1: Tra cứu đơn hàng</b><br>
+            Nhập <b>Mã đơn đặt chỗ</b> và <b>Số giấy tờ</b> (CCCD/CMND) của người đặt, sau đó nhấn <span
+                class="highlight">Tra cứu</span>.
+        </div>
+
+        <div class="step-item">
+            <b>Bước 2: Chọn vé & Kiểm tra điều kiện</b><br>
+            Hệ thống hiển thị danh sách vé. NVQV cần lưu ý trạng thái vé:
+            <ul>
+                <li><b>Vé chọn được:</b> Vé hợp lệ, chưa đi.</li>
+                <li><b>Vé bị tô xám (Disabled):</b> Vé vi phạm quy định đổi (còn dưới 24h trước giờ tàu chạy) hoặc đã sử
+                    dụng.</li>
+            </ul>
+            <i>Tích chọn vé muốn đổi và nhấn "Tiếp theo".</i>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 3: Xác nhận lý do</b><br>
+            Tại màn hình xác nhận, chọn <b>Lý do đổi vé</b> cụ thể cho từng vé (VD: Khách bận việc đột xuất, Đổi sang
+            giường nằm...).
+        </div>
+    </div>
+
+    <div class="warning">
+        <b>Lưu ý quan trọng:</b> Nếu tàu khởi hành trong vòng <b>dưới 24 giờ</b>, hệ thống sẽ chặn thao tác và thông báo
+        không thể đổi vé.
+    </div>
+
+    <h2>Giai đoạn 2: Chọn vé mới & Ghép cặp</h2>
+
+    <div class="img-container">
+        <img src="html_images/doive2.png" width="700">
+        <br>
+        <span class="img-caption">Hình 2: Chọn chuyến mới và Ghép cặp vé cũ - mới</span>
+    </div>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 4: Tìm chuyến tàu mới</b><br>
+            Hệ thống mặc định giữ nguyên <i>Ga đi - Ga đến</i>. NVQV chọn <b>Ngày đi mới</b> và tìm kiếm chuyến tàu mong
+            muốn.
+        </div>
+
+        <div class="step-item">
+            <b>Bước 5: Chọn chỗ mới</b><br>
+            Thao tác trên sơ đồ toa tàu để chọn ghế/giường mới.
+            <br><i><b>Bắt buộc:</b> Số lượng ghế mới phải bằng đúng số lượng vé cũ đang đổi.</i>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 6: Thiết lập cặp vé (Ghép vé)</b><br>
+            Hệ thống hiển thị bảng đối chiếu. NVQV thực hiện:
+            <ul>
+                <li><b>Cột "Chọn vé mới":</b> Ghép vé cũ (bên trái) tương ứng với vé mới (bên phải).</li>
+                <li><b>Cột "Phòng chờ":</b> Tích chọn nếu khách muốn mua thêm dịch vụ VIP Lounge.</li>
+            </ul>
+            <i>Giá chênh lệch sẽ tự động cập nhật ngay khi ghép cặp.</i>
+        </div>
+    </div>
+
+    <h2>Giai đoạn 3: Thanh toán & Hoàn tất</h2>
+
+    <div class="img-container">
+        <img src="html_images/doive3.png" width="700">
+        <br>
+        <span class="img-caption">Hình 3: Xác nhận chênh lệch và Thanh toán</span>
+    </div>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 7: Áp dụng khuyến mãi</b><br>
+            Tại bảng xác nhận cuối cùng, chọn mã giảm giá (nếu có) tại cột <b>Khuyến mãi</b> để giảm trừ chi phí cho
+            khách.
+        </div>
+
+        <div class="step-item">
+            <b>Bước 8: Thanh toán chênh lệch</b><br>
+            Hệ thống tính toán tổng tiền dựa trên công thức:
+            <table class="info-table">
+                <tr>
+                    <td><b>Tổng thu/trả</b></td>
+                    <td>= (Giá vé mới + Phí đổi vé + Dịch vụ) - (Giá vé cũ + Khuyến mãi)</td>
+                </tr>
+            </table>
+            <ul>
+                <li><b>Kết quả Dương (>0):</b> Khách cần trả thêm tiền.</li>
+                <li><b>Kết quả Âm (<0):< /b> Nhà ga hoàn lại tiền thừa cho khách.</li>
+            </ul>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 9: Hoàn tất</b><br>
+            Nhấn <span class="highlight">Hoàn tất</span>. Vé cũ sẽ bị hủy, vé mới được phát hành và hóa đơn đổi vé được
+            in ra.
+        </div>
+    </div>
+
+</body>
+
+</html>

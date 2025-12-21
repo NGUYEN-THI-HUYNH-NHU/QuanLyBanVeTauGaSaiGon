@@ -163,7 +163,8 @@ public class UngDung extends JFrame {
 	}
 
 	public static void reloadPanelHoanVe() {
-		showGiaoDienChinh(new PanelHoanVe());
+		UngDung.getInstance().removePanelFromCache("PanelHoanVe");
+		UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelHoanVe", () -> new PanelHoanVe()));
 	}
 
 	public static void reloadPanelDoiVe() {

@@ -13,7 +13,6 @@ package gui.application.form.hoanVe;
  */
 import java.util.List;
 
-import bus.HoanVe_BUS;
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.Ve;
@@ -32,17 +31,20 @@ public class HoanVe1Controller {
 	private final HoanVeBuoc2Controller p2Controller;
 	private final HoanVeBuoc3Controller p3Controller;
 
-	private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
-
 	private DonDatCho ddc;
 	private List<Ve> listVe;
 	private KhachHang nguoiMua;
 	private List<VeHoanRow> listRowHoan;
 
 	private Runnable onPanel1CompleteListener;
+	private Runnable onRefreshListener;
 
 	protected void addPanel1CompleteListener(Runnable listener) {
 		this.onPanel1CompleteListener = listener;
+	}
+
+	protected void addRefreshListener(Runnable listener) {
+		this.onRefreshListener = listener;
 	}
 
 	public HoanVe1Controller(PanelHoanVe1 view) {
@@ -72,7 +74,6 @@ public class HoanVe1Controller {
 	}
 
 	private void initMediatorLogic() {
-
 		// Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
 		this.p1Controller.addSearchListener(new SearchListener() {
 			@Override
@@ -124,6 +125,12 @@ public class HoanVe1Controller {
 				// (vì p2.model và p3.model cùng tham chiếu đến object 'row')
 				listRowHoan.remove(row);
 				p2Controller.refreshRowDisplay(row);
+			}
+		});
+
+		this.p3Controller.addRefreshListener(() -> {
+			if (onRefreshListener != null) {
+				onRefreshListener.run();
 			}
 		});
 
