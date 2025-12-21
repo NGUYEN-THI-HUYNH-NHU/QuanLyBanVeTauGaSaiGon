@@ -59,6 +59,9 @@ public class DoiVe1Controller {
 		this.p2Controller = new DoiVeBuoc2Controller(this.p2);
 		this.p3Controller = new DoiVeBuoc3Controller(this.p3, exchangeSession);
 
+		view.setBuoc2Enabled(false);
+		view.setBuoc3Enabled(false);
+
 		initMediatorLogic();
 	}
 

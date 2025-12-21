@@ -191,6 +191,7 @@ public class PanelBuoc1 extends JPanel {
 	}
 
 	public void setComponentsEnabled(boolean enabled) {
+		super.setEnabled(enabled);
 		txtGaDi.setEnabled(enabled);
 		txtGaDen.setEnabled(enabled);
 		dateChooserNgayDi.setEnabled(enabled);

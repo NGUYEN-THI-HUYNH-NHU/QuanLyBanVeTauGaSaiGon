@@ -19,12 +19,11 @@ public class PanelBanVe1 extends JPanel {
 	private PanelBuoc1 panelBuoc1;
 	private PanelBuoc2 panelBuoc2;
 	private PanelBuoc3 panelBuoc3;
-	private JPanel pnlNorth;
 
 	public PanelBanVe1() {
 		setLayout(new BorderLayout());
 
-		pnlNorth = new JPanel(new BorderLayout(1, 0));
+		JPanel pnlNorth = new JPanel(new BorderLayout(1, 0));
 
 		panelBuoc1 = new PanelBuoc1();
 		panelBuoc2 = new PanelBuoc2();

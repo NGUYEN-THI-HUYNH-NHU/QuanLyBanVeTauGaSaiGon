@@ -14,6 +14,7 @@ package gui.application.form.banVe;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -283,9 +284,24 @@ public class PanelBuoc3 extends JPanel {
 	public void setComponentsEnabled(boolean enabled) {
 		// Vô hiệu hóa chính PanelBuoc3
 		super.setEnabled(enabled);
+
+		// Duyệt qua tất cả các components và gọi setEnabled cho từng component
 		for (Component comp : this.getComponents()) {
 			comp.setEnabled(enabled);
+
+			// Nếu component là một container, gọi đệ quy để vô hiệu hóa các component con
+			// bên trong nó
+			if (comp instanceof Container) {
+				Component[] nestedComponents = ((Container) comp).getComponents();
+				for (Component nestedComp : nestedComponents) {
+					nestedComp.setEnabled(enabled);
+				}
+			}
 		}
+
+		btnCancel.setEnabled(enabled);
+		btnConfirm.setEnabled(enabled);
+		table.getTableHeader().setEnabled(enabled);
 	}
 
 	public void focusErrorRow(int rowIndex) {

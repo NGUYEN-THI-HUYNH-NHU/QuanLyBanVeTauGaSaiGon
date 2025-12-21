@@ -137,8 +137,9 @@ public class PanelDoiVeBuoc3 extends JPanel {
 	 * @param enabled
 	 */
 	public void setComponentsEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
-
+		super.setEnabled(enabled);
+		table.getTableHeader().setEnabled(enabled);
+		btnXacNhan.setEnabled(enabled);
 	}
 
 	public void addRowSelectionListener(Consumer<VeDoiRow> listener) {

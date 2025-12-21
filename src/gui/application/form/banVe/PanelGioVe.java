@@ -77,6 +77,10 @@ public class PanelGioVe extends JPanel {
 		this.mediatorDoiVe = c;
 	}
 
+	public JButton getBtnMuaVe() {
+		return this.btnMuaVe;
+	}
+
 	public void addBuyButtonListener(ActionListener l) {
 		if (btnMuaVe != null && l != null) {
 			// Xóa listener cũ (nếu có) để đảm bảo chỉ có 1
