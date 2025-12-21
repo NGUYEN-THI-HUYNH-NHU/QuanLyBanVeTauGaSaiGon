@@ -104,7 +104,7 @@ public class NhatKyAudit_DAO {
         }
 
         if (loaiThaoTac != null && !loaiThaoTac.isBlank() && !loaiThaoTac.equals("TẤT CẢ")) {
-            sql.append(" AND loaiThaoTac = ?"); // ✅ sửa chỗ bị trống "AND  = ?"
+            sql.append(" AND loaiThaoTac = ?");
         }
 
         if (doiTuongID != null && !doiTuongID.isBlank()) {

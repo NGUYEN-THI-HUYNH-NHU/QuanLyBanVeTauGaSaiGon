@@ -41,19 +41,15 @@ public class KhachHang_BUS {
 		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
 
 		NhatKyAudit audit = new NhatKyAudit(nhatKyAudit_bus.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
-				LocalDateTime.now(), loai, String.format("<html>̀%s</html>", chiTiet), "KHACH_HANG");
+				LocalDateTime.now(), loai, chiTiet, "KHACH_HANG");
 
 		nhatKyAudit_bus.ghiNhatKyAudit(audit);
 
 	}
 
-	// tim kiem khach hang
-//	public KhachHang timKiemKhachHangTheoID(String khachHangID) {
-//		return khachHang_dao.timKhachHangTheoID(khachHangID);
-//	}
 
 	// tìm kiếm khách hàng theo sdt
-	public KhachHang timKiemKhachHang(String sdt) {
+	public KhachHang timKiemKhachHangTheoSDT(String sdt) {
 		return khachHang_dao.timKhachHangTheoSDT(sdt);
 	}
 
@@ -153,7 +149,7 @@ public class KhachHang_BUS {
 		if (!cu.getHoTen().equals(moi.getHoTen())) {
 			thayDoi.append("Cập nhật tên khách hàng: (" + "" + cu.getHoTen() + ")" + " -> (" + moi.getHoTen() + ")\n");
 		}
-		if (moi.getSoDienThoai() != null && !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
+		if (moi.getSoDienThoai() != null &&cu.getSoDienThoai() != null  && !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
 			thayDoi.append("Cập nhật số điện thoại: (" + "" + cu.getSoDienThoai() + ")" + " -> (" + moi.getSoDienThoai()
 					+ ")\n");
 		}

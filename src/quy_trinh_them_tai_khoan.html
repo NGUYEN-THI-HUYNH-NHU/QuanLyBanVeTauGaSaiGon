@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group { margin-left: 10px; }
+        .step-item { margin-bottom: 15px; }
+
+        b { color: #0056b3; }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Quy Trình Thêm Tài Khoản</h1>
+<p>
+    Chức năng <b>Thêm tài khoản</b> cho phép tạo tài khoản đăng nhập cho nhân viên.
+    Hệ thống sẽ kiểm tra điều kiện hợp lệ, đảm bảo mỗi nhân viên không bị tạo trùng nhiều tài khoản,
+    và mật khẩu được lưu dưới dạng hash để bảo mật.
+</p>
+
+<h2>1. Quy Trình Thực Hiện Thêm Tài Khoản</h2>
+<div class="step-group">
+
+    <div class="step-item">
+        <b>Bước 1: Chọn nhân viên</b>
+        <p>
+            Tại màn hình <span class="highlight">QUẢN LÝ TÀI KHOẢN</span>, người dùng chọn
+            <span class="highlight">Mã nhân viên</span> trong danh sách.
+        </p>
+        <div class="note">
+            Khi chọn mã nhân viên, hệ thống sẽ tự động cập nhật <span class="highlight">Vai trò tài khoản</span>
+            dựa theo vai trò nhân viên (tự động điền).
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 2: Nhập thông tin đăng nhập</b>
+        <p>Người dùng nhập:</p>
+        <ul>
+            <li><b>Tên đăng nhập</b> (VD: <span class="highlight">user123</span>)</li>
+            <li><b>Mật khẩu</b> (VD: <span class="highlight">P@ssw0rd</span>)</li>
+            <li><b>Xác nhận mật khẩu</b> (phải khớp)</li>
+            <li><b>Hoạt động</b> (checkbox)</li>
+        </ul>
+        <div class="note">
+            <span class="highlight">ID tài khoản</span> và <span class="highlight">Thời điểm tạo</span> do hệ thống tự sinh/tự ghi.
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 3: Nhấn nút Thêm</b>
+        <p>
+            Người dùng nhấn nút
+            <span class="highlight" style="background-color: #0056b3; color: white;">Thêm</span>.
+        </p>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 4: Hệ thống kiểm tra hợp lệ dữ liệu</b>
+        <p>Hệ thống thực hiện các kiểm tra theo đúng chương trình:</p>
+        <ul>
+            <li>Đã chọn mã nhân viên (không được để mặc định <span class="highlight">Chọn mã nhân viên</span>).</li>
+            <li>Tên đăng nhập không trống và đúng định dạng.</li>
+            <li>Tên đăng nhập không bị trùng với tài khoản đã tồn tại.</li>
+            <li>Mật khẩu không được trống.</li>
+            <li>Xác nhận mật khẩu phải khớp mật khẩu.</li>
+            <li>Nhân viên được chọn chưa có tài khoản trước đó.</li>
+        </ul>
+
+        <div class="warning">
+            <b>Cảnh báo:</b> Nếu có lỗi ở bất kỳ bước kiểm tra nào, hệ thống sẽ hiển thị thông báo lỗi
+            và dừng thao tác thêm.
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 5: Hệ thống tạo ID và lưu dữ liệu</b>
+        <p>Nếu hợp lệ, hệ thống sẽ:</p>
+        <ul>
+            <li>Tự sinh <span class="highlight">ID tài khoản</span>.</li>
+            <li>Lấy thông tin nhân viên theo mã đã chọn.</li>
+            <li>Ghi nhận <span class="highlight">Thời điểm tạo</span> = thời điểm hiện tại.</li>
+            <li>Mã hóa mật khẩu bằng <span class="highlight">BCrypt</span> và lưu dạng hash.</li>
+            <li>Lưu tài khoản xuống cơ sở dữ liệu.</li>
+        </ul>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 6: Thông báo kết quả và cập nhật bảng</b>
+        <ul>
+            <li>Nếu thành công: hiển thị <span class="highlight">Thêm tài khoản thành công!</span>, cập nhật bảng và xóa trắng form.</li>
+            <li>Nếu thất bại: hiển thị <span class="highlight">Thêm tài khoản thất bại!</span>.</li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="img-container">
+    <img src="html_images/themTaiKhoan.png" width="700" alt="Giao diện thêm tài khoản">
+    <br>
+    <span class="img-caption">Hình 1: Thêm thông tin tài khoản mới</span>
+</div>
+
+</body>
+</html>

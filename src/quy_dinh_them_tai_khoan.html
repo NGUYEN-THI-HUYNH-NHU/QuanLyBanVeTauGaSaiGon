@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group { margin-left: 10px; }
+        .step-item { margin-bottom: 15px; }
+
+        b { color: #0056b3; }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+            text-align: left;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Quy Định Thêm Tài Khoản</h1>
+
+<h2>1. Mục Đích</h2>
+<p>
+    Quy định này mô tả các ràng buộc dữ liệu và nguyên tắc nghiệp vụ khi thực hiện chức năng
+    <span class="highlight">Thêm tài khoản</span>, nhằm đảm bảo tính hợp lệ, bảo mật và tránh trùng lặp dữ liệu.
+</p>
+
+<h2>2. Phạm Vi Áp Dụng</h2>
+<p>
+    Áp dụng cho người dùng có quyền thao tác chức năng <span class="highlight">Quản lý tài khoản</span> trong hệ thống.
+</p>
+
+<h2>3. Quy Định Chung</h2>
+<ul>
+    <li><b>ID tài khoản</b> do hệ thống tự sinh, người dùng không nhập.</li>
+    <li><b>Thời điểm tạo</b> do hệ thống tự ghi nhận tại thời điểm thêm.</li>
+    <li>Mỗi <b>nhân viên</b> chỉ được phép có <b>tối đa 01 tài khoản</b>.</li>
+    <li>Mật khẩu không lưu dạng plain text, hệ thống lưu theo <b>hash BCrypt</b>.</li>
+    <li>Vai trò tài khoản được <b>gợi ý/tự động cập nhật</b> dựa theo vai trò nhân viên khi chọn mã nhân viên.</li>
+</ul>
+
+<h2>4. Ràng Buộc Dữ Liệu Khi Thêm Tài Khoản</h2>
+<table class="info-table">
+    <tr>
+        <th>Trường dữ liệu</th>
+        <th>Quy định</th>
+    </tr>
+
+    <tr>
+        <td>Nhân viên (Mã NV)</td>
+        <td>
+            Bắt buộc chọn. Không được để ở trạng thái <span class="highlight">"Chọn mã nhân viên"</span>.<br>
+            Mỗi nhân viên chỉ có tối đa 01 tài khoản.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Vai trò tài khoản</td>
+        <td>
+            Có thể được tự động cập nhật dựa theo vai trò nhân viên khi chọn mã NV.<br>
+            Ví dụ: <span class="highlight">QUAN_LY → QUAN_LY</span>, <span class="highlight">NHAN_VIEN → NHAN_VIEN</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Tên đăng nhập</td>
+        <td>
+            Bắt buộc nhập, không để trống.<br>
+            Phải đúng quy tắc hệ thống kiểm tra (VD: <span class="highlight">user123</span>).<br>
+            Không được trùng với tên đăng nhập đã tồn tại.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Mật khẩu</td>
+        <td>
+            Bắt buộc nhập, không để trống.<br>
+            Nên đáp ứng quy tắc kiểm tra mật khẩu hệ thống (placeholder VD: <span class="highlight">P@ssw0rd</span>).<br>
+            Mật khẩu sẽ được mã hóa dạng hash bằng BCrypt (salt rounds 12).
+        </td>
+    </tr>
+
+    <tr>
+        <td>Xác nhận mật khẩu</td>
+        <td>
+            Bắt buộc nhập và phải <b>khớp</b> với mật khẩu.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Hoạt động</td>
+        <td>
+            Checkbox. Mặc định <span class="highlight">Đang hoạt động</span>.
+            Nếu bỏ chọn thì lưu trạng thái <span class="highlight">Không hoạt động</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Thời điểm tạo</td>
+        <td>
+            Hệ thống tự động ghi nhận tại thời điểm thêm (LocalDateTime.now()).
+        </td>
+    </tr>
+</table>
+
+<div class="warning">
+    <b>Cảnh báo:</b> Nếu nhân viên đã có tài khoản, hệ thống sẽ từ chối thêm và hiển thị thông báo lỗi.
+</div>
+
+<div class="note">
+    Tài liệu này mô tả <b>quy định / ràng buộc</b>. Quy trình thao tác thêm tài khoản được mô tả trong tài liệu riêng.
+</div>
+
+</body>
+</html>

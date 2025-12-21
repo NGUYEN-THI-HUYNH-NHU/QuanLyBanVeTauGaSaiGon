@@ -24,33 +24,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 
 import controller.NhanVien_CTRL;
@@ -64,7 +45,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 
 	private JTextField txtMaNV, txtTenNV, txtEmail, txtSDT, txtDiaChi;
 	private JComboBox<VaiTroNhanVien> cbVaiTro;
-	private JComboBox<String> cbCaLam;
 	private JRadioButton rbtnNam, rbtnNu;
 	private JCheckBox chkDangHoatDong;
 	private List<JComponent> allField;
@@ -75,11 +55,11 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 	private DefaultTableModel model;
 	private JButton btnAdd, btnEdit, btnFind, btnClean;
 	private boolean isEditing = false;
+	private JComboBox<CaLam> cbCaLam;
 	private Font font = new Font("Roboto", Font.PLAIN, 14);
 
 	// màu sắc giao diện
 	private final Color COLOR_PRIMARY = new Color(30, 100, 150);
-	private final Color COLOR_ACCENT = new Color(74, 163, 208);
 	private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
 	private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
 	private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
@@ -89,11 +69,10 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 		this.nhanVienHienTai = nhanVienHienTai;
 		this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
 
-		btnAdd = createButton("Thêm", "/gui/icon/png/save.png");
-		btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
-		btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
-		btnClean = createButton("Xóa trắng", "/gui/icon/png/clean.png");
-		btnFind.setToolTipText("Tìm theo: Tên, Số điện thoại, Vai trò, Trạng thái");
+		btnAdd = createButton("Thêm", "gui/icon/svg/add-kh.svg");
+		btnEdit = createButton("Sửa", "gui/icon/svg/edit-kh.svg");
+		btnFind = createButton("Tìm kiếm", "gui/icon/svg/search-kh.svg");
+		btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh-kh.svg");
 
 		setLayout(new BorderLayout(10, 10));
 		setBackground(COLOR_BG_MAIN);
@@ -120,6 +99,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 
 		loadDataToTable();
 		initPlaceholders();
+		loadDataToCaLamCombo();
 	}
 
 	private JPanel panelInput() {
@@ -153,7 +133,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 		txtNgayThamGia.setDateFormatString("dd/MM/yyyy");
 		txtNgayThamGia.setCalendar(java.util.Calendar.getInstance());
 
-		cbCaLam = new JComboBox<>(new String[] { "Sáng", "Chiều" });
+		cbCaLam = new JComboBox<>();
 		rbtnNu = new JRadioButton("Nữ");
 		rbtnNam = new JRadioButton("Nam");
 		ButtonGroup group = new ButtonGroup();
@@ -164,6 +144,21 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 		// Sau khi tạo xong tất cả component input
 		JComponent ngaySinhEditor = txtNgaySinh.getDateEditor().getUiComponent();
 		JComponent ngayTGEditor = txtNgayThamGia.getDateEditor().getUiComponent();
+
+
+		// Thiết lập hiển thị cho ComboBox CaLàm
+		cbCaLam.setRenderer(new DefaultListCellRenderer() {
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+														  boolean isSelected, boolean cellHasFocus) {
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if (value instanceof CaLam ca) {
+					setText(ca.getCaLamID() + " (" + ca.getGioVaoCa() + " - " + ca.getGioKetCa() + ")");
+				}
+				return this;
+			}
+		});
+
 
 		// Danh sách thứ tự tab bằng Enter
 		allField = List.of(txtTenNV, cbVaiTro, ngaySinhEditor, txtSDT, txtEmail, txtDiaChi, ngayTGEditor, cbCaLam,
@@ -227,6 +222,15 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 
 	}
 
+	private void loadDataToCaLamCombo() {
+		cbCaLam.removeAllItems();
+		List<CaLam> dsCaLam = nhanVien_ctrl.layDanhSachCaLam();
+		for (CaLam ca : dsCaLam) {
+			cbCaLam.addItem(ca);
+		}
+	}
+
+
 	private void addField(JPanel p, GridBagConstraints gbc, String label, JComponent comp, Font font) {
 		gbc.gridx = 0;
 		gbc.gridwidth = 1;
@@ -250,22 +254,13 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 	}
 
 	private JButton createButton(String text, String iconPath) {
-		JButton btn = new JButton(text);
-		btn.setFont(new Font("Roboto", Font.BOLD, 13));
-		btn.setBackground(COLOR_ACCENT);
-		btn.setForeground(Color.WHITE);
-		btn.setFocusPainted(false);
-		btn.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
-		btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		JButton button = new JButton(text);
+		button.setFont(new Font("Roboto", Font.BOLD, 13));
+		button.setBackground(new Color(173, 216, 230));
+		button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
+		button.setPreferredSize(new Dimension(120, 30));
 
-		try {
-			btn.setIcon(new ImageIcon(new ImageIcon(getClass().getResource(iconPath)).getImage().getScaledInstance(18,
-					18, Image.SCALE_SMOOTH)));
-		} catch (Exception e) {
-			System.err.println("Không tìm thấy icon: " + iconPath);
-		}
-
-		return btn;
+		return button;
 	}
 
 	// panel chi tiết
@@ -455,7 +450,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 				txtSDT.setText(lblSDTDetail.getText());
 				txtEmail.setText(lblEmailDetail.getText());
 				txtDiaChi.setText(lblDiaChiDetail.getText());
-				cbCaLam.setSelectedItem(lblCaLamDetail.getText());
+				selectCaLamById(lblCaLamDetail.getText());
 				chkDangHoatDong.setSelected(lblTrangThaiDetail.getText().equals("Đang hoạt động"));
 
 				if (lblGioiTinhDetail.getText().equalsIgnoreCase("Nữ")) {
@@ -577,7 +572,12 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 		String sdt = getRealText(txtSDT, "VD: 0912345678");
 		String email = getRealText(txtEmail, "VD: email123@gamil.com");
 		String diaChi = getRealText(txtDiaChi, "VD: 45/2 Nguyễn Huệ, Quận 1");
-		String caLam = (String) cbCaLam.getSelectedItem();
+		CaLam ca = (CaLam) cbCaLam.getSelectedItem();
+		if (ca == null) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn ca làm.", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
+			cbCaLam.requestFocus();
+			return false;
+		}
 
 		// 1) Tên
 		if (!nhanVien_ctrl.validHoTen(ten)) {
@@ -685,7 +685,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 				.toLocalDate();
 
 		boolean isHoatDong = chkDangHoatDong.isSelected();
-		CaLam caLam = new CaLam((String) cbCaLam.getSelectedItem() == "Sáng" ? "CA01" : "CA02");
+		CaLam caLam = (CaLam) cbCaLam.getSelectedItem();
 
 		NhanVien nv = new NhanVien(maNV, vaiTro, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia,
 				isHoatDong, caLam);
@@ -701,6 +701,18 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
+
+	//chuyen ca lam tu chi t sang CaLam
+	private void selectCaLamById(String caLamId) {
+		for (int i = 0; i < cbCaLam.getItemCount(); i++) {
+			CaLam ca = cbCaLam.getItemAt(i);
+			if (ca != null && caLamId.equalsIgnoreCase(ca.getCaLamID())) {
+				cbCaLam.setSelectedIndex(i);
+				return;
+			}
+		}
+	}
+
 
 	// sua nhan vien
 	public void suaNhanVien() {
@@ -724,7 +736,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 			}
 
 			boolean isHoatDong = chkDangHoatDong.isSelected();
-			CaLam caLam = new CaLam((String) cbCaLam.getSelectedItem() == "Sáng" ? "CA01" : "CA02");
+			CaLam caLam = (CaLam) cbCaLam.getSelectedItem();
 
 			NhanVien nv = new NhanVien(maNV, vaiTro, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia,
 					isHoatDong, caLam);

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        b { color: #0056b3; }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95em;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 6px;
+            text-align: left;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            vertical-align: top;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Quy Định Thêm Khuyến Mãi</h1>
+
+<h2>1. Mục Đích</h2>
+<p>
+    Quy định này mô tả các <b>ràng buộc dữ liệu</b> và <b>điều kiện nghiệp vụ</b>
+    khi tạo mới khuyến mãi trong hệ thống quản lý bán vé tàu,
+    nhằm đảm bảo khuyến mãi được khai báo đúng, áp dụng chính xác
+    và tránh sai sót trong quá trình vận hành.
+</p>
+
+<h2>2. Phạm Vi Áp Dụng</h2>
+<p>
+    Áp dụng cho tất cả người dùng có quyền thao tác chức năng
+    <span class="highlight">Quản lý khuyến mãi</span> trong hệ thống.
+</p>
+
+<h2>3. Quy Định Chung</h2>
+<ul>
+    <li>Mỗi khuyến mãi bao gồm <b>Thông tin khuyến mãi</b> và <b>Điều kiện khuyến mãi</b>.</li>
+    <li>Mã khuyến mãi và mã điều kiện khuyến mãi được <b>hệ thống tự sinh</b>.</li>
+    <li>Dữ liệu chỉ được lưu khi thỏa mãn toàn bộ các ràng buộc được quy định.</li>
+</ul>
+
+<h2>4. Quy Ước Đặt Code Khuyến Mãi</h2>
+<p>
+    Code khuyến mãi do người dùng nhập <b>không bị giới hạn bởi danh sách cố định</b>.
+    Tuy nhiên, trong thực tế vận hành, hệ thống <b>thường sử dụng một số tiền tố (prefix)</b>
+    như một <b>quy ước nghiệp vụ</b> nhằm hỗ trợ:
+</p>
+<ul>
+    <li>Phân loại khuyến mãi</li>
+    <li>Lọc dữ liệu trên giao diện (tab)</li>
+    <li>Suy ra loại khuyến mãi và điều kiện áp dụng tương ứng</li>
+</ul>
+
+<table class="info-table">
+    <tr>
+        <th>Prefix thường dùng</th>
+        <th>Mục đích phân loại</th>
+    </tr>
+    <tr><td><span class="highlight">LE_</span></td><td>Khuyến mãi theo dịp lễ</td></tr>
+    <tr><td><span class="highlight">MUA_</span></td><td>Khuyến mãi theo mùa</td></tr>
+    <tr><td><span class="highlight">DOITUONG_</span></td><td>Khuyến mãi theo nhóm đối tượng</td></tr>
+    <tr><td><span class="highlight">TUYEN_</span></td><td>Khuyến mãi theo tuyến tàu</td></tr>
+    <tr><td><span class="highlight">LOAITAU_</span></td><td>Khuyến mãi theo loại tàu</td></tr>
+    <tr><td><span class="highlight">HANGTOA_</span></td><td>Khuyến mãi theo hạng toa</td></tr>
+    <tr><td><span class="highlight">NGAYTRONGTUAN_</span></td><td>Khuyến mãi theo ngày trong tuần</td></tr>
+    <tr><td><span class="highlight">MINGIA_</span></td><td>Khuyến mãi theo min giá trị hóa đơn</td></tr>
+</table>
+
+<div class="note">
+    Việc sử dụng các prefix trên <b>không mang tính bắt buộc</b>,
+    nhưng được khuyến nghị để hệ thống dễ quản lý và vận hành.
+</div>
+
+<h2>5. Quy Định Về Hình Thức Giảm Giá</h2>
+<table class="info-table">
+    <tr>
+        <th>Nội dung</th>
+        <th>Quy định</th>
+    </tr>
+    <tr>
+        <td>Tỷ lệ giảm giá</td>
+        <td>
+            Nếu nhập thì phải là số hợp lệ.
+            Hệ thống sử dụng dạng thập phân (ví dụ: <span class="highlight">10% = 0.1</span>).
+        </td>
+    </tr>
+    <tr>
+        <td>Tiền giảm giá</td>
+        <td>
+            Nếu nhập thì phải là số hợp lệ (VNĐ).
+            Hệ thống tự động loại bỏ ký tự không phải số.
+        </td>
+    </tr>
+    <tr>
+        <td>Ràng buộc</td>
+        <td>
+            <b>Bắt buộc chỉ được sử dụng một hình thức giảm giá</b>:
+            <ul>
+                <li>Hoặc tỷ lệ giảm giá</li>
+                <li>Hoặc tiền giảm giá</li>
+            </ul>
+            Không được để cả hai cùng trống hoặc cùng có giá trị.
+        </td>
+    </tr>
+</table>
+
+<h2>6. Quy Định Về Thời Gian Áp Dụng</h2>
+<ul>
+    <li>Ngày bắt đầu và ngày kết thúc là <b>bắt buộc</b>.</li>
+    <li>Ngày kết thúc phải hợp lệ so với ngày bắt đầu.</li>
+    <li>Khuyến mãi chỉ có hiệu lực trong khoảng thời gian đã khai báo.</li>
+</ul>
+
+<h2>7. Quy Định Về Số Lượng Và Giới Hạn</h2>
+<table class="info-table">
+    <tr>
+        <th>Trường dữ liệu</th>
+        <th>Quy định</th>
+    </tr>
+    <tr>
+        <td>Số lượng</td>
+        <td>Bắt buộc, phải là số hợp lệ và lớn hơn 0.</td>
+    </tr>
+    <tr>
+        <td>Giới hạn mỗi khách hàng</td>
+        <td>Bắt buộc, phải là số nguyên hợp lệ.</td>
+    </tr>
+</table>
+
+<h2>8. Quy Định Về Điều Kiện Áp Dụng</h2>
+<ul>
+    <li>Tuyến, loại tàu, hạng toa, loại đối tượng có thể chọn cụ thể hoặc “Tất cả”.</li>
+    <li>Ngày trong tuần nhận giá trị từ <span class="highlight">0</span> đến <span class="highlight">7</span>
+        (0 = không áp dụng).</li>
+    <li>Min giá trị hóa đơn nếu sử dụng phải là số hợp lệ.</li>
+</ul>
+
+<h2>9. Ràng Buộc Giữa Code Và Điều Kiện</h2>
+<p>
+    Khi code khuyến mãi sử dụng một số prefix nhất định,
+    hệ thống sẽ <b>yêu cầu các điều kiện tương ứng phải được khai báo</b>.
+</p>
+
+<table class="info-table">
+    <tr>
+        <th>Prefix được sử dụng</th>
+        <th>Điều kiện cần có</th>
+    </tr>
+    <tr><td><span class="highlight">TUYEN_</span></td><td>Phải chọn Tuyến</td></tr>
+    <tr><td><span class="highlight">LOAITAU_</span></td><td>Phải chọn Loại tàu</td></tr>
+    <tr><td><span class="highlight">HANGTOA_</span></td><td>Phải chọn Hạng toa</td></tr>
+    <tr><td><span class="highlight">DOITUONG_</span></td><td>Phải chọn Loại đối tượng</td></tr>
+    <tr><td><span class="highlight">NGAYTRONGTUAN_</span></td><td>Ngày trong tuần phải lớn hơn 0</td></tr>
+    <tr><td><span class="highlight">MINGIA_</span></td><td>Min giá trị hóa đơn phải lớn hơn 0</td></tr>
+</table>
+
+<div class="warning">
+    Nếu code khuyến mãi và điều kiện áp dụng không tương thích,
+    hệ thống sẽ từ chối lưu dữ liệu và hiển thị thông báo lỗi.
+</div>
+
+<div class="note">
+    Tài liệu này chỉ mô tả <b>quy định và ràng buộc dữ liệu</b>.
+    Quy trình thao tác thêm khuyến mãi sẽ được mô tả ở tài liệu riêng.
+</div>
+
+</body>
+</html>

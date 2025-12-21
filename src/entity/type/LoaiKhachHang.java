@@ -26,4 +26,14 @@ public enum LoaiKhachHang {
     public String getDescription() {
         return description;
     }
+
+    public static LoaiKhachHang fromDescription(String desc) {
+        if (desc == null) return null;
+        for (LoaiKhachHang x : values()) {
+            if (x.getDescription().equalsIgnoreCase(desc.trim())) {
+                return x;
+            }
+        }
+        return null;
+    }
 }

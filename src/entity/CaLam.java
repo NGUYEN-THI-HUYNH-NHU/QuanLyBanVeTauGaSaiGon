@@ -60,6 +60,11 @@ public class CaLam {
 
 	@Override
 	public String toString() {
-		return caLamID + gioVaoCa + gioKetCa;
+		if (gioVaoCa == null || gioKetCa == null) {
+			return caLamID;
+		}
+		return String.format("%s (%s - %s)", caLamID, gioVaoCa, gioKetCa);
 	}
+
+
 }

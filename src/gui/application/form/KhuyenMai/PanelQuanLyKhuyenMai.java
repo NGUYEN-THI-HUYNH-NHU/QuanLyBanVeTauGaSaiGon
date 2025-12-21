@@ -13,6 +13,8 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 import controller.KhuyenMai_CTRL;
 import entity.DieuKienKhuyenMai;
@@ -263,11 +265,6 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         formNhapThongTin(panelDieuKien, gbc, 9, "Min giá trị đơn hàng:", txtMinGiaTriHoaDon, inputFont);
 
 
-//        txtHangToa.setEditable(false);
-//        txtLoaiTau.setEditable(false);
-//        txtLoaiDoiTuong.setEditable(false);
-//        txtTuyen.setEditable(false);
-
         setupComboKeyboard(txtTuyen);
         setupComboKeyboard(txtHangToa);
         setupComboKeyboard(txtLoaiTau);
@@ -297,21 +294,26 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         JPanel panelButtons = new JPanel(new BorderLayout());
         panelButtons.setBackground(Color.WHITE);
 
-        JLabel lblCriteria = new JLabel(
-                "<html><b>Tìm kiếm theo:</b> Code KM, Mô tả, Tuyến, Trạng thái, Loại tàu, Hạng toa, Loại đối tượng ,Khoảng thời gian(Xoá thời gian nếu không sử dụng).</html>"
-        );
-        lblCriteria.setFont(new Font("Roboto", Font.ITALIC, 12));
-        lblCriteria.setForeground(new Color(51, 65, 85));
-        lblCriteria.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 10));
-        panelButtons.add(lblCriteria, BorderLayout.WEST);
+        JLabel lblTieuChi = new JLabel();
+        lblTieuChi.setText("""
+                        <html>
+                        <b>Tìm kiếm theo:</b> Code KM, Mô tả, Tuyến, Trạng thái, Loại tàu, Hạng toa, Loại đối tượng
+                        <br>
+                        Khoảng thời gian (Xoá thời gian nếu không sử dụng).
+                        </html>
+                        """);
+        lblTieuChi.setFont(new Font("Roboto", Font.ITALIC, 12));
+        lblTieuChi.setForeground(new Color(51, 65, 85));
+        lblTieuChi.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 10));
+        panelButtons.add(lblTieuChi, BorderLayout.WEST);
 
         JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         rightButtons.setBackground(Color.WHITE);
 
-        btnAdd = createButton("Thêm", "/gui/icon/png/save.png");
-        btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
-        btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
-        btnClean = createButton("Làm mới", "/gui/icon/png/clean.png");
+        btnAdd = createButton("Thêm", "gui/icon/svg/add-kh.svg");
+        btnEdit = createButton("Sửa", "gui/icon/svg/edit-kh.svg");
+        btnFind = createButton("Tìm kiếm", "gui/icon/svg/search-kh.svg");
+        btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh-kh.svg");
 
 // tooltip
         btnFind.setToolTipText("Tìm kiếm: Code khuyến mãi, Mô tả, trong khoảng thời gian, trạng thái, mã tuyến, loại tàu, hạng toa, loại đối tượng");
@@ -375,19 +377,14 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         panel.add(field, gbc);
     }
 
-    //tạo button với ícon tương ứng
+    // tạo button với ícon tương ứng
     private JButton createButton(String text, String iconPath) {
         JButton button = new JButton(text);
         button.setFont(new Font("Roboto", Font.BOLD, 13));
         button.setBackground(new Color(173, 216, 230));
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        try {
-            button.setIcon(new ImageIcon(new ImageIcon(getClass().getResource(iconPath))
-                    .getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH)));
-        } catch (Exception e) {
-            System.err.println("Không tìm thấy icon: " + iconPath);
-        }
+        button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
+        button.setPreferredSize(new Dimension(100, 30));
+
         return button;
     }
 

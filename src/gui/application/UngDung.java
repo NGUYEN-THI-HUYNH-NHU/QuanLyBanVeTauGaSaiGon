@@ -89,7 +89,6 @@ public class UngDung extends JFrame {
 	public static void setSelectedMenu(int index, int subIndex) {
 		ungDung.giaoDienChinh.setSelectedMenu(index, subIndex);
 	}
-
 	public static void dangXuat() {
 		ungDung.formDangNhap.resetDangNhap();
 		FlatAnimatedLafChange.showSnapshot();

@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -151,10 +152,12 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		// Các nút thao tác
 		JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
 		btnPanel.setBackground(COLOR_BG_PANEL);
+
 		btnAdd = createButton("Thêm", "gui/icon/svg/add-kh.svg");
 		btnEdit = createButton("Sửa", "gui/icon/svg/edit-kh.svg");
 		btnFind = createButton("Tìm kiếm", "gui/icon/svg/search-kh.svg");
 		btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh-kh.svg");
+
 		btnPanel.add(btnAdd);
 		btnPanel.add(btnEdit);
 		btnPanel.add(btnFind);
@@ -304,7 +307,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		button.setFont(new Font("Roboto", Font.BOLD, 13));
 		button.setBackground(new Color(173, 216, 230));
 		button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
-		button.setPreferredSize(new Dimension(120, 30));
+		button.setPreferredSize(new Dimension(100, 30));
 
 		return button;
 	}
@@ -372,12 +375,22 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		List<KhachHang> dsKH = khachHang_ctrl.getAllKhachHang();
 		int stt = 1;
 		tableModel.setRowCount(0);
+
 		for (KhachHang kh : dsKH) {
-			tableModel.addRow(new Object[] { stt++, kh.getKhachHangID(), kh.getHoTen(), kh.getSoDienThoai(),
-					kh.getEmail(), kh.getSoGiayTo(), kh.getDiaChi(), kh.getLoaiDoiTuong().getDescription(),
-					kh.getLoaiKhachHang().getDescription() });
+			tableModel.addRow(new Object[] {
+					stt++,
+					Objects.toString(kh.getKhachHangID(), ""),
+					Objects.toString(kh.getHoTen(), ""),
+					Objects.toString(kh.getSoDienThoai(), ""),
+					Objects.toString(kh.getEmail(), ""),
+					Objects.toString(kh.getSoGiayTo(), ""),
+					Objects.toString(kh.getDiaChi(), ""),
+					kh.getLoaiDoiTuong() == null ? "" : kh.getLoaiDoiTuong().getDescription(),
+					kh.getLoaiKhachHang() == null ? "" : kh.getLoaiKhachHang().getDescription()
+			});
 		}
 	}
+
 
 	// Đặt placeholder cho JTextField
 	private void applyPlaceholder(JTextField field, String placeholder) {
@@ -423,6 +436,12 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		applyPlaceholder(txtDiaChi, "VD: 123 Lê Lợi, Q1, TP.HCM");
 	}
 
+	// kiểm tra xem JTextField có đang hiển thị placeholder không
+	private boolean isPlaceholder(JTextField field, String placeholder) {
+		return field.getForeground().equals(Color.GRAY) && field.getText().equals(placeholder);
+	}
+
+
 	// click 1 dòng trên table
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -430,39 +449,48 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		clearInputFields();
 		btnEdit.setText("Sửa");
 		Editing = false;
-		if (e.getSource() == table) {
-			int row = table.getSelectedRow();
-			if (row >= 0) {
-				String ten = tableModel.getValueAt(row, 2).toString();
-				String sdt = tableModel.getValueAt(row, 3).toString();
-				String email = tableModel.getValueAt(row, 4).toString();
-				String giayTo = tableModel.getValueAt(row, 5).toString();
-				String diaChi = tableModel.getValueAt(row, 6).toString();
-				String loaiDoiTuong = tableModel.getValueAt(row, 7).toString();
-				String loaiKhachHang = tableModel.getValueAt(row, 8).toString();
 
-				lblChiTietTen.setText(ten);
-				lblChiTietSDT.setText(sdt);
-				lblChiTietEmail.setText(email);
-				lblChiTietDiaChi.setText(diaChi);
-				lblChiTietGiayTo.setText(giayTo);
-				lblChiTietLoaiDoiTuong.setText(loaiDoiTuong);
-				lblChiTietLoaiKhachHang.setText(loaiKhachHang);
+		if (e.getSource() != table) return;
 
-				// thay doi avatar
-				if (loaiDoiTuong.equals("NGUOI_CAO_TUOI")) {
-					lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/older.png"))
-							.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
-				} else if (loaiDoiTuong.equals("TRE_EM")) {
-					lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/child.png"))
-							.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
-				} else {
-					lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/adult.png"))
-							.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
-				}
-			}
+		int viewRow = table.getSelectedRow();
+		if (viewRow < 0) return;
+
+		int modelRow = table.convertRowIndexToModel(viewRow);
+
+		String ten = safe(modelRow, 2);
+		String sdt = safe(modelRow, 3);
+		String email = safe(modelRow, 4);
+		String giayTo = safe(modelRow, 5);
+		String diaChi = safe(modelRow, 6);
+		String loaiDoiTuong = safe(modelRow, 7);
+		String loaiKhachHang = safe(modelRow, 8);
+
+		lblChiTietTen.setText(ten);
+		lblChiTietSDT.setText(sdt);
+		lblChiTietEmail.setText(email);
+		lblChiTietDiaChi.setText(diaChi);
+		lblChiTietGiayTo.setText(giayTo);
+		lblChiTietLoaiDoiTuong.setText(loaiDoiTuong);
+		lblChiTietLoaiKhachHang.setText(loaiKhachHang);
+
+		// avatar: tùy theo đối tượng
+		if (loaiDoiTuong.equalsIgnoreCase("NGUOI_CAO_TUOI") || loaiDoiTuong.contains("Cao tuổi")) {
+			lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/older.png"))
+					.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+		} else if (loaiDoiTuong.equalsIgnoreCase("TRE_EM") || loaiDoiTuong.contains("Trẻ em")) {
+			lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/child.png"))
+					.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
+		} else {
+			lblAvatar.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/gui/icon/png/adult.png"))
+					.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
 		}
 	}
+
+	private String safe(int row, int col) {
+		Object v = tableModel.getValueAt(row, col);
+		return v == null ? "" : v.toString();
+	}
+
 
 	// reset lableError
 	public void resetErrorLabels() {
@@ -482,49 +510,61 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		String sdt = getRealText(txtSDT, "VD: 0912345678");
 		String email = getRealText(txtEmail, "VD: email@domain.com");
 		String soGiayTo = getRealText(txtSoGiayTo, "VD: 079123456789");
-		String diaChi = getRealText(txtDiaChi, "VD: 123 Lê Lợi, Q1, TP.HCM");
+		String diaChi = getRealText(txtDiaChi, "VD: 123 Lê Lợi, Q1, TP.HCM"); // optional
 
+		// 0) BẮT BUỘC: phải có ít nhất 1 trong 2 (SĐT hoặc SGT)
+		if (sdt.isEmpty() && soGiayTo.isEmpty()) {
+			lblErrorSDT.setText("Phải nhập SĐT hoặc số giấy tờ");
+			lblErrorSGT.setText("Phải nhập SĐT hoặc số giấy tờ");
+			return false;
+		}
+
+		//Tên
 		if (tenKH.isEmpty() || !khachHang_ctrl.isValidTen(tenKH)) {
 			lblErrorTenKH.setText("Tên khách hàng không hợp lệ! VD: Nguyễn Văn A");
+			txtTenKH.requestFocus();
 			isValid = false;
-		} else {
-			lblErrorTenKH.setText("");
-		}
-		if (sdt.isEmpty() || !khachHang_ctrl.isValidPhoneNumber(sdt)) {
-			lblErrorSDT.setText("Số điện thoại không hợp lệ! VD: 0912345678");
-			isValid = false;
-		} else if (khachHang_ctrl.kiemTraTrungSDT(sdt)) {
-			lblErrorSDT.setText("Số điện thoại đã tồn tại!");
-			isValid = false;
-
-		} else {
-			lblErrorSDT.setText("");
 		}
 
-		if (soGiayTo.isEmpty()) {
-			lblErrorSGT.setText("Số giấy tờ không được để trống! VD: 070305000901");
-			isValid = false;
-		} else if (khachHang_ctrl.kiemTraTrungSoGiayTo(soGiayTo)) {
-			lblErrorSGT.setText("Số giấy tờ đã tồn tại!");
-			isValid = false;
-		} else {
-			lblErrorSGT.setText("");
+		//SĐT: chỉ validate nếu có nhập
+		if (!sdt.isEmpty()) {
+			if (!khachHang_ctrl.isValidPhoneNumber(sdt)) {
+				lblErrorSDT.setText("Số điện thoại không hợp lệ! VD: 0912345678");
+				txtSDT.requestFocus();
+				isValid = false;
+			} else if (khachHang_ctrl.kiemTraTrungSDT(sdt)) {
+				lblErrorSDT.setText("Số điện thoại đã tồn tại!");
+				txtSDT.requestFocus();
+				isValid = false;
+			}
 		}
 
+		//SGT: chỉ validate nếu có nhập
+		if (!soGiayTo.isEmpty()) {
+			if (khachHang_ctrl.kiemTraTrungSoGiayTo(soGiayTo)) {
+				lblErrorSGT.setText("Số giấy tờ đã tồn tại!");
+				txtSoGiayTo.requestFocus();
+				isValid = false;
+			}
+		}
+
+		//Email
 		if (!email.isEmpty() && !khachHang_ctrl.isValidEmail(email)) {
 			lblErrorEmail.setText("Email không hợp lệ! VD: email@domain.com");
+			txtEmail.requestFocus();
 			isValid = false;
-		} else {
-			lblErrorEmail.setText("");
 		}
+
+		// 5) Địa chỉ
 		if (!diaChi.isEmpty() && !khachHang_ctrl.isValidDiaChi(diaChi)) {
 			lblErrorDiaChi.setText("Địa chỉ không hợp lệ! VD: 123 Lê Lợi, Q1, TP.HCM");
+			txtDiaChi.requestFocus();
 			isValid = false;
-		} else {
-			lblErrorDiaChi.setText("");
 		}
+
 		return isValid;
 	}
+
 
 	// thêm khách hàng
 	public boolean themKhachHang(KhachHang kh) {
@@ -548,12 +588,22 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		KhachHang kh = khachHang_ctrl.timKiemKhachHang(sdt);
 		tableModel.setRowCount(0);
 		if (kh != null) {
-			tableModel.addRow(new Object[] { 1, kh.getKhachHangID(), kh.getHoTen(), kh.getSoDienThoai(), kh.getEmail(),
-					kh.getSoGiayTo(), kh.getDiaChi(), kh.getLoaiDoiTuong(), kh.getLoaiKhachHang() });
+			tableModel.addRow(new Object[]{
+					1,
+					Objects.toString(kh.getKhachHangID(), ""),
+					Objects.toString(kh.getHoTen(), ""),
+					Objects.toString(kh.getSoDienThoai(), ""),
+					Objects.toString(kh.getEmail(), ""),
+					Objects.toString(kh.getSoGiayTo(), ""),
+					Objects.toString(kh.getDiaChi(), ""),
+					kh.getLoaiDoiTuong() == null ? "" : kh.getLoaiDoiTuong().getDescription(),
+					kh.getLoaiKhachHang() == null ? "" : kh.getLoaiKhachHang().getDescription()
+			});
 			return kh;
-		} else {
+	} else {
 			JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số điện thoại: " + sdt, "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
+			loadDataToTable();
 			return null;
 		}
 	}
@@ -563,12 +613,22 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		KhachHang kh = khachHang_ctrl.timKiemKhachHangTheoSoGiayTo(sgt);
 		tableModel.setRowCount(0);
 		if (kh != null) {
-			tableModel.addRow(new Object[] { kh.getKhachHangID(), kh.getHoTen(), kh.getSoDienThoai(), kh.getEmail(),
-					kh.getSoGiayTo(), kh.getDiaChi(), kh.getLoaiDoiTuong(), kh.getLoaiKhachHang() });
+			tableModel.addRow(new Object[]{
+					1,
+					Objects.toString(kh.getKhachHangID(), ""),
+					Objects.toString(kh.getHoTen(), ""),
+					Objects.toString(kh.getSoDienThoai(), ""),
+					Objects.toString(kh.getEmail(), ""),
+					Objects.toString(kh.getSoGiayTo(), ""),
+					Objects.toString(kh.getDiaChi(), ""),
+					kh.getLoaiDoiTuong() == null ? "" : kh.getLoaiDoiTuong().getDescription(),
+					kh.getLoaiKhachHang() == null ? "" : kh.getLoaiKhachHang().getDescription()
+			});
 			return kh;
-		} else {
+	} else {
 			JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số giấy tờ: " + sgt, "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
+			loadDataToTable();
 			return null;
 		}
 	}
@@ -589,29 +649,45 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String maKH = khachHang_ctrl.taoMaKhachHang();
-		String tenKH = txtTenKH.getText().trim();
-		String sdt = txtSDT.getText().trim();
-		String email = txtEmail.getText().trim();
-		String soGiayTo = txtSoGiayTo.getText().trim();
-		String diaChi = txtDiaChi.getText().trim();
-		String ldtStr = cbLDT.getSelectedItem().toString();
-		String lkhStr = cbLKH.getSelectedItem().toString();
-		KhachHang kh = new KhachHang(maKH, tenKH, sdt, email, soGiayTo, diaChi, LoaiDoiTuong.valueOf(ldtStr),
-				LoaiKhachHang.valueOf(lkhStr));
-
 		if (e.getSource() == btnAdd) {
+
+			if (!isValidForm()) return;
+
+			String maKH = khachHang_ctrl.taoMaKhachHang();
+			String tenKH = getRealText(txtTenKH, "VD: Nguyễn Văn An");
+			String sdt = getRealText(txtSDT, "VD: 0912345678");
+			String email = getRealText(txtEmail, "VD: email@domain.com");
+			String soGiayTo = getRealText(txtSoGiayTo, "VD: 079123456789");
+			String diaChi = getRealText(txtDiaChi, "VD: 123 Lê Lợi, Q1, TP.HCM");
+			String emailFinal = email.isEmpty() ? null : email;
+			String diaChiFinal = diaChi.isEmpty() ? null : diaChi;
+			String sdtFinal = sdt.isEmpty() ? null : sdt;
+			String sgtFinal = soGiayTo.isEmpty() ? null : soGiayTo;
+
+			LoaiDoiTuong ldt = (LoaiDoiTuong) cbLDT.getSelectedItem();
+			LoaiKhachHang lkh = (LoaiKhachHang) cbLKH.getSelectedItem();
+
+			KhachHang kh = new KhachHang(maKH, tenKH, sdtFinal, emailFinal, sgtFinal, diaChiFinal, ldt, lkh);
 			themKhachHang(kh);
+			return;
+
 		} else if (e.getSource() == btnFind) {
-			if (!sdt.isEmpty()) {
-				timKiemKhachHangTheoSDT(sdt);
-			} else if (!soGiayTo.isEmpty()) {
-				timKiemKhachHangTheoSGT(soGiayTo);
+
+			String sdtFind = getRealText(txtSDT, "VD: 0912345678");
+			String sgtFind = getRealText(txtSoGiayTo, "VD: 079123456789");
+
+			if (!sgtFind.isEmpty()) {
+				timKiemKhachHangTheoSGT(sgtFind);
+				resetLableInfor();
+			} else if (!sdtFind.isEmpty()) {
+				timKiemKhachHangTheoSDT(sdtFind);
+				resetLableInfor();
 			} else {
-				JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại hoặc số giấy tờ để tìm kiếm!",
+				JOptionPane.showMessageDialog(this,
+						"Vui lòng nhập số điện thoại hoặc số giấy tờ để tìm kiếm!",
 						"Cảnh báo", JOptionPane.WARNING_MESSAGE);
-				clearInputFields();
 			}
+
 		} else if (e.getSource() == btnClean) {
 			clearInputFields();
 			resetLableInfor();
@@ -619,6 +695,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 			resetErrorLabels();
 			btnEdit.setText("Sửa");
 			Editing = false;
+
 		} else if (e.getSource() == btnEdit) {
 			if (!Editing) {
 				int selectedRow = table.getSelectedRow();
@@ -629,23 +706,21 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 				}
 				resetLableInfor();
 
-				txtMaKH.setText(table.getValueAt(selectedRow, 1).toString());
-				txtTenKH.setText(table.getValueAt(selectedRow, 2).toString());
-				txtSDT.setText(table.getValueAt(selectedRow, 3).toString());
-				txtEmail.setText(table.getValueAt(selectedRow, 4).toString());
-				txtSoGiayTo.setText(table.getValueAt(selectedRow, 5).toString());
-				txtDiaChi.setText(table.getValueAt(selectedRow, 6).toString());
-				cbLDT.setSelectedItem(LoaiDoiTuong.valueOf(table.getValueAt(selectedRow, 7).toString()));
-				cbLKH.setSelectedItem(LoaiKhachHang.valueOf(table.getValueAt(selectedRow, 8).toString()));
+				txtMaKH.setText(safeTable(selectedRow, 1));
+				txtTenKH.setText(safeTable(selectedRow, 2));
+				txtSDT.setText(safeTable(selectedRow, 3));
+				txtEmail.setText(safeTable(selectedRow, 4));
+				txtSoGiayTo.setText(safeTable(selectedRow, 5));
+				txtDiaChi.setText(safeTable(selectedRow, 6));
+				String ldtDesc = safeTable(selectedRow, 7);
+				cbLDT.setSelectedItem(LoaiDoiTuong.fromDescription(ldtDesc));
+				String lkhDesc = safeTable(selectedRow, 8);
+				cbLKH.setSelectedItem(LoaiKhachHang.fromDescription(lkhDesc));
 
 				Editing = true;
 				btnEdit.setText("Lưu");
 			} else {
-				if (!khachHang_ctrl.isValidDiaChi(txtDiaChi.getText().trim())) {
-					lblErrorDiaChi.setText("Địa chỉ không hợp lệ! VD: 123 Lê Lợi, Q1, TP.HCM");
-					txtDiaChi.requestFocus();
-					return;
-				} else if (!khachHang_ctrl.isValidEmail(txtEmail.getText().trim())) {
+				if (!khachHang_ctrl.isValidEmail(txtEmail.getText().trim())) {
 					lblErrorEmail.setText("Email không hợp lệ! VD: email@domain.com");
 					txtEmail.requestFocus();
 					return;
@@ -696,6 +771,13 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 			}
 		}
 	}
+	// lấy giá trị an toàn từ bảng
+	private String safeTable(int viewRow, int col) {
+		int modelRow = table.convertRowIndexToModel(viewRow);
+		Object v = tableModel.getValueAt(modelRow, col);
+		return v == null ? "" : v.toString();
+	}
+
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -778,6 +860,8 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 			}
 		});
 	}
+
+
 
 	@Override public void mousePressed(MouseEvent e) {
 	}

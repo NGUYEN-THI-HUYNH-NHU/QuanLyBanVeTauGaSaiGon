@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Quy Trình Thêm Khuyến Mãi</h1>
+<p>
+    Chức năng <b>Thêm khuyến mãi</b> cho phép nhân viên/quản lý tạo một chương trình khuyến mãi mới
+    kèm theo điều kiện áp dụng (tuyến, loại tàu, hạng toa, đối tượng, ngày trong tuần, min giá trị hoá đơn...),
+    nhằm phục vụ các dịp lễ, mùa cao điểm hoặc chính sách ưu đãi theo từng nhóm khách hàng.
+</p>
+
+<h2>1. Quy Trình Thực Hiện Thêm Khuyến Mãi</h2>
+<div class="step-group">
+
+    <div class="step-item">
+        <b>Bước 1: Nhập thông tin khuyến mãi</b>
+        <p>
+            Tại màn hình <span class="highlight">QUẢN LÝ KHUYẾN MÃI</span>, người dùng nhập các thông tin:
+        </p>
+        <ul>
+            <li><b>Code khuyến mãi</b> (VD: <span class="highlight">LE_30_04</span>, <span class="highlight">MUA_HE_2025</span>, <span class="highlight">TUYEN_SG_HN</span>).</li>
+            <li><b>Mô tả</b> chương trình (VD: <span class="highlight">Giảm 10% giá vé dịp 30/4</span>).</li>
+            <li><b>Giảm giá</b>: nhập <b>một trong hai</b>:
+                <span class="highlight">Tỷ lệ giảm giá</span> (dạng thập phân 10% = 0.1) hoặc
+                <span class="highlight">Tiền giảm giá</span> (VNĐ).
+            </li>
+            <li><b>Ngày bắt đầu</b> và <b>Ngày kết thúc</b>.</li>
+        </ul>
+
+        <div class="warning">
+            <b>Cảnh báo:</b> Không được nhập đồng thời <span class="highlight">Tỷ lệ giảm giá</span> và <span class="highlight">Tiền giảm giá</span>.
+            Nếu cả hai đều trống/0, hệ thống cũng sẽ báo lỗi.
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 2: Nhập điều kiện khuyến mãi</b>
+        <p>
+            Nhập các điều kiện áp dụng tại phần <span class="highlight">Điều kiện khuyến mãi</span>:
+        </p>
+
+        <table class="info-table">
+            <tr>
+                <th>Thông tin</th>
+                <th>Mô tả nhập liệu</th>
+            </tr>
+            <tr>
+                <td>Số lượng</td>
+                <td>Bắt buộc. VD: <span class="highlight">100</span> (số lượng mã được phép sử dụng).</td>
+            </tr>
+            <tr>
+                <td>Giới hạn/khách</td>
+                <td>Bắt buộc. VD: <span class="highlight">1</span> (mỗi khách được dùng tối đa 1 lần).</td>
+            </tr>
+            <tr>
+                <td>Trạng thái</td>
+                <td>Chọn <span class="highlight">Đang hoạt động</span> hoặc bỏ chọn để <span class="highlight">Ngừng hoạt động</span>.</td>
+            </tr>
+            <tr>
+                <td>Tuyến</td>
+                <td>Chọn tuyến cụ thể hoặc để <span class="highlight">Tất cả</span>.</td>
+            </tr>
+            <tr>
+                <td>Hạng toa</td>
+                <td>Chọn hạng toa cụ thể hoặc <span class="highlight">Tất cả</span>.</td>
+            </tr>
+            <tr>
+                <td>Loại tàu</td>
+                <td>Chọn loại tàu cụ thể hoặc <span class="highlight">Tất cả</span>.</td>
+            </tr>
+            <tr>
+                <td>Loại đối tượng</td>
+                <td>Chọn đối tượng cụ thể hoặc <span class="highlight">Tất cả</span>.</td>
+            </tr>
+            <tr>
+                <td>Ngày trong tuần</td>
+                <td>
+                    Nhập <span class="highlight">0</span> nếu không áp dụng; nhập <span class="highlight">1..7</span>
+                    (1=Thứ 2 ... 7=Chủ nhật) nếu có áp dụng theo ngày.
+                </td>
+            </tr>
+            <tr>
+                <td>Ngày lễ</td>
+                <td>Tick chọn <span class="highlight">Áp dụng ngày lễ</span> nếu khuyến mãi áp dụng cho ngày lễ.</td>
+            </tr>
+            <tr>
+                <td>Min giá trị hoá đơn</td>
+                <td>Tuỳ chọn. VD: <span class="highlight">200000</span> (chỉ áp dụng khi hoá đơn đạt tối thiểu).</td>
+            </tr>
+        </table>
+
+        <div class="note">
+            Lưu ý: Một số loại code thường dùng để phân loại (ví dụ TUYEN_, LOAITAU_, HANGTOA_, DOITUONG_, NGAYTRONGTUAN_, MINGIA_)
+            sẽ kéo theo yêu cầu nhập điều kiện tương ứng.
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 3: Hệ thống kiểm tra hợp lệ dữ liệu</b>
+        <p>
+            Khi nhấn nút <span class="highlight" style="background-color: #0056b3; color: white;">Thêm</span>,
+            hệ thống thực hiện kiểm tra:
+        </p>
+        <ul>
+            <li>Code khuyến mãi không trống và đúng điều kiện kiểm tra.</li>
+            <li>Mô tả hợp lệ.</li>
+            <li>Chỉ nhập 1 trong 2: tỷ lệ hoặc tiền giảm.</li>
+            <li>Số lượng và giới hạn/khách là số hợp lệ.</li>
+            <li>Ngày bắt đầu / kết thúc không rỗng và hợp lệ.</li>
+            <li>Nếu code sử dụng tiền tố phân loại đặc thù (ví dụ TUYEN_, LOAITAU_, HANGTOA_, DOITUONG_, NGAYTRONGTUAN_, MINGIA_),
+                hệ thống yêu cầu điều kiện tương ứng phải được nhập/chọn.</li>
+        </ul>
+
+        <div class="warning">
+            <b>Cảnh báo:</b> Nếu dữ liệu không hợp lệ, hệ thống sẽ hiển thị thông báo lỗi
+            và dừng thao tác thêm, người dùng cần chỉnh lại thông tin theo thông báo.
+        </div>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 4: Xác nhận lưu khuyến mãi</b>
+        <p>
+            Nếu dữ liệu hợp lệ, hệ thống sẽ tự sinh:
+            <span class="highlight">Mã khuyến mãi</span> và <span class="highlight">Mã điều kiện khuyến mãi</span>,
+            sau đó lưu khuyến mãi và điều kiện đi kèm vào cơ sở dữ liệu.
+        </p>
+        <ul>
+            <li>Khuyến mãi được đưa vào danh sách, đồng thời phân loại hiển thị theo tab phù hợp.</li>
+            <li>Hệ thống hiển thị thông báo <span class="highlight">Thêm khuyến mãi thành công!</span>.</li>
+            <li>Form được làm mới để sẵn sàng cho lần nhập tiếp theo.</li>
+        </ul>
+    </div>
+
+</div>
+
+<div class="img-container">
+    <img src="html_images/themKhuyenMai.png" width="700" alt="Thêm khuyến mãi">
+    <br>
+    <span class="img-caption">Hình 1: Thêm thông tin khuyến mãi mới</span>
+</div>
+
+</body>
+</html>

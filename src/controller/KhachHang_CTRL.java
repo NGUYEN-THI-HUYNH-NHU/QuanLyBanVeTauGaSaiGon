@@ -28,7 +28,7 @@ public class KhachHang_CTRL {
     }
 
     public KhachHang timKiemKhachHang(String sdt) {
-        return khachHang_bus.timKiemKhachHang(sdt);
+        return khachHang_bus.timKiemKhachHangTheoSDT(sdt);
     }
 
     public KhachHang timKiemKhachHangTheoSoGiayTo(String soGiayTo) {

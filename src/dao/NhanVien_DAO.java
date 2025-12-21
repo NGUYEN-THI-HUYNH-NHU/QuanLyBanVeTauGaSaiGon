@@ -11,11 +11,7 @@ package dao;
  * @date: Sep 25, 2025
  * @version: 1.0
  */
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -297,20 +293,57 @@ public class NhanVien_DAO {
 		return danhSachMaNV;
 	}
 
-	// lấy danh sách nhân viên chưa có tài khoản
-	public List<NhanVien> layNhanVienChuaCoTaiKhoan() {
-		List<NhanVien> danhSachNV = new ArrayList<>();
-		String sql = "SELECT * FROM NhanVien WHERE nhanVienID NOT IN (SELECT nhanVienID FROM TaiKhoan)";
+	//lay tat ca ca lam
+	public List<CaLam> getAllCaLam() {
+		String sql = "SELECT caLamID, gioVaoCa, gioKetCa FROM CaLam";
+		List<CaLam> ds = new ArrayList<>();
+
 		try (Connection con = connectDB.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql);
-				ResultSet rs = ps.executeQuery()) {
+			 PreparedStatement ps = con.prepareStatement(sql);
+			 ResultSet rs = ps.executeQuery()) {
+
 			while (rs.next()) {
-				danhSachNV.add(mapResultSetToNhanVien(rs));
+				String id = rs.getString("caLamID");
+
+				Time tIn = rs.getTime("gioVaoCa");
+				Time tOut = rs.getTime("gioKetCa");
+
+				ds.add(new CaLam(
+						id,
+						tIn != null ? tIn.toLocalTime() : null,
+						tOut != null ? tOut.toLocalTime() : null
+				));
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return danhSachNV;
+		return ds;
+	}
+
+	//lay ca lam by id
+	public CaLam getCaLamById(String caLamID) {
+		String sql = "SELECT caLamID, gioVaoCa, gioKetCa FROM CaLam WHERE caLamID = ?";
+		try (Connection con = connectDB.getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setString(1, caLamID);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					Time tIn = rs.getTime("gioVaoCa");
+					Time tOut = rs.getTime("gioKetCa");
+
+					return new CaLam(
+							rs.getString("caLamID"),
+							tIn != null ? tIn.toLocalTime() : null,
+							tOut != null ? tOut.toLocalTime() : null
+					);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

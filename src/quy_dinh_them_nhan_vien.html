@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group { margin-left: 10px; }
+        .step-item { margin-bottom: 15px; }
+
+        b { color: #0056b3; }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+            text-align: left;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Quy Định Thêm Nhân Viên</h1>
+
+<h2>1. Mục Đích</h2>
+<p>
+    Quy định này nhằm đảm bảo việc thêm mới nhân viên được thực hiện đúng ràng buộc dữ liệu,
+    đúng chuẩn nghiệp vụ và hạn chế sai sót trong quá trình nhập liệu.
+</p>
+
+<h2>2. Phạm Vi Áp Dụng</h2>
+<p>
+    Áp dụng cho người dùng có quyền thao tác chức năng <span class="highlight">Quản lý nhân viên</span>
+    trong hệ thống.
+</p>
+
+<h2>3. Quy Định Chung</h2>
+<ul>
+    <li><b>Mã nhân viên</b> được hệ thống tự sinh (người dùng không nhập).</li>
+    <li>Các thông tin cơ bản cần đầy đủ để phục vụ phân quyền, liên hệ và vận hành.</li>
+    <li>Hệ thống chỉ lưu dữ liệu khi tất cả điều kiện hợp lệ.</li>
+</ul>
+
+<h2>4. Ràng Buộc Dữ Liệu Khi Thêm Nhân Viên</h2>
+<table class="info-table">
+    <tr>
+        <th>Trường dữ liệu</th>
+        <th>Quy định</th>
+    </tr>
+
+    <tr>
+        <td>Tên nhân viên</td>
+        <td>
+            Bắt buộc. Phải đúng định dạng họ tên theo kiểm tra hệ thống.
+            Ví dụ: <span class="highlight">Nguyễn Văn A</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Số điện thoại</td>
+        <td>
+            Bắt buộc. Phải hợp lệ theo dải số điện thoại tại Việt Nam (bắt đầu bằng 0).
+            Ví dụ: <span class="highlight">0912345678</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Email</td>
+        <td>
+            Bắt buộc. Nếu nhập thì phải đúng định dạng email.
+            Ví dụ: <span class="highlight">email123@gmail.com</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Địa chỉ</td>
+        <td>
+            Bắt buộc. Tối thiểu 5 ký tự, cho phép chữ/số/khoảng trắng và một số ký tự đặc biệt như <span class="highlight">, . -</span>.
+            Ví dụ: <span class="highlight">45/2 Nguyễn Huệ, Quận 1</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Giới tính</td>
+        <td>
+            Chọn một trong hai: <span class="highlight">Nam</span> hoặc <span class="highlight">Nữ</span>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Vai trò</td>
+        <td>
+            Chọn từ danh sách (combo). Dùng để phân quyền trong hệ thống.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Ngày sinh</td>
+        <td>
+            Bắt buộc. Phải <b>trước ngày hiện tại</b>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Ngày tham gia</td>
+        <td>
+            Bắt buộc. Không được <b>sau ngày hiện tại</b>.
+        </td>
+    </tr>
+
+    <tr>
+        <td>Ca làm</td>
+        <td>
+            Chọn <span class="highlight">Sáng</span> hoặc <span class="highlight">Chiều</span>.
+            Hệ thống ánh xạ sang mã ca: <span class="highlight">CA01</span> (Sáng) hoặc <span class="highlight">CA02</span> (Chiều).
+        </td>
+    </tr>
+
+    <tr>
+        <td>Trạng thái</td>
+        <td>
+            Mặc định <span class="highlight">Đang hoạt động</span>. Nếu bỏ chọn thì là <span class="highlight">Ngừng hoạt động</span>.
+        </td>
+    </tr>
+</table>
+
+<div class="warning">
+    <b>Cảnh báo:</b> Nếu bất kỳ trường nào không hợp lệ, hệ thống sẽ hiển thị thông báo lỗi và không cho phép lưu.
+</div>
+
+<div class="note">
+    Tài liệu này chỉ mô tả <b>quy định và ràng buộc dữ liệu</b>. Quy trình thao tác thêm nhân viên được mô tả trong tài liệu riêng.
+</div>
+
+</body>
+</html>

@@ -26,4 +26,16 @@ public enum LoaiDoiTuong {
     public String getDescription() {
         return description;
     }
+
+
+    public static LoaiDoiTuong fromDescription(String desc) {
+        if (desc == null) return null;
+
+        for (LoaiDoiTuong x : values()) {
+            if (x.description.equalsIgnoreCase(desc.trim())) {
+                return x;
+            }
+        }
+        return null;
+    }
 }

@@ -1,12 +1,18 @@
 package bus;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import dao.NhanVien_DAO;
+import entity.CaLam;
 import entity.NhanVien;
 import entity.NhatKyAudit;
 import entity.type.VaiTroNhanVien;
@@ -193,6 +199,14 @@ public class NhanVien_BUS {
 				"Cập nhật nhân viên. " + thanhPhan
 		);
 		return true;
+	}
+	// lấy tất cả ca làm
+	public List<CaLam> layTatCaCaLam() {
+		return nhanVien_dao.getAllCaLam();
+	}
+	//lấy ca làm
+	public CaLam layCaLamTheoTen(String tenCa) {
+		return nhanVien_dao.getCaLamById(tenCa);
 	}
 
 }

@@ -2,6 +2,7 @@ package controller;
 
 import bus.NhanVien_BUS;
 import bus.NhatKyAudit_BUS;
+import entity.CaLam;
 import entity.NhanVien;
 import entity.type.VaiTroNhanVien;
 
@@ -61,6 +62,16 @@ public class NhanVien_CTRL {
 
     public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV) {
         return nhanVien_bus.layVaiTroNhanVienTheoMaNV(maNV);
+    }
+    //==================================================CALAM==========================================
+    //lấy danh sách ca làm
+    public List<CaLam> layDanhSachCaLam() {
+        return nhanVien_bus.layTatCaCaLam();
+    }
+
+    //lấy ca làm theo id
+    public CaLam layCaLamTheoID(String caLamID) {
+        return nhanVien_bus.layCaLamTheoTen(caLamID);
     }
 
 }

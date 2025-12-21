@@ -1,5 +1,6 @@
 package gui.application.form.TaiKhoan;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.NhanVien_CTRL;
 import controller.TaiKhoan_CTRL;
 import entity.NhanVien;
@@ -225,10 +226,10 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         btnPanel.setBackground(COLOR_BG_PANEL);
 
-        btnAdd = createButton("Thêm", "/gui/icon/png/save.png");
-        btnEdit = createButton("Sửa", "/gui/icon/png/update.png");
-        btnFind = createButton("Tìm kiếm", "/gui/icon/png/find.png");
-        btnClean = createButton("Xóa trắng", "/gui/icon/png/clean.png");
+        btnAdd = createButton("Thêm", "gui/icon/svg/add-kh.svg");
+        btnEdit = createButton("Sửa", "gui/icon/svg/edit-kh.svg");
+        btnFind = createButton("Tìm kiếm", "gui/icon/svg/search-kh.svg");
+        btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh-kh.svg");
 
         // tooltips
         btnFind.setToolTipText("Tìm kiếm: Mã nhân viên, Tên đăng nhập, Vai trò và Trạng thái hoạt động.");
@@ -281,22 +282,14 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         gbc.gridy++;
     }
 
-    private JButton createButton(String text, String iconPath){
-        JButton btn = new JButton(text);
-        btn.setFont(new Font("Roboto", Font.BOLD, 13));
-        btn.setBackground(COLOR_ACCENT);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    private JButton createButton(String text, String iconPath) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Roboto", Font.BOLD, 13));
+        button.setBackground(new Color(173, 216, 230));
+        button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
+        button.setPreferredSize(new Dimension(120, 30));
 
-
-        try {
-            btn.setIcon(new ImageIcon(new ImageIcon(getClass().getResource(iconPath))
-                    .getImage().getScaledInstance(18, 18, Image.SCALE_SMOOTH)));
-        } catch (Exception e) {
-            System.err.println("Không tìm thấy icon: " + iconPath);
-        }
-        return btn;
+        return button;
     }
 
     //table
