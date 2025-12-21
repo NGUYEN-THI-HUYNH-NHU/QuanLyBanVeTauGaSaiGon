@@ -242,4 +242,11 @@ public class PanelChuyenTau extends JPanel {
 			}
 		}
 	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		flowPanel.setEnabled(enabled);
+		scroll.setEnabled(enabled);
+	}
 }

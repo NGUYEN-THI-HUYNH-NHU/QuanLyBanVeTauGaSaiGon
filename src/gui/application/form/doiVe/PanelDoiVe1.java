@@ -64,5 +64,4 @@ public class PanelDoiVe1 extends JPanel {
 	public void setBuoc3Enabled(boolean enabled) {
 		panelDoiVeBuoc3.setComponentsEnabled(enabled);
 	}
-
 }

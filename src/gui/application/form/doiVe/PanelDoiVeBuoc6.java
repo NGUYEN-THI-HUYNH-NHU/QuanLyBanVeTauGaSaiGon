@@ -154,8 +154,9 @@ public class PanelDoiVeBuoc6 extends JPanel {
 	 * @param enabled
 	 */
 	public void setComponentsEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
-
+		super.setEnabled(enabled);
+		table.getTableHeader().setEnabled(enabled);
+		btnConfirm.setEnabled(enabled);
 	}
 
 	public JButton getConfirmButton() {

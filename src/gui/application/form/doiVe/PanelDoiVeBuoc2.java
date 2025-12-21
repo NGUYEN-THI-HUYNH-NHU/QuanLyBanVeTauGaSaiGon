@@ -388,7 +388,8 @@ public class PanelDoiVeBuoc2 extends JPanel {
 	 * @param enabled
 	 */
 	public void setComponentsEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
-
+		super.setEnabled(enabled);
+		table.getTableHeader().setEnabled(enabled);
+		btnTiepTuc.setEnabled(enabled);
 	}
 }

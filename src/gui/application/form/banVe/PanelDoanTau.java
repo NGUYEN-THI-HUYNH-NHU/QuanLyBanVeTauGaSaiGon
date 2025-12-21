@@ -345,4 +345,10 @@ public class PanelDoanTau extends JPanel {
 		g.dispose();
 		return out;
 	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		flow.setEnabled(enabled);
+	}
 }

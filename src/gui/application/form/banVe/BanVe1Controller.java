@@ -90,6 +90,10 @@ public class BanVe1Controller {
 
 		panelGioVe.setMediator(this);
 
+		// 2. Kích hoạt Bước 2
+		view.setBuoc2Enabled(false);
+		view.setBuoc3Enabled(false);
+
 		initMediatorLogic();
 	}
 
