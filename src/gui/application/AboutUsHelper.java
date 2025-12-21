@@ -24,7 +24,6 @@ public class AboutUsHelper {
 	public static void openAboutUs() {
 		try {
 			// 1. Lấy file từ trong resources của file JAR
-			// Giả sử file about-us.html nằm ngay trong thư mục gốc của resources
 			InputStream inputStream = AboutUsHelper.class.getClassLoader().getResourceAsStream("about-us.html");
 
 			if (inputStream == null) {

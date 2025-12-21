@@ -292,4 +292,33 @@ public class KhuyenMai_BUS {
 	public KhuyenMai layKhuyenMaiTheoID(String khuyenMaiID) {
 		return khuyenMai_dao.timKiemKhuyenMaiByID(khuyenMaiID);
 	}
+
+	public static KhuyenMai getBestPromotion(VeSession veSession, List<KhuyenMai> listKM) {
+		if (listKM == null || listKM.isEmpty()) {
+			return null;
+		}
+
+		KhuyenMai bestKM = null;
+		double maxDiscountAmount = -1.0;
+		double giaVeGoc = veSession.getVe().getGia();
+
+		for (KhuyenMai km : listKM) {
+			double discountAmount = 0;
+
+			// Tính tiền giảm dựa trên tỷ lệ hoặc số tiền cố định
+			if (km.getTyLeGiamGia() > 0) {
+				discountAmount = giaVeGoc * km.getTyLeGiamGia();
+			} else {
+				discountAmount = km.getTienGiamGia();
+			}
+
+			// So sánh để tìm cái lớn nhất
+			if (discountAmount > maxDiscountAmount) {
+				maxDiscountAmount = discountAmount;
+				bestKM = km;
+			}
+		}
+
+		return bestKM;
+	}
 }
