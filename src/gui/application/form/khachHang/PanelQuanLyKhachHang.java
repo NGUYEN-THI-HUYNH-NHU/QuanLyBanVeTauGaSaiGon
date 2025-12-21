@@ -303,7 +303,8 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		JButton button = new JButton(text);
 		button.setFont(new Font("Roboto", Font.BOLD, 13));
 		button.setBackground(new Color(173, 216, 230));
-		button.setIcon(new FlatSVGIcon(iconPath, 0.8f));
+		button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
+		button.setPreferredSize(new Dimension(120, 30));
 
 		return button;
 	}
@@ -778,29 +779,18 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		});
 	}
 
-	@Override
-	public void mousePressed(MouseEvent e) {
+	@Override public void mousePressed(MouseEvent e) {
 	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
+	@Override public void mouseReleased(MouseEvent e) {
 	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
+	@Override public void mouseEntered(MouseEvent e) {
 	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
+	@Override public void mouseExited(MouseEvent e) {
 	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
+	@Override public void keyTyped(KeyEvent e) {
 
 	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
+	@Override public void keyReleased(KeyEvent e) {
 
 	}
 }
