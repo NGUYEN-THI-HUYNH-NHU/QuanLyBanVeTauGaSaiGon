@@ -246,9 +246,11 @@ public class PanelThongKeVe extends JPanel {
 		String[] columnNames = { "STT", "Thời Gian", "Vé bán", "Vé còn hiệu lực", "Vé đã dùng", "Vé đổi", "Vé hoàn",
 				"Tổng tiền vé (VNĐ)" };
 
-		chiTietTableModel = new DefaultTableModel(columnNames, 0) {
+		chiTietTableModel = new DefaultTableModel(columnNames, 0)
+        {
 			@Override
 			public boolean isCellEditable(int row, int column) {
+
 				return false;
 			}
 
@@ -261,7 +263,9 @@ public class PanelThongKeVe extends JPanel {
 				};
 			}
 		};
-		tableChiTiet = new JTable(chiTietTableModel);
+
+
+        tableChiTiet = new JTable(chiTietTableModel);
 
 		// --- Tạo Panel Chi Tiết & Header ---
 
