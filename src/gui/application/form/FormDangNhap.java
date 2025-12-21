@@ -54,7 +54,7 @@ public class FormDangNhap extends JPanel {
 		setOpaque(false);
 
 		pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]20[]"));
-		pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(230, 230, 230)));
+		pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(240, 240, 240)));
 		pnlLogin.setOpaque(false);
 		pnlLogin.setPreferredSize(new Dimension(360, 400));
 
@@ -67,10 +67,10 @@ public class FormDangNhap extends JPanel {
 		pnlLogin.add(new JLabel("Mật khẩu"));
 		pnlLogin.add(txtMatKhau = new JPasswordField());
 		txtMatKhau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Mật khẩu");
+		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
+		btnLogin.setBackground(new Color(0, 95, 159));
 		pnlLogin.add(btnQuenMK = new JButton("Quên mật khẩu?"));
 		btnQuenMK.setForeground(new Color(7, 43, 143));
-		pnlLogin.add(btnLogin = new JButton("Đăng nhập"));
-		btnLogin.setBackground(new Color(36, 104, 155));
 		btnLogin.setForeground(Color.WHITE);
 
 		GridBagConstraints gbc = new GridBagConstraints();
