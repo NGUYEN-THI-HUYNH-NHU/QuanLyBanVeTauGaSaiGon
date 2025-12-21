@@ -113,9 +113,9 @@ public class PanelQuanLyBieuGia extends JPanel {
 
 		table.getColumnModel().getColumn(0).setPreferredWidth(100); // Mã biểu giá
 		table.getColumnModel().getColumn(1).setPreferredWidth(50); // Ưu tiên
-		table.getColumnModel().getColumn(2).setPreferredWidth(150); // Tuyến
+		table.getColumnModel().getColumn(2).setPreferredWidth(100); // Tuyến
 		table.getColumnModel().getColumn(3).setPreferredWidth(150); // Tàu
-		table.getColumnModel().getColumn(4).setPreferredWidth(80); // Toa
+		table.getColumnModel().getColumn(4).setPreferredWidth(150); // Toa
 		table.getColumnModel().getColumn(5).setPreferredWidth(100); // Khoảng cách
 		table.getColumnModel().getColumn(6).setPreferredWidth(120); // Hiệu lực
 		table.getColumnModel().getColumn(7).setPreferredWidth(150); // Giá

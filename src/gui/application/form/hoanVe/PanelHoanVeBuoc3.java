@@ -15,7 +15,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,6 +36,7 @@ import gui.tuyChinh.SimpleComboBoxRenderer;
 public class PanelHoanVeBuoc3 extends JPanel {
 	private VeHoanTableModel model;
 	private JTable table;
+	private JButton btnRefresh;
 	private JButton btnXacNhan;
 
 	public PanelHoanVeBuoc3() {
@@ -52,9 +52,11 @@ public class PanelHoanVeBuoc3 extends JPanel {
 		sp.setPreferredSize(new Dimension(0, 300));
 		add(sp, BorderLayout.CENTER);
 
-		JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel south = new JPanel(new BorderLayout());
+		btnRefresh = new JButton("Làm mới");
 		btnXacNhan = new JButton("Xác nhận");
-		south.add(btnXacNhan);
+		south.add(btnRefresh, BorderLayout.WEST);
+		south.add(btnXacNhan, BorderLayout.EAST);
 
 		add(south, BorderLayout.SOUTH);
 	}
@@ -106,6 +108,10 @@ public class PanelHoanVeBuoc3 extends JPanel {
 
 	public void displayConfirmation(List<VeHoanRow> selectedRows) {
 		model.setRows(selectedRows);
+	}
+
+	public JButton getBtnRefresh() {
+		return btnRefresh;
 	}
 
 	public JButton getBtnXacNhan() {

@@ -18,6 +18,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
+import bus.KhuyenMai_BUS;
 import entity.KhuyenMai;
 
 public class KhuyenMaiCellEditor extends DefaultCellEditor {
@@ -53,9 +54,8 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 					cbKhuyenMai.addItem(km);
 				}
 			}
+			cbKhuyenMai.setSelectedItem(KhuyenMai_BUS.getBestPromotion(v, listKM));
 		}
-
-		cbKhuyenMai.setSelectedItem(value);
 
 		return super.getTableCellEditorComponent(table, value, isSelected, row, column);
 	}

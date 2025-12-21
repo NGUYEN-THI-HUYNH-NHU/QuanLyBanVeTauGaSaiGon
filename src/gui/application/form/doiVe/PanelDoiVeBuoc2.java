@@ -254,10 +254,9 @@ public class PanelDoiVeBuoc2 extends JPanel {
 				c.setBackground(table.getSelectionBackground());
 				c.setForeground(table.getSelectionForeground());
 			} else {
-				c.setBackground(table.getBackground());
-				// Reset màu chữ về mặc định (tránh bị dính màu Xám của dòng trên)
-				if (c.getForeground() == Color.GRAY) {
-					c.setForeground(table.getForeground());
+				c.setBackground(getBackground());
+				if (c.getForeground() != Color.GREEN) {
+					c.setForeground(getForeground());
 				}
 			}
 		}

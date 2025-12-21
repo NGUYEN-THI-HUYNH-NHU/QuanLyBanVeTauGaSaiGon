@@ -103,9 +103,9 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
 		case COL_TUYEN:
 			return (bg.getTuyenApDung() == null ? "Tất cả" : bg.getTuyenApDung().getTuyenID());
 		case COL_TAU:
-			return (bg.getLoaiTauApDung() == null ? "Tất cả" : bg.getLoaiTauApDung().toString());
+			return (bg.getLoaiTauApDung().getDescription() == null ? "Tất cả" : bg.getLoaiTauApDung().getDescription());
 		case COL_TOA:
-			return (bg.getHangToaApDung() == null ? "Tất cả" : bg.getHangToaApDung().toString());
+			return (bg.getHangToaApDung().getDescription() == null ? "Tất cả" : bg.getHangToaApDung().getDescription());
 		case COL_KHOANG_CACH:
 			return bg.getMinKm() + " - " + bg.getMaxKm() + " km";
 		case COL_HIEU_LUC:

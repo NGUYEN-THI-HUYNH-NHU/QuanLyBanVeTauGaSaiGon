@@ -151,10 +151,10 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 		// Các nút thao tác
 		JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
 		btnPanel.setBackground(COLOR_BG_PANEL);
-		btnAdd = createButton("Thêm", "gui/icon/svg/add-1.svg");
-		btnEdit = createButton("Sửa", "gui/icon/svg/edit.svg");
-		btnFind = createButton("Tìm kiếm", "gui/icon/svg/search.svg");
-		btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh.svg");
+		btnAdd = createButton("Thêm", "gui/icon/svg/add-kh.svg");
+		btnEdit = createButton("Sửa", "gui/icon/svg/edit-kh.svg");
+		btnFind = createButton("Tìm kiếm", "gui/icon/svg/search-kh.svg");
+		btnClean = createButton("Xóa trắng", "gui/icon/svg/refresh-kh.svg");
 		btnPanel.add(btnAdd);
 		btnPanel.add(btnEdit);
 		btnPanel.add(btnFind);

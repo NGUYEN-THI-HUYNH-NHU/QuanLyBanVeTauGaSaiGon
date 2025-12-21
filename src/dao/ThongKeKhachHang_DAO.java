@@ -18,12 +18,12 @@ public class ThongKeKhachHang_DAO {
     private static final Logger LOGGER = Logger.getLogger(ThongKeKhachHang_DAO.class.getName());
 
     // === CONSTANTS ĐỊNH NGHĨA KHÁCH HÀNG ===
-    private final double MOC_VIP = 10000000;    // > 10 triệu
+    private final double MOC_VIP = 50000000;    // > 50 triệu
     private final int SO_NGAY_NGU_DONG = 180;   // 6 tháng
-    private final int MOC_THAN_THIET = 5;       // >= 5 lần
+    private final int MOC_THAN_THIET = 10;      // >= 10 lần
     // Khách quay lại sẽ là khoảng giữa (>=2 và < MOC_THAN_THIET)
 
-    // === TÊN BẢNG & CỘT (Giữ nguyên như project của bạn) ===
+    // === TÊN BẢNG & CỘT ===
     private final String TBL_KHACH_HANG = "KhachHang";
     private final String TBL_VE = "Ve";
     private final String TBL_DON_DAT_CHO = "DonDatCho";
@@ -32,18 +32,22 @@ public class ThongKeKhachHang_DAO {
     private final String COL_DDC_ID = "donDatChoID";
     private final String COL_DDC_KH_ID = "khachHangID";
     private final String COL_DDC_THOI_DIEM = "thoiDiemDatCho";
+
     private final String COL_KH_ID = "khachHangID";
     private final String COL_KH_HO_TEN = "hoTen";
-    private final String COL_KH_DIA_CHI = "diaChi";
+    // Đã xóa COL_KH_DIA_CHI vì không dùng để tách Khu vực nữa
     private final String COL_KH_LOAI_DOI_TUONG = "loaiDoiTuongID";
+
     private final String COL_VE_ID = "veID";
     private final String COL_VE_GIA = "gia";
     private final String COL_VE_DDC_ID = "donDatChoID";
 
+    /**
+     * DTO lưu kết quả thống kê (Đã xóa trường khuVuc)
+     */
     public static class KhachHangRFM {
         public String khachHangID;
         public String hoTen;
-        public String khuVuc;
         public String loaiDoiTuong;
         public int soLanMua;
         public double tongChiTieu;
@@ -69,15 +73,16 @@ public class ThongKeKhachHang_DAO {
     }
 
     /**
-     * Hàm thống kê RFM với logic:
-     * - Khách quay lại: 2 <= SoLanMua < 5 AND Active < 6 tháng.
+     * Hàm thống kê RFM.
+     * Đã loại bỏ logic xử lý Khu Vực trong SQL để tối ưu hiệu năng.
      */
     public Map<String, KhachHangRFM> getThongKeKhachHang(
             LocalDate tuNgay, LocalDate denNgay,
-            String khuVuc, String loaiDoiTuong, String phanLoai) throws SQLException {
+            String loaiDoiTuong, String phanLoai) throws SQLException {
 
         Map<String, KhachHangRFM> results = new LinkedHashMap<>();
 
+        // Câu lệnh SQL đã được rút gọn phần xử lý địa chỉ
         String sql = String.format(
                 "WITH RFM_Global AS ( " +
                         "    SELECT " +
@@ -95,13 +100,13 @@ public class ThongKeKhachHang_DAO {
                         "        g.*, " +
                         "        kh.%s AS HoTen, " +
                         "        kh.%s AS LoaiDoiTuong, " +
-                        "        LTRIM(RTRIM(PARSENAME(REPLACE(kh.%s, ',', '.'), 1))) AS KhuVuc, " +
+                        // ĐÃ XÓA DÒNG XỬ LÝ ĐỊA CHỈ TẠI ĐÂY
                         "        CASE " +
-                        "           WHEN g.TongChiTieu_Global >= ? THEN N'VIP' " +                         // 1. Tiền > 10tr
-                        "           WHEN CAST(g.LanMuaCuoi_Global AS DATE) < CAST(DATEADD(day, -?, GETDATE()) AS DATE) THEN N'Ngủ đông' " + // 2. Ko mua 6 tháng
-                        "           WHEN g.SoLanMua_Global >= ? THEN N'Thân thiết' " +                      // 3. Mua >= 5 lần (và đang Active)
-                        "           WHEN g.SoLanMua_Global >= 2 THEN N'Khách quay lại' " +                  // 4. Mua >= 2 (tức là 2,3,4) (và đang Active)
-                        "           ELSE N'Khách mới' " +                                                   // 5. Mua 1 lần
+                        "           WHEN g.TongChiTieu_Global >= ? THEN N'VIP' " +
+                        "           WHEN CAST(g.LanMuaCuoi_Global AS DATE) < CAST(DATEADD(day, -?, GETDATE()) AS DATE) THEN N'Ngủ đông' " +
+                        "           WHEN g.SoLanMua_Global >= ? THEN N'Thân thiết' " +
+                        "           WHEN g.SoLanMua_Global >= 2 THEN N'Khách quay lại' " +
+                        "           ELSE N'Khách mới' " +
                         "        END AS LoaiKH " +
                         "    FROM RFM_Global g " +
                         "    JOIN %s kh ON g.KH_ID = kh.%s " +
@@ -116,21 +121,24 @@ public class ThongKeKhachHang_DAO {
                         "JOIN KhachHang_TrongKy k ON p.KH_ID = k.%s " +
                         "WHERE 1=1 ",
 
-                // CTE 1
+                // CTE 1: RFM_Global
                 COL_DDC_KH_ID, COL_VE_ID, COL_VE_GIA, COL_DDC_THOI_DIEM, COL_DDC_THOI_DIEM,
                 TBL_VE, TBL_DON_DAT_CHO, COL_VE_DDC_ID, COL_DDC_ID, COL_DDC_KH_ID,
-                // CTE 2
-                COL_KH_HO_TEN, COL_KH_LOAI_DOI_TUONG, COL_KH_DIA_CHI,
+
+                // CTE 2: PhanLoai_Global (Đã bỏ COL_KH_DIA_CHI)
+                COL_KH_HO_TEN, COL_KH_LOAI_DOI_TUONG,
                 TBL_KHACH_HANG, COL_KH_ID,
-                // CTE 3
+
+                // CTE 3: KhachHang_TrongKy
                 COL_DDC_KH_ID,
                 TBL_VE, TBL_DON_DAT_CHO, COL_VE_DDC_ID, COL_DDC_ID,
                 COL_DDC_THOI_DIEM, COL_DDC_THOI_DIEM,
-                // Join
+
+                // Final Join
                 COL_DDC_KH_ID
         );
 
-        // Append filters
+        // Thêm bộ lọc động
         if (loaiDoiTuong != null && !loaiDoiTuong.equals("Tất cả")) sql += " AND p.LoaiDoiTuong = ? ";
         if (phanLoai != null && !phanLoai.equals("Tất cả")) sql += " AND p.LoaiKH = ? ";
 
@@ -140,16 +148,16 @@ public class ThongKeKhachHang_DAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             int idx = 1;
-            // Params for CASE WHEN
+            // Tham số cho CASE WHEN (Phân loại)
             pstmt.setDouble(idx++, MOC_VIP);
             pstmt.setInt(idx++, SO_NGAY_NGU_DONG);
             pstmt.setInt(idx++, MOC_THAN_THIET);
 
-            // Params for WHERE Time Range
+            // Tham số cho WHERE Time Range
             pstmt.setDate(idx++, java.sql.Date.valueOf(tuNgay));
             pstmt.setDate(idx++, java.sql.Date.valueOf(denNgay.plusDays(1)));
 
-            // Params for Dynamic Filters
+            // Tham số cho Dynamic Filters
             if (loaiDoiTuong != null && !loaiDoiTuong.equals("Tất cả")) pstmt.setString(idx++, loaiDoiTuong);
             if (phanLoai != null && !phanLoai.equals("Tất cả")) pstmt.setString(idx++, phanLoai);
 
@@ -158,13 +166,14 @@ public class ThongKeKhachHang_DAO {
                     KhachHangRFM item = new KhachHangRFM();
                     item.khachHangID = rs.getString("KH_ID");
                     item.hoTen = rs.getString("HoTen");
-                    item.khuVuc = rs.getString("KhuVuc");
+                    // Không lấy cột KhuVuc nữa
                     item.loaiDoiTuong = rs.getString("LoaiDoiTuong");
                     item.soLanMua = rs.getInt("SoLanMua_Global");
                     item.tongChiTieu = rs.getDouble("TongChiTieu_Global");
                     item.lanMuaCuoi = rs.getTimestamp("LanMuaCuoi_Global").toLocalDateTime().toLocalDate();
                     item.ngayMuaDauTien = rs.getTimestamp("NgayMuaDauTien_Global").toLocalDateTime().toLocalDate();
                     item.phanLoai = rs.getString("LoaiKH");
+
                     results.put(item.khachHangID, item);
                 }
             }

@@ -1,0 +1,148 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        p {
+            line-height: 1.5;
+        }
+
+        .welcome-box {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .menu-grid {
+            width: 100%;
+            border-spacing: 10px;
+            /* Dùng table để layout thay vì flexbox để tương thích tốt với các thư viện Java Swing cũ */
+        }
+
+        .menu-item {
+            background-color: #fcfcfc;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            vertical-align: top;
+            width: 33%;
+            text-align: center;
+        }
+
+        .menu-title {
+            color: #0056b3;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+
+        .menu-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .contact-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+            color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>HỆ THỐNG TRỢ GIÚP & HỖ TRỢ</h1>
+
+    <div class="welcome-box">
+        <b>Xin chào!</b><br>
+        Đây là tài liệu hướng dẫn quy trình nghiệp vụ và sử dụng phần mềm Quản lý Bán vé Tàu.<br>
+        Vui lòng chọn một chủ đề bên dưới để xem chi tiết.
+    </div>
+
+    <h2>Chủ đề hướng dẫn</h2>
+
+    <table class="menu-grid">
+        <tr>
+            <td class="menu-item">
+                <a href="quy_dinh_ban_ve.html" class="menu-title">Quy định Bán Vé</a>
+                <span class="menu-desc">Hướng dẫn tra cứu khách hàng, quy tắc giữ chỗ và xuất vé mới.</span>
+            </td>
+            <td class="menu-item">
+                <a href="quy_dinh_doi_ve.html" class="menu-title">Quy trình Đổi Vé</a>
+                <span class="menu-desc">Các bước thực hiện đổi vé, tính toán chênh lệch và ghép vé mới.</span>
+            </td>
+            <td class="menu-item">
+                <a href="quy_dinh_hoan_ve.html" class="menu-title">Quy định Hoàn Vé</a>
+                <span class="menu-desc">Bảng tính phí trả vé chi tiết theo giờ tàu chạy và loại vé.</span>
+            </td>
+        </tr>
+    </table>
+
+    <h2>Câu hỏi thường gặp (FAQ)</h2>
+    <ul>
+        <li><b>Làm sao để thêm khách hàng mới?</b><br>
+            Truy cập menu <i>Quản lý khách hàng</i> > Nhấn nút <i>Thêm mới</i> > Nhập thông tin và Lưu.</li>
+        <li><b>Vé in bị lỗi thì xử lý thế nào?</b><br>
+            Vui lòng kiểm tra kết nối máy in. Nếu vé đã xuất trên phần mềm nhưng chưa in ra giấy, hãy vào <i>Quản lý vé
+                > Xem & In vé</i> để in lại.</li>
+        <li><b>Quên mật khẩu đăng nhập?</b><br>
+            Sử dụng chức năng <i>Quên mật khẩu?</i> ở màn hình đăng nhập.</li>
+    </ul>
+
+    <div class="contact-info">
+        <b>Hỗ trợ kỹ thuật:</b>
+        <br>
+        Nếu bạn gặp lỗi phần mềm hoặc cần trợ giúp khẩn cấp, vui lòng liên hệ:
+        <ul>
+            <li>Hotline F4: <b>0389.390.381</b> (Miss. Huynh Nhu)</li>
+            <li>Email: <b>huynhnhu.connect@gmail.com</b></li>
+        </ul>
+    </div>
+
+</body>
+
+</html>

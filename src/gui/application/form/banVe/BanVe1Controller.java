@@ -302,12 +302,14 @@ public class BanVe1Controller {
 			@Override
 			protected Boolean doInBackground() throws Exception {
 				try {
-					if (bookingSession.getPhieuGiuCho() == null) {
+					if (bookingSession.getPhieuGiuCho() == null  || bookingSession.getPhieuGiuCho().getPhieuGiuChoID()==null) {
 						return true;
 					}
-					return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
-							veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
-
+					if (veSession.getPhieuGiuChoChiTiet() != null) {
+						return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
+								veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+					}
+					return true;
 				} catch (Exception e) {
 					errorMessage = e.getMessage();
 					e.printStackTrace();

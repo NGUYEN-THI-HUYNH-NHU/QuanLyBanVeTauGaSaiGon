@@ -24,7 +24,7 @@ public class PanelDoiVeBuoc5 extends JPanel {
 	public PanelDoiVeBuoc5() {
 		setLayout(new BorderLayout(2, 0));
 		setBorder(new TitledBorder(""));
-		setPreferredSize(new Dimension(0, 440));
+		setPreferredSize(new Dimension(0, 420));
 
 		panelGioVe = new PanelGioVeDoiVe();
 		add(panelGioVe, BorderLayout.EAST);

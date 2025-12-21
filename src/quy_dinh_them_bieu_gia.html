@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Quy Định Thiết Lập Biểu Giá Vé</h1>
+
+<h2>1. Mục Đích</h2>
+<p>Đảm bảo việc tính giá vé tàu được thực hiện tự động, chính xác dựa trên cự ly di chuyển, loại tàu và hạng ghế theo đúng chính sách kinh doanh của ngành đường sắt.</p>
+
+<h2>2. Các Ràng Buộc Dữ Liệu</h2>
+<div class="step-group">
+    <div class="step-item">
+        <b>Ràng buộc về Cự ly (Km):</b>
+        <p>Phạm vi áp dụng biểu giá phải có <span class="highlight">Min Km</span> nhỏ hơn <span class="highlight">Max Km</span>. Khoảng cách không được là số âm.</p>
+    </div>
+    <div class="step-item">
+        <b>Ràng buộc về Thời gian:</b>
+        <p>Ngày bắt đầu áp dụng biểu giá không được sau ngày kết thúc. Nếu biểu giá có hiệu lực lâu dài, trường <span class="highlight">Ngày kết thúc</span> có thể để trống (Vô thời hạn).</p>
+    </div>
+    <div class="step-item">
+        <b>Cấu trúc Giá:</b>
+        <table class="info-table">
+            <tr>
+                <th>Loại giá</th>
+                <th>Mô tả quy định</th>
+            </tr>
+            <tr>
+                <td>Đơn giá/Km</td>
+                <td>Sử dụng để tính giá vé linh hoạt theo quãng đường.</td>
+            </tr>
+            <tr>
+                <td>Giá cơ bản</td>
+                <td>Giá sàn cố định cho mỗi vé (thường áp dụng cho chặng ngắn).</td>
+            </tr>
+            <tr>
+                <td>Phụ phí</td>
+                <td>Áp dụng cho các dịp cao điểm hoặc dịch vụ đặc biệt (nếu có).</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="warning">
+    <b>Cảnh báo:</b> Hệ thống sẽ không cho phép lưu nếu phát hiện sự chồng chéo giữa hai biểu giá có cùng Tuyến, cùng Loại tàu và cùng Hạng ghế trong một khoảng thời gian.
+</div>
+
+<div class="note">
+    Lưu ý: Mọi thay đổi về biểu giá phải được cấp lãnh đạo phê duyệt bằng văn bản trước khi cập nhật vào phần mềm.
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            /* Màu xanh đường sắt */
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h3 {
+            color: #d9534f;
+            /* Màu đỏ cho các tiêu đề con */
+            margin-top: 20px;
+        }
+
+        .step-box {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .step-number {
+            font-weight: bold;
+            color: #0056b3;
+            font-size: 110%;
+        }
+
+        table.fee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table.fee-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table.fee-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Quy định Đổi Vé</h1>
+    <p>Chức năng đổi vé cho phép hành khách thay đổi thông tin chuyến đi sang một thời gian khác hoặc vị trí ghế khác.
+        Quy trình gồm 3 bước chính:</p>
+
+    <div class="step-box">
+        <span class="step-number">Giai đoạn 1: Xác thực vé cũ</span>
+        <p>Nhân viên nhập mã vé hoặc tìm kiếm thông tin hành khách trên hệ thống.</p>
+        <ul>
+            <li>Kiểm tra tính hợp lệ của vé (vé chưa qua cổng soát vé).</li>
+            <li>Kiểm tra thời gian (phải đổi trước giờ tàu chạy tối thiểu 24h).</li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <span class="step-number">Giai đoạn 2: Chọn vé mới</span>
+        <p>Hệ thống chuyển sang màn hình sơ đồ toa tàu.</p>
+        <ul>
+            <li>Chọn toa, chọn ghế mới mong muốn.</li>
+            <li>Hệ thống tự động kiểm tra xung đột chỗ ngồi.</li>
+        </ul>
+    </div>
+
+    <div class="step-box">
+        <span class="step-number">Giai đoạn 3: Thanh toán chênh lệch</span>
+        <p>Hệ thống tính toán tiền chênh lệch giữa vé cũ và vé mới + phí đổi vé.</p>
+        <ul>
+            <li><b>Nếu vé mới > vé cũ:</b> Khách trả thêm tiền.</li>
+            <li><b>Nếu vé mới < vé cũ:</b> Hoàn tiền thừa cho khách (sau khi trừ phí).</li>
+        </ul>
+    </div>
+
+    <h3>Bảng quy định phí đổi trả</h3>
+    <table class="fee-table">
+        <tr>
+            <th>Thời gian đổi</th>
+            <th>Mức phí (%)</th>
+        </tr>
+        <tr>
+            <td>Trước 24h - 48h</td>
+            <td>20% giá vé</td>
+        </tr>
+        <tr>
+            <td>Trước trên 48h</td>
+            <td>10% giá vé</td>
+        </tr>
+        <tr>
+            <td>Dịp Lễ/Tết</td>
+            <td>30% giá vé</td>
+        </tr>
+    </table>
+
+    <div class="note">
+        <b>Lưu ý:</b> Việc đổi vé chỉ áp dụng 01 lần duy nhất cho mỗi mã vé. Vé đã đổi không được phép hoàn trả.
+    </div>
+
+</body>
+
+</html>
