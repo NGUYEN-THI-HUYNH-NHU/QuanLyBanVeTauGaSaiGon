@@ -241,6 +241,9 @@ public class BanVe1Controller {
 			for (VeSession ve : bookingSession.getAllSelectedTickets()) {
 				handleXoaHangVe(ve);
 			}
+			view.setBuoc1Enabled(true);
+			view.setBuoc2Enabled(true);
+			view.setBuoc3Enabled(false);
 		});
 	}
 

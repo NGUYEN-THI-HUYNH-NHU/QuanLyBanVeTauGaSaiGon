@@ -37,6 +37,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import bus.KhachHang_BUS;
 import entity.KhachHang;
 import entity.type.LoaiKhachHang;
+import gui.application.AuthService;
 import gui.application.UngDung;
 
 public class PanelBuoc3Controller {
@@ -403,7 +404,7 @@ public class PanelBuoc3Controller {
 
 			if (choice == JOptionPane.YES_OPTION) {
 				// Điều hướng sang màn hình Quản lý khách hàng
-				UngDung.setSelectedMenu(10, 0);
+				UngDung.loadDataForCreatingNewKhachHang(AuthService.getInstance().getCurrentUser(), id);
 			}
 		}
 	}
