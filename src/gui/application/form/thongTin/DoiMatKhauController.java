@@ -14,7 +14,10 @@ package gui.application.form.thongTin;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import bus.TaiKhoan_BUS;
 import gui.application.EmailService;
@@ -124,6 +127,9 @@ public class DoiMatKhauController {
 	}
 
 	private void initResetController() {
+		addValidateListener(modalQuenMatKhau.getTxtMatKhauMoi());
+		addValidateListener(modalQuenMatKhau.getTxtXacNhanMK());
+
 		modalQuenMatKhau.getTxtMaNV().addActionListener(e -> {
 			modalQuenMatKhau.getTxtCCCD().requestFocusInWindow();
 		});
@@ -157,6 +163,68 @@ public class DoiMatKhauController {
 		modalQuenMatKhau.getBtnGuiYeuCau().addActionListener(e -> handleGuiYeuCau());
 
 		modalQuenMatKhau.getBtnDoiMatKhau().addActionListener(e -> handleResetMatKhau());
+	}
+
+	private void addValidateListener(JTextField textField) {
+		textField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				validate(textField);
+			}
+		});
+	}
+
+	private boolean validate(JTextField textField) {
+		if (modalQuenMatKhau.getTxtMatKhauMoi().isFocusOwner()) {
+			char[] mkChars = modalQuenMatKhau.getTxtMatKhauMoi().getPassword();
+			String mk = new String(mkChars);
+
+			if (mk.isEmpty()) {
+				showError("Vui lòng nhập mật khẩu mới", modalQuenMatKhau.getTxtMatKhauMoi());
+				return false;
+			}
+
+			if (!mk.matches(
+					"^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[!@#$%^&*(),.?\":{}|<>])[a-zA-Z\\d!@#$%^&*(),.?\":{}|<>]{8,}$")) {
+				showError("Mật khẩu phải từ 8 ký tự gồm số + chữ + ký tự đặc biệt",
+						modalQuenMatKhau.getTxtMatKhauMoi());
+				return false;
+			}
+		}
+
+		else if (modalQuenMatKhau.getTxtXacNhanMK().isFocusOwner()) {
+			char[] mkConfirmChars = modalQuenMatKhau.getTxtXacNhanMK().getPassword();
+			String mkConfirm = new String(mkConfirmChars);
+
+			if (!mkConfirm.equals(modalQuenMatKhau.getTxtMatKhauMoi().getText())) {
+				showError("Mật khẩu xác nhận không khớp!", modalQuenMatKhau.getTxtXacNhanMK());
+				return false;
+			}
+		}
+
+		hideError();
+		return true;
+	}
+
+	private void showError(String msg, JTextField textField) {
+		modalQuenMatKhau.getLblError().setText(msg);
+		modalQuenMatKhau.getLblError().setVisible(true);
+		textField.requestFocusInWindow();
+	}
+
+	private void hideError() {
+		modalQuenMatKhau.getLblError().setVisible(false);
+		modalQuenMatKhau.getLblError().setText("");
 	}
 
 	private void handleGuiYeuCau() {

@@ -36,7 +36,7 @@ public class ModalQuenMatKhau extends JPanel {
 	private JPasswordField txtMatKhauMoi;
 	private JPasswordField txtXacNhanMK;
 	private JButton btnDoiMatKhau;
-	private JLabel lblCode, lblPassNew, lblPassConfirm;
+	private JLabel lblCode, lblPassNew, lblPassConfirm, lblError;
 
 	private JDialog parentDialog;
 
@@ -120,20 +120,27 @@ public class ModalQuenMatKhau extends JPanel {
 		txtXacNhanMK = new JPasswordField(20);
 		add(txtXacNhanMK, setGBC(gbc, 1, 7));
 
-		// Nút Đổi mật khẩu
-		btnDoiMatKhau = new JButton("Đặt lại mật khẩu");
-		btnDoiMatKhau.setBackground(new Color(36, 104, 155));
-		btnDoiMatKhau.setForeground(Color.WHITE);
+		lblError = new JLabel("Xác nhận mật khẩu:");
+		lblError.setForeground(Color.RED);
+		lblError.setFont(new Font(lblError.getFont().getName(), Font.ITALIC, 11));
+		lblError.setVisible(false);
 		gbc.gridx = 0;
 		gbc.gridy = 8;
 		gbc.gridwidth = 2;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.CENTER;
+		add(lblError, gbc);
+
+		// Nút Đổi mật khẩu
+		btnDoiMatKhau = new JButton("Đặt lại mật khẩu");
+		btnDoiMatKhau.setBackground(new Color(36, 104, 155));
+		btnDoiMatKhau.setForeground(Color.WHITE);
+		gbc.gridy = 9;
 		add(btnDoiMatKhau, gbc);
 
 		// Nút Quay lại
 		btnQuayLai = new JButton("Quay lại đăng nhập");
-		gbc.gridy = 9;
+		gbc.gridy = 10;
 		add(btnQuayLai, gbc);
 
 		// Ẩn các trường giai đoạn 2
@@ -206,5 +213,13 @@ public class ModalQuenMatKhau extends JPanel {
 
 	public DoiMatKhauController getController() {
 		return controller;
+	}
+
+	public JLabel getLblError() {
+		return lblError;
+	}
+
+	public void setLblError(JLabel lblError) {
+		this.lblError = lblError;
 	}
 }

@@ -122,6 +122,8 @@ public class PanelHoanVeBuoc2 extends JPanel {
 					boolean hasFocus, int row, int column) {
 
 				Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				setHorizontalAlignment(SwingConstants.CENTER);
+				setVerticalAlignment(SwingConstants.TOP);
 
 				// Lấy row model để check logic riêng của cột này
 				int modelRow = table.convertRowIndexToModel(row);
@@ -140,7 +142,6 @@ public class PanelHoanVeBuoc2 extends JPanel {
 				return c;
 			}
 		};
-		timeRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
 		// --- 3. RENDERER CHO CÁC CỘT TEXT (HỌ TÊN, THÔNG TIN VÉ) ---
 		// Phải chuyển sang Anonymous Class để nhúng logic tô màu nền
@@ -257,8 +258,14 @@ public class PanelHoanVeBuoc2 extends JPanel {
 		} else {
 			if (table.isRowSelected(row)) {
 				c.setBackground(table.getSelectionBackground());
+				if (c.getForeground() != Color.GREEN) {
+					c.setForeground(table.getSelectionForeground());
+				}
 			} else {
-				c.setBackground(table.getBackground());
+				c.setBackground(getBackground());
+				if (c.getForeground() != Color.GREEN) {
+					c.setForeground(getForeground());
+				}
 			}
 		}
 	}
