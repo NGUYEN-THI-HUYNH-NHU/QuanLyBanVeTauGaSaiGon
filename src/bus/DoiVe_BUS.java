@@ -13,6 +13,7 @@ package bus;
  */
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +25,14 @@ import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.KhachHang;
 import entity.NhanVien;
+import entity.NhatKyAudit;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
+import gui.application.AuthService;
+import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 
@@ -40,6 +44,7 @@ public class DoiVe_BUS {
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
 	private final PhieuGiuCho_BUS phieuGiuChoBUS = new PhieuGiuCho_BUS();
 	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
+	private final NhatKyAudit_BUS nhatKyAuditBUS = new NhatKyAudit_BUS();
 
 	/**
 	 * @param exchangeSession
@@ -115,6 +120,16 @@ public class DoiVe_BUS {
 				khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
 			}
 
+			// Ghi log
+			String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
+			for (VeDoiRow v : exchangeSession.getListVeCuCanDoi()) {
+				ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.DOI_VE, "Hủy vé: " + v.getVe().getVeID());
+			}
+
+			for (VeSession v : exchangeSession.getListVeMoiDangChon()) {
+				ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.DOI_VE, "Vé đổi: " + v.getVe().getVeID());
+			}
+
 			// --- KẾT THÚC GIAO DỊCH ---
 			// Hoàn tất giao dịch
 			conn.commit();
@@ -142,5 +157,19 @@ public class DoiVe_BUS {
 				}
 			}
 		}
+	}
+
+	// ghi log
+	private void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+		if (nhatKyAuditBUS == null) {
+			return;
+		}
+
+		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
+
+		NhatKyAudit audit = new NhatKyAudit(nhatKyAuditBUS.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
+				LocalDateTime.now(), loai, chiTiet, "VE");
+
+		nhatKyAuditBUS.ghiNhatKyAudit(audit);
 	}
 }

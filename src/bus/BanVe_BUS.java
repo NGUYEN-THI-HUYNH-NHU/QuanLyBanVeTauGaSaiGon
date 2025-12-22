@@ -13,15 +13,18 @@ package bus;
  */
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import connectDB.ConnectDB;
 import entity.DonDatCho;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
+import entity.NhatKyAudit;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import entity.type.TrangThaiPhieuGiuCho;
+import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 
@@ -33,6 +36,7 @@ public class BanVe_BUS {
 	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 	private final SuDungKhuyenMai_BUS suDungKhuyenMaiBUS = new SuDungKhuyenMai_BUS();
 	private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
+	private final NhatKyAudit_BUS nhatKyAuditBUS = new NhatKyAudit_BUS();
 
 	/**
 	 * Gói toàn bộ nghiệp vụ thanh toán vào một Transaction CSDL duy nhất.
@@ -89,6 +93,12 @@ public class BanVe_BUS {
 			datChoBUS.capNhatPhieuGiuCho(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 			datChoBUS.capNhatCacPhieuGiuChoChiTiet(conn, session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
 
+			// Ghi log
+			String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
+			for (VeSession v : session.getAllSelectedTickets()) {
+				ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.BAN_VE,
+						"Bán vé - " + session.getDonDatCho().getDonDatChoID() + ": " + v.getVe().getVeID());
+			}
 			// --- KẾT THÚC GIAO DỊCH ---
 			// Hoàn tất giao dịch
 			conn.commit();
@@ -117,5 +127,19 @@ public class BanVe_BUS {
 				}
 			}
 		}
+	}
+
+	// ghi log
+	private void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+		if (nhatKyAuditBUS == null) {
+			return;
+		}
+
+		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
+
+		NhatKyAudit audit = new NhatKyAudit(nhatKyAuditBUS.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
+				LocalDateTime.now(), loai, chiTiet, "VE");
+
+		nhatKyAuditBUS.ghiNhatKyAudit(audit);
 	}
 }

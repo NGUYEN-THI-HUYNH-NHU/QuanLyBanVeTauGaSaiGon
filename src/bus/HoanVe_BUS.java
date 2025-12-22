@@ -13,6 +13,7 @@ package bus;
  */
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import entity.GiaoDichHoanDoi;
 import entity.HoaDon;
 import entity.HoaDonChiTiet;
 import entity.KhachHang;
+import entity.NhatKyAudit;
 import entity.Ve;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
@@ -37,6 +39,7 @@ public class HoanVe_BUS {
 	private final GiaoDichHoanDoi_BUS giaoDichHoanDoiBUS = new GiaoDichHoanDoi_BUS();
 	private final PhieuGiuCho_BUS phieuGiuChoChiTietBUS = new PhieuGiuCho_BUS();
 	private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
+	private final NhatKyAudit_BUS nhatKyAuditBUS = new NhatKyAudit_BUS();
 
 	/**
 	 * @param donDatCho
@@ -89,6 +92,13 @@ public class HoanVe_BUS {
 				khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
 			}
 
+			// Ghi log
+			String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
+			for (Ve v : listVe) {
+				ghiLog(v.getVeID(), nvID, entity.type.NhatKyAudit.HOAN_VE,
+						"Hoàn vé - " + v.getDonDatCho().getDonDatChoID() + ": " + v.getVeID());
+			}
+
 			// Hoàn tất giao dịch
 			conn.commit();
 			return true;
@@ -115,5 +125,19 @@ public class HoanVe_BUS {
 				}
 			}
 		}
+	}
+
+	// ghi log
+	private void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+		if (nhatKyAuditBUS == null) {
+			return;
+		}
+
+		String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
+
+		NhatKyAudit audit = new NhatKyAudit(nhatKyAuditBUS.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
+				LocalDateTime.now(), loai, chiTiet, "VE");
+
+		nhatKyAuditBUS.ghiNhatKyAudit(audit);
 	}
 }
