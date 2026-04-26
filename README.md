@@ -62,18 +62,3 @@ Vì repo là project theo IDE (không thấy Maven/Gradle ở root), cách chạ
 2. Thêm các JAR trong `lib/` vào classpath (nếu IDE chưa tự nhận).
 3. Đảm bảo SQL Server đang chạy và DB đã được tạo/restore đúng tên.
 4. Tìm class `main` trong phần `src/gui/...` (hoặc lớp khởi động ứng dụng) và **Run**.
-
-Nếu bạn muốn, mình có thể giúp:
-- xác định chính xác **class entry-point** (lớp có `public static void main`),
-- hướng dẫn add JDBC driver + cấu hình DB,
-- hoặc tạo file cấu hình DB an toàn hơn.
-
-## Lưu ý về repository
-
-- Repo đang chứa các file nhị phân `ngrok` / `ngrok.exe` ở root. Thông thường nên:
-  - đưa vào `.gitignore` và
-  - không commit binary vào repo (hoặc dùng Git LFS nếu bắt buộc).
-
-## License
-
-Chưa có file LICENSE. Nếu đây là dự án học tập/nội bộ, bạn có thể bổ sung license phù hợp (MIT/Apache-2.0/…)
