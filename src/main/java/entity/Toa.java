@@ -1,9 +1,5 @@
 package entity;
 
-import java.util.Objects;
-
-import entity.type.HangToa;
-
 /*
  * @(#) Toa.java  1.0  [10:14:42 PM] Sep 17, 2025
  *
@@ -17,108 +13,40 @@ import entity.type.HangToa;
  * @version: 1.0
  */
 
-public class Toa {
-	private String toaID;
-	private Tau tau;
-	private HangToa hangToa;
-	private int sucChua;
-	private int soToa;
+import jakarta.persistence.*;
+import lombok.*;
 
-	public Toa(String toaID, Tau tau, HangToa hangToa, int sucChua, int soToa) {
-		super();
-		this.toaID = toaID;
-		this.tau = tau;
-		this.hangToa = hangToa;
-		this.sucChua = sucChua;
-		this.soToa = soToa;
-	}
+import java.io.Serializable;
+import java.util.Set;
 
-	public Toa(String toaID, Tau tau, HangToa hangToa, int soToa) {
-		super();
-		this.toaID = toaID;
-		this.tau = tau;
-		this.hangToa = hangToa;
-		this.soToa = soToa;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = "ghes")
+@EqualsAndHashCode(exclude = "ghes")
+@Entity
+@Table(name = "Toa")
+public class Toa implements Serializable {
+    @Id
+    @Column(name = "toaID", length = 50)
+    private String id;
 
-	public Toa(String toaID, int soToa) {
-		super();
-		this.toaID = toaID;
-		this.soToa = soToa;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tauID", nullable = false)
+    private Tau tau;
 
-	public Toa() {
-		super();
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hangToaID", nullable = false)
+    private HangToa hangToa;
 
-	public Toa(String toaID) {
-		super();
-		this.toaID = toaID;
-	}
+    @Column(name = "sucChua", nullable = false)
+    private int sucChua;
 
-	public String getToaID() {
-		return toaID;
-	}
+    @Column(name = "soToa", nullable = false)
+    private int soToa;
 
-	public Tau getTau() {
-		return tau;
-	}
-
-	public HangToa getHangToa() {
-		return hangToa;
-	}
-
-	public int getSucChua() {
-		return sucChua;
-	}
-
-	public int getSoToa() {
-		return soToa;
-	}
-
-	public void setToaID(String toaID) {
-		if (toaID != null && !toaID.isEmpty()) {
-			this.toaID = toaID;
-		} else {
-			throw new IllegalArgumentException("Toa ID không được để trống!");
-		}
-	}
-
-	public void setTau(Tau tau) {
-		this.tau = tau;
-	}
-
-	public void setHangToa(HangToa hangToa) {
-		this.hangToa = hangToa;
-	}
-
-	public void setSucChua(int sucChua) {
-		this.sucChua = sucChua;
-	}
-
-	public void setSoToa(int soToa) {
-		this.soToa = soToa;
-	}
-
-	@Override
-	public String toString() {
-		return toaID + ";" + tau + ";" + hangToa + ";" + sucChua + ";" + soToa;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		Toa toa = (Toa) o;
-		return Objects.equals(getToaID(), toa.getToaID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getToaID());
-	}
+    @OneToMany(mappedBy = "toa", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Ghe> ghes;
 }

@@ -1,94 +1,34 @@
 package entity;
 
-import java.util.Objects;
-
 import entity.type.TrangThaiPDPVIP;
+import jakarta.persistence.*;
+import lombok.*;
 
-/*
- * @(#) PhieuDungPhongChoVIP.java  1.0  [3:45:53 PM] Sep 22, 2025
- *
- * Copyright (c) 2025 IUH. All rights reserved.
- */
+import java.io.Serializable;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 22, 2025
- * @version: 1.0
- */
-public class PhieuDungPhongVIP {
-	private String phieuDungPhongChoVIPID;
-	private DichVuPhongChoVIP dichVuPhongChoVIP;
-	private Ve ve;
-	private TrangThaiPDPVIP trangThai;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "PhieuDungPhongVIP")
+public class PhieuDungPhongVIP implements Serializable {
+    @Id
+    @Column(name = "phieuDungPhongVIPID", length = 50)
+    private String id;
 
-	public PhieuDungPhongVIP(String phieuDungPhongChoVIPID, DichVuPhongChoVIP dichVuPhongChoVIP, Ve ve,
-			TrangThaiPDPVIP trangThai) {
-		super();
-		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
-		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
-		this.ve = ve;
-		this.trangThai = trangThai;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dichVuPhongChoVIPID", nullable = false)
+    private DichVuPhongChoVIP dichVuPhongChoVIP;
 
-	public PhieuDungPhongVIP() {
-		super();
-	}
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veID", nullable = false, unique = true)
+    private Ve ve;
 
-	public PhieuDungPhongVIP(String phieuDungPhongVIPID) {
-		super();
-		this.phieuDungPhongChoVIPID = phieuDungPhongVIPID;
-	}
-
-	public TrangThaiPDPVIP getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTrangThai(TrangThaiPDPVIP trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	public Ve getVe() {
-		return ve;
-	}
-
-	public void setVe(Ve ve) {
-		this.ve = ve;
-	}
-
-	public String getPhieuDungPhongChoVIPID() {
-		return phieuDungPhongChoVIPID;
-	}
-
-	public DichVuPhongChoVIP getDichVuPhongChoVIP() {
-		return dichVuPhongChoVIP;
-	}
-
-	public void setPhieuDungPhongChoVIPID(String phieuDungPhongChoVIPID) {
-		if (phieuDungPhongChoVIPID == null || phieuDungPhongChoVIPID.isEmpty()) {
-			throw new IllegalArgumentException("PhieuDungPhongChoVIPID không được để trống!");
-		}
-		this.phieuDungPhongChoVIPID = phieuDungPhongChoVIPID;
-	}
-
-	public void setDichVuPhongChoVIP(DichVuPhongChoVIP dichVuPhongChoVIP) {
-		this.dichVuPhongChoVIP = dichVuPhongChoVIP;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		PhieuDungPhongVIP that = (PhieuDungPhongVIP) o;
-		return Objects.equals(getPhieuDungPhongChoVIPID(), that.getPhieuDungPhongChoVIPID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getPhieuDungPhongChoVIPID());
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", nullable = false, length = 100)
+    private TrangThaiPDPVIP trangThai;
 }

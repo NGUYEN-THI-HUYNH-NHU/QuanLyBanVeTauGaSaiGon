@@ -11,172 +11,46 @@ package entity;
  * @date: Sep 17, 2025
  * @version: 1.0
  */
-import java.util.Objects;
 
-import entity.type.LoaiDoiTuong;
-import entity.type.LoaiKhachHang;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class KhachHang {
-	private String khachHangID;
-	private String hoTen;
-	private String soDienThoai;
-	private String email;
-	private String soGiayTo;
-	private String diaChi;
-	private LoaiDoiTuong loaiDoiTuong;
-	private LoaiKhachHang loaiKhachHang;
+import java.io.Serializable;
 
-	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email, String soGiayTo, String diaChi,
-			LoaiDoiTuong loaiDoiTuong, LoaiKhachHang loaiKhachHang) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soDienThoai = soDienThoai;
-		this.email = email;
-		this.soGiayTo = soGiayTo;
-		this.diaChi = diaChi;
-		this.loaiDoiTuong = loaiDoiTuong;
-		this.loaiKhachHang = loaiKhachHang;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "KhachHang")
+public class KhachHang implements Serializable {
+    @Id
+    @Column(name = "khachHangID", length = 50)
+    private String id;
 
-	public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email, String diaChi) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soDienThoai = soDienThoai;
-		this.email = email;
-		this.diaChi = diaChi;
-	}
+    @Column(name = "hoTen", nullable = false)
+    private String hoTen;
 
-	public KhachHang(String khachHangID, String hoTen, String soGiayTo, String soDienThoai, LoaiDoiTuong loaiDoiTuong,
-			LoaiKhachHang loaiKhachHang) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soGiayTo = soGiayTo;
-		this.loaiDoiTuong = loaiDoiTuong;
-		this.loaiKhachHang = loaiKhachHang;
-	}
+    @Column(name = "soDienThoai", length = 15)
+    private String soDienThoai;
 
-	public KhachHang(String khachHangID) {
-		super();
-		this.khachHangID = khachHangID;
-	}
+    @Column(name = "email", length = 100)
+    private String email;
 
-	public KhachHang() {
-		super();
-	}
+    @Column(name = "soGiayTo", length = 100)
+    private String soGiayTo;
 
-	public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.loaiDoiTuong = loaiDoiTuong;
-		this.soGiayTo = soGiayTo;
-	}
+    @Column(name = "diaChi")
+    private String diaChi;
 
-	public KhachHang(String khachHangID, String hoTen, String soGiayTo, String soDienThoai) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soGiayTo = soGiayTo;
-		this.soDienThoai = soDienThoai;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiDoiTuongID")
+    private LoaiDoiTuong loaiDoiTuong;
 
-	public KhachHang(String khachHangID, String hoTen, String soGiayTo) {
-		super();
-		this.khachHangID = khachHangID;
-		this.hoTen = hoTen;
-		this.soGiayTo = soGiayTo;
-	}
-
-	public String getKhachHangID() {
-		return khachHangID;
-	}
-
-	public String getHoTen() {
-		return hoTen;
-	}
-
-	public String getSoDienThoai() {
-		return soDienThoai;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public String getDiaChi() {
-		return diaChi;
-	}
-
-	public void setKhachHangID(String khachHangID) {
-		if (khachHangID == null || khachHangID.isEmpty()) {
-			throw new IllegalArgumentException("KhachHangID không được để trống!");
-		}
-		this.khachHangID = khachHangID;
-	}
-
-	public void setHoTen(String hoTen) {
-		this.hoTen = hoTen;
-	}
-
-	public void setSoDienThoai(String soDienThoai) {
-		this.soDienThoai = soDienThoai;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public void setDiaChi(String diaChi) {
-		this.diaChi = diaChi;
-	}
-
-	public LoaiDoiTuong getLoaiDoiTuong() {
-		return loaiDoiTuong;
-	}
-
-	public LoaiKhachHang getLoaiKhachHang() {
-		return loaiKhachHang;
-	}
-
-	public String getSoGiayTo() {
-		return soGiayTo;
-	}
-
-	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
-		this.loaiDoiTuong = loaiDoiTuong;
-	}
-
-	public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
-		this.loaiKhachHang = loaiKhachHang;
-	}
-
-	public void setSoGiayTo(String soGiayTo) {
-		this.soGiayTo = soGiayTo;
-	}
-
-	@Override
-	public String toString() {
-		return loaiKhachHang + ";" + hoTen + ";" + soDienThoai + ";" + email + ";" + soGiayTo + ";" + diaChi + ";"
-				+ khachHangID + ";" + loaiDoiTuong;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		KhachHang khachHang = (KhachHang) o;
-		return Objects.equals(getKhachHangID(), khachHang.getKhachHangID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getKhachHangID());
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiKhachHangID", nullable = false)
+    private LoaiKhachHang loaiKhachHang;
 }

@@ -11,215 +11,211 @@ package gui.application.form.doiVe;
  * @date: Nov 20, 2025
  * @version: 1.0
  */
+
+import entity.*;
+import gui.application.AuthService;
+import gui.application.form.banVe.SearchCriteria;
+import gui.application.form.banVe.VeSession;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import entity.Chuyen;
-import entity.DonDatCho;
-import entity.GiaoDichThanhToan;
-import entity.HoaDon;
-import entity.KhachHang;
-import entity.NhanVien;
-import entity.PhieuGiuCho;
-import gui.application.AuthService;
-import gui.application.form.banVe.SearchCriteria;
-import gui.application.form.banVe.VeSession;
-
 public class ExchangeSession {
-	private static ExchangeSession instance;
+    private static ExchangeSession instance;
 
-	// --- DỮ LIỆU VÉ CŨ (Input từ Giai đoạn 1) ---
-	private List<VeDoiRow> listVeTimDuoc = new ArrayList<>();
-	private List<VeDoiRow> listVeCuCanDoi = new ArrayList<>();
+    // --- DỮ LIỆU VÉ CŨ (Input từ Giai đoạn 1) ---
+    private List<VeDoiRow> listVeTimDuoc = new ArrayList<>();
+    private List<VeDoiRow> listVeCuCanDoi = new ArrayList<>();
 
-	// --- DỮ LIỆU VÉ MỚI (Xử lý ở Giai đoạn 2) ---
-	private SearchCriteria criteriaTimKiem;
-	private List<Chuyen> listChuyenTauTimDuoc = new ArrayList<>();
-	private List<VeSession> listVeMoiDangChon = new ArrayList<>();
+    // --- DỮ LIỆU VÉ MỚI (Xử lý ở Giai đoạn 2) ---
+    private SearchCriteria criteriaTimKiem;
+    private List<Chuyen> listChuyenTauTimDuoc = new ArrayList<>();
+    private List<VeSession> listVeMoiDangChon = new ArrayList<>();
 
-	// --- DỮ LIỆU MAPPING (Xử lý ở Bước 6) ---
-	// Key: ID của VeDoiRow (hoặc Ve ID) -> Value: VeSession mới
-	private Map<String, VeSession> mapVeCuVoiVeMoi = new HashMap<>();
+    // --- DỮ LIỆU MAPPING (Xử lý ở Bước 6) ---
+    // Key: ID của VeDoiRow (hoặc Ve ID) -> Value: VeSession mới
+    private Map<String, VeSession> mapVeCuVoiVeMoi = new HashMap<>();
 
-	// --- DỮ LIỆU CHUNG ---
-	private KhachHang khachHang;
-	private NhanVien nhanVien;
-	private PhieuGiuCho phieuGiuCho;
-	private GiaoDichThanhToan giaoDichThanhToan;
-	private DonDatCho donDatChoCu;
-	private DonDatCho donDatChoMoi;
-	private HoaDon hoaDon;
+    // --- DỮ LIỆU CHUNG ---
+    private KhachHang khachHang;
+    private NhanVien nhanVien;
+    private PhieuGiuCho phieuGiuCho;
+    private GiaoDichThanhToan giaoDichThanhToan;
+    private DonDatCho donDatChoCu;
+    private DonDatCho donDatChoMoi;
+    private HoaDon hoaDon;
 
-	private ExchangeSession() {
-		this.nhanVien = AuthService.getInstance().getCurrentUser();
-	}
+    private ExchangeSession() {
+        this.nhanVien = AuthService.getInstance().getCurrentUser();
+    }
 
-	public static synchronized ExchangeSession getInstance() {
-		if (instance == null) {
-			instance = new ExchangeSession();
-		}
-		return instance;
-	}
+    public static synchronized ExchangeSession getInstance() {
+        if (instance == null) {
+            instance = new ExchangeSession();
+        }
+        return instance;
+    }
 
-	public static void setInstance(ExchangeSession instance) {
-		ExchangeSession.instance = instance;
-	}
+    public static void setInstance(ExchangeSession instance) {
+        ExchangeSession.instance = instance;
+    }
 
-	// --- Getters & Setters ---
-	public List<VeDoiRow> getListVeTimDuoc() {
-		return listVeTimDuoc;
-	}
+    // --- Getters & Setters ---
+    public List<VeDoiRow> getListVeTimDuoc() {
+        return listVeTimDuoc;
+    }
 
-	public void setListVeTimDuoc(List<VeDoiRow> listVeTimDuoc) {
-		this.listVeTimDuoc = listVeTimDuoc;
-	}
+    public void setListVeTimDuoc(List<VeDoiRow> listVeTimDuoc) {
+        this.listVeTimDuoc = listVeTimDuoc;
+    }
 
-	public List<VeDoiRow> getListVeCuCanDoi() {
-		return listVeCuCanDoi;
-	}
+    public List<VeDoiRow> getListVeCuCanDoi() {
+        return listVeCuCanDoi;
+    }
 
-	public void setListVeCuCanDoi(List<VeDoiRow> listVeCuCanDoi) {
-		this.listVeCuCanDoi = listVeCuCanDoi;
-	}
+    public void setListVeCuCanDoi(List<VeDoiRow> listVeCuCanDoi) {
+        this.listVeCuCanDoi = listVeCuCanDoi;
+    }
 
-	public SearchCriteria getCriteriaTimKiem() {
-		return criteriaTimKiem;
-	}
+    public SearchCriteria getCriteriaTimKiem() {
+        return criteriaTimKiem;
+    }
 
-	public void setCriteriaTimKiem(SearchCriteria criteriaTimKiem) {
-		this.criteriaTimKiem = criteriaTimKiem;
-	}
+    public void setCriteriaTimKiem(SearchCriteria criteriaTimKiem) {
+        this.criteriaTimKiem = criteriaTimKiem;
+    }
 
-	public List<Chuyen> getListChuyenTauTimDuoc() {
-		return listChuyenTauTimDuoc;
-	}
+    public List<Chuyen> getListChuyenTauTimDuoc() {
+        return listChuyenTauTimDuoc;
+    }
 
-	public void setListChuyenTauTimDuoc(List<Chuyen> listChuyenTauTimDuoc) {
-		this.listChuyenTauTimDuoc = listChuyenTauTimDuoc;
-	}
+    public void setListChuyenTauTimDuoc(List<Chuyen> listChuyenTauTimDuoc) {
+        this.listChuyenTauTimDuoc = listChuyenTauTimDuoc;
+    }
 
-	public List<VeSession> getListVeMoiDangChon() {
-		return listVeMoiDangChon;
-	}
+    public List<VeSession> getListVeMoiDangChon() {
+        return listVeMoiDangChon;
+    }
 
-	public void addVeMoi(VeSession ve) {
-		if (ve != null && !listVeMoiDangChon.contains(ve)) {
-			listVeMoiDangChon.add(ve);
-		}
-	}
+    public void setListVeMoiDangChon(List<VeSession> listVeMoiDangChon) {
+        this.listVeMoiDangChon = listVeMoiDangChon;
+    }
 
-	public boolean removeVeMoi(VeSession ve) {
-		return listVeMoiDangChon.remove(ve);
-	}
+    public void addVeMoi(VeSession ve) {
+        if (ve != null && !listVeMoiDangChon.contains(ve)) {
+            listVeMoiDangChon.add(ve);
+        }
+    }
 
-	public void clearAll() {
-		listVeCuCanDoi.clear();
-		criteriaTimKiem = null;
-		listChuyenTauTimDuoc.clear();
-		listVeMoiDangChon.clear();
-		mapVeCuVoiVeMoi.clear();
-	}
+    public boolean removeVeMoi(VeSession ve) {
+        return listVeMoiDangChon.remove(ve);
+    }
 
-	// --- Helpers Logic ---
-	/**
-	 * Lấy Ga Đi mặc định từ danh sách vé cũ (để điền vào form tìm kiếm)
-	 */
-	public String getGaDiMacDinh() {
-		if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
-			return "";
-		}
-		// Logic: Lấy ga đi của vé đầu tiên trong danh sách đổi
-		return listVeCuCanDoi.get(0).getVe().getGaDi().getTenGa();
-	}
+    // --- Helpers Logic ---
 
-	public String getGaDenMacDinh() {
-		if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
-			return "";
-		}
-		return listVeCuCanDoi.get(0).getVe().getGaDen().getTenGa();
-	}
+    public void clearAll() {
+        listVeCuCanDoi.clear();
+        criteriaTimKiem = null;
+        listChuyenTauTimDuoc.clear();
+        listVeMoiDangChon.clear();
+        mapVeCuVoiVeMoi.clear();
+    }
 
-	public String getGaDiIdMacDinh() {
-		if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
-			return null;
-		}
-		return listVeCuCanDoi.get(0).getVe().getGaDi().getGaID();
-	}
+    /**
+     * Lấy Ga Đi mặc định từ danh sách vé cũ (để điền vào form tìm kiếm)
+     */
+    public String getGaDiMacDinh() {
+        if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
+            return "";
+        }
+        // Logic: Lấy ga đi của vé đầu tiên trong danh sách đổi
+        return listVeCuCanDoi.get(0).getVe().getGaDi().getTenGa();
+    }
 
-	public String getGaDenIdMacDinh() {
-		if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
-			return null;
-		}
-		return listVeCuCanDoi.get(0).getVe().getGaDen().getGaID();
-	}
+    public String getGaDenMacDinh() {
+        if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
+            return "";
+        }
+        return listVeCuCanDoi.get(0).getVe().getGaDen().getTenGa();
+    }
 
-	public PhieuGiuCho getPhieuGiuCho() {
-		return phieuGiuCho;
-	}
+    public String getGaDiIdMacDinh() {
+        if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
+            return null;
+        }
+        return listVeCuCanDoi.get(0).getVe().getGaDi().getGaID();
+    }
 
-	public void setPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
-		this.phieuGiuCho = phieuGiuCho;
-	}
+    public String getGaDenIdMacDinh() {
+        if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
+            return null;
+        }
+        return listVeCuCanDoi.get(0).getVe().getGaDen().getGaID();
+    }
 
-	public Map<String, VeSession> getMapVeCuVoiVeMoi() {
-		return mapVeCuVoiVeMoi;
-	}
+    public PhieuGiuCho getPhieuGiuCho() {
+        return phieuGiuCho;
+    }
 
-	public KhachHang getKhachHang() {
-		return khachHang;
-	}
+    public void setPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
+        this.phieuGiuCho = phieuGiuCho;
+    }
 
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
+    public Map<String, VeSession> getMapVeCuVoiVeMoi() {
+        return mapVeCuVoiVeMoi;
+    }
 
-	public void setListVeMoiDangChon(List<VeSession> listVeMoiDangChon) {
-		this.listVeMoiDangChon = listVeMoiDangChon;
-	}
+    public void setMapVeCuVoiVeMoi(Map<String, VeSession> mapVeCuVoiVeMoi) {
+        this.mapVeCuVoiVeMoi = mapVeCuVoiVeMoi;
+    }
 
-	public void setMapVeCuVoiVeMoi(Map<String, VeSession> mapVeCuVoiVeMoi) {
-		this.mapVeCuVoiVeMoi = mapVeCuVoiVeMoi;
-	}
+    public KhachHang getKhachHang() {
+        return khachHang;
+    }
 
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
-	}
+    public void setKhachHang(KhachHang khachHang) {
+        this.khachHang = khachHang;
+    }
 
-	public void setNhanVien(NhanVien nhanVien) {
-		this.nhanVien = nhanVien;
-	}
+    public NhanVien getNhanVien() {
+        return nhanVien;
+    }
 
-	public GiaoDichThanhToan getGiaoDichThanhToan() {
-		return giaoDichThanhToan;
-	}
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
+    }
 
-	public DonDatCho getDonDatChoCu() {
-		return donDatChoCu;
-	}
+    public GiaoDichThanhToan getGiaoDichThanhToan() {
+        return giaoDichThanhToan;
+    }
 
-	public DonDatCho getDonDatChoMoi() {
-		return donDatChoMoi;
-	}
+    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+        this.giaoDichThanhToan = giaoDichThanhToan;
+    }
 
-	public HoaDon getHoaDon() {
-		return hoaDon;
-	}
+    public DonDatCho getDonDatChoCu() {
+        return donDatChoCu;
+    }
 
-	public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
-		this.giaoDichThanhToan = giaoDichThanhToan;
-	}
+    public void setDonDatChoCu(DonDatCho donDatChoCu) {
+        this.donDatChoCu = donDatChoCu;
+    }
 
-	public void setDonDatChoCu(DonDatCho donDatChoCu) {
-		this.donDatChoCu = donDatChoCu;
-	}
+    public DonDatCho getDonDatChoMoi() {
+        return donDatChoMoi;
+    }
 
-	public void setDonDatChoMoi(DonDatCho donDatChoMoi) {
-		this.donDatChoMoi = donDatChoMoi;
-	}
+    public void setDonDatChoMoi(DonDatCho donDatChoMoi) {
+        this.donDatChoMoi = donDatChoMoi;
+    }
 
-	public void setHoaDon(HoaDon hoaDon) {
-		this.hoaDon = hoaDon;
-	}
+    public HoaDon getHoaDon() {
+        return hoaDon;
+    }
+
+    public void setHoaDon(HoaDon hoaDon) {
+        this.hoaDon = hoaDon;
+    }
 }

@@ -12,198 +12,55 @@ package entity;
  * @version: 1.0
  */
 
-import java.util.Objects;
-
 import entity.type.LoaiDichVu;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class HoaDonChiTiet {
-	private String hoaDonChiTietID;
-	private HoaDon hoaDon;
-	private Ve ve;
-	private PhieuDungPhongVIP phieuDungPhongVIP;
-	private String tenDichVu;
-	private LoaiDichVu loaiDichVu;
-	private String donViTinh;
-	private int soLuong;
-	private double donGia;
-	private double thanhTien;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, PhieuDungPhongVIP phieuDungPhongVIP,
-			String tenDichVu, LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
-		super();
-		this.hoaDonChiTietID = hoaDonChiTietID;
-		this.hoaDon = hoaDon;
-		this.ve = ve;
-		this.phieuDungPhongVIP = phieuDungPhongVIP;
-		this.tenDichVu = tenDichVu;
-		this.loaiDichVu = loaiDichVu;
-		this.donViTinh = donViTinh;
-		this.soLuong = soLuong;
-		this.donGia = donGia;
-		this.thanhTien = thanhTien;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "HoaDonChiTiet")
+public class HoaDonChiTiet implements Serializable {
+    @Id
+    @Column(name = "hoaDonChiTietID", length = 50)
+    private String id;
 
-	/*
-	 * HoaDonChiTiet vé
-	 */
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
-			String donViTinh, int soLuong, double donGia, double thanhTien) {
-		super();
-		this.hoaDonChiTietID = hoaDonChiTietID;
-		this.hoaDon = hoaDon;
-		this.ve = ve;
-		this.tenDichVu = tenDichVu;
-		this.loaiDichVu = loaiDichVu;
-		this.donViTinh = donViTinh;
-		this.soLuong = soLuong;
-		this.donGia = donGia;
-		this.thanhTien = thanhTien;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hoaDonID", nullable = false)
+    private HoaDon hoaDon;
 
-	/*
-	 * HoaDonChiTiet Phiếu dùng phòng chờ VIP
-	 */
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
-			LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
-		super();
-		this.hoaDonChiTietID = hoaDonChiTietID;
-		this.hoaDon = hoaDon;
-		this.phieuDungPhongVIP = phieuDungPhongVIP;
-		this.tenDichVu = tenDichVu;
-		this.loaiDichVu = loaiDichVu;
-		this.donViTinh = donViTinh;
-		this.soLuong = soLuong;
-		this.donGia = donGia;
-		this.thanhTien = thanhTien;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veID")
+    private Ve ve;
 
-	public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
-			int soLuong, double donGia, double thanhTien) {
-		super();
-		this.hoaDonChiTietID = hoaDonChiTietID;
-		this.hoaDon = hoaDon;
-		this.ve = ve;
-		this.tenDichVu = tenDichVu;
-		this.loaiDichVu = loaiDichVu;
-		this.soLuong = soLuong;
-		this.donGia = donGia;
-		this.thanhTien = thanhTien;
-	}
+    // Giữ ID dưới dạng String nếu bạn chưa ánh xạ bảng PhieuDungPhongVIP
+    @Column(name = "phieuDungPhongVIPID", length = 50)
+    private String phieuDungPhongVIPID;
 
-	public HoaDonChiTiet() {
-		super();
-	}
+    @Column(name = "tenDichVu", nullable = false, length = 100)
+    private String tenDichVu;
 
-	public PhieuDungPhongVIP getPhieuDungPhongVIP() {
-		return phieuDungPhongVIP;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "loaiDichVu", nullable = false, length = 30)
+    private LoaiDichVu loaiDichVu;
 
-	public LoaiDichVu getLoaiDichVu() {
-		return loaiDichVu;
-	}
+    @Column(name = "donViTinh", length = 20)
+    private String donViTinh;
 
-	public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
-		this.phieuDungPhongVIP = phieuDungPhongVIP;
-	}
+    @Column(name = "soLuong", nullable = false)
+    private int soLuong;
 
-	public void setLoaiDichVu(LoaiDichVu loaiDichVu) {
-		this.loaiDichVu = loaiDichVu;
-	}
+    @Column(name = "donGia", nullable = false, precision = 12, scale = 2)
+    private BigDecimal donGia;
 
-	public String getHoaDonChiTietID() {
-		return hoaDonChiTietID;
-	}
-
-	public HoaDon getHoaDon() {
-		return hoaDon;
-	}
-
-	public Ve getVe() {
-		return ve;
-	}
-
-	public String getTenDichVu() {
-		return tenDichVu;
-	}
-
-	public String getDonViTinh() {
-		return donViTinh;
-	}
-
-	public int getSoLuong() {
-		return soLuong;
-	}
-
-	public double getDonGia() {
-		return donGia;
-	}
-
-	public double getThanhTien() {
-		return thanhTien;
-	}
-
-	public void setHoaDonChiTietID(String hoaDonChiTietID) {
-		if (hoaDonChiTietID != null && !hoaDonChiTietID.isEmpty()) {
-			this.hoaDonChiTietID = hoaDonChiTietID;
-		} else {
-			throw new IllegalArgumentException("HoaDonChiTietID không được để trống!");
-		}
-	}
-
-	public void setHoaDon(HoaDon hoaDon) {
-		if (hoaDon == null) {
-			throw new IllegalArgumentException("HoaDon không được để trống!");
-		}
-		this.hoaDon = hoaDon;
-	}
-
-	public void setVe(Ve ve) {
-		this.ve = ve;
-	}
-
-	public void setTenDichVu(String tenDichVu) {
-		if (tenDichVu == null || tenDichVu.isEmpty()) {
-			throw new IllegalArgumentException("TenDichVu không được để trống!");
-		}
-		this.tenDichVu = tenDichVu;
-	}
-
-	public void setDonViTinh(String donViTinh) {
-		this.donViTinh = donViTinh;
-	}
-
-	public void setSoLuong(int soLuong) {
-		this.soLuong = soLuong;
-	}
-
-	public void setDonGia(double donGia) {
-		this.donGia = donGia;
-	}
-
-	public void setThanhTien(double thanhTien) {
-		this.thanhTien = thanhTien;
-	}
-
-	@Override
-	public String toString() {
-		return hoaDonChiTietID + ";" + hoaDon + ";" + ve + ";" + tenDichVu + ";" + donViTinh + ";" + soLuong + ";"
-				+ donGia + ";" + thanhTien;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		HoaDonChiTiet that = (HoaDonChiTiet) o;
-		return Objects.equals(hoaDonChiTietID, that.hoaDonChiTietID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(hoaDonChiTietID);
-	}
+    @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
+    private BigDecimal thanhTien;
 }

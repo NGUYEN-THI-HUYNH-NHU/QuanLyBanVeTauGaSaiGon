@@ -5,114 +5,34 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 18, 2025
- * @version: 1.0
- */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "DonDatCho")
+public class DonDatCho implements Serializable {
+    @Id
+    @Column(name = "donDatChoID", length = 50)
+    private String id;
 
-public class DonDatCho {
-	private String donDatChoID;
-	private NhanVien nhanVien;
-	private KhachHang khachHang;
-	private LocalDateTime thoiDiemDatCho;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nhanVienID", nullable = false)
+    private NhanVien nhanVien;
 
-	public DonDatCho(String donDatChoID, NhanVien nhanVien, KhachHang khachHang, LocalDateTime thoiDiemDatCho) {
-		this.donDatChoID = donDatChoID;
-		this.nhanVien = nhanVien;
-		this.khachHang = khachHang;
-		this.thoiDiemDatCho = thoiDiemDatCho;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khachHangID", nullable = false)
+    private KhachHang khachHang;
 
-	public DonDatCho(String donDatChoID) {
-		super();
-		this.donDatChoID = donDatChoID;
-	}
-
-	public DonDatCho() {
-		super();
-	}
-
-	public String getDonDatChoID() {
-		return donDatChoID;
-	}
-
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
-
-	public KhachHang getKhachHang() {
-		return khachHang;
-	}
-
-	public LocalDateTime getThoiDiemDatCho() {
-		return thoiDiemDatCho;
-	}
-
-	public void setDonDatChoID(String donDatChoID) {
-		if (donDatChoID != null && !donDatChoID.trim().isEmpty()) {
-			this.donDatChoID = donDatChoID;
-		} else {
-			throw new IllegalArgumentException("Đơn đặt chỗ ID không được để trống!");
-		}
-	}
-
-	public void setNhanVien(NhanVien nhanVien) {
-		this.nhanVien = nhanVien;
-	}
-
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
-	}
-
-	public void setThoiDiemDatCho(LocalDateTime thoiDiemDatCho) {
-		this.thoiDiemDatCho = thoiDiemDatCho;
-	}
-
-	@Override
-	public String toString() {
-		return donDatChoID + ";" + nhanVien + ";" + khachHang + ";" + thoiDiemDatCho;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DonDatCho donDatCho = (DonDatCho) o;
-		return Objects.equals(donDatChoID, donDatCho.donDatChoID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(donDatChoID);
-	}
-
-	public int getTongSoVe() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSoVeDaHoan() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getSoVeDaDoi() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Column(name = "thoiDiemDatCho", nullable = false)
+    private LocalDateTime thoiDiemDatCho;
 }

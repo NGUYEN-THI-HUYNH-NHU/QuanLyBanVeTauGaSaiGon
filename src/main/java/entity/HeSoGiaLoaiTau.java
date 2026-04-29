@@ -5,11 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDate;
-import java.util.Objects;
-
-import entity.type.LoaiTau;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -17,71 +12,33 @@ import entity.type.LoaiTau;
  * @version: 1.0
  */
 
-public class HeSoGiaLoaiTau {
-	private String hsgLoaiTauID;
-	private LoaiTau loaiTau;
-	private double hsg;
-	private boolean isCoHieuLuc;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-	public HeSoGiaLoaiTau(String hsgLoaiTauID, LoaiTau loaiTau, double hsg, boolean isCoHieuLuc) {
-		this.hsgLoaiTauID = hsgLoaiTauID;
-		this.loaiTau = loaiTau;
-		this.hsg = hsg;
-		this.isCoHieuLuc = isCoHieuLuc;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "HeSoGiaLoaiTau")
+public class HeSoGiaLoaiTau implements Serializable {
+    @Id
+    @Column(name = "hsgloaiTauID", length = 50)
+    private String id;
 
-	public String getHsgLoaiTauID() {
-		return hsgLoaiTauID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiTauID", nullable = false)
+    private LoaiTau loaiTau;
 
-	public LoaiTau getLoaiTau() {
-		return loaiTau;
-	}
+    @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
+    private BigDecimal hsg;
 
-	public double getHsg() {
-		return hsg;
-	}
-
-	public boolean isCoHieuLuc() {
-		return isCoHieuLuc;
-	}
-
-	public void setHsgLoaiTauID(String hsgLoaiTauID) {
-		if(hsgLoaiTauID == null || hsgLoaiTauID.isEmpty()) {
-			throw new IllegalArgumentException("HsgLoaiTauID không được để trống!");
-		}
-		this.hsgLoaiTauID = hsgLoaiTauID;
-	}
-
-	public void setLoaiTau(LoaiTau loaiTau) {
-		this.loaiTau = loaiTau;
-	}
-
-	public void setHsg(double hsg) {
-		this.hsg = hsg;
-	}
-
-	public void setCoHieuLuc(boolean coHieuLuc) {
-		isCoHieuLuc = coHieuLuc;
-	}
-
-	@Override
-	public String toString() {
-		return hsgLoaiTauID + ";" + loaiTau + ";" + hsg
-				+ ";" + isCoHieuLuc ;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		HeSoGiaLoaiTau that = (HeSoGiaLoaiTau) o;
-		return Objects.equals(hsgLoaiTauID, that.hsgLoaiTauID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(hsgLoaiTauID);
-	}
+    @Column(name = "isCoHieuLuc")
+    private Boolean isCoHieuLuc;
 }

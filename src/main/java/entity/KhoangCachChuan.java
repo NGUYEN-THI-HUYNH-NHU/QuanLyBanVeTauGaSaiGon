@@ -10,58 +10,42 @@ package entity;
  * @created : 28/10/2025
  */
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class KhoangCachChuan {
-    private String gaID_Dau;
-    private String gaID_Cuoi;
+import java.io.Serializable;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@Entity
+@IdClass(KhoangCachChuan.KhoangCachChuanID.class)
+@Table(name = "KhoangCachChuan")
+public class KhoangCachChuan implements Serializable {
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gaID_Dau", nullable = false)
+    private Ga gaDau;
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gaID_Cuoi", nullable = false)
+    private Ga gaCuoi;
+
+    @Column(name = "khoangCachKm", nullable = false)
     private int khoangCachKm;
 
-    public KhoangCachChuan(String gaID_Dau, String gaID_Cuoi, int khoangCachKm) {
-        this.gaID_Dau = gaID_Dau;
-        this.gaID_Cuoi = gaID_Cuoi;
-        this.khoangCachKm = khoangCachKm;
-    }
-
-    public String getGaID_Dau() {
-        return gaID_Dau;
-    }
-
-    public void setGaID_Dau(String gaID_Dau) {
-        this.gaID_Dau = gaID_Dau;
-    }
-
-    public String getGaID_Cuoi() {
-        return gaID_Cuoi;
-    }
-
-    public void setGaID_Cuoi(String gaID_Cuoi) {
-        this.gaID_Cuoi = gaID_Cuoi;
-    }
-
-    public int getKhoangCachKm() {
-        return khoangCachKm;
-    }
-
-    public void setKhoangCachKm(int khoangCachKm) {
-        this.khoangCachKm = khoangCachKm;
-    }
-
-    @Override
-    public String toString() {
-        return gaID_Dau + ";" + gaID_Cuoi + ";" + khoangCachKm;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        KhoangCachChuan that = (KhoangCachChuan) o;
-        return Objects.equals(getGaID_Dau(), that.getGaID_Dau()) && Objects.equals(getGaID_Cuoi(), that.getGaID_Cuoi());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getGaID_Dau(), getGaID_Cuoi());
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    public static class KhoangCachChuanID implements Serializable {
+        private String gaDau;
+        private String gaCuoi;
     }
 }

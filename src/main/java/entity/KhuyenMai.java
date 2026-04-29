@@ -5,167 +5,54 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Objects;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Sep 18, 2025
- * @version: 1.0
- */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "KhuyenMai")
+public class KhuyenMai implements Serializable {
+    @Id
+    @Column(name = "khuyenMaiID", length = 50)
+    private String id;
 
-public class KhuyenMai {
-	private String khuyenMaiID;
-	private String maKhuyenMai;
-	private String moTa;
-	private double tyLeGiamGia;
-	private double tienGiamGia;
-	private LocalDate ngayBatDau;
-	private LocalDate ngayKetThuc;
-	private double soLuong;
-	private int gioiHanMoiKhachHang;
-	private boolean trangThai;
+    @Column(name = "maKhuyenMai", length = 50, nullable = false, unique = true)
+    private String maKhuyenMai;
 
-	public KhuyenMai(String khuyenMaiID, String maKhuyenMai, String moTa, double tyLeGiamGia, double tienGiamGia,
-			LocalDate ngayBatDau, LocalDate ngayKetThuc, double soLuong, int gioiHanMoiKhachHang, boolean trangThai) {
-		super();
-		this.khuyenMaiID = khuyenMaiID;
-		this.maKhuyenMai = maKhuyenMai;
-		this.moTa = moTa;
-		this.tyLeGiamGia = tyLeGiamGia;
-		this.tienGiamGia = tienGiamGia;
-		this.ngayBatDau = ngayBatDau;
-		this.ngayKetThuc = ngayKetThuc;
-		this.soLuong = soLuong;
-		this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
-		this.trangThai = trangThai;
-	}
+    @Column(name = "moTa", columnDefinition = "NVARCHAR(MAX)")
+    private String moTa;
 
-	public KhuyenMai() {
-		super();
-	}
+    @Column(name = "tyLeGiamGia", precision = 5, scale = 2)
+    private BigDecimal tyLeGiamGia;
 
-	public String getKhuyenMaiID() {
-		return khuyenMaiID;
-	}
+    @Column(name = "tienGiamGia", precision = 12, scale = 2)
+    private BigDecimal tienGiamGia;
 
-	public String getMaKhuyenMai() {
-		return maKhuyenMai;
-	}
+    @Column(name = "ngayBatDau", nullable = false)
+    private LocalDate ngayBatDau;
 
-	public String getMoTa() {
-		return moTa;
-	}
+    @Column(name = "ngayKetThuc", nullable = false)
+    private LocalDate ngayKetThuc;
 
-	public double getTyLeGiamGia() {
-		return tyLeGiamGia;
-	}
+    @Column(name = "soLuong", nullable = false)
+    private int soLuong;
 
-	public double getTienGiamGia() {
-		return tienGiamGia;
-	}
+    @Column(name = "gioiHanMoiKhachHang", nullable = false)
+    private int gioiHanMoiKhachHang;
 
-	public LocalDate getNgayBatDau() {
-		return ngayBatDau;
-	}
-
-	public LocalDate getNgayKetThuc() {
-		return ngayKetThuc;
-	}
-
-	public double getSoLuong() {
-		return soLuong;
-	}
-
-	public int getGioiHanMoiKhachHang() {
-		return gioiHanMoiKhachHang;
-	}
-
-	public boolean isTrangThai() {
-		return trangThai;
-	}
-
-	public void setKhuyenMaiID(String khuyenMaiID) {
-		if (khuyenMaiID == null || khuyenMaiID.isEmpty()) {
-			throw new IllegalArgumentException("KhuyenMaiID không được để trống!");
-		}
-		this.khuyenMaiID = khuyenMaiID;
-	}
-
-	public void setMaKhuyenMai(String maKhuyenMai) {
-		if (maKhuyenMai == null || maKhuyenMai.isEmpty()) {
-			throw new IllegalArgumentException("Mã khuyến mãi không được để trống!");
-		}
-		this.maKhuyenMai = maKhuyenMai;
-	}
-
-	public void setMoTa(String moTa) {
-		this.moTa = moTa;
-	}
-
-	public void setTyLeGiamGia(double tyLeGiamGia) {
-		this.tyLeGiamGia = tyLeGiamGia;
-	}
-
-	public void setTienGiamGia(double tienGiamGia) {
-		this.tienGiamGia = tienGiamGia;
-	}
-
-	public void setNgayBatDau(LocalDate ngayBatDau) {
-		this.ngayBatDau = ngayBatDau;
-
-		if (this.ngayBatDau == null || this.ngayKetThuc == null) return;
-
-		if (this.ngayBatDau.isAfter(this.ngayKetThuc)) {
-			throw new IllegalArgumentException("Ngày bắt đầu không được sau ngày kết thúc!");
-		}
-	}
-
-
-	public void setNgayKetThuc(LocalDate ngayKetThuc) {
-		this.ngayKetThuc = ngayKetThuc;
-
-		if (this.ngayBatDau == null || this.ngayKetThuc == null) return;
-
-		if (this.ngayKetThuc.isBefore(this.ngayBatDau)) {
-			throw new IllegalArgumentException("Ngày kết thúc không được trước ngày bắt đầu!");
-		}
-	}
-
-
-	public void setSoLuong(double soLuong) {
-		this.soLuong = soLuong;
-	}
-
-	public void setGioiHanMoiKhachHang(int gioiHanMoiKhachHang) {
-		this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
-	}
-
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	@Override
-	public String toString() {
-		return khuyenMaiID + ";" + maKhuyenMai + ";" + moTa + ";" + tyLeGiamGia + ";" + tienGiamGia + ";" + ngayBatDau
-				+ ";" + ngayKetThuc + ";" + soLuong + ";" + gioiHanMoiKhachHang + ";" + trangThai;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		KhuyenMai khuyenMai = (KhuyenMai) o;
-		return Objects.equals(getKhuyenMaiID(), khuyenMai.getKhuyenMaiID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getKhuyenMaiID());
-	}
+    @Column(name = "trangThai", nullable = false)
+    private boolean trangThai;
 }

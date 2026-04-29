@@ -1,11 +1,5 @@
 package entity;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-
-import entity.type.TrangThaiVe;
-
 /*
  * @(#) Ve.java  1.0  [11:27:32 AM] Sep 18, 2025
  *
@@ -19,213 +13,97 @@ import entity.type.TrangThaiVe;
  * @version: 1.0
  */
 
-public class Ve {
-	private String veID;
-	private KhachHang khachHang;
-	private DonDatCho donDatCho;
-	private Chuyen chuyen;
-	private Ghe ghe;
-	private Ga gaDi;
-	private Ga gaDen;
-	private LocalDateTime ngayGioDi;
-	private double gia;
-	private TrangThaiVe trangThai;
-	// thuộc tính dẫn xuất
-	private boolean isVeDoi;
+import entity.type.TrangThaiVe;
+import jakarta.persistence.*;
+import lombok.*;
 
-	public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
-			LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
-		super();
-		this.veID = veID;
-		this.khachHang = khachHang;
-		this.donDatCho = donDatCho;
-		this.chuyen = chuyen;
-		this.ghe = ghe;
-		this.gaDi = gaDi;
-		this.gaDen = gaDen;
-		this.ngayGioDi = ngayGioDi;
-		this.gia = gia;
-		this.trangThai = trangThai;
-	}
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-	public Ve(String veID) {
-		super();
-		this.veID = veID;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = {"chuyen", "gaDi", "gaDen", "ghe"})
+@EqualsAndHashCode(exclude = {"chuyen", "gaDi", "gaDen", "ghe"})
+@Entity
+@Table(name = "Ve")
+public class Ve implements Serializable {
+    @Id
+    @Column(name = "veID", length = 50)
+    private String id;
 
-	public Ve() {
-		super();
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khachHangID", nullable = false)
+    private KhachHang khachHang;
 
-	public String getVeID() {
-		return veID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "donDatChoID", nullable = false)
+    private DonDatCho donDatCho;
 
-	public void setVeID(String veID) {
-		if (veID != null && !veID.trim().isEmpty()) {
-			this.veID = veID;
-		} else {
-			throw new IllegalArgumentException("VeID không được rỗng!");
-		}
-	}
+    // Ánh xạ tách biệt để tránh lỗi lặp cột chuyenID của JPA
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chuyenID", nullable = false)
+    private Chuyen chuyen;
 
-	public KhachHang getKhachHang() {
-		return khachHang;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gaDiID", nullable = false)
+    private Ga gaDi;
 
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gaDenID", nullable = false)
+    private Ga gaDen;
 
-	public DonDatCho getDonDatCho() {
-		return donDatCho;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gheID", nullable = false)
+    private Ghe ghe;
 
-	public void setDonDatCho(DonDatCho donDatCho) {
-		if (donDatCho != null) {
-			this.donDatCho = donDatCho;
-		} else {
-			throw new IllegalArgumentException("Đơn đặt chỗ không được rỗng!");
-		}
-	}
+    @Column(name = "ngayGioDi", nullable = false)
+    private LocalDateTime ngayGioDi;
 
-	public Chuyen getChuyen() {
-		return chuyen;
-	}
+    @Column(name = "gia", nullable = false, precision = 12, scale = 2)
+    private BigDecimal gia;
 
-	public void setChuyen(Chuyen chuyen) {
-		if (chuyen != null) {
-			this.chuyen = chuyen;
-		} else {
-			throw new IllegalArgumentException("Chuyến không được rỗng!");
-		}
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", length = 50)
+    private TrangThaiVe trangThai;
 
-	public Ghe getGhe() {
-		return ghe;
-	}
+    /**
+     * @return
+     */
+    public String thongTinVeHoan() {
+        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
+                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+    }
 
-	public void setGhe(Ghe ghe) {
-		if (ghe != null) {
-			this.ghe = ghe;
-		} else {
-			throw new IllegalArgumentException("Ghế không được rỗng!");
-		}
-		this.ghe = ghe;
-	}
+    /**
+     * @return
+     */
+    public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
+        if (phieuDungPhongChoVIP == null) {
+            return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
+                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+        }
+        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
+                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
+                phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+    }
 
-	public Ga getGaDi() {
-		return gaDi;
-	}
+    /**
+     * @return
+     */
+    public String stringThongTinChuyen() {
+        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
+                gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
+    }
 
-	public void setGaDi(Ga gaDi) {
-		if (gaDi != null) {
-			this.gaDi = gaDi;
-		} else {
-			throw new IllegalArgumentException("Ga đi không được rỗng!");
-		}
-	}
-
-	public Ga getGaDen() {
-		return gaDen;
-	}
-
-	public void setGaDen(Ga gaDen) {
-		if (gaDen != null) {
-			this.gaDen = gaDen;
-		} else {
-			throw new IllegalArgumentException("Ga đến không được rỗng!");
-		}
-	}
-
-	public double getGia() {
-		return gia;
-	}
-
-	public void setGia(double gia) {
-		this.gia = gia;
-	}
-
-	public LocalDateTime getNgayGioDi() {
-		return ngayGioDi;
-	}
-
-	public void setNgayGioDi(LocalDateTime ngayGioDi) {
-		this.ngayGioDi = ngayGioDi;
-	}
-
-	public TrangThaiVe getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTrangThai(TrangThaiVe trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	public boolean isVeDoi() {
-		return isVeDoi;
-	}
-
-	public void setVeDoi(boolean isVeDoi) {
-		this.isVeDoi = isVeDoi;
-	}
-
-	@Override
-	public String toString() {
-		return veID + ";" + donDatCho + ";" + chuyen + ";" + ghe + ";" + khachHang + ";" + gia + ";" + ngayGioDi + ";"
-				+ trangThai;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		Ve ve = (Ve) o;
-		return Objects.equals(getVeID(), ve.getVeID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getVeID());
-	}
-
-	/**
-	 * @return
-	 */
-	public String thongTinVeHoan() {
-		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
-				ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
-	}
-
-	/**
-	 * @return
-	 */
-	public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
-		if (phieuDungPhongChoVIP == null) {
-			return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-					ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
-		}
-		return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-				ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
-				phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
-	}
-
-	/**
-	 * @return
-	 */
-	public String stringThongTinChuyen() {
-		return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
-				gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
-	}
-
-	/**
-	 * @return
-	 */
-	public String stringThongTinGhe() {
-		return String.format("<html>Toa: %s - Chỗ: %s</html>", ghe.getToa().getSoToa(), ghe.getSoGhe());
-	}
+    /**
+     * @return
+     */
+    public String stringThongTinGhe() {
+        return String.format("<html>Toa: %s - Chỗ: %s</html>", ghe.getToa().getSoToa(), ghe.getSoGhe());
+    }
 }

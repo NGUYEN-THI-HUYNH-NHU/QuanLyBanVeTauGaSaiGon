@@ -11,167 +11,58 @@ package entity;
  * @date: Sep 19, 2025
  * @version: 1.0
  */
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 import entity.type.LoaiGiaoDich;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class GiaoDichHoanDoi {
-	private String giaoDichHoanDoiID;
-	private NhanVien nhanVien;
-	private HoaDon hoaDon;
-	private Ve veGoc;
-	private Ve veMoi;
-	private LoaiGiaoDich loaiGiaoDich;
-	private String lyDo;
-	private LocalDateTime thoiDiemGiaoDich;
-	private double phiHoanDoi;
-	private double soTienChenhLech;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-	public GiaoDichHoanDoi(String giaoDichHoanDoiID, NhanVien nhanVien, HoaDon hoaDon, Ve veGoc,
-			LoaiGiaoDich loaiGiaoDich, String lyDo, LocalDateTime thoiDiemGiaoDich, double phiHoanDoi,
-			double soTienChenhLech) {
-		super();
-		this.giaoDichHoanDoiID = giaoDichHoanDoiID;
-		this.nhanVien = nhanVien;
-		this.hoaDon = hoaDon;
-		this.veGoc = veGoc;
-		this.loaiGiaoDich = loaiGiaoDich;
-		this.lyDo = lyDo;
-		this.thoiDiemGiaoDich = thoiDiemGiaoDich;
-		this.phiHoanDoi = phiHoanDoi;
-		this.soTienChenhLech = soTienChenhLech;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "GiaoDichHoanDoi")
+public class GiaoDichHoanDoi implements Serializable {
+    @Id
+    @Column(name = "giaoDichHoanDoiID", length = 50)
+    private String id;
 
-	public GiaoDichHoanDoi(String giaoDichHoanDoiID, NhanVien nhanVien, HoaDon hoaDon, Ve veGoc, Ve veMoi,
-			LoaiGiaoDich loaiGiaoDich, String lyDo, LocalDateTime thoiDiemGiaoDich, double phiHoanDoi,
-			double soTienChenhLech) {
-		super();
-		this.giaoDichHoanDoiID = giaoDichHoanDoiID;
-		this.nhanVien = nhanVien;
-		this.hoaDon = hoaDon;
-		this.veGoc = veGoc;
-		this.veMoi = veMoi;
-		this.loaiGiaoDich = loaiGiaoDich;
-		this.lyDo = lyDo;
-		this.thoiDiemGiaoDich = thoiDiemGiaoDich;
-		this.phiHoanDoi = phiHoanDoi;
-		this.soTienChenhLech = soTienChenhLech;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nhanVienID", nullable = false)
+    private NhanVien nhanVien;
 
-	public String getGiaoDichHoanDoiID() {
-		return giaoDichHoanDoiID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hoaDonID", nullable = false)
+    private HoaDon hoaDon;
 
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veGocID", nullable = false)
+    private Ve veGoc;
 
-	public HoaDon getHoaDon() {
-		return hoaDon;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veMoiID")
+    private Ve veMoi;
 
-	public Ve getVeGoc() {
-		return veGoc;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "loaiGiaoDich", nullable = false, length = 50)
+    private LoaiGiaoDich loaiGiaoDich;
 
-	public Ve getVeMoi() {
-		return veMoi;
-	}
+    @Column(name = "lyDo", length = 500)
+    private String lyDo;
 
-	public LoaiGiaoDich getLoaiGiaoDich() {
-		return loaiGiaoDich;
-	}
+    @Column(name = "thoiDiemGiaoDich", nullable = false)
+    private LocalDateTime thoiDiemGiaoDich;
 
-	public String getLyDo() {
-		return lyDo;
-	}
+    @Column(name = "phiHoanDoi", nullable = false, precision = 12, scale = 2)
+    private BigDecimal phiHoanDoi;
 
-	public LocalDateTime getThoiDiemGiaoDich() {
-		return thoiDiemGiaoDich;
-	}
-
-	public double getPhiHoanDoi() {
-		return phiHoanDoi;
-	}
-
-	public double getSoTienChenhLech() {
-		return soTienChenhLech;
-	}
-
-	public void setGiaoDichHoanDoiID(String giaoDichHoanDoiID) {
-		if (giaoDichHoanDoiID != null && !giaoDichHoanDoiID.trim().isEmpty()) {
-			this.giaoDichHoanDoiID = giaoDichHoanDoiID;
-		} else {
-			throw new IllegalArgumentException("Giao dịch hoàn đổi vé ID không được để trống!");
-		}
-	}
-
-	public void setHoaDon(HoaDon hoaDon) {
-		this.hoaDon = hoaDon;
-	}
-
-	public void setVeGoc(Ve veGoc) {
-		this.veGoc = veGoc;
-	}
-
-	public void setVeMoi(Ve veMoi) {
-		this.veMoi = veMoi;
-	}
-
-	public void setLoaiGiaoDich(LoaiGiaoDich loaiGiaoDich) {
-		this.loaiGiaoDich = loaiGiaoDich;
-	}
-
-	public void setLyDo(String lyDo) {
-		this.lyDo = lyDo;
-	}
-
-	public void setThoiDiemGiaoDich(LocalDateTime thoiDiemGiaoDich) {
-		if (thoiDiemGiaoDich == null || thoiDiemGiaoDich.isAfter(LocalDateTime.now())) {
-			throw new IllegalArgumentException(
-					"Ngày yêu cầu không được rỗng và phải là ngày trong quá khứ hoặc ngày hiện tại");
-		}
-		this.thoiDiemGiaoDich = thoiDiemGiaoDich;
-	}
-
-	public void setPhiHoanDoi(double phiHoanDoi) {
-		this.phiHoanDoi = phiHoanDoi;
-	}
-
-	public void setSoTienChenhLech(double soTienChenhLech) {
-		this.soTienChenhLech = soTienChenhLech;
-	}
-
-	public void setNhanVien(NhanVien nhanVien) {
-		if (nhanVien != null) {
-			this.nhanVien = nhanVien;
-		} else {
-			throw new IllegalArgumentException("Nhân viên không được rỗng");
-		}
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		GiaoDichHoanDoi that = (GiaoDichHoanDoi) o;
-		return Objects.equals(getGiaoDichHoanDoiID(), that.getGiaoDichHoanDoiID());
-	}
-
-	@Override
-	public String toString() {
-		return giaoDichHoanDoiID + ";" + nhanVien.getNhanVienID() + ";" + hoaDon.getHoaDonID() + veGoc.getVeID() + ";"
-				+ veMoi.getVeID() + ";" + loaiGiaoDich + ";" + lyDo + ";" + thoiDiemGiaoDich + ";" + phiHoanDoi + ";"
-				+ soTienChenhLech;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getGiaoDichHoanDoiID());
-	}
+    @Column(name = "soTienChenhLech", nullable = false, precision = 12, scale = 2)
+    private BigDecimal soTienChenhLech;
 }

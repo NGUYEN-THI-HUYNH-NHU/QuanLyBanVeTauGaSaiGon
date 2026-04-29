@@ -5,11 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDate;
-import java.util.Objects;
-
-import entity.type.HangToa;
-
 /*
  * @description
  * @author: NguyenThiHuynhNhu
@@ -17,76 +12,33 @@ import entity.type.HangToa;
  * @version: 1.0
  */
 
-public class HeSoGiaHangToa {
-	private String hsgHangToaID;
-	private HangToa hangToa;
-	private double hsg;
-	private boolean isCoHieuLuc;
+import jakarta.persistence.*;
+import lombok.*;
 
-	public HeSoGiaHangToa(String hsgHangToaID, HangToa hangToa, double hsg, boolean isCoHieuLuc) {
-		this.hsgHangToaID = hsgHangToaID;
-		this.hangToa = hangToa;
-		this.hsg = hsg;
-		this.isCoHieuLuc = isCoHieuLuc;
-	}
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-	public String getHsgHangToaID() {
-		return hsgHangToaID;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "HeSoGiaHangToa")
+public class HeSoGiaHangToa implements Serializable {
+    @Id
+    @Column(name = "hsgHangToaID", length = 50)
+    private String id;
 
-	public HangToa getHangToa() {
-		return hangToa;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hangToaID", nullable = false)
+    private HangToa hangToa;
 
-	public double getHsg() {
-		return hsg;
-	}
+    @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
+    private BigDecimal hsg;
 
-	public boolean isCoHieuLuc() {
-		return isCoHieuLuc;
-	}
-
-	public void setHsgHangToaID(String hsgHangToaID) {
-		if(hsgHangToaID == null || hsgHangToaID.isEmpty()) {
-			throw new IllegalArgumentException("HsgHangToaID không được để trống!");
-		}
-		this.hsgHangToaID = hsgHangToaID;
-	}
-
-	public void setHangToa(HangToa hangToa) {
-		if(hangToa == null) {
-			throw new IllegalArgumentException("Hạng toa không được để trống!");
-		}
-		this.hangToa = hangToa;
-	}
-
-	public void setHsg(double hsg) {
-		if(hsg <= 0) {
-			throw new IllegalArgumentException("Hệ số giá phải lớn hơn 0!");
-		}
-		this.hsg = hsg;
-	}
-
-	public void setCoHieuLuc(boolean coHieuLuc) {
-		isCoHieuLuc = coHieuLuc;
-	}
-
-	@Override
-	public String toString() {
-		return hsgHangToaID + ";" + hangToa + ";" + hsg
-				+ ";" + isCoHieuLuc ;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		HeSoGiaHangToa that = (HeSoGiaHangToa) o;
-		return Objects.equals(hsgHangToaID, that.hsgHangToaID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(hsgHangToaID);
-	}
+    @Column(name = "isCoHieuLuc")
+    private Boolean isCoHieuLuc;
 }

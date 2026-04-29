@@ -12,104 +12,39 @@ package entity;
  * @version: 1.0
  */
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import entity.type.TrangThaiPhieuGiuCho;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class PhieuGiuCho {
-	private String phieuGiuChoID;
-	private NhanVien nhanVien;
-	private LocalDateTime thoiDiemTao;
-	private TrangThaiPhieuGiuCho trangThai;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Set;
 
-	public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, LocalDateTime thoiDiemTao,
-			TrangThaiPhieuGiuCho trangThai) {
-		this.phieuGiuChoID = phieuGiuChoID;
-		this.nhanVien = nhanVien;
-		this.thoiDiemTao = thoiDiemTao;
-		this.trangThai = trangThai;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = "chiTiets")
+@EqualsAndHashCode(exclude = "chiTiets")
+@Entity
+@Table(name = "PhieuGiuCho")
+public class PhieuGiuCho implements Serializable {
+    @Id
+    @Column(name = "phieuGiuChoID", length = 50)
+    private String id;
 
-	public PhieuGiuCho() {
-		super();
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nhanVienID", nullable = false)
+    private NhanVien nhanVien;
 
-	public PhieuGiuCho(String phieuGiuChoID) {
-		this.phieuGiuChoID = phieuGiuChoID;
-	}
+    @Column(name = "thoiDiemTao", nullable = false)
+    private LocalDateTime thoiDiemTao;
 
-	/**
-	 * @param pgcID
-	 * @param nv
-	 * @param string
-	 */
-	public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, TrangThaiPhieuGiuCho trangThai) {
-		this.phieuGiuChoID = phieuGiuChoID;
-		this.nhanVien = nhanVien;
-		this.trangThai = trangThai;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private TrangThaiPhieuGiuCho trangThai;
 
-	public String getPhieuGiuChoID() {
-		return phieuGiuChoID;
-	}
-
-	public void setPhieuGiuChoID(String phieuGiuChoID) {
-		if (phieuGiuChoID == null || phieuGiuChoID.isEmpty()) {
-			throw new IllegalArgumentException("PhieuGiuChoID không được để trống!");
-		}
-		this.phieuGiuChoID = phieuGiuChoID;
-	}
-
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
-
-	public void setNhanVien(NhanVien nhanVien) {
-		if (nhanVien == null) {
-			throw new IllegalArgumentException("NhanVien không được để trống!");
-		}
-		this.nhanVien = nhanVien;
-	}
-
-	public LocalDateTime getThoiDiemTao() {
-		return thoiDiemTao;
-	}
-
-	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
-		if (thoiDiemTao == null) {
-			throw new IllegalArgumentException("ThoiDiemTao không được để trống!");
-		}
-		this.thoiDiemTao = thoiDiemTao;
-	}
-
-	public TrangThaiPhieuGiuCho getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTrangThai(TrangThaiPhieuGiuCho trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	@Override
-	public String toString() {
-		return phieuGiuChoID + ";" + nhanVien + ";" + thoiDiemTao + ";" + trangThai;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		PhieuGiuCho that = (PhieuGiuCho) o;
-		return Objects.equals(getPhieuGiuChoID(), that.getPhieuGiuChoID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getPhieuGiuChoID());
-	}
+    @OneToMany(mappedBy = "phieuGiuCho", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<PhieuGiuChoChiTiet> chiTiets;
 }

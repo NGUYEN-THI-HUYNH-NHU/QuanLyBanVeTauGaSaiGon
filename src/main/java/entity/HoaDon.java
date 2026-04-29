@@ -11,133 +11,55 @@ package entity;
  * @date: Sep 18, 2025
  * @version: 1.0
  */
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Set;
 
-public class HoaDon {
-	private String hoaDonID;
-	private KhachHang khachHang;
-	private NhanVien nhanVien;
-	private LocalDateTime thoiDiemTao;
-	private double tongTien;
-	private String maGD;
-	private double tienNhan;
-	private double tienHoan;
-	private boolean isThanhToanTienMat;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = "chiTiets")
+@EqualsAndHashCode(exclude = "chiTiets")
+@Entity
+@Table(name = "HoaDon")
+public class HoaDon implements Serializable {
+    @Id
+    @Column(name = "hoaDonID", length = 50)
+    private String id;
 
-	public HoaDon(String hoaDonID, KhachHang khachHang, NhanVien nhanVien, LocalDateTime thoiDiemTao, double tongTien,
-			String maGD, double tienNhan, double tienHoan, boolean isThanhToanTienMat) {
-		super();
-		this.hoaDonID = hoaDonID;
-		this.khachHang = khachHang;
-		this.nhanVien = nhanVien;
-		this.thoiDiemTao = thoiDiemTao;
-		this.tongTien = tongTien;
-		this.maGD = maGD;
-		this.tienNhan = tienNhan;
-		this.tienHoan = tienHoan;
-		this.isThanhToanTienMat = isThanhToanTienMat;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khachHangID", nullable = false)
+    private KhachHang khachHang;
 
-	public HoaDon() {
-		super();
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nhanVienID", nullable = false)
+    private NhanVien nhanVien;
 
-	public String getHoaDonID() {
-		return hoaDonID;
-	}
+    @Column(name = "thoiDiemTao", nullable = false)
+    private LocalDateTime thoiDiemTao;
 
-	public KhachHang getKhachHang() {
-		return khachHang;
-	}
+    @Column(name = "tongTien", nullable = false, precision = 12, scale = 2)
+    private BigDecimal tongTien;
 
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
+    @Column(name = "tienNhan", nullable = false, precision = 12, scale = 2)
+    private BigDecimal tienNhan;
 
-	public LocalDateTime getThoiDiemTao() {
-		return thoiDiemTao;
-	}
+    @Column(name = "tienHoan", precision = 12, scale = 2)
+    private BigDecimal tienHoan;
 
-	public void setHoaDonID(String hoaDonID) {
-		if (hoaDonID == null || hoaDonID.isEmpty()) {
-			throw new IllegalArgumentException("HoaDonID không được để trống!");
-		}
-		this.hoaDonID = hoaDonID;
-	}
+    @Column(name = "isThanhToanTienMat", nullable = false)
+    private boolean isThanhToanTienMat;
 
-	public void setKhachHang(KhachHang khachHang) {
-		this.khachHang = khachHang;
-	}
+    @Column(name = "maGD", length = 50)
+    private String maGD;
 
-	public void setNhanVien(NhanVien nhanVien) {
-		this.nhanVien = nhanVien;
-	}
-
-	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
-		this.thoiDiemTao = thoiDiemTao;
-	}
-
-	public double getTongTien() {
-		return tongTien;
-	}
-
-	public String getMaGD() {
-		return maGD;
-	}
-
-	public double getTienNhan() {
-		return tienNhan;
-	}
-
-	public double getTienHoan() {
-		return tienHoan;
-	}
-
-	public boolean isThanhToanTienMat() {
-		return isThanhToanTienMat;
-	}
-
-	public void setTongTien(double tongTien) {
-		this.tongTien = tongTien;
-	}
-
-	public void setMaGD(String maGD) {
-		this.maGD = maGD;
-	}
-
-	public void setTienNhan(double tienNhan) {
-		this.tienNhan = tienNhan;
-	}
-
-	public void setTienHoan(double tienHoan) {
-		this.tienHoan = tienHoan;
-	}
-
-	public void setThanhToanTienMat(boolean isThanhToanTienMat) {
-		this.isThanhToanTienMat = isThanhToanTienMat;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		HoaDon hoaDon = (HoaDon) o;
-		return Objects.equals(hoaDonID, hoaDon.hoaDonID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(hoaDonID);
-	}
-
-	@Override
-	public String toString() {
-		return hoaDonID + ";" + khachHang.getKhachHangID() + ";" + nhanVien.getNhanVienID() + ";" + thoiDiemTao + ";"
-				+ tongTien + ";" + maGD + ";" + tienNhan + ";" + tienHoan + ";" + isThanhToanTienMat;
-	}
+    @OneToMany(mappedBy = "hoaDon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<HoaDonChiTiet> chiTiets;
 }
