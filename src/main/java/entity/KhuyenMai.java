@@ -12,7 +12,6 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -27,7 +26,7 @@ import java.time.LocalDate;
 public class KhuyenMai implements Serializable {
     @Id
     @Column(name = "khuyenMaiID", length = 50)
-    private String id;
+    private String khuyenMaiID;
 
     @Column(name = "maKhuyenMai", length = 50, nullable = false, unique = true)
     private String maKhuyenMai;
@@ -36,10 +35,10 @@ public class KhuyenMai implements Serializable {
     private String moTa;
 
     @Column(name = "tyLeGiamGia", precision = 5, scale = 2)
-    private BigDecimal tyLeGiamGia;
+    private double tyLeGiamGia;
 
     @Column(name = "tienGiamGia", precision = 12, scale = 2)
-    private BigDecimal tienGiamGia;
+    private double tienGiamGia;
 
     @Column(name = "ngayBatDau", nullable = false)
     private LocalDate ngayBatDau;

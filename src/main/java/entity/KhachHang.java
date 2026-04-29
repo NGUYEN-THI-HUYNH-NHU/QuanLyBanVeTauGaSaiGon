@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class KhachHang implements Serializable {
     @Id
     @Column(name = "khachHangID", length = 50)
-    private String id;
+    private String khachHangID;
 
     @Column(name = "hoTen", nullable = false)
     private String hoTen;
@@ -53,4 +53,51 @@ public class KhachHang implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loaiKhachHangID", nullable = false)
     private LoaiKhachHang loaiKhachHang;
+
+    public KhachHang(String khachHangID, String hoTen, String soDienThoai, String email, String diaChi) {
+        super();
+        this.khachHangID = khachHangID;
+        this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
+    }
+
+    public KhachHang(String khachHangID, String hoTen, String soGiayTo, String soDienThoai, LoaiDoiTuong loaiDoiTuong,
+                     LoaiKhachHang loaiKhachHang) {
+        super();
+        this.khachHangID = khachHangID;
+        this.hoTen = hoTen;
+        this.soGiayTo = soGiayTo;
+        this.loaiDoiTuong = loaiDoiTuong;
+        this.loaiKhachHang = loaiKhachHang;
+    }
+
+    public KhachHang(String khachHangID) {
+        super();
+        this.khachHangID = khachHangID;
+    }
+
+    public KhachHang(String khachHangID, String hoTen, LoaiDoiTuong loaiDoiTuong, String soGiayTo) {
+        super();
+        this.khachHangID = khachHangID;
+        this.hoTen = hoTen;
+        this.loaiDoiTuong = loaiDoiTuong;
+        this.soGiayTo = soGiayTo;
+    }
+
+    public KhachHang(String khachHangID, String hoTen, String soGiayTo, String soDienThoai) {
+        super();
+        this.khachHangID = khachHangID;
+        this.hoTen = hoTen;
+        this.soGiayTo = soGiayTo;
+        this.soDienThoai = soDienThoai;
+    }
+
+    public KhachHang(String khachHangID, String hoTen, String soGiayTo) {
+        super();
+        this.khachHangID = khachHangID;
+        this.hoTen = hoTen;
+        this.soGiayTo = soGiayTo;
+    }
 }

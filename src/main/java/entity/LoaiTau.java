@@ -8,6 +8,7 @@ package entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ import java.util.Set;
 public class LoaiTau implements Serializable {
     @Id
     @Column(name = "loaiTauID", length = 50)
-    private String id;
+    private String loaiTauID;
 
     @Column(name = "moTa", nullable = false)
     private String moTa;

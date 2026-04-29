@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 public class TaiKhoan implements Serializable {
     @Id
     @Column(name = "taiKhoanID", length = 50)
-    private String id;
+    private String taiKhoanID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vaiTroTaiKhoanID", nullable = false)
@@ -52,4 +52,15 @@ public class TaiKhoan implements Serializable {
 
     @Column(name = "trangThai", nullable = false)
     private boolean trangThai;
+    
+    public TaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
+                    String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
+        super();
+        this.vaiTroTaiKhoan = vaiTroTaiKhoan;
+        this.nhanVien = nhanVien;
+        this.tenDangNhap = tenDangNhap;
+        this.matKhauHash = matKhauHash;
+        this.thoiDiemTao = thoiDiemTao;
+        this.trangThai = isHoatDong;
+    }
 }

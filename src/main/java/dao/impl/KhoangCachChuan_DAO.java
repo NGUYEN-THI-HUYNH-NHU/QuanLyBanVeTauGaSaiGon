@@ -1,6 +1,6 @@
-package dao;/*
+package dao.impl;/*
  * @ (#) KhoangCachChuan_DAO.java   1.0     28/10/2025
-package dao;
+package dao.impl;
 
 
 /**

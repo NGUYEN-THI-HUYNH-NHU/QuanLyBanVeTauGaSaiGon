@@ -22,7 +22,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+//@AllArgsConstructor
 @Builder
 @ToString
 @EqualsAndHashCode
@@ -31,7 +31,7 @@ import java.time.LocalDate;
 public class NhanVien implements Serializable {
     @Id
     @Column(name = "nhanVienID", length = 50)
-    private String id;
+    private String nhanVienID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vaiTroNhanVienID", nullable = false)
@@ -68,4 +68,66 @@ public class NhanVien implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caLamID", nullable = false)
     private CaLam caLam;
+
+    public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+                    String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, byte[] avatar) {
+        super();
+        this.nhanVienID = nhanVienID;
+        this.vaiTroNhanVien = vaiTroNhanVien;
+        this.hoTen = hoTen;
+        this.isNu = isNu;
+        this.ngaySinh = ngaySinh;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
+        this.ngayThamGia = ngayThamGia;
+        this.isHoatDong = isHoatDong;
+        this.avatar = avatar;
+    }
+
+    public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+                    String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, CaLam caLam) {
+        super();
+        this.nhanVienID = nhanVienID;
+        this.vaiTroNhanVien = vaiTroNhanVien;
+        this.hoTen = hoTen;
+        this.isNu = isNu;
+        this.ngaySinh = ngaySinh;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
+        this.ngayThamGia = ngayThamGia;
+        this.isHoatDong = isHoatDong;
+        this.caLam = caLam;
+    }
+
+    public NhanVien(String nhanVienID, VaiTroNhanVien vaiTroNhanVien, String hoTen, boolean isNu, LocalDate ngaySinh,
+                    String soDienThoai, String email, String diaChi, LocalDate ngayThamGia, boolean isHoatDong, byte[] avatar,
+                    CaLam caLam) {
+        super();
+        this.nhanVienID = nhanVienID;
+        this.vaiTroNhanVien = vaiTroNhanVien;
+        this.hoTen = hoTen;
+        this.isNu = isNu;
+        this.ngaySinh = ngaySinh;
+        this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
+        this.ngayThamGia = ngayThamGia;
+        this.isHoatDong = isHoatDong;
+        this.avatar = avatar;
+        this.caLam = caLam;
+    }
+
+    public NhanVien(String nhanVienID, String hoTen) {
+        super();
+        this.nhanVienID = nhanVienID;
+        this.hoTen = hoTen;
+    }
+
+    public NhanVien(String nhanVienID) {
+        super();
+        this.nhanVienID = nhanVienID;
+    }
+
 }

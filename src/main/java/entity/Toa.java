@@ -31,7 +31,7 @@ import java.util.Set;
 public class Toa implements Serializable {
     @Id
     @Column(name = "toaID", length = 50)
-    private String id;
+    private String toaID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tauID", nullable = false)
@@ -49,4 +49,23 @@ public class Toa implements Serializable {
 
     @OneToMany(mappedBy = "toa", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Ghe> ghes;
+
+    public Toa(String toaID, Tau tau, HangToa hangToa, int soToa) {
+        super();
+        this.toaID = toaID;
+        this.tau = tau;
+        this.hangToa = hangToa;
+        this.soToa = soToa;
+    }
+
+    public Toa(String toaID, int soToa) {
+        super();
+        this.toaID = toaID;
+        this.soToa = soToa;
+    }
+    
+    public Toa(String toaID) {
+        super();
+        this.toaID = toaID;
+    }
 }

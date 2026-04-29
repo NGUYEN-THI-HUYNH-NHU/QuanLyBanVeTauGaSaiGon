@@ -7,6 +7,7 @@ package gui.application.form.banVe;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
+import entity.GiaoDichThanhToan;
 import entity.Ve;
 import entity.type.LoaiDoiTuong;
 import gui.application.AppHttpServer;
@@ -93,7 +94,7 @@ public class BanVe2Controller {
             khuyenMai += ve.getGiamKM();
 
             // (Logic giảm đối tượng giữ nguyên)
-            if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+            if (ve.getVe().getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID().equals(LoaiDoiTuong.TRE_EM)) {
                 ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
                 giamGiaDT += ve.getGiamDoiTuong();
             }

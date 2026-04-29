@@ -18,7 +18,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -34,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 public class Ve implements Serializable {
     @Id
     @Column(name = "veID", length = 50)
-    private String id;
+    private String veID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "khachHangID", nullable = false)
@@ -65,11 +64,34 @@ public class Ve implements Serializable {
     private LocalDateTime ngayGioDi;
 
     @Column(name = "gia", nullable = false, precision = 12, scale = 2)
-    private BigDecimal gia;
+    private double gia;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", length = 50)
     private TrangThaiVe trangThai;
+
+    @Transient
+    private boolean isVeDoi;
+
+    public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
+              LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
+        super();
+        this.veID = veID;
+        this.khachHang = khachHang;
+        this.donDatCho = donDatCho;
+        this.chuyen = chuyen;
+        this.ghe = ghe;
+        this.gaDi = gaDi;
+        this.gaDen = gaDen;
+        this.ngayGioDi = ngayGioDi;
+        this.gia = gia;
+        this.trangThai = trangThai;
+    }
+
+    public Ve(String veID) {
+        super();
+        this.veID = veID;
+    }
 
     /**
      * @return
@@ -89,7 +111,7 @@ public class Ve implements Serializable {
         }
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
                 ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
-                phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+                phieuDungPhongChoVIP.getPhieuDungPhongVIPID());
     }
 
     /**

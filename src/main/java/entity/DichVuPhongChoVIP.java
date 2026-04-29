@@ -20,7 +20,6 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -35,10 +34,10 @@ import java.time.LocalDate;
 public class DichVuPhongChoVIP implements Serializable {
     @Id
     @Column(name = "dichVuPhongChoVIPID", length = 50)
-    private String id;
+    private String dichVuPhongChoVIPID;
 
     @Column(name = "gia", nullable = false, precision = 8, scale = 2)
-    private BigDecimal gia;
+    private double gia;
 
     @Column(name = "moTa", columnDefinition = "NVARCHAR(MAX)")
     private String moTa;
@@ -51,4 +50,9 @@ public class DichVuPhongChoVIP implements Serializable {
 
     @Column(name = "trangThai", nullable = false)
     private boolean trangThai;
+
+    public DichVuPhongChoVIP(String dichVuPhongChoVIPID) {
+        super();
+        this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
+    }
 }

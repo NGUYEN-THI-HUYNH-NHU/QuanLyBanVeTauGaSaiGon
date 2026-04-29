@@ -18,7 +18,7 @@ import java.io.Serializable;
 public class PhieuDungPhongVIP implements Serializable {
     @Id
     @Column(name = "phieuDungPhongVIPID", length = 50)
-    private String id;
+    private String phieuDungPhongVIPID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dichVuPhongChoVIPID", nullable = false)
@@ -31,4 +31,9 @@ public class PhieuDungPhongVIP implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 100)
     private TrangThaiPDPVIP trangThai;
+
+    public PhieuDungPhongVIP(String phieuDungPhongVIPID) {
+        super();
+        this.phieuDungPhongVIPID = phieuDungPhongVIPID;
+    }
 }

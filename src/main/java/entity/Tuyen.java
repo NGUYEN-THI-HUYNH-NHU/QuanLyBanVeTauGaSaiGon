@@ -29,7 +29,7 @@ import java.util.Set;
 public class Tuyen implements Serializable {
     @Id
     @Column(name = "tuyenID", length = 50)
-    private String id;
+    private String tuyenID;
 
     @Column(name = "moTa", nullable = false)
     private String moTa;
@@ -42,4 +42,20 @@ public class Tuyen implements Serializable {
 
     @OneToMany(mappedBy = "tuyen", fetch = FetchType.LAZY)
     private Set<Chuyen> chuyens;
+
+    public Tuyen(String tuyenID, String moTa) {
+        this.tuyenID = tuyenID;
+        this.moTa = moTa;
+    }
+
+    public Tuyen(String tuyenID, String moTa, boolean trangThai) {
+        this.tuyenID = tuyenID;
+        this.moTa = moTa;
+        this.trangThai = trangThai;
+    }
+
+    public Tuyen(String tuyenID) {
+        super();
+        this.tuyenID = tuyenID;
+    }
 }

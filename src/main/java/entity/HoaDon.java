@@ -16,7 +16,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ import java.util.Set;
 public class HoaDon implements Serializable {
     @Id
     @Column(name = "hoaDonID", length = 50)
-    private String id;
+    private String hoaDonID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "khachHangID", nullable = false)
@@ -46,13 +45,13 @@ public class HoaDon implements Serializable {
     private LocalDateTime thoiDiemTao;
 
     @Column(name = "tongTien", nullable = false, precision = 12, scale = 2)
-    private BigDecimal tongTien;
+    private double tongTien;
 
     @Column(name = "tienNhan", nullable = false, precision = 12, scale = 2)
-    private BigDecimal tienNhan;
+    private double tienNhan;
 
     @Column(name = "tienHoan", precision = 12, scale = 2)
-    private BigDecimal tienHoan;
+    private double tienHoan;
 
     @Column(name = "isThanhToanTienMat", nullable = false)
     private boolean isThanhToanTienMat;

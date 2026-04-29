@@ -1,6 +1,6 @@
-package dao;/*
+package dao.impl;/*
  * @ (#) TuyenChiTiet_DAO.java   1.0     21/10/2025
-package dao;
+package dao.impl;
 
 
 /**

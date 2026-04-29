@@ -16,7 +16,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -30,14 +29,14 @@ import java.math.BigDecimal;
 public class HeSoGiaLoaiTau implements Serializable {
     @Id
     @Column(name = "hsgloaiTauID", length = 50)
-    private String id;
+    private String hsgloaiTauID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loaiTauID", nullable = false)
     private LoaiTau loaiTau;
 
     @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
-    private BigDecimal hsg;
+    private double hsg;
 
     @Column(name = "isCoHieuLuc")
     private Boolean isCoHieuLuc;

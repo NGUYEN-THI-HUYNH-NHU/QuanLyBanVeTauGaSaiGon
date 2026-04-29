@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) PhieuDungPhongVIP_DAO.java  1.0  [8:57:41 PM] Nov 7, 2025
  *

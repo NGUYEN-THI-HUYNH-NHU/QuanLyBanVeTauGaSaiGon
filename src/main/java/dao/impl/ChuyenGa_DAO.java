@@ -1,6 +1,6 @@
-package dao;/*
+package dao.impl;/*
  * @ (#) ChuyenGa_DAO.java   1.0     09/12/2025
-package dao;
+package dao.impl;
 
 
 /**

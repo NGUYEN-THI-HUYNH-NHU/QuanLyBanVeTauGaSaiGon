@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) Ghe_DAO.java  1.0  [1:00:58 PM] Sep 29, 2025
  *

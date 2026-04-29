@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) SuDungKhuyenMai_DAO.java  1.0  [10:50:42 PM] Dec 1, 2025
  *

@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) HoaDonChiTiet_DAO.java 1.0 [11:34:32 AM] Nov 1, 2025
  *
