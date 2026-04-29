@@ -15,9 +15,6 @@ import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.Tuyen;
 import entity.type.VaiTroNhanVien;
-import gui.application.UngDung;
-import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
-import gui.application.form.quanLyChuyen.PanelThemChuyen;
 import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
@@ -25,9 +22,7 @@ import gui.application.form.quanLyTuyen.PanelThemTuyen;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
@@ -44,15 +39,15 @@ public class QuanLyTuyen_CTRL {
     private JDialog dialogThemTuyen;
     private JDialog dialogCapNhatTuyen;
 
-    public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, Tuyen_BUS tuyen_bus){
+    public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, Tuyen_BUS tuyen_bus) {
         this.pnlTuyen = pnlTuyen;
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
-        this.vaiTroHienTai = pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien();
-        pnlTuyen.addListeners(new TimKiemListener(),new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
+        this.vaiTroHienTai = VaiTroNhanVien.valueOf(pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien().getId());
+        pnlTuyen.addListeners(new TimKiemListener(), new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
         pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
-        PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen,vaiTroHienTai);
+        PhanQuyen_BUS.phanQuyenQuanLyTuyen(pnlTuyen, vaiTroHienTai);
         thietLapAutoCompleteListener();
         thietLapPhimTatF5();
     }
@@ -74,61 +69,23 @@ public class QuanLyTuyen_CTRL {
         return ketQua != null && !ketQua.isEmpty();
     }
 
-
-    private class TimKiemListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            timKiemTuyen();
-        }
-    }
-
-    private class LamMoiListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e){
-            lamMoiTuyen();
-        }
-    }
-
-    private class TuyenTableListener extends MouseAdapter{
-        @Override
-        public void mouseClicked(MouseEvent e){
-            if(e.getClickCount() == 1){
-                hienThiChiTietTuyenDaChon();
-            }
-        }
-    }
-
-    private class ThemTuyenListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            hienThiManHinhThemTuyen();
-        }
-    }
-
-    private class CapNhatTuyenListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            hienThiManHinhCapNhatTuyen();
-        }
-    }
-
-    private void thietLapAutoCompleteListener(){
+    private void thietLapAutoCompleteListener() {
         taoPopGoiY(pnlTuyen.getTxtGaDi(), pnlTuyen.getPpGaDi(),
                 pnlTuyen.getListGaDi(), input -> ga_bus.timTenGaChoGoiY(input));
         taoPopGoiY(pnlTuyen.getTxtGaDen(), pnlTuyen.getPpGaDen(),
                 pnlTuyen.getListGaDen(), input -> ga_bus.timTenGaChoGoiY(input));
         taoPopGoiY(pnlTuyen.getTxtTimKiem(), pnlTuyen.getPpTuyenID(),
-                pnlTuyen.getListTuyenID(),input -> tuyen_bus.timIDTuyenChoGoiY(input));
+                pnlTuyen.getListTuyenID(), input -> tuyen_bus.timIDTuyenChoGoiY(input));
     }
 
-    private void timKiemTuyen(){
+    private void timKiemTuyen() {
         String gaDi = pnlTuyen.getTxtGaDi().getText();
         String gaDen = pnlTuyen.getTxtGaDen().getText();
         String maTuyen = pnlTuyen.getTxtTimKiem().getText();
 
         List<Object[]> ketQuaDuLieuBang;
 
-        if(!maTuyen.trim().isEmpty()){
+        if (!maTuyen.trim().isEmpty()) {
 
             ketQuaDuLieuBang = tuyen_bus.getDuLieuBangTheoTuyenID(maTuyen.trim());
         } else {
@@ -138,12 +95,12 @@ public class QuanLyTuyen_CTRL {
 
         pnlTuyen.capNhatBang(ketQuaDuLieuBang);
 
-        if(ketQuaDuLieuBang.isEmpty()){
+        if (ketQuaDuLieuBang.isEmpty()) {
             JOptionPane.showMessageDialog(pnlTuyen, "Không tìm thấy tuyến nào!", "Kết quả tìm kiếm", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    private void lamMoiTuyen(){
+    private void lamMoiTuyen() {
         pnlTuyen.getTxtGaDi().setText("");
         pnlTuyen.getTxtGaDen().setText("");
         pnlTuyen.getTxtTimKiem().setText("");
@@ -151,11 +108,11 @@ public class QuanLyTuyen_CTRL {
         pnlTuyen.capNhatBang(tuyen_bus.getDuLieuBang());
     }
 
-    private void hienThiChiTietTuyenDaChon(){
+    private void hienThiChiTietTuyenDaChon() {
         JTable table = pnlTuyen.getTableTuyen();
         int row = table.getSelectedRow();
 
-        if(row == -1) return;
+        if (row == -1) return;
         int modelRow = table.convertRowIndexToModel(row);
 
         Object objID = table.getValueAt(modelRow, 0);
@@ -179,7 +136,7 @@ public class QuanLyTuyen_CTRL {
                 tenTuyen = objTenGaXP.toString() + " - " + objTenGaDen.toString();
             }
 
-            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getTuyenID());
+            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getId());
             pnlTuyen.getTxtChiTietTenTuyen().setText(tenTuyen);
             pnlTuyen.getTxtChiTietKhoangCach().setText(khoangCach);
             pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
@@ -193,13 +150,13 @@ public class QuanLyTuyen_CTRL {
         modelChiTiet.setRowCount(0);
 
         int stt = 1;
-        for(Object[] rowData : dsGaChiTiet){
-            modelChiTiet.addRow(new Object[]{ stt++, rowData[0], rowData[1], rowData[2] });
+        for (Object[] rowData : dsGaChiTiet) {
+            modelChiTiet.addRow(new Object[]{stt++, rowData[0], rowData[1], rowData[2]});
         }
     }
 
-    private void hienThiManHinhThemTuyen(){
-        if(dialogThemTuyen == null) {
+    private void hienThiManHinhThemTuyen() {
+        if (dialogThemTuyen == null) {
             panelThemTuyen = new PanelThemTuyen(pnlTuyen.getNhanVienThucHien());
             dialogThemTuyen = new JDialog(SwingUtilities.getWindowAncestor(pnlTuyen), "Thêm Tuyến Đường Sắt Mới", Dialog.ModalityType.APPLICATION_MODAL);
 
@@ -220,7 +177,7 @@ public class QuanLyTuyen_CTRL {
         dialogThemTuyen.setVisible(true);
     }
 
-    private void hienThiManHinhCapNhatTuyen(){
+    private void hienThiManHinhCapNhatTuyen() {
         int row = pnlTuyen.getTableTuyen().getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(pnlTuyen, "Vui lòng chọn tuyến cần cập nhật!", "Thông báo", JOptionPane.WARNING_MESSAGE);
@@ -250,12 +207,12 @@ public class QuanLyTuyen_CTRL {
     }
 
     private void hienThiGoiY(JTextField txt, JList<String> lst, JPopupMenu pp,
-                             Function<String, List<String>> timKiem){
+                             Function<String, List<String>> timKiem) {
         String input = txt.getText().trim();
 
         List<String> ds = timKiem.apply(input);
 
-        if(ds == null || ds.isEmpty()){
+        if (ds == null || ds.isEmpty()) {
             pp.setVisible(false);
             return;
         }
@@ -270,7 +227,7 @@ public class QuanLyTuyen_CTRL {
 
         pp.setPopupSize(txt.getWidth(), pp.getPreferredSize().height);
 
-        if(txt.isShowing()){
+        if (txt.isShowing()) {
             pp.show(txt, 0, txt.getHeight());
             txt.requestFocus();
         }
@@ -284,11 +241,18 @@ public class QuanLyTuyen_CTRL {
         // Hiển thị gợi ý khi input thay đổi
         txt.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { hienThiGoiY(txt, lst, pp, timKiem); }
+            public void insertUpdate(DocumentEvent e) {
+                hienThiGoiY(txt, lst, pp, timKiem);
+            }
+
             @Override
-            public void removeUpdate(DocumentEvent e) { hienThiGoiY(txt, lst, pp, timKiem); }
+            public void removeUpdate(DocumentEvent e) {
+                hienThiGoiY(txt, lst, pp, timKiem);
+            }
+
             @Override
-            public void changedUpdate(DocumentEvent e) { }
+            public void changedUpdate(DocumentEvent e) {
+            }
         });
 
         // Mouse click chọn item
@@ -317,8 +281,7 @@ public class QuanLyTuyen_CTRL {
                         if (selectedIndex < lst.getModel().getSize() - 1) {
                             lst.setSelectedIndex(selectedIndex + 1);
                             lst.ensureIndexIsVisible(selectedIndex + 1);
-                        }
-                        else if(txt == pnlTuyen.getTxtGaDi()){
+                        } else if (txt == pnlTuyen.getTxtGaDi()) {
                             pnlTuyen.getTxtGaDen().requestFocus();
                         }
                         break;
@@ -326,8 +289,7 @@ public class QuanLyTuyen_CTRL {
                         if (selectedIndex > 0) {
                             lst.setSelectedIndex(selectedIndex - 1);
                             lst.ensureIndexIsVisible(selectedIndex - 1);
-                        }
-                        else if(txt == pnlTuyen.getTxtGaDen()){
+                        } else if (txt == pnlTuyen.getTxtGaDen()) {
                             pnlTuyen.getTxtGaDi().requestFocus();
                         }
                         break;
@@ -341,12 +303,11 @@ public class QuanLyTuyen_CTRL {
                         chuyenFocusSauChon(txt);
                         break;
                     case java.awt.event.KeyEvent.VK_RIGHT:
-                         if (txt == pnlTuyen.getTxtGaDen()) {
+                        if (txt == pnlTuyen.getTxtGaDen()) {
+                            pnlTuyen.getTxtTimKiem().requestFocus();
+                        } else if (txt == pnlTuyen.getTxtGaDi()) {
                             pnlTuyen.getTxtTimKiem().requestFocus();
                         }
-                         else if(txt == pnlTuyen.getTxtGaDi()){
-                             pnlTuyen.getTxtTimKiem().requestFocus();
-                         }
                         break;
                     case java.awt.event.KeyEvent.VK_LEFT:
                         if (txt == pnlTuyen.getTxtTimKiem()) {
@@ -364,6 +325,7 @@ public class QuanLyTuyen_CTRL {
             }
         });
     }
+
     private void thietLapPhimTatF5() {
         JComponent root = pnlTuyen;
 
@@ -380,7 +342,6 @@ public class QuanLyTuyen_CTRL {
         });
     }
 
-
     private void chuyenFocusSauChon(JTextField txt) {
         if (txt == pnlTuyen.getTxtGaDi()) {
             pnlTuyen.getTxtGaDen().requestFocus();
@@ -388,6 +349,43 @@ public class QuanLyTuyen_CTRL {
             pnlTuyen.getTxtTimKiem().requestFocus();
         } else if (txt == pnlTuyen.getTxtTimKiem()) {
             txt.selectAll(); // hoặc không làm gì
+        }
+    }
+
+    private class TimKiemListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            timKiemTuyen();
+        }
+    }
+
+    private class LamMoiListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            lamMoiTuyen();
+        }
+    }
+
+    private class TuyenTableListener extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 1) {
+                hienThiChiTietTuyenDaChon();
+            }
+        }
+    }
+
+    private class ThemTuyenListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhThemTuyen();
+        }
+    }
+
+    private class CapNhatTuyenListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            hienThiManHinhCapNhatTuyen();
         }
     }
 

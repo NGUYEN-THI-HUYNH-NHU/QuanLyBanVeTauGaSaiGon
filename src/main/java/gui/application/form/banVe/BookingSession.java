@@ -111,14 +111,6 @@ public class BookingSession {
         this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
     }
 
-    public GiaoDichThanhToan getGiaoDichThanhToan() {
-        return giaoDichThanhToan;
-    }
-
-    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
-        this.giaoDichThanhToan = giaoDichThanhToan;
-    }
-
     public KhachHang getKhachHang() {
         return khachHang;
     }
@@ -232,6 +224,14 @@ public class BookingSession {
 
     public void setDonDatCho(DonDatCho donDatCho) {
         this.donDatCho = donDatCho;
+    }
+
+    public GiaoDichThanhToan getGiaoDichThanhToan() {
+        return giaoDichThanhToan;
+    }
+
+    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+        this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
     public HoaDon getHoaDon() {

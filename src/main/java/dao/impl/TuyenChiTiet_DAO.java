@@ -25,17 +25,18 @@ import java.util.List;
 public class TuyenChiTiet_DAO {
     private final ConnectDB connectDB;
 
-    public TuyenChiTiet_DAO(){
+    public TuyenChiTiet_DAO() {
         connectDB = ConnectDB.getInstance();
     }
 
     /**
      * Lấy danh sách TuyenChiTiet (các Ga trên tuyến) dựa trên TuyenID.
      * Dữ liệu trả về chứa đủ thông tin Ga và Mô tả Tuyen cần thiết cho nghiệp vụ.
+     *
      * @param tuyenID ID của tuyến.
      * @return List<TuyenChiTiet> chứa chi tiết các ga trên tuyến, sắp xếp theo thứ tự.
      */
-    public List<TuyenChiTiet> layDanhSachTheoTuyenID(String tuyenID){
+    public List<TuyenChiTiet> layDanhSachTheoTuyenID(String tuyenID) {
         List<TuyenChiTiet> danhSach = new ArrayList<>();
         String sql = "SELECT tct.tuyenID, tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
                 "t.moTa, ga.tenGa " +
@@ -44,12 +45,12 @@ public class TuyenChiTiet_DAO {
                 "JOIN Ga ga ON tct.gaID = ga.gaID " +
                 "WHERE tct.tuyenID = ? " +
                 "ORDER BY tct.thuTu ASC";
-        try(Connection con = connectDB.getConnection();
-            PreparedStatement pstm = con.prepareStatement(sql)) {
+        try (Connection con = connectDB.getConnection();
+             PreparedStatement pstm = con.prepareStatement(sql)) {
             pstm.setString(1, tuyenID);
-            try(ResultSet rs = pstm.executeQuery()) {
+            try (ResultSet rs = pstm.executeQuery()) {
                 while (rs.next()) {
-                    Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
+                    Tuyen tuyen = Tuyen.builder().id(rs.getString("tuyenID")).moTa(rs.getString("moTa")).build();
                     Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
                     TuyenChiTiet tct = new TuyenChiTiet(
                             tuyen,
@@ -60,14 +61,15 @@ public class TuyenChiTiet_DAO {
                     danhSach.add(tct);
                 }
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-            return danhSach;
+        return danhSach;
     }
 
     /**
      * Thêm danh sách TuyenChiTiet vào CSDL bằng Batch Insert trong một giao dịch (Transaction).
+     *
      * @param danhSachChiTiet Danh sách các chi tiết tuyến cần thêm.
      * @return boolean true nếu thêm thành công.
      */
@@ -80,7 +82,7 @@ public class TuyenChiTiet_DAO {
 
             try (PreparedStatement pstmtChiTiet = con.prepareStatement(sql)) {
                 for (TuyenChiTiet chiTiet : danhSachChiTiet) {
-                    pstmtChiTiet.setString(1, chiTiet.getTuyen().getTuyenID());
+                    pstmtChiTiet.setString(1, chiTiet.getTuyen().getId());
                     pstmtChiTiet.setString(2, chiTiet.getGa().getGaID());
                     pstmtChiTiet.setInt(3, chiTiet.getThuTu());
                     pstmtChiTiet.setInt(4, chiTiet.getKhoangCachTuGaXuatPhatKm());
@@ -105,6 +107,7 @@ public class TuyenChiTiet_DAO {
 
     /**
      * Xóa tất cả TuyenChiTiet của một Tuyen. Thường được dùng trong nghiệp vụ Cập nhật.
+     *
      * @param tuyenID ID của tuyến cần xóa chi tiết.
      * @return boolean true nếu xóa thành công ít nhất một bản ghi.
      */

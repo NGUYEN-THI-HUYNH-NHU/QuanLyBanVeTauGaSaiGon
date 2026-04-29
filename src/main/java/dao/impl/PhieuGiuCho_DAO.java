@@ -12,167 +12,167 @@ package dao.impl;
  * @version: 1.0
  */
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import connectDB.ConnectDB;
 import entity.NhanVien;
 import entity.PhieuGiuCho;
 import entity.type.TrangThaiPhieuGiuCho;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class PhieuGiuCho_DAO {
 
-	private ConnectDB connectDB = ConnectDB.getInstance();
+    private ConnectDB connectDB = ConnectDB.getInstance();
 
-	public PhieuGiuCho_DAO() {
-		connectDB.connect();
-	}
+    public PhieuGiuCho_DAO() {
+        connectDB.connect();
+    }
 
-	public boolean insertPhieuGiuCho(Connection conn, PhieuGiuCho pgc) throws Exception {
-		String sql = "INSERT INTO PhieuGiuCho (phieuGiuChoID, nhanVienID, thoiDiemTao, trangThai)"
-				+ "VALUES (?, ?, SYSUTCDATETIME(), ?)";
+    public boolean insertPhieuGiuCho(Connection conn, PhieuGiuCho pgc) throws Exception {
+        String sql = "INSERT INTO PhieuGiuCho (phieuGiuChoID, nhanVienID, thoiDiemTao, trangThai)"
+                + "VALUES (?, ?, SYSUTCDATETIME(), ?)";
 
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, pgc.getPhieuGiuChoID());
-			ps.setString(2, pgc.getNhanVien().getNhanVienID());
-			ps.setString(3, pgc.getTrangThai().toString());
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, pgc.getId());
+            ps.setString(2, pgc.getNhanVien().getId());
+            ps.setString(3, pgc.getTrangThai().toString());
 
-			return ps.executeUpdate() > 0;
-		}
-	}
+            return ps.executeUpdate() > 0;
+        }
+    }
 
-	public PhieuGiuCho getPhieuGiuChoByID(String phieuGiuChoID) {
-		Connection conn = connectDB.getConnection();
-		String sql = "SELECT * FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+    public PhieuGiuCho getPhieuGiuChoByID(String phieuGiuChoID) {
+        Connection conn = connectDB.getConnection();
+        String sql = "SELECT * FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
 
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, phieuGiuChoID);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, phieuGiuChoID);
 
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					PhieuGiuCho pgc = new PhieuGiuCho();
-					pgc.setPhieuGiuChoID(rs.getString("phieuGiuChoID"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PhieuGiuCho pgc = new PhieuGiuCho();
+                    pgc.setId(rs.getString("phieuGiuChoID"));
 
-					NhanVien nv = new NhanVien(rs.getString("nhanVienID"));
-					pgc.setNhanVien(nv);
+                    NhanVien nv = NhanVien.builder().id(rs.getString("nhanVienID")).build();
+                    pgc.setNhanVien(nv);
 
-					pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
-					pgc.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
+                    pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
+                    pgc.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
 
-					return pgc;
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+                    return pgc;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	/**
-	 * @param conn
-	 * @param veID
-	 * @return
-	 */
-	public PhieuGiuCho getPhieuGiuChoByVeID(Connection conn, String veID) {
-		String sql = "SELECT * FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+    /**
+     * @param conn
+     * @param veID
+     * @return
+     */
+    public PhieuGiuCho getPhieuGiuChoByVeID(Connection conn, String veID) {
+        String sql = "SELECT * FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
 
-		try {
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, veID);
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, veID);
 
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					PhieuGiuCho pgc = new PhieuGiuCho();
-					pgc.setPhieuGiuChoID(rs.getString("phieuGiuChoID"));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    PhieuGiuCho pgc = new PhieuGiuCho();
+                    pgc.setId(rs.getString("phieuGiuChoID"));
 
-					NhanVien nv = new NhanVien(rs.getString("nhanVienID"));
-					pgc.setNhanVien(nv);
+                    NhanVien nv = NhanVien.builder().id(rs.getString("nhanVienID")).build();
+                    pgc.setNhanVien(nv);
 
-					pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
-					pgc.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
+                    pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
+                    pgc.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
 
-					return pgc;
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+                    return pgc;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	/**
-	 * Cập nhật trạng thái của một PhieuGiuCho. Dùng khi xác nhận (XAC_NHAN) hoặc
-	 * hủy (HET_HAN).
-	 *
-	 * @param con
-	 * @param phieuGiuChoID ID của phiếu cần cập nhật.
-	 * @param newTrangThai  Trạng thái mới ('XAC_NHAN' hoặc 'HET_HAN').
-	 * @return true nếu cập nhật thành công, false nếu thất bại.
-	 */
-	public boolean updateTrangThaiPhieuGiuCho(Connection conn, String phieuGiuChoID, String newTrangThai)
-			throws Exception {
-		String sql = "UPDATE PhieuGiuCho SET trangThai = ? WHERE phieuGiuChoID = ?";
+    /**
+     * Cập nhật trạng thái của một PhieuGiuCho. Dùng khi xác nhận (XAC_NHAN) hoặc
+     * hủy (HET_HAN).
+     *
+     * @param conn
+     * @param phieuGiuChoID ID của phiếu cần cập nhật.
+     * @param newTrangThai  Trạng thái mới ('XAC_NHAN' hoặc 'HET_HAN').
+     * @return true nếu cập nhật thành công, false nếu thất bại.
+     */
+    public boolean updateTrangThaiPhieuGiuCho(Connection conn, String phieuGiuChoID, String newTrangThai)
+            throws Exception {
+        String sql = "UPDATE PhieuGiuCho SET trangThai = ? WHERE phieuGiuChoID = ?";
 
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, newTrangThai);
-			ps.setString(2, phieuGiuChoID);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newTrangThai);
+            ps.setString(2, phieuGiuChoID);
 
-			return ps.executeUpdate() > 0;
-		}
-	}
+            return ps.executeUpdate() > 0;
+        }
+    }
 
-	/**
-	 * Chạy định kỳ để "dọn dẹp" các phiếu giữ chỗ (bảng cha) đã hết hạn. Chỉ cập
-	 * nhật các phiếu 'DANG_GIU' đã quá thời gian quy định.
-	 *
-	 * @param expiryMinutes Số phút mà một phiếu được coi là hết hạn.
-	 * @return Số lượng phiếu (bảng cha) đã được cập nhật sang 'HET_HAN'.
-	 */
-	public int cleanUpExpiredPhieuGiuCho(int expiryMinutes) {
-		Connection conn = connectDB.getConnection();
-		String sql = "UPDATE PhieuGiuCho\n" + "SET trangThai = 'HET_HAN'\n" + "WHERE trangThai = 'DANG_GIU'\n"
-				+ "  AND thoiDiemTao < DATEADD(minute, -?, SYSUTCDATETIME());";
+    /**
+     * Chạy định kỳ để "dọn dẹp" các phiếu giữ chỗ (bảng cha) đã hết hạn. Chỉ cập
+     * nhật các phiếu 'DANG_GIU' đã quá thời gian quy định.
+     *
+     * @param expiryMinutes Số phút mà một phiếu được coi là hết hạn.
+     * @return Số lượng phiếu (bảng cha) đã được cập nhật sang 'HET_HAN'.
+     */
+    public int cleanUpExpiredPhieuGiuCho(int expiryMinutes) {
+        Connection conn = connectDB.getConnection();
+        String sql = "UPDATE PhieuGiuCho\n" + "SET trangThai = 'HET_HAN'\n" + "WHERE trangThai = 'DANG_GIU'\n"
+                + "  AND thoiDiemTao < DATEADD(minute, -?, SYSUTCDATETIME());";
 
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setInt(1, expiryMinutes);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, expiryMinutes);
 
-			return ps.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return 0;
-		}
-	}
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
-	/**
-	 * @param conn
-	 * @param phieuGiuChoID
-	 * @return
-	 */
-	public boolean deletePhieuGiuChoByID(Connection conn, String phieuGiuChoID) throws Exception {
-		String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+    /**
+     * @param conn
+     * @param phieuGiuChoID
+     * @return
+     */
+    public boolean deletePhieuGiuChoByID(Connection conn, String phieuGiuChoID) throws Exception {
+        String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
 
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, phieuGiuChoID);
-			return ps.executeUpdate() > 0;
-		}
-	}
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phieuGiuChoID);
+            return ps.executeUpdate() > 0;
+        }
+    }
 
-	/**
-	 * @param phieuGiuChoID
-	 * @return
-	 */
-	public boolean deletePhieuGiuChoByID(String phieuGiuChoID) {
-		String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
-		Connection conn = connectDB.getConnection();
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, phieuGiuChoID);
-			return ps.executeUpdate() > 0;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+    /**
+     * @param phieuGiuChoID
+     * @return
+     */
+    public boolean deletePhieuGiuChoByID(String phieuGiuChoID) {
+        String sql = "DELETE FROM PhieuGiuCho WHERE phieuGiuChoID = ?";
+        Connection conn = connectDB.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phieuGiuChoID);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

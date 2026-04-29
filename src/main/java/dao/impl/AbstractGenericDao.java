@@ -6,8 +6,6 @@ package dao.impl;
  * Date: 4/8/2026
  */
 
-package dao.impl;
-
 import dao.IGenericDao;
 import db.JPAUtil;
 import jakarta.persistence.EntityManager;

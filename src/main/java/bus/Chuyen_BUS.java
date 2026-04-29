@@ -155,7 +155,7 @@ public class Chuyen_BUS {
         }
 
         String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null)
-                ? nhanVienThucHien.getVaiTroNhanVien().getMoTa()
+                ? nhanVienThucHien.getVaiTroNhanVien().getDescription()
                 : "";
         String chiTietLog = String.format("%s %s Thêm Chuyến mới: %s (Tàu: %s, Ngày đi: %s, Giờ đi: %s)", tenChucVu,
                 nhanVienThucHien.getHoTen(), chuyen.getChuyenID(), chuyen.getTau().getTauID(),
@@ -205,7 +205,7 @@ public class Chuyen_BUS {
             }
 
             String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null)
-                    ? nhanVienThucHien.getVaiTroNhanVien().getMoTa()
+                    ? nhanVienThucHien.getVaiTroNhanVien().getDescription()
                     : "";
             StringBuilder sbLog = new StringBuilder();
 
@@ -244,7 +244,7 @@ public class Chuyen_BUS {
         return false;
     }
 
-    private void ghiLogAudit(String doiTuongID, NhanVien nv, entity.type.NhatKyAudit loaiThaoTac, String chiTiet) {
+    private void ghiLogAudit(String doiTuongID, NhanVien nv, NhatKyAudit loaiThaoTac, String chiTiet) {
         if (nv == null) {
             return;
         }

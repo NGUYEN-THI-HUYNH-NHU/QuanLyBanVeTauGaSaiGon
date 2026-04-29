@@ -11,70 +11,71 @@ package gui.application.form.donDatCho;
  * @date: Dec 12, 2025
  * @version: 1.0
  */
-import java.util.Objects;
 
 import entity.DonDatCho;
 
+import java.util.Objects;
+
 public class DonDatChoDTO {
-	private DonDatCho donDatCho;
-	private int tongSoVe;
-	private int soVeHoan;
-	private int soVeDoi;
+    private DonDatCho donDatCho;
+    private int tongSoVe;
+    private int soVeHoan;
+    private int soVeDoi;
 
-	public DonDatChoDTO(DonDatCho donDatCho, int tongSoVe, int soVeHoan, int soVeDoi) {
-		super();
-		this.donDatCho = donDatCho;
-		this.tongSoVe = tongSoVe;
-		this.soVeHoan = soVeHoan;
-		this.soVeDoi = soVeDoi;
-	}
+    public DonDatChoDTO(DonDatCho donDatCho, int tongSoVe, int soVeHoan, int soVeDoi) {
+        super();
+        this.donDatCho = donDatCho;
+        this.tongSoVe = tongSoVe;
+        this.soVeHoan = soVeHoan;
+        this.soVeDoi = soVeDoi;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DonDatCho donDatCho = (DonDatCho) o;
-		return Objects.equals(donDatCho.getDonDatChoID(), donDatCho.getDonDatChoID());
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DonDatCho donDatCho = (DonDatCho) o;
+        return Objects.equals(donDatCho.getId(), donDatCho.getId());
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(donDatCho.getDonDatChoID());
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(donDatCho.getId());
+    }
 
-	public int getTongSoVe() {
-		return tongSoVe;
-	}
+    public int getTongSoVe() {
+        return tongSoVe;
+    }
 
-	public int getSoVeHoan() {
-		return soVeHoan;
-	}
+    public void setTongSoVe(int tongSoVe) {
+        this.tongSoVe = tongSoVe;
+    }
 
-	public int getSoVeDoi() {
-		return soVeDoi;
-	}
+    public int getSoVeHoan() {
+        return soVeHoan;
+    }
 
-	public DonDatCho getDonDatCho() {
-		return donDatCho;
-	}
+    public void setSoVeHoan(int soVeHoan) {
+        this.soVeHoan = soVeHoan;
+    }
 
-	public void setDonDatCho(DonDatCho donDatCho) {
-		this.donDatCho = donDatCho;
-	}
+    public int getSoVeDoi() {
+        return soVeDoi;
+    }
 
-	public void setTongSoVe(int tongSoVe) {
-		this.tongSoVe = tongSoVe;
-	}
+    public void setSoVeDoi(int soVeDoi) {
+        this.soVeDoi = soVeDoi;
+    }
 
-	public void setSoVeHoan(int soVeHoan) {
-		this.soVeHoan = soVeHoan;
-	}
+    public DonDatCho getDonDatCho() {
+        return donDatCho;
+    }
 
-	public void setSoVeDoi(int soVeDoi) {
-		this.soVeDoi = soVeDoi;
-	}
+    public void setDonDatCho(DonDatCho donDatCho) {
+        this.donDatCho = donDatCho;
+    }
 }

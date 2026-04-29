@@ -11,7 +11,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
+@ToString(exclude = {"dichVuPhongChoVIP", "ve"})
 @EqualsAndHashCode
 @Entity
 @Table(name = "PhieuDungPhongVIP")
