@@ -12,8 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-
-import dao.impl.*;
+import dao.*;
 import entity.*;
 import entity.type.NhatKyAudit;
 import entity.type.TrangThaiTau;
@@ -33,7 +32,7 @@ public class Chuyen_BUS {
     private Toa_DAO toaDAO;
     private Chuyen_DAO chuyenDAO;
     private ChuyenGa_DAO chuyenGaDao;
-    private dao.Ga_DAO gaDAO;
+    private Ga_DAO gaDAO;
     private Tau_DAO tauDao;
 
     public Chuyen_BUS() {
@@ -41,7 +40,7 @@ public class Chuyen_BUS {
         toaDAO = new Toa_DAO();
         chuyenDAO = new Chuyen_DAO();
         chuyenGaDao = new ChuyenGa_DAO();
-        gaDAO = new dao.Ga_DAO();
+        gaDAO = new Ga_DAO();
         tauDao = new Tau_DAO();
 
         nhatKyAuditBus = new NhatKyAudit_BUS();
@@ -54,7 +53,7 @@ public class Chuyen_BUS {
         Map<String, String> result = new HashMap<>();
         if (gheList != null) {
             for (Ghe ghe : gheList) {
-                result.put(ghe.getId(), ghe.toString());
+                result.put(ghe.getGheID(), ghe.toString());
             }
         }
 
@@ -146,8 +145,8 @@ public class Chuyen_BUS {
 
     public String themChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien) {
 
-        if (chuyenDAO.existsById(chuyen.getId())) {
-            return "Đã tồn tại chuyến " + chuyen.getId();
+        if (chuyenDAO.existsById(chuyen.getChuyenID())) {
+            return "Đã tồn tại chuyến " + chuyen.getChuyenID();
         }
 
         boolean ok = chuyenDAO.themChuyenMoi(chuyen, lichTrinh);
@@ -159,9 +158,9 @@ public class Chuyen_BUS {
                 ? nhanVienThucHien.getVaiTroNhanVien().getMoTa()
                 : "";
         String chiTietLog = String.format("%s %s Thêm Chuyến mới: %s (Tàu: %s, Ngày đi: %s, Giờ đi: %s)", tenChucVu,
-                nhanVienThucHien.getHoTen(), chuyen.getId(), chuyen.getTau().getId(),
+                nhanVienThucHien.getHoTen(), chuyen.getChuyenID(), chuyen.getTau().getTauID(),
                 chuyen.getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), chuyen.getGioDi().toString());
-        ghiLogAudit(chuyen.getId(), nhanVienThucHien, NhatKyAudit.THEM, chiTietLog);
+        ghiLogAudit(chuyen.getChuyenID(), nhanVienThucHien, NhatKyAudit.THEM, chiTietLog);
 
         return null;
     }
@@ -171,7 +170,7 @@ public class Chuyen_BUS {
     }
 
     public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinh, NhanVien nhanVienThucHien) {
-        String chuyenID = chuyen.getId();
+        String chuyenID = chuyen.getChuyenID();
         Chuyen chuyenCu = chuyenDAO.layChuyenTheoMa(chuyenID);
         List<ChuyenGa> lichTrinhCu = chuyenGaDao.getChiTietHanhTrinh(chuyenID);
 
@@ -182,9 +181,9 @@ public class Chuyen_BUS {
 
         if (ketQua) {
             List<String> cacThayDoi = new ArrayList<>();
-            if (chuyenCu != null && !chuyenCu.getTau().getId().equals(chuyen.getTau().getId())) {
-                cacThayDoi.add(String.format("Cập nhật tàu (Cũ: %s -> Mới: %s)", chuyenCu.getTau().getId(),
-                        chuyen.getTau().getId()));
+            if (chuyenCu != null && !chuyenCu.getTau().getTauID().equals(chuyen.getTau().getTauID())) {
+                cacThayDoi.add(String.format("Cập nhật tàu (Cũ: %s -> Mới: %s)", chuyenCu.getTau().getTauID(),
+                        chuyen.getTau().getTauID()));
             }
 
             boolean doiNgay = !chuyenCu.getNgayDi().equals(chuyen.getNgayDi());
@@ -251,7 +250,7 @@ public class Chuyen_BUS {
         }
         try {
             String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
-            entity.NhatKyAudit log = new entity.NhatKyAudit(maLog, doiTuongID, nv.getId(), LocalDateTime.now(),
+            entity.NhatKyAudit log = new entity.NhatKyAudit(maLog, doiTuongID, nv.getNhanVienID(), LocalDateTime.now(),
                     loaiThaoTac, chiTiet, "Chuyen");
             nhatKyAuditBus.ghiNhatKyAudit(log);
         } catch (Exception e) {
@@ -332,7 +331,7 @@ public class Chuyen_BUS {
         if (ok) {
             // Ghi log tổng quát cho chu kỳ
             String chiTiet = String.format("%s cập nhật chu kỳ cho tàu %s, tổng số %d chuyến.", nv.getHoTen(),
-                    dsChuyen.get(0).getTau().getId(), dsChuyen.size());
+                    dsChuyen.get(0).getTau().getTauID(), dsChuyen.size());
             ghiLogAudit("BATCH_UPDATE", nv, NhatKyAudit.SUA, chiTiet);
             return null; // Thành công
         }

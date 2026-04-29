@@ -33,7 +33,7 @@ import java.time.format.DateTimeFormatter;
 public class Ve implements Serializable {
     @Id
     @Column(name = "veID", length = 50)
-    private String id;
+    private String veID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "khachHangID", nullable = false)
@@ -73,12 +73,32 @@ public class Ve implements Serializable {
     @Transient
     private boolean isVeDoi;
 
+    public Ve(String veID, KhachHang khachHang, DonDatCho donDatCho, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen,
+              LocalDateTime ngayGioDi, double gia, TrangThaiVe trangThai) {
+        super();
+        this.veID = veID;
+        this.khachHang = khachHang;
+        this.donDatCho = donDatCho;
+        this.chuyen = chuyen;
+        this.ghe = ghe;
+        this.gaDi = gaDi;
+        this.gaDen = gaDen;
+        this.ngayGioDi = ngayGioDi;
+        this.gia = gia;
+        this.trangThai = trangThai;
+    }
+
+    public Ve(String veID) {
+        super();
+        this.veID = veID;
+    }
+
     /**
      * @return
      */
     public String thongTinVeHoan() {
-        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getId(),
-                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
+        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
+                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
     }
 
     /**
@@ -87,18 +107,18 @@ public class Ve implements Serializable {
     public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
         if (phieuDungPhongChoVIP == null) {
             return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                    ghe.getToa().getTau().getId(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
+                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
         }
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-                ghe.getToa().getTau().getId(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id,
-                phieuDungPhongChoVIP.getId());
+                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
+                phieuDungPhongChoVIP.getPhieuDungPhongVIPID());
     }
 
     /**
      * @return
      */
     public String stringThongTinChuyen() {
-        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getId(), gaDi.getGaID(),
+        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
                 gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
     }
 

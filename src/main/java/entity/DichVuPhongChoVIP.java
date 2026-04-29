@@ -34,7 +34,7 @@ import java.time.LocalDate;
 public class DichVuPhongChoVIP implements Serializable {
     @Id
     @Column(name = "dichVuPhongChoVIPID", length = 50)
-    private String id;
+    private String dichVuPhongChoVIPID;
 
     @Column(name = "gia", nullable = false, precision = 8, scale = 2)
     private double gia;
@@ -50,4 +50,9 @@ public class DichVuPhongChoVIP implements Serializable {
 
     @Column(name = "trangThai", nullable = false)
     private boolean trangThai;
+
+    public DichVuPhongChoVIP(String dichVuPhongChoVIPID) {
+        super();
+        this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
+    }
 }

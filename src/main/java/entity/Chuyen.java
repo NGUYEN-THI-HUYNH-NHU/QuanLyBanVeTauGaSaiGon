@@ -31,7 +31,7 @@ import java.util.Set;
 public class Chuyen implements Serializable {
     @Id
     @Column(name = "chuyenID", length = 50)
-    private String id;
+    private String chuyenID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tuyenID", nullable = false)
@@ -51,17 +51,63 @@ public class Chuyen implements Serializable {
     private Set<ChuyenGa> chuyenGas;
 
     @Transient
+    private LocalDate ngayDen;
+    @Transient
     private LocalTime gioDen;
     @Transient
-    private LocalDate ngayDen;
+    private int soChoDat;
+    @Transient
+    private int soChoTrong;
     @Transient
     private String tenChuyenHienThi;
     @Transient
     private String tenGaDiHienThi;
     @Transient
     private String tenGaDenHienThi;
+    @Transient
+    private Ga gaDi;
+    @Transient
+    private Ga gaDen;
 
-    public Chuyen(String id) {
-        this.id = id;
+    public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen,
+                  LocalTime gioDen, int soChoDat, int soChoTrong) {
+        super();
+        this.chuyenID = chuyenID;
+        this.tuyen = tuyen;
+        this.tau = tau;
+        this.ngayDi = ngayDi;
+        this.gioDi = gioDi;
+        this.ngayDen = ngayDen;
+        this.gioDen = gioDen;
+        this.soChoDat = soChoDat;
+        this.soChoTrong = soChoTrong;
+    }
+
+    public Chuyen(String chuyenID, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen, LocalTime gioDen) {
+        super();
+        this.chuyenID = chuyenID;
+        this.tau = tau;
+        this.ngayDi = ngayDi;
+        this.gioDi = gioDi;
+        this.ngayDen = ngayDen;
+        this.gioDen = gioDen;
+    }
+
+    public Chuyen(String chuyenID, Tau tau, LocalDate ngayDi, LocalTime gioDi) {
+        super();
+        this.chuyenID = chuyenID;
+        this.tau = tau;
+        this.ngayDi = ngayDi;
+        this.gioDi = gioDi;
+    }
+
+    public Chuyen(String chuyenID) {
+        this.chuyenID = chuyenID;
+    }
+
+    public Chuyen(String chuyenID, Tau tau) {
+        super();
+        this.chuyenID = chuyenID;
+        this.tau = tau;
     }
 }

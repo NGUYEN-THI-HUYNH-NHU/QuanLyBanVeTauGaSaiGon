@@ -6,8 +6,12 @@
 
 package entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
+
 import java.io.Serializable;
 
 @Getter
@@ -22,7 +26,7 @@ import java.io.Serializable;
 public class HangToa implements Serializable {
     @Id
     @Column(name = "hangToaID", length = 50)
-    private String id;
+    private String hangToaID;
 
     @Column(name = "moTa", nullable = false)
     private String moTa;

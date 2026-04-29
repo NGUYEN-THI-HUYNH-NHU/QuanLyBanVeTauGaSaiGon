@@ -29,7 +29,7 @@ import java.io.Serializable;
 public class DieuKienKhuyenMai implements Serializable {
     @Id
     @Column(name = "dieuKienID", length = 50)
-    private String id;
+    private String dieuKienID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "khuyenMaiID", nullable = false)

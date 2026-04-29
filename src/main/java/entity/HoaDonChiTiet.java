@@ -23,14 +23,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// CỰC KỲ QUAN TRỌNG: Exclude tất cả các object liên kết để tránh đệ quy vô hạn
 @ToString(exclude = {"hoaDon", "ve", "phieuDungPhongVIP"})
 @EqualsAndHashCode(exclude = {"hoaDon", "ve", "phieuDungPhongVIP"})
 @Entity
 @Table(name = "HoaDonChiTiet")
 public class HoaDonChiTiet implements Serializable {
     @Id
-    @Column(name = "id", length = 50)
-    private String id;
+    @Column(name = "hoaDonChiTietID", length = 50)
+    private String hoaDonChiTietID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hoaDonID", nullable = false)
@@ -40,6 +41,7 @@ public class HoaDonChiTiet implements Serializable {
     @JoinColumn(name = "veID")
     private Ve ve;
 
+    // ĐÃ SỬA: Chuyển từ String sang cấu trúc Object @ManyToOne
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "phieuDungPhongVIPID")
     private PhieuDungPhongVIP phieuDungPhongVIP;
@@ -57,20 +59,19 @@ public class HoaDonChiTiet implements Serializable {
     @Column(name = "soLuong", nullable = false)
     private int soLuong;
 
-    // Đã đổi kiểu double theo ý muốn của bạn
     @Column(name = "donGia", nullable = false, precision = 12, scale = 2)
     private double donGia;
 
     @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
     private double thanhTien;
-
+    
     /*
      * HoaDonChiTiet vé
      */
-    public HoaDonChiTiet(String id, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
                          String donViTinh, int soLuong, double donGia, double thanhTien) {
         super();
-        this.id = id;
+        this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;
         this.ve = ve;
         this.tenDichVu = tenDichVu;
@@ -84,10 +85,10 @@ public class HoaDonChiTiet implements Serializable {
     /*
      * HoaDonChiTiet Phiếu dùng phòng chờ VIP
      */
-    public HoaDonChiTiet(String id, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
+    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
                          LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
         super();
-        this.id = id;
+        this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;
         this.phieuDungPhongVIP = phieuDungPhongVIP;
         this.tenDichVu = tenDichVu;
@@ -98,10 +99,10 @@ public class HoaDonChiTiet implements Serializable {
         this.thanhTien = thanhTien;
     }
 
-    public HoaDonChiTiet(String id, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
                          int soLuong, double donGia, double thanhTien) {
         super();
-        this.id = id;
+        this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;
         this.ve = ve;
         this.tenDichVu = tenDichVu;

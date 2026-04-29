@@ -111,10 +111,10 @@ public class PhieuGiuChoChiTiet_DAO {
                 + "VALUES (?, ?, ?, ?, ?, ?, SYSUTCDATETIME(), 'DANG_GIU')";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, ct.getId());
-            ps.setString(2, ct.getPhieuGiuCho().getId());
-            ps.setString(3, ct.getChuyen().getId());
-            ps.setString(4, ct.getGhe().getId());
+            ps.setString(1, ct.getPhieuGiuChoChiTietID());
+            ps.setString(2, ct.getPhieuGiuCho().getPhieuGiuChoID());
+            ps.setString(3, ct.getChuyen().getChuyenID());
+            ps.setString(4, ct.getGhe().getGheID());
             ps.setString(5, ct.getGaDi().getGaID());
             ps.setString(6, ct.getGaDen().getGaID());
 
@@ -158,17 +158,17 @@ public class PhieuGiuChoChiTiet_DAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     PhieuGiuChoChiTiet ct = new PhieuGiuChoChiTiet();
-                    ct.setId(rs.getString("phieuGiuChoChiTietID"));
+                    ct.setPhieuGiuChoChiTietID(rs.getString("phieuGiuChoChiTietID"));
 
                     // Set các đối tượng cha (chỉ set ID, tầng BUS sẽ tải đầy đủ nếu cần)
-                    ct.setPhieuGiuCho(PhieuGiuCho.builder().id(rs.getString("phieuGiuChoID")).build());
-                    ct.setChuyen(Chuyen.builder().id(rs.getString("chuyenID")).build());
-                    ct.setGhe(Ghe.builder().id(rs.getString("gheID")).build());
+                    ct.setPhieuGiuCho(new PhieuGiuCho(rs.getString("phieuGiuChoID")));
+                    ct.setChuyen(new Chuyen(rs.getString("chuyenID")));
+                    ct.setGhe(new Ghe(rs.getString("gheID")));
                     ct.setGaDi(new Ga(rs.getString("gaDiID")));
                     ct.setGaDen(new Ga(rs.getString("gaDenID")));
 
                     ct.setThoiDiemGiuCho(rs.getTimestamp("thoiDiemGiuCho").toLocalDateTime());
-                    ct.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
+                    ct.setTrangThai(rs.getString("trangThai"));
 
                     chiTietList.add(ct);
                 }
@@ -264,8 +264,8 @@ public class PhieuGiuChoChiTiet_DAO {
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, trangThai.toString());
-            ps.setString(2, ve.getChuyen().getId());
-            ps.setString(3, ve.getGhe().getId());
+            ps.setString(2, ve.getChuyen().getChuyenID());
+            ps.setString(3, ve.getGhe().getGheID());
             ps.setString(4, ve.getGaDi().getGaID());
             ps.setString(5, ve.getGaDen().getGaID());
 

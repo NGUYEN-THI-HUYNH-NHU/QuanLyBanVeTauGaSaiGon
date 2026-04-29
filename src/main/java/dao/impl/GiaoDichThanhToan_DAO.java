@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) GiaoDichThanhToan_DAO.java  1.0  [1:36:52 PM] Nov 2, 2025
  *
@@ -6,6 +6,7 @@ package dao;
  */
 
 import connectDB.ConnectDB;
+import entity.GiaoDichThanhToan;
 
 import java.sql.Connection;
 

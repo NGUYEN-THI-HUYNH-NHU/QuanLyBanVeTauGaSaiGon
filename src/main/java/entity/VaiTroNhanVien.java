@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class VaiTroNhanVien implements Serializable {
     @Id
     @Column(name = "vaiTroNhanVienID", length = 50)
-    private String id;
+    private String vaiTroNhanVienID;
 
     @Column(name = "moTa", nullable = false)
     private String moTa;

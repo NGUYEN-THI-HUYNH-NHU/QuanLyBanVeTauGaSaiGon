@@ -38,6 +38,7 @@ public class BookingSession {
     private List<Chuyen> returnResults = new ArrayList<>();
     private KhachHang khachHang;
     private PhieuGiuCho phieuGiuCho;
+    private GiaoDichThanhToan giaoDichThanhToan;
     private DonDatCho donDatCho;
     private GiaoDichThanhToan giaoDichThanhToan;
     private HoaDon hoaDon;
@@ -109,6 +110,14 @@ public class BookingSession {
 
     public synchronized void setReturnResults(List<Chuyen> results) {
         this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
+    }
+
+    public GiaoDichThanhToan getGiaoDichThanhToan() {
+        return giaoDichThanhToan;
+    }
+
+    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+        this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
     public KhachHang getKhachHang() {

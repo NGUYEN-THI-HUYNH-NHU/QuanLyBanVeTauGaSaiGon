@@ -26,7 +26,7 @@ import java.time.LocalDate;
 public class KhuyenMai implements Serializable {
     @Id
     @Column(name = "khuyenMaiID", length = 50)
-    private String id;
+    private String khuyenMaiID;
 
     @Column(name = "maKhuyenMai", length = 50, nullable = false, unique = true)
     private String maKhuyenMai;

@@ -23,7 +23,7 @@ import java.time.LocalDate;
 public class BieuGiaVe implements Serializable {
     @Id
     @Column(name = "bieuGiaVeID", length = 50)
-    private String id;
+    private String bieuGiaVeID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tuyenApDungID")
@@ -60,4 +60,5 @@ public class BieuGiaVe implements Serializable {
 
     @Column(name = "ngayKetThuc")
     private LocalDate ngayKetThuc;
+
 }

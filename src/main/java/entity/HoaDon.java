@@ -31,39 +31,34 @@ import java.util.Set;
 public class HoaDon implements Serializable {
     @Id
     @Column(name = "hoaDonID", length = 50)
-    private String id;
+    private String hoaDonID;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "khachHangID", nullable = false)
     private KhachHang khachHang;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nhanVienID", nullable = false)
     private NhanVien nhanVien;
+
     @Column(name = "thoiDiemTao", nullable = false)
     private LocalDateTime thoiDiemTao;
+
     @Column(name = "tongTien", nullable = false, precision = 12, scale = 2)
     private double tongTien;
+
     @Column(name = "tienNhan", nullable = false, precision = 12, scale = 2)
     private double tienNhan;
+
     @Column(name = "tienHoan", precision = 12, scale = 2)
     private double tienHoan;
+
     @Column(name = "isThanhToanTienMat", nullable = false)
     private boolean isThanhToanTienMat;
+
     @Column(name = "maGD", length = 50)
     private String maGD;
+
     @OneToMany(mappedBy = "hoaDon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<HoaDonChiTiet> chiTiets;
-
-    public HoaDon(String id, KhachHang khachHang, NhanVien nhanVien, LocalDateTime thoiDiemTao, double tongTien,
-                  String maGD, double tienNhan, double tienHoan, boolean isThanhToanTienMat) {
-        super();
-        this.id = id;
-        this.khachHang = khachHang;
-        this.nhanVien = nhanVien;
-        this.thoiDiemTao = thoiDiemTao;
-        this.tongTien = tongTien;
-        this.maGD = maGD;
-        this.tienNhan = tienNhan;
-        this.tienHoan = tienHoan;
-        this.isThanhToanTienMat = isThanhToanTienMat;
-    }
 }

@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class DonDatCho implements Serializable {
     @Id
     @Column(name = "donDatChoID", length = 50)
-    private String id;
+    private String donDatChoID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nhanVienID", nullable = false)
@@ -35,4 +35,9 @@ public class DonDatCho implements Serializable {
 
     @Column(name = "thoiDiemDatCho", nullable = false)
     private LocalDateTime thoiDiemDatCho;
+
+    public DonDatCho(String donDatChoID) {
+        super();
+        this.donDatChoID = donDatChoID;
+    }
 }

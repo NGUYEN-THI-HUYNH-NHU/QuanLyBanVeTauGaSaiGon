@@ -31,7 +31,7 @@ import java.io.Serializable;
 public class Ghe implements Serializable {
     @Id
     @Column(name = "gheID", length = 50)
-    private String id;
+    private String gheID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "toaID", nullable = false)
@@ -42,4 +42,22 @@ public class Ghe implements Serializable {
 
     @Transient
     private TrangThaiGhe trangThai;
+
+    public Ghe(String gheID, int soGhe) {
+        super();
+        this.gheID = gheID;
+        this.soGhe = soGhe;
+    }
+
+    public Ghe(String gheID) {
+        super();
+        this.gheID = gheID;
+    }
+
+    public Ghe(String gheID, Toa toa, int soGhe) {
+        super();
+        this.gheID = gheID;
+        this.toa = toa;
+        this.soGhe = soGhe;
+    }
 }

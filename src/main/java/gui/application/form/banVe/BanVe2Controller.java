@@ -94,7 +94,7 @@ public class BanVe2Controller {
             khuyenMai += ve.getGiamKM();
 
             // (Logic giảm đối tượng giữ nguyên)
-            if (ve.getVe().getKhachHang().getLoaiDoiTuong() == LoaiDoiTuong.TRE_EM) {
+            if (ve.getVe().getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID().equals(LoaiDoiTuong.TRE_EM)) {
                 ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
                 giamGiaDT += ve.getGiamDoiTuong();
             }

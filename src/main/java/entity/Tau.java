@@ -32,7 +32,7 @@ import java.util.Set;
 public class Tau implements Serializable {
     @Id
     @Column(name = "tauID", length = 50)
-    private String id;
+    private String tauID;
 
     @Column(name = "tenTau", nullable = false)
     private String tenTau;
@@ -54,17 +54,38 @@ public class Tau implements Serializable {
     @OneToMany(mappedBy = "tau", fetch = FetchType.LAZY)
     private Set<Toa> toas;
 
-    public Tau(String id) {
-        this.id = id;
+    public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, TrangThaiTau trangThai) {
+        super();
+        this.tauID = tauID;
+        this.tenTau = tenTau;
+        this.loaiTau = loaiTau;
+        this.soLuongToa = soLuongToa;
+        this.trangThai = trangThai;
     }
 
-    public Tau(String id, LoaiTau loaiTau) {
-        this.id = id;
+    public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, TrangThaiTau trangThai, int vanTocTB) {
+        this.tauID = tauID;
+        this.tenTau = tenTau;
+        this.loaiTau = loaiTau;
+        this.soLuongToa = soLuongToa;
+        this.trangThai = trangThai;
+        this.vanTocTB = vanTocTB;
+    }
+
+    public Tau(String tauID) {
+        super();
+        this.tauID = tauID;
+    }
+
+    public Tau(String tauID, LoaiTau loaiTau) {
+        super();
+        this.tauID = tauID;
         this.loaiTau = loaiTau;
     }
 
-    public Tau(String id, String tenTau) {
-        this.id = id;
+    public Tau(String tauID, String tenTau) {
+        super();
+        this.tauID = tauID;
         this.tenTau = tenTau;
     }
 }

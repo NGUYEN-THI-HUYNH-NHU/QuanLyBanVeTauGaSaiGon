@@ -32,7 +32,7 @@ import java.util.Set;
 public class PhieuGiuCho implements Serializable {
     @Id
     @Column(name = "phieuGiuChoID", length = 50)
-    private String id;
+    private String phieuGiuChoID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "nhanVienID", nullable = false)
@@ -47,4 +47,15 @@ public class PhieuGiuCho implements Serializable {
 
     @OneToMany(mappedBy = "phieuGiuCho", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<PhieuGiuChoChiTiet> chiTiets;
+
+    public PhieuGiuCho(String phieuGiuChoID) {
+        this.phieuGiuChoID = phieuGiuChoID;
+    }
+    
+    public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, TrangThaiPhieuGiuCho trangThai) {
+        this.phieuGiuChoID = phieuGiuChoID;
+        this.nhanVien = nhanVien;
+        this.trangThai = trangThai;
+    }
+
 }
