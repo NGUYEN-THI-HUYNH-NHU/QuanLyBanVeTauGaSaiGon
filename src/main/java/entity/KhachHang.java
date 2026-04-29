@@ -53,4 +53,15 @@ public class KhachHang implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loaiKhachHangID", nullable = false)
     private LoaiKhachHang loaiKhachHang;
+
+    public KhachHang(String id) {
+        this.id = id;
+    }
+
+    public KhachHang(String id, String hoTen, String soGiayTo, String soDienThoai) {
+        this.id = id;
+        this.hoTen = hoTen;
+        this.soGiayTo = soGiayTo;
+        this.soDienThoai = soDienThoai;
+    }
 }

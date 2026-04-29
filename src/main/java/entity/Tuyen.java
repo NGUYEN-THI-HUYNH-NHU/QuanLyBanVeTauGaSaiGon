@@ -42,4 +42,8 @@ public class Tuyen implements Serializable {
 
     @OneToMany(mappedBy = "tuyen", fetch = FetchType.LAZY)
     private Set<Chuyen> chuyens;
+
+    public Tuyen(String id) {
+        this.id = id;
+    }
 }

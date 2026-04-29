@@ -49,4 +49,19 @@ public class Chuyen implements Serializable {
 
     @OneToMany(mappedBy = "chuyen", fetch = FetchType.LAZY)
     private Set<ChuyenGa> chuyenGas;
+
+    @Transient
+    private LocalTime gioDen;
+    @Transient
+    private LocalDate ngayDen;
+    @Transient
+    private String tenChuyenHienThi;
+    @Transient
+    private String tenGaDiHienThi;
+    @Transient
+    private String tenGaDenHienThi;
+
+    public Chuyen(String id) {
+        this.id = id;
+    }
 }

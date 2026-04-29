@@ -1,4 +1,4 @@
-package dao;
+package dao.impl;
 /*
  * @(#) Tau_DAO.java  1.0  [4:26:23 PM] Sep 28, 2025
  *
@@ -12,16 +12,16 @@ package dao;
  * @version: 1.0
  */
 
-import entity.Tau;
-import java.sql.*;
-import java.time.LocalDate;
-import java.util.*;
-
 import connectDB.ConnectDB;
 import entity.type.TrangThaiTau;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class Tau_DAO {
-	private ConnectDB connectDB;
+    private ConnectDB connectDB;
 
     public Tau_DAO() {
         connectDB = ConnectDB.getInstance();

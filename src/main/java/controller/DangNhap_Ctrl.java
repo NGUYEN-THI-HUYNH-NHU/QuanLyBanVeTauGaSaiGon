@@ -5,7 +5,7 @@ package controller;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import dao.TaiKhoan_DAO;
+import dao.impl.TaiKhoan_DAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import gui.application.AuthService;

@@ -12,6 +12,7 @@ package dao.impl;
  * @version: 1.0
  */
 
+import dao.IGhe_DAO;
 import entity.Ghe;
 import entity.Toa;
 import entity.type.TrangThaiGhe;
@@ -20,7 +21,7 @@ import jakarta.persistence.Query;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ghe_DAO extends AbstractGenericDao<Ghe, String> {
+public class Ghe_DAO extends AbstractGenericDao<Ghe, String> implements IGhe_DAO {
 
     public Ghe_DAO() {
         super(Ghe.class);
@@ -29,6 +30,7 @@ public class Ghe_DAO extends AbstractGenericDao<Ghe, String> {
     /**
      * 1. Truy vấn bằng Native Query với ánh xạ trạng thái Transient
      */
+    @Override
     public List<Ghe> getGheByGaDiGaDenChuyenToa(String gaDiID, String gaDenID, String chuyenID, String toaID) {
         return doInTransaction(em -> {
             String sql = "DECLARE @chuyenID VARCHAR(50) = :chuyenID;\n"
@@ -115,6 +117,7 @@ public class Ghe_DAO extends AbstractGenericDao<Ghe, String> {
      * Lưu ý: Cột trangThai không có trong CSDL nên JPQL không thể SELECT nó.
      * Thuộc tính này sẽ được để trống (null) hoặc bạn tự gán mặc định.
      */
+    @Override
     public Ghe getGheByChuyenIDGheID(String chuyenID, String gheID) {
         return doInTransaction(em -> {
             String jpql = "SELECT g FROM Ghe g " +
@@ -136,6 +139,7 @@ public class Ghe_DAO extends AbstractGenericDao<Ghe, String> {
     /**
      * 3. Tính toán giá vé (Native Query)
      */
+    @Override
     public int calcGia(String chuyenID, String gaDiID, String gaDenID, String loaiTauID, String hangToaID) {
         return doInTransaction(em -> {
             String sql = "DECLARE @chuyenID VARCHAR(50) = :chuyenID;\n"

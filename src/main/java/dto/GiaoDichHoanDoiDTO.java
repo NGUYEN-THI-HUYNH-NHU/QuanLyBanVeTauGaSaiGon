@@ -1,8 +1,11 @@
 package dto;
+
+import entity.type.LoaiGiaoDich;
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -11,10 +14,10 @@ import java.time.*;
 @AllArgsConstructor
 public class GiaoDichHoanDoiDTO implements Serializable {
     private String id;
-    private NhanVienDTO nhanVien;
-    private HoaDonDTO hoaDon;
-    private VeDTO veGoc;
-    private VeDTO veMoi;
+    private String nhanVienID;
+    private String hoaDonID;
+    private String veGocID;
+    private String veMoiID;
     private LoaiGiaoDich loaiGiaoDich;
     private String lyDo;
     private LocalDateTime thoiDiemGiaoDich;

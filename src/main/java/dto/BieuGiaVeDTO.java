@@ -1,9 +1,6 @@
 package dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,7 +12,7 @@ import java.time.LocalDate;
 @Builder
 public class BieuGiaVeDTO implements Serializable {
     private String id;
-    private TuyenDTO tuyenApDung;
+    private String tuyenApDung;
     private LoaiTauDTO loaiTauApDung;
     private HangToaDTO hangToaApDung;
     private int minKm;

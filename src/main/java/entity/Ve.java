@@ -70,11 +70,14 @@ public class Ve implements Serializable {
     @Column(name = "trangThai", length = 50)
     private TrangThaiVe trangThai;
 
+    @Transient
+    private boolean isVeDoi;
+
     /**
      * @return
      */
     public String thongTinVeHoan() {
-        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
+        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getId(),
                 ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
     }
 
@@ -84,10 +87,10 @@ public class Ve implements Serializable {
     public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
         if (phieuDungPhongChoVIP == null) {
             return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
+                    ghe.getToa().getTau().getId(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
         }
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id,
+                ghe.getToa().getTau().getId(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id,
                 phieuDungPhongChoVIP.getId());
     }
 
@@ -95,7 +98,7 @@ public class Ve implements Serializable {
      * @return
      */
     public String stringThongTinChuyen() {
-        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
+        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getId(), gaDi.getGaID(),
                 gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
     }
 

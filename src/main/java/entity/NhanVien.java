@@ -68,4 +68,13 @@ public class NhanVien implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caLamID", nullable = false)
     private CaLam caLam;
+
+    public NhanVien(String id) {
+        this.id = id;
+    }
+
+    public NhanVien(String id, String hoTen) {
+        this.id = id;
+        this.hoTen = hoTen;
+    }
 }

@@ -1,8 +1,11 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @Builder
@@ -10,13 +13,11 @@ import java.time.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChuyenGaDTO implements Serializable {
-    private ChuyenDTO chuyen;
-    private GaDTO ga;
+    private String chuyenID;
+    private String gaID;
     private int thuTu;
     private LocalDate ngayDen;
     private LocalTime gioDen;
     private LocalDate ngayDi;
     private LocalTime gioDi;
-    private String chuyen;
-    private String ga;
 }

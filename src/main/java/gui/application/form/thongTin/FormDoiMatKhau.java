@@ -12,126 +12,115 @@ package gui.application.form.thongTin;
  * @version: 1.0
  */
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
 import entity.NhanVien;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class FormDoiMatKhau extends JPanel {
-	private JLabel lblMatKhauHienTai;
-	private JLabel lblMatKhauMoi;
-	private JLabel lblXacNhanMatKhauMoi;
-	private JTextField txtMatKhauHienTai;
-	private JTextField txtMatKhauMoi;
-	private JTextField txtXacNhanMatKhauMoi;
-	private JButton btnDoiMatKhau;
-	private JLabel lblThongTin;
-	private JLabel lblError;
+    private final NhanVien nhanVien;
+    private final DoiMatKhauController controller;
+    private JLabel lblMatKhauHienTai;
+    private JLabel lblMatKhauMoi;
+    private JLabel lblXacNhanMatKhauMoi;
+    private JTextField txtMatKhauHienTai;
+    private JTextField txtMatKhauMoi;
+    private JTextField txtXacNhanMatKhauMoi;
+    private JButton btnDoiMatKhau;
+    private JLabel lblThongTin;
+    private JLabel lblError;
 
-	private final NhanVien nhanVien;
-	private final DoiMatKhauController controller;
+    public FormDoiMatKhau(NhanVien nhanVien) {
+        initComponents(nhanVien);
+        this.nhanVien = nhanVien;
+        this.controller = new DoiMatKhauController(this);
+    }
 
-	public FormDoiMatKhau(NhanVien nhanVien) {
-		initComponents(nhanVien);
-		this.nhanVien = nhanVien;
-		this.controller = new DoiMatKhauController(this);
-	}
+    private void initComponents(NhanVien nhanVien) {
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
-	private void initComponents(NhanVien nhanVien) {
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
+        lblMatKhauHienTai = new JLabel("Mật khẩu hiện tại:");
+        lblMatKhauMoi = new JLabel("Mật khẩu mới:");
+        lblXacNhanMatKhauMoi = new JLabel("Xác nhận mật khẩu mới:");
+        txtMatKhauHienTai = new JPasswordField();
+        txtMatKhauMoi = new JPasswordField();
+        txtXacNhanMatKhauMoi = new JPasswordField(55);
+        btnDoiMatKhau = new JButton("Đổi mật khẩu");
+        lblThongTin = new JLabel(nhanVien.getHoTen() + " - " + nhanVien.getVaiTroNhanVien().getMoTa());
+        lblError = new JLabel();
 
-		lblMatKhauHienTai = new JLabel("Mật khẩu hiện tại:");
-		lblMatKhauMoi = new JLabel("Mật khẩu mới:");
-		lblXacNhanMatKhauMoi = new JLabel("Xác nhận mật khẩu mới:");
-		txtMatKhauHienTai = new JPasswordField();
-		txtMatKhauMoi = new JPasswordField();
-		txtXacNhanMatKhauMoi = new JPasswordField(55);
-		btnDoiMatKhau = new JButton("Đổi mật khẩu");
-		lblThongTin = new JLabel(nhanVien.getHoTen() + " - " + nhanVien.getVaiTroNhanVien().getDescription());
-		lblError = new JLabel();
+        JLabel titleLabel = new JLabel("Đổi mật khẩu");
+        titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 25));
+        lblThongTin.setFont(new Font(lblThongTin.getFont().getName(), Font.ITALIC, 20));
+        lblError.setBorder(BorderFactory.createEmptyBorder());
+        lblError.setForeground(Color.RED);
+        lblError.setFont(lblError.getFont().deriveFont(Font.ITALIC));
 
-		JLabel titleLabel = new JLabel("Đổi mật khẩu");
-		titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 25));
-		lblThongTin.setFont(new Font(lblThongTin.getFont().getName(), Font.ITALIC, 20));
-		lblError.setBorder(BorderFactory.createEmptyBorder());
-		lblError.setForeground(Color.RED);
-		lblError.setFont(lblError.getFont().deriveFont(Font.ITALIC));
+        gbc.insets = new Insets(8, 50, 8, 50);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		gbc.insets = new Insets(8, 50, 8, 50);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        add(titleLabel, gbc);
 
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.gridwidth = 2;
-		add(titleLabel, gbc);
+        gbc.gridy++;
+        add(lblThongTin, gbc);
 
-		gbc.gridy++;
-		add(lblThongTin, gbc);
+        gbc.gridwidth = 1;
 
-		gbc.gridwidth = 1;
+        gbc.gridy++;
+        gbc.gridx = 0;
+        add(lblMatKhauHienTai, gbc);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		add(lblMatKhauHienTai, gbc);
+        gbc.gridx = 1;
+        add(txtMatKhauHienTai, gbc);
 
-		gbc.gridx = 1;
-		add(txtMatKhauHienTai, gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        add(lblMatKhauMoi, gbc);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		add(lblMatKhauMoi, gbc);
+        gbc.gridx = 1;
+        add(txtMatKhauMoi, gbc);
 
-		gbc.gridx = 1;
-		add(txtMatKhauMoi, gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        add(lblXacNhanMatKhauMoi, gbc);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		add(lblXacNhanMatKhauMoi, gbc);
+        gbc.gridx = 1;
+        add(txtXacNhanMatKhauMoi, gbc);
 
-		gbc.gridx = 1;
-		add(txtXacNhanMatKhauMoi, gbc);
+        gbc.gridy++;
+        gbc.gridx = 0;
+        add(new JLabel(""), gbc);
 
-		gbc.gridy++;
-		gbc.gridx = 0;
-		add(new JLabel(""), gbc);
+        gbc.gridx = 1;
+        add(lblError, gbc);
 
-		gbc.gridx = 1;
-		add(lblError, gbc);
+        gbc.gridy++;
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        add(btnDoiMatKhau, gbc);
+    }
 
-		gbc.gridy++;
-		gbc.gridx = 1;
-		gbc.anchor = GridBagConstraints.EAST;
-		add(btnDoiMatKhau, gbc);
-	}
+    public JTextField getTxtMatKhauHienTai() {
+        return txtMatKhauHienTai;
+    }
 
-	public JTextField getTxtMatKhauHienTai() {
-		return txtMatKhauHienTai;
-	}
+    public JTextField getTxtMatKhauMoi() {
+        return txtMatKhauMoi;
+    }
 
-	public JTextField getTxtMatKhauMoi() {
-		return txtMatKhauMoi;
-	}
+    public JTextField getTxtXacNhanMatKhauMoi() {
+        return txtXacNhanMatKhauMoi;
+    }
 
-	public JTextField getTxtXacNhanMatKhauMoi() {
-		return txtXacNhanMatKhauMoi;
-	}
+    public JButton getBtnDoiMatKhau() {
+        return btnDoiMatKhau;
+    }
 
-	public JButton getBtnDoiMatKhau() {
-		return btnDoiMatKhau;
-	}
-
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
+    public NhanVien getNhanVien() {
+        return nhanVien;
+    }
 }

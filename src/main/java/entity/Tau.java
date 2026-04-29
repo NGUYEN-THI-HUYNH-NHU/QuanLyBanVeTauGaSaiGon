@@ -13,10 +13,10 @@ package entity;
  * @version: 1.0
  */
 
-import java.util.Objects;
 import entity.type.TrangThaiTau;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -32,7 +32,7 @@ import java.util.Set;
 public class Tau implements Serializable {
     @Id
     @Column(name = "tauID", length = 50)
-    private String tauID;
+    private String id;
 
     @Column(name = "tenTau", nullable = false)
     private String tenTau;
@@ -53,4 +53,18 @@ public class Tau implements Serializable {
 
     @OneToMany(mappedBy = "tau", fetch = FetchType.LAZY)
     private Set<Toa> toas;
+
+    public Tau(String id) {
+        this.id = id;
+    }
+
+    public Tau(String id, LoaiTau loaiTau) {
+        this.id = id;
+        this.loaiTau = loaiTau;
+    }
+
+    public Tau(String id, String tenTau) {
+        this.id = id;
+        this.tenTau = tenTau;
+    }
 }

@@ -23,13 +23,13 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = {"hoaDon", "ve", "phieuDungPhongVIP"})
+@EqualsAndHashCode(exclude = {"hoaDon", "ve", "phieuDungPhongVIP"})
 @Entity
 @Table(name = "HoaDonChiTiet")
 public class HoaDonChiTiet implements Serializable {
     @Id
-    @Column(name = "hoaDonChiTietID", length = 50)
+    @Column(name = "id", length = 50)
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,9 +40,9 @@ public class HoaDonChiTiet implements Serializable {
     @JoinColumn(name = "veID")
     private Ve ve;
 
-    // Giữ ID dưới dạng String nếu bạn chưa ánh xạ bảng PhieuDungPhongVIP
-    @Column(name = "phieuDungPhongVIPID", length = 50)
-    private String phieuDungPhongVIPID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "phieuDungPhongVIPID")
+    private PhieuDungPhongVIP phieuDungPhongVIP;
 
     @Column(name = "tenDichVu", nullable = false, length = 100)
     private String tenDichVu;
@@ -57,9 +57,57 @@ public class HoaDonChiTiet implements Serializable {
     @Column(name = "soLuong", nullable = false)
     private int soLuong;
 
+    // Đã đổi kiểu double theo ý muốn của bạn
     @Column(name = "donGia", nullable = false, precision = 12, scale = 2)
     private double donGia;
 
     @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
     private double thanhTien;
+
+    /*
+     * HoaDonChiTiet vé
+     */
+    public HoaDonChiTiet(String id, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+                         String donViTinh, int soLuong, double donGia, double thanhTien) {
+        super();
+        this.id = id;
+        this.hoaDon = hoaDon;
+        this.ve = ve;
+        this.tenDichVu = tenDichVu;
+        this.loaiDichVu = loaiDichVu;
+        this.donViTinh = donViTinh;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.thanhTien = thanhTien;
+    }
+
+    /*
+     * HoaDonChiTiet Phiếu dùng phòng chờ VIP
+     */
+    public HoaDonChiTiet(String id, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
+                         LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
+        super();
+        this.id = id;
+        this.hoaDon = hoaDon;
+        this.phieuDungPhongVIP = phieuDungPhongVIP;
+        this.tenDichVu = tenDichVu;
+        this.loaiDichVu = loaiDichVu;
+        this.donViTinh = donViTinh;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.thanhTien = thanhTien;
+    }
+
+    public HoaDonChiTiet(String id, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+                         int soLuong, double donGia, double thanhTien) {
+        super();
+        this.id = id;
+        this.hoaDon = hoaDon;
+        this.ve = ve;
+        this.tenDichVu = tenDichVu;
+        this.loaiDichVu = loaiDichVu;
+        this.soLuong = soLuong;
+        this.donGia = donGia;
+        this.thanhTien = thanhTien;
+    }
 }

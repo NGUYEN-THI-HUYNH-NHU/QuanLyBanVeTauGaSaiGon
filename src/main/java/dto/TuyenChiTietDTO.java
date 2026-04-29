@@ -11,10 +11,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TuyenChiTietDTO implements Serializable {
-    private TuyenDTO tuyen;
-    private GaDTO ga;
-    private int thuTu;
-    private int khoangCachTuGaXuatPhatKm;
     private String tuyenID;
     private String gaID;
+    private String tenGa;
+    private int thuTu;
+    private int khoangCachTuGaXuatPhatKm;
 }

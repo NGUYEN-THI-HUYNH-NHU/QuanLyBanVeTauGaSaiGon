@@ -1,17 +1,20 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class NhanVienDTO implements Serializable {
     private String id;
-    private VaiTroNhanVienDTO vaiTroNhanVien;
+    private String vaiTroNhanVien;
     private String hoTen;
     private boolean isNu;
     private LocalDate ngaySinh;
