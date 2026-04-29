@@ -159,7 +159,7 @@ public class Tuyen_BUS {
         StringBuilder sb = new StringBuilder();
         sb.append(
                 "__________________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________________________\n");
-        sb.append("Mã Tuyến: ").append(tuyen.getId()).append("\n");
+        sb.append("Mã Tuyến: ").append(tuyen.getTuyenID()).append("\n");
         sb.append("Mô Tả: ").append(tuyen.getMoTa()).append("\n");
         sb.append("Trạng Thái: ").append(trangThaiStr).append("\n");
         sb.append("Khoảng cách từ ga xuất phát đến ga đích: ")
@@ -256,9 +256,9 @@ public class Tuyen_BUS {
                             nhanVienThucHien.getVaiTroNhanVien(),
                             nhanVienThucHien.getHoTen(),
                             tuyenMoi.getMoTa());
-                    ghiNhatKy(tuyenMoi.getId(), nhanVienThucHien, entity.type.NhatKyAudit.THEM, chiTietLog);
+                    ghiNhatKy(tuyenMoi.getTuyenID(), nhanVienThucHien, entity.type.NhatKyAudit.THEM, chiTietLog);
                 } else {
-                    tuyen_dao.xoaTuyen(tuyenMoi.getId());
+                    tuyen_dao.xoaTuyen(tuyenMoi.getTuyenID());
                 }
             }
         } catch (Exception e) {
@@ -271,7 +271,7 @@ public class Tuyen_BUS {
         if (tuyenCapNhat == null || dsChiTietMoi == null || dsChiTietMoi.size() < 2) {
             return false;
         }
-        String tuyenID = tuyenCapNhat.getId();
+        String tuyenID = tuyenCapNhat.getTuyenID();
 
         Tuyen tuyenCu = tuyen_dao.getTuyenByExactID(tuyenID);
         List<TuyenChiTiet> dsChiTietCu = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
@@ -337,7 +337,7 @@ public class Tuyen_BUS {
 
             NhatKyAudit log = new NhatKyAudit(maLog,
                     doiTuongID,
-                    nv.getId(),
+                    nv.getNhanVienID(),
                     LocalDateTime.now(),
                     loaiThaoTac,
                     chiTiet,
@@ -443,7 +443,7 @@ public class Tuyen_BUS {
             for (Tuyen t : dsTuyen) {
                 String moTa = (t.getMoTa() != null) ? t.getMoTa() : "Không có mô tả";
                 // Định dạng: "SE1 (Sài Gòn - Hà Nội)"
-                String item = String.format("%s (%s)", t.getId(), moTa);
+                String item = String.format("%s (%s)", t.getTuyenID(), moTa);
                 dsHienThi.add(item);
             }
         }
