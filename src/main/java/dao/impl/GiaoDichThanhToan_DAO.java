@@ -24,7 +24,7 @@ public class GiaoDichThanhToan_DAO {
         connectDB.connect();
     }
 
-    public boolean createGiaoDichThanhToan(Connection conn, GiaoDichThanhToan giaoDichThanhToan) {
+    public boolean createGiaoDichThanhToan(Connection conn, GiaoDichThanhToan_DAO giaoDichThanhToan) {
         // TODO: tam thoi giao dich thanh toan bi gop voi hoa don, nen chua lam gi duoc
         // o day. Ve sau neu tach lai se sua sau;
         return true;

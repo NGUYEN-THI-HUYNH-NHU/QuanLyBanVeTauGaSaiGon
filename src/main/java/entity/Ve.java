@@ -18,7 +18,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -65,7 +64,7 @@ public class Ve implements Serializable {
     private LocalDateTime ngayGioDi;
 
     @Column(name = "gia", nullable = false, precision = 12, scale = 2)
-    private BigDecimal gia;
+    private double gia;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", length = 50)
@@ -76,7 +75,7 @@ public class Ve implements Serializable {
      */
     public String thongTinVeHoan() {
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
-                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
     }
 
     /**
@@ -85,11 +84,11 @@ public class Ve implements Serializable {
     public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
         if (phieuDungPhongChoVIP == null) {
             return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
+                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id);
         }
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
-                phieuDungPhongChoVIP.getPhieuDungPhongChoVIPID());
+                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), id,
+                phieuDungPhongChoVIP.getId());
     }
 
     /**

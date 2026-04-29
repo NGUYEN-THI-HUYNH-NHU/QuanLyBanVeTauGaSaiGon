@@ -2,6 +2,7 @@ package gui.application.form.doiVe;
 
 import bus.DoiVe_BUS;
 import bus.KhuyenMai_BUS;
+import entity.GiaoDichThanhToan;
 import gui.application.AppHttpServer;
 import gui.application.form.banVe.VeSession;
 import gui.application.paymentHelper.PdfTicketExporter;

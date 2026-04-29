@@ -7,6 +7,7 @@ package gui.application.form.banVe;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
+import entity.GiaoDichThanhToan;
 import entity.Ve;
 import entity.type.LoaiDoiTuong;
 import gui.application.AppHttpServer;

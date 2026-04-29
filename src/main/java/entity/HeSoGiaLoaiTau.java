@@ -16,7 +16,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -37,7 +36,7 @@ public class HeSoGiaLoaiTau implements Serializable {
     private LoaiTau loaiTau;
 
     @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
-    private BigDecimal hsg;
+    private double hsg;
 
     @Column(name = "isCoHieuLuc")
     private Boolean isCoHieuLuc;

@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -45,13 +44,13 @@ public class BieuGiaVe implements Serializable {
     private int maxKm;
 
     @Column(name = "donGiaTrenKm", precision = 10, scale = 4)
-    private BigDecimal donGiaTrenKm;
+    private double donGiaTrenKm;
 
     @Column(name = "giaCoBan", precision = 12, scale = 2)
-    private BigDecimal giaCoBan;
+    private double giaCoBan;
 
     @Column(name = "phuPhiCaoDiem", precision = 12, scale = 2)
-    private BigDecimal phuPhiCaoDiem;
+    private double phuPhiCaoDiem;
 
     @Column(name = "doUuTien", nullable = false)
     private int doUuTien;

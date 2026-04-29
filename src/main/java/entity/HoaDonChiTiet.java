@@ -17,7 +17,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -59,8 +58,8 @@ public class HoaDonChiTiet implements Serializable {
     private int soLuong;
 
     @Column(name = "donGia", nullable = false, precision = 12, scale = 2)
-    private BigDecimal donGia;
+    private double donGia;
 
     @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
-    private BigDecimal thanhTien;
+    private double thanhTien;
 }

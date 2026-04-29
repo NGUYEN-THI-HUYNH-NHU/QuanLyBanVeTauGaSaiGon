@@ -17,7 +17,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -61,8 +60,8 @@ public class GiaoDichHoanDoi implements Serializable {
     private LocalDateTime thoiDiemGiaoDich;
 
     @Column(name = "phiHoanDoi", nullable = false, precision = 12, scale = 2)
-    private BigDecimal phiHoanDoi;
+    private double phiHoanDoi;
 
     @Column(name = "soTienChenhLech", nullable = false, precision = 12, scale = 2)
-    private BigDecimal soTienChenhLech;
+    private double soTienChenhLech;
 }

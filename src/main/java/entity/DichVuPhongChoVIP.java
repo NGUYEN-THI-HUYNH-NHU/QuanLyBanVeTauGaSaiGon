@@ -20,7 +20,6 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -38,7 +37,7 @@ public class DichVuPhongChoVIP implements Serializable {
     private String id;
 
     @Column(name = "gia", nullable = false, precision = 8, scale = 2)
-    private BigDecimal gia;
+    private double gia;
 
     @Column(name = "moTa", columnDefinition = "NVARCHAR(MAX)")
     private String moTa;

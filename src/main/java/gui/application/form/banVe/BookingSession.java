@@ -39,6 +39,7 @@ public class BookingSession {
     private KhachHang khachHang;
     private PhieuGiuCho phieuGiuCho;
     private DonDatCho donDatCho;
+    private GiaoDichThanhToan giaoDichThanhToan;
     private HoaDon hoaDon;
 
     public BookingSession() {
@@ -223,6 +224,14 @@ public class BookingSession {
 
     public void setDonDatCho(DonDatCho donDatCho) {
         this.donDatCho = donDatCho;
+    }
+
+    public GiaoDichThanhToan getGiaoDichThanhToan() {
+        return giaoDichThanhToan;
+    }
+
+    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+        this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
     public HoaDon getHoaDon() {

@@ -13,6 +13,7 @@ package entity;
  * @version: 1.0
  */
 
+import entity.type.TrangThaiGhe;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,4 +39,7 @@ public class Ghe implements Serializable {
 
     @Column(name = "soGhe", nullable = false)
     private int soGhe;
+
+    @Transient
+    private TrangThaiGhe trangThai;
 }
