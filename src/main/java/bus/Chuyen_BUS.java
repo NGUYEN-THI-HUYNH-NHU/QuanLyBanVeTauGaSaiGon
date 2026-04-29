@@ -12,7 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-import dao.*;
+import dao.impl.*;
 import entity.*;
 import entity.type.NhatKyAudit;
 import entity.type.TrangThaiTau;

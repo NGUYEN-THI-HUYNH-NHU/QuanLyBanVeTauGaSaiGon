@@ -9,8 +9,8 @@ package bus;/*
 			* @created : 30/09/2025
 			*/
 
-import dao.Ga_DAO;
-import dao.KhoangCachChuan_DAO;
+import dao.impl.Ga_DAO;
+import dao.impl.KhoangCachChuan_DAO;
 import dao.impl.TuyenChiTiet_DAO;
 import dao.impl.Tuyen_DAO;
 import entity.*;
@@ -56,7 +56,7 @@ public class Tuyen_BUS {
         List<String> idTuyenList = new ArrayList<>();
 
         for (Tuyen tuyen : dsTuyen) {
-            idTuyenList.add(tuyen.getId());
+            idTuyenList.add(tuyen.getTuyenID());
         }
 
         return idTuyenList;
@@ -77,7 +77,7 @@ public class Tuyen_BUS {
         List<Object[]> dsDuLieuBang = new ArrayList<>();
 
         for (Tuyen tuyen : dsTuyen) {
-            List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyen.getId());
+            List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyen.getTuyenID());
 
             if (dsTuyenChiTiet != null && dsTuyenChiTiet.size() >= 2) {
                 TuyenChiTiet gaDiTCT = dsTuyenChiTiet.get(0);
@@ -95,7 +95,7 @@ public class Tuyen_BUS {
                 String trangThaiHienThi = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
 
                 Object[] rowData = new Object[]{
-                        tuyen.getId(),
+                        tuyen.getTuyenID(),
                         gaDiTCT.getGa().getTenGa(),
                         gaDenTCT.getGa().getTenGa(),
                         gaTrungGian,
