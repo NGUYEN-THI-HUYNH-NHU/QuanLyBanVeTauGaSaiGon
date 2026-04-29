@@ -11,76 +11,36 @@ package entity;
  * @date: Sep 22, 2025
  * @version: 1.0
  */
-import java.util.Objects;
 
 import entity.type.TrangThaiSDKM;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class SuDungKhuyenMai {
-	private String suDungKhuyenMaiID;
-	private KhuyenMai khuyenMai;
-	private HoaDonChiTiet hoaDonChiTiet;
-	private TrangThaiSDKM trangThai;
+import java.io.Serializable;
 
-	public SuDungKhuyenMai(String suDungKhuyenMaiID, KhuyenMai khuyenMai, HoaDonChiTiet hoaDonChiTiet,
-			TrangThaiSDKM trangThai) {
-		super();
-		this.suDungKhuyenMaiID = suDungKhuyenMaiID;
-		this.khuyenMai = khuyenMai;
-		this.hoaDonChiTiet = hoaDonChiTiet;
-		this.trangThai = trangThai;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "SuDungKhuyenMai")
+public class SuDungKhuyenMai implements Serializable {
+    @Id
+    @Column(name = "suDungKhuyenMaiID", length = 50)
+    private String id;
 
-	public String getSuDungKhuyenMaiID() {
-		return suDungKhuyenMaiID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khuyenMaiID", nullable = false)
+    private KhuyenMai khuyenMai;
 
-	public KhuyenMai getKhuyenMai() {
-		return khuyenMai;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hoaDonChiTietID", nullable = false)
+    private HoaDonChiTiet hoaDonChiTiet;
 
-	public HoaDonChiTiet getHoaDonChiTiet() {
-		return hoaDonChiTiet;
-	}
-
-	public void setSuDungKhuyenMaiID(String suDungKhuyenMaiID) {
-		this.suDungKhuyenMaiID = suDungKhuyenMaiID;
-	}
-
-	public void setKhuyenMai(KhuyenMai khuyenMai) {
-		this.khuyenMai = khuyenMai;
-	}
-
-	public void setHoaDonChiTiet(HoaDonChiTiet hoaDonChiTiet) {
-		this.hoaDonChiTiet = hoaDonChiTiet;
-	}
-
-	public TrangThaiSDKM getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTrangThai(TrangThaiSDKM trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	@Override
-	public String toString() {
-		return suDungKhuyenMaiID + ";" + khuyenMai.getKhuyenMaiID() + ";" + hoaDonChiTiet.getHoaDonChiTietID();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		SuDungKhuyenMai that = (SuDungKhuyenMai) o;
-		return Objects.equals(getSuDungKhuyenMaiID(), that.getSuDungKhuyenMaiID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getSuDungKhuyenMaiID());
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private TrangThaiSDKM trangThai;
 }

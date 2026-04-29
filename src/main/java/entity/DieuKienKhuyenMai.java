@@ -11,137 +11,53 @@ package entity;
  * @date: Sep 22, 2025
  * @version: 1.0
  */
-import java.util.Objects;
 
-import entity.type.HangToa;
-import entity.type.LoaiDoiTuong;
-import entity.type.LoaiTau;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class DieuKienKhuyenMai {
-	private String dieuKienID;
-	private KhuyenMai khuyenMai;
-	private Tuyen tuyen;
-	private LoaiTau loaiTau;
-	private HangToa hangToa;
-	private LoaiDoiTuong loaiDoiTuong;
-	private int ngayTrongTuan;
-	private boolean ngayLe;
-	private double minGiaTriDonHang;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-	public DieuKienKhuyenMai(String dieuKienID, KhuyenMai khuyenMai, Tuyen tuyen, LoaiTau loaiTau, HangToa hangToa,
-			LoaiDoiTuong loaiDoiTuong, int ngayTrongTuan, boolean ngayLe, double minGiaTriDonHang) {
-		super();
-		this.dieuKienID = dieuKienID;
-		this.khuyenMai = khuyenMai;
-		this.tuyen = tuyen;
-		this.loaiTau = loaiTau;
-		this.hangToa = hangToa;
-		this.loaiDoiTuong = loaiDoiTuong;
-		this.ngayTrongTuan = ngayTrongTuan;
-		this.ngayLe = ngayLe;
-		this.minGiaTriDonHang = minGiaTriDonHang;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "DieuKienKhuyenMai")
+public class DieuKienKhuyenMai implements Serializable {
+    @Id
+    @Column(name = "dieuKienID", length = 50)
+    private String id;
 
-	public DieuKienKhuyenMai() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khuyenMaiID", nullable = false)
+    private KhuyenMai khuyenMai;
 
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tuyenID")
+    private Tuyen tuyen;
 
-	public String getDieuKienID() {
-		return dieuKienID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiTauID")
+    private LoaiTau loaiTau;
 
-	public KhuyenMai getKhuyenMai() {
-		return khuyenMai;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hangToaID")
+    private HangToa hangToa;
 
-	public Tuyen getTuyen() {
-		return tuyen;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiDoiTuongID")
+    private LoaiDoiTuong loaiDoiTuong;
 
-	public LoaiTau getLoaiTau() {
-		return loaiTau;
-	}
+    @Column(name = "ngayTrongTuan")
+    private Integer ngayTrongTuan; // Dùng wrapper class (Integer) vì cột này cho phép NULL
 
-	public HangToa getHangToa() {
-		return hangToa;
-	}
+    @Column(name = "ngayLe")
+    private Boolean ngayLe;
 
-	public LoaiDoiTuong getLoaiDoiTuong() {
-		return loaiDoiTuong;
-	}
-
-	public int getNgayTrongTuan() {
-		return ngayTrongTuan;
-	}
-
-	public boolean isNgayLe() {
-		return ngayLe;
-	}
-
-	public double getMinGiaTriDonHang() {
-		return minGiaTriDonHang;
-	}
-
-	public void setDieuKienID(String dieuKienID) {
-		if (dieuKienID != null && !dieuKienID.trim().isEmpty()) {
-			this.dieuKienID = dieuKienID;
-		} else {
-			throw new IllegalArgumentException("Điều kiện ID không được để trống!");
-		}
-	}
-
-	public void setKhuyenMai(KhuyenMai khuyenMai) {
-		this.khuyenMai = khuyenMai;
-	}
-
-	public void setTuyen(Tuyen tuyen) {
-		this.tuyen = tuyen;
-	}
-
-	public void setLoaiTau(LoaiTau loaiTau) {
-		this.loaiTau = loaiTau;
-	}
-
-	public void setHangToa(HangToa hangToa) {
-		this.hangToa = hangToa;
-	}
-
-	public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
-		this.loaiDoiTuong = loaiDoiTuong;
-	}
-
-	public void setNgayTrongTuan(int ngayTrongTuan) {
-		this.ngayTrongTuan = ngayTrongTuan;
-	}
-
-	public void setNgayLe(boolean ngayLe) {
-		this.ngayLe = ngayLe;
-	}
-
-	public void setMinGiaTriDonHang(double minGiaTriDonHang) {
-		this.minGiaTriDonHang = minGiaTriDonHang;
-	}
-
-	@Override
-	public String toString() {
-		return dieuKienID + ";" + khuyenMai + ";" + tuyen + ";" + loaiTau + ";" + hangToa + ";" + loaiDoiTuong + ";"
-				+ ngayTrongTuan + ";" + ngayLe + ";" + minGiaTriDonHang;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DieuKienKhuyenMai that = (DieuKienKhuyenMai) o;
-		return Objects.equals(dieuKienID, that.dieuKienID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(dieuKienID);
-	}
+    @Column(name = "minGiaTriDonHang", precision = 12, scale = 2)
+    private BigDecimal minGiaTriDonHang;
 }

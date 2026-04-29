@@ -5,66 +5,32 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
+
+import java.io.Serializable;
 import java.time.LocalTime;
 
-/*
- * @description
- * @author: NguyenThiHuynhNhu
- * @date: Dec 20, 2025
- * @version: 1.0
- */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "CaLam")
+public class CaLam implements Serializable {
+    @Id
+    @Column(name = "caLamID", length = 50)
+    private String id;
 
-public class CaLam {
-	private String caLamID;
-	private LocalTime gioVaoCa;
-	private LocalTime gioKetCa;
+    @Column(name = "gioVaoCa", nullable = false)
+    private LocalTime gioVaoCa;
 
-	public CaLam(String caLamID, LocalTime gioVaoCa, LocalTime gioKetCa) {
-		super();
-		this.caLamID = caLamID;
-		this.gioVaoCa = gioVaoCa;
-		this.gioKetCa = gioKetCa;
-	}
-
-	/**
-	 * @param selectedItem
-	 */
-	public CaLam(String caLamID) {
-		super();
-		this.caLamID = caLamID;
-	}
-
-	public String getCaLamID() {
-		return caLamID;
-	}
-
-	public LocalTime getGioVaoCa() {
-		return gioVaoCa;
-	}
-
-	public LocalTime getGioKetCa() {
-		return gioKetCa;
-	}
-
-	public void setCaLamID(String caLamID) {
-		this.caLamID = caLamID;
-	}
-
-	public void setGioVaoCa(LocalTime gioVaoCa) {
-		this.gioVaoCa = gioVaoCa;
-	}
-
-	public void setGioKetCa(LocalTime gioKetCa) {
-		this.gioKetCa = gioKetCa;
-	}
-
-	@Override
-	public String toString() {
-		if (gioVaoCa == null || gioKetCa == null) {
-			return caLamID;
-		}
-		return String.format("%s (%s - %s)", caLamID, gioVaoCa, gioKetCa);
-	}
-
-
+    @Column(name = "gioKetCa", nullable = false)
+    private LocalTime gioKetCa;
 }

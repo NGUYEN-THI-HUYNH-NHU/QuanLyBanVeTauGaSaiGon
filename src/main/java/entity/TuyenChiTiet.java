@@ -10,77 +10,44 @@ package entity;
  * @created : 02/10/2025
  */
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
-public class TuyenChiTiet {
+import java.io.Serializable;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@Entity
+@IdClass(TuyenChiTiet.TuyenChiTietID.class)
+@Table(name = "TuyenChiTiet")
+public class TuyenChiTiet implements Serializable {
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tuyenID")
     private Tuyen tuyen;
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gaID")
     private Ga ga;
+
+    @Column(name = "thuTu", nullable = false)
     private int thuTu;
+
+    @Column(name = "khoangCachTuGaXuatPhatKm", nullable = false)
     private int khoangCachTuGaXuatPhatKm;
 
-    public TuyenChiTiet(Tuyen tuyen, Ga ga, int thuTu, int khoangCachTuGaXuatPhatKm) {
-        this.tuyen = tuyen;
-        this.ga = ga;
-        this.thuTu = thuTu;
-        this.khoangCachTuGaXuatPhatKm = khoangCachTuGaXuatPhatKm;
-    }
-
-    public Tuyen getTuyen() {
-        return tuyen;
-    }
-
-    public void setTuyen(Tuyen tuyen) {
-        if(tuyen == null) {
-            throw new IllegalArgumentException("Tuyen không được để trống!");
-        }
-        this.tuyen = tuyen;
-    }
-
-    public Ga getGa() {
-        return ga;
-    }
-
-    public void setGa(Ga ga) {
-        if(ga == null) {
-            throw new IllegalArgumentException("Ga không được để trống!");
-        }
-        this.ga = ga;
-    }
-
-    public int getThuTu() {
-        return thuTu;
-    }
-
-    public void setThuTu(int thuTu) {
-        this.thuTu = thuTu;
-    }
-
-    public int getKhoangCachTuGaXuatPhatKm() {
-        return khoangCachTuGaXuatPhatKm;
-    }
-
-    public void setKhoangCachTuGaXuatPhatKm(int khoangCachTuGaXuatPhatKm) {
-        this.khoangCachTuGaXuatPhatKm = khoangCachTuGaXuatPhatKm;
-    }
-
-    @Override
-    public String toString() {
-        return tuyen.getTuyenID() + ";"
-                + ga.getGaID() + ";"
-                + thuTu + ";"
-                + khoangCachTuGaXuatPhatKm;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TuyenChiTiet that = (TuyenChiTiet) o;
-        return Objects.equals(getTuyen(), that.getTuyen()) && Objects.equals(getGa(), that.getGa());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getTuyen(), getGa());
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    public static class TuyenChiTietID implements Serializable {
+        private String tuyen;
+        private String ga;
     }
 }

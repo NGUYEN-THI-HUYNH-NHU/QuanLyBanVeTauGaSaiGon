@@ -5,9 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.type.LoaiTau;
-
-import java.util.Objects;
 
 /*
  * @description
@@ -16,113 +13,44 @@ import java.util.Objects;
  * @version: 1.0
  */
 
-public class Tau {
-	private String tauID;
-	private String tenTau;
-	private LoaiTau loaiTau;
-	private int soLuongToa;
-	private String trangThai;
-	private int vanTocTB;
-	
-	public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, String trangThai) {
-		super();
-		this.tauID = tauID;
-		this.tenTau = tenTau;
-		this.loaiTau = loaiTau;
-		this.soLuongToa = soLuongToa;
-		this.trangThai = trangThai;
-	}
+import java.util.Objects;
+import entity.type.TrangThaiTau;
+import jakarta.persistence.*;
+import lombok.*;
+import java.io.Serializable;
+import java.util.Set;
 
-	public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, String trangThai, int vanTocTB) {
-		this.tauID = tauID;
-		this.tenTau = tenTau;
-		this.loaiTau = loaiTau;
-		this.soLuongToa = soLuongToa;
-		this.trangThai = trangThai;
-		this.vanTocTB = vanTocTB;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = "toas")
+@EqualsAndHashCode(exclude = "toas")
+@Entity
+@Table(name = "Tau")
+public class Tau implements Serializable {
+    @Id
+    @Column(name = "tauID", length = 50)
+    private String tauID;
 
-	public Tau(String tauID) {
-		super();
-		this.tauID = tauID;
-	}
-	
-	public Tau(String tauID, LoaiTau loaiTau) {
-		super();
-		this.tauID = tauID;
-		this.loaiTau = loaiTau;
-	}
+    @Column(name = "tenTau", nullable = false)
+    private String tenTau;
 
-	public Tau(String tauID, String tenTau) {
-		super();
-		this.tauID = tauID;
-		this.tenTau = tenTau;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loaiTauID", nullable = false)
+    private LoaiTau loaiTau;
 
-	public String getTauID() {
-		return tauID;
-	}
+    @Column(name = "soLuongToa", nullable = false)
+    private int soLuongToa;
 
-	public String getTenTau() {
-		return tenTau;
-	}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private TrangThaiTau trangThai;
 
-	public LoaiTau getLoaiTau() {
-		return loaiTau;
-	}
+    @Column(name = "vanTocTB", nullable = false)
+    private int vanTocTB;
 
-	public int getSoLuongToa() {
-		return soLuongToa;
-	}
-
-	public String getTrangThai() {
-		return trangThai;
-	}
-
-	public void setTauID(String tauID) {
-		this.tauID = tauID;
-	}
-
-	public void setTenTau(String tenTau) {
-		this.tenTau = tenTau;
-	}
-
-	public void setLoaiTau(LoaiTau loaiTau) {
-		this.loaiTau = loaiTau;
-	}
-
-	public void setSoLuongToa(int soLuongToa) {
-		this.soLuongToa = soLuongToa;
-	}
-
-	public void setTrangThai(String trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	public int getVanTocTB() {
-		return vanTocTB;
-	}
-
-	public void setVanTocTB(int vanTocTB) {
-		this.vanTocTB = vanTocTB;
-	}
-
-	@Override
-	public String toString() {
-		return tauID + ";" + tenTau + ";" + loaiTau + ";" + soLuongToa
-				+ ";" + trangThai;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Tau tau = (Tau) o;
-		return Objects.equals(getTauID(), tau.getTauID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getTauID());
-	}
+    @OneToMany(mappedBy = "tau", fetch = FetchType.LAZY)
+    private Set<Toa> toas;
 }

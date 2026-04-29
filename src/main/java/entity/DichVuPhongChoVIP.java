@@ -1,8 +1,5 @@
 package entity;
 
-import java.time.LocalDate;
-import java.util.Objects;
-
 /*
  * @(#) DichVuPhongChoVIP.java  1.0  [1:51:58 PM] Sep 19, 2025
  *
@@ -16,111 +13,42 @@ import java.util.Objects;
  * @version: 1.0
  */
 
-public class DichVuPhongChoVIP {
-	private String dichVuPhongChoVIPID;
-	private double gia;
-	private String moTa;
-	private LocalDate ngayCoHieuLuc;
-	private LocalDate ngayHetHieuLuc;
-	private boolean trangThai;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
-	public DichVuPhongChoVIP(String dichVuPhongChoVIPID, double gia, String moTa, LocalDate ngayCoHieuLuc,
-			LocalDate ngayHetHieuLuc, boolean trangThai) {
-		super();
-		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
-		this.gia = gia;
-		this.moTa = moTa;
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
-		this.trangThai = trangThai;
-	}
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
-	public DichVuPhongChoVIP(String dichVuPhongChoVIPID) {
-		super();
-		this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
+@Entity
+@Table(name = "DichVuPhongChoVIP")
+public class DichVuPhongChoVIP implements Serializable {
+    @Id
+    @Column(name = "dichVuPhongChoVIPID", length = 50)
+    private String id;
 
-	public String getDichVuPhongChoVIPID() {
-		return dichVuPhongChoVIPID;
-	}
+    @Column(name = "gia", nullable = false, precision = 8, scale = 2)
+    private BigDecimal gia;
 
-	public double getGia() {
-		return gia;
-	}
+    @Column(name = "moTa", columnDefinition = "NVARCHAR(MAX)")
+    private String moTa;
 
-	public String getMoTa() {
-		return moTa;
-	}
+    @Column(name = "ngayCoHieuLuc", nullable = false)
+    private LocalDate ngayCoHieuLuc;
 
-	public LocalDate getNgayCoHieuLuc() {
-		return ngayCoHieuLuc;
-	}
+    @Column(name = "ngayHetHieuLuc", nullable = false)
+    private LocalDate ngayHetHieuLuc;
 
-	public LocalDate getNgayHetHieuLuc() {
-		return ngayHetHieuLuc;
-	}
-
-	public boolean isTrangThai() {
-		return trangThai;
-	}
-
-	public void setDichVuPhongChoVIPID(String dichVuPhongChoVIPID) {
-		if (dichVuPhongChoVIPID != null && !dichVuPhongChoVIPID.isEmpty()) {
-			this.dichVuPhongChoVIPID = dichVuPhongChoVIPID;
-		} else {
-			throw new IllegalArgumentException("DichVuPhongChoVIPID không được để trống!");
-		}
-	}
-
-	public void setGia(double gia) {
-		if (gia < 0) {
-			throw new IllegalArgumentException("Giá không được âm!");
-		}
-		this.gia = gia;
-	}
-
-	public void setMoTa(String moTa) {
-		this.moTa = moTa;
-	}
-
-	public void setNgayCoHieuLuc(LocalDate ngayCoHieuLuc) {
-		if (ngayCoHieuLuc.isAfter(ngayHetHieuLuc)) {
-			throw new IllegalArgumentException("Ngày có hiệu lực phải trước ngày hết hiệu lực!");
-		}
-		this.ngayCoHieuLuc = ngayCoHieuLuc;
-	}
-
-	public void setNgayHetHieuLuc(LocalDate ngayHetHieuLuc) {
-		if (ngayHetHieuLuc.isBefore(ngayCoHieuLuc)) {
-			throw new IllegalArgumentException("Ngày hết hiệu lực phải sau ngày có hiệu lực!");
-		}
-		this.ngayHetHieuLuc = ngayHetHieuLuc;
-	}
-
-	public void setTrangThai(boolean trangThai) {
-		this.trangThai = trangThai;
-	}
-
-	@Override
-	public String toString() {
-		return dichVuPhongChoVIPID + ";" + gia + ";" + moTa + ";" + ngayCoHieuLuc + ";" + ngayHetHieuLuc + ";"
-				+ trangThai;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		DichVuPhongChoVIP that = (DichVuPhongChoVIP) o;
-		return Objects.equals(dichVuPhongChoVIPID, that.dichVuPhongChoVIPID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(dichVuPhongChoVIPID);
-	}
+    @Column(name = "trangThai", nullable = false)
+    private boolean trangThai;
 }

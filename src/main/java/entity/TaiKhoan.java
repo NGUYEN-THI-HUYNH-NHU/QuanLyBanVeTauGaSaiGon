@@ -5,10 +5,6 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
-import entity.type.VaiTroTaiKhoan;
 
 /*
  * @description
@@ -17,142 +13,43 @@ import entity.type.VaiTroTaiKhoan;
  * @version: 1.0
  */
 
-public class TaiKhoan {
-	private String taiKhoanID;
-	private VaiTroTaiKhoan vaiTroTaiKhoan;
-	private NhanVien nhanVien;
-	private String tenDangNhap;
-	private String matKhauHash;
-	private LocalDateTime thoiDiemTao;
-	private boolean isHoatDong;
+import jakarta.persistence.*;
+import lombok.*;
 
-	public TaiKhoan(String taiKhoanID, VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-					String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
-		super();
-		this.taiKhoanID = taiKhoanID;
-		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
-		this.nhanVien = nhanVien;
-		this.tenDangNhap = tenDangNhap;
-		this.matKhauHash = matKhauHash;
-		this.thoiDiemTao = thoiDiemTao;
-		this.isHoatDong = isHoatDong;
-	}
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-	public TaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan, NhanVien nhanVien, String tenDangNhap,
-					String matKhauHash, LocalDateTime thoiDiemTao, boolean isHoatDong) {
-		super();
-		this.vaiTroTaiKhoan = vaiTroTaiKhoan;
-		this.nhanVien = nhanVien;
-		this.tenDangNhap = tenDangNhap;
-		this.matKhauHash = matKhauHash;
-		this.thoiDiemTao = thoiDiemTao;
-		this.isHoatDong = isHoatDong;
-	}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = {"nhanVien"})
+@EqualsAndHashCode(exclude = {"nhanVien"})
+@Entity
+@Table(name = "TaiKhoan")
+public class TaiKhoan implements Serializable {
+    @Id
+    @Column(name = "taiKhoanID", length = 50)
+    private String id;
 
-	public TaiKhoan() {
-		super();
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vaiTroTaiKhoanID", nullable = false)
+    private VaiTroTaiKhoan vaiTroTaiKhoan;
 
-	public String getTaiKhoanID() {
-		return taiKhoanID;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "nhanVienID", nullable = false)
+    private NhanVien nhanVien;
 
-	public VaiTroTaiKhoan getVaiTroTaiKhoan() {
-		return vaiTroTaiKhoan;
-	}
+    @Column(name = "tenDangNhap", length = 50, nullable = false, unique = true)
+    private String tenDangNhap;
 
-	public NhanVien getNhanVien() {
-		return nhanVien;
-	}
+    @Column(name = "matKhauHash", length = 500, nullable = false)
+    private String matKhauHash;
 
-	public String getTenDangNhap() {
-		return tenDangNhap;
-	}
+    @Column(name = "thoiDiemTao", nullable = false)
+    private LocalDateTime thoiDiemTao;
 
-	public String getMatKhauHash() {
-		return matKhauHash;
-	}
-
-	public LocalDateTime getThoiDiemTao() {
-		return thoiDiemTao;
-	}
-
-	public boolean isHoatDong() {
-		return isHoatDong;
-	}
-
-	public void setTaiKhoanID(String taiKhoanID) {
-		if( taiKhoanID != null && !taiKhoanID.trim().isEmpty()){
-			this.taiKhoanID = taiKhoanID;
-		}else{
-			throw new IllegalArgumentException("Tài khoản ID không được để trống!");
-		}
-	}
-
-	public void setVaiTroTaiKhoan(VaiTroTaiKhoan vaiTroTaiKhoan) {
-		if(vaiTroTaiKhoan != null) {
-			this.vaiTroTaiKhoan = vaiTroTaiKhoan;
-		}else{
-			throw new IllegalArgumentException("Vai trò tài khoản không được để trống!");
-		}
-	}
-
-	public void setNhanVien(NhanVien nhanVien) {
-		if(nhanVien != null) {
-			this.nhanVien = nhanVien;
-		}else{
-			throw new IllegalArgumentException("Nhân viên không được để trống!");
-		}
-	}
-
-	public void setTenDangNhap(String tenDangNhap) {
-		if(tenDangNhap != null && !tenDangNhap.trim().isEmpty()) {
-			this.tenDangNhap = tenDangNhap;
-		}else{
-			throw new IllegalArgumentException("Tên đăng nhập không được để trống!");
-		}
-	}
-
-	public void setMatKhauHash(String matKhauHash) {
-		if (matKhauHash == null) {
-			this.matKhauHash = null;
-			return;
-		}
-
-		if (matKhauHash.isBlank()) {
-			throw new IllegalArgumentException("Mật khẩu không được để trống!");
-		}
-
-		this.matKhauHash = matKhauHash;
-	}
-
-
-
-	public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
-		this.thoiDiemTao = thoiDiemTao;
-	}
-
-	public void setHoatDong(boolean isHoatDong) {
-		this.isHoatDong = isHoatDong;
-	}
-
-	@Override
-	public String toString() {
-		return taiKhoanID + ";" + vaiTroTaiKhoan + ";" + nhanVien
-				+ ";" + tenDangNhap + ";" + matKhauHash + ";" + thoiDiemTao
-				+ ";" + isHoatDong;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		TaiKhoan taiKhoan = (TaiKhoan) o;
-		return Objects.equals(getTaiKhoanID(), taiKhoan.getTaiKhoanID());
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(getTaiKhoanID());
-	}
+    @Column(name = "trangThai", nullable = false)
+    private boolean trangThai;
 }
