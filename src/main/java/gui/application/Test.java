@@ -1,0 +1,19 @@
+package gui.application;
+/*
+ * @(#) Test.java  1.0  [4:41:18 PM] Nov 17, 2025
+ *
+ * Copyright (c) 2025 IUH. All rights reserved.
+ */
+
+public class Test {
+
+	public static void main(String[] args) {
+		// Tạo cửa sổ JFrame
+//		JFrame frame = new JFrame("Test");
+//		frame.add(new PanelBanVe1());
+//		frame.setSize(1080, 700);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setVisible(true);
+		System.out.println(Runtime.getRuntime().availableProcessors());
+	}
+}

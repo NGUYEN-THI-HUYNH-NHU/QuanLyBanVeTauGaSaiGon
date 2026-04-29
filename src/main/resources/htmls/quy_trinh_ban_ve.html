@@ -1,0 +1,158 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            /* Màu đỏ nổi bật cho tên Giai đoạn */
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 10px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Quy trình Bán Vé</h1>
+    <p>Chức năng dành cho Nhân viên quầy vé (NVQV), được chia thành 2 giai đoạn chính để đảm bảo thao tác nhanh và chính
+        xác.</p>
+
+    <h2>Giai đoạn 1: Lập vé & Nhập thông tin</h2>
+
+    <div class="img-container">
+        <img src="../html_images/banve1.png" width="700">
+		<br>
+        <span class="img-caption">Hình 1: Giao diện Lập vé (Tìm kiếm - Chọn chỗ - Thông tin khách)</span>
+    </div>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 1: Tìm kiếm chuyến tàu</b><br>
+            Nhập <i>Ga đi, Ga đến, Loại vé (Một chiều/Khứ hồi), Ngày đi</i> vào khung tìm kiếm bên trái và nhấn nút
+            <span class="highlight">Tìm kiếm</span>.
+        </div>
+
+        <div class="step-item">
+            <b>Bước 2: Chọn vị trí ghế/giường</b><br>
+            <ul>
+                <li>Chọn chuyến tàu phù hợp từ danh sách kết quả.</li>
+                <li>Chọn Toa tàu trên sơ đồ đoàn tàu.</li>
+                <li>Chọn Ghế/Giường trống trên sơ đồ chi tiết (Ghế màu trắng là ghế trống).</li>
+            </ul>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 3: Nhập thông tin hành khách</b><br>
+            Tại bảng danh sách vé bên phải, với mỗi dòng vé đã chọn, NVQV cần nhập:
+            <ul>
+                <li>Số giấy tờ (CCCD/CMND), Họ tên.</li>
+                <li>Chọn đối tượng (Người lớn/Trẻ em/Người cao tuổi).</li>
+                <li>Tích chọn <span class="highlight">Phòng chờ VIP</span> (nếu khách có nhu cầu tại Ga Sài Gòn).</li>
+            </ul>
+            <i>Lưu ý: Nhập thông tin người mua vé (SĐT, Email) ở phần cuối bảng để nhận hóa đơn điện tử.</i>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 4: Chuyển giai đoạn</b><br>
+            Sau khi điền đủ thông tin, nhấn nút <span class="highlight">Tiếp tục</span> để sang bước thanh toán.
+        </div>
+    </div>
+
+    <h2>Giai đoạn 2: Hoàn tất & Thanh toán</h2>
+
+    <div class="img-container">
+        <img src="../html_images/banve2.png" width="700">
+		<br>
+        <span class="img-caption">Hình 2: Giao diện Xác nhận & Thanh toán</span>
+    </div>
+
+    <div class="step-group">
+        <div class="step-item">
+            <b>Bước 5: Áp dụng khuyến mãi</b><br>
+            Tại màn hình xác nhận, kiểm tra lại thông tin vé. Tại cột "Khuyến mãi", chọn các mã giảm giá khả dụng từ
+            danh sách (Combobox). Hệ thống sẽ tự động trừ tiền và cập nhật cột "Thành tiền".
+        </div>
+
+        <div class="step-item">
+            <b>Bước 6: Thanh toán</b><br>
+            <ul>
+                <li><b>Tiền mặt:</b> Thu tiền và xác nhận trên hệ thống.</li>
+                <li><b>Chuyển khoản (QR):</b> Chọn phương thức chuyển khoản. Hệ thống hiển thị mã QR.
+                    <br><i>(Hệ thống tự động xác nhận giao dịch qua Casso khi khách chuyển khoản thành công).</i>
+                </li>
+            </ul>
+        </div>
+
+        <div class="step-item">
+            <b>Bước 7: Xuất vé</b><br>
+            Sau khi thông báo "Bán vé thành công" hiện ra, nhấn <span class="highlight">Hoàn tất</span> để in vé và kết
+            thúc giao dịch.
+        </div>
+    </div>
+
+    <div class="note">
+        <b>Xử lý sự cố:</b> Nếu hệ thống báo "Không tìm thấy chuyến tàu" ở Bước 1, vui lòng kiểm tra lại ngày đi hoặc
+        gợi ý khách hàng chọn ngày khác.
+    </div>
+
+</body>
+
+</html>

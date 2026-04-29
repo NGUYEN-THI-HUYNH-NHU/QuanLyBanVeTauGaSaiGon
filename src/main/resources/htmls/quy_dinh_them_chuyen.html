@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+        }
+
+        h2 {
+            color: #d9534f;
+            margin-top: 25px;
+            border-left: 5px solid #d9534f;
+            padding-left: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .step-group {
+            margin-left: 10px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+        }
+
+        b {
+            color: #0056b3;
+        }
+
+        .img-container {
+            text-align: center;
+            margin: 15px 0;
+            border: 1px dashed #cccccc;
+            padding: 5px;
+            background-color: #fcfcfc;
+        }
+
+        .img-caption {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            display: block;
+        }
+
+        .highlight {
+            background-color: #e2e3e5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .info-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+
+        .info-table th {
+            background-color: #0056b3;
+            color: white;
+            padding: 5px;
+        }
+
+        .note {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quy Định Thêm Chuyến</h1>
+    <h2>1. Mục Đích</h2>
+    <p>Quy định này nhằm đảm bảo việc thêm chuyến được thực hiện đúng quy trình và tiêu chuẩn đã đề ra.</p>
+
+    <h2>2. Phạm Vi Áp Dụng</h2>
+    <p>Quy định này áp dụng cho tất cả các nhân viên liên quan đến việc quản lý và vận hành chuyến đi.</p>
+
+    <h2>3. Chuẩn Bị Thông Tin Tuyến Mới</h2>
+    <div class="step-group">
+        <div class="step-item">
+            <b>Quản lý nhà ga phải được cấp toàn bộ thông tin cần thiết từ bộ phận Kỹ thuật:</b>
+            <ul>
+                <li>Tuyến mà chuyến này được phân bố</li>
+                <li>Tàu phụ trách cho chuyến</li>
+                <li>Ngày / giờ khởi hành của chuyến</li>
+                <li>Chuyến này được thiết lập theo chu kỳ cố định hay là một chuyến phát sinh</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="img-container">
+        <img src="../html_images/themChuyen.png" width="700" alt="Giao diện thêm chuyến đường">
+        <br>
+        <span class="img-caption">Hình 1: Kiểm tra thông tin chuyến</span>
+    </div>
+
+    <div class="step-item">
+        <b>Bước 2: Thiết Lập Thời Gian Và Loại Chuyến</b>
+        <table class="info-table">
+            <tr>
+                <th>Thông tin</th>
+                <th>Mô tả quy định</th>
+            </tr>
+            <tr>
+                <td>Ngày đi</td>
+                <td>Phải lớn hơn hoặc bằng ngày hiện tại.</td>
+            </tr>
+            <tr>
+                <td>Giờ đi</td>
+                <td>Thời điểm tàu bắt đầu rời ga khởi hành.</td>
+            </tr>
+            <tr>
+                <td>Chu kỳ</td>
+                <td>Chọn <span class="highlight">Chuyến phát sinh</span> (chạy 1 lần) hoặc <span class="highlight">Định kỳ</span> (Hàng ngày/Tuần/Tháng).</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="note">
+        Lưu ý: Mọi thông tin nhập vào hệ thống phải chính xác và đầy đủ để tránh sai sót trong quá trình vận hành.
+    </div>
+
+</body>
+</html>

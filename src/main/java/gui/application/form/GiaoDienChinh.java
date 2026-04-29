@@ -1,0 +1,264 @@
+package gui.application.form;
+/*
+ * @ (#) GiaoDienChinh.java   1.0     25/09/2025
+package gui.application.form;
+
+
+/**
+ * @description :
+ * @author : Vy, Pham Kha Vy
+ * @version 1.0
+ * @created : 25/09/2025
+ */
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.util.UIScale;
+
+import entity.NhanVien;
+import gui.application.AboutUsHelper;
+import gui.application.UngDung;
+import gui.application.form.khuyenMai.PanelQuanLyKhuyenMai;
+import gui.application.form.nhanVien.PanelQuanLyNhanVien;
+import gui.application.form.nhatKyAudit.PanelNhatKyAudit;
+import gui.application.form.taiKhoan.PanelQuanLyTaiKhoan;
+import gui.application.form.banVe.PanelBanVe;
+import gui.application.form.bieuGia.PanelQuanLyBieuGia;
+import gui.application.form.dashboard.Dashboard;
+import gui.application.form.doiVe.PanelDoiVe;
+import gui.application.form.donDatCho.PanelQuanLyDonDatCho;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
+import gui.application.form.hoanVe.PanelHoanVe;
+import gui.application.form.khachHang.PanelQuanLyKhachHang;
+import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
+import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
+import gui.application.form.thongKe.PanelBaoCao;
+import gui.application.form.thongKe.PanelThongKe;
+import gui.application.form.thongKe.PanelThongKeDoanhThu;
+import gui.application.form.thongKe.PanelThongKeKhachHang;
+import gui.application.form.thongKe.PanelThongKeVe;
+import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.thongTin.FormThongTinCaNhan;
+import gui.application.form.troGiup.PanelTroGiup;
+import gui.application.form.xemInVe.PanelXemInVe;
+import gui.application.menu.HanhDongMenu;
+import gui.application.menu.Menu;
+
+public class GiaoDienChinh extends JLayeredPane {
+	private static final long serialVersionUID = 1L;
+	private Menu menu;
+	private JPanel panelBody;
+	private JButton menuButton;
+
+	public GiaoDienChinh(NhanVien nhanVien) {
+		init(nhanVien);
+	}
+
+	private void init(NhanVien nhanVien) {
+		setBorder(new EmptyBorder(5, 5, 5, 5));
+		setLayout(new GiaoDienChinhLayout());
+		menu = new Menu(nhanVien);
+		panelBody = new JPanel(new BorderLayout());
+		initMenuArrowIcon();
+		menuButton.putClientProperty(FlatClientProperties.STYLE,
+				"" + "background:$Menu.button.background;" + "arc:999;" + "focusWidth:0;" + "borderWidth:0");
+		menuButton.addActionListener((ActionEvent e) -> {
+			setMenuFull(!menu.isMenuFull());
+		});
+		initMenuEvent(nhanVien);
+		setLayer(menuButton, JLayeredPane.POPUP_LAYER);
+		add(menuButton);
+		add(menu);
+		add(panelBody);
+	}
+
+	@Override
+	public void applyComponentOrientation(ComponentOrientation o) {
+		super.applyComponentOrientation(o);
+		initMenuArrowIcon();
+	}
+
+	private void initMenuArrowIcon() {
+		if (menuButton == null) {
+			menuButton = new JButton();
+		}
+		String icon = (getComponentOrientation().isLeftToRight()) ? "menu_left.svg" : "menu_right.svg";
+		menuButton.setIcon(new FlatSVGIcon("icon/svg/" + icon, 0.8f));
+	}
+
+	private void initMenuEvent(NhanVien nhanVien) {
+		menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
+			switch (index) {
+			case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
+			// UC cua NHAN_VIEN
+			case 2 ->
+				UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
+			case 3 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(
+						UngDung.getInstance().getOrCreatePanel("PanelHoanVe", () -> new PanelHoanVe()));
+				case 2 -> UngDung.showGiaoDienChinh(
+						UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
+				case 3 -> UngDung.showGiaoDienChinh(new PanelXemInVe());
+				default -> action.cancel();
+				}
+			}
+			case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
+			case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyDonDatCho());
+			case 14 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+				}
+			}
+
+			// UC cua QUAN_LY
+			case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+			case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
+			case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+
+			case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
+			case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien));
+			case 11 -> UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
+			case 12 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
+
+			// UC dung chung
+			case 15 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
+				case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
+				case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
+				default -> action.cancel();
+				}
+			}
+			case 16 -> {
+				switch (subIndex) {
+				case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+				case 2 -> UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
+				default -> action.cancel();
+				}
+			}
+			case 17 -> UngDung.showGiaoDienChinh(new PanelNhatKyAudit(nhanVien));
+			case 18 -> {
+				if (JOptionPane.showConfirmDialog(this,
+						"Bạn xác nhận điều hướng sang trình duyệt để mở trang About us?", "Xác nhận",
+						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					AboutUsHelper.openAboutUs();
+				}
+			}
+			case 19 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
+			case 20 -> UngDung.dangXuat();
+			default -> action.cancel();
+			}
+		});
+	}
+
+	private void setMenuFull(boolean full) {
+		String icon;
+		if (getComponentOrientation().isLeftToRight()) {
+			icon = (full) ? "menu_left.svg" : "menu_right.svg";
+		} else {
+			icon = (full) ? "menu_right.svg" : "menu_left.svg";
+		}
+		menuButton.setIcon(new FlatSVGIcon("icon/svg/" + icon, 0.8f));
+		menu.setMenuFull(full);
+		revalidate();
+	}
+
+	public void hideMenu() {
+		menu.hideThanhPhanMenu();
+	}
+
+	public void showForm(Component component) {
+		panelBody.removeAll();
+		panelBody.add(component);
+		panelBody.repaint();
+		panelBody.revalidate();
+	}
+
+	public void setSelectedMenu(int index, int subIndex) {
+		menu.setSelectedMenu(index, subIndex);
+	}
+
+	private class GiaoDienChinhLayout implements LayoutManager {
+
+		@Override
+		public void addLayoutComponent(String name, Component comp) {
+		}
+
+		@Override
+		public void removeLayoutComponent(Component comp) {
+		}
+
+		@Override
+		public Dimension preferredLayoutSize(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				return new Dimension(5, 5);
+			}
+		}
+
+		@Override
+		public Dimension minimumLayoutSize(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				return new Dimension(0, 0);
+			}
+		}
+
+		@Override
+		public void layoutContainer(Container parent) {
+			synchronized (parent.getTreeLock()) {
+				boolean ltr = parent.getComponentOrientation().isLeftToRight();
+				Insets insets = UIScale.scale(parent.getInsets());
+				int x = insets.left;
+				int y = insets.top;
+				int width = parent.getWidth() - (insets.left + insets.right);
+				int height = parent.getHeight() - (insets.top + insets.bottom);
+				int menuWidth = UIScale.scale(menu.isMenuFull() ? menu.getMenuMaxWidth() : menu.getMenuMinWidth());
+				int menuX = ltr ? x : x + width - menuWidth;
+				menu.setBounds(menuX, y, menuWidth, height);
+				int menuButtonWidth = menuButton.getPreferredSize().width;
+				int menuButtonHeight = menuButton.getPreferredSize().height;
+				int menubX;
+				if (ltr) {
+					menubX = (int) (x + menuWidth - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.3f)));
+				} else {
+					menubX = (int) (menuX - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.7f)));
+				}
+				menuButton.setBounds(menubX, UIScale.scale(30), menuButtonWidth, menuButtonHeight);
+				int gap = UIScale.scale(5);
+				int bodyWidth = width - menuWidth - gap;
+				int bodyHeight = height;
+				int bodyx = ltr ? (x + menuWidth + gap) : x;
+				int bodyy = y;
+				panelBody.setBounds(bodyx, bodyy, bodyWidth, bodyHeight);
+			}
+		}
+	}
+
+	/**
+	 * Lấy combonent (Panel) đang được hiển thị trong bùng nội dung (panelBody).
+	 * 
+	 * @return Component đang hiển thị, hoặc null nếu không có gì.
+	 */
+	public Component getHienThiPanel() {
+		if (panelBody != null && panelBody.getComponentCount() > 0) {
+			return panelBody.getComponent(0);
+		}
+		return null;
+	}
+}
