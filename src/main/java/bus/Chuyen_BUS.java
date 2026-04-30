@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 public class Chuyen_BUS {
     private final NhatKyAudit_BUS nhatKyAuditBus;
-    private Ghe_DAO gheDAO;
+    private GheDAO gheDAO;
     private Toa_DAO toaDAO;
     private Chuyen_DAO chuyenDAO;
     private ChuyenGa_DAO chuyenGaDao;
@@ -36,7 +36,7 @@ public class Chuyen_BUS {
     private Tau_DAO tauDao;
 
     public Chuyen_BUS() {
-        gheDAO = new Ghe_DAO();
+        gheDAO = new GheDAO();
         toaDAO = new Toa_DAO();
         chuyenDAO = new Chuyen_DAO();
         chuyenGaDao = new ChuyenGa_DAO();
