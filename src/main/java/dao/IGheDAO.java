@@ -4,7 +4,7 @@ import entity.Ghe;
 
 import java.util.List;
 
-public interface IGhe_DAO extends IGenericDao<Ghe, String> {
+public interface IGheDAO extends IGenericDAO<Ghe, String> {
     List<Ghe> getGheByGaDiGaDenChuyenToa(String gaDiID, String gaDenID, String chuyenID, String toaID);
 
     Ghe getGheByChuyenIDGheID(String chuyenID, String gheID);

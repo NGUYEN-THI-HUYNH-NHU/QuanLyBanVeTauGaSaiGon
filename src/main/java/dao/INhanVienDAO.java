@@ -5,7 +5,7 @@ import entity.VaiTroNhanVien;
 
 import java.util.List;
 
-public interface INhanVien_DAO extends IGenericDao<NhanVien, String> {
+public interface INhanVienDAO extends IGenericDAO<NhanVien, String> {
     List<NhanVien> getNhanVienVoiHoTen(String hoTenTim);
 
     String taoMaNhanVienTuDong();
