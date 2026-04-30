@@ -51,11 +51,17 @@ public class PhieuGiuCho implements Serializable {
     public PhieuGiuCho(String phieuGiuChoID) {
         this.phieuGiuChoID = phieuGiuChoID;
     }
-    
+
     public PhieuGiuCho(String phieuGiuChoID, NhanVien nhanVien, TrangThaiPhieuGiuCho trangThai) {
         this.phieuGiuChoID = phieuGiuChoID;
         this.nhanVien = nhanVien;
         this.trangThai = trangThai;
     }
 
+    @PrePersist
+    protected void onCreate() {
+        if (this.thoiDiemTao == null) {
+            this.thoiDiemTao = LocalDateTime.now();
+        }
+    }
 }

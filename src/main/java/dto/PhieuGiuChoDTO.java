@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.TrangThaiPhieuGiuCho;
 import lombok.*;
 
 import java.io.Serializable;
@@ -14,9 +13,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhieuGiuChoDTO implements Serializable {
-    private String id;
-    private NhanVienDTO nhanVien;
+    private String phieuGiuChoID;
+    private String nhanVienID;
+    private String hoTenNhanVien;
     private LocalDateTime thoiDiemTao;
-    private TrangThaiPhieuGiuCho trangThai;
+    private String trangThai;
     private Set<PhieuGiuChoChiTietDTO> chiTiets;
 }

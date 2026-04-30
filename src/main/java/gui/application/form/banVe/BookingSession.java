@@ -18,6 +18,7 @@ package gui.application.form.banVe;
  *
  */
 
+import dto.PhieuGiuChoDTO;
 import entity.*;
 import gui.application.AuthService;
 
@@ -37,7 +38,7 @@ public class BookingSession {
     private SearchCriteria returnCriteria;
     private List<Chuyen> returnResults = new ArrayList<>();
     private KhachHang khachHang;
-    private PhieuGiuCho phieuGiuCho;
+    private PhieuGiuChoDTO phieuGiuCho;
     private GiaoDichThanhToan giaoDichThanhToan;
     private DonDatCho donDatCho;
     private HoaDon hoaDon;
@@ -198,11 +199,11 @@ public class BookingSession {
                 + ", returnCriteria=" + returnCriteria + ", returnSelected=" + returnSelected + '}';
     }
 
-    public PhieuGiuCho getPhieuGiuCho() {
+    public PhieuGiuChoDTO getPhieuGiuCho() {
         return phieuGiuCho;
     }
 
-    public void setPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
+    public void setPhieuGiuCho(PhieuGiuChoDTO phieuGiuCho) {
         this.phieuGiuCho = phieuGiuCho;
     }
 

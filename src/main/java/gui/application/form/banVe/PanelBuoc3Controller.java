@@ -29,7 +29,6 @@ public class PanelBuoc3Controller {
     private final BookingSession bookingSession;
     private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
     private JPopupMenu khachHangSuggestionPopup;
-    private KhachHang selectedKhachHang = null;
 
     // Listeners để báo cho Controller Mediator (BanVe1Controller)
     private Runnable onRefreshListener;
@@ -174,7 +173,6 @@ public class PanelBuoc3Controller {
         khachHangSuggestionPopup.removeAll();
 
         if (keyword.length() < 1) {
-            selectedKhachHang = null;
             return;
         }
 
@@ -201,9 +199,7 @@ public class PanelBuoc3Controller {
                 item.addActionListener(e -> {
                     // 1. Điền tên vào TextField
                     view.getTxtCccdNguoiMua().setText(kh.getSoGiayTo());
-                    // 2. Lưu đối tượng được chọn để xử lý lọc chính xác hơn
-                    selectedKhachHang = kh;
-                    // 3. Ẩn popup
+                    // 2. Ẩn popup
                     khachHangSuggestionPopup.setVisible(false);
                 });
                 khachHangSuggestionPopup.add(item);

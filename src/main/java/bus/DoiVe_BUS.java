@@ -21,6 +21,7 @@ import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
+import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -89,9 +90,10 @@ public class DoiVe_BUS {
             khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, exchangeSession.getListVeMoiDangChon());
 
             // 9. Cập nhật Phiếu Giữ Chỗ cho vé mới (sau khi mọi thứ thành công)
-            datChoBUS.capNhatPhieuGiuCho(exchangeSession.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
-            datChoBUS.capNhatCacPhieuGiuChoChiTiet(exchangeSession.getPhieuGiuCho(),
-                    TrangThaiPhieuGiuCho.XAC_NHAN);
+            PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(exchangeSession.getPhieuGiuCho());
+//            PhieuGiuCho phieuGiuCho = Mapper.map(exchangeSession.getPhieuGiuCho());
+            datChoBUS.capNhatPhieuGiuCho(phieuGiuCho, TrangThaiPhieuGiuCho.XAC_NHAN);
+            datChoBUS.capNhatCacPhieuGiuChoChiTiet(phieuGiuCho, TrangThaiPhieuGiuCho.XAC_NHAN);
 
             // 10. Cập nhật trạng thái các vé cũ (và phiếu dùng phòng chờ VIP nếu có)
             veBUS.capNhatTrangThaiVe(listVeDoi, TrangThaiVe.DA_DOI);

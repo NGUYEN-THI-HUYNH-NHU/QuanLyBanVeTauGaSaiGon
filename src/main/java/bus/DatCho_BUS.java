@@ -12,20 +12,20 @@ package bus;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import dao.impl.DonDatChoDAO;
 import dao.impl.PhieuGiuChoChiTietDAO;
 import dao.impl.PhieuGiuChoDAO;
+import dto.PhieuGiuChoDTO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
+import mapper.PhieuGiuChoMapper;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 
 public class DatCho_BUS {
@@ -33,20 +33,16 @@ public class DatCho_BUS {
     private final PhieuGiuChoChiTietDAO pgcctDAO = new PhieuGiuChoChiTietDAO();
     private final DonDatChoDAO ddcDAO = new DonDatChoDAO();
 
-    public PhieuGiuCho taoPhieuGiuCho() {
+    private PhieuGiuCho taoPhieuGiuCho() {
         NhanVien nv = AuthService.getInstance().getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyHHmmss");
-        String pgcID = "PGC-" + now.format(formatter).toString();
+        String pgcID = "PGC-" + now.format(formatter);
 
         return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
     }
 
-    public boolean themPhieuGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
-        return pgcDAO.insertPhieuGiuCho(phieuGiuCho);
-    }
-
-    public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
+    public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v, int soThuTu) {
         String chuyenID = v.getVe().getChuyen().getChuyenID();
         String tenGaDi = v.getVe().getGaDi().getTenGa();
         String tenGaDen = v.getVe().getGaDen().getTenGa();
@@ -55,21 +51,13 @@ public class DatCho_BUS {
         LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
         if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
-            String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
+            String pgcctID = pgc.getPhieuGiuChoID() + "-" + soThuTu;
             PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc,
                     new Chuyen(v.getVe().getChuyen().getChuyenID()), v.getVe().getGhe(), v.getVe().getGaDi(),
                     v.getVe().getGaDen(), thoiDiemGiuCho, TrangThaiPhieuGiuCho.DANG_GIU.toString());
             return pgcct;
         }
         return null;
-    }
-
-    public boolean themPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) throws Exception {
-        return pgcctDAO.insertPhieuGiuChoChiTiet(phieuGiuChoChiTiet);
-    }
-
-    public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
-        return true;
     }
 
     /**
@@ -80,7 +68,7 @@ public class DatCho_BUS {
         if (phieuGiuChoChiTietID.length() == 0 || phieuGiuChoChiTietID == null) {
             return false;
         }
-        return pgcctDAO.deletePhieuGiuChoChiTiet(phieuGiuChoChiTietID);
+        return pgcctDAO.delete(phieuGiuChoChiTietID);
     }
 
     /**
@@ -98,14 +86,14 @@ public class DatCho_BUS {
         if (phieuGiuChoID.length() == 0 || phieuGiuChoID == null) {
             return false;
         }
-        return pgcDAO.deletePhieuGiuChoByID(phieuGiuChoID);
+        return pgcDAO.delete(phieuGiuChoID);
     }
 
     public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHang khachHang) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy-HHmmss");
 
-        String ddcID = "DDC-" + now.format(formatter).toString();
+        String ddcID = "DDC-" + now.format(formatter);
 
         return new DonDatCho(ddcID, nhanVien, khachHang, now);
     }
@@ -137,107 +125,49 @@ public class DatCho_BUS {
      * PGC cha, rồi tạo các PGC con.
      *
      * @param veTrongGio Danh sách vé session cần giữ
-     * @return PhieuGiuCho (đã kèm các chi tiết) nếu thành công
      * @throws Exception nếu có lỗi (ví dụ: ghế bị trùng)
      */
-    public PhieuGiuCho thucHienGiuCho(List<VeSession> veTrongGio) throws Exception {
-        Connection conn = null;
-        PhieuGiuCho pgc = null; // Khai báo ở ngoài để return
-
+    public PhieuGiuChoDTO thucHienGiuCho(List<VeSession> veTrongGio) throws Exception {
         try {
-            // 1. Lấy kết nối VÀ BẮT ĐẦU TRANSACTION
-            conn = ConnectDB.getInstance().getConnection();
-            conn.setAutoCommit(false);
-
-            // 2. TẠO VÀ THÊM PHIẾU CHA
-            pgc = taoPhieuGiuCho();
-            if (pgc == null || !themPhieuGiuCho(pgc)) {
+            // 1. TẠO VÀ THÊM PHIẾU CHA
+            PhieuGiuCho pgc = taoPhieuGiuCho();
+            pgc.setChiTiets(new HashSet<>());
+            if (pgc == null || pgcDAO.create(pgc) == null) {
                 throw new Exception("Không thể tạo phiếu giữ chỗ cha trong CSDL.");
             }
-            // 3. TẠO VÀ THÊM CÁC CHI TIẾT
+            // 2. TẠO VÀ THÊM CÁC CHI TIẾT
             for (int i = 0; i < veTrongGio.size(); i++) {
                 VeSession v = veTrongGio.get(i);
-                PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(conn, pgc, v, i + 1);
+                PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(pgc, v, i + 1);
 
                 if (pgcct == null) {
                     throw new Exception("Ghế " + v.getVe().getGhe().getSoGhe() + " (Toa "
                             + v.getVe().getGhe().getToa().getSoToa() + ") đã bị người khác chọn.");
                 }
 
-                if (!themPhieuGiuChoChiTiet(pgcct)) {
+                if (pgcctDAO.create(pgcct) == null) {
                     throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getGhe().getSoGhe());
                 }
+                pgc.getChiTiets().add(pgcct);
                 v.setPhieuGiuChoChiTiet(pgcct);
             }
-
-            // 4. COMMIT
-            conn.commit();
-            return pgc;
-
+            return PhieuGiuChoMapper.INSTANCE.toDTO(pgc);
+//            return Mapper.map(pgc);
         } catch (Exception e) {
-            // 5. ROLLBACK
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            throw e;
-
-        } finally {
-            // 6. LUÔN LUÔN ĐÓNG KẾT NỐI
-            try {
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            e.printStackTrace();
+            throw new Exception("DatCho_BUS: Lỗi khi giữ chỗ");
         }
     }
 
     public boolean hoanTacGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
-        Connection conn = null;
-
         try {
-            // 1. Lấy kết nối VÀ BẮT ĐẦU TRANSACTION
-            conn = ConnectDB.getInstance().getConnection();
-            conn.setAutoCommit(false);
-
-            // 2. Xóa các phiếu giữ chỗ chi tiết
+            // 1. Xóa các phiếu giữ chỗ chi tiết
             pgcctDAO.deletePhieuGiuChoChiTietByPgcID(phieuGiuCho.getPhieuGiuChoID());
 
-            // 3. Xóa phiếu giữ chỗ
-            pgcDAO.deletePhieuGiuChoByID(phieuGiuCho.getPhieuGiuChoID());
-
-            // 4. COMMIT
-            conn.commit();
+            // 2. Xóa phiếu giữ chỗ
+            pgcDAO.delete(phieuGiuCho.getPhieuGiuChoID());
         } catch (Exception e) {
-            // 5. ROLLBACK
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                return false;
-            }
-            throw e;
-
-        } finally {
-            // 6. LUÔN LUÔN ĐÓNG KẾT NỐI
-            try {
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-
-                    return true;
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            throw new Exception("DatCho_BUS: Lỗi khi hủy giữ chỗ: " + e.getMessage());
         }
         return false;
     }

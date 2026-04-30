@@ -18,6 +18,7 @@ import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -86,8 +87,9 @@ public class BanVe_BUS {
             khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, session.getAllSelectedTickets());
 
             // 11. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
-            datChoBUS.capNhatPhieuGiuCho(session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
-            datChoBUS.capNhatCacPhieuGiuChoChiTiet(session.getPhieuGiuCho(), TrangThaiPhieuGiuCho.XAC_NHAN);
+            PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(session.getPhieuGiuCho());
+            datChoBUS.capNhatPhieuGiuCho(phieuGiuCho, TrangThaiPhieuGiuCho.XAC_NHAN);
+            datChoBUS.capNhatCacPhieuGiuChoChiTiet(phieuGiuCho, TrangThaiPhieuGiuCho.XAC_NHAN);
 
             // Ghi log
             String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
@@ -105,7 +107,9 @@ public class BanVe_BUS {
             if (conn != null) {
                 try {
                     conn.rollback();
-                    datChoBUS.hoanTacGiuCho(session.getPhieuGiuCho());
+                    PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(session.getPhieuGiuCho());
+//                    PhieuGiuCho phieuGiuCho = Mapper.map(session.getPhieuGiuCho());
+                    datChoBUS.hoanTacGiuCho(phieuGiuCho);
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
@@ -127,10 +131,6 @@ public class BanVe_BUS {
 
     // ghi log
     private void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
-        if (nhatKyAuditBUS == null) {
-            return;
-        }
-
         String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
 
         NhatKyAudit audit = new NhatKyAudit(nhatKyAuditBUS.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
