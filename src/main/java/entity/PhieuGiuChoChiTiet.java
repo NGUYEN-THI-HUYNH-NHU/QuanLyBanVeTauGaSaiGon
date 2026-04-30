@@ -68,4 +68,11 @@ public class PhieuGiuChoChiTiet implements Serializable {
         this.thoiDiemGiuCho = thoiDiemGiuCho;
         this.trangThai = TrangThaiPhieuGiuCho.valueOf(trangThai);
     }
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.thoiDiemGiuCho == null) {
+            this.thoiDiemGiuCho = LocalDateTime.now();
+        }
+    }
 }

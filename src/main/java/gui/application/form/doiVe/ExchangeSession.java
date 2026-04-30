@@ -12,6 +12,7 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import dto.PhieuGiuChoDTO;
 import entity.*;
 import gui.application.AuthService;
 import gui.application.form.banVe.SearchCriteria;
@@ -41,7 +42,7 @@ public class ExchangeSession {
     // --- DỮ LIỆU CHUNG ---
     private KhachHang khachHang;
     private NhanVien nhanVien;
-    private PhieuGiuCho phieuGiuCho;
+    private PhieuGiuChoDTO phieuGiuCho;
     private GiaoDichThanhToan giaoDichThanhToan;
     private DonDatCho donDatChoCu;
     private DonDatCho donDatChoMoi;
@@ -155,11 +156,11 @@ public class ExchangeSession {
         return listVeCuCanDoi.get(0).getVe().getGaDen().getGaID();
     }
 
-    public PhieuGiuCho getPhieuGiuCho() {
+    public PhieuGiuChoDTO getPhieuGiuCho() {
         return phieuGiuCho;
     }
 
-    public void setPhieuGiuCho(PhieuGiuCho phieuGiuCho) {
+    public void setPhieuGiuCho(PhieuGiuChoDTO phieuGiuCho) {
         this.phieuGiuCho = phieuGiuCho;
     }
 

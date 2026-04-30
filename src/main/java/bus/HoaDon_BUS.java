@@ -239,7 +239,6 @@ public class HoaDon_BUS {
     }
 
     /**
-     * @param conn
      * @param dsHoaDonChiTiet
      */
     public void themCacHoaDonChiTiet(List<HoaDonChiTiet> dsHoaDonChiTiet) throws Exception {
@@ -247,15 +246,7 @@ public class HoaDon_BUS {
             hoaDonChiTietDAO.insertHoaDonChiTiet(hdct);
         }
     }
-
-    /**
-     * @param nhanVien
-     * @return
-     */
-    public List<HoaDon> layCacHoaDonTheoNhanVienID(NhanVien nhanVien) {
-        return hoaDonDAO.getHoaDonByNhanVien(nhanVien);
-    }
-
+    
     /**
      * @param loaiHD
      * @param khachHang

@@ -30,7 +30,6 @@ public class PanelBuoc2Controller {
 
     private BookingSession bookingSession;
     private int currentTripIndex = 0;
-    private List<Chuyen> chuyenList;
     private Chuyen selectedChuyen;
     private Toa selectedToa;
 
@@ -83,7 +82,6 @@ public class PanelBuoc2Controller {
         String gaDiName = criteria.getGaDiName();
         String gaDenName = criteria.getGaDenName();
 
-        this.chuyenList = chuyens;
         String chieu = (tripIndex == 0) ? "[Chiều đi] " : "[Chiều về] ";
         panelChieuLabel.setText(chieu + gaDiName + " - " + gaDenName + ": "
                 + chuyens.get(0).getNgayDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));

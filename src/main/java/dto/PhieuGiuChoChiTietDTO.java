@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.TrangThaiPhieuGiuCho;
 import lombok.*;
 
 import java.io.Serializable;
@@ -13,12 +12,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhieuGiuChoChiTietDTO implements Serializable {
-    private String id;
-    private PhieuGiuChoDTO phieuGiuCho;
-    private ChuyenDTO chuyen;
-    private GaDTO gaDi;
-    private GaDTO gaDen;
-    private GheDTO ghe;
+    private String phieuGiuChoChiTietID;
+    private String phieuGiuChoID;
+    private String chuyenID;
+    private String gaDiID;
+    private String gaDenID;
+    private String gheID;
     private LocalDateTime thoiDiemGiuCho;
-    private TrangThaiPhieuGiuCho trangThai;
+    private String trangThai;
 }

@@ -44,12 +44,12 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
                                  int soGhe) {
         return doInTransaction(em -> {
             String sqlCheck = "-- 1. Khai báo tham số từ session\n"
-                    + "DECLARE @chuyenID VARCHAR(50) = ?1;\n"
-                    + "DECLARE @tenGaDi NVARCHAR(255) = ?2;\n"
-                    + "DECLARE @tenGaDen NVARCHAR(255) = ?3;\n"
-                    + "DECLARE @soToa INT = ?4;\n"
-                    + "DECLARE @soGhe INT = ?5;\n"
-                    + "DECLARE @holdMinutes INT = ?6;\n" + "\n"
+                    + "DECLARE @chuyenID VARCHAR(50) = ?1 ;\n"
+                    + "DECLARE @tenGaDi NVARCHAR(255) = ?2 ;\n"
+                    + "DECLARE @tenGaDen NVARCHAR(255) = ?3 ;\n"
+                    + "DECLARE @soToa INT = ?4 ;\n"
+                    + "DECLARE @soGhe INT = ?5 ;\n"
+                    + "DECLARE @holdMinutes INT = ?6 ;\n" + "\n"
                     + "-- 2. Truy vấn các ID cần thiết từ thông tin session\n"
                     + "DECLARE @gaDiID VARCHAR(50), @gaDenID VARCHAR(50), @gheID VARCHAR(50);\n"
                     + "DECLARE @thuTuGaDi_Moi INT, @thuTuGaDen_Moi INT;\n" + "\n"
@@ -94,48 +94,6 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
                 e.printStackTrace();
                 return true;
             }
-        });
-    }
-
-    /**
-     * Thêm một chi tiết giữ chỗ vào CSDL (Khi nhân viên chọn ghế). Hàm này chỉ
-     * INSERT, không kiểm tra logic. Tầng BUS phải gọi checkConflict() trước khi gọi
-     * hàm này.
-     *
-     * @param ct Đối tượng PhieuGiuChoChiTiet đã có đầy đủ thông tin
-     * @return true nếu INSERT thành công
-     */
-    @Override
-    public boolean insertPhieuGiuChoChiTiet(PhieuGiuChoChiTiet ct) throws Exception {
-        return doInTransaction(em -> {
-            String sql = "INSERT INTO PhieuGiuChoChiTiet (phieuGiuChoChiTietID, phieuGiuChoID, chuyenID, gheID, gaDiID, gaDenID, thoiDiemGiuCho, trangThai) "
-                    + "VALUES (?1, ?2, ?3, ?4, ?5, ?6, SYSUTCDATETIME(), 'DANG_GIU')";
-
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, ct.getPhieuGiuChoChiTietID());
-            query.setParameter(2, ct.getPhieuGiuCho().getPhieuGiuChoID());
-            query.setParameter(3, ct.getChuyen().getChuyenID());
-            query.setParameter(4, ct.getGhe().getGheID());
-            query.setParameter(5, ct.getGaDi().getGaID());
-            query.setParameter(6, ct.getGaDen().getGaID());
-
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    /**
-     * Xóa một chi tiết giữ chỗ (Khi nhân viên bỏ chọn ghế).
-     *
-     * @param phieuGiuChoChiTietID ID của chi tiết cần xóa
-     * @return true nếu XÓA thành công
-     */
-    @Override
-    public boolean deletePhieuGiuChoChiTiet(String phieuGiuChoChiTietID) {
-        return doInTransaction(em -> {
-            String sql = "DELETE FROM PhieuGiuChoChiTiet WHERE phieuGiuChoChiTietID = ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, phieuGiuChoChiTietID);
-            return query.executeUpdate() > 0;
         });
     }
 
