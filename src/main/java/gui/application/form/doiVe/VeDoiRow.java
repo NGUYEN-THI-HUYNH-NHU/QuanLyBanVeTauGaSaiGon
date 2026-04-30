@@ -14,6 +14,7 @@ package gui.application.form.doiVe;
 
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
+import entity.type.LoaiDoiTuongEnums;
 import entity.type.TrangThaiVe;
 
 import java.time.Duration;
@@ -37,7 +38,7 @@ public class VeDoiRow {
         this.phieuDungPhongVIP = phieuDungPhongVIP;
 
         this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
-                ve.getKhachHang().getLoaiDoiTuong().getMoTa(), ve.getKhachHang().getSoGiayTo());
+                LoaiDoiTuongEnums.valueOf(ve.getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID()).getDescription(), ve.getKhachHang().getSoGiayTo());
 
         if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
             calcThoiGianConLaiVaPhiDoi();

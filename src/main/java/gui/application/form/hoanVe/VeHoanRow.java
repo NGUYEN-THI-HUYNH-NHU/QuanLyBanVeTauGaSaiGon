@@ -11,137 +11,139 @@ package gui.application.form.hoanVe;
  * @date: Nov 13, 2025
  * @version: 1.0
  */
+
+import entity.Ve;
+import entity.type.LoaiDoiTuongEnums;
+import entity.type.TrangThaiVe;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import entity.Ve;
-import entity.type.TrangThaiVe;
-
 public class VeHoanRow {
-	private Ve ve;
-	private String hanhKhach;
-	private String thongTinVe;
-	private double thanhTien;
-	private double lePhiHoanVe;
-	private double tienHoan;
-	private String thongTinPhiHoan;
-	private String lyDo;
-	private boolean isSelected;
-	private String thoiGianConLai;
-	private boolean isDuDieuKien;
+    private Ve ve;
+    private String hanhKhach;
+    private String thongTinVe;
+    private double thanhTien;
+    private double lePhiHoanVe;
+    private double tienHoan;
+    private String thongTinPhiHoan;
+    private String lyDo;
+    private boolean isSelected;
+    private String thoiGianConLai;
+    private boolean isDuDieuKien;
 
-	public VeHoanRow(Ve ve) {
-		this.ve = ve;
+    public VeHoanRow(Ve ve) {
+        this.ve = ve;
 
-		this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
-				ve.getKhachHang().getLoaiDoiTuong().getDescription(), ve.getKhachHang().getSoGiayTo());
-		this.thanhTien = ve.getGia();
-		this.thongTinVe = ve.thongTinVeHoan();
+        this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
+                LoaiDoiTuongEnums.valueOf(ve.getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID()).getDescription(), ve.getKhachHang().getSoGiayTo());
+        this.thanhTien = ve.getGia();
+        this.thongTinVe = ve.thongTinVeHoan();
 
-		if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
-			calcThoiGianConLaiVaPhiHoan();
-		} else {
-			this.isDuDieuKien = false;
-			this.thongTinPhiHoan = "Không thể hoàn do vé không còn hiệu lực (vé đã dùng/hoàn/đổi).";
-		}
+        if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
+            calcThoiGianConLaiVaPhiHoan();
+        } else {
+            this.isDuDieuKien = false;
+            this.thongTinPhiHoan = "Không thể hoàn do vé không còn hiệu lực (vé đã dùng/hoàn/đổi).";
+        }
 
-		this.lyDo = "Không còn nhu cầu";
+        this.lyDo = "Không còn nhu cầu";
 
-		this.isSelected = false;
-	}
+        this.isSelected = false;
+    }
 
-	private void calcThoiGianConLaiVaPhiHoan() {
-		LocalDateTime gioTauChay = ve.getNgayGioDi();
-		LocalDateTime now = LocalDateTime.now();
+    private void calcThoiGianConLaiVaPhiHoan() {
+        LocalDateTime gioTauChay = ve.getNgayGioDi();
+        LocalDateTime now = LocalDateTime.now();
 
-		Duration duration = Duration.between(now, gioTauChay);
-		long seconds = duration.getSeconds();
+        Duration duration = Duration.between(now, gioTauChay);
+        long seconds = duration.getSeconds();
 
-		if (seconds <= 0) {
-			thoiGianConLai = "Đã khởi hành";
-			isDuDieuKien = false;
-			lePhiHoanVe = 0;
-			thongTinPhiHoan = "Không thể hoàn vé (Tàu đã khởi hành, không thể hoàn vé.).";
-			tienHoan = 0;
-			isSelected = false;
-		} else {
-			long hours = seconds / 3600;
-			long minutes = (seconds % 3600) / 60;
-			thoiGianConLai = String.format("%dg %02dp", hours, minutes);
+        if (seconds <= 0) {
+            thoiGianConLai = "Đã khởi hành";
+            isDuDieuKien = false;
+            lePhiHoanVe = 0;
+            thongTinPhiHoan = "Không thể hoàn vé (Tàu đã khởi hành, không thể hoàn vé.).";
+            tienHoan = 0;
+            isSelected = false;
+        } else {
+            long hours = seconds / 3600;
+            long minutes = (seconds % 3600) / 60;
+            thoiGianConLai = String.format("%dg %02dp", hours, minutes);
 
-			// Quy định: Phải trước 4 tiếng
-			if (hours >= 4) {
-				isDuDieuKien = true;
-				if (hours >= 24) {
-					lePhiHoanVe = thanhTien * 0.1;
-					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 10% giá vé";
-				} else {
-					lePhiHoanVe = thanhTien * 0.2;
-					thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 20% giá vé";
-				}
-				if (lePhiHoanVe < 10000) {
-					lePhiHoanVe = 10000;
-				}
-				tienHoan = thanhTien - lePhiHoanVe;
-			} else {
-				isDuDieuKien = false;
-				lePhiHoanVe = 0;
-				thongTinPhiHoan = "Không đủ điều kiện hoàn vé (Thời gian còn lại dưới 4 giờ (Quy định hoàn vé)).";
-				tienHoan = 0;
-				isSelected = false;
-			}
-		}
-	}
+            // Quy định: Phải trước 4 tiếng
+            if (hours >= 4) {
+                isDuDieuKien = true;
+                if (hours >= 24) {
+                    lePhiHoanVe = thanhTien * 0.1;
+                    thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 10% giá vé";
+                } else {
+                    lePhiHoanVe = thanhTien * 0.2;
+                    thongTinPhiHoan = "Hoàn vé bình thường năm 2025, áp dụng phí 20% giá vé";
+                }
+                if (lePhiHoanVe < 10000) {
+                    lePhiHoanVe = 10000;
+                }
+                tienHoan = thanhTien - lePhiHoanVe;
+            } else {
+                isDuDieuKien = false;
+                lePhiHoanVe = 0;
+                thongTinPhiHoan = "Không đủ điều kiện hoàn vé (Thời gian còn lại dưới 4 giờ (Quy định hoàn vé)).";
+                tienHoan = 0;
+                isSelected = false;
+            }
+        }
+    }
 
-	public Ve getVe() {
-		return ve;
-	}
+    public Ve getVe() {
+        return ve;
+    }
 
-	public String getHanhKhach() {
-		return hanhKhach;
-	}
+    public String getHanhKhach() {
+        return hanhKhach;
+    }
 
-	public String getThongTinVe() {
-		return thongTinVe;
-	}
+    public String getThongTinVe() {
+        return thongTinVe;
+    }
 
-	public double getThanhTien() {
-		return thanhTien;
-	}
+    public double getThanhTien() {
+        return thanhTien;
+    }
 
-	public double getLePhiHoanVe() {
-		return lePhiHoanVe;
-	}
+    public double getLePhiHoanVe() {
+        return lePhiHoanVe;
+    }
 
-	public double getTienHoan() {
-		return tienHoan;
-	}
+    public double getTienHoan() {
+        return tienHoan;
+    }
 
-	public String getThongTinPhiHoan() {
-		return thongTinPhiHoan;
-	}
+    public String getThongTinPhiHoan() {
+        return thongTinPhiHoan;
+    }
 
-	public String getLyDo() {
-		return lyDo;
-	}
+    public String getLyDo() {
+        return lyDo;
+    }
 
-	public void setLyDo(String lyDo) {
-		this.lyDo = lyDo;
-	}
+    public void setLyDo(String lyDo) {
+        this.lyDo = lyDo;
+    }
 
-	public boolean isSelected() {
-		return isSelected;
-	}
+    public boolean isSelected() {
+        return isSelected;
+    }
 
-	public void setSelected(boolean isSelected) {
-		this.isSelected = isSelected;
-	}
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+    }
 
-	public String getThoiGianConLai() {
-		return thoiGianConLai;
-	}
+    public String getThoiGianConLai() {
+        return thoiGianConLai;
+    }
 
-	public boolean isDuDieuKien() {
-		return isDuDieuKien;
-	}
+    public boolean isDuDieuKien() {
+        return isDuDieuKien;
+    }
 }

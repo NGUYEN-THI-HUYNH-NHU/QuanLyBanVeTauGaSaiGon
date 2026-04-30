@@ -12,9 +12,9 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.HoaDonChiTiet_DAO;
-import dao.impl.HoaDon_DAO;
-import dao.impl.PhieuDungPhongVIP_DAO;
+import dao.impl.HoaDonChiTietDAO;
+import dao.impl.HoaDonDAO;
+import dao.impl.PhieuDungPhongVIPDAO;
 import entity.*;
 import entity.type.LoaiDichVuEnums;
 import entity.type.LoaiDoiTuongEnums;
@@ -24,16 +24,15 @@ import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
 
-import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class HoaDon_BUS {
-    private final HoaDon_DAO hoaDonDAO = new HoaDon_DAO();
-    private final HoaDonChiTiet_DAO hoaDonChiTietDAO = new HoaDonChiTiet_DAO();
-    private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
+    private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
+    private final HoaDonChiTietDAO hoaDonChiTietDAO = new HoaDonChiTietDAO();
+    private final PhieuDungPhongVIPDAO phieuDungPhongVIPDAO = new PhieuDungPhongVIPDAO();
 
     /**
      * @param bookingSession
@@ -133,7 +132,7 @@ public class HoaDon_BUS {
         return dsHoaDonChiTiet;
     }
 
-    public List<HoaDonChiTiet> taoCacHoaDonChiTietHoanVe(Connection conn, HoaDon hoaDon,
+    public List<HoaDonChiTiet> taoCacHoaDonChiTietHoanVe(HoaDon hoaDon,
                                                          List<VeHoanRow> listVeHoanRow) {
         List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
         int stt = 0;
@@ -145,7 +144,7 @@ public class HoaDon_BUS {
                     -row.getVe().getGia());
             dsHoaDonChiTiet.add(hdctVe);
 
-            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, row.getVe().getVeID());
+            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(row.getVe().getVeID());
             if (phieu != null) {
                 String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
                 HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
@@ -162,7 +161,7 @@ public class HoaDon_BUS {
         return dsHoaDonChiTiet;
     }
 
-    public List<HoaDonChiTiet> taoCacHoaDonChiTietDoiVe(Connection conn, HoaDon hoaDon,
+    public List<HoaDonChiTiet> taoCacHoaDonChiTietDoiVe(HoaDon hoaDon,
                                                         ExchangeSession exchangeSession) {
         List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
         List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
@@ -196,7 +195,7 @@ public class HoaDon_BUS {
             // Dòng phiếu mới (nếu có)
             PhieuDungPhongVIP phieuMoi = listVeMoi.get(i).getPhieuDungPhongVIP();
             if (phieuMoi != null) {
-                if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(conn, phieuMoi.getPhieuDungPhongVIPID()) == null) {
+                if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(phieuMoi.getPhieuDungPhongVIPID()) == null) {
                     String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
                     HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuMoi,
                             "Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVuEnums.PHONG_VIP, "Phiếu", 1, 20000, 20000);
@@ -235,17 +234,17 @@ public class HoaDon_BUS {
         return dsHoaDonChiTiet;
     }
 
-    public boolean themHoaDon(Connection conn, HoaDon hoaDon) throws Exception {
-        return hoaDonDAO.insertHoaDon(conn, hoaDon);
+    public boolean themHoaDon(HoaDon hoaDon) throws Exception {
+        return hoaDonDAO.insertHoaDon(hoaDon);
     }
 
     /**
      * @param conn
      * @param dsHoaDonChiTiet
      */
-    public void themCacHoaDonChiTiet(Connection conn, List<HoaDonChiTiet> dsHoaDonChiTiet) throws Exception {
+    public void themCacHoaDonChiTiet(List<HoaDonChiTiet> dsHoaDonChiTiet) throws Exception {
         for (HoaDonChiTiet hdct : dsHoaDonChiTiet) {
-            hoaDonChiTietDAO.insertHoaDonChiTiet(conn, hdct);
+            hoaDonChiTietDAO.insertHoaDonChiTiet(hdct);
         }
     }
 

@@ -12,7 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.GiaoDichHoanDoi_DAO;
+import dao.impl.GiaoDichHoanDoiDAO;
 import entity.GiaoDichHoanDoi;
 import entity.HoaDon;
 import entity.NhanVien;
@@ -22,12 +22,11 @@ import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDichHoanDoi_BUS {
-    private final GiaoDichHoanDoi_DAO giaoDichHoanDoiDAO = new GiaoDichHoanDoi_DAO();
+    private final GiaoDichHoanDoiDAO giaoDichHoanDoiDAO = new GiaoDichHoanDoiDAO();
 
     /**
      * @param hoaDon
@@ -71,12 +70,11 @@ public class GiaoDichHoanDoi_BUS {
     }
 
     /**
-     * @param conn
      * @param dsGdhd
      */
-    public void themCacGiaoDichHoanDoi(Connection conn, List<GiaoDichHoanDoi> dsGdhd) throws Exception {
+    public void themCacGiaoDichHoanDoi(List<GiaoDichHoanDoi> dsGdhd) throws Exception {
         for (GiaoDichHoanDoi gd : dsGdhd) {
-            giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(conn, gd);
+            giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(gd);
         }
     }
 }
