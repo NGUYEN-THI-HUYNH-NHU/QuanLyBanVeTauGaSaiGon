@@ -24,7 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "ghes")
+//@ToString(exclude = "ghes")
 @EqualsAndHashCode(exclude = "ghes")
 @Entity
 @Table(name = "Toa")
@@ -63,9 +63,14 @@ public class Toa implements Serializable {
         this.toaID = toaID;
         this.soToa = soToa;
     }
-    
+
     public Toa(String toaID) {
         super();
         this.toaID = toaID;
+    }
+
+    @Override
+    public String toString() {
+        return toaID;
     }
 }

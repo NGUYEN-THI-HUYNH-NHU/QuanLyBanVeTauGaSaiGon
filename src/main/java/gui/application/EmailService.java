@@ -24,7 +24,7 @@ import java.util.Properties;
 public class EmailService {
 
     private static final String SENDER_EMAIL = "huynhnhu.gmeet@gmail.com";
-    private static final String SENDER_PASSWORD = "ypjj fkwx dpgu odvt";
+    private static final String SENDER_PASSWORD = "fgok szfr jcad koeq";
 
     public static void sendTicketEmail(String recipientEmail, List<Ve> listVe, DonDatCho donDatCho, double tongTien) {
         // 1. Cấu hình SMTP Server
@@ -85,7 +85,7 @@ public class EmailService {
 
         for (Ve ve : listVe) {
             sb.append("<tr>");
-            sb.append("<td style='border: 1px solid #ddd; padding: 8px; text-align: center;'><b>").append(ve.isVeDoi())
+            sb.append("<td style='border: 1px solid #ddd; padding: 8px; text-align: center;'><b>").append(ve.getVeID())
                     .append("</b></td>");
             sb.append("<td style='border: 1px solid #ddd; padding: 8px;'>").append("Tàu: ")
                     .append(ve.getGhe().getToa().getTau().getTauID()).append("<br>").append("Toa: ")
