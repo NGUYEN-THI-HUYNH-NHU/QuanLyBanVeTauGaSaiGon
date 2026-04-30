@@ -13,6 +13,7 @@ package bus;
  */
 
 import dao.impl.VeDAO;
+import dto.DonDatChoDTO;
 import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiVe;
@@ -145,15 +146,15 @@ public class Ve_BUS {
      * @return
      */
     public List<Ve> taoCacVeVaThemVaoExchangeSession(ExchangeSession exchangeSession) {
-        List<Ve> dsVe = new ArrayList<Ve>();
-        DonDatCho donDatCho = exchangeSession.getDonDatChoMoi();
+        List<Ve> dsVe = new ArrayList<>();
+        DonDatChoDTO donDatCho = exchangeSession.getDonDatChoMoi();
         int n = exchangeSession.getListVeMoiDangChon().size();
 
         for (int i = 0; i < n; i++) {
             VeDTO ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatChoID(donDatCho.getDonDatChoID());
+            ve.setDonDatChoID(donDatCho.getId());
 
             dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             exchangeSession.getListVeMoiDangChon().get(i).setVe(ve);
@@ -180,16 +181,19 @@ public class Ve_BUS {
      * @param donDatChoID
      * @return
      */
-    public List<Ve> timCacVeTheoDonDatChoID(String donDatChoID) {
-        return veDAO.getVeByDonDatChoID(donDatChoID);
+    public List<VeDTO> timCacVeTheoDonDatChoID(String donDatChoID) {
+        return veDAO.getVeByDonDatChoID(donDatChoID)
+                .stream()
+                .map(VeMapper.INSTANCE::toDTO)
+                .toList();
     }
 
     /**
      * @param listVe
      * @param trangThai
      */
-    public void capNhatTrangThaiVe(List<Ve> listVe, TrangThaiVe trangThai) throws Exception {
-        for (Ve ve : listVe) {
+    public void capNhatTrangThaiVe(List<VeDTO> listVe, TrangThaiVe trangThai) throws Exception {
+        for (VeDTO ve : listVe) {
             veDAO.updateTrangThaiVe(ve.getVeID(), trangThai);
         }
     }

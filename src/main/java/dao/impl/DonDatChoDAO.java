@@ -9,7 +9,6 @@ import dao.IDonDatChoDAO;
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.NhanVien;
-import gui.application.form.donDatCho.DonDatChoDTO;
 import jakarta.persistence.Query;
 
 import java.sql.Timestamp;
@@ -74,7 +73,7 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     }
 
     @Override
-    public List<DonDatChoDTO> getListDonDatCho() {
+    public List<DonDatCho> getListDonDatCho() {
         return doInTransaction(em -> {
             String sql = "SELECT \r\n" + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
                     + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai,"
@@ -89,7 +88,7 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                     + "ORDER BY d.thoiDiemDatCho DESC";
 
             Query query = em.createNativeQuery(sql);
-            List<DonDatChoDTO> ds = new ArrayList<>();
+            List<DonDatCho> ds = new ArrayList<>();
             try {
                 List<Object[]> resultList = query.getResultList();
                 for (Object[] row : resultList) {
@@ -101,11 +100,11 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                     d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
                     d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
 
-                    int tongSoVe = ((Number) row[8]).intValue();
-                    int soVeHoan = ((Number) row[9]).intValue();
-                    int soVeDoi = ((Number) row[10]).intValue();
+                    d.setTongSoVe(((Number) row[8]).intValue());
+                    d.setSoVeHoan(((Number) row[9]).intValue());
+                    d.setSoVeDoi(((Number) row[10]).intValue());
 
-                    ds.add(new DonDatChoDTO(d, tongSoVe, soVeHoan, soVeDoi));
+                    ds.add(d);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -115,9 +114,9 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     }
 
     @Override
-    public List<DonDatChoDTO> searchDonDatChoByKeyword(String keyword, String type) {
+    public List<DonDatCho> searchDonDatChoByKeyword(String keyword, String type) {
         return doInTransaction(em -> {
-            List<DonDatChoDTO> list = new ArrayList<>();
+            List<DonDatCho> list = new ArrayList<>();
             StringBuilder sql = new StringBuilder("SELECT \r\n" + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
                     + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai, \r\n"
                     + "    nv.nhanVienID, nv.hoTen as hoTenNV,\r\n" + "    COUNT(v.veID) AS tongSoVe,\r\n"
@@ -159,11 +158,11 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                     d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
                     d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
 
-                    int tongSoVe = ((Number) row[8]).intValue();
-                    int soVeHoan = ((Number) row[9]).intValue();
-                    int soVeDoi = ((Number) row[10]).intValue();
+                    d.setTongSoVe(((Number) row[8]).intValue());
+                    d.setSoVeHoan(((Number) row[9]).intValue());
+                    d.setSoVeDoi(((Number) row[10]).intValue());
 
-                    list.add(new DonDatChoDTO(d, tongSoVe, soVeHoan, soVeDoi));
+                    list.add(d);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -213,9 +212,9 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     }
 
     @Override
-    public List<DonDatChoDTO> searchDonDatChoByFilter(Date tuNgay, Date denNgay) {
+    public List<DonDatCho> searchDonDatChoByFilter(Date tuNgay, Date denNgay) {
         return doInTransaction(em -> {
-            List<DonDatChoDTO> list = new ArrayList<>();
+            List<DonDatCho> list = new ArrayList<>();
             StringBuilder sql = new StringBuilder("SELECT \r\n" + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
                     + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai, \r\n"
                     + "    nv.nhanVienID, nv.hoTen as hoTenNV,\r\n" + "    COUNT(v.veID) AS tongSoVe,\r\n"
@@ -258,11 +257,11 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                     d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
                     d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
 
-                    int tongSoVe = ((Number) row[8]).intValue();
-                    int soVeHoan = ((Number) row[9]).intValue();
-                    int soVeDoi = ((Number) row[10]).intValue();
+                    d.setTongSoVe(((Number) row[8]).intValue());
+                    d.setSoVeHoan(((Number) row[9]).intValue());
+                    d.setSoVeDoi(((Number) row[10]).intValue());
 
-                    list.add(new DonDatChoDTO(d, tongSoVe, soVeHoan, soVeDoi));
+                    list.add(d);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

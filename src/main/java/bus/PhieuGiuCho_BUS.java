@@ -14,8 +14,9 @@ package bus;
 
 import dao.impl.PhieuGiuChoChiTietDAO;
 import dao.impl.PhieuGiuChoDAO;
-import entity.Ve;
+import dto.VeDTO;
 import entity.type.TrangThaiPhieuGiuCho;
+import mapper.VeMapper;
 
 import java.util.List;
 
@@ -23,9 +24,9 @@ public class PhieuGiuCho_BUS {
     private final PhieuGiuChoDAO pgcDAO = new PhieuGiuChoDAO();
     private final PhieuGiuChoChiTietDAO pgcctDAO = new PhieuGiuChoChiTietDAO();
 
-    public void huyCacPhieuGiuChoChiTiet(List<Ve> listVe, TrangThaiPhieuGiuCho trangThai) {
-        for (Ve ve : listVe) {
-            pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(ve, trangThai);
+    public void huyCacPhieuGiuChoChiTiet(List<VeDTO> listVe, TrangThaiPhieuGiuCho trangThai) {
+        for (VeDTO ve : listVe) {
+            pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(VeMapper.INSTANCE.toEntity(ve), trangThai);
         }
     }
 }

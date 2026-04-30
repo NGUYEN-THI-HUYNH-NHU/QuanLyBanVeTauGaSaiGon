@@ -13,10 +13,8 @@ package gui.application.form.banVe;
  */
 
 import com.formdev.flatlaf.FlatClientProperties;
-import entity.KhachHang;
-import entity.LoaiDoiTuong;
+import dto.KhachHangDTO;
 import entity.type.LoaiDoiTuongEnums;
-import mapper.KhachHangMapper;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -206,15 +204,14 @@ public class PassengerCellPanel extends JPanel {
     private void handleFindHanhKhach() {
         String id = txtID.getText().trim();
         if (controller != null && !id.isEmpty()) {
-            KhachHang kh = controller.findKhachHangByID(id);
+            KhachHangDTO kh = controller.findKhachHangByID(id);
             if (kh != null) {
                 // Tìm thấy -> Cập nhật Model của cell
                 currentRowData.setSoGiayTo(kh.getSoGiayTo());
                 currentRowData.setHoTen(kh.getHoTen());
-                currentRowData.setLoaiDoiTuong(kh.getLoaiDoiTuong());
+                currentRowData.setLoaiDoiTuong(LoaiDoiTuongEnums.valueOf(kh.getLoaiDoiTuongID()));
                 // Lưu entity KhachHang vào VeSession
-                currentRowData.getVeSession().getVe().setKhachHangDTO(KhachHangMapper.INSTANCE.toDTO(kh));
-
+                currentRowData.getVeSession().getVe().setKhachHangDTO(kh);
 
                 // Cập nhật View (các trường) từ Model vừa sửa
                 setData(currentRowData);
@@ -320,7 +317,7 @@ public class PassengerCellPanel extends JPanel {
             cbType.setSelectedIndex(0);
             return;
         }
-        switch (LoaiDoiTuongEnums.valueOf(p.getLoaiDoiTuong().getLoaiDoiTuongID())) {
+        switch (p.getLoaiDoiTuong()) {
             case NGUOI_LON:
                 cbType.setSelectedIndex(0);
                 break;
@@ -340,8 +337,7 @@ public class PassengerCellPanel extends JPanel {
         base.setHoTen(getTxtTen().getText().trim());
         base.setSoGiayTo(txtID.getText().trim());
         int idx = cbType.getSelectedIndex();
-        base.setLoaiDoiTuong(new LoaiDoiTuong(
-                idx == 1 ? LoaiDoiTuongEnums.TRE_EM.name() : idx == 2 ? LoaiDoiTuongEnums.NGUOI_CAO_TUOI.name() : LoaiDoiTuongEnums.NGUOI_LON.name()));
+        base.setLoaiDoiTuong(idx == 1 ? LoaiDoiTuongEnums.TRE_EM : idx == 2 ? LoaiDoiTuongEnums.NGUOI_CAO_TUOI : LoaiDoiTuongEnums.NGUOI_LON);
         return base;
     }
 

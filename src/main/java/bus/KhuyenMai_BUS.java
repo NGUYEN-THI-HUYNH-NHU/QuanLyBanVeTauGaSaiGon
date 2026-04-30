@@ -2,10 +2,12 @@ package bus;
 
 import dao.impl.KhuyenMai_DAO;
 import dao.impl.SuDungKhuyenMai_DAO;
+import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiSDKM;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
+import mapper.VeMapper;
 
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -180,8 +182,8 @@ public class KhuyenMai_BUS {
      * @param conn
      * @param listVe
      */
-    public int capNhatTrangThaiSDKMCuaVe(Connection conn, List<Ve> listVe) throws Exception {
-        return suDungKhuyenMaiDAO.huySuDungKhuyenMaiChoListVe(conn, listVe);
+    public int capNhatTrangThaiSDKMCuaVe(Connection conn, List<VeDTO> listVe) throws Exception {
+        return suDungKhuyenMaiDAO.huySuDungKhuyenMaiChoListVe(conn, listVe.stream().map(VeMapper.INSTANCE::toEntity).toList());
     }
 
     /**
@@ -189,7 +191,7 @@ public class KhuyenMai_BUS {
      * @param listVe
      * @return
      */
-    public Map<String, Integer> layDanhSachKhuyenMaiCanHoan(Connection conn, List<Ve> listVe) throws Exception {
+    public Map<String, Integer> layDanhSachKhuyenMaiCanHoan(Connection conn, List<VeDTO> listVe) throws Exception {
         return khuyenMai_dao.getDanhSachKhuyenMaiCanHoan(conn, listVe);
     }
 

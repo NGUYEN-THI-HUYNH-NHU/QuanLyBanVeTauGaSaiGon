@@ -72,7 +72,7 @@ public class PdfTicketExporter {
         if (exchangeSession == null || exchangeSession.getListVeMoiDangChon().isEmpty()) {
             return;
         }
-        processDirectPrint(exchangeSession.getListVeMoiDangChon(), exchangeSession.getDonDatChoMoi().getDonDatChoID());
+        processDirectPrint(exchangeSession.getListVeMoiDangChon(), exchangeSession.getDonDatChoMoi().getId());
     }
 
     // 2. XỬ LÝ IN ẤN (RASTER MODE)

@@ -11,53 +11,53 @@ package gui.application.form.hoanVe;
  * @date: Nov 9, 2025
  * @version: 1.0
  */
+
+import dto.KhachHangDTO;
+import dto.VeDTO;
+
 import java.util.List;
 
-import entity.KhachHang;
-import entity.Ve;
-
 public class HoanVeBuoc2Controller {
-	private PanelHoanVeBuoc2 panel;
+    private PanelHoanVeBuoc2 panel;
+    private ContinueListener continueListener;
 
-	protected interface ContinueListener {
-		void onContinue(List<VeHoanRow> selectedRows);
-	}
+    public HoanVeBuoc2Controller(PanelHoanVeBuoc2 panel) {
+        this.panel = panel;
 
-	private ContinueListener continueListener;
+        this.panel.getBtnTiepTuc().addActionListener(e -> {
+            // Lấy danh sách các dòng được chọn từ View
+            List<VeHoanRow> selected = panel.getSelectedVeHoanRows();
 
-	public HoanVeBuoc2Controller(PanelHoanVeBuoc2 panel) {
-		this.panel = panel;
+            if (selected.isEmpty()) {
+                // (Thông báo lỗi nếu chưa chọn vé nào)
+                return;
+            }
 
-		this.panel.getBtnTiepTuc().addActionListener(e -> {
-			// Lấy danh sách các dòng được chọn từ View
-			List<VeHoanRow> selected = panel.getSelectedVeHoanRows();
+            // Phát sự kiện cho Mediator
+            if (continueListener != null) {
+                continueListener.onContinue(selected);
+            }
+        });
+    }
 
-			if (selected.isEmpty()) {
-				// (Thông báo lỗi nếu chưa chọn vé nào)
-				return;
-			}
+    /**
+     * @param khachHang
+     * @param listVe
+     *
+     */
+    public void disPlayDonDatCho(List<VeDTO> listVe, KhachHangDTO khachHang) {
+        panel.showDonDatCho(listVe, khachHang);
+    }
 
-			// Phát sự kiện cho Mediator
-			if (continueListener != null) {
-				continueListener.onContinue(selected);
-			}
-		});
-	}
+    public void addContinueListener(ContinueListener listener) {
+        this.continueListener = listener;
+    }
 
-	/**
-	 * @param khachHang
-	 * @param listVe
-	 * 
-	 */
-	public void disPlayDonDatCho(List<Ve> listVe, KhachHang khachHang) {
-		panel.showDonDatCho(listVe, khachHang);
-	}
+    public void refreshRowDisplay(VeHoanRow row) {
+        panel.refreshRow(row);
+    }
 
-	public void addContinueListener(ContinueListener listener) {
-		this.continueListener = listener;
-	}
-
-	public void refreshRowDisplay(VeHoanRow row) {
-		panel.refreshRow(row);
-	}
+    protected interface ContinueListener {
+        void onContinue(List<VeHoanRow> selectedRows);
+    }
 }

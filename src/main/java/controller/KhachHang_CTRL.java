@@ -1,6 +1,7 @@
 package controller;
 
 import bus.KhachHang_BUS;
+import dto.KhachHangDTO;
 import entity.KhachHang;
 import entity.NhanVien;
 import gui.application.AuthService;
@@ -17,12 +18,12 @@ public class KhachHang_CTRL {
         this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
     }
 
-    public boolean themKhachHang(KhachHang kh) {
+    public boolean themKhachHang(KhachHangDTO kh) {
         String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
         return khachHang_bus.themKhachHang(kh);
     }
 
-    public boolean capNhatKhachHang(KhachHang kh) {
+    public boolean capNhatKhachHang(KhachHangDTO kh) {
         String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
         return khachHang_bus.capNhatKhachHang(kh);
     }
@@ -31,7 +32,7 @@ public class KhachHang_CTRL {
         return khachHang_bus.timKiemKhachHangTheoSDT(sdt);
     }
 
-    public KhachHang timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
+    public KhachHangDTO timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
         return khachHang_bus.timKiemKhachHangTheoSoGiayTo(soGiayTo);
     }
 
@@ -62,6 +63,7 @@ public class KhachHang_CTRL {
     public boolean kiemTraTrungSoGiayTo(String soGiayTo) {
         return khachHang_bus.kiemTraTrungSoGiayTo(soGiayTo);
     }
+
     public String taoMaKhachHang() {
         return khachHang_bus.taoMaKhachHangTuDong();
     }

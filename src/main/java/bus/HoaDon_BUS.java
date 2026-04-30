@@ -15,6 +15,8 @@ package bus;
 import dao.impl.HoaDonChiTietDAO;
 import dao.impl.HoaDonDAO;
 import dao.impl.PhieuDungPhongVIPDAO;
+import dto.DonDatChoDTO;
+import dto.KhachHangDTO;
 import dto.VeDTO;
 import entity.*;
 import entity.type.LoaiDichVuEnums;
@@ -24,6 +26,8 @@ import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
+import mapper.KhachHangMapper;
+import mapper.VeMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,7 +46,8 @@ public class HoaDon_BUS {
     public HoaDon taoHoaDon(BookingSession bookingSession) {
         String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID().substring(4);
         LocalDateTime now = LocalDateTime.now();
-        HoaDon hoaDon = new HoaDon(hdID, bookingSession.getKhachHang(), bookingSession.getNhanVien(), now,
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(bookingSession.getKhachHang());
+        HoaDon hoaDon = new HoaDon(hdID, khachHang, bookingSession.getNhanVien(), now,
                 bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
                 bookingSession.getGiaoDichThanhToan().getTienNhan(),
                 bookingSession.getGiaoDichThanhToan().getTienHoan(),
@@ -56,9 +61,10 @@ public class HoaDon_BUS {
      * @return
      */
     public HoaDon taoHoaDonDoiVe(ExchangeSession exchangeSession) {
-        String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getDonDatChoID().substring(4);
+        String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getId().substring(4);
         LocalDateTime now = LocalDateTime.now();
-        HoaDon hoaDon = new HoaDon(hdID, exchangeSession.getKhachHang(), exchangeSession.getNhanVien(), now,
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(exchangeSession.getKhachHang());
+        HoaDon hoaDon = new HoaDon(hdID, khachHang, exchangeSession.getNhanVien(), now,
                 exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
                 exchangeSession.getGiaoDichThanhToan().getTienNhan(),
                 exchangeSession.getGiaoDichThanhToan().getTienHoan(),
@@ -74,10 +80,10 @@ public class HoaDon_BUS {
      * @param tongTienHoan
      * @return
      */
-    public HoaDon taoHoaDonHoanVe(DonDatCho donDatCho, KhachHang khachHang, NhanVien nhanVien, double tongTienHoan) {
+    public HoaDon taoHoaDonHoanVe(DonDatChoDTO donDatCho, KhachHangDTO khachHang, NhanVien nhanVien, double tongTienHoan) {
         HoaDon hoaDon = new HoaDon();
-        hoaDon.setHoaDonID("HDHV-" + donDatCho.getDonDatChoID().substring(4));
-        hoaDon.setKhachHang(khachHang);
+        hoaDon.setHoaDonID("HDHV-" + donDatCho.getId().substring(4));
+        hoaDon.setKhachHang(KhachHangMapper.INSTANCE.toEntity(khachHang));
         hoaDon.setNhanVien(nhanVien);
         hoaDon.setThoiDiemTao(LocalDateTime.now());
         hoaDon.setTongTien(-tongTienHoan);
@@ -141,21 +147,21 @@ public class HoaDon_BUS {
 
         for (VeHoanRow row : listVeHoanRow) {
             String hdctVeID = hoaDon.getHoaDonID() + "-" + (++stt);
-            HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, row.getVe(),
-                    "Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVuEnums.VE_HOAN, "Vé", 1, -row.getVe().getGia(),
-                    -row.getVe().getGia());
+            Ve ve = VeMapper.INSTANCE.toEntity(row.getVe());
+            HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, ve, "Điều chỉnh giảm theo BB trả vé số: 2177975",
+                    LoaiDichVuEnums.VE_HOAN, "Vé", 1, -ve.getGia(), -ve.getGia());
             dsHoaDonChiTiet.add(hdctVe);
 
-            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(row.getVe().getVeID());
+            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID());
             if (phieu != null) {
                 String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
-                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu,
-                        "Hủy phiếu dùng phòng chờ VIP theo vé hoàn", LoaiDichVuEnums.PHIEU_HUY, "Phiếu", 1, 0, 0);
+                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieu, "Hủy phiếu dùng phòng chờ VIP theo vé hoàn",
+                        LoaiDichVuEnums.PHIEU_HUY, "Phiếu", 1, 0, 0);
                 dsHoaDonChiTiet.add(hdctPhieu);
             }
 
             String hdctLePhiID = hoaDon.getHoaDonID() + "-" + (++stt);
-            HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, row.getVe(), "Lệ phí hoàn vé",
+            HoaDonChiTiet hdctLePhi = new HoaDonChiTiet(hdctLePhiID, hoaDon, ve, "Lệ phí hoàn vé",
                     LoaiDichVuEnums.PHI_HOAN, 1, row.getLePhiHoanVe(), row.getLePhiHoanVe());
             dsHoaDonChiTiet.add(hdctLePhi);
         }
@@ -173,9 +179,10 @@ public class HoaDon_BUS {
         for (int i = 0; i < soLuongVe; i++) {
             // Dòng vé đổi
             String hdctVeDoiID = hoaDon.getHoaDonID() + "-" + (++stt);
-            HoaDonChiTiet hdctVeDoi = new HoaDonChiTiet(hdctVeDoiID, hoaDon, listVeDoi.get(i).getVe(),
+            Ve ve = VeMapper.INSTANCE.toEntity(listVeDoi.get(i).getVe());
+            HoaDonChiTiet hdctVeDoi = new HoaDonChiTiet(hdctVeDoiID, hoaDon, ve,
                     "Điều chỉnh giảm theo BB trả vé số: 2177975", LoaiDichVuEnums.VE_DOI, "Vé", 1,
-                    -listVeDoi.get(i).getVe().getGia(), -listVeDoi.get(i).getVe().getGia());
+                    -ve.getGia(), -ve.getGia());
             dsHoaDonChiTiet.add(hdctVeDoi);
 
             // Dòng phiếu đổi (hủy)

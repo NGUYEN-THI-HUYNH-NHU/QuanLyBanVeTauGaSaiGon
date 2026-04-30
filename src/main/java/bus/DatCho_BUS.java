@@ -15,12 +15,14 @@ package bus;
 import dao.impl.DonDatChoDAO;
 import dao.impl.PhieuGiuChoChiTietDAO;
 import dao.impl.PhieuGiuChoDAO;
+import dto.KhachHangDTO;
 import dto.PhieuGiuChoDTO;
 import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
+import mapper.KhachHangMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.time.Duration;
@@ -95,13 +97,13 @@ public class DatCho_BUS {
         return pgcDAO.delete(phieuGiuChoID);
     }
 
-    public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHang khachHang) {
+    public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHangDTO khachHang) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy-HHmmss");
 
         String ddcID = "DDC-" + now.format(formatter);
 
-        return new DonDatCho(ddcID, nhanVien, khachHang, now);
+        return DonDatCho.builder().donDatChoID(ddcID).nhanVien(nhanVien).khachHang(KhachHangMapper.INSTANCE.toEntity(khachHang)).thoiDiemDatCho(now).build();
     }
 
     public boolean themDonDatCho(DonDatCho donDatCho) throws Exception {

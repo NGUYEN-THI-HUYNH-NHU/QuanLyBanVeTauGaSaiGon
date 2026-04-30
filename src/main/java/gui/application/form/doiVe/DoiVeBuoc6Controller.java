@@ -14,7 +14,6 @@ package gui.application.form.doiVe;
 
 import bus.DatCho_BUS;
 import gui.application.form.banVe.VeSession;
-import mapper.KhachHangMapper;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -64,7 +63,7 @@ public class DoiVeBuoc6Controller {
             // Kiểm tra nếu chưa chọn vé mới (null)
             if (row.getVeSessionMoi() == null) {
                 // Lấy thông tin hành khách để thông báo rõ ràng hơn
-                String tenKhach = row.getVeDoiRow().getVe().getKhachHang().getHoTen();
+                String tenKhach = row.getVeDoiRow().getVe().getKhachHangDTO().getHoTen();
 
                 // 1. Thông báo lỗi
                 JOptionPane.showMessageDialog(view,
@@ -87,7 +86,7 @@ public class DoiVeBuoc6Controller {
             listVeMoiChinhThuc.add(veMoi);
             // Cập nhật thông tin Hành Khách từ vé cũ sang vé mới
             if (veMoi != null) {
-                veMoi.getVe().setKhachHangDTO(KhachHangMapper.INSTANCE.toDTO(row.getVeDoiRow().getVe().getKhachHang()));
+                veMoi.getVe().setKhachHangDTO(row.getVeDoiRow().getVe().getKhachHangDTO());
             }
         }
 

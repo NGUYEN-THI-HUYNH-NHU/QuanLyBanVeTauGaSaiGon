@@ -13,12 +13,12 @@ package bus;
  */
 
 import connectDB.ConnectDB;
+import dto.KhachHangDTO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
-import mapper.KhachHangMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
@@ -49,16 +49,17 @@ public class BanVe_BUS {
             conn = ConnectDB.getInstance().getConnection();
             conn.setAutoCommit(false);
 
+            KhachHangDTO khachHang = session.getKhachHang();
+
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
             // 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
-            khachHangBUS.themHoacCapNhatKhachHang(conn, session.getKhachHang());
+            khachHangBUS.themHoacCapNhatKhachHang(conn, khachHang);
             for (VeSession v : session.getAllSelectedTickets()) {
-                KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(v.getVe().getKhachHangDTO());
                 khachHangBUS.themHoacCapNhatKhachHang(conn, khachHang);
             }
 
             // 3. Tạo và Lưu Đơn Đặt Chỗ
-            DonDatCho donDatCho = datChoBUS.taoDonDatCho(session.getNhanVien(), session.getKhachHang());
+            DonDatCho donDatCho = datChoBUS.taoDonDatCho(session.getNhanVien(), khachHang);
             datChoBUS.themDonDatCho(donDatCho);
             session.setDonDatCho(donDatCho);
 

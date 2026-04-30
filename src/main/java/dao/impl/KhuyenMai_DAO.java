@@ -1,6 +1,7 @@
 package dao.impl;
 
 import connectDB.ConnectDB;
+import dto.VeDTO;
 import entity.*;
 import gui.application.form.banVe.VeSession;
 
@@ -604,7 +605,7 @@ public class KhuyenMai_DAO {
      * @return Map<String, Integer>: Key là khuyenMaiID, Value là số lượng cần cộng
      * lại
      */
-    public Map<String, Integer> getDanhSachKhuyenMaiCanHoan(Connection conn, List<Ve> listVe) throws Exception {
+    public Map<String, Integer> getDanhSachKhuyenMaiCanHoan(Connection conn, List<VeDTO> listVe) throws Exception {
         Map<String, Integer> resultMap = new HashMap<>();
 
         if (listVe == null || listVe.isEmpty()) {

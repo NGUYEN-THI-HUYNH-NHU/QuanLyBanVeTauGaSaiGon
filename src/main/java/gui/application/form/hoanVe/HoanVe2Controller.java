@@ -11,144 +11,142 @@ package gui.application.form.hoanVe;
  * @date: Nov 13, 2025
  * @version: 1.0
  */
+
+import bus.HoanVe_BUS;
+import dto.DonDatChoDTO;
+import dto.KhachHangDTO;
+
+import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
-
-import bus.HoanVe_BUS;
-import entity.DonDatCho;
-import entity.KhachHang;
-
 public class HoanVe2Controller {
-	private final PanelHoanVe2 view;
-	private final PanelHoanVeBuoc4 p4;
-	private final PanelHoanVeBuoc5 p5;
+    private final PanelHoanVe2 view;
+    private final PanelHoanVeBuoc4 p4;
+    private final PanelHoanVeBuoc5 p5;
 
-	private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
+    private final HoanVe_BUS hoanVeBUS = new HoanVe_BUS();
 
-	private DonDatCho donDatCho;
-	private KhachHang khachHang;
-	private List<VeHoanRow> listVeHoanRow;
+    private DonDatChoDTO donDatCho;
+    private KhachHangDTO khachHang;
+    private List<VeHoanRow> listVeHoanRow;
 
-	// Listener để báo cho wizard chính (PanelHoanVe) biết khi thanh toán xong
-	private Runnable onPaymentSuccessListener;
-	private Runnable onReturnListener;
+    // Listener để báo cho wizard chính (PanelHoanVe) biết khi thanh toán xong
+    private Runnable onPaymentSuccessListener;
+    private Runnable onReturnListener;
 
-	public void addPanel2ReturnListener(Runnable listener) {
-		this.onReturnListener = listener;
-	}
+    public HoanVe2Controller(PanelHoanVe2 view) {
+        this.view = view;
 
-	protected void addPanel2PaymentSuccessListener(Runnable listener) {
-		this.onPaymentSuccessListener = listener;
-	}
+        this.p4 = view.getPanelHoanVeBuoc4();
+        this.p5 = view.getPanelHoanVeBuoc5();
 
-	public HoanVe2Controller(PanelHoanVe2 view) {
-		this.view = view;
+        this.view.getBtnPrev().addActionListener(e -> {
+            if (onReturnListener != null) {
+                onReturnListener.run();
+            }
+        });
+        // Khởi tạo logic liên kết
+        initMediatorLogic();
+    }
 
-		this.p4 = view.getPanelHoanVeBuoc4();
-		this.p5 = view.getPanelHoanVeBuoc5();
+    public void addPanel2ReturnListener(Runnable listener) {
+        this.onReturnListener = listener;
+    }
 
-		this.view.getBtnPrev().addActionListener(e -> {
-			if (onReturnListener != null) {
-				onReturnListener.run();
-			}
-		});
-		// Khởi tạo logic liên kết
-		initMediatorLogic();
-	}
+    protected void addPanel2PaymentSuccessListener(Runnable listener) {
+        this.onPaymentSuccessListener = listener;
+    }
 
-	/**
-	 * Được gọi bởi PanelHoanVe TRƯỚC KHI panel này được hiển thị. Nhiệm vụ: Lấy dữ
-	 * liệu từ session, tính toán và đổ vào Buoc4, Buoc5.
-	 * 
-	 */
-	public void loadDataForConfirmation(DonDatCho donDatCho, KhachHang khachHang, List<VeHoanRow> listVeHoanRow) {
-		this.donDatCho = donDatCho;
-		this.khachHang = khachHang;
-		this.listVeHoanRow = listVeHoanRow;
+    /**
+     * Được gọi bởi PanelHoanVe TRƯỚC KHI panel này được hiển thị. Nhiệm vụ: Lấy dữ
+     * liệu từ session, tính toán và đổ vào Buoc4, Buoc5.
+     *
+     */
+    public void loadDataForConfirmation(DonDatChoDTO donDatCho, KhachHangDTO khachHang, List<VeHoanRow> listVeHoanRow) {
+        this.donDatCho = donDatCho;
+        this.khachHang = khachHang;
+        this.listVeHoanRow = listVeHoanRow;
 
-		// 1. Đặt lại trạng thái
-		p4.setComponentsEnabled(true);
-		p5.setComponentsEnabled(true);
+        // 1. Đặt lại trạng thái
+        p4.setComponentsEnabled(true);
+        p5.setComponentsEnabled(true);
 
-		// 2. Tải dữ liệu vào bảng xác nhận (Buoc4)
-		p4.hienThiThongTin(listVeHoanRow);
+        // 2. Tải dữ liệu vào bảng xác nhận (Buoc4)
+        p4.hienThiThongTin(listVeHoanRow);
 
-		// 3. Tính toán chi tiết thanh toán
-		int tongTienVe = 0;
-		int tongPhiHoan = 0;
+        // 3. Tính toán chi tiết thanh toán
+        int tongTienVe = 0;
+        int tongPhiHoan = 0;
 
-		for (VeHoanRow row : listVeHoanRow) {
-			tongTienVe += row.getVe().getGia();
-			tongPhiHoan += row.getLePhiHoanVe();
-		}
+        for (VeHoanRow row : listVeHoanRow) {
+            tongTienVe += row.getVe().getGia();
+            tongPhiHoan += row.getLePhiHoanVe();
+        }
 
-		// 4. Đẩy chi tiết thanh toán vào Buoc5
-		p5.setChiTietThanhToan(tongTienVe, tongPhiHoan);
-		p5.getRadTienMat().doClick();
-	}
+        // 4. Đẩy chi tiết thanh toán vào Buoc5
+        p5.setChiTietThanhToan(tongTienVe, tongPhiHoan);
+        p5.getRadTienMat().doClick();
+    }
 
-	/**
-	 * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
-	 */
-	private void initMediatorLogic() {
-		JButton payButtonCash = p5.getBtnXacNhanHoanVe();
+    /**
+     * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
+     */
+    private void initMediatorLogic() {
+        JButton payButtonCash = p5.getBtnXacNhanHoanVe();
 
-		ActionListener paymentListener = e -> {
-			if (this.khachHang == null || this.listVeHoanRow == null || this.listVeHoanRow.isEmpty()) {
-				JOptionPane.showMessageDialog(view, "Dữ liệu hoàn vé không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
+        ActionListener paymentListener = e -> {
+            if (this.khachHang == null || this.listVeHoanRow == null || this.listVeHoanRow.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Dữ liệu hoàn vé không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-			double tongTienHoan = p5.getTongTienHoan();
+            double tongTienHoan = p5.getTongTienHoan();
 
-			// Tạo SwingWorker để xử lý DB (tránh đơ UI)
-			new SwingWorker<Boolean, Void>() {
-				@Override
-				protected Boolean doInBackground() throws Exception {
-					try {
-						return hoanVeBUS.thucHienHoanVe(donDatCho, khachHang, listVeHoanRow, tongTienHoan);
-					} catch (Exception ex) {
-						ex.printStackTrace();
-						return false;
-					}
-				}
+            // Tạo SwingWorker để xử lý DB (tránh đơ UI)
+            new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    try {
+                        return hoanVeBUS.thucHienHoanVe(donDatCho, khachHang, listVeHoanRow, tongTienHoan);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        return false;
+                    }
+                }
 
-				@Override
-				protected void done() {
-					try {
-						boolean saveSuccess = get();
-						if (saveSuccess) {
-							// a. Vô hiệu hóa PanelBuoc5
-							p5.setComponentsEnabled(false);
+                @Override
+                protected void done() {
+                    try {
+                        boolean saveSuccess = get();
+                        if (saveSuccess) {
+                            // a. Vô hiệu hóa PanelBuoc5
+                            p5.setComponentsEnabled(false);
 
-							// b. Xuất PDF (Nếu cần)
-							// PdfTicketExporter exporter = new PdfTicketExporter();
-							// exporter.exportReturnReceipt(currentKhachHang, currentListVeHoan);
+                            // b. Xuất PDF (Nếu cần)
+                            // PdfTicketExporter exporter = new PdfTicketExporter();
+                            // exporter.exportReturnReceipt(currentKhachHang, currentListVeHoan);
 
-							JOptionPane.showMessageDialog(view, "Hoàn vé thành công!", "Thông báo",
-									JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(view, "Hoàn vé thành công!", "Thông báo",
+                                    JOptionPane.INFORMATION_MESSAGE);
 
-							// c. Báo hoàn tất
-							if (onPaymentSuccessListener != null) {
-								onPaymentSuccessListener.run();
-							}
-						} else {
-							JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin hoàn vé vào CSDL!", "Lỗi",
-									JOptionPane.ERROR_MESSAGE);
-						}
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
-			}.execute();
-		};
+                            // c. Báo hoàn tất
+                            if (onPaymentSuccessListener != null) {
+                                onPaymentSuccessListener.run();
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin hoàn vé vào CSDL!", "Lỗi",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }.execute();
+        };
 
-		if (payButtonCash != null) {
-			payButtonCash.addActionListener(paymentListener);
-		}
-	}
+        if (payButtonCash != null) {
+            payButtonCash.addActionListener(paymentListener);
+        }
+    }
 }

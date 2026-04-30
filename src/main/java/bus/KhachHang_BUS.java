@@ -1,10 +1,12 @@
 package bus;
 
 import dao.impl.KhachHang_DAO;
+import dto.KhachHangDTO;
 import entity.KhachHang;
 import entity.NhanVien;
 import entity.NhatKyAudit;
 import gui.application.AuthService;
+import mapper.KhachHangMapper;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
@@ -22,11 +24,12 @@ public class KhachHang_BUS {
     }
 
     // them khach hang
-    public boolean themKhachHang(KhachHang kh) {
-        boolean ok = khachHang_dao.themKhachHang(kh);
+    public boolean themKhachHang(KhachHangDTO kh) {
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
+        boolean ok = khachHang_dao.themKhachHang(khachHang);
 
         if (ok) {
-            ghiLog(kh.getKhachHangID(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
+            ghiLog(kh.getId(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
                     entity.type.NhatKyAudit.THEM, "Thêm khách hàng: " + kh.getHoTen() + " - " + kh.getSoDienThoai());
         }
         return ok;
@@ -54,8 +57,8 @@ public class KhachHang_BUS {
     }
 
     // tìm kiếm khách hàng theo sgt
-    public KhachHang timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
-        return khachHang_dao.timKhachHangTheoSoGiayTo(soGiayTo);
+    public KhachHangDTO timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
+        return KhachHangMapper.INSTANCE.toDTO(khachHang_dao.timKhachHangTheoSoGiayTo(soGiayTo));
     }
 
     // Lấy danh sách tất cả khách hàng
@@ -125,8 +128,8 @@ public class KhachHang_BUS {
         return String.format("KH%05d", maxID + 1);
     }
 
-    public boolean themHoacCapNhatKhachHang(Connection conn, KhachHang khachHang) throws Exception {
-        return khachHang_dao.saveOrUpdate(conn, khachHang);
+    public boolean themHoacCapNhatKhachHang(Connection conn, KhachHangDTO khachHang) throws Exception {
+        return khachHang_dao.saveOrUpdate(conn, KhachHangMapper.INSTANCE.toEntity(khachHang));
     }
 
     // Cập nhật loại khách hàng
@@ -138,8 +141,8 @@ public class KhachHang_BUS {
      * @param keyword
      * @return
      */
-    public List<KhachHang> layGoiYKhachHang(String keyword) {
-        return khachHang_dao.getTop10KhachHangSuggest(keyword);
+    public List<KhachHangDTO> layGoiYKhachHang(String keyword) {
+        return khachHang_dao.getTop10KhachHangSuggest(keyword).stream().map(KhachHangMapper.INSTANCE::toDTO).toList();
     }
 
     // ================= LẤY THÀNH PHẦN BỊ THAY ĐỔI ===================
@@ -177,29 +180,30 @@ public class KhachHang_BUS {
     }
 
     // Cập nhật khách hàng
-    public boolean capNhatKhachHang(KhachHang kh) {
+    public boolean capNhatKhachHang(KhachHangDTO kh) {
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
 
         // 1. Lấy thông tin khách hàng cũ
-        KhachHang khachHangCu = khachHang_dao.timKhachHangTheoID(kh.getKhachHangID());
+        KhachHang khachHangCu = khachHang_dao.timKhachHangTheoID(kh.getId());
         if (khachHangCu == null) {
             return false;
         }
 
         // 2. Cập nhật khách hàng
-        boolean ok = khachHang_dao.capNhatKhachHang(kh);
+        boolean ok = khachHang_dao.capNhatKhachHang(khachHang);
         if (!ok) {
             return false;
         }
 
         // 3. build chi tiet thay doi
-        String thanhPhan = thanhPhanDaBiSua(khachHangCu, kh);
+        String thanhPhan = thanhPhanDaBiSua(khachHangCu, khachHang);
         if (thanhPhan == null || thanhPhan.isBlank()) {
             return true;
         }
 
         // 4. Ghi log
         if (ok) {
-            ghiLog(kh.getKhachHangID(), AuthService.getInstance().getCurrentUser().getNhanVienID(),
+            ghiLog(kh.getId(), AuthService.getInstance().getCurrentUser().getNhanVienID(),
                     entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
         }
         System.out.println("thanhPhan=" + thanhPhan);
