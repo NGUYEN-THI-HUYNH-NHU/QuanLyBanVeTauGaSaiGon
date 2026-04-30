@@ -5,7 +5,7 @@ package bus;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import dao.impl.DonDatCho_DAO;
+import dao.impl.DonDatChoDAO;
 import entity.DonDatCho;
 import gui.application.form.donDatCho.DonDatChoDTO;
 
@@ -20,7 +20,7 @@ import java.util.List;
  */
 
 public class DonDatCho_BUS {
-    private final DonDatCho_DAO donDatChoDAO = new DonDatCho_DAO();
+    private final DonDatChoDAO donDatChoDAO = new DonDatChoDAO();
 
     /**
      * @param donDatChoID

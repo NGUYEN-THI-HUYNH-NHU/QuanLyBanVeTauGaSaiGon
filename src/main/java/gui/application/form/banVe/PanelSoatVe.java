@@ -12,7 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import dao.impl.Ve_DAO;
+import dao.impl.VeDAO;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 
@@ -26,7 +26,7 @@ public class PanelSoatVe extends JPanel {
     private JTextArea txtInfo;
     private JButton btnConfirmUsed;
 
-    private Ve_DAO veDAO = new Ve_DAO();
+    private VeDAO veDAO = new VeDAO();
     private Ve currentVe = null; // Lưu vé đang quét để xử lý
 
     public PanelSoatVe() {

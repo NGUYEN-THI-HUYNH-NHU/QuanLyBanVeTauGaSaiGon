@@ -11,330 +11,276 @@ package gui.application.form.hoaDon;
  * @date: Nov 24, 2025
  * @version: 1.0
  */
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.util.Date;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
-
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.DateTimeRenderer;
 import gui.tuyChinh.LeftCenterAlignRenderer;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.util.Date;
+
 public class PanelQuanLyHoaDon extends JPanel {
-	private JTextField txtTuKhoa;
-	private JButton btnTraCuu;
-	private JButton btnRefresh;
-	private JComboBox<String> cboLoaiTimKiem;
+    private final HoaDonController controller;
+    private JTextField txtTuKhoa;
+    private JButton btnTraCuu;
+    private JButton btnRefresh;
+    private JComboBox<String> cboLoaiTimKiem;
+    private JComboBox<String> cboLoaiHoaDon;
+    private JTextField txtKhachHangSuggest;
+    private JDateChooser dateChooserTuNgay;
+    private JDateChooser dateChooserDenNgay;
+    private JComboBox<String> cboHinhThucTT;
+    private JButton btnLoc;
+    private JButton btnReset;
+    private JTable table;
+    private HoaDonTableModel tableModel;
+    private JCheckBox checkBoxTatCaNgay;
 
-	private JComboBox<String> cboLoaiHoaDon;
-	private JTextField txtKhachHangSuggest;
-	private JDateChooser dateChooserTuNgay;
-	private JDateChooser dateChooserDenNgay;
-	private JComboBox<String> cboHinhThucTT;
-	private JButton btnLoc;
-	private JButton btnReset;
+    public PanelQuanLyHoaDon() {
+        setLayout(new BorderLayout());
+        initUI();
+        controller = new HoaDonController(this);
+    }
 
-	private JTable table;
-	private HoaDonTableModel tableModel;
+    private void initUI() {
+        JPanel pnlTop = new JPanel();
+        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
 
-	private final HoaDonController controller;
-	private JCheckBox checkBoxTatCaNgay;
+        // 1. PANEL TRA CỨU
+        JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
 
-	public PanelQuanLyHoaDon() {
-		setLayout(new BorderLayout());
-		initUI();
-		controller = new HoaDonController(this);
-	}
+        cboLoaiTimKiem = new JComboBox<>(new String[]{"Mã hóa đơn", "Mã khách hàng", "Mã giao dịch"});
+        txtTuKhoa = new JTextField(18);
+        btnTraCuu = new JButton("Tra cứu");
+        btnTraCuu.setBackground(new Color(36, 104, 155));
+        btnTraCuu.setForeground(Color.WHITE);
+        btnTraCuu.setIcon(new FlatSVGIcon("icon/svg/search.svg", 0.8f));
+        btnRefresh = new JButton("Làm mới");
+        btnRefresh.setIcon(new FlatSVGIcon("icon/svg/refresh-1.svg", 0.8f));
 
-	private void initUI() {
-		JPanel pnlTop = new JPanel();
-		pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
+        pnlTraCuu.add(new JLabel("Tìm theo: "));
+        pnlTraCuu.add(cboLoaiTimKiem);
+        pnlTraCuu.add(txtTuKhoa);
+        pnlTraCuu.add(btnTraCuu);
+        pnlTraCuu.add(btnRefresh);
 
-		// 1. PANEL TRA CỨU
-		JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
+        // 2. PANEL LỌC
+        JPanel pnlLoc = new JPanel();
+        pnlLoc.setLayout(new BorderLayout());
+        pnlLoc.setBorder(new TitledBorder("Bộ lọc chi tiết"));
 
-		cboLoaiTimKiem = new JComboBox<>(new String[] { "Mã hóa đơn", "Mã khách hàng", "Mã giao dịch" });
-		txtTuKhoa = new JTextField(18);
-		btnTraCuu = new JButton("Tra cứu");
-		btnTraCuu.setBackground(new Color(36, 104, 155));
-		btnTraCuu.setForeground(Color.WHITE);
-		btnTraCuu.setIcon(new FlatSVGIcon("icon/svg/search.svg", 0.8f));
-		btnRefresh = new JButton("Làm mới");
-		btnRefresh.setIcon(new FlatSVGIcon("icon/svg/refresh-1.svg", 0.8f));
+        JPanel pnlInput = new JPanel(new GridBagLayout());
+        pnlInput.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-		pnlTraCuu.add(new JLabel("Tìm theo: "));
-		pnlTraCuu.add(cboLoaiTimKiem);
-		pnlTraCuu.add(txtTuKhoa);
-		pnlTraCuu.add(btnTraCuu);
-		pnlTraCuu.add(btnRefresh);
+        // 1. Loại HĐ
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        pnlInput.add(new JLabel("Loại HĐ:"), gbc);
 
-		// 2. PANEL LỌC
-		JPanel pnlLoc = new JPanel();
-		pnlLoc.setLayout(new BorderLayout());
-		pnlLoc.setBorder(new TitledBorder("Bộ lọc chi tiết"));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.2;
+        cboLoaiHoaDon = new JComboBox<>(
+                new String[]{"Tất cả", "Hóa đơn bán vé", "Hóa đơn hoàn vé", "Hóa đơn đổi vé"});
+        pnlInput.add(cboLoaiHoaDon, gbc);
 
-		JPanel pnlInput = new JPanel(new GridBagLayout());
-		pnlInput.setBackground(Color.WHITE);
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.insets = new Insets(5, 5, 5, 5);
+        // 2. Khách hàng
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        pnlInput.add(new JLabel("Khách hàng:"), gbc);
 
-		// 1. Loại HĐ
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Loại HĐ:"), gbc);
+        gbc.gridx = 3;
+        gbc.gridy = 0;
+        gbc.weightx = 0.2;
+        txtKhachHangSuggest = new JTextField(14);
+        txtKhachHangSuggest.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ tên/SĐT/CCCD/ID");
+        txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT, CCCD hoặc ID");
+        pnlInput.add(txtKhachHangSuggest, gbc);
 
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.weightx = 0.2;
-		cboLoaiHoaDon = new JComboBox<>(
-				new String[] { "Tất cả", "Hóa đơn bán vé", "Hóa đơn hoàn vé", "Hóa đơn đổi vé" });
-		pnlInput.add(cboLoaiHoaDon, gbc);
+        // 3. Hình thức thanh toán
+        gbc.gridx = 4;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        pnlInput.add(new JLabel("Thanh toán:"), gbc);
 
-		// 2. Khách hàng
-		gbc.gridx = 2;
-		gbc.gridy = 0;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Khách hàng:"), gbc);
+        gbc.gridx = 5;
+        gbc.gridy = 0;
+        gbc.weightx = 0.2;
+        cboHinhThucTT = new JComboBox<>(new String[]{"Tất cả", "Tiền mặt", "Chuyển khoản"});
+        pnlInput.add(cboHinhThucTT, gbc);
 
-		gbc.gridx = 3;
-		gbc.gridy = 0;
-		gbc.weightx = 0.2;
-		txtKhachHangSuggest = new JTextField(14);
-		txtKhachHangSuggest.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Họ tên/SĐT/CCCD/ID");
-		txtKhachHangSuggest.setToolTipText("Nhập tên, SĐT, CCCD hoặc ID");
-		pnlInput.add(txtKhachHangSuggest, gbc);
+        // 4. Checkbox Tất cả ngày
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        gbc.gridwidth = 2;
+        checkBoxTatCaNgay = new JCheckBox("Tất cả ngày");
+        checkBoxTatCaNgay.setSelected(true);
+        checkBoxTatCaNgay.setBackground(Color.WHITE);
+        pnlInput.add(checkBoxTatCaNgay, gbc);
+        gbc.gridwidth = 1;
 
-		// 3. Hình thức thanh toán
-		gbc.gridx = 4;
-		gbc.gridy = 0;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Thanh toán:"), gbc);
+        // 5. Từ ngày
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        pnlInput.add(new JLabel("Từ ngày:"), gbc);
 
-		gbc.gridx = 5;
-		gbc.gridy = 0;
-		gbc.weightx = 0.2;
-		cboHinhThucTT = new JComboBox<>(new String[] { "Tất cả", "Tiền mặt", "Chuyển khoản" });
-		pnlInput.add(cboHinhThucTT, gbc);
+        gbc.gridx = 3;
+        gbc.gridy = 1;
+        gbc.weightx = 0.2;
+        dateChooserTuNgay = new JDateChooser();
+        dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
+        dateChooserTuNgay.setDate(new Date());
+        dateChooserTuNgay.setEnabled(false);
+        pnlInput.add(dateChooserTuNgay, gbc);
 
-		// 4. Checkbox Tất cả ngày
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 0;
-		gbc.gridwidth = 2;
-		checkBoxTatCaNgay = new JCheckBox("Tất cả ngày");
-		checkBoxTatCaNgay.setSelected(true);
-		checkBoxTatCaNgay.setBackground(Color.WHITE);
-		pnlInput.add(checkBoxTatCaNgay, gbc);
-		gbc.gridwidth = 1;
+        // 6. Đến ngày
+        gbc.gridx = 4;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        pnlInput.add(new JLabel("Đến ngày:"), gbc);
 
-		// 5. Từ ngày
-		gbc.gridx = 2;
-		gbc.gridy = 1;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Từ ngày:"), gbc);
+        gbc.gridx = 5;
+        gbc.gridy = 1;
+        gbc.weightx = 0.2;
+        dateChooserDenNgay = new JDateChooser();
+        dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
+        dateChooserDenNgay.setDate(new Date());
+        dateChooserDenNgay.setEnabled(false);
+        pnlInput.add(dateChooserDenNgay, gbc);
 
-		gbc.gridx = 3;
-		gbc.gridy = 1;
-		gbc.weightx = 0.2;
-		dateChooserTuNgay = new JDateChooser();
-		dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
-		dateChooserTuNgay.setDate(new Date());
-		dateChooserTuNgay.setEnabled(false);
-		pnlInput.add(dateChooserTuNgay, gbc);
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        pnlButtons.setBackground(Color.WHITE);
 
-		// 6. Đến ngày
-		gbc.gridx = 4;
-		gbc.gridy = 1;
-		gbc.weightx = 0;
-		pnlInput.add(new JLabel("Đến ngày:"), gbc);
+        btnReset = new JButton("Xóa bộ lọc");
+        btnReset.setIcon(new FlatSVGIcon("icon/svg/reset.svg", 0.8f));
 
-		gbc.gridx = 5;
-		gbc.gridy = 1;
-		gbc.weightx = 0.2;
-		dateChooserDenNgay = new JDateChooser();
-		dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
-		dateChooserDenNgay.setDate(new Date());
-		dateChooserDenNgay.setEnabled(false);
-		pnlInput.add(dateChooserDenNgay, gbc);
+        btnLoc = new JButton("Lọc");
+        btnLoc.setIcon(new FlatSVGIcon("icon/svg/filter.svg", 0.8f));
+        btnLoc.setBackground(new Color(38, 117, 191));
+        btnLoc.setForeground(Color.WHITE);
 
-		JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-		pnlButtons.setBackground(Color.WHITE);
+        pnlButtons.add(btnLoc);
+        pnlButtons.add(btnReset);
 
-		btnReset = new JButton("Xóa bộ lọc");
-		btnReset.setIcon(new FlatSVGIcon("icon/svg/reset.svg", 0.8f));
+        pnlLoc.add(pnlInput, BorderLayout.CENTER);
+        pnlLoc.add(pnlButtons, BorderLayout.SOUTH);
 
-		btnLoc = new JButton("Lọc");
-		btnLoc.setIcon(new FlatSVGIcon("icon/svg/filter.svg", 0.8f));
-		btnLoc.setBackground(new Color(38, 117, 191));
-		btnLoc.setForeground(Color.WHITE);
+        pnlTop.add(pnlTraCuu);
+        pnlTop.add(pnlLoc);
 
-		pnlButtons.add(btnLoc);
-		pnlButtons.add(btnReset);
+        // Bảng
+        tableModel = new HoaDonTableModel();
+        table = new JTable(tableModel);
+        table.getTableHeader().setFont(new Font(getFont().getFontName(), Font.BOLD, getFont().getSize()));
+        table.setRowHeight(36);
 
-		pnlLoc.add(pnlInput, BorderLayout.CENTER);
-		pnlLoc.add(pnlButtons, BorderLayout.SOUTH);
+        table.getColumnModel().getColumn(0).setMaxWidth(34);
+        table.getColumnModel().getColumn(1).setMinWidth(170);
+        table.getColumnModel().getColumn(2).setPreferredWidth(70);
+        table.getColumnModel().getColumn(3).setMinWidth(150);
+        table.getColumnModel().getColumn(4).setMinWidth(96);
+        table.getColumnModel().getColumn(5).setMinWidth(116);
+        table.getColumnModel().getColumn(6).setMinWidth(76);
+        table.getColumnModel().getColumn(7).setMinWidth(76);
+        table.getColumnModel().getColumn(8).setMinWidth(76);
+        table.getColumnModel().getColumn(9).setMinWidth(50);
+        table.getColumnModel().getColumn(10).setMaxWidth(34);
+        table.getColumnModel().getColumn(11).setMaxWidth(34);
 
-		pnlTop.add(pnlTraCuu);
-		pnlTop.add(pnlLoc);
+        LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
+        CurrencyRenderer currencyRenderer = new CurrencyRenderer();
 
-		// Bảng
-		tableModel = new HoaDonTableModel();
-		table = new JTable(tableModel);
-		table.getTableHeader().setFont(new Font(getFont().getFontName(), Font.BOLD, getFont().getSize()));
-		table.setRowHeight(36);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
 
-		table.getColumnModel().getColumn(0).setMaxWidth(34);
-		table.getColumnModel().getColumn(1).setMinWidth(170);
-		table.getColumnModel().getColumn(2).setPreferredWidth(70);
-		table.getColumnModel().getColumn(3).setMinWidth(150);
-		table.getColumnModel().getColumn(4).setMinWidth(96);
-		table.getColumnModel().getColumn(5).setMinWidth(116);
-		table.getColumnModel().getColumn(6).setMinWidth(76);
-		table.getColumnModel().getColumn(7).setMinWidth(76);
-		table.getColumnModel().getColumn(8).setMinWidth(76);
-		table.getColumnModel().getColumn(9).setMinWidth(50);
-		table.getColumnModel().getColumn(10).setMaxWidth(34);
-		table.getColumnModel().getColumn(11).setMaxWidth(34);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(leftCenterRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(leftCenterRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(leftCenterRenderer);
 
-		LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
-		CurrencyRenderer currencyRenderer = new CurrencyRenderer();
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
 
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
+        JScrollPane scrollPane = new JScrollPane(table);
 
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(leftCenterRenderer);
+        add(pnlTop, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
 
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_HOAN).setCellRenderer(currencyRenderer);
+    public JTextField getTxtTuKhoa() {
+        return txtTuKhoa;
+    }
 
-		JScrollPane scrollPane = new JScrollPane(table);
+    public JButton getBtnTraCuu() {
+        return btnTraCuu;
+    }
 
-		add(pnlTop, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
-	}
+    public JComboBox<String> getCboLoaiTimKiem() {
+        return cboLoaiTimKiem;
+    }
 
-	public JTextField getTxtTuKhoa() {
-		return txtTuKhoa;
-	}
+    public JComboBox<String> getCboLoaiHoaDon() {
+        return cboLoaiHoaDon;
+    }
 
-	public JButton getBtnTraCuu() {
-		return btnTraCuu;
-	}
+    public JTextField getTxtKhachHangSuggest() {
+        return txtKhachHangSuggest;
+    }
 
-	public JComboBox<String> getCboLoaiTimKiem() {
-		return cboLoaiTimKiem;
-	}
+    public JDateChooser getDateChooserTuNgay() {
+        return dateChooserTuNgay;
+    }
 
-	public JComboBox<String> getCboLoaiHoaDon() {
-		return cboLoaiHoaDon;
-	}
+    public JDateChooser getDateChooserDenNgay() {
+        return dateChooserDenNgay;
+    }
 
-	public JTextField getTxtKhachHangSuggest() {
-		return txtKhachHangSuggest;
-	}
+    public JComboBox<String> getCboHinhThucTT() {
+        return cboHinhThucTT;
+    }
 
-	public JDateChooser getDateChooserTuNgay() {
-		return dateChooserTuNgay;
-	}
+    public JTable getTable() {
+        return table;
+    }
 
-	public JDateChooser getDateChooserDenNgay() {
-		return dateChooserDenNgay;
-	}
+    public void setTable(JTable table) {
+        this.table = table;
+    }
 
-	public JComboBox<String> getCboHinhThucTT() {
-		return cboHinhThucTT;
-	}
+    public HoaDonTableModel getTableModel() {
+        return tableModel;
+    }
+    
+    public HoaDonController getController() {
+        return controller;
+    }
 
-	public JTable getTable() {
-		return table;
-	}
+    public JButton getBtnReset() {
+        return btnReset;
+    }
 
-	public HoaDonTableModel getTableModel() {
-		return tableModel;
-	}
+    public JButton getBtnLoc() {
+        return btnLoc;
+    }
 
-	public HoaDonController getController() {
-		return controller;
-	}
+    public JButton getBtnRefresh() {
+        return btnRefresh;
+    }
 
-	public void setTxtTuKhoa(JTextField txtTuKhoa) {
-		this.txtTuKhoa = txtTuKhoa;
-	}
-
-	public void setBtnTraCuu(JButton btnTraCuu) {
-		this.btnTraCuu = btnTraCuu;
-	}
-
-	public void setCboLoaiTimKiem(JComboBox<String> cboLoaiTimKiem) {
-		this.cboLoaiTimKiem = cboLoaiTimKiem;
-	}
-
-	public void setCboLoaiHoaDon(JComboBox<String> cboLoaiHoaDon) {
-		this.cboLoaiHoaDon = cboLoaiHoaDon;
-	}
-
-	public void setTxtKhachHangSuggest(JTextField txtKhachHangSuggest) {
-		this.txtKhachHangSuggest = txtKhachHangSuggest;
-	}
-
-	public void setDateChooserTuNgay(JDateChooser dateChooserTuNgay) {
-		this.dateChooserTuNgay = dateChooserTuNgay;
-	}
-
-	public void setDateChooserDenNgay(JDateChooser dateChooserDenNgay) {
-		this.dateChooserDenNgay = dateChooserDenNgay;
-	}
-
-	public void setCboHinhThucTT(JComboBox<String> cboHinhThucTT) {
-		this.cboHinhThucTT = cboHinhThucTT;
-	}
-
-	public void setTable(JTable table) {
-		this.table = table;
-	}
-
-	public void setTableModel(HoaDonTableModel tableModel) {
-		this.tableModel = tableModel;
-	}
-
-	public JButton getBtnReset() {
-		return btnReset;
-	}
-
-	public JButton getBtnLoc() {
-		return btnLoc;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JCheckBox getCheckBoxTatCaNgay() {
-		return checkBoxTatCaNgay;
-	}
+    public JCheckBox getCheckBoxTatCaNgay() {
+        return checkBoxTatCaNgay;
+    }
 }

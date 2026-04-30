@@ -12,38 +12,20 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.PhieuGiuChoChiTiet_DAO;
-import dao.impl.PhieuGiuCho_DAO;
-import entity.PhieuGiuCho;
+import dao.impl.PhieuGiuChoChiTietDAO;
+import dao.impl.PhieuGiuChoDAO;
 import entity.Ve;
 import entity.type.TrangThaiPhieuGiuCho;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class PhieuGiuCho_BUS {
-    private final PhieuGiuCho_DAO pgcDAO = new PhieuGiuCho_DAO();
-    private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
+    private final PhieuGiuChoDAO pgcDAO = new PhieuGiuChoDAO();
+    private final PhieuGiuChoChiTietDAO pgcctDAO = new PhieuGiuChoChiTietDAO();
 
-    /**
-     * @param conn
-     * @param listVeHoanRow
-     * @param daHuy
-     */
-    public void huyCacPhieuGiuChoChiTiet(Connection conn, List<Ve> listVe, TrangThaiPhieuGiuCho trangThai) {
+    public void huyCacPhieuGiuChoChiTiet(List<Ve> listVe, TrangThaiPhieuGiuCho trangThai) {
         for (Ve ve : listVe) {
-            pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(conn, ve, trangThai);
+            pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(ve, trangThai);
         }
-    }
-
-    /**
-     * @param veID
-     * @return
-     */
-    public PhieuGiuCho timPhieuGiuChoByVeID(Connection conn, String veID) {
-        if (veID != null) {
-            return pgcDAO.getPhieuGiuChoByVeID(conn, veID);
-        }
-        return null;
     }
 }

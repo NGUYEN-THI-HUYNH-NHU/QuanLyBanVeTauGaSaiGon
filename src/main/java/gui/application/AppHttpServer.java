@@ -20,7 +20,7 @@ import com.google.zxing.common.HybridBinarizer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import dao.impl.Ve_DAO;
+import dao.impl.VeDAO;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 
@@ -37,10 +37,10 @@ public class AppHttpServer {
     // điểm)
     private static OnPaymentListener currentPaymentListener;
     private HttpServer server;
-    private Ve_DAO veDAO;
+    private VeDAO veDAO;
 
     public AppHttpServer() {
-        veDAO = new Ve_DAO();
+        veDAO = new VeDAO();
     }
 
     // Hàm đăng ký listener từ Controller

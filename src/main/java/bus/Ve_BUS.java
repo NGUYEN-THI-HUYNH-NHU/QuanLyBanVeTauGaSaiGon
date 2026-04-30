@@ -12,7 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.Ve_DAO;
+import dao.impl.VeDAO;
 import entity.*;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
@@ -20,7 +20,6 @@ import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 
-import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.List;
 
 public class Ve_BUS {
     private final Chuyen_BUS chuyenBUS = new Chuyen_BUS();
-    private final Ve_DAO veDAO = new Ve_DAO();
+    private final VeDAO veDAO = new VeDAO();
     private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
     public VeSession createVeSessionForSeat(Chuyen chuyen, Toa toa, Ghe ghe, SearchCriteria criteria) {
@@ -109,7 +108,6 @@ public class Ve_BUS {
     }
 
     /**
-     * @param donDatCho
      * @param bookingSession
      * @return List<Ve>
      */
@@ -163,13 +161,12 @@ public class Ve_BUS {
     }
 
     /**
-     * @param conn
      * @param dsVe
      * @return boolean
      */
-    public boolean themCacVe(Connection conn, List<Ve> dsVe) throws Exception {
+    public boolean themCacVe(List<Ve> dsVe) throws Exception {
         for (Ve v : dsVe) {
-            if (!veDAO.insertVe(conn, v)) {
+            if (!veDAO.insertVe(v)) {
                 return false;
             }
         }
@@ -186,34 +183,22 @@ public class Ve_BUS {
     }
 
     /**
-     * @param conn
-     * @param listVeHoanRow
+     * @param listVe
      * @param trangThai
      */
-    public void capNhatTrangThaiVe(Connection conn, List<Ve> listVe, TrangThaiVe trangThai) throws Exception {
+    public void capNhatTrangThaiVe(List<Ve> listVe, TrangThaiVe trangThai) throws Exception {
         for (Ve ve : listVe) {
-            veDAO.updateTrangThaiVe(conn, ve.getVeID(), trangThai);
+            veDAO.updateTrangThaiVe(ve.getVeID(), trangThai);
         }
     }
 
     /**
-     * @param nhanVien
      * @return
      */
     public List<Ve> layCacVe() {
         return veDAO.getAllVe();
     }
 
-    /**
-     * @param nhanVien
-     * @param loaiHD
-     * @param searchKeyword
-     * @param searchID
-     * @param tuNgay
-     * @param denNgay
-     * @param hinhThucTT
-     * @return
-     */
     public List<Ve> locVeTheoCacTieuChi(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
                                         Date denNgay) {
         return veDAO.searchVeByFilter(trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay);
@@ -250,7 +235,5 @@ public class Ve_BUS {
      */
     public List<String> layTop10SoGiayToKhachHang(String keyword) {
         return veDAO.getTop10SoGiayToKhachHang(keyword);
-
     }
-
 }

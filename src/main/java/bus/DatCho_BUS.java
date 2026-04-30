@@ -13,9 +13,9 @@ package bus;
  */
 
 import connectDB.ConnectDB;
-import dao.impl.DonDatCho_DAO;
-import dao.impl.PhieuGiuChoChiTiet_DAO;
-import dao.impl.PhieuGiuCho_DAO;
+import dao.impl.DonDatChoDAO;
+import dao.impl.PhieuGiuChoChiTietDAO;
+import dao.impl.PhieuGiuChoDAO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
@@ -29,9 +29,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class DatCho_BUS {
-    private final PhieuGiuCho_DAO pgcDAO = new PhieuGiuCho_DAO();
-    private final PhieuGiuChoChiTiet_DAO pgcctDAO = new PhieuGiuChoChiTiet_DAO();
-    private final DonDatCho_DAO ddcDAO = new DonDatCho_DAO();
+    private final PhieuGiuChoDAO pgcDAO = new PhieuGiuChoDAO();
+    private final PhieuGiuChoChiTietDAO pgcctDAO = new PhieuGiuChoChiTietDAO();
+    private final DonDatChoDAO ddcDAO = new DonDatChoDAO();
 
     public PhieuGiuCho taoPhieuGiuCho() {
         NhanVien nv = AuthService.getInstance().getCurrentUser();
@@ -42,8 +42,8 @@ public class DatCho_BUS {
         return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
     }
 
-    public boolean themPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho) throws Exception {
-        return pgcDAO.insertPhieuGiuCho(conn, phieuGiuCho);
+    public boolean themPhieuGiuCho(PhieuGiuCho phieuGiuCho) throws Exception {
+        return pgcDAO.insertPhieuGiuCho(phieuGiuCho);
     }
 
     public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho pgc, VeSession v, int soThuTu) {
@@ -54,7 +54,7 @@ public class DatCho_BUS {
         int soGhe = v.getVe().getGhe().getSoGhe();
         LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
-        if (!pgcctDAO.checkConflict(conn, chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
+        if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
             String pgcctID = pgc.getPhieuGiuChoID() + "-" + String.valueOf(soThuTu);
             PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc,
                     new Chuyen(v.getVe().getChuyen().getChuyenID()), v.getVe().getGhe(), v.getVe().getGaDi(),
@@ -64,8 +64,8 @@ public class DatCho_BUS {
         return null;
     }
 
-    public boolean themPhieuGiuChoChiTiet(Connection conn, PhieuGiuChoChiTiet phieuGiuChoChiTiet) throws Exception {
-        return pgcctDAO.insertPhieuGiuChoChiTiet(conn, phieuGiuChoChiTiet);
+    public boolean themPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) throws Exception {
+        return pgcctDAO.insertPhieuGiuChoChiTiet(phieuGiuChoChiTiet);
     }
 
     public boolean xoaPhieuGiuChoVaChiTiet(List<VeSession> veTrongGio) {
@@ -110,27 +110,25 @@ public class DatCho_BUS {
         return new DonDatCho(ddcID, nhanVien, khachHang, now);
     }
 
-    public boolean themDonDatCho(Connection conn, DonDatCho donDatCho) throws Exception {
-        return ddcDAO.insertDonDatCho(conn, donDatCho);
+    public boolean themDonDatCho(DonDatCho donDatCho) throws Exception {
+        return ddcDAO.insertDonDatCho(donDatCho);
     }
 
     /**
-     * @param conn
      * @param phieuGiuCho
      */
-    public boolean capNhatPhieuGiuCho(Connection conn, PhieuGiuCho phieuGiuCho,
+    public boolean capNhatPhieuGiuCho(PhieuGiuCho phieuGiuCho,
                                       TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
-        return pgcDAO.updateTrangThaiPhieuGiuCho(conn, phieuGiuCho.getPhieuGiuChoID(), trangThaiPhieuGiuCho.toString());
+        return pgcDAO.updateTrangThaiPhieuGiuCho(phieuGiuCho.getPhieuGiuChoID(), trangThaiPhieuGiuCho.toString());
     }
 
     /**
-     * @param conn
      * @param phieuGiuCho
      * @param trangThaiPhieuGiuCho
      */
-    public boolean capNhatCacPhieuGiuChoChiTiet(Connection conn, PhieuGiuCho phieuGiuCho,
+    public boolean capNhatCacPhieuGiuChoChiTiet(PhieuGiuCho phieuGiuCho,
                                                 TrangThaiPhieuGiuCho trangThaiPhieuGiuCho) throws Exception {
-        return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(conn, phieuGiuCho.getPhieuGiuChoID(),
+        return pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(phieuGiuCho.getPhieuGiuChoID(),
                 trangThaiPhieuGiuCho.toString());
     }
 
@@ -153,7 +151,7 @@ public class DatCho_BUS {
 
             // 2. TẠO VÀ THÊM PHIẾU CHA
             pgc = taoPhieuGiuCho();
-            if (pgc == null || !themPhieuGiuCho(conn, pgc)) {
+            if (pgc == null || !themPhieuGiuCho(pgc)) {
                 throw new Exception("Không thể tạo phiếu giữ chỗ cha trong CSDL.");
             }
             // 3. TẠO VÀ THÊM CÁC CHI TIẾT
@@ -166,7 +164,7 @@ public class DatCho_BUS {
                             + v.getVe().getGhe().getToa().getSoToa() + ") đã bị người khác chọn.");
                 }
 
-                if (!themPhieuGiuChoChiTiet(conn, pgcct)) {
+                if (!themPhieuGiuChoChiTiet(pgcct)) {
                     throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getGhe().getSoGhe());
                 }
                 v.setPhieuGiuChoChiTiet(pgcct);
@@ -209,10 +207,10 @@ public class DatCho_BUS {
             conn.setAutoCommit(false);
 
             // 2. Xóa các phiếu giữ chỗ chi tiết
-            pgcctDAO.deletePhieuGiuChoChiTietByPgcID(conn, phieuGiuCho.getPhieuGiuChoID());
+            pgcctDAO.deletePhieuGiuChoChiTietByPgcID(phieuGiuCho.getPhieuGiuChoID());
 
             // 3. Xóa phiếu giữ chỗ
-            pgcDAO.deletePhieuGiuChoByID(conn, phieuGiuCho.getPhieuGiuChoID());
+            pgcDAO.deletePhieuGiuChoByID(phieuGiuCho.getPhieuGiuChoID());
 
             // 4. COMMIT
             conn.commit();

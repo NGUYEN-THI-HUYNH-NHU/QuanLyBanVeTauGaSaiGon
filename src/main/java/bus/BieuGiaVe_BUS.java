@@ -12,7 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.BieuGiaVe_DAO;
+import dao.impl.BieuGiaVeDAO;
 import entity.BieuGiaVe;
 import entity.NhanVien;
 import entity.type.NhatKyAudit;
@@ -25,11 +25,11 @@ import java.util.Objects;
 import java.util.Random;
 
 public class BieuGiaVe_BUS {
-    private final BieuGiaVe_DAO dao;
+    private final BieuGiaVeDAO dao;
     private final NhatKyAudit_BUS nhatKyAuditBus;
 
     public BieuGiaVe_BUS() {
-        dao = new BieuGiaVe_DAO();
+        dao = new BieuGiaVeDAO();
         nhatKyAuditBus = new NhatKyAudit_BUS();
     }
 

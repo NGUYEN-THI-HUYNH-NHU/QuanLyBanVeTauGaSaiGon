@@ -12,7 +12,7 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.PhieuDungPhongVIP_DAO;
+import dao.impl.PhieuDungPhongVIPDAO;
 import entity.DichVuPhongChoVIP;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
@@ -20,12 +20,11 @@ import entity.type.TrangThaiPDPVIP;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhieuDungPhongVIP_BUS {
-    private final PhieuDungPhongVIP_DAO phieuDungPhongVIPDAO = new PhieuDungPhongVIP_DAO();
+    private final PhieuDungPhongVIPDAO phieuDungPhongVIPDAO = new PhieuDungPhongVIPDAO();
 
     public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(List<VeSession> listVeSession) {
         List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
@@ -60,11 +59,11 @@ public class PhieuDungPhongVIP_BUS {
         return dsPhieu;
     }
 
-    public boolean themCacPhieuDungPhongChoVIP(Connection conn, List<PhieuDungPhongVIP> dsPhieuDungPhongVIP)
+    public boolean themCacPhieuDungPhongChoVIP(List<PhieuDungPhongVIP> dsPhieuDungPhongVIP)
             throws Exception {
         if (dsPhieuDungPhongVIP != null) {
             for (PhieuDungPhongVIP phieu : dsPhieuDungPhongVIP) {
-                phieuDungPhongVIPDAO.insertPhieuDungPhongVIP(conn, phieu);
+                phieuDungPhongVIPDAO.insertPhieuDungPhongVIP(phieu);
             }
             return true;
         }
@@ -72,14 +71,13 @@ public class PhieuDungPhongVIP_BUS {
     }
 
     /**
-     * @param conn
      * @param listVe
      */
-    public void capNhatPhieuDungPhongChoVIP(Connection conn, List<Ve> listVe, TrangThaiPDPVIP trangThai) {
+    public void capNhatPhieuDungPhongChoVIP(List<Ve> listVe, TrangThaiPDPVIP trangThai) {
         for (Ve ve : listVe) {
-            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(conn, ve.getVeID());
+            PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID());
             if (phieu != null) {
-                phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(conn, phieu.getPhieuDungPhongVIPID(),
+                phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(phieu.getPhieuDungPhongVIPID(),
                         trangThai);
             }
         }
