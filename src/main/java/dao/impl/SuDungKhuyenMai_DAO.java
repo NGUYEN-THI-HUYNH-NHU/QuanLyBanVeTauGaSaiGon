@@ -33,9 +33,9 @@ public class SuDungKhuyenMai_DAO {
         String sql = "INSERT INTO SuDungKhuyenMai(suDungKhuyenMaiID, khuyenMaiID, hoaDonChiTietID, trangThai) VALUES(?, ?, ?, 'DA_AP_DUNG')";
 
         try (PreparedStatement pstm = conn.prepareStatement(sql)) {
-            pstm.setString(1, suDungKhuyenMai.getId());
-            pstm.setString(2, suDungKhuyenMai.getKhuyenMai().getId());
-            pstm.setString(3, suDungKhuyenMai.getHoaDonChiTiet().getId());
+            pstm.setString(1, suDungKhuyenMai.getSuDungKhuyenMaiID());
+            pstm.setString(2, suDungKhuyenMai.getKhuyenMai().getKhuyenMaiID());
+            pstm.setString(3, suDungKhuyenMai.getHoaDonChiTiet().getHoaDonChiTietID());
             return pstm.executeUpdate() > 0;
         }
     }
@@ -55,7 +55,7 @@ public class SuDungKhuyenMai_DAO {
 
         try (PreparedStatement pstm = conn.prepareStatement(sql)) {
             for (Ve ve : listVe) {
-                pstm.setString(1, ve.getId());
+                pstm.setString(1, ve.getVeID());
                 pstm.addBatch();
             }
 

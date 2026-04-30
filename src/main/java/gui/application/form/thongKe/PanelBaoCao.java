@@ -1,6 +1,6 @@
 package gui.application.form.thongKe;
 
-import dao.ThongKeNhanVien_DAO;
+import dao.impl.ThongKeNhanVien_DAO;
 import entity.NhanVien;
 import gui.application.AuthService;
 import org.apache.poi.ss.usermodel.*;
@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+;
 
 public class PanelBaoCao extends JPanel {
 
@@ -517,7 +519,7 @@ public class PanelBaoCao extends JPanel {
         final String finalCaLamViecText = tempCaLamViecText;
         final LocalTime finalGioBatDauCa = tempGioBatDauCa;
         final LocalTime finalGioKetThucCa = tempGioKetThucCa;
-        final String finalMaNhanVien = nhanVien.getId();
+        final String finalMaNhanVien = nhanVien.getNhanVienID();
 
         SwingWorker<ThongKeResult, Void> worker = new SwingWorker<>() {
             @Override

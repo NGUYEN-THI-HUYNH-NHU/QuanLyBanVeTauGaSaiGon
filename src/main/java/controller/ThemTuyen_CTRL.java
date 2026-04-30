@@ -12,7 +12,7 @@ package controller;
 
 import bus.Ga_BUS;
 import bus.Tuyen_BUS;
-import dao.KhoangCachChuan_DAO;
+import dao.impl.KhoangCachChuan_DAO;
 import entity.Ga;
 import entity.NhanVien;
 import entity.Tuyen;
@@ -523,7 +523,7 @@ public class ThemTuyen_CTRL {
         boolean trangThai = luaChonTrangThai.equals("Hoạt Động");
         try {
             Integer.parseInt(doDaiKCStr);
-            Tuyen tuyenMoi = Tuyen.builder().id(maTuyen).moTa(moTa).trangThai(trangThai).build();
+            Tuyen tuyenMoi = Tuyen.builder().tuyenID(maTuyen).moTa(moTa).trangThai(trangThai).build();
 
             List<TuyenChiTiet> dsTuyenChiTiet = new ArrayList<>();
             DefaultTableModel modelChiTiet = panelThemTuyen.getModelGaChiTiet();

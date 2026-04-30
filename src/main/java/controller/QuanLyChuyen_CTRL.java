@@ -15,7 +15,7 @@ import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.*;
 import entity.type.TrangThaiTau;
-import entity.type.VaiTroNhanVien;
+import entity.type.VaiTroNhanVienEnums;
 import gui.application.form.quanLyChuyen.PanelCapNhatChuyen;
 import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
 import gui.application.form.quanLyChuyen.PanelThemChuyen;
@@ -39,43 +39,38 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class QuanLyChuyen_CTRL {
-    private Map<String, String> mapGaToID;
     private final PanelQuanLyChuyen panelQuanLyChuyen;
-    private  PanelThemChuyen panelThemChuyen;
+    private final Chuyen_BUS chuyenBus;
+    private final Tuyen_BUS tuyenBus;
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private Map<String, String> mapGaToID;
+    private PanelThemChuyen panelThemChuyen;
     private PanelCapNhatChuyen panelCapNhatChuyen;
     private JDialog dialogCapNhat;
     private JDialog dialogThem;
-    private final Chuyen_BUS chuyenBus;
-    private final Tuyen_BUS tuyenBus;
     private boolean isAdjusting = false;
     private List<String> lastSuggestionData = new ArrayList<>();
-    private VaiTroNhanVien vaiTroNhanVien;
-
-
+    private VaiTroNhanVienEnums vaiTroNhanVienEnums;
     private String currentSearchGaDi = "";
     private String currentSearchGaDen = "";
-
     private int highlightFrom = -1;
     private int highlightTo = -1;
-
     private String selectedGaDi = "";
     private String selectedGaDen = "";
 
-
-    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-    public QuanLyChuyen_CTRL(PanelQuanLyChuyen panelQuanLyChuyen){
+    public QuanLyChuyen_CTRL(PanelQuanLyChuyen panelQuanLyChuyen) {
         this.panelQuanLyChuyen = panelQuanLyChuyen;
         this.chuyenBus = new Chuyen_BUS();
         this.tuyenBus = new Tuyen_BUS();
-        this.vaiTroNhanVien = panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien();
+        this.vaiTroNhanVienEnums = VaiTroNhanVienEnums.valueOf(panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien().getVaiTroNhanVienID());
 
-        PhanQuyen_BUS.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVien);
+        PhanQuyen_BUS.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVienEnums);
 
         initEvents();
         taiDuLieuBanDauNgam();
     }
+
     private void taiDuLieuBanDauNgam() {
         panelQuanLyChuyen.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -174,7 +169,7 @@ public class QuanLyChuyen_CTRL {
     }
 
 
-    private void initEvents(){
+    private void initEvents() {
         panelQuanLyChuyen.getTableChuyen().getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = panelQuanLyChuyen.getTableChuyen().getSelectedRow();
@@ -204,21 +199,20 @@ public class QuanLyChuyen_CTRL {
         panelQuanLyChuyen.getTxtTau().addKeyListener(searchKeyAdapter);
         panelQuanLyChuyen.getTxtNgayDi().addKeyListener(searchKeyAdapter);
 
-        panelQuanLyChuyen.getDateChooser().addEventDateChooser((action, date)-> {
-                if (action.getAction() == com.raven.datechooser.SelectedAction.DAY_SELECTED) {
-                    timKiemChuyen();
-                }
+        panelQuanLyChuyen.getDateChooser().addEventDateChooser((action, date) -> {
+            if (action.getAction() == com.raven.datechooser.SelectedAction.DAY_SELECTED) {
+                timKiemChuyen();
+            }
 
         });
     }
 
 
-    private void lamMoi(){
+    private void lamMoi() {
         panelQuanLyChuyen.getTxtMaChuyen().setText("");
         panelQuanLyChuyen.getTxtGaXuatPhat().setText("");
         panelQuanLyChuyen.getTxtGaDich().setText("");
         panelQuanLyChuyen.getTxtTau().setText("");
-
 
 
         panelQuanLyChuyen.getTxtMaChuyen().setText("");
@@ -241,11 +235,10 @@ public class QuanLyChuyen_CTRL {
         panelQuanLyChuyen.getTableLichTrinh().repaint();
 
 
-
         timKiemChuyen();
     }
 
-    private void hienThiFormCapNhat(){
+    private void hienThiFormCapNhat() {
         int row = panelQuanLyChuyen.getTableChuyen().getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(null, "Vui lòng chọn chuyến cần cập nhật!");
@@ -268,6 +261,7 @@ public class QuanLyChuyen_CTRL {
                 public void windowOpened(WindowEvent e) {
                     panelCapNhatChuyen.requestFocusInWindow();
                 }
+
                 @Override
                 public void windowClosed(WindowEvent e) {
                     lamMoi();
@@ -361,7 +355,7 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void timKiemChuyen(){
+    private void timKiemChuyen() {
 
         String maChuyen = panelQuanLyChuyen.getTxtMaChuyen().getText().trim();
         String gaDi = panelQuanLyChuyen.getTxtGaXuatPhat().getText().trim();
@@ -373,8 +367,8 @@ public class QuanLyChuyen_CTRL {
         this.currentSearchGaDen = gaDen;
 
         LocalDate ngayDi = null;
-        if(!ngayDiStr.isEmpty() && !ngayDiStr.equals("Chọn ngày...")){
-                ngayDi = LocalDate.parse(ngayDiStr, dateTimeFormatter);
+        if (!ngayDiStr.isEmpty() && !ngayDiStr.equals("Chọn ngày...")) {
+            ngayDi = LocalDate.parse(ngayDiStr, dateTimeFormatter);
 
         }
 
@@ -395,9 +389,20 @@ public class QuanLyChuyen_CTRL {
 
     private void initCapNhatEvents() {
         DocumentListener triggerCalcUpdate = new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
-            @Override public void removeUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
-            @Override public void changedUpdate(DocumentEvent e) { khaoSatVaTinhToanCapNhat(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                khaoSatVaTinhToanCapNhat();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                khaoSatVaTinhToanCapNhat();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                khaoSatVaTinhToanCapNhat();
+            }
         };
         panelCapNhatChuyen.getTimePicker().addActionListener(e -> khaoSatVaTinhToanCapNhat());
         panelCapNhatChuyen.getTxtNgayDi().getDocument().addDocumentListener(triggerCalcUpdate);
@@ -522,8 +527,7 @@ public class QuanLyChuyen_CTRL {
             if (maChuyen.endsWith("_PS")) {
                 // Trường hợp 1: Chuyến phát sinh -> Chỉ cập nhật 1 chuyến
                 thucThiCapNhatDonLe();
-            }
-            else if (maChuyen.endsWith("_CK")) {
+            } else if (maChuyen.endsWith("_CK")) {
                 // Trường hợp 2: Chuyến chu kỳ -> Cập nhật hàng loạt các chuyến tương lai
                 int confirm = JOptionPane.showConfirmDialog(dialogCapNhat,
                         "Đây là chuyến theo chu kỳ. Hệ thống sẽ cập nhật lịch trình cho tất cả các chuyến từ ngày này trở đi. Bạn có chắc chắn?",
@@ -548,7 +552,7 @@ public class QuanLyChuyen_CTRL {
             String idGaDau = mapGaToID.get(tenGaDau);
             String idGaCuoi = mapGaToID.get(tenGaCuoi);
 
-            if(idGaDau == null || idGaCuoi == null) {
+            if (idGaDau == null || idGaCuoi == null) {
                 JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Ga " + (idGaDau == null ? tenGaDau : tenGaCuoi) + " không tồn tại!");
                 return;
             }
@@ -568,7 +572,7 @@ public class QuanLyChuyen_CTRL {
             for (int i = 0; i < model.getRowCount(); i++) {
                 String tenGaDen = model.getValueAt(i, 4).toString();
                 String idGaDen = mapGaToID.get(tenGaDen);
-                if(idGaDen == null) continue;
+                if (idGaDen == null) continue;
 
                 ChuyenGa stopNode = new ChuyenGa();
                 stopNode.setChuyen(c);
@@ -608,15 +612,15 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void loadDataToTable(List<Chuyen> list){
+    private void loadDataToTable(List<Chuyen> list) {
 
-        if (panelQuanLyChuyen.getTableChuyen().isEditing()){
+        if (panelQuanLyChuyen.getTableChuyen().isEditing()) {
             panelQuanLyChuyen.getTableChuyen().getCellEditor().cancelCellEditing();
         }
 
         DefaultTableModel model = panelQuanLyChuyen.getTableModel();
         model.setRowCount(0);
-        for(Chuyen c : list){
+        for (Chuyen c : list) {
             String ngayDenStr = (c.getNgayDen() != null) ? c.getNgayDen().format(dateTimeFormatter) : "N/A";
             String gioDenStr = (c.getGioDen() != null) ? c.getGioDen().format(timeFormatter) : "N/A";
 
@@ -641,7 +645,7 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void hienThiChiTiet(String maChuyen){
+    private void hienThiChiTiet(String maChuyen) {
         Chuyen chuyen = chuyenBus.layChuyenTheoMa(maChuyen);
         List<ChuyenGa> hanhTrinh = chuyenBus.layChiTietHanhTrinh(maChuyen);
 
@@ -654,12 +658,12 @@ public class QuanLyChuyen_CTRL {
             String maTuyen = (chuyen.getTuyen() != null) ? chuyen.getTuyen().getTuyenID() : "N/A";
 
             String tenChuyen = chuyen.getTenChuyenHienThi();
-            if(tenChuyen == null || tenChuyen.isEmpty() || tenChuyen.equals("N/A")){
-                if(hanhTrinh != null && !hanhTrinh.isEmpty()){
+            if (tenChuyen == null || tenChuyen.isEmpty() || tenChuyen.equals("N/A")) {
+                if (hanhTrinh != null && !hanhTrinh.isEmpty()) {
                     String gaXP = hanhTrinh.get(0).getGa().getTenGa();
                     String gaDich = hanhTrinh.get(hanhTrinh.size() - 1).getGa().getTenGa();
                     tenChuyen = gaXP + " - " + gaDich;
-                }else{
+                } else {
                     tenChuyen = "N/A";
                 }
             }
@@ -683,7 +687,7 @@ public class QuanLyChuyen_CTRL {
         model.setRowCount(0);
 
         if (hanhTrinh != null && hanhTrinh.size() > 1) {
-            for (int i =0; i < hanhTrinh.size() -1; i++) {
+            for (int i = 0; i < hanhTrinh.size() - 1; i++) {
                 ChuyenGa gaDi = hanhTrinh.get(i);
                 ChuyenGa gaDen = hanhTrinh.get(i + 1);
                 String ngayDiStr = (gaDi.getNgayDi() != null) ? gaDi.getNgayDi().format(dateTimeFormatter) : "N/A";
@@ -708,7 +712,7 @@ public class QuanLyChuyen_CTRL {
     }
 
 
-    private void thietLapAutoComplete(){
+    private void thietLapAutoComplete() {
         List<String> dataMaChuyen = chuyenBus.getListMaChuyen();
         List<String> dataTenGa = chuyenBus.getListTenGa();
         List<String> dataTenTau = chuyenBus.getListTenTau();
@@ -716,7 +720,7 @@ public class QuanLyChuyen_CTRL {
         taoPopupGoiY(panelQuanLyChuyen.getTxtGaXuatPhat(), panelQuanLyChuyen.getPpGaDi(),
                 panelQuanLyChuyen.getListGaDi(),
                 input -> {
-                    if(input.length() < 2) return new ArrayList<>();
+                    if (input.length() < 2) return new ArrayList<>();
                     return chuyenBus.goiYGaDi(input, 10).stream()
                             .map(Ga::getTenGa)
                             .collect(Collectors.toList());
@@ -756,14 +760,25 @@ public class QuanLyChuyen_CTRL {
                 timer.start();
             }
 
-            @Override public void insertUpdate(DocumentEvent e) { update(); }
-            @Override public void removeUpdate(DocumentEvent e) { update(); }
-            @Override public void changedUpdate(DocumentEvent e) {}
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
         });
 
         // 2. MouseListener: Xử lý Click chuột chọn item
         lst.addMouseListener(new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e) {
+            @Override
+            public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isLeftMouseButton(e) && lst.getSelectedIndex() != -1) {
                     isAdjusting = true;
                     String selectedRaw = lst.getSelectedValue();
@@ -791,16 +806,14 @@ public class QuanLyChuyen_CTRL {
                         lst.ensureIndexIsVisible(lst.getSelectedIndex());
                         e.consume();
                     }
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
                     if (pp.isVisible()) {
                         int index = lst.getSelectedIndex();
                         if (index > 0) lst.setSelectedIndex(index - 1);
                         lst.ensureIndexIsVisible(lst.getSelectedIndex());
                         e.consume();
                     }
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (pp.isVisible() && lst.getSelectedValue() != null) {
                         isAdjusting = true;
                         String selectedRaw = lst.getSelectedValue();
@@ -825,14 +838,17 @@ public class QuanLyChuyen_CTRL {
                     hienThiGoiY(txt, lst, pp, timKiem); // Gọi hiển thị với chuỗi rỗng để lấy toàn bộ
                 }
             }
-            @Override public void focusLost(FocusEvent e) {
+
+            @Override
+            public void focusLost(FocusEvent e) {
                 SwingUtilities.invokeLater(() -> pp.setVisible(false));
             }
         });
 
         // 4. FocusListener: Ẩn popup khi mất focus
         txt.addFocusListener(new FocusAdapter() {
-            @Override public void focusLost(FocusEvent e) {
+            @Override
+            public void focusLost(FocusEvent e) {
                 SwingUtilities.invokeLater(() -> pp.setVisible(false));
             }
         });
@@ -883,21 +899,22 @@ public class QuanLyChuyen_CTRL {
                 txt == panelQuanLyChuyen.getTxtTau();
     }
 
-    private void hienThiFormChuyen(){
-        if(panelThemChuyen == null){
+    private void hienThiFormChuyen() {
+        if (panelThemChuyen == null) {
             panelThemChuyen = new PanelThemChuyen();
             dialogThem = new JDialog();
             dialogThem.setTitle("Thêm Chuyến Tàu Mới");
             dialogThem.setContentPane(panelThemChuyen);
-            dialogThem.setSize(1000,750);
+            dialogThem.setSize(1000, 750);
             dialogThem.setLocationRelativeTo(null);
             dialogThem.setModal(true);
             dialogThem.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             dialogThem.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosed(WindowEvent e) {
-                     lamMoi();
+                    lamMoi();
                 }
+
                 @Override
                 public void windowClosing(WindowEvent e) {
                     xuLyHuyBoThem();
@@ -921,11 +938,11 @@ public class QuanLyChuyen_CTRL {
         dialogThem.setVisible(true);
     }
 
-    private void setComboText(JComboBox<String> combo, String text){
-        ((JTextField)combo.getEditor().getEditorComponent()).setText(text);
+    private void setComboText(JComboBox<String> combo, String text) {
+        ((JTextField) combo.getEditor().getEditorComponent()).setText(text);
     }
 
-    private void loadDataCombobox(){
+    private void loadDataCombobox() {
         List<String> dsGa = chuyenBus.getListTenGa();
         List<String> dsTau = chuyenBus.getAllTauID();
         List<String> dsMaTuyen = chuyenBus.getAllTuyenID();
@@ -949,7 +966,7 @@ public class QuanLyChuyen_CTRL {
 
     }
 
-    private void setupCombo(JComboBox<String> cbo, List<String> data){
+    private void setupCombo(JComboBox<String> cbo, List<String> data) {
         cbo.setEditable(true);
         cbo.setModel(new DefaultComboBoxModel<>(data.toArray(new String[0])));
         cbo.setSelectedIndex(-1);
@@ -965,9 +982,20 @@ public class QuanLyChuyen_CTRL {
 
     private void initThemChuyenEvents() {
         DocumentListener triggerCalc = new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
-            @Override public void removeUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
-            @Override public void changedUpdate(DocumentEvent e) { khaoSatVaTinhToan(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                khaoSatVaTinhToan();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                khaoSatVaTinhToan();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                khaoSatVaTinhToan();
+            }
         };
 
         panelThemChuyen.getTxtNgayDi().getDocument().addDocumentListener(triggerCalc);
@@ -1013,11 +1041,24 @@ public class QuanLyChuyen_CTRL {
         JTextField txtEditorTau = (JTextField) panelThemChuyen.getComboTau().getEditor().getEditorComponent();
 
         DocumentListener editorListener = new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { trigger(); }
-            @Override public void removeUpdate(DocumentEvent e) { trigger(); }
-            @Override public void changedUpdate(DocumentEvent e) { trigger(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                trigger();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                trigger();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                trigger();
+            }
+
             private void trigger() {
-                if (!isAdjusting) triggerLoadTableIfReady(); genCode();
+                if (!isAdjusting) triggerLoadTableIfReady();
+                genCode();
             }
         };
         txtEditorTuyen.getDocument().addDocumentListener(editorListener);
@@ -1104,7 +1145,7 @@ public class QuanLyChuyen_CTRL {
 
                 String hauTo = getHauToTheoChuKy(chuKy);
 
-                String maChuyenMoi = tuyenID.toUpperCase()+ "_" + tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
+                String maChuyenMoi = tuyenID.toUpperCase() + "_" + tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
                 panelThemChuyen.getTxtMaChuyen().setText(maChuyenMoi);
             }
         } catch (Exception ex) {
@@ -1126,10 +1167,22 @@ public class QuanLyChuyen_CTRL {
             String sNgayDi = panelThemChuyen.getTxtNgayDi().getText().trim();
             DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
 
-            if (rawTuyen == null || rawTuyen.isEmpty()) { baoLoiVaFocus(panelThemChuyen.getComboTuyen(), "Chọn tuyến!"); return; }
-            if (rawTau == null || rawTau.isEmpty()) { baoLoiVaFocus(panelThemChuyen.getComboTau(), "Chọn tàu!"); return; }
-            if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayDi)) { baoLoiVaFocus(panelThemChuyen.getTxtNgayDi(), "Ngày đi sai!"); return; }
-            if (model.getRowCount() < 1) { JOptionPane.showMessageDialog(dialogThem, "Lịch trình trống!"); return; }
+            if (rawTuyen == null || rawTuyen.isEmpty()) {
+                baoLoiVaFocus(panelThemChuyen.getComboTuyen(), "Chọn tuyến!");
+                return;
+            }
+            if (rawTau == null || rawTau.isEmpty()) {
+                baoLoiVaFocus(panelThemChuyen.getComboTau(), "Chọn tàu!");
+                return;
+            }
+            if (!PanelQuanLyChuyen.Validator.isValidNgay(sNgayDi)) {
+                baoLoiVaFocus(panelThemChuyen.getTxtNgayDi(), "Ngày đi sai!");
+                return;
+            }
+            if (model.getRowCount() < 1) {
+                JOptionPane.showMessageDialog(dialogThem, "Lịch trình trống!");
+                return;
+            }
 
             String sGioDi = model.getValueAt(0, 3).toString().trim();
 
@@ -1175,7 +1228,6 @@ public class QuanLyChuyen_CTRL {
             }
 
 
-
             String tuyenID = layMaTuChuoiHienThi(rawTuyen);
             String tauID = layMaTuChuoiHienThi(rawTau);
             NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
@@ -1194,6 +1246,7 @@ public class QuanLyChuyen_CTRL {
 
             SwingWorker<String, Void> worker = new SwingWorker<>() {
                 private int soLuongChuyenDuLien = 0;
+
                 @Override
                 protected String doInBackground() throws Exception {
                     List<Chuyen> dsMoi = new ArrayList<>();
@@ -1202,7 +1255,7 @@ public class QuanLyChuyen_CTRL {
 
                     while (!ngayChay.isAfter(ngayKetThucWorker)) {
 
-                        Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot,chuKy);
+                        Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
                         List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayChay);
 
                         dsMoi.add(c);
@@ -1223,7 +1276,7 @@ public class QuanLyChuyen_CTRL {
                         if (error == null) {
                             String message = String.format("Đã lưu thành công tất cả các chuyến!\n(Số chuyến được tạo: %d/%d)",
                                     soLuongChuyenDuLien, soLuongChuyenDuLien);
-                            JOptionPane.showMessageDialog(panelThemChuyen, message,"Thành công",JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(panelThemChuyen, message, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                             dialogThem.dispose();
                             timKiemChuyen();
                         } else {
@@ -1270,10 +1323,10 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void capNhatSTT(){
+    private void capNhatSTT() {
         DefaultTableModel m = panelThemChuyen.getModelLichTrinh();
-        for(int i=0; i<m.getRowCount(); i++){
-            m.setValueAt(i+1, i, 0);
+        for (int i = 0; i < m.getRowCount(); i++) {
+            m.setValueAt(i + 1, i, 0);
         }
     }
 
@@ -1297,6 +1350,7 @@ public class QuanLyChuyen_CTRL {
 
         txtEditor.getDocument().addDocumentListener(new DocumentListener() {
             private Timer timer;
+
             private void update() {
                 if (isAdjusting) return;
                 if (timer != null && timer.isRunning()) timer.stop();
@@ -1308,9 +1362,20 @@ public class QuanLyChuyen_CTRL {
                 timer.setRepeats(false);
                 timer.start();
             }
-            @Override public void insertUpdate(DocumentEvent e) { update(); }
-            @Override public void removeUpdate(DocumentEvent e) { update(); }
-            @Override public void changedUpdate(DocumentEvent e) {}
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
         });
         lst.addMouseListener(new MouseAdapter() {
             @Override
@@ -1327,22 +1392,18 @@ public class QuanLyChuyen_CTRL {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (pp.isVisible() && lst.getSelectedValue() != null) {
                         chonTuyen(lst.getSelectedValue(), txtEditor, pp, actionNextFocus);
-                    }
-                    else {
+                    } else {
                         chonTuyen(txtEditor.getText(), txtEditor, pp, actionNextFocus);
                     }
                     e.consume();
-                }
-
-                else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                     if (pp.isVisible()) {
                         int index = lst.getSelectedIndex();
                         if (index < lst.getModel().getSize() - 1) lst.setSelectedIndex(index + 1);
                         lst.ensureIndexIsVisible(lst.getSelectedIndex());
                         e.consume();
                     }
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
                     if (pp.isVisible()) {
                         int index = lst.getSelectedIndex();
                         if (index > 0) lst.setSelectedIndex(index - 1);
@@ -1354,7 +1415,8 @@ public class QuanLyChuyen_CTRL {
         });
 
         txtEditor.addFocusListener(new FocusAdapter() {
-            @Override public void focusLost(FocusEvent e) {
+            @Override
+            public void focusLost(FocusEvent e) {
                 SwingUtilities.invokeLater(() -> pp.setVisible(false));
             }
         });
@@ -1417,7 +1479,7 @@ public class QuanLyChuyen_CTRL {
         for (int i = 0; i < dsGa.size() - 1; i++) {
             Ga gaDi = dsGa.get(i);
             Ga gaDen = dsGa.get(i + 1);
-            model.addRow(new Object[]{ (i + 1), gaDi.getTenGa(), "", "", gaDen.getTenGa(), "", "" });
+            model.addRow(new Object[]{(i + 1), gaDi.getTenGa(), "", "", gaDen.getTenGa(), "", ""});
         }
     }
 
@@ -1721,6 +1783,7 @@ public class QuanLyChuyen_CTRL {
 
         SwingWorker<String, Void> worker = new SwingWorker<>() {
             private int soLuongThanhCong = 0;
+
             @Override
             protected String doInBackground() throws Exception {
                 LocalDate ngayDi = LocalDate.parse(sNgayDi, dateTimeFormatter);

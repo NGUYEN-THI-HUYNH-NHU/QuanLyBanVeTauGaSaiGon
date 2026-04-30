@@ -29,4 +29,12 @@ public class VaiTroTaiKhoan implements Serializable {
 
     @Column(name = "moTa", nullable = false)
     private String moTa;
+
+    public VaiTroTaiKhoan(String vaiTroTaiKhoanID) {
+        this.vaiTroTaiKhoanID = vaiTroTaiKhoanID;
+    }
+
+    public String getDescription() {
+        return this.moTa;
+    }
 }

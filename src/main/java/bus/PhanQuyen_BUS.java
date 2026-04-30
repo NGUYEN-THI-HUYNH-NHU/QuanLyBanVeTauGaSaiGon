@@ -10,16 +10,16 @@ package bus;
  * @created : 03/10/2025
  */
 
-import entity.type.VaiTroNhanVien;
+import entity.type.VaiTroNhanVienEnums;
 import gui.application.form.quanLyChuyen.PanelQuanLyChuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 
 public class PhanQuyen_BUS {
-    public static void phanQuyenQuanLyTuyen(PanelQuanLyTuyen pnlQLTuyen, VaiTroNhanVien vaiTro){
-        if(vaiTro == VaiTroNhanVien.NHAN_VIEN){
+    public static void phanQuyenQuanLyTuyen(PanelQuanLyTuyen pnlQLTuyen, VaiTroNhanVienEnums vaiTro) {
+        if (vaiTro == VaiTroNhanVienEnums.NHAN_VIEN) {
             pnlQLTuyen.getBtnThemTuyen().setEnabled(false);
             pnlQLTuyen.getBtnCapNhatTuyen().setEnabled(false);
-        }else if(vaiTro == VaiTroNhanVien.QUAN_LY){
+        } else if (vaiTro == VaiTroNhanVienEnums.QUAN_LY) {
             pnlQLTuyen.getBtnThemTuyen().setEnabled(true);
             pnlQLTuyen.getBtnCapNhatTuyen().setEnabled(true);
             pnlQLTuyen.getBtnLamMoiTuyen().setEnabled(true);
@@ -29,11 +29,11 @@ public class PhanQuyen_BUS {
         }
     }
 
-    public static void phanQuyenQuanLyChuyen(PanelQuanLyChuyen pnlQLChuyen, VaiTroNhanVien vaiTro){
-        if(vaiTro == VaiTroNhanVien.NHAN_VIEN){
+    public static void phanQuyenQuanLyChuyen(PanelQuanLyChuyen pnlQLChuyen, VaiTroNhanVienEnums vaiTro) {
+        if (vaiTro == VaiTroNhanVienEnums.NHAN_VIEN) {
             pnlQLChuyen.getBtnThemChuyen().setEnabled(false);
             pnlQLChuyen.getBtnCapNhatChuen().setEnabled(false);
-        }else if(vaiTro == VaiTroNhanVien.QUAN_LY){
+        } else if (vaiTro == VaiTroNhanVienEnums.QUAN_LY) {
             pnlQLChuyen.getBtnThemChuyen().setEnabled(true);
             pnlQLChuyen.getBtnCapNhatChuen().setEnabled(true);
             pnlQLChuyen.getBtnLamMoi().setEnabled(true);

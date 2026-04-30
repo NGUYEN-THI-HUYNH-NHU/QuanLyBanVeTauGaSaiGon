@@ -1,6 +1,7 @@
 package dao.impl;
 
 import connectDB.ConnectDB;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ThongKeKhachHang_DAO {
@@ -42,22 +42,6 @@ public class ThongKeKhachHang_DAO {
     private final String COL_VE_GIA = "gia";
     private final String COL_VE_DDC_ID = "donDatChoID";
 
-    /**
-     * DTO lưu kết quả thống kê (Đã xóa trường khuVuc)
-     */
-    public static class KhachHangRFM {
-        public String khachHangID;
-        public String hoTen;
-        public String loaiDoiTuong;
-        public int soLanMua;
-        public double tongChiTieu;
-        public LocalDate lanMuaCuoi;
-        public LocalDate ngayMuaDauTien;
-        public String phanLoai;
-
-        public KhachHangRFM() {}
-    }
-
     public List<String> getDanhSachLoaiDoiTuong() throws SQLException {
         List<String> danhSach = new ArrayList<>();
         String sql = "SELECT DISTINCT " + COL_KH_LOAI_DOI_TUONG + " FROM " + TBL_KHACH_HANG;
@@ -66,7 +50,7 @@ public class ThongKeKhachHang_DAO {
              ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 String val = rs.getString(COL_KH_LOAI_DOI_TUONG);
-                if(val != null) danhSach.add(val);
+                if (val != null) danhSach.add(val);
             }
         }
         return danhSach;
@@ -179,5 +163,22 @@ public class ThongKeKhachHang_DAO {
             }
         }
         return results;
+    }
+
+    /**
+     * DTO lưu kết quả thống kê (Đã xóa trường khuVuc)
+     */
+    public static class KhachHangRFM {
+        public String khachHangID;
+        public String hoTen;
+        public String loaiDoiTuong;
+        public int soLanMua;
+        public double tongChiTieu;
+        public LocalDate lanMuaCuoi;
+        public LocalDate ngayMuaDauTien;
+        public String phanLoai;
+
+        public KhachHangRFM() {
+        }
     }
 }

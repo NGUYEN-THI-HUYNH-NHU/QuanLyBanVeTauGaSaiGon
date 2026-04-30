@@ -57,4 +57,15 @@ public class PhieuGiuChoChiTiet implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 50)
     private TrangThaiPhieuGiuCho trangThai;
+
+    public PhieuGiuChoChiTiet(String pgcctID, PhieuGiuCho pgc, Chuyen chuyen, Ghe ghe, Ga gaDi, Ga gaDen, LocalDateTime thoiDiemGiuCho, String trangThai) {
+        this.phieuGiuChoChiTietID = pgcctID;
+        this.phieuGiuCho = pgc;
+        this.chuyen = chuyen;
+        this.ghe = ghe;
+        this.gaDi = gaDi;
+        this.gaDen = gaDen;
+        this.thoiDiemGiuCho = thoiDiemGiuCho;
+        this.trangThai = TrangThaiPhieuGiuCho.valueOf(trangThai);
+    }
 }

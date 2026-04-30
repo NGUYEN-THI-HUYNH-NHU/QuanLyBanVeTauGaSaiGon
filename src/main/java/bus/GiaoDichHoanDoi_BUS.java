@@ -11,11 +11,8 @@ package bus;
  * @date: Nov 16, 2025
  * @version: 1.0
  */
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
 
-import dao.GiaoDichHoanDoi_DAO;
+import dao.impl.GiaoDichHoanDoi_DAO;
 import entity.GiaoDichHoanDoi;
 import entity.HoaDon;
 import entity.NhanVien;
@@ -25,57 +22,61 @@ import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
 
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
 public class GiaoDichHoanDoi_BUS {
-	private final GiaoDichHoanDoi_DAO giaoDichHoanDoiDAO = new GiaoDichHoanDoi_DAO();
+    private final GiaoDichHoanDoi_DAO giaoDichHoanDoiDAO = new GiaoDichHoanDoi_DAO();
 
-	/**
-	 * @param hoaDon
-	 * @param nhanVien
-	 * @param listVeHoanRow
-	 * @return
-	 */
-	public List<GiaoDichHoanDoi> taoCacGiaoDichHoanVe(HoaDon hoaDon, NhanVien nhanVien, List<VeHoanRow> listVeHoanRow) {
-		List<GiaoDichHoanDoi> dsGiaoDichHoanDoi = new ArrayList<GiaoDichHoanDoi>();
-		for (VeHoanRow r : listVeHoanRow) {
-			String gdhdID = "GDHV-" + r.getVe().getVeID().substring(3);
-			GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, r.getVe(), LoaiGiaoDich.HOAN_VE,
-					r.getLyDo(), hoaDon.getThoiDiemTao(), r.getLePhiHoanVe(), r.getVe().getGia() - r.getLePhiHoanVe());
-			dsGiaoDichHoanDoi.add(gdhd);
-		}
-		return dsGiaoDichHoanDoi;
-	}
+    /**
+     * @param hoaDon
+     * @param nhanVien
+     * @param listVeHoanRow
+     * @return
+     */
+    public List<GiaoDichHoanDoi> taoCacGiaoDichHoanVe(HoaDon hoaDon, NhanVien nhanVien, List<VeHoanRow> listVeHoanRow) {
+        List<GiaoDichHoanDoi> dsGiaoDichHoanDoi = new ArrayList<GiaoDichHoanDoi>();
+        for (VeHoanRow r : listVeHoanRow) {
+            String gdhdID = "GDHV-" + r.getVe().getVeID().substring(3);
+            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, r.getVe(), LoaiGiaoDich.HOAN_VE,
+                    r.getLyDo(), hoaDon.getThoiDiemTao(), r.getLePhiHoanVe(), r.getVe().getGia() - r.getLePhiHoanVe());
+            dsGiaoDichHoanDoi.add(gdhd);
+        }
+        return dsGiaoDichHoanDoi;
+    }
 
-	/**
-	 * @param exchangeSession
-	 * @return
-	 */
-	public List<GiaoDichHoanDoi> taoCacGiaoDichDoiVe(ExchangeSession exchangeSession) {
-		List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
-		List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
-		NhanVien nhanVien = exchangeSession.getNhanVien();
-		HoaDon hoaDon = exchangeSession.getHoaDon();
-		List<GiaoDichHoanDoi> dsGiaoDichHoanDoi = new ArrayList<GiaoDichHoanDoi>();
-		int soLuongVeDoi = listVeDoi.size();
+    /**
+     * @param exchangeSession
+     * @return
+     */
+    public List<GiaoDichHoanDoi> taoCacGiaoDichDoiVe(ExchangeSession exchangeSession) {
+        List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
+        List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
+        NhanVien nhanVien = exchangeSession.getNhanVien();
+        HoaDon hoaDon = exchangeSession.getHoaDon();
+        List<GiaoDichHoanDoi> dsGiaoDichHoanDoi = new ArrayList<GiaoDichHoanDoi>();
+        int soLuongVeDoi = listVeDoi.size();
 
-		for (int i = 0; i < soLuongVeDoi; i++) {
-			String gdhdID = "GDDV-" + listVeDoi.get(i).getVe().getVeID().substring(3);
-			GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, listVeDoi.get(i).getVe(),
-					listVeMoi.get(i).getVe(), LoaiGiaoDich.DOI_VE, listVeDoi.get(i).getLyDo(), hoaDon.getThoiDiemTao(),
-					listVeDoi.get(i).getLePhiDoiVe(), listVeMoi.get(i).getVe().getGia()
-							+ listVeDoi.get(i).getLePhiDoiVe() - listVeDoi.get(i).getVe().getGia());
+        for (int i = 0; i < soLuongVeDoi; i++) {
+            String gdhdID = "GDDV-" + listVeDoi.get(i).getVe().getVeID().substring(3);
+            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, listVeDoi.get(i).getVe(),
+                    listVeMoi.get(i).getVe(), LoaiGiaoDich.DOI_VE, listVeDoi.get(i).getLyDo(), hoaDon.getThoiDiemTao(),
+                    listVeDoi.get(i).getLePhiDoiVe(), listVeMoi.get(i).getVe().getGia()
+                    + listVeDoi.get(i).getLePhiDoiVe() - listVeDoi.get(i).getVe().getGia());
 
-			dsGiaoDichHoanDoi.add(gdhd);
-		}
-		return dsGiaoDichHoanDoi;
-	}
+            dsGiaoDichHoanDoi.add(gdhd);
+        }
+        return dsGiaoDichHoanDoi;
+    }
 
-	/**
-	 * @param conn
-	 * @param dsGdhd
-	 */
-	public void themCacGiaoDichHoanDoi(Connection conn, List<GiaoDichHoanDoi> dsGdhd) throws Exception {
-		for (GiaoDichHoanDoi gd : dsGdhd) {
-			giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(conn, gd);
-		}
-	}
+    /**
+     * @param conn
+     * @param dsGdhd
+     */
+    public void themCacGiaoDichHoanDoi(Connection conn, List<GiaoDichHoanDoi> dsGdhd) throws Exception {
+        for (GiaoDichHoanDoi gd : dsGdhd) {
+            giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(conn, gd);
+        }
+    }
 }

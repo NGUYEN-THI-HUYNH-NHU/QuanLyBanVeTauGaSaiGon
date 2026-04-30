@@ -131,7 +131,7 @@ public class VeSession {
             return false;
         }
         VeSession that = (VeSession) o;
-        return Objects.equals(ve.getChuyen().getId(), that.ve.getChuyen().getId())
+        return Objects.equals(ve.getChuyen().getChuyenID(), that.ve.getChuyen().getChuyenID())
                 && Objects.equals(ve.getGaDi().getTenGa(), that.ve.getGaDi().getTenGa())
                 && Objects.equals(ve.getGaDen().getTenGa(), that.ve.getGaDen().getTenGa())
                 && Objects.equals(ve.getGhe().getToa().getSoToa(), that.ve.getGhe().getToa().getSoToa())
@@ -140,13 +140,13 @@ public class VeSession {
 
     @Override
     public int hashCode() {
-        return Objects.hash(ve.getChuyen().getId(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
+        return Objects.hash(ve.getChuyen().getChuyenID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
                 ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe());
     }
 
     @Override
     public String toString() {
-        return ve.getChuyen().getTau().getId() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
+        return ve.getChuyen().getTau().getTauID() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
                 + ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ";"
                 + ve.getGhe().getToa().getHangToa() + ";" + ve.getGhe().getToa().getSoToa() + ";"
                 + ve.getGhe().getSoGhe();
@@ -162,7 +162,7 @@ public class VeSession {
     public String prettyString() {
         DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
         return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
-                ve.getChuyen().getTau().getId(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
+                ve.getChuyen().getTau().getTauID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
                 ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 ve.getGhe().getToa().getHangToa(), ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe(),
                 formatter.format(ve.getGia()));

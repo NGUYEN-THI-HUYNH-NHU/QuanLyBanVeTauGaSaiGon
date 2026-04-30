@@ -99,7 +99,7 @@ public class AppHttpServer {
                 String ngayGioDi = ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
                 String hoTen = ve.getKhachHang().getHoTen().toUpperCase();
                 String cccd = ve.getKhachHang().getSoGiayTo();
-                String tauID = ve.getGhe().getToa().getTau().getId();
+                String tauID = ve.getGhe().getToa().getTau().getTauID();
                 int soToa = ve.getGhe().getToa().getSoToa();
                 int soGhe = ve.getGhe().getSoGhe();
 

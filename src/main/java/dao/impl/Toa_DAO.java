@@ -13,6 +13,7 @@ package dao.impl;
  */
 
 import connectDB.ConnectDB;
+import entity.HangToa;
 import entity.Tau;
 import entity.Toa;
 
@@ -55,9 +56,9 @@ public class Toa_DAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Toa t = new Toa();
-                t.setId(rs.getString("toaID"));
-                t.setTau(Tau.builder().id(rs.getString("tauID")).build());
-                t.setHangToa(entity.HangToa.builder().id(rs.getString("hangToaID")).build());
+                t.setToaID(rs.getString("toaID"));
+                t.setTau(new Tau(rs.getString("tauID")));
+                t.setHangToa(new HangToa(rs.getString("hangToaID")));
                 t.setSucChua(rs.getInt("sucChua"));
                 t.setSoToa(rs.getInt("soToa"));
                 list.add(t);
@@ -76,9 +77,9 @@ public class Toa_DAO {
             ps.setString(1, toaID);
             ResultSet rs = ps.executeQuery();
             Toa t = new Toa();
-            t.setId(rs.getString("toaID"));
-            t.setTau(Tau.builder().id(rs.getString("tauID")).build());
-            t.setHangToa(entity.HangToa.builder().id(rs.getString("hangToaID")).build());
+            t.setToaID(rs.getString("toaID"));
+            t.setTau(new Tau(rs.getString("tauID")));
+            t.setHangToa(new HangToa(rs.getString("hangToaID")));
             t.setSucChua(rs.getInt("sucChua"));
             t.setSoToa(rs.getInt("soToa"));
         } catch (Exception e) {
@@ -100,9 +101,9 @@ public class Toa_DAO {
             ps.setString(2, toaID);
             ResultSet rs = ps.executeQuery();
             Toa t = new Toa();
-            t.setId(rs.getString("toaID"));
-            t.setTau(Tau.builder().id(rs.getString("tauID")).build());
-            t.setHangToa(entity.HangToa.builder().id(rs.getString("hangToaID")).build());
+            t.setToaID(rs.getString("toaID"));
+            t.setTau(new Tau(rs.getString("tauID")));
+            t.setHangToa(new HangToa(rs.getString("hangToaID")));
             t.setSucChua(rs.getInt("sucChua"));
             t.setSoToa(rs.getInt("soToa"));
         } catch (Exception e) {

@@ -30,4 +30,12 @@ public class LoaiDoiTuong implements Serializable {
 
     @Column(name = "moTa", nullable = false)
     private String moTa;
+
+    public LoaiDoiTuong(String loaiDoiTuongID) {
+        this.loaiDoiTuongID = loaiDoiTuongID;
+    }
+
+    public String getDescription() {
+        return this.moTa;
+    }
 }

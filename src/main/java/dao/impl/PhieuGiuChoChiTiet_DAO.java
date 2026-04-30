@@ -168,7 +168,7 @@ public class PhieuGiuChoChiTiet_DAO {
                     ct.setGaDen(new Ga(rs.getString("gaDenID")));
 
                     ct.setThoiDiemGiuCho(rs.getTimestamp("thoiDiemGiuCho").toLocalDateTime());
-                    ct.setTrangThai(rs.getString("trangThai"));
+                    ct.setTrangThai(TrangThaiPhieuGiuCho.valueOf(rs.getString("trangThai")));
 
                     chiTietList.add(ct);
                 }
@@ -256,7 +256,7 @@ public class PhieuGiuChoChiTiet_DAO {
     /**
      * @param conn
      * @param ve
-     * @param daHuy
+     * @param trangThai
      */
     public boolean updateTrangThaiPhieuGiuChoChiTietByVe(Connection conn, Ve ve, TrangThaiPhieuGiuCho trangThai) {
         String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ? " + "WHERE chuyenID = ? " + "AND gheID = ? "

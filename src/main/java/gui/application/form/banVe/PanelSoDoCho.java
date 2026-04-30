@@ -179,7 +179,7 @@ public class PanelSoDoCho extends JPanel {
         try {
             if (panelBuoc2Controller != null && panelBuoc2Controller.getSelectedChuyen() != null) {
 
-                String chuyenID = panelBuoc2Controller.getSelectedChuyen().getId();
+                String chuyenID = panelBuoc2Controller.getSelectedChuyen().getChuyenID();
                 String loaiTauID = panelBuoc2Controller.getSelectedChuyen().getTau().getLoaiTau().toString();
 
                 SearchCriteria criteria = panelBuoc2Controller.getCurrentTripCriteria();
@@ -634,13 +634,13 @@ public class PanelSoDoCho extends JPanel {
                 }
             }
             if (panelBuoc2Controller.getSelectedChuyen() != null) {
-                chuyenID = panelBuoc2Controller.getSelectedChuyen().getId();
+                chuyenID = panelBuoc2Controller.getSelectedChuyen().getChuyenID();
             }
 
             // Gọi BUS trực tiếp
             if (gaDiID != null && gaDenID != null && chuyenID != null && toa != null) {
                 return panelBuoc2Controller.getChuyenBUS().layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID,
-                        toa.getId());
+                        toa.getToaID());
             } else {
                 System.err.println("LoadSeatWorker: Thiếu thông tin để tải ghế.");
                 return Collections.emptyList();

@@ -49,14 +49,14 @@ public class Chuyen_DAO {
         try (PreparedStatement pstmt = connection.prepareStatement(querySQL)) {
             pstmt.setString(1, gaDiID);
             pstmt.setString(2, gaDenID);
-            pstmt.setDate(3, java.sql.Date.valueOf(ngayDi));
+            pstmt.setDate(3, Date.valueOf(ngayDi));
 
             try (ResultSet resultSet = pstmt.executeQuery()) {
                 while (resultSet.next()) {
                     String chuyenID = resultSet.getString("chuyenID");
                     Tuyen tuyen = new Tuyen(resultSet.getString("tuyenID"));
                     String tauID = resultSet.getString("tauID");
-                    LoaiTau loaiTau = LoaiTau.builder().id(resultSet.getString("loaiTauID")).build();
+                    LoaiTau loaiTau = new LoaiTau(resultSet.getString("loaiTauID"));
                     Tau tau = new Tau(tauID, loaiTau);
 
                     LocalDate ngayDi_ThucTe = resultSet.getDate("ngayDi").toLocalDate();
@@ -64,7 +64,7 @@ public class Chuyen_DAO {
                     LocalDate ngayDen_ThucTe = resultSet.getDate("ngayDen").toLocalDate();
                     LocalTime gioDen_ThucTe = resultSet.getTime("gioDen").toLocalTime();
 
-                    Chuyen c = Chuyen.builder().id(chuyenID).tau(tau).ngayDi(ngayDi_ThucTe).gioDi(gioDi_ThucTe).ngayDen(ngayDen_ThucTe).gioDen(gioDen_ThucTe).build();
+                    Chuyen c = new Chuyen(chuyenID, tau, ngayDi_ThucTe, gioDi_ThucTe, ngayDen_ThucTe, gioDen_ThucTe);
                     c.setTuyen(tuyen);
 
                     chuyenList.add(c);
@@ -151,7 +151,7 @@ public class Chuyen_DAO {
         }
         if (ngayDi != null) {
             sql.append(" AND c.ngayDi = ?");
-            params.add(java.sql.Date.valueOf(ngayDi));
+            params.add(Date.valueOf(ngayDi));
         }
         if (!gaDi.isEmpty()) {
             sql.append(" AND gStart.tenGa LIKE ?");
@@ -176,8 +176,8 @@ public class Chuyen_DAO {
             for (int i = 0; i < params.length; i++) {
                 if (params[i] instanceof String) {
                     pst.setString(i + 1, (String) params[i]);
-                } else if (params[i] instanceof java.sql.Date) {
-                    pst.setDate(i + 1, (java.sql.Date) params[i]);
+                } else if (params[i] instanceof Date) {
+                    pst.setDate(i + 1, (Date) params[i]);
                 }
             }
 
@@ -193,7 +193,7 @@ public class Chuyen_DAO {
                     LoaiTau loaiTau = null;
                     if (loaiTauStr != null) {
                         try {
-                            loaiTau = LoaiTau.builder().id(loaiTauStr).build();
+                            loaiTau = new LoaiTau(loaiTauStr);
                         } catch (IllegalArgumentException e) {
 
                         }
@@ -311,11 +311,11 @@ public class Chuyen_DAO {
 
             String sqlChuyen = "INSERT INTO Chuyen (chuyenID, tuyenID, tauID, ngayDi, gioDi) VALUES (?, ?, ?, ?, ?)";
             pstChuyen = con.prepareStatement(sqlChuyen);
-            pstChuyen.setString(1, chuyen.getId());
-            pstChuyen.setString(2, chuyen.getTuyen().getId());
-            pstChuyen.setString(3, chuyen.getTau().getId());
-            pstChuyen.setDate(4, java.sql.Date.valueOf(chuyen.getNgayDi()));
-            pstChuyen.setTime(5, java.sql.Time.valueOf(chuyen.getGioDi()));
+            pstChuyen.setString(1, chuyen.getChuyenID());
+            pstChuyen.setString(2, chuyen.getTuyen().getTuyenID());
+            pstChuyen.setString(3, chuyen.getTau().getTauID());
+            pstChuyen.setDate(4, Date.valueOf(chuyen.getNgayDi()));
+            pstChuyen.setTime(5, Time.valueOf(chuyen.getGioDi()));
 
             pstChuyen.executeUpdate();
 
@@ -323,14 +323,14 @@ public class Chuyen_DAO {
             pstChuyenGa = con.prepareStatement(sqlChuyenGa);
 
             for (ChuyenGa cg : lichTrinh) {
-                pstChuyenGa.setString(1, chuyen.getId());
+                pstChuyenGa.setString(1, chuyen.getChuyenID());
                 pstChuyenGa.setString(2, cg.getGa().getGaID());
                 pstChuyenGa.setInt(3, cg.getThuTu());
 
-                pstChuyenGa.setTime(5, cg.getGioDen() != null ? java.sql.Time.valueOf(cg.getGioDen()) : null);
-                pstChuyenGa.setTime(7, cg.getGioDi() != null ? java.sql.Time.valueOf(cg.getGioDi()) : null);
-                pstChuyenGa.setDate(4, cg.getNgayDen() != null ? java.sql.Date.valueOf(cg.getNgayDen()) : null);
-                pstChuyenGa.setDate(6, cg.getNgayDi() != null ? java.sql.Date.valueOf(cg.getNgayDi()) : null);
+                pstChuyenGa.setTime(5, cg.getGioDen() != null ? Time.valueOf(cg.getGioDen()) : null);
+                pstChuyenGa.setTime(7, cg.getGioDi() != null ? Time.valueOf(cg.getGioDi()) : null);
+                pstChuyenGa.setDate(4, cg.getNgayDen() != null ? Date.valueOf(cg.getNgayDen()) : null);
+                pstChuyenGa.setDate(6, cg.getNgayDi() != null ? Date.valueOf(cg.getNgayDi()) : null);
 
                 pstChuyenGa.addBatch();
             }
@@ -391,11 +391,11 @@ public class Chuyen_DAO {
             con.setAutoCommit(false);
             String sqlUpdateChuyen = "UPDATE Chuyen SET tuyenID=?, tauID=?, ngayDi=?, gioDi=? WHERE chuyenID=?";
             pstUpdateChuyen = con.prepareStatement(sqlUpdateChuyen);
-            pstUpdateChuyen.setString(1, chuyen.getTuyen().getId());
-            pstUpdateChuyen.setString(2, chuyen.getTau().getId());
-            pstUpdateChuyen.setDate(3, java.sql.Date.valueOf(chuyen.getNgayDi()));
-            pstUpdateChuyen.setTime(4, java.sql.Time.valueOf(chuyen.getGioDi()));
-            pstUpdateChuyen.setString(5, chuyen.getId());
+            pstUpdateChuyen.setString(1, chuyen.getTuyen().getTuyenID());
+            pstUpdateChuyen.setString(2, chuyen.getTau().getTauID());
+            pstUpdateChuyen.setDate(3, Date.valueOf(chuyen.getNgayDi()));
+            pstUpdateChuyen.setTime(4, Time.valueOf(chuyen.getGioDi()));
+            pstUpdateChuyen.setString(5, chuyen.getChuyenID());
 
             int rowsAff = pstUpdateChuyen.executeUpdate();
             if (rowsAff == 0) {
@@ -404,21 +404,21 @@ public class Chuyen_DAO {
 
             String sqlDeleteGa = "DELETE FROM ChuyenGa WHERE chuyenID=?";
             pstDeleteChuyenGa = con.prepareStatement(sqlDeleteGa);
-            pstDeleteChuyenGa.setString(1, chuyen.getId());
+            pstDeleteChuyenGa.setString(1, chuyen.getChuyenID());
             pstDeleteChuyenGa.executeUpdate();
 
             String sqlInsertGa = "INSERT INTO ChuyenGa (chuyenID, gaID, thuTu, ngayDen, gioDen, NgayDi, gioDi) VALUES (?, ?, ?, ?, ?, ?, ?)";
             pstInsertChuyenGa = con.prepareStatement(sqlInsertGa);
 
             for (ChuyenGa cg : lichTrinhMoi) {
-                pstInsertChuyenGa.setString(1, chuyen.getId());
+                pstInsertChuyenGa.setString(1, chuyen.getChuyenID());
                 pstInsertChuyenGa.setString(2, cg.getGa().getGaID());
                 pstInsertChuyenGa.setInt(3, cg.getThuTu());
 
-                pstInsertChuyenGa.setDate(4, cg.getNgayDen() != null ? java.sql.Date.valueOf(cg.getNgayDen()) : null);
-                pstInsertChuyenGa.setTime(5, cg.getGioDen() != null ? java.sql.Time.valueOf(cg.getGioDen()) : null);
-                pstInsertChuyenGa.setDate(6, cg.getNgayDi() != null ? java.sql.Date.valueOf(cg.getNgayDi()) : null);
-                pstInsertChuyenGa.setTime(7, cg.getGioDi() != null ? java.sql.Time.valueOf(cg.getGioDi()) : null);
+                pstInsertChuyenGa.setDate(4, cg.getNgayDen() != null ? Date.valueOf(cg.getNgayDen()) : null);
+                pstInsertChuyenGa.setTime(5, cg.getGioDen() != null ? Time.valueOf(cg.getGioDen()) : null);
+                pstInsertChuyenGa.setDate(6, cg.getNgayDi() != null ? Date.valueOf(cg.getNgayDi()) : null);
+                pstInsertChuyenGa.setTime(7, cg.getGioDi() != null ? Time.valueOf(cg.getGioDi()) : null);
 
                 pstInsertChuyenGa.addBatch();
             }
@@ -503,7 +503,7 @@ public class Chuyen_DAO {
                     }
                 }
             }
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return 40;
@@ -558,15 +558,15 @@ public class Chuyen_DAO {
 
                 for (int i = 0; i < dsChuyen.size(); i++) {
                     Chuyen c = dsChuyen.get(i);
-                    pstC.setString(1, c.getId());
-                    pstC.setString(2, c.getTuyen().getId());
-                    pstC.setString(3, c.getTau().getId());
-                    pstC.setDate(4, java.sql.Date.valueOf(c.getNgayDi()));
-                    pstC.setTime(5, java.sql.Time.valueOf(c.getGioDi()));
+                    pstC.setString(1, c.getChuyenID());
+                    pstC.setString(2, c.getTuyen().getTuyenID());
+                    pstC.setString(3, c.getTau().getTauID());
+                    pstC.setDate(4, Date.valueOf(c.getNgayDi()));
+                    pstC.setTime(5, Time.valueOf(c.getGioDi()));
                     pstC.addBatch();
 
                     for (ChuyenGa cg : dsLichTrinh.get(i)) {
-                        pstCG.setString(1, c.getId());
+                        pstCG.setString(1, c.getChuyenID());
                         pstCG.setString(2, cg.getGa().getGaID());
                         pstCG.setInt(3, cg.getThuTu());
                         pstCG.setDate(4, cg.getNgayDen() != null ? Date.valueOf(cg.getNgayDen()) : null);
@@ -615,8 +615,8 @@ public class Chuyen_DAO {
                  PreparedStatement pstDelC = con.prepareStatement(sqlDeleteC)) {
 
                 for (Chuyen c : dsChuyen) {
-                    pstDelCG.setString(1, c.getId());
-                    pstDelC.setString(1, c.getId());
+                    pstDelCG.setString(1, c.getChuyenID());
+                    pstDelC.setString(1, c.getChuyenID());
                     pstDelCG.addBatch();
                     pstDelC.addBatch();
                 }
@@ -636,21 +636,21 @@ public class Chuyen_DAO {
 
                 for (int i = 0; i < dsChuyen.size(); i++) {
                     Chuyen c = dsChuyen.get(i);
-                    pstInsC.setString(1, c.getId());
-                    pstInsC.setString(2, c.getTuyen().getId());
-                    pstInsC.setString(3, c.getTau().getId());
-                    pstInsC.setDate(4, java.sql.Date.valueOf(c.getNgayDi()));
-                    pstInsC.setTime(5, java.sql.Time.valueOf(c.getGioDi()));
+                    pstInsC.setString(1, c.getChuyenID());
+                    pstInsC.setString(2, c.getTuyen().getTuyenID());
+                    pstInsC.setString(3, c.getTau().getTauID());
+                    pstInsC.setDate(4, Date.valueOf(c.getNgayDi()));
+                    pstInsC.setTime(5, Time.valueOf(c.getGioDi()));
                     pstInsC.addBatch();
 
                     for (ChuyenGa cg : dsLichTrinh.get(i)) {
-                        pstInsCG.setString(1, c.getId());
+                        pstInsCG.setString(1, c.getChuyenID());
                         pstInsCG.setString(2, cg.getGa().getGaID());
                         pstInsCG.setInt(3, cg.getThuTu());
-                        pstInsCG.setDate(4, cg.getNgayDen() != null ? java.sql.Date.valueOf(cg.getNgayDen()) : null);
-                        pstInsCG.setTime(5, cg.getGioDen() != null ? java.sql.Time.valueOf(cg.getGioDen()) : null);
-                        pstInsCG.setDate(6, cg.getNgayDi() != null ? java.sql.Date.valueOf(cg.getNgayDi()) : null);
-                        pstInsCG.setTime(7, cg.getGioDi() != null ? java.sql.Time.valueOf(cg.getGioDi()) : null);
+                        pstInsCG.setDate(4, cg.getNgayDen() != null ? Date.valueOf(cg.getNgayDen()) : null);
+                        pstInsCG.setTime(5, cg.getGioDen() != null ? Time.valueOf(cg.getGioDen()) : null);
+                        pstInsCG.setDate(6, cg.getNgayDi() != null ? Date.valueOf(cg.getNgayDi()) : null);
+                        pstInsCG.setTime(7, cg.getGioDi() != null ? Time.valueOf(cg.getGioDi()) : null);
                         pstInsCG.addBatch();
                     }
                 }
@@ -692,7 +692,7 @@ public class Chuyen_DAO {
                 + "FROM Chuyen c " + "JOIN Tau t ON c.tauID = t.tauID " + "WHERE c.ngayDi = ? "
                 + "ORDER BY c.gioDi ASC";
 
-        return getListChuyenFromResultSet(con, sql, java.sql.Date.valueOf(ngay));
+        return getListChuyenFromResultSet(con, sql, Date.valueOf(ngay));
     }
 
     /**

@@ -153,9 +153,9 @@ public class PanelSoatVe extends JPanel {
         TrangThaiVe trangThai = currentVe.getTrangThai();
 
         StringBuilder info = new StringBuilder();
-        info.append("Mã vé: ").append(currentVe.getId()).append("\n");
+        info.append("Mã vé: ").append(currentVe.getVeID()).append("\n");
         info.append("Khách hàng: ").append(currentVe.getKhachHang().getHoTen()).append("\n");
-        info.append("Tàu/Toa/Ghế: ").append(currentVe.getGhe().getToa().getTau().getId()).append(" / ")
+        info.append("Tàu/Toa/Ghế: ").append(currentVe.getGhe().getToa().getTau().getTauID()).append(" / ")
                 .append(currentVe.getGhe().getToa().getSoToa()).append(" / ").append(currentVe.getGhe().getSoGhe())
                 .append("\n");
         info.append("Ngày đi: ").append(currentVe.getNgayGioDi());
@@ -178,7 +178,7 @@ public class PanelSoatVe extends JPanel {
 
     private void markAsUsed() {
         if (currentVe != null) {
-            boolean result = veDAO.updateTrangThaiVe(currentVe.getId(), TrangThaiVe.DA_DUNG);
+            boolean result = veDAO.updateTrangThaiVe(currentVe.getVeID(), TrangThaiVe.DA_DUNG);
             if (result) {
                 JOptionPane.showMessageDialog(this, "Da cap nhat ve thanh cong!");
                 // Reset về trạng thái chờ

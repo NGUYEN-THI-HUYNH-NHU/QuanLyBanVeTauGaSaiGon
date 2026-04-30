@@ -12,13 +12,13 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum VaiTroTaiKhoan {
-	NHAN_VIEN("Nhân viên quầy vé"),
-	QUAN_LY("Quản lý nhà ga");
-	
+public enum VaiTroTaiKhoanEnums {
+    NHAN_VIEN("Nhân viên quầy vé"),
+    QUAN_LY("Quản lý nhà ga");
+
     private final String description;
 
-    VaiTroTaiKhoan(String description) {
+    VaiTroTaiKhoanEnums(String description) {
         this.description = description;
     }
 

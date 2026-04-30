@@ -22,7 +22,7 @@ public class KhuyenMaiListRenderer extends DefaultListCellRenderer {
     public static void renderKhuyenMai(JLabel label, Object value) {
         if (value instanceof KhuyenMai) {
             KhuyenMai km = (KhuyenMai) value;
-            if (km.getId() != null && !km.getId().isEmpty()) {
+            if (km.getKhuyenMaiID() != null && !km.getKhuyenMaiID().isEmpty()) {
                 label.setText(km.getMaKhuyenMai() + " (" + getGiamGiaString(km) + ")");
                 label.setToolTipText(km.getMoTa());
             } else {

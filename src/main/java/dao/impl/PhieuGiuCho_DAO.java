@@ -35,8 +35,8 @@ public class PhieuGiuCho_DAO {
                 + "VALUES (?, ?, SYSUTCDATETIME(), ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, pgc.getId());
-            ps.setString(2, pgc.getNhanVien().getId());
+            ps.setString(1, pgc.getPhieuGiuChoID());
+            ps.setString(2, pgc.getNhanVien().getNhanVienID());
             ps.setString(3, pgc.getTrangThai().toString());
 
             return ps.executeUpdate() > 0;
@@ -54,9 +54,9 @@ public class PhieuGiuCho_DAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     PhieuGiuCho pgc = new PhieuGiuCho();
-                    pgc.setId(rs.getString("phieuGiuChoID"));
+                    pgc.setPhieuGiuChoID(rs.getString("phieuGiuChoID"));
 
-                    NhanVien nv = NhanVien.builder().id(rs.getString("nhanVienID")).build();
+                    NhanVien nv = new NhanVien(rs.getString("nhanVienID"));
                     pgc.setNhanVien(nv);
 
                     pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());
@@ -86,9 +86,9 @@ public class PhieuGiuCho_DAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     PhieuGiuCho pgc = new PhieuGiuCho();
-                    pgc.setId(rs.getString("phieuGiuChoID"));
+                    pgc.setPhieuGiuChoID(rs.getString("phieuGiuChoID"));
 
-                    NhanVien nv = NhanVien.builder().id(rs.getString("nhanVienID")).build();
+                    NhanVien nv = new NhanVien(rs.getString("nhanVienID"));
                     pgc.setNhanVien(nv);
 
                     pgc.setThoiDiemTao(rs.getTimestamp("thoiDiemTao").toLocalDateTime());

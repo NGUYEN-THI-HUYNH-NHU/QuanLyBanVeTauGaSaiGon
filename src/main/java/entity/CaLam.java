@@ -33,4 +33,8 @@ public class CaLam implements Serializable {
 
     @Column(name = "gioKetCa", nullable = false)
     private LocalTime gioKetCa;
+
+    public CaLam(String caLamID) {
+        this.caLamID = caLamID;
+    }
 }

@@ -48,10 +48,10 @@ public class EmailService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(SENDER_EMAIL, "F4 GA SÀI GÒN"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
-            message.setSubject("XÁC NHẬN ĐẶT VÉ THÀNH CÔNG - MÃ ĐẶT CHỖ: " + donDatCho.getId());
+            message.setSubject("XÁC NHẬN ĐẶT VÉ THÀNH CÔNG - MÃ ĐẶT CHỖ: " + donDatCho.getDonDatChoID());
 
             // Tạo nội dung HTML đẹp mắt
-            String htmlContent = generateHtmlContent(listVe, donDatCho.getId(), tongTien);
+            String htmlContent = generateHtmlContent(listVe, donDatCho.getDonDatChoID(), tongTien);
 
             // Thiết lập nội dung là HTML (UTF-8 để hiện tiếng Việt)
             message.setContent(htmlContent, "text/html; charset=UTF-8");
@@ -85,7 +85,7 @@ public class EmailService {
 
         for (Ve ve : listVe) {
             sb.append("<tr>");
-            sb.append("<td style='border: 1px solid #ddd; padding: 8px; text-align: center;'><b>").append(ve.getId())
+            sb.append("<td style='border: 1px solid #ddd; padding: 8px; text-align: center;'><b>").append(ve.isVeDoi())
                     .append("</b></td>");
             sb.append("<td style='border: 1px solid #ddd; padding: 8px;'>").append("Tàu: ")
                     .append(ve.getGhe().getToa().getTau().getTauID()).append("<br>").append("Toa: ")

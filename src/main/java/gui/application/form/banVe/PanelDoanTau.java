@@ -216,7 +216,7 @@ public class PanelDoanTau extends JPanel {
     private JButton drawToa(Toa t) {
         JButton btnToa = new JButton(String.valueOf(t.getSoToa()));
         btnToa.setFont(new Font("Roboto", Font.PLAIN, 10));
-        btnToa.putClientProperty("toaID", t.getId());
+        btnToa.putClientProperty("toaID", t.getToaID());
         btnToa.setToolTipText(String.format("<html>Toa %d - %s</html>", t.getSoToa(), t.getHangToa().getMoTa()));
 
         if (baseToaImage != null) {

@@ -14,7 +14,7 @@ import bus.Ga_BUS;
 import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
 import entity.Tuyen;
-import entity.type.VaiTroNhanVien;
+import entity.type.VaiTroNhanVienEnums;
 import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
 import gui.application.form.quanLyTuyen.PanelQuanLyTuyen;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
@@ -32,7 +32,7 @@ public class QuanLyTuyen_CTRL {
     private final PanelQuanLyTuyen pnlTuyen;
     private final Tuyen_BUS tuyen_bus;
     private Ga_BUS ga_bus;
-    private VaiTroNhanVien vaiTroHienTai;
+    private VaiTroNhanVienEnums vaiTroHienTai;
 
     private PanelThemTuyen panelThemTuyen;
     private PanelCapNhatTuyen panelCapNhatTuyen;
@@ -43,7 +43,7 @@ public class QuanLyTuyen_CTRL {
         this.pnlTuyen = pnlTuyen;
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
-        this.vaiTroHienTai = VaiTroNhanVien.valueOf(pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien().getId());
+        this.vaiTroHienTai = VaiTroNhanVienEnums.valueOf(pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien().getVaiTroNhanVienID());
         pnlTuyen.addListeners(new TimKiemListener(), new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
         pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
@@ -136,7 +136,7 @@ public class QuanLyTuyen_CTRL {
                 tenTuyen = objTenGaXP.toString() + " - " + objTenGaDen.toString();
             }
 
-            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getId());
+            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getTuyenID());
             pnlTuyen.getTxtChiTietTenTuyen().setText(tenTuyen);
             pnlTuyen.getTxtChiTietKhoangCach().setText(khoangCach);
             pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
