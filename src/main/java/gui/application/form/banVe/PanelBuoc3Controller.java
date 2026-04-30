@@ -12,6 +12,7 @@ import entity.LoaiKhachHang;
 import entity.type.LoaiKhachHangEnums;
 import gui.application.AuthService;
 import gui.application.UngDung;
+import mapper.KhachHangMapper;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -495,7 +496,7 @@ public class PanelBuoc3Controller {
             processedCustomers.put(cccdHanhKhach, hanhKhach);
 
             // Gán vào vé
-            ve.getVe().setKhachHang(hanhKhach);
+            ve.getVe().setKhachHangDTO(KhachHangMapper.INSTANCE.toDTO(hanhKhach));
         }
 
         // 3b. Cập nhật Khách hàng (Người Mua)

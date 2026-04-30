@@ -18,6 +18,7 @@ import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import mapper.KhachHangMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
@@ -52,7 +53,8 @@ public class BanVe_BUS {
             // 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
             khachHangBUS.themHoacCapNhatKhachHang(conn, session.getKhachHang());
             for (VeSession v : session.getAllSelectedTickets()) {
-                khachHangBUS.themHoacCapNhatKhachHang(conn, v.getVe().getKhachHang());
+                KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(v.getVe().getKhachHangDTO());
+                khachHangBUS.themHoacCapNhatKhachHang(conn, khachHang);
             }
 
             // 3. Tạo và Lưu Đơn Đặt Chỗ
@@ -108,7 +110,6 @@ public class BanVe_BUS {
                 try {
                     conn.rollback();
                     PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(session.getPhieuGiuCho());
-//                    PhieuGiuCho phieuGiuCho = Mapper.map(session.getPhieuGiuCho());
                     datChoBUS.hoanTacGiuCho(phieuGiuCho);
                 } catch (SQLException ex) {
                     ex.printStackTrace();

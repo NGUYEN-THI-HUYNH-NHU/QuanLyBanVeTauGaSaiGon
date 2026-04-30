@@ -21,6 +21,7 @@ import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
+import mapper.VeMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class GiaoDichHoanDoi_BUS {
         for (int i = 0; i < soLuongVeDoi; i++) {
             String gdhdID = "GDDV-" + listVeDoi.get(i).getVe().getVeID().substring(3);
             GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, listVeDoi.get(i).getVe(),
-                    listVeMoi.get(i).getVe(), LoaiGiaoDich.DOI_VE, listVeDoi.get(i).getLyDo(), hoaDon.getThoiDiemTao(),
+                    VeMapper.INSTANCE.toEntity(listVeMoi.get(i).getVe()), LoaiGiaoDich.DOI_VE, listVeDoi.get(i).getLyDo(), hoaDon.getThoiDiemTao(),
                     listVeDoi.get(i).getLePhiDoiVe(), listVeMoi.get(i).getVe().getGia()
                     + listVeDoi.get(i).getLePhiDoiVe() - listVeDoi.get(i).getVe().getGia());
 

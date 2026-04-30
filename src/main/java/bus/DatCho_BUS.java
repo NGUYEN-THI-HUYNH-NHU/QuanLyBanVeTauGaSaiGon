@@ -16,6 +16,7 @@ import dao.impl.DonDatChoDAO;
 import dao.impl.PhieuGiuChoChiTietDAO;
 import dao.impl.PhieuGiuChoDAO;
 import dto.PhieuGiuChoDTO;
+import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
@@ -43,18 +44,23 @@ public class DatCho_BUS {
     }
 
     public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v, int soThuTu) {
-        String chuyenID = v.getVe().getChuyen().getChuyenID();
-        String tenGaDi = v.getVe().getGaDi().getTenGa();
-        String tenGaDen = v.getVe().getGaDen().getTenGa();
-        int soToa = v.getVe().getGhe().getToa().getSoToa();
-        int soGhe = v.getVe().getGhe().getSoGhe();
+        String chuyenID = v.getVe().getChuyenID();
+        String tenGaDi = v.getVe().getTenGaDi();
+        String tenGaDen = v.getVe().getTenGaDen();
+        int soToa = v.getVe().getSoToa();
+        int soGhe = v.getVe().getSoGhe();
         LocalDateTime thoiDiemGiuCho = v.getThoiDiemHetHan().minus(Duration.ofMinutes(10));
 
         if (!pgcctDAO.checkConflict(chuyenID, tenGaDi, tenGaDen, soToa, soGhe)) {
             String pgcctID = pgc.getPhieuGiuChoID() + "-" + soThuTu;
+            VeDTO ve = v.getVe();
+            Ghe ghe = Ghe.builder().gheID(ve.getGheID()).soGhe(ve.getSoGhe()).build();
+            Ga gaDi = Ga.builder().gaID(ve.getGaDiID()).tenGa(ve.getTenGaDi()).build();
+            Ga gaDen = Ga.builder().gaID(ve.getGaDenID()).tenGa(ve.getTenGaDen()).build();
+
             PhieuGiuChoChiTiet pgcct = new PhieuGiuChoChiTiet(pgcctID, pgc,
-                    new Chuyen(v.getVe().getChuyen().getChuyenID()), v.getVe().getGhe(), v.getVe().getGaDi(),
-                    v.getVe().getGaDen(), thoiDiemGiuCho, TrangThaiPhieuGiuCho.DANG_GIU.toString());
+                    new Chuyen(ve.getChuyenID()), ghe, gaDi, gaDen, thoiDiemGiuCho,
+                    TrangThaiPhieuGiuCho.DANG_GIU.toString());
             return pgcct;
         }
         return null;
@@ -141,12 +147,12 @@ public class DatCho_BUS {
                 PhieuGiuChoChiTiet pgcct = taoPhieuGiuChoChiTiet(pgc, v, i + 1);
 
                 if (pgcct == null) {
-                    throw new Exception("Ghế " + v.getVe().getGhe().getSoGhe() + " (Toa "
-                            + v.getVe().getGhe().getToa().getSoToa() + ") đã bị người khác chọn.");
+                    throw new Exception("Ghế " + v.getVe().getSoGhe() + " (Toa "
+                            + v.getVe().getSoToa() + ") đã bị người khác chọn.");
                 }
 
                 if (pgcctDAO.create(pgcct) == null) {
-                    throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getGhe().getSoGhe());
+                    throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getSoGhe());
                 }
                 pgc.getChiTiets().add(pgcct);
                 v.setPhieuGiuChoChiTiet(pgcct);

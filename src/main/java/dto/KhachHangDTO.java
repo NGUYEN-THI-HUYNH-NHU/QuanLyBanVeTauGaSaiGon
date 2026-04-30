@@ -1,8 +1,9 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+
 @Getter
 @Setter
 @Builder
@@ -16,6 +17,6 @@ public class KhachHangDTO implements Serializable {
     private String email;
     private String soGiayTo;
     private String diaChi;
-    private LoaiDoiTuongDTO loaiDoiTuong;
-    private LoaiKhachHangDTO loaiKhachHang;
+    private String loaiDoiTuongID;
+    private String loaiKhachHangID;
 }

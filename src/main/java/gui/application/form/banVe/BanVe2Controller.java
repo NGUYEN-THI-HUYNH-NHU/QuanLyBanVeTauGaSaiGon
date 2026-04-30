@@ -14,6 +14,7 @@ import gui.application.AppHttpServer;
 import gui.application.EmailService;
 import gui.application.paymentHelper.PdfTicketExporter;
 import gui.application.paymentHelper.VietQRService;
+import mapper.VeMapper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -94,7 +95,7 @@ public class BanVe2Controller {
             khuyenMai += ve.getGiamKM();
 
             // (Logic giảm đối tượng giữ nguyên)
-            if (ve.getVe().getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID().equals(LoaiDoiTuongEnums.TRE_EM)) {
+            if (ve.getVe().getKhachHangDTO().getLoaiDoiTuongID().equals(LoaiDoiTuongEnums.TRE_EM.name())) {
                 ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
                 giamGiaDT += ve.getGiamDoiTuong();
             }
@@ -359,7 +360,7 @@ public class BanVe2Controller {
                             new Thread(() -> {
                                 List<Ve> listVeDaMua = new ArrayList<>();
                                 for (VeSession vs : bookingSession.getAllSelectedTickets()) {
-                                    listVeDaMua.add(vs.getVe());
+                                    listVeDaMua.add(VeMapper.INSTANCE.toEntity(vs.getVe()));
                                 }
                                 // Gọi service gửi mail
                                 EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho(),
