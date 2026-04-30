@@ -5,7 +5,11 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.*;
+import dto.VeDTO;
+import entity.KhuyenMai;
+import entity.PhieuDungPhongVIP;
+import entity.PhieuGiuChoChiTiet;
+import entity.SuDungKhuyenMai;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -18,7 +22,7 @@ import java.util.Objects;
  */
 public class VeSession {
     private final LocalDateTime thoiDiemHetHan;
-    private Ve ve;
+    private VeDTO ve;
     private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
     private PhieuDungPhongVIP phieuDungPhongVIP;
     private int phiPhieuDungPhongChoVIP;
@@ -26,9 +30,8 @@ public class VeSession {
     private int giamKM;
     private SuDungKhuyenMai suDungKhuyenMai;
     private int giamDoiTuong;
-    private boolean isHanhKhachMoi = true;
 
-    public VeSession(Ve ve, KhuyenMai khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
+    public VeSession(VeDTO ve, KhuyenMai khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
         super();
         this.ve = ve;
         this.khuyenMaiApDung = khuyenMaiApDung;
@@ -36,7 +39,7 @@ public class VeSession {
         this.thoiDiemHetHan = thoiDiemHetHan;
     }
 
-    public VeSession(Ve ve) {
+    public VeSession(VeDTO ve) {
         super();
         this.ve = ve;
         this.thoiDiemHetHan = null;
@@ -62,11 +65,11 @@ public class VeSession {
         this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
     }
 
-    public Ve getVe() {
+    public VeDTO getVe() {
         return ve;
     }
 
-    public void setVe(Ve ve) {
+    public void setVe(VeDTO ve) {
         this.ve = ve;
     }
 
@@ -76,14 +79,6 @@ public class VeSession {
 
     public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
         this.phieuDungPhongVIP = phieuDungPhongVIP;
-    }
-
-    public boolean isHanhKhachMoi() {
-        return isHanhKhachMoi;
-    }
-
-    public void setHanhKhachMoi(boolean isHanhKhachMoi) {
-        this.isHanhKhachMoi = isHanhKhachMoi;
     }
 
     public int getPhiPhieuDungPhongChoVIP() {
@@ -111,7 +106,7 @@ public class VeSession {
     }
 
     public int getSoGhe() {
-        return this.ve.getGhe().getSoGhe();
+        return this.ve.getSoGhe();
     }
 
     public SuDungKhuyenMai getSuDungKhuyenMai() {
@@ -131,25 +126,25 @@ public class VeSession {
             return false;
         }
         VeSession that = (VeSession) o;
-        return Objects.equals(ve.getChuyen().getChuyenID(), that.ve.getChuyen().getChuyenID())
-                && Objects.equals(ve.getGaDi().getTenGa(), that.ve.getGaDi().getTenGa())
-                && Objects.equals(ve.getGaDen().getTenGa(), that.ve.getGaDen().getTenGa())
-                && Objects.equals(ve.getGhe().getToa().getSoToa(), that.ve.getGhe().getToa().getSoToa())
-                && Objects.equals(ve.getGhe().getSoGhe(), that.ve.getGhe().getSoGhe());
+        return Objects.equals(ve.getChuyenID(), that.ve.getChuyenID())
+                && Objects.equals(ve.getTenGaDi(), that.ve.getTenGaDi())
+                && Objects.equals(ve.getTenGaDen(), that.ve.getTenGaDen())
+                && Objects.equals(ve.getSoToa(), that.ve.getSoToa())
+                && Objects.equals(ve.getSoGhe(), that.ve.getSoGhe());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ve.getChuyen().getChuyenID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
-                ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe());
+        return Objects.hash(ve.getChuyenID(), ve.getTenGaDi(), ve.getTenGaDen(),
+                ve.getSoToa(), ve.getSoGhe());
     }
 
     @Override
     public String toString() {
-        return ve.getChuyen().getTau().getTauID() + ";" + ve.getGaDi().getTenGa() + ";" + ve.getGaDen().getTenGa() + ";"
+        return ve.getTauID() + ";" + ve.getTenGaDi() + ";" + ve.getTenGaDen() + ";"
                 + ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + ";"
-                + ve.getGhe().getToa().getHangToa() + ";" + ve.getGhe().getToa().getSoToa() + ";"
-                + ve.getGhe().getSoGhe();
+                + ve.getHangToaID() + ";" + ve.getSoToa() + ";"
+                + ve.getSoGhe();
     }
 
     public boolean isHoldExpired() {
@@ -162,9 +157,9 @@ public class VeSession {
     public String prettyString() {
         DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
         return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
-                ve.getChuyen().getTau().getTauID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
+                ve.getTauID(), ve.getTenGaDi(), ve.getTenGaDen(),
                 ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                ve.getGhe().getToa().getHangToa().getHangToaID(), ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe(),
+                ve.getHangToaID(), ve.getSoToa(), ve.getSoGhe(),
                 formatter.format(ve.getGia()));
     }
 }

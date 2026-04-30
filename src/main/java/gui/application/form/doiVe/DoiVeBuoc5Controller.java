@@ -296,9 +296,9 @@ public class DoiVeBuoc5Controller {
 
         // 3. Tìm VeSession THỰC SỰ đang có trong danh sách
         VeSession veToRemove = currentTripTickets.stream()
-                .filter(v -> v.getVe().getChuyen().getChuyenID().equals(currentChuyenID)
-                        && v.getVe().getGhe().getToa().getToaID().equals(currentToaID)
-                        && v.getVe().getGhe().getSoGhe() == currentSoGhe)
+                .filter(v -> v.getVe().getChuyenID().equals(currentChuyenID)
+                        && v.getVe().getToaID().equals(currentToaID)
+                        && v.getVe().getSoGhe() == currentSoGhe)
                 .findFirst().orElse(null);
 
         if (veToRemove != null) {
@@ -348,9 +348,9 @@ public class DoiVeBuoc5Controller {
                 () -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));
 
         // Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
-        if (selectedToa != null && v.getVe().getGhe().getToa().getToaID().equals(selectedToa.getToaID())) {
+        if (selectedToa != null && v.getVe().getToaID().equals(selectedToa.getToaID())) {
             // Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
-            if (selectedChuyen != null && v.getVe().getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())) {
+            if (selectedChuyen != null && v.getVe().getChuyenID().equals(selectedChuyen.getChuyenID())) {
                 panelSoDoCho.updateSeatVisual(v.getSoGhe(), false);
             }
         }
@@ -366,8 +366,8 @@ public class DoiVeBuoc5Controller {
 
         // Lọc từ list vé mới trong ExchangeSession
         return exchangeSession.getListVeMoiDangChon().stream()
-                .filter(v -> currentChuyenID.equals(v.getVe().getChuyen().getChuyenID())
-                        && currentToaID.equals(v.getVe().getGhe().getToa().getToaID()))
+                .filter(v -> currentChuyenID.equals(v.getVe().getChuyenID())
+                        && currentToaID.equals(v.getVe().getToaID()))
                 .map(VeSession::getSoGhe).collect(Collectors.toSet());
     }
 

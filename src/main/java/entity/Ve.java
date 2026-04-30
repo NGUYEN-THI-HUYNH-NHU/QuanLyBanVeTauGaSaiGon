@@ -19,7 +19,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -112,20 +111,5 @@ public class Ve implements Serializable {
         return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
                 ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
                 phieuDungPhongChoVIP.getPhieuDungPhongVIPID());
-    }
-
-    /**
-     * @return
-     */
-    public String stringThongTinChuyen() {
-        return String.format("<html>%s [%s - %s]<br/>%s</html>", ghe.getToa().getTau().getTauID(), gaDi.getGaID(),
-                gaDen.getGaID(), ngayGioDi.format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy")));
-    }
-
-    /**
-     * @return
-     */
-    public String stringThongTinGhe() {
-        return String.format("<html>Toa: %s - Chỗ: %s</html>", ghe.getToa().getSoToa(), ghe.getSoGhe());
     }
 }

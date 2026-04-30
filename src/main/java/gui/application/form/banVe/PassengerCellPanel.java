@@ -16,6 +16,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import entity.KhachHang;
 import entity.LoaiDoiTuong;
 import entity.type.LoaiDoiTuongEnums;
+import mapper.KhachHangMapper;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -212,7 +213,8 @@ public class PassengerCellPanel extends JPanel {
                 currentRowData.setHoTen(kh.getHoTen());
                 currentRowData.setLoaiDoiTuong(kh.getLoaiDoiTuong());
                 // Lưu entity KhachHang vào VeSession
-                currentRowData.getVeSession().getVe().setKhachHang(kh);
+                currentRowData.getVeSession().getVe().setKhachHangDTO(KhachHangMapper.INSTANCE.toDTO(kh));
+
 
                 // Cập nhật View (các trường) từ Model vừa sửa
                 setData(currentRowData);
@@ -220,7 +222,7 @@ public class PassengerCellPanel extends JPanel {
                 txtTen.setText("");
                 cbType.setSelectedIndex(0);
                 // Không tìm thấy, set hành khách là null để controller thêm hành khách mới
-                currentRowData.getVeSession().getVe().setKhachHang(null);
+                currentRowData.getVeSession().getVe().setKhachHangDTO(null);
             }
         }
     }

@@ -13,12 +13,14 @@ package bus;
  */
 
 import dao.impl.VeDAO;
+import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
+import mapper.VeMapper;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -58,14 +60,14 @@ public class Ve_BUS {
         KhuyenMai khuyenMai = khuyenMaiBUS.timKhuyenMaiChoVe(ve);
         int giamKM = 0;
 
-        return new VeSession(ve, khuyenMai, giamKM, thoiDiemHetHan);
+        return new VeSession(VeMapper.INSTANCE.toDTO(ve), khuyenMai, giamKM, thoiDiemHetHan);
     }
 
-    private String taoVeIDDuyNhat(Ve ve) {
+    private String taoVeIDDuyNhat(VeDTO ve) {
         // 1. Tạo Base ID chuẩn
-        String baseID = "VE-" + ve.getGaDi().getGaID() + ve.getGaDen().getGaID() + ve.getChuyen().getChuyenID() + "-"
-                + String.format("%02d", ve.getGhe().getToa().getSoToa())
-                + String.format("%02d", ve.getGhe().getSoGhe());
+        String baseID = "VE-" + ve.getGaDiID() + ve.getGaDenID() + ve.getChuyenID() + "-"
+                + String.format("%02d", ve.getSoToa())
+                + String.format("%02d", ve.getSoGhe());
 
         // 2. Lấy tất cả các ID trong DB đang bắt đầu bằng Base ID này
         List<String> existingIDs = veDAO.getVeIDsStartingWith(baseID);
@@ -118,21 +120,21 @@ public class Ve_BUS {
         DonDatCho donDatCho = bookingSession.getDonDatCho();
 
         for (VeSession v : dsVeDi) {
-            Ve ve = v.getVe();
+            VeDTO ve = v.getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatCho(donDatCho);
+            ve.setDonDatChoID(donDatCho.getDonDatChoID());
 
-            dsVe.add(ve);
+            dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             v.setVe(ve);
         }
         for (VeSession v : dsVeVe) {
-            Ve ve = v.getVe();
+            VeDTO ve = v.getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatCho(donDatCho);
+            ve.setDonDatChoID(donDatCho.getDonDatChoID());
 
-            dsVe.add(ve);
+            dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             v.setVe(ve);
         }
         return dsVe;
@@ -148,12 +150,12 @@ public class Ve_BUS {
         int n = exchangeSession.getListVeMoiDangChon().size();
 
         for (int i = 0; i < n; i++) {
-            Ve ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
+            VeDTO ve = exchangeSession.getListVeMoiDangChon().get(i).getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatCho(donDatCho);
+            ve.setDonDatChoID(donDatCho.getDonDatChoID());
 
-            dsVe.add(ve);
+            dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             exchangeSession.getListVeMoiDangChon().get(i).setVe(ve);
         }
 

@@ -481,13 +481,13 @@ public class KhuyenMai_DAO {
         Connection con = connectDB.getConnection();
 
         // 1. Trích xuất thông tin
-        String tuyenID = veSession.getVe().getChuyen().getTuyen().getTuyenID();
-        String loaiTauID = veSession.getVe().getChuyen().getTau().getLoaiTau().toString();
-        String hangToaID = veSession.getVe().getGhe().getToa().getHangToa().toString();
-        String loaiDoiTuongID = veSession.getVe().getKhachHang().getLoaiDoiTuong().toString();
+        String tuyenID = veSession.getVe().getTuyenID();
+        String loaiTauID = veSession.getVe().getLoaiTauID();
+        String hangToaID = veSession.getVe().getHangToaID();
+        String loaiDoiTuongID = veSession.getVe().getKhachHangDTO().getLoaiDoiTuongID();
 
         // Thêm ID Khách hàng để kiểm tra giới hạn
-        String khachHangID = veSession.getVe().getKhachHang().getKhachHangID();
+        String khachHangID = veSession.getVe().getKhachHangDTO().getId();
 
         double giaVe = veSession.getVe().getGia();
         int ngayTrongTuan = veSession.getVe().getNgayGioDi().getDayOfWeek().getValue();
