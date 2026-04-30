@@ -164,7 +164,7 @@ public class VeSession {
         return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
                 ve.getChuyen().getTau().getTauID(), ve.getGaDi().getTenGa(), ve.getGaDen().getTenGa(),
                 ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
-                ve.getGhe().getToa().getHangToa(), ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe(),
+                ve.getGhe().getToa().getHangToa().getHangToaID(), ve.getGhe().getToa().getSoToa(), ve.getGhe().getSoGhe(),
                 formatter.format(ve.getGia()));
     }
 }

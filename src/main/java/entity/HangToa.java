@@ -19,7 +19,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 @EqualsAndHashCode
 @Entity
 @Table(name = "HangToa")
@@ -37,5 +36,10 @@ public class HangToa implements Serializable {
 
     public String getDescription() {
         return this.moTa;
+    }
+
+    @Override
+    public String toString() {
+        return this.hangToaID;
     }
 }

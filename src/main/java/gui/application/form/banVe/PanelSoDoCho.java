@@ -112,7 +112,7 @@ public class PanelSoDoCho extends JPanel {
         }
 
         lblToaInfo.setText("Toa số " + t.getSoToa() + ": "
-                + (t.getHangToa() != null ? t.getHangToa().getMoTa() : "Chưa xác định"));
+                + (t.getHangToa() != null ? t.getHangToa().getHangToaID() : "Chưa xác định"));
 
         if (panelBuoc2Controller != null) {
             new LoadSeatWorker(t).execute();
@@ -160,7 +160,7 @@ public class PanelSoDoCho extends JPanel {
             return;
         }
 
-        List<Ghe> gheListFiltered = filterSeatsForDemo(gheListFull, currentToa.getHangToa().toString());
+        List<Ghe> gheListFiltered = filterSeatsForDemo(gheListFull, currentToa.getHangToa().getHangToaID());
 
         if (gheListFiltered.isEmpty()) {
             showMessage("Không có ghế phù hợp để hiển thị");
@@ -186,7 +186,7 @@ public class PanelSoDoCho extends JPanel {
                 String gaDiID = (criteria != null) ? criteria.getGaDiId() : null;
                 String gaDenID = (criteria != null) ? criteria.getGaDenId() : null;
 
-                String hangToaID = (currentToa.getHangToa() != null) ? currentToa.getHangToa().toString() : null;
+                String hangToaID = (currentToa.getHangToa() != null) ? currentToa.getHangToa().getHangToaID() : null;
 
                 if (chuyenID != null && gaDiID != null && gaDenID != null && loaiTauID != null && hangToaID != null) {
 
@@ -203,7 +203,7 @@ public class PanelSoDoCho extends JPanel {
             System.out.println("PanelSoDoCho: renderSeats() Lỗi tính giá");
         }
 
-        String hangToaID = currentToa.getHangToa().toString();
+        String hangToaID = currentToa.getHangToa().getHangToaID();
         switch (hangToaID) {
             case "GN_K4":
                 layout_GN_K4(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);

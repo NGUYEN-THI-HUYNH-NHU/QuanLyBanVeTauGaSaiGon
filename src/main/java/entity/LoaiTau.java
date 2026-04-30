@@ -39,4 +39,9 @@ public class LoaiTau implements Serializable {
     public String getDescription() {
         return this.moTa;
     }
+
+    @Override
+    public String toString() {
+        return this.loaiTauID;
+    }
 }
