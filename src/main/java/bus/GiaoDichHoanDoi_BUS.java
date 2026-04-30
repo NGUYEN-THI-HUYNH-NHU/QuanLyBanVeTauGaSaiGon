@@ -16,6 +16,7 @@ import dao.impl.GiaoDichHoanDoiDAO;
 import entity.GiaoDichHoanDoi;
 import entity.HoaDon;
 import entity.NhanVien;
+import entity.Ve;
 import entity.type.LoaiGiaoDich;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
@@ -38,9 +39,10 @@ public class GiaoDichHoanDoi_BUS {
     public List<GiaoDichHoanDoi> taoCacGiaoDichHoanVe(HoaDon hoaDon, NhanVien nhanVien, List<VeHoanRow> listVeHoanRow) {
         List<GiaoDichHoanDoi> dsGiaoDichHoanDoi = new ArrayList<GiaoDichHoanDoi>();
         for (VeHoanRow r : listVeHoanRow) {
-            String gdhdID = "GDHV-" + r.getVe().getVeID().substring(3);
-            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, r.getVe(), LoaiGiaoDich.HOAN_VE,
-                    r.getLyDo(), hoaDon.getThoiDiemTao(), r.getLePhiHoanVe(), r.getVe().getGia() - r.getLePhiHoanVe());
+            Ve ve = VeMapper.INSTANCE.toEntity(r.getVe());
+            String gdhdID = "GDHV-" + ve.getVeID().substring(3);
+            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, ve, LoaiGiaoDich.HOAN_VE,
+                    r.getLyDo(), hoaDon.getThoiDiemTao(), r.getLePhiHoanVe(), ve.getGia() - r.getLePhiHoanVe());
             dsGiaoDichHoanDoi.add(gdhd);
         }
         return dsGiaoDichHoanDoi;
@@ -59,11 +61,12 @@ public class GiaoDichHoanDoi_BUS {
         int soLuongVeDoi = listVeDoi.size();
 
         for (int i = 0; i < soLuongVeDoi; i++) {
-            String gdhdID = "GDDV-" + listVeDoi.get(i).getVe().getVeID().substring(3);
-            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, listVeDoi.get(i).getVe(),
+            Ve ve = VeMapper.INSTANCE.toEntity(listVeDoi.get(i).getVe());
+            String gdhdID = "GDDV-" + ve.getVeID().substring(3);
+            GiaoDichHoanDoi gdhd = new GiaoDichHoanDoi(gdhdID, nhanVien, hoaDon, ve,
                     VeMapper.INSTANCE.toEntity(listVeMoi.get(i).getVe()), LoaiGiaoDich.DOI_VE, listVeDoi.get(i).getLyDo(), hoaDon.getThoiDiemTao(),
                     listVeDoi.get(i).getLePhiDoiVe(), listVeMoi.get(i).getVe().getGia()
-                    + listVeDoi.get(i).getLePhiDoiVe() - listVeDoi.get(i).getVe().getGia());
+                    + listVeDoi.get(i).getLePhiDoiVe() - ve.getGia());
 
             dsGiaoDichHoanDoi.add(gdhd);
         }

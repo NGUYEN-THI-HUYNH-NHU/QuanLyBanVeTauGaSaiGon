@@ -8,8 +8,8 @@ package gui.application.form.xemInVe;
 import bus.KhachHang_BUS;
 import bus.Ve_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import dto.KhachHangDTO;
 import dto.VeDTO;
-import entity.KhachHang;
 import entity.NhanVien;
 import entity.type.TrangThaiVe;
 import gui.application.AuthService;
@@ -39,7 +39,7 @@ public class XemInVeController {
     private PanelXemInVe view;
     private JPopupMenu traCuuSuggestionPopup;
     private JPopupMenu khachHangSuggestionPopup;
-    private KhachHang selectedKhachHang = null;
+    private KhachHangDTO selectedKhachHang = null;
 
     public XemInVeController(PanelXemInVe view) {
         this.view = view;
@@ -148,7 +148,7 @@ public class XemInVeController {
         // 2. Logic thông minh
         if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen())) {
             // Nếu người dùng chọn từ gợi ý và không sửa tên -> Tìm chính xác theo ID
-            searchID = selectedKhachHang.getKhachHangID();
+            searchID = selectedKhachHang.getId();
         } else {
             // Nếu tự gõ hoặc đã sửa tên -> Tìm tương đối theo từ khóa
             searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
@@ -364,15 +364,15 @@ public class XemInVeController {
         }
 
         // Lấy danh sách gợi ý
-        List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
+        List<KhachHangDTO> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
 
         if (!listSuggest.isEmpty()) {
-            for (KhachHang kh : listSuggest) {
+            for (KhachHangDTO kh : listSuggest) {
                 // Tạo text hiển thị: "Tên - SĐT - CCCD - ID"
                 String displayText = String.format(
                         "<html><b>%s</b> - %s <br><i style='color:gray; font-size:9px'>%s - %s</i></html>",
                         kh.getHoTen(), (kh.getSoDienThoai() == null ? "N/A" : kh.getSoDienThoai()), kh.getSoGiayTo(),
-                        kh.getKhachHangID());
+                        kh.getId());
 
                 JMenuItem item = new JMenuItem(displayText);
 

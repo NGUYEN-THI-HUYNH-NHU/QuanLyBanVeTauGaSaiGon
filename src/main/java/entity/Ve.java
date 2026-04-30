@@ -91,25 +91,4 @@ public class Ve implements Serializable {
         super();
         this.veID = veID;
     }
-
-    /**
-     * @return
-     */
-    public String thongTinVeHoan() {
-        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ghe.getToa().getTau().getTauID(),
-                ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
-    }
-
-    /**
-     * @return
-     */
-    public String thongTinVeDoi(PhieuDungPhongVIP phieuDungPhongChoVIP) {
-        if (phieuDungPhongChoVIP == null) {
-            return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                    ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID);
-        }
-        return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-                ghe.getToa().getTau().getTauID(), ngayGioDi, ghe.getToa().getSoToa(), ghe.getSoGhe(), veID,
-                phieuDungPhongChoVIP.getPhieuDungPhongVIPID());
-    }
 }

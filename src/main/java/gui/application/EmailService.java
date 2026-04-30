@@ -12,8 +12,8 @@ package gui.application;
  * @version: 1.0
  */
 
+import dto.VeDTO;
 import entity.DonDatCho;
-import entity.Ve;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -26,7 +26,7 @@ public class EmailService {
     private static final String SENDER_EMAIL = "huynhnhu.gmeet@gmail.com";
     private static final String SENDER_PASSWORD = "fgok szfr jcad koeq";
 
-    public static void sendTicketEmail(String recipientEmail, List<Ve> listVe, DonDatCho donDatCho, double tongTien) {
+    public static void sendTicketEmail(String recipientEmail, List<VeDTO> listVe, DonDatCho donDatCho, double tongTien) {
         // 1. Cấu hình SMTP Server
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -67,7 +67,7 @@ public class EmailService {
     }
 
     // Hàm phụ trợ: Tạo giao diện vé tàu bằng HTML
-    private static String generateHtmlContent(List<Ve> listVe, String donDatCho, double tongTien) {
+    private static String generateHtmlContent(List<VeDTO> listVe, String donDatCho, double tongTien) {
         StringBuilder sb = new StringBuilder();
         sb.append("<html><body style='font-family: Arial, sans-serif;'>");
         sb.append("<div style='background-color: #f4f4f4; padding: 20px;'>");
@@ -83,15 +83,15 @@ public class EmailService {
                 .append("<th style='padding: 10px;'>Mã Vé</th>").append("<th style='padding: 10px;'>Tàu/Toa/Ghế</th>")
                 .append("<th style='padding: 10px;'>Hành Khách</th>").append("</tr>");
 
-        for (Ve ve : listVe) {
+        for (VeDTO ve : listVe) {
             sb.append("<tr>");
             sb.append("<td style='border: 1px solid #ddd; padding: 8px; text-align: center;'><b>").append(ve.getVeID())
                     .append("</b></td>");
             sb.append("<td style='border: 1px solid #ddd; padding: 8px;'>").append("Tàu: ")
-                    .append(ve.getGhe().getToa().getTau().getTauID()).append("<br>").append("Toa: ")
-                    .append(ve.getGhe().getToa().getSoToa()).append("<br>").append("Ghế: ")
-                    .append(ve.getGhe().getSoGhe()).append("</td>");
-            sb.append("<td style='border: 1px solid #ddd; padding: 8px;'>").append(ve.getKhachHang().getHoTen())
+                    .append(ve.getTauID()).append("<br>").append("Toa: ")
+                    .append(ve.getSoToa()).append("<br>").append("Ghế: ")
+                    .append(ve.getSoGhe()).append("</td>");
+            sb.append("<td style='border: 1px solid #ddd; padding: 8px;'>").append(ve.getKhachHangDTO().getHoTen())
                     .append("</td>");
             sb.append("</tr>");
         }

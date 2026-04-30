@@ -18,6 +18,7 @@ package gui.application.form.banVe;
  *
  */
 
+import dto.KhachHangDTO;
 import dto.PhieuGiuChoDTO;
 import entity.*;
 import gui.application.AuthService;
@@ -37,7 +38,7 @@ public class BookingSession {
     // Return (chiều về) — có thể null nếu 1 chiều
     private SearchCriteria returnCriteria;
     private List<Chuyen> returnResults = new ArrayList<>();
-    private KhachHang khachHang;
+    private KhachHangDTO khachHang;
     private PhieuGiuChoDTO phieuGiuCho;
     private GiaoDichThanhToan giaoDichThanhToan;
     private DonDatCho donDatCho;
@@ -112,11 +113,11 @@ public class BookingSession {
         this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
     }
 
-    public KhachHang getKhachHang() {
+    public KhachHangDTO getKhachHang() {
         return khachHang;
     }
 
-    public void setKhachHang(KhachHang khachHang) {
+    public void setKhachHang(KhachHangDTO khachHang) {
         this.khachHang = khachHang;
     }
 

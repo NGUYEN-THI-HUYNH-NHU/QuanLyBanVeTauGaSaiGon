@@ -13,7 +13,7 @@ package gui.application.form.banVe;
  */
 
 import entity.KhuyenMai;
-import entity.LoaiDoiTuong;
+import entity.type.LoaiDoiTuongEnums;
 import gui.tuyChinh.CurrencyRenderer;
 
 import javax.swing.*;
@@ -113,7 +113,7 @@ public class PanelBuoc4 extends JPanel {
             if (v.getVe().getKhachHangDTO() != null) {
                 r.setHoTen(v.getVe().getKhachHangDTO().getHoTen());
                 r.setSoGiayTo(v.getVe().getKhachHangDTO().getSoGiayTo());
-                r.setLoaiDoiTuong(new LoaiDoiTuong(v.getVe().getKhachHangDTO().getLoaiDoiTuongID()));
+                r.setLoaiDoiTuong(LoaiDoiTuongEnums.valueOf(v.getVe().getKhachHangDTO().getLoaiDoiTuongID()));
             }
             rows.add(r);
         }

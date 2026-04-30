@@ -13,6 +13,7 @@ package bus;
  */
 
 import dao.impl.PhieuDungPhongVIPDAO;
+import dto.VeDTO;
 import entity.DichVuPhongChoVIP;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
@@ -73,8 +74,8 @@ public class PhieuDungPhongVIP_BUS {
     /**
      * @param listVe
      */
-    public void capNhatPhieuDungPhongChoVIP(List<Ve> listVe, TrangThaiPDPVIP trangThai) {
-        for (Ve ve : listVe) {
+    public void capNhatPhieuDungPhongChoVIP(List<VeDTO> listVe, TrangThaiPDPVIP trangThai) {
+        for (VeDTO ve : listVe) {
             PhieuDungPhongVIP phieu = phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID());
             if (phieu != null) {
                 phieuDungPhongVIPDAO.updateTrangThaiPhieuDungPhongVIP(phieu.getPhieuDungPhongVIPID(),
@@ -87,9 +88,9 @@ public class PhieuDungPhongVIP_BUS {
      * @param danhSachVe
      * @return
      */
-    public List<PhieuDungPhongVIP> timCacPhieuTheoVe(List<Ve> danhSachVe) {
+    public List<PhieuDungPhongVIP> timCacPhieuTheoVe(List<VeDTO> danhSachVe) {
         List<PhieuDungPhongVIP> listPhieu = new ArrayList<PhieuDungPhongVIP>();
-        for (Ve ve : danhSachVe) {
+        for (VeDTO ve : danhSachVe) {
             // listPhieu[i] = null nghĩa là danhSachVe[i] không sử dụng phiếu
             listPhieu.add(phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID()));
         }

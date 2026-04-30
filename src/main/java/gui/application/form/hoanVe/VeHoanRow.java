@@ -12,7 +12,7 @@ package gui.application.form.hoanVe;
  * @version: 1.0
  */
 
-import entity.Ve;
+import dto.VeDTO;
 import entity.type.LoaiDoiTuongEnums;
 import entity.type.TrangThaiVe;
 
@@ -20,7 +20,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class VeHoanRow {
-    private Ve ve;
+    private VeDTO ve;
     private String hanhKhach;
     private String thongTinVe;
     private double thanhTien;
@@ -32,15 +32,16 @@ public class VeHoanRow {
     private String thoiGianConLai;
     private boolean isDuDieuKien;
 
-    public VeHoanRow(Ve ve) {
+    public VeHoanRow(VeDTO ve) {
         this.ve = ve;
 
-        this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
-                LoaiDoiTuongEnums.valueOf(ve.getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID()).getDescription(), ve.getKhachHang().getSoGiayTo());
+        this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHangDTO().getHoTen(),
+                LoaiDoiTuongEnums.valueOf(ve.getKhachHangDTO().getLoaiDoiTuongID()).getDescription(), ve.getKhachHangDTO().getSoGiayTo());
         this.thanhTien = ve.getGia();
-        this.thongTinVe = ve.thongTinVeHoan();
+        this.thongTinVe = String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>", ve.getTauID(),
+                ve.getNgayGioDi(), ve.getSoToa(), ve.getSoGhe(), ve.getVeID());
 
-        if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
+        if (ve.getTrangThai().equals(TrangThaiVe.DA_BAN.name())) {
             calcThoiGianConLaiVaPhiHoan();
         } else {
             this.isDuDieuKien = false;
@@ -95,7 +96,7 @@ public class VeHoanRow {
         }
     }
 
-    public Ve getVe() {
+    public VeDTO getVe() {
         return ve;
     }
 

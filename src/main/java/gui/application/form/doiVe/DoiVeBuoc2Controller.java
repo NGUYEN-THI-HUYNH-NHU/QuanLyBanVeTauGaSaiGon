@@ -11,54 +11,54 @@ package gui.application.form.doiVe;
  * @date: Nov 17, 2025
  * @version: 1.0
  */
+
+import dto.KhachHangDTO;
+import dto.VeDTO;
+import entity.PhieuDungPhongVIP;
+
 import java.util.List;
 
-import entity.KhachHang;
-import entity.PhieuDungPhongVIP;
-import entity.Ve;
-
 public class DoiVeBuoc2Controller {
-	private PanelDoiVeBuoc2 panel;
+    private PanelDoiVeBuoc2 panel;
+    private ContinueListener continueListener;
 
-	protected interface ContinueListener {
-		void onContinue(List<VeDoiRow> selectedRows);
-	}
+    public DoiVeBuoc2Controller(PanelDoiVeBuoc2 panel) {
+        this.panel = panel;
 
-	private ContinueListener continueListener;
+        this.panel.getBtnTiepTuc().addActionListener(e -> {
+            // Lấy danh sách các dòng được chọn từ View
+            List<VeDoiRow> selected = panel.getSelectedVeDoiRows();
 
-	public DoiVeBuoc2Controller(PanelDoiVeBuoc2 panel) {
-		this.panel = panel;
+            if (selected.isEmpty()) {
+                // (Thông báo lỗi nếu chưa chọn vé nào)
+                return;
+            }
 
-		this.panel.getBtnTiepTuc().addActionListener(e -> {
-			// Lấy danh sách các dòng được chọn từ View
-			List<VeDoiRow> selected = panel.getSelectedVeDoiRows();
+            // Phát sự kiện cho Mediator
+            if (continueListener != null) {
+                continueListener.onContinue(selected);
+            }
+        });
+    }
 
-			if (selected.isEmpty()) {
-				// (Thông báo lỗi nếu chưa chọn vé nào)
-				return;
-			}
+    /**
+     * @param khachHang
+     * @param listVe
+     *
+     */
+    public void disPlayDonDatCho(List<VeDTO> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHangDTO khachHang) {
+        panel.showDonDatCho(listVe, listPhieu, khachHang);
+    }
 
-			// Phát sự kiện cho Mediator
-			if (continueListener != null) {
-				continueListener.onContinue(selected);
-			}
-		});
-	}
+    public void addContinueListener(ContinueListener listener) {
+        this.continueListener = listener;
+    }
 
-	/**
-	 * @param khachHang
-	 * @param listVe
-	 * 
-	 */
-	public void disPlayDonDatCho(List<Ve> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHang khachHang) {
-		panel.showDonDatCho(listVe, listPhieu, khachHang);
-	}
+    public void refreshRowDisplay(VeDoiRow row) {
+        panel.refreshRow(row);
+    }
 
-	public void addContinueListener(ContinueListener listener) {
-		this.continueListener = listener;
-	}
-
-	public void refreshRowDisplay(VeDoiRow row) {
-		panel.refreshRow(row);
-	}
+    protected interface ContinueListener {
+        void onContinue(List<VeDoiRow> selectedRows);
+    }
 }

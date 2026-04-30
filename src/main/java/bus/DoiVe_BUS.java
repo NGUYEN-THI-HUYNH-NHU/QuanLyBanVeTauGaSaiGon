@@ -13,6 +13,8 @@ package bus;
  */
 
 import connectDB.ConnectDB;
+import dto.KhachHangDTO;
+import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
@@ -21,6 +23,7 @@ import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
+import mapper.DonDatChoMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
@@ -52,17 +55,17 @@ public class DoiVe_BUS {
             conn.setAutoCommit(false);
 
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
-            List<Ve> listVeDoi = new ArrayList<Ve>();
+            List<VeDTO> listVeDoi = new ArrayList<>();
             for (VeDoiRow r : exchangeSession.getListVeCuCanDoi()) {
                 listVeDoi.add(r.getVe());
             }
-            KhachHang khachHang = exchangeSession.getKhachHang();
+            KhachHangDTO khachHang = exchangeSession.getKhachHang();
             NhanVien nhanVien = exchangeSession.getNhanVien();
 
             // 1. Tạo và Lưu Đơn Đặt Chỗ cho các vé mới
             DonDatCho donDatChoMoi = datChoBUS.taoDonDatCho(nhanVien, khachHang);
             datChoBUS.themDonDatCho(donDatChoMoi);
-            exchangeSession.setDonDatChoMoi(donDatChoMoi);
+            exchangeSession.setDonDatChoMoi(DonDatChoMapper.INSTANCE.toDTO(donDatChoMoi));
 
             // 2. Tạo và Lưu Hóa đơn đổi vé
             HoaDon hoaDon = hoaDonBUS.taoHoaDonDoiVe(exchangeSession);

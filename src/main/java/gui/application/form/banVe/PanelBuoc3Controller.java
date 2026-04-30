@@ -7,12 +7,10 @@ package gui.application.form.banVe;
 
 import bus.KhachHang_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import entity.KhachHang;
-import entity.LoaiKhachHang;
+import dto.KhachHangDTO;
 import entity.type.LoaiKhachHangEnums;
 import gui.application.AuthService;
 import gui.application.UngDung;
-import mapper.KhachHangMapper;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -178,12 +176,12 @@ public class PanelBuoc3Controller {
         }
 
         // Lấy danh sách gợi ý
-        List<KhachHang> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
+        List<KhachHangDTO> listSuggest = khachHangBUS.layGoiYKhachHang(keyword);
         int limit = 3;
         int i = 0;
 
         if (!listSuggest.isEmpty()) {
-            for (KhachHang kh : listSuggest) {
+            for (KhachHangDTO kh : listSuggest) {
                 if (i++ == limit) {
                     break;
                 }
@@ -191,7 +189,7 @@ public class PanelBuoc3Controller {
                 String displayText = String.format(
                         "<html><b>%s</b> - %s <br><i style='color:gray; font-size:9px'>%s - %s</i></html>",
                         kh.getHoTen(), (kh.getSoDienThoai() == null ? "N/A" : kh.getSoDienThoai()), kh.getSoGiayTo(),
-                        kh.getKhachHangID());
+                        kh.getId());
 
                 JMenuItem item = new JMenuItem(displayText);
                 item.setIcon(new FlatSVGIcon("icon/svg/person.svg", 0.6f));
@@ -361,7 +359,7 @@ public class PanelBuoc3Controller {
         }
 
         // Gọi BUS để tìm
-        KhachHang kh = findKhachHangByID(id);
+        KhachHangDTO kh = findKhachHangByID(id);
 
         if (kh != null) {
             // Tìm thấy -> Cập nhật View
@@ -387,7 +385,7 @@ public class PanelBuoc3Controller {
         }
     }
 
-    public KhachHang findKhachHangByID(String id) {
+    public KhachHangDTO findKhachHangByID(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
@@ -397,15 +395,6 @@ public class PanelBuoc3Controller {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public boolean addHanhKhach(KhachHang hanhKhach) {
-        if (hanhKhach != null) {
-            String hanhKhachID = khachHangBUS.taoMaKhachHangTuDong();
-            hanhKhach.setKhachHangID(hanhKhachID);
-            return khachHangBUS.themKhachHang(hanhKhach);
-        }
-        return false;
     }
 
     private void handleDelete(PassengerRow rowToDelete) {
@@ -447,7 +436,7 @@ public class PanelBuoc3Controller {
         for (int i = 0; i < rows.size(); i++) {
             PassengerRow row = rows.get(i);
             String cccd = row.getSoGiayTo();
-            String ten = row.getHoTen(); // Nên kiểm tra cả tên nữa
+            String ten = row.getHoTen();
 
             // Kiểm tra null HOẶC rỗng
             if (cccd == null || cccd.trim().isEmpty() || ten == null || ten.trim().isEmpty()) {
@@ -460,7 +449,7 @@ public class PanelBuoc3Controller {
 
         // --- DÙNG MAP ĐỂ TRÁNH TRÙNG LẶP TRONG PHIÊN XỬ LÝ ---
         // Key: Số giấy tờ (CCCD), Value: Đối tượng KhachHang
-        Map<String, KhachHang> processedCustomers = new HashMap<>();
+        Map<String, KhachHangDTO> processedCustomers = new HashMap<>();
 
         // 3. Cập nhật Model (BookingSession)
         // 3a. Cập nhật thông tin Hành Khách vào từng VeSession
@@ -469,7 +458,7 @@ public class PanelBuoc3Controller {
             String cccdHanhKhach = row.getSoGiayTo();
 
             // Bước 1: Kiểm tra trong Map cục bộ (đã xử lý ở vòng lặp trước chưa?)
-            KhachHang hanhKhach = processedCustomers.get(cccdHanhKhach);
+            KhachHangDTO hanhKhach = processedCustomers.get(cccdHanhKhach);
 
             // Bước 2: Nếu chưa có trong Map, kiểm tra trong CSDL
             if (hanhKhach == null) {
@@ -481,14 +470,19 @@ public class PanelBuoc3Controller {
                 if (khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccdHanhKhach) != null) {
                     return;
                 }
-                hanhKhach = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), row.getHoTen(), null, null,
-                        cccdHanhKhach, null, row.getLoaiDoiTuong(), new LoaiKhachHang(LoaiKhachHangEnums.HANH_KHACH.name()));
+                hanhKhach = KhachHangDTO.builder()
+                        .id(khachHangBUS.taoMaKhachHangTuDong())
+                        .hoTen(row.getHoTen())
+                        .soGiayTo(cccdHanhKhach)
+                        .loaiDoiTuongID(row.getLoaiDoiTuong().name())
+                        .loaiKhachHangID(LoaiKhachHangEnums.HANH_KHACH.name())
+                        .build();
+
                 khachHangBUS.themKhachHang(hanhKhach);
-//				System.out.println("Tạo hành khách mới: " + hanhKhach.getHoTen());
             } else {
                 // Nếu đã có, cập nhật thông tin mới nhất từ UI (ví dụ tên có thể sửa)
                 hanhKhach.setHoTen(row.getHoTen());
-                hanhKhach.setLoaiDoiTuong(row.getLoaiDoiTuong());
+                hanhKhach.setLoaiDoiTuongID(row.getLoaiDoiTuong().name());
                 khachHangBUS.capNhatKhachHang(hanhKhach);
             }
 
@@ -496,13 +490,13 @@ public class PanelBuoc3Controller {
             processedCustomers.put(cccdHanhKhach, hanhKhach);
 
             // Gán vào vé
-            ve.getVe().setKhachHangDTO(KhachHangMapper.INSTANCE.toDTO(hanhKhach));
+            ve.getVe().setKhachHangDTO(hanhKhach);
         }
 
         // 3b. Cập nhật Khách hàng (Người Mua)
         // Ưu tiên 1: Lấy từ Map (nếu người mua chính là một trong các hành khách vừa
         // nhập)
-        KhachHang nguoiMua = processedCustomers.get(cccdNguoiMua);
+        KhachHangDTO nguoiMua = processedCustomers.get(cccdNguoiMua);
 
         // Ưu tiên 2: Nếu không phải hành khách, tìm trong CSDL (khách cũ)
         if (nguoiMua == null) {
@@ -517,26 +511,29 @@ public class PanelBuoc3Controller {
             nguoiMua.setEmail(emailNguoiMua);
 
             // Logic cập nhật loại khách hàng
-            if (nguoiMua.getLoaiKhachHang().getLoaiKhachHangID().equals(LoaiKhachHangEnums.HANH_KHACH)) {
+            if (nguoiMua.getLoaiKhachHangID().equals(LoaiKhachHangEnums.HANH_KHACH)) {
                 // Nếu trước đây chỉ là hành khách, giờ thành Hành khách + Người mua
-                nguoiMua.setLoaiKhachHang(new LoaiKhachHang(LoaiKhachHangEnums.HANH_KHACH_KHACH_HANG.name()));
+                nguoiMua.setLoaiKhachHangID(LoaiKhachHangEnums.HANH_KHACH_KHACH_HANG.name());
             }
 
             khachHangBUS.capNhatKhachHang(nguoiMua);
-//			System.out.println("Cập nhật thông tin người mua: " + nguoiMua.getHoTen());
 
         } else {
             // === TRƯỜNG HỢP: NGƯỜI MUA MỚI TINH (Và không đi tàu) ===
-            nguoiMua = new KhachHang(khachHangBUS.taoMaKhachHangTuDong(), tenNguoiMua, phoneNguoiMua, emailNguoiMua,
-                    cccdNguoiMua, null, null, new LoaiKhachHang(LoaiKhachHangEnums.KHACH_HANG.name()));
+            nguoiMua = KhachHangDTO.builder()
+                    .id(khachHangBUS.taoMaKhachHangTuDong())
+                    .hoTen(tenNguoiMua)
+                    .soGiayTo(cccdNguoiMua)
+                    .soDienThoai(phoneNguoiMua)
+                    .email(emailNguoiMua)
+                    .loaiKhachHangID(LoaiKhachHangEnums.KHACH_HANG.name())
+                    .build();
+
             khachHangBUS.themKhachHang(nguoiMua);
-//			System.out.println("Tạo người mua mới: " + nguoiMua.getHoTen());
         }
 
         // Lưu vào session
         bookingSession.setKhachHang(nguoiMua);
-
-//		System.out.println("BookingSession đã được cập nhật.");
 
         // 4. Báo cho Controller cha
         if (onConfirmListener != null) {

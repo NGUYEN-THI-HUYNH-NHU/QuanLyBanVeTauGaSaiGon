@@ -50,6 +50,5 @@ public interface VeMapper {
     @Mapping(target = "ghe.toa.soToa", source = "soToa")
     @Mapping(target = "ghe.gheID", source = "gheID")
     @Mapping(target = "ghe.soGhe", source = "soGhe")
-    @Mapping(target = "isVeDoi", ignore = true)
     Ve toEntity(VeDTO dto);
 }

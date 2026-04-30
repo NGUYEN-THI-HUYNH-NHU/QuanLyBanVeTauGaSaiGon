@@ -39,4 +39,6 @@ public class VeDTO implements Serializable {
     private double gia;
 
     private String trangThai;
+
+    private boolean isVeDoi;
 }

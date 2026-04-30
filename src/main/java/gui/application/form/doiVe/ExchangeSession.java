@@ -12,8 +12,13 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import dto.DonDatChoDTO;
+import dto.KhachHangDTO;
 import dto.PhieuGiuChoDTO;
-import entity.*;
+import entity.Chuyen;
+import entity.GiaoDichThanhToan;
+import entity.HoaDon;
+import entity.NhanVien;
 import gui.application.AuthService;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
@@ -40,12 +45,12 @@ public class ExchangeSession {
     private Map<String, VeSession> mapVeCuVoiVeMoi = new HashMap<>();
 
     // --- DỮ LIỆU CHUNG ---
-    private KhachHang khachHang;
+    private KhachHangDTO khachHang;
     private NhanVien nhanVien;
     private PhieuGiuChoDTO phieuGiuCho;
     private GiaoDichThanhToan giaoDichThanhToan;
-    private DonDatCho donDatChoCu;
-    private DonDatCho donDatChoMoi;
+    private DonDatChoDTO donDatChoCu;
+    private DonDatChoDTO donDatChoMoi;
     private HoaDon hoaDon;
 
     private ExchangeSession() {
@@ -132,28 +137,28 @@ public class ExchangeSession {
             return "";
         }
         // Logic: Lấy ga đi của vé đầu tiên trong danh sách đổi
-        return listVeCuCanDoi.get(0).getVe().getGaDi().getTenGa();
+        return listVeCuCanDoi.get(0).getVe().getTenGaDi();
     }
 
     public String getGaDenMacDinh() {
         if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
             return "";
         }
-        return listVeCuCanDoi.get(0).getVe().getGaDen().getTenGa();
+        return listVeCuCanDoi.get(0).getVe().getTenGaDen();
     }
 
     public String getGaDiIdMacDinh() {
         if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
             return null;
         }
-        return listVeCuCanDoi.get(0).getVe().getGaDi().getGaID();
+        return listVeCuCanDoi.get(0).getVe().getTenGaDi();
     }
 
     public String getGaDenIdMacDinh() {
         if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
             return null;
         }
-        return listVeCuCanDoi.get(0).getVe().getGaDen().getGaID();
+        return listVeCuCanDoi.get(0).getVe().getTenGaDen();
     }
 
     public PhieuGiuChoDTO getPhieuGiuCho() {
@@ -172,11 +177,11 @@ public class ExchangeSession {
         this.mapVeCuVoiVeMoi = mapVeCuVoiVeMoi;
     }
 
-    public KhachHang getKhachHang() {
+    public KhachHangDTO getKhachHang() {
         return khachHang;
     }
 
-    public void setKhachHang(KhachHang khachHang) {
+    public void setKhachHang(KhachHangDTO khachHang) {
         this.khachHang = khachHang;
     }
 
@@ -196,19 +201,15 @@ public class ExchangeSession {
         this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
-    public DonDatCho getDonDatChoCu() {
-        return donDatChoCu;
-    }
-
-    public void setDonDatChoCu(DonDatCho donDatChoCu) {
+    public void setDonDatChoCu(DonDatChoDTO donDatChoCu) {
         this.donDatChoCu = donDatChoCu;
     }
 
-    public DonDatCho getDonDatChoMoi() {
+    public DonDatChoDTO getDonDatChoMoi() {
         return donDatChoMoi;
     }
 
-    public void setDonDatChoMoi(DonDatCho donDatChoMoi) {
+    public void setDonDatChoMoi(DonDatChoDTO donDatChoMoi) {
         this.donDatChoMoi = donDatChoMoi;
     }
 

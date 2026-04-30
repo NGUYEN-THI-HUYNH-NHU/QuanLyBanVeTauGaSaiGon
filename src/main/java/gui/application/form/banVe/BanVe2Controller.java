@@ -7,14 +7,13 @@ package gui.application.form.banVe;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
+import dto.VeDTO;
 import entity.GiaoDichThanhToan;
-import entity.Ve;
 import entity.type.LoaiDoiTuongEnums;
 import gui.application.AppHttpServer;
 import gui.application.EmailService;
 import gui.application.paymentHelper.PdfTicketExporter;
 import gui.application.paymentHelper.VietQRService;
-import mapper.VeMapper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -358,9 +357,9 @@ public class BanVe2Controller {
                         if (emailKhach != null && !emailKhach.isEmpty()) {
                             // Chạy luồng riêng để gửi email, không chờ đợi
                             new Thread(() -> {
-                                List<Ve> listVeDaMua = new ArrayList<>();
+                                List<VeDTO> listVeDaMua = new ArrayList<>();
                                 for (VeSession vs : bookingSession.getAllSelectedTickets()) {
-                                    listVeDaMua.add(VeMapper.INSTANCE.toEntity(vs.getVe()));
+                                    listVeDaMua.add(vs.getVe());
                                 }
                                 // Gọi service gửi mail
                                 EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho(),

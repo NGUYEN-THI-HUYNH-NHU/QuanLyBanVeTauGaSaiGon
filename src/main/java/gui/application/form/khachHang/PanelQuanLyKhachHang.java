@@ -2,9 +2,8 @@ package gui.application.form.khachHang;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.KhachHang_CTRL;
+import dto.KhachHangDTO;
 import entity.KhachHang;
-import entity.LoaiDoiTuong;
-import entity.LoaiKhachHang;
 import entity.NhanVien;
 import entity.type.LoaiDoiTuongEnums;
 import entity.type.LoaiKhachHangEnums;
@@ -557,7 +556,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     }
 
     // thêm khách hàng
-    public boolean themKhachHang(KhachHang kh) {
+    public boolean themKhachHang(KhachHangDTO kh) {
         if (!isValidForm()) {
             return false;
         }
@@ -594,16 +593,16 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     }
 
     // tìm kiếm khách hàng bằng số giấy tờ
-    public KhachHang timKiemKhachHangTheoSGT(String sgt) {
-        KhachHang kh = khachHang_ctrl.timKiemKhachHangTheoSoGiayTo(sgt);
+    public KhachHangDTO timKiemKhachHangTheoSGT(String sgt) {
+        KhachHangDTO kh = khachHang_ctrl.timKiemKhachHangTheoSoGiayTo(sgt);
         tableModel.setRowCount(0);
         if (kh != null) {
             tableModel.addRow(
-                    new Object[]{1, Objects.toString(kh.getKhachHangID(), ""), Objects.toString(kh.getHoTen(), ""),
+                    new Object[]{1, Objects.toString(kh.getId(), ""), Objects.toString(kh.getHoTen(), ""),
                             Objects.toString(kh.getSoDienThoai(), ""), Objects.toString(kh.getEmail(), ""),
                             Objects.toString(kh.getSoGiayTo(), ""), Objects.toString(kh.getDiaChi(), ""),
-                            kh.getLoaiDoiTuong() == null ? "" : kh.getLoaiDoiTuong().getDescription(),
-                            kh.getLoaiKhachHang() == null ? "" : kh.getLoaiKhachHang().getDescription()});
+                            kh.getLoaiDoiTuongID() == null ? "" : LoaiDoiTuongEnums.valueOf(kh.getLoaiDoiTuongID()).getDescription(),
+                            kh.getLoaiKhachHangID() == null ? "" : LoaiKhachHangEnums.valueOf(kh.getLoaiKhachHangID()).getDescription()});
             return kh;
         } else {
             JOptionPane.showMessageDialog(this, "Không tìm thấy khách hàng với số giấy tờ: " + sgt, "Thông báo",
@@ -649,10 +648,8 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
             LoaiDoiTuongEnums ldt = (LoaiDoiTuongEnums) cbLDT.getSelectedItem();
             LoaiKhachHangEnums lkh = (LoaiKhachHangEnums) cbLKH.getSelectedItem();
 
-            KhachHang kh = new KhachHang(maKH, tenKH, sdtFinal, emailFinal, sgtFinal, diaChiFinal, new LoaiDoiTuong(ldt.name()), new LoaiKhachHang(lkh.name()));
+            KhachHangDTO kh = new KhachHangDTO(maKH, tenKH, sdtFinal, emailFinal, sgtFinal, diaChiFinal, ldt.name(), lkh.name());
             themKhachHang(kh);
-            return;
-
         } else if (e.getSource() == btnFind) {
 
             String sdtFind = getRealText(txtSDT, "VD: 0912345678");
@@ -725,7 +722,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
                 LoaiDoiTuongEnums loaiDT1 = (LoaiDoiTuongEnums) cbLDT.getSelectedItem();
                 LoaiKhachHangEnums loaiKH1 = (LoaiKhachHangEnums) cbLKH.getSelectedItem();
 
-                KhachHang kh1 = new KhachHang(maKH1, tenKH1, sdt1, email1, soGiayTo1, diaChi1, new LoaiDoiTuong(loaiDT1.name()), new LoaiKhachHang(loaiKH1.name()));
+                KhachHangDTO kh1 = new KhachHangDTO(maKH1, tenKH1, sdt1, email1, soGiayTo1, diaChi1, loaiDT1.name(), loaiKH1.name());
 
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "Bạn có chắc muốn cập nhật thông tin khách hàng này không?", "Xác nhận cập nhật",

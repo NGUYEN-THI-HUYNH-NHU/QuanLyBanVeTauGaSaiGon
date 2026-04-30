@@ -12,8 +12,8 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import dto.VeDTO;
 import entity.PhieuDungPhongVIP;
-import entity.Ve;
 import entity.type.LoaiDoiTuongEnums;
 import entity.type.TrangThaiVe;
 
@@ -21,7 +21,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class VeDoiRow {
-    private Ve ve;
+    private VeDTO ve;
     private PhieuDungPhongVIP phieuDungPhongVIP;
     private String hanhKhach;
     private String loaiDoiVe;
@@ -33,14 +33,14 @@ public class VeDoiRow {
     private boolean isDuDieuKien;
     private String dieuKien;
 
-    public VeDoiRow(Ve ve, PhieuDungPhongVIP phieuDungPhongVIP) {
+    public VeDoiRow(VeDTO ve, PhieuDungPhongVIP phieuDungPhongVIP) {
         this.ve = ve;
         this.phieuDungPhongVIP = phieuDungPhongVIP;
 
-        this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHang().getHoTen(),
-                LoaiDoiTuongEnums.valueOf(ve.getKhachHang().getLoaiDoiTuong().getLoaiDoiTuongID()).getDescription(), ve.getKhachHang().getSoGiayTo());
+        this.hanhKhach = String.format("<html><b>%s</b><br/>%s<br/>Số giấy tờ: %s</html>", ve.getKhachHangDTO().getHoTen(),
+                LoaiDoiTuongEnums.valueOf(ve.getKhachHangDTO().getLoaiDoiTuongID()).getDescription(), ve.getKhachHangDTO().getSoGiayTo());
 
-        if (ve.getTrangThai() == TrangThaiVe.DA_BAN) {
+        if (ve.getTrangThai().equals(TrangThaiVe.DA_BAN.name())) {
             calcThoiGianConLaiVaPhiDoi();
         } else if (ve.isVeDoi()) {
             this.isDuDieuKien = false;
@@ -49,7 +49,7 @@ public class VeDoiRow {
         } else {
             this.isDuDieuKien = false;
             this.dieuKien = String.format("<html>%s</html>",
-                    "Không thể đổi do vé không còn hiệu lực (vé " + ve.getTrangThai().getDescription() + ")");
+                    "Không thể đổi do vé không còn hiệu lực (vé " + TrangThaiVe.valueOf(ve.getTrangThai()).getDescription() + ")");
         }
 
         this.lyDo = "Không còn nhu cầu";
@@ -91,7 +91,7 @@ public class VeDoiRow {
         }
     }
 
-    public Ve getVe() {
+    public VeDTO getVe() {
         return ve;
     }
 

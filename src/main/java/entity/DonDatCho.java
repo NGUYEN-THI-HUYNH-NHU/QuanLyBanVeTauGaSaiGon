@@ -36,6 +36,13 @@ public class DonDatCho implements Serializable {
     @Column(name = "thoiDiemDatCho", nullable = false)
     private LocalDateTime thoiDiemDatCho;
 
+    @Transient
+    private int tongSoVe;
+    @Transient
+    private int soVeHoan;
+    @Transient
+    private int soVeDoi;
+
     public DonDatCho(String donDatChoID) {
         super();
         this.donDatChoID = donDatChoID;

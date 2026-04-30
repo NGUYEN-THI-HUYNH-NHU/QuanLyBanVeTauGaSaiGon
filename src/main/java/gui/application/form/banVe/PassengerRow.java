@@ -12,14 +12,13 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.LoaiDoiTuong;
 import entity.type.LoaiDoiTuongEnums;
 
 public class PassengerRow {
     private final VeSession veSession;
     private String soGiayTo = "";
     private String hoTen = "";
-    private LoaiDoiTuong loaiDoiTuong = new LoaiDoiTuong(LoaiDoiTuongEnums.NGUOI_LON.name());
+    private LoaiDoiTuongEnums loaiDoiTuong = LoaiDoiTuongEnums.NGUOI_LON;
 
     public PassengerRow(VeSession v) {
         this.veSession = v;
@@ -37,11 +36,11 @@ public class PassengerRow {
         this.hoTen = hoTen;
     }
 
-    public LoaiDoiTuong getLoaiDoiTuong() {
+    public LoaiDoiTuongEnums getLoaiDoiTuong() {
         return loaiDoiTuong;
     }
 
-    public void setLoaiDoiTuong(LoaiDoiTuong loaiDoiTuong) {
+    public void setLoaiDoiTuong(LoaiDoiTuongEnums loaiDoiTuong) {
         this.loaiDoiTuong = loaiDoiTuong;
     }
 

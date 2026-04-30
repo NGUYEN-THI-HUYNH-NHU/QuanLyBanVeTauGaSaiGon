@@ -13,7 +13,13 @@ package bus;
  */
 
 import connectDB.ConnectDB;
-import entity.*;
+import dto.DonDatChoDTO;
+import dto.KhachHangDTO;
+import dto.VeDTO;
+import entity.GiaoDichHoanDoi;
+import entity.HoaDon;
+import entity.HoaDonChiTiet;
+import entity.NhatKyAudit;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
@@ -43,7 +49,7 @@ public class HoanVe_BUS {
      * @param tongTienHoan
      * @return
      */
-    public boolean thucHienHoanVe(DonDatCho donDatCho, KhachHang khachHang, List<VeHoanRow> listVeHoanRow,
+    public boolean thucHienHoanVe(DonDatChoDTO donDatCho, KhachHangDTO khachHang, List<VeHoanRow> listVeHoanRow,
                                   double tongTienHoan) throws Exception {
         Connection conn = null;
         try {
@@ -52,7 +58,7 @@ public class HoanVe_BUS {
             conn.setAutoCommit(false);
 
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
-            List<Ve> listVe = new ArrayList<Ve>();
+            List<VeDTO> listVe = new ArrayList<>();
             for (VeHoanRow r : listVeHoanRow) {
                 listVe.add(r.getVe());
             }
@@ -89,9 +95,9 @@ public class HoanVe_BUS {
 
             // Ghi log
             String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
-            for (Ve v : listVe) {
+            for (VeDTO v : listVe) {
                 ghiLog(v.getVeID(), nvID, entity.type.NhatKyAudit.HOAN_VE,
-                        "Hoàn vé - " + v.getDonDatCho().getDonDatChoID() + ": " + v.getVeID());
+                        "Hoàn vé - " + v.getDonDatChoID() + ": " + v.getVeID());
             }
 
             // Hoàn tất giao dịch

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PhieuGiuChoChiTietDTO implements Serializable {
-    private String phieuGiuChoChiTietID;
+    private String id;
     private String phieuGiuChoID;
     private String chuyenID;
     private String gaDiID;

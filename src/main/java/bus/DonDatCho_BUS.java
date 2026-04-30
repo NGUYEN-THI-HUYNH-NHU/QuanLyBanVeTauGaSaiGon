@@ -6,8 +6,8 @@ package bus;
  */
 
 import dao.impl.DonDatChoDAO;
-import entity.DonDatCho;
-import gui.application.form.donDatCho.DonDatChoDTO;
+import dto.DonDatChoDTO;
+import mapper.DonDatChoMapper;
 
 import java.util.Date;
 import java.util.List;
@@ -27,16 +27,17 @@ public class DonDatCho_BUS {
      * @param soGiayTo
      * @return
      */
-    public DonDatCho timDonDatChoTheoIDVaSoGiayTo(String donDatChoID, String soGiayTo) {
-        return donDatChoDAO.findDonDatChoByIDVaSoGiayTo(donDatChoID, soGiayTo);
+    public DonDatChoDTO timDonDatChoTheoIDVaSoGiayTo(String donDatChoID, String soGiayTo) {
+        return DonDatChoMapper.INSTANCE.toDTO(donDatChoDAO.findDonDatChoByIDVaSoGiayTo(donDatChoID, soGiayTo));
     }
 
     public List<DonDatChoDTO> layDanhSachDonDatCho() {
-        return donDatChoDAO.getListDonDatCho();
+        return donDatChoDAO.getListDonDatCho().stream().map(DonDatChoMapper.INSTANCE::toDTO).toList();
     }
 
     public List<DonDatChoDTO> layDonDatChoTheoKeyword(String keyword, String type) {
-        return donDatChoDAO.searchDonDatChoByKeyword(keyword, type);
+        return donDatChoDAO.searchDonDatChoByKeyword(keyword, type).stream().map(DonDatChoMapper.INSTANCE::toDTO).toList();
+
     }
 
     /**
@@ -77,6 +78,6 @@ public class DonDatCho_BUS {
      * @return
      */
     public List<DonDatChoDTO> locHoaDonTheoCacTieuChi(Date tuNgay, Date denNgay) {
-        return donDatChoDAO.searchDonDatChoByFilter(tuNgay, denNgay);
+        return donDatChoDAO.searchDonDatChoByFilter(tuNgay, denNgay).stream().map(DonDatChoMapper.INSTANCE::toDTO).toList();
     }
 }
