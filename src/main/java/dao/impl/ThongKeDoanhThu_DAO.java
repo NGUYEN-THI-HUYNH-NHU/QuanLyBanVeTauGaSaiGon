@@ -7,10 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -50,36 +49,6 @@ public class ThongKeDoanhThu_DAO {
     private static final String COL_VE_GA_DEN_ID = "gaDenID";
     private static final String COL_GA_ID = "gaID";
     private static final String COL_TEN_GA = "tenGa";
-
-    /**
-     * Item chi tiết theo 1 mốc thời gian (ngày/tháng/năm)
-     */
-    public static class ThongKeChiTietItem {
-        public String thoiGian;
-        public int soLuongHoaDonBan = 0;
-        public int soLuongHoaDonHoanDoi = 0;
-        public double tongThuDichVu = 0.0;
-        public double tongDoanhThu = 0.0;
-        public double tongChi = 0.0;
-        public double loiNhuan = 0.0;
-
-        public ThongKeChiTietItem(String thoiGian) {
-            this.thoiGian = thoiGian;
-        }
-    }
-
-    // Class helper để group by thời gian
-    private static class TimeGrouping {
-        final String selectExpr;
-        final String groupBy;
-        final String orderBy;
-
-        private TimeGrouping(String selectExpr, String groupBy, String orderBy) {
-            this.selectExpr = selectExpr;
-            this.groupBy = groupBy;
-            this.orderBy = orderBy;
-        }
-    }
 
     private TimeGrouping buildTimeGrouping(String loaiThoiGian) {
         switch (loaiThoiGian) {
@@ -225,10 +194,6 @@ public class ThongKeDoanhThu_DAO {
         return results;
     }
 
-    // ======================================================================
-    //  2. CÁC HÀM CARD TỔNG QUAN
-    // ======================================================================
-
     /**
      * Tổng Hóa Đơn Bán: Hóa đơn thường (không phải HDHV/HDDV)
      */
@@ -270,6 +235,10 @@ public class ThongKeDoanhThu_DAO {
         }
         return 0;
     }
+
+    // ======================================================================
+    //  2. CÁC HÀM CARD TỔNG QUAN
+    // ======================================================================
 
     /**
      * Tổng Thu Dịch Vụ (Giữ nguyên logic cũ nhưng chạy trên Base mới)
@@ -320,5 +289,35 @@ public class ThongKeDoanhThu_DAO {
             }
         }
         return result;
+    }
+
+    /**
+     * Item chi tiết theo 1 mốc thời gian (ngày/tháng/năm)
+     */
+    public static class ThongKeChiTietItem {
+        public String thoiGian;
+        public int soLuongHoaDonBan = 0;
+        public int soLuongHoaDonHoanDoi = 0;
+        public double tongThuDichVu = 0.0;
+        public double tongDoanhThu = 0.0;
+        public double tongChi = 0.0;
+        public double loiNhuan = 0.0;
+
+        public ThongKeChiTietItem(String thoiGian) {
+            this.thoiGian = thoiGian;
+        }
+    }
+
+    // Class helper để group by thời gian
+    private static class TimeGrouping {
+        final String selectExpr;
+        final String groupBy;
+        final String orderBy;
+
+        private TimeGrouping(String selectExpr, String groupBy, String orderBy) {
+            this.selectExpr = selectExpr;
+            this.groupBy = groupBy;
+            this.orderBy = orderBy;
+        }
     }
 }

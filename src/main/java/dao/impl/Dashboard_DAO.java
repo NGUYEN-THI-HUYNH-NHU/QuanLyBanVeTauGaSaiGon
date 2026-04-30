@@ -1,15 +1,14 @@
 package dao.impl;
 
+import connectDB.ConnectDB;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
-
-import connectDB.ConnectDB;
 
 public class Dashboard_DAO {
 
@@ -33,7 +32,9 @@ public class Dashboard_DAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) return rs.getDouble("TongDoanhThu");
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0.0;
     }
 
@@ -56,8 +57,12 @@ public class Dashboard_DAO {
             int idx = 1;
             if (startDate != null) pstmt.setObject(idx++, java.sql.Date.valueOf(startDate));
             if (endDate != null) pstmt.setObject(idx++, java.sql.Date.valueOf(endDate));
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt("TongSoGhe"); }
-        } catch (SQLException e) { e.printStackTrace(); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt("TongSoGhe");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return 0;
     }
 
@@ -131,17 +136,42 @@ public class Dashboard_DAO {
     }
 
     // Các hàm lấy doanh thu theo thời gian (Cho biểu đồ cột cũ - giữ lại để tránh lỗi code cũ)
-    public Map<LocalDate, Double> getRevenueOverTime(LocalDate s, LocalDate e) { return getRevenueData(s, e, "CAST(thoiDiemTao AS DATE)"); }
-    public Map<LocalDate, Double> getRevenueOverTimeByMonth(LocalDate s, LocalDate e) { return getRevenueData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)"); }
-    public Map<LocalDate, Double> getRevenueOverTimeByYear(LocalDate s, LocalDate e) { return getRevenueData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)"); }
+    public Map<LocalDate, Double> getRevenueOverTime(LocalDate s, LocalDate e) {
+        return getRevenueData(s, e, "CAST(thoiDiemTao AS DATE)");
+    }
+
+    public Map<LocalDate, Double> getRevenueOverTimeByMonth(LocalDate s, LocalDate e) {
+        return getRevenueData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)");
+    }
+
+    public Map<LocalDate, Double> getRevenueOverTimeByYear(LocalDate s, LocalDate e) {
+        return getRevenueData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)");
+    }
 
     // Các hàm Invoice (Hóa đơn)
-    public Map<LocalDate, Integer> getInvoicesPaidOverTime(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", false); }
-    public Map<LocalDate, Integer> getInvoicesRefundedOverTime(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", true); }
-    public Map<LocalDate, Integer> getInvoicesPaidByMonth(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", false); }
-    public Map<LocalDate, Integer> getInvoicesRefundedByMonth(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", true); }
-    public Map<LocalDate, Integer> getInvoicesPaidByYear(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", false); }
-    public Map<LocalDate, Integer> getInvoicesRefundedByYear(LocalDate s, LocalDate e) { return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", true); }
+    public Map<LocalDate, Integer> getInvoicesPaidOverTime(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", false);
+    }
+
+    public Map<LocalDate, Integer> getInvoicesRefundedOverTime(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "CAST(thoiDiemTao AS DATE)", true);
+    }
+
+    public Map<LocalDate, Integer> getInvoicesPaidByMonth(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", false);
+    }
+
+    public Map<LocalDate, Integer> getInvoicesRefundedByMonth(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "DATEADD(month, DATEDIFF(month, 0, thoiDiemTao), 0)", true);
+    }
+
+    public Map<LocalDate, Integer> getInvoicesPaidByYear(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", false);
+    }
+
+    public Map<LocalDate, Integer> getInvoicesRefundedByYear(LocalDate s, LocalDate e) {
+        return getInvoiceData(s, e, "DATEADD(year, DATEDIFF(year, 0, thoiDiemTao), 0)", true);
+    }
 
     private Map<LocalDate, Integer> getInvoiceData(LocalDate s, LocalDate e, String datePart, boolean isRefund) {
         String cond = isRefund ? "(hoaDonID LIKE 'HDHV%' OR hoaDonID LIKE 'HDDV%')" : "(hoaDonID NOT LIKE 'HDHV%' AND hoaDonID NOT LIKE 'HDDV%')";
@@ -177,7 +207,9 @@ public class Dashboard_DAO {
                     }
                 }
             }
-        } catch (SQLException ex) { ex.printStackTrace(); }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
         return result;
     }
 
@@ -186,7 +218,7 @@ public class Dashboard_DAO {
     // =========================================================================
 
     public int[] getTripOccupancyAlerts(LocalDate startDate, LocalDate endDate) {
-        int[] counts = { 0, 0 };
+        int[] counts = {0, 0};
         List<Object[]> highList = getOccupancyList(startDate, endDate, true);
         List<Object[]> lowList = getOccupancyList(startDate, endDate, false);
         counts[0] = highList.size();
@@ -233,7 +265,10 @@ public class Dashboard_DAO {
                     String gaDi = "N/A", gaDen = "N/A";
                     if (moTaTuyen != null && moTaTuyen.contains("-")) {
                         String[] parts = moTaTuyen.split("-");
-                        if (parts.length >= 2) { gaDi = parts[0].trim(); gaDen = parts[1].trim(); }
+                        if (parts.length >= 2) {
+                            gaDi = parts[0].trim();
+                            gaDen = parts[1].trim();
+                        }
                     }
 
                     boolean match = false;
@@ -250,12 +285,14 @@ public class Dashboard_DAO {
                     }
 
                     if (match) {
-                        list.add(new Object[] { chuyenID, tuyenID, gaDi, gaDen, ngayDi.toLocalDate(),
-                                gioDi.toLocalTime(), soVe, Math.round(tyLe * 100.0) / 100.0 });
+                        list.add(new Object[]{chuyenID, tuyenID, gaDi, gaDen, ngayDi.toLocalDate(),
+                                gioDi.toLocalTime(), soVe, Math.round(tyLe * 100.0) / 100.0});
                     }
                 }
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 
@@ -273,7 +310,9 @@ public class Dashboard_DAO {
                     if (rs.getDate(col) != null) r.put(rs.getDate(col).toLocalDate(), rs.getDouble("DoanhThu"));
                 }
             }
-        } catch (Exception ex) { ex.printStackTrace(); }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return r;
     }
 
@@ -288,7 +327,9 @@ public class Dashboard_DAO {
                     if (rs.getDate("Ngay") != null) r.put(rs.getDate("Ngay").toLocalDate(), rs.getInt("SoLuong"));
                 }
             }
-        } catch (Exception ex) { ex.printStackTrace(); }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return r;
     }
 
@@ -297,8 +338,12 @@ public class Dashboard_DAO {
             int i = 1;
             if (s != null) p.setObject(i++, s.atStartOfDay());
             if (e != null) p.setObject(i++, e.plusDays(1).atStartOfDay());
-            try (ResultSet rs = p.executeQuery()) { if (rs.next()) return rs.getInt(col); }
-        } catch (Exception ex) { ex.printStackTrace(); }
+            try (ResultSet rs = p.executeQuery()) {
+                if (rs.next()) return rs.getInt(col);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return 0;
     }
 }

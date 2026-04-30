@@ -30,4 +30,12 @@ public class HangToa implements Serializable {
 
     @Column(name = "moTa", nullable = false)
     private String moTa;
+
+    public HangToa(String hangToaStr) {
+        this.hangToaID = hangToaStr;
+    }
+
+    public String getDescription() {
+        return this.moTa;
+    }
 }

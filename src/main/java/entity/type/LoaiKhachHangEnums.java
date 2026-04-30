@@ -12,28 +12,28 @@ package entity.type;
  * @version: 1.0
  */
 
-public enum LoaiKhachHang {
-	HANH_KHACH("Hành khách"),
+public enum LoaiKhachHangEnums {
+    HANH_KHACH("Hành khách"),
     KHACH_HANG("Khách hàng"),
-	HANH_KHACH_KHACH_HANG("Hành khách + Khách hàng");
-	
+    HANH_KHACH_KHACH_HANG("Hành khách + Khách hàng");
+
     private final String description;
 
-    LoaiKhachHang(String description) {
+    LoaiKhachHangEnums(String description) {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public static LoaiKhachHang fromDescription(String desc) {
+    public static LoaiKhachHangEnums fromDescription(String desc) {
         if (desc == null) return null;
-        for (LoaiKhachHang x : values()) {
+        for (LoaiKhachHangEnums x : values()) {
             if (x.getDescription().equalsIgnoreCase(desc.trim())) {
                 return x;
             }
         }
         return null;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

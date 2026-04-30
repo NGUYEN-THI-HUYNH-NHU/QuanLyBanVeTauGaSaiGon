@@ -72,7 +72,7 @@ public class DoiMatKhauController {
             return;
         }
 
-        if (!taiKhoanBUS.isKhopMatKhau(formDoiMatKhau.getNhanVien().getId(), mk)) {
+        if (!taiKhoanBUS.isKhopMatKhau(formDoiMatKhau.getNhanVien().getNhanVienID(), mk)) {
             JOptionPane.showMessageDialog(formDoiMatKhau, "Mật khẩu hiện tại không khớp. Vui lòng nhập lại!");
             clearTextFields();
             return;
@@ -94,10 +94,10 @@ public class DoiMatKhauController {
             return;
         }
 
-        if (taiKhoanBUS.doiMatKhau(formDoiMatKhau.getNhanVien().getId(), mkMoi)) {
+        if (taiKhoanBUS.doiMatKhau(formDoiMatKhau.getNhanVien().getNhanVienID(), mkMoi)) {
             JOptionPane.showMessageDialog(formDoiMatKhau,
                     String.format("Đổi mật khẩu mới cho tài khoản nhân viên %s - %s\nVui lòng đăng nhập lại",
-                            "Thành công", formDoiMatKhau.getNhanVien().getId(),
+                            "Thành công", formDoiMatKhau.getNhanVien().getNhanVienID(),
                             formDoiMatKhau.getNhanVien().getHoTen()));
             UngDung.dangXuat();
         } else {

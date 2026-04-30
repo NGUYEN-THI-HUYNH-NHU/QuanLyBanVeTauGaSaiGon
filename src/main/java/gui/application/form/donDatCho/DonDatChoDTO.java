@@ -39,12 +39,12 @@ public class DonDatChoDTO {
             return false;
         }
         DonDatCho donDatCho = (DonDatCho) o;
-        return Objects.equals(donDatCho.getId(), donDatCho.getId());
+        return Objects.equals(donDatCho.getDonDatChoID(), donDatCho.getDonDatChoID());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(donDatCho.getId());
+        return Objects.hashCode(donDatCho.getDonDatChoID());
     }
 
     public int getTongSoVe() {

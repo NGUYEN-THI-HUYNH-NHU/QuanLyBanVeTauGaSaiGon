@@ -61,4 +61,17 @@ public class HoaDon implements Serializable {
 
     @OneToMany(mappedBy = "hoaDon", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<HoaDonChiTiet> chiTiets;
+
+    public HoaDon(String hoaDonID, KhachHang khachHang, NhanVien nhanVien, LocalDateTime thoiDiemTao,
+                  double tongTien, String maGD, double tienNhan, double tienHoan, boolean thanhToanTienMat) {
+        this.hoaDonID = hoaDonID;
+        this.khachHang = khachHang;
+        this.nhanVien = nhanVien;
+        this.thoiDiemTao = thoiDiemTao;
+        this.tongTien = tongTien;
+        this.maGD = maGD;
+        this.tienNhan = tienNhan;
+        this.tienHoan = tienHoan;
+        this.isThanhToanTienMat = thanhToanTienMat;
+    }
 }

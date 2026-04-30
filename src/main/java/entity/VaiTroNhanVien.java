@@ -30,4 +30,12 @@ public class VaiTroNhanVien implements Serializable {
 
     @Column(name = "moTa", nullable = false)
     private String moTa;
+
+    public VaiTroNhanVien(String vaiTroNhanVienID) {
+        this.vaiTroNhanVienID = vaiTroNhanVienID;
+    }
+
+    public String getDescription() {
+        return this.moTa;
+    }
 }

@@ -50,28 +50,23 @@ public class Ve_DAO {
             pstmt.setString(1, donDatChoID);
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                Toa toa = Toa.builder()
-                        .id(resultSet.getString("toaID"))
-                        .tau(Tau.builder().id(resultSet.getString("tauID")).build())
-                        .hangToa(HangToa.builder().id(resultSet.getString("hangToaID")).build())
-                        .soToa(resultSet.getInt("soToa"))
-                        .build();
-
                 Ve ve = new Ve();
-                ve.setId(resultSet.getString("veID"));
-                ve.setKhachHang(KhachHang.builder().id(resultSet.getString("khachHangID")).hoTen(resultSet.getString("hoTen")).loaiDoiTuong(entity.LoaiDoiTuong.builder().id(resultSet.getString("loaiDoiTuongID")).build()).soGiayTo(resultSet.getString("soGiayTo")).build());
-                ve.setDonDatCho(DonDatCho.builder().id(donDatChoID).build());
-                ve.setChuyen(Chuyen.builder().id(resultSet.getString("chuyenID")).build());
-                ve.setGhe(Ghe.builder()
-                        .id(resultSet.getString("gheID"))
-                        .toa(toa).soGhe(resultSet.getInt("soGhe")).build());
+                ve.setVeID(resultSet.getString("veID"));
+                ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+                        new LoaiDoiTuong(resultSet.getString("loaiDoiTuongID")), resultSet.getString("soGiayTo")));
+                ve.setDonDatCho(new DonDatCho(donDatChoID));
+                ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+                ve.setGhe(new Ghe(resultSet.getString("gheID"),
+                        new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+                                new HangToa(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+                        resultSet.getInt("soGhe")));
                 ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
                 ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-                java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+                Timestamp t = resultSet.getTimestamp("ngayGioDi");
                 ve.setNgayGioDi(t.toLocalDateTime());
                 ve.setGia(resultSet.getDouble("gia"));
                 ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
-//                ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
+                ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
 
                 dsVe.add(ve);
             }
@@ -89,14 +84,14 @@ public class Ve_DAO {
     public boolean insertVe(Connection conn, Ve ve) throws Exception {
         String sql = "INSERT INTO Ve (veID, khachHangID, donDatChoID, chuyenID, gheID, gaDiID, gaDenID, ngayGioDi, gia, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, ve.getId());
-            ps.setString(2, ve.getKhachHang().getId());
-            ps.setString(3, ve.getDonDatCho().getId());
-            ps.setString(4, ve.getChuyen().getId());
-            ps.setString(5, ve.getGhe().getId());
+            ps.setString(1, ve.getVeID());
+            ps.setString(2, ve.getKhachHang().getKhachHangID());
+            ps.setString(3, ve.getDonDatCho().getDonDatChoID());
+            ps.setString(4, ve.getChuyen().getChuyenID());
+            ps.setString(5, ve.getGhe().getGheID());
             ps.setString(6, ve.getGaDi().getGaID());
             ps.setString(7, ve.getGaDen().getGaID());
-            ps.setTimestamp(8, java.sql.Timestamp.valueOf(ve.getNgayGioDi()));
+            ps.setTimestamp(8, Timestamp.valueOf(ve.getNgayGioDi()));
             ps.setDouble(9, ve.getGia());
             ps.setString(10, ve.getTrangThai().toString());
 
@@ -135,28 +130,22 @@ public class Ve_DAO {
             pstmt.setString(1, veID);
             resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
-                Toa toa = Toa.builder()
-                        .id(resultSet.getString("toaID"))
-                        .tau(Tau.builder().id(resultSet.getString("tauID")).build())
-                        .hangToa(HangToa.builder().id(resultSet.getString("hangToaID")).build())
-                        .soToa(resultSet.getInt("soToa"))
-                        .build();
-
                 Ve ve = new Ve();
-                ve.setId(resultSet.getString("veID"));
-                ve.setKhachHang(KhachHang.builder().id(resultSet.getString("khachHangID")).hoTen(resultSet.getString("hoTen")).loaiDoiTuong(entity.LoaiDoiTuong.builder().id(resultSet.getString("loaiDoiTuongID")).build()).soGiayTo(resultSet.getString("soGiayTo")).build());
-                ve.setChuyen(Chuyen.builder().id(resultSet.getString("chuyenID")).build());
-                ve.setGhe(Ghe.builder()
-                        .id(resultSet.getString("gheID"))
-                        .toa(toa).soGhe(resultSet.getInt("soGhe")).build());
+                ve.setVeID(resultSet.getString("veID"));
+                ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+                        new LoaiDoiTuong(resultSet.getString("loaiDoiTuongID")), resultSet.getString("soGiayTo")));
+                ve.setDonDatCho(new DonDatCho());
+                ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+                ve.setGhe(new Ghe(resultSet.getString("gheID"),
+                        new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+                                new HangToa(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+                        resultSet.getInt("soGhe")));
                 ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
                 ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-                java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+                Timestamp t = resultSet.getTimestamp("ngayGioDi");
                 ve.setNgayGioDi(t.toLocalDateTime());
                 ve.setGia(resultSet.getDouble("gia"));
                 ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
-//                ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
-
                 return ve;
             }
         } catch (SQLException e) {
@@ -219,27 +208,23 @@ public class Ve_DAO {
             pstmt = con.prepareStatement(sql);
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                Toa toa = Toa.builder()
-                        .id(resultSet.getString("toaID"))
-                        .tau(Tau.builder().id(resultSet.getString("tauID")).build())
-                        .hangToa(HangToa.builder().id(resultSet.getString("hangToaID")).build())
-                        .soToa(resultSet.getInt("soToa"))
-                        .build();
-
                 Ve ve = new Ve();
-                ve.setId(resultSet.getString("veID"));
-                ve.setKhachHang(KhachHang.builder().id(resultSet.getString("khachHangID")).hoTen(resultSet.getString("hoTen")).loaiDoiTuong(entity.LoaiDoiTuong.builder().id(resultSet.getString("loaiDoiTuongID")).build()).soGiayTo(resultSet.getString("soGiayTo")).build());
-                ve.setDonDatCho(DonDatCho.builder().id(resultSet.getString("donDatChoID")).build());
-                ve.setChuyen(Chuyen.builder().id(resultSet.getString("chuyenID")).build());
-                ve.setGhe(Ghe.builder()
-                        .id(resultSet.getString("gheID"))
-                        .toa(toa).soGhe(resultSet.getInt("soGhe")).build());
+                ve.setVeID(resultSet.getString("veID"));
+                ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+                        new LoaiDoiTuong(resultSet.getString("loaiDoiTuongID")), resultSet.getString("soGiayTo")));
+                ve.setDonDatCho(new DonDatCho(resultSet.getString("donDatChoID")));
+                ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+                ve.setGhe(new Ghe(resultSet.getString("gheID"),
+                        new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+                                new HangToa(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+                        resultSet.getInt("soGhe")));
                 ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
                 ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-                java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+                Timestamp t = resultSet.getTimestamp("ngayGioDi");
                 ve.setNgayGioDi(t.toLocalDateTime());
                 ve.setGia(resultSet.getDouble("gia"));
                 ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+                ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
 
                 dsVe.add(ve);
             }
@@ -318,27 +303,24 @@ public class Ve_DAO {
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    Toa toa = Toa.builder()
-                            .id(resultSet.getString("toaID"))
-                            .tau(Tau.builder().id(resultSet.getString("tauID")).build())
-                            .hangToa(HangToa.builder().id(resultSet.getString("hangToaID")).build())
-                            .soToa(resultSet.getInt("soToa"))
-                            .build();
-
                     Ve ve = new Ve();
-                    ve.setId(resultSet.getString("veID"));
-                    ve.setKhachHang(KhachHang.builder().id(resultSet.getString("khachHangID")).hoTen(resultSet.getString("hoTen")).loaiDoiTuong(entity.LoaiDoiTuong.builder().id(resultSet.getString("loaiDoiTuongID")).build()).soGiayTo(resultSet.getString("soGiayTo")).build());
-                    ve.setDonDatCho(DonDatCho.builder().id(resultSet.getString("donDatChoID")).build());
-                    ve.setChuyen(Chuyen.builder().id(resultSet.getString("chuyenID")).build());
-                    ve.setGhe(Ghe.builder()
-                            .id(resultSet.getString("gheID"))
-                            .toa(toa).soGhe(resultSet.getInt("soGhe")).build());
+                    ve.setVeID(resultSet.getString("veID"));
+                    ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+                            new LoaiDoiTuong(resultSet.getString("loaiDoiTuongID")),
+                            resultSet.getString("soGiayTo")));
+                    ve.setDonDatCho(new DonDatCho(resultSet.getString("donDatChoID")));
+                    ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+                    ve.setGhe(new Ghe(resultSet.getString("gheID"),
+                            new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+                                    new HangToa(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+                            resultSet.getInt("soGhe")));
                     ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
                     ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-                    java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+                    Timestamp t = resultSet.getTimestamp("ngayGioDi");
                     ve.setNgayGioDi(t.toLocalDateTime());
                     ve.setGia(resultSet.getDouble("gia"));
                     ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+                    ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
 
                     list.add(ve);
                 }
@@ -410,27 +392,24 @@ public class Ve_DAO {
 
             try (ResultSet resultSet = ps.executeQuery()) {
                 while (resultSet.next()) {
-                    Toa toa = Toa.builder()
-                            .id(resultSet.getString("toaID"))
-                            .tau(Tau.builder().id(resultSet.getString("tauID")).build())
-                            .hangToa(HangToa.builder().id(resultSet.getString("hangToaID")).build())
-                            .soToa(resultSet.getInt("soToa"))
-                            .build();
-
                     Ve ve = new Ve();
-                    ve.setId(resultSet.getString("veID"));
-                    ve.setKhachHang(KhachHang.builder().id(resultSet.getString("khachHangID")).hoTen(resultSet.getString("hoTen")).loaiDoiTuong(entity.LoaiDoiTuong.builder().id(resultSet.getString("loaiDoiTuongID")).build()).soGiayTo(resultSet.getString("soGiayTo")).build());
-                    ve.setDonDatCho(DonDatCho.builder().id(resultSet.getString("donDatChoID")).build());
-                    ve.setChuyen(Chuyen.builder().id(resultSet.getString("chuyenID")).build());
-                    ve.setGhe(Ghe.builder()
-                            .id(resultSet.getString("gheID"))
-                            .toa(toa).soGhe(resultSet.getInt("soGhe")).build());
+                    ve.setVeID(resultSet.getString("veID"));
+                    ve.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTen"),
+                            new LoaiDoiTuong(resultSet.getString("loaiDoiTuongID")),
+                            resultSet.getString("soGiayTo")));
+                    ve.setDonDatCho(new DonDatCho(resultSet.getString("donDatChoID")));
+                    ve.setChuyen(new Chuyen(resultSet.getString("chuyenID")));
+                    ve.setGhe(new Ghe(resultSet.getString("gheID"),
+                            new Toa(resultSet.getString("toaID"), new Tau(resultSet.getString("tauID")),
+                                    new HangToa(resultSet.getString("hangToaID")), resultSet.getInt("soToa")),
+                            resultSet.getInt("soGhe")));
                     ve.setGaDi(new Ga(resultSet.getString("gaDiID"), resultSet.getString("tenGaDi")));
                     ve.setGaDen(new Ga(resultSet.getString("gaDenID"), resultSet.getString("tenGaDen")));
-                    java.sql.Timestamp t = resultSet.getTimestamp("ngayGioDi");
+                    Timestamp t = resultSet.getTimestamp("ngayGioDi");
                     ve.setNgayGioDi(t.toLocalDateTime());
                     ve.setGia(resultSet.getDouble("gia"));
                     ve.setTrangThai(TrangThaiVe.valueOf(resultSet.getString("trangThai")));
+                    ve.setVeDoi(resultSet.getBoolean("isVeDoi"));
 
                     list.add(ve);
                 }

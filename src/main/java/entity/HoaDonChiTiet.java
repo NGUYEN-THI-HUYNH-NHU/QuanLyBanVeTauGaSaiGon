@@ -12,7 +12,7 @@ package entity;
  * @version: 1.0
  */
 
-import entity.type.LoaiDichVu;
+import entity.type.LoaiDichVuEnums;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,7 +51,7 @@ public class HoaDonChiTiet implements Serializable {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "loaiDichVu", nullable = false, length = 30)
-    private LoaiDichVu loaiDichVu;
+    private LoaiDichVuEnums loaiDichVu;
 
     @Column(name = "donViTinh", length = 20)
     private String donViTinh;
@@ -64,11 +64,11 @@ public class HoaDonChiTiet implements Serializable {
 
     @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
     private double thanhTien;
-    
+
     /*
      * HoaDonChiTiet vé
      */
-    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVuEnums loaiDichVu,
                          String donViTinh, int soLuong, double donGia, double thanhTien) {
         super();
         this.hoaDonChiTietID = hoaDonChiTietID;
@@ -86,7 +86,7 @@ public class HoaDonChiTiet implements Serializable {
      * HoaDonChiTiet Phiếu dùng phòng chờ VIP
      */
     public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
-                         LoaiDichVu loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
+                         LoaiDichVuEnums loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
         super();
         this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;
@@ -99,7 +99,7 @@ public class HoaDonChiTiet implements Serializable {
         this.thanhTien = thanhTien;
     }
 
-    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVu loaiDichVu,
+    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVuEnums loaiDichVu,
                          int soLuong, double donGia, double thanhTien) {
         super();
         this.hoaDonChiTietID = hoaDonChiTietID;

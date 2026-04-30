@@ -1,6 +1,7 @@
 package dao.impl;
 
 import connectDB.ConnectDB;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -78,26 +79,6 @@ public class ThongKeVe_DAO {
     private final String TT_DA_HOAN = "DA_HOAN";
     private final String TT_DA_DOI = "DA_DOI";
 
-    // Inner class DTO để hứng dữ liệu thống kê chi tiết
-    public static class ThongKeVeChiTietItem {
-        public String thoiGian;
-        public int tongSoVeBan = 0;
-        public int tongVeConHieuLuc = 0;
-        public int tongVeDaDung = 0;
-        public int tongVeDaDoi = 0;
-        public int tongVeHoan = 0;
-        public double tongTienVe = 0.0;
-        public String tuyenDuong;
-
-        public ThongKeVeChiTietItem(String thoiGian) {
-            this.thoiGian = thoiGian;
-        }
-    }
-
-    // ===========================================
-    // 1. CÁC HÀM HỖ TRỢ LẤY DỮ LIỆU COMBOBOX
-    // ===========================================
-
     public List<String> getDanhSachTenGa() throws SQLException {
         List<String> danhSachGa = new ArrayList<>();
         String sql = String.format("SELECT %s FROM %s ORDER BY %s", COL_TEN_GA, TBL_GA, COL_TEN_GA);
@@ -108,6 +89,10 @@ public class ThongKeVe_DAO {
         }
         return danhSachGa;
     }
+
+    // ===========================================
+    // 1. CÁC HÀM HỖ TRỢ LẤY DỮ LIỆU COMBOBOX
+    // ===========================================
 
     public Map<String, String> getDanhSachLoaiVe() throws SQLException {
         Map<String, String> danhSach = new LinkedHashMap<>();
@@ -136,10 +121,6 @@ public class ThongKeVe_DAO {
         }
         return danhSach;
     }
-
-    // ===========================================
-    // 2. HÀM THỐNG KÊ CHI TIẾT (BIỂU ĐỒ/BẢNG)
-    // ===========================================
 
     public Map<String, ThongKeVeChiTietItem> getThongKeVeChiTietTheoThoiGian(
             String loaiThoiGian, LocalDate tuNgay, LocalDate denNgay,
@@ -216,7 +197,7 @@ public class ThongKeVe_DAO {
                 "  SUM(GiaVe) AS TongTienVe, " +
                 "  CASE WHEN ? = N'Theo Ga đi/đến' " +
 // Ép kiểu sang NVARCHAR(MAX) để tránh lỗi giới hạn 8000 ký tự
-                "       THEN STRING_AGG(CAST(ISNULL(TenGaDi, 'N/A') + ' -> ' + ISNULL(TenGaDen, 'N/A') AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY TenGaDi, TenGaDen) " +                "       ELSE N'N/A' " +
+                "       THEN STRING_AGG(CAST(ISNULL(TenGaDi, 'N/A') + ' -> ' + ISNULL(TenGaDen, 'N/A') AS NVARCHAR(MAX)), ', ') WITHIN GROUP (ORDER BY TenGaDi, TenGaDen) " + "       ELSE N'N/A' " +
                 "  END AS TuyenDuong " +
                 "FROM ThongKeNhom " +
                 "WHERE ThoiGian IS NOT NULL " +
@@ -276,7 +257,7 @@ public class ThongKeVe_DAO {
     }
 
     // ===========================================
-    // 3. CÁC HÀM CARD (TỔNG QUAN)
+    // 2. HÀM THỐNG KÊ CHI TIẾT (BIỂU ĐỒ/BẢNG)
     // ===========================================
 
     // Helper: Xây dựng câu SQL chung cho các Card
@@ -312,6 +293,10 @@ public class ThongKeVe_DAO {
         return sql.toString();
     }
 
+    // ===========================================
+    // 3. CÁC HÀM CARD (TỔNG QUAN)
+    // ===========================================
+
     // Helper: Set tham số cho PreparedStatement của Card
     private void setCardParameters(PreparedStatement pstmt, LocalDate tuNgay, LocalDate denNgay,
                                    String loaiTuyen, String tenGaDi, String tenGaDen,
@@ -340,17 +325,19 @@ public class ThongKeVe_DAO {
         }
     }
 
-    // --- Các hàm Public lấy số liệu thẻ ---
-
     public int getTongSoVeBanTrongKhoang(LocalDate tuNgay, LocalDate denNgay, String loaiTuyen, String tenGaDi, String tenGaDen, String nhanVienID, String hangToaID, String trangThai) throws SQLException {
         String countSql = String.format("COUNT(%s)", COL_VE_ID);
         String sql = buildCardSql(loaiTuyen, nhanVienID, hangToaID, trangThai, countSql);
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         }
         return 0;
     }
+
+    // --- Các hàm Public lấy số liệu thẻ ---
 
     public int getTongVeConHieuLucTrongKhoang(LocalDate tuNgay, LocalDate denNgay, String loaiTuyen, String tenGaDi, String tenGaDen, String nhanVienID, String hangToaID, String trangThai) throws SQLException {
         String countSql = String.format("COUNT(%s)", COL_VE_ID);
@@ -359,7 +346,9 @@ public class ThongKeVe_DAO {
         sql += " WHERE " + COL_TRANG_THAI + " = ? ";
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai, TT_DA_BAN);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         }
         return 0;
     }
@@ -370,7 +359,9 @@ public class ThongKeVe_DAO {
         sql += " WHERE " + COL_TRANG_THAI + " = ? ";
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai, TT_DA_DUNG);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         }
         return 0;
     }
@@ -381,7 +372,9 @@ public class ThongKeVe_DAO {
         sql += " WHERE " + COL_TRANG_THAI + " = ? ";
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai, TT_DA_DOI);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         }
         return 0;
     }
@@ -392,7 +385,9 @@ public class ThongKeVe_DAO {
         sql += " WHERE " + COL_TRANG_THAI + " = ? ";
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai, TT_DA_HOAN);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getInt(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getInt(1);
+            }
         }
         return 0;
     }
@@ -402,8 +397,26 @@ public class ThongKeVe_DAO {
         String sql = buildCardSql(loaiTuyen, nhanVienID, hangToaID, trangThai, sumSql);
         try (Connection conn = ConnectDB.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             setCardParameters(pstmt, tuNgay, denNgay, loaiTuyen, tenGaDi, tenGaDen, nhanVienID, hangToaID, trangThai);
-            try (ResultSet rs = pstmt.executeQuery()) { if (rs.next()) return rs.getDouble(1); }
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) return rs.getDouble(1);
+            }
         }
         return 0.0;
+    }
+
+    // Inner class DTO để hứng dữ liệu thống kê chi tiết
+    public static class ThongKeVeChiTietItem {
+        public String thoiGian;
+        public int tongSoVeBan = 0;
+        public int tongVeConHieuLuc = 0;
+        public int tongVeDaDung = 0;
+        public int tongVeDaDoi = 0;
+        public int tongVeHoan = 0;
+        public double tongTienVe = 0.0;
+        public String tuyenDuong;
+
+        public ThongKeVeChiTietItem(String thoiGian) {
+            this.thoiGian = thoiGian;
+        }
     }
 }

@@ -43,7 +43,7 @@ public class DonDatCho_DAO {
 
     /**
      * @param donDatChoID
-     * @param soGiayTo
+     * @param soDienThoai
      * @return
      */
     public DonDatCho findDonDatChoByIDVaSoGiayTo(String donDatChoID, String soGiayTo) {
@@ -60,10 +60,10 @@ public class DonDatCho_DAO {
             resultSet = pstmt.executeQuery();
             if (resultSet.next()) {
                 DonDatCho d = new DonDatCho();
-                d.setId(resultSet.getString("donDatChoID"));
+                d.setDonDatChoID(resultSet.getString("donDatChoID"));
                 d.setNhanVien(new NhanVien(resultSet.getString("nhanVienID")));
                 d.setKhachHang(new KhachHang(resultSet.getString("khachHangID")));
-                java.sql.Timestamp t1 = resultSet.getTimestamp("thoiDiemDatCho");
+                Timestamp t1 = resultSet.getTimestamp("thoiDiemDatCho");
                 d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
                 return d;
             }
@@ -81,9 +81,9 @@ public class DonDatCho_DAO {
     public boolean insertDonDatCho(Connection conn, DonDatCho donDatCho) throws Exception {
         String sql = "INSERT INTO DonDatCho (donDatChoID, nhanVienID, khachHangID, thoiDiemDatCho) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, donDatCho.getId());
-            pstmt.setString(2, donDatCho.getNhanVien().getId());
-            pstmt.setString(3, donDatCho.getKhachHang().getId());
+            pstmt.setString(1, donDatCho.getDonDatChoID());
+            pstmt.setString(2, donDatCho.getNhanVien().getNhanVienID());
+            pstmt.setString(3, donDatCho.getKhachHang().getKhachHangID());
             pstmt.setTimestamp(4, Timestamp.valueOf(donDatCho.getThoiDiemDatCho()));
             return pstmt.executeUpdate() > 0;
         }
@@ -110,11 +110,11 @@ public class DonDatCho_DAO {
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
                 DonDatCho d = new DonDatCho();
-                d.setId(resultSet.getString("donDatChoID"));
+                d.setDonDatChoID(resultSet.getString("donDatChoID"));
                 d.setNhanVien(new NhanVien(resultSet.getString("nhanVienID"), resultSet.getString("hoTenNV")));
                 d.setKhachHang(new KhachHang(resultSet.getString("khachHangID"), resultSet.getString("hoTenKH"),
                         resultSet.getString("soGiayTo"), resultSet.getString("soDienThoai")));
-                java.sql.Timestamp t1 = resultSet.getTimestamp("thoiDiemDatCho");
+                Timestamp t1 = resultSet.getTimestamp("thoiDiemDatCho");
                 d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
 
                 int tongSoVe = resultSet.getInt("tongSoVe");
@@ -168,11 +168,11 @@ public class DonDatCho_DAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     DonDatCho d = new DonDatCho();
-                    d.setId(rs.getString("donDatChoID"));
+                    d.setDonDatChoID(rs.getString("donDatChoID"));
                     d.setNhanVien(new NhanVien(rs.getString("nhanVienID"), rs.getString("hoTenNV")));
                     d.setKhachHang(new KhachHang(rs.getString("khachHangID"), rs.getString("hoTenKH"),
                             rs.getString("soGiayTo"), rs.getString("soDienThoai")));
-                    java.sql.Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
+                    Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
                     d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
 
                     int tongSoVe = rs.getInt("tongSoVe");
@@ -284,11 +284,11 @@ public class DonDatCho_DAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     DonDatCho d = new DonDatCho();
-                    d.setId(rs.getString("donDatChoID"));
+                    d.setDonDatChoID(rs.getString("donDatChoID"));
                     d.setNhanVien(new NhanVien(rs.getString("nhanVienID"), rs.getString("hoTenNV")));
                     d.setKhachHang(new KhachHang(rs.getString("khachHangID"), rs.getString("hoTenKH"),
                             rs.getString("soGiayTo"), rs.getString("soDienThoai")));
-                    java.sql.Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
+                    Timestamp t1 = rs.getTimestamp("thoiDiemDatCho");
                     d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
 
                     int tongSoVe = rs.getInt("tongSoVe");

@@ -64,4 +64,16 @@ public class GiaoDichHoanDoi implements Serializable {
 
     @Column(name = "soTienChenhLech", nullable = false, precision = 12, scale = 2)
     private double soTienChenhLech;
+
+    public GiaoDichHoanDoi(String gdhdID, NhanVien nhanVien, HoaDon hoaDon, Ve ve, LoaiGiaoDich loaiGiaoDich, String lyDo, LocalDateTime thoiDiemTao, double lePhiHoanVe, double soTienChenhLech) {
+        this.giaoDichHoanDoiID = gdhdID;
+        this.nhanVien = nhanVien;
+        this.hoaDon = hoaDon;
+        this.veGoc = ve;
+        this.loaiGiaoDich = loaiGiaoDich;
+        this.lyDo = lyDo;
+        this.thoiDiemGiaoDich = thoiDiemTao;
+        this.phiHoanDoi = lePhiHoanVe;
+        this.soTienChenhLech = soTienChenhLech;
+    }
 }

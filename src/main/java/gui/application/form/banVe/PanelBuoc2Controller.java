@@ -93,7 +93,7 @@ public class PanelBuoc2Controller {
         loadSeatStatsForChuyens(chuyens, criteria);
 
         if (chuyens != null && !chuyens.isEmpty()) {
-            panelChuyenTau.selectChuyenById(chuyens.get(0).getId());
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
             onChuyenSelected(chuyens.get(0));
         }
     }
@@ -115,8 +115,8 @@ public class PanelBuoc2Controller {
             protected Map<String, int[]> doInBackground() throws Exception {
                 Map<String, int[]> stats = new HashMap<>();
                 for (Chuyen c : chuyens) {
-                    int[] stat = getChuyenBUS().layThongKeCho(c.getId(), gaDiID, gaDenID);
-                    stats.put(c.getId(), stat);
+                    int[] stat = getChuyenBUS().layThongKeCho(c.getChuyenID(), gaDiID, gaDenID);
+                    stats.put(c.getChuyenID(), stat);
                 }
                 return stats;
             }
@@ -145,7 +145,7 @@ public class PanelBuoc2Controller {
         new SwingWorker<List<Toa>, Void>() {
             @Override
             protected List<Toa> doInBackground() throws Exception {
-                return getChuyenBUS().layCacToaTheoChuyen(c.getId());
+                return getChuyenBUS().layCacToaTheoChuyen(c.getChuyenID());
             }
 
             @Override
@@ -154,7 +154,7 @@ public class PanelBuoc2Controller {
                     List<Toa> list = get();
                     panelDoanTau.showToaList(list, toa -> onToaSelected(toa));
                     if (list != null && !list.isEmpty()) {
-                        panelDoanTau.selectToaById(list.get(0).getId());
+                        panelDoanTau.selectToaById(list.get(0).getToaID());
                         panelSoDoCho.setToaList(list);
                         panelSoDoCho.setCurrentToa(list.get(0));
                     }
@@ -181,8 +181,8 @@ public class PanelBuoc2Controller {
         }
 
         // 1) fetch current chuyen/toa
-        String chuyenID = (getSelectedChuyen() != null) ? getSelectedChuyen().getId() : null;
-        String toaID = toa.getId();
+        String chuyenID = (getSelectedChuyen() != null) ? getSelectedChuyen().getChuyenID() : null;
+        String toaID = toa.getToaID();
 
         // 2) try to get gaDi/gaDen from bookingSession (based on currentTripIndex)
         String gaDiID = null;
@@ -285,7 +285,7 @@ public class PanelBuoc2Controller {
         SwingUtilities.invokeLater(() -> {
             try {
                 if (panelDoanTau != null) {
-                    panelDoanTau.selectToaById(toa.getId());
+                    panelDoanTau.selectToaById(toa.getToaID());
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -337,7 +337,7 @@ public class PanelBuoc2Controller {
                             listener.onSeatSelected(v);
                         }
                         // Cập nhật số lượng trên card chuyến tàu
-                        updateSeatCountLocal(selectedChuyen.getId(), 1); // +1 đặt
+                        updateSeatCountLocal(selectedChuyen.getChuyenID(), 1); // +1 đặt
                         panelSoDoCho.setCurrentToa(toa);
                     } else {
                         JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi tạo vé).");
@@ -352,7 +352,7 @@ public class PanelBuoc2Controller {
 
     /**
      * @param chuyenID
-     * @param i
+     * @param deltaDat
      */
     private void updateSeatCountLocal(String chuyenID, int deltaDat) {
         // Lấy số hiện tại từ Panel (hoặc từ cache nếu có biến lưu trữ trong
@@ -380,8 +380,8 @@ public class PanelBuoc2Controller {
         }
 
         // 1. Lấy thông tin định danh của ghế
-        String currentChuyenID = getSelectedChuyen().getId();
-        String currentToaID = toa.getId();
+        String currentChuyenID = getSelectedChuyen().getChuyenID();
+        String currentToaID = toa.getToaID();
         int currentSoGhe = ghe.getSoGhe();
 
         // 2. Lấy danh sách vé của CHUYẾN HIỆN TẠI
@@ -389,8 +389,8 @@ public class PanelBuoc2Controller {
 
         // 3. Tìm VeSession THỰC SỰ đang có trong danh sách
         VeSession veToRemove = currentTripTickets.stream()
-                .filter(v -> v.getVe().getChuyen().getId().equals(currentChuyenID)
-                        && v.getVe().getGhe().getToa().getId().equals(currentToaID)
+                .filter(v -> v.getVe().getChuyen().getChuyenID().equals(currentChuyenID)
+                        && v.getVe().getGhe().getToa().getToaID().equals(currentToaID)
                         && v.getVe().getGhe().getSoGhe() == currentSoGhe)
                 .findFirst().orElse(null);
 
@@ -451,20 +451,20 @@ public class PanelBuoc2Controller {
 
         bookingSession.removeVeSession(v);
 
-        datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPhieuGiuChoChiTiet().getId());
+        datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
         if (bookingSession.getOutboundSelectedTickets().size() == 0
                 && bookingSession.getReturnSelectedTickets().size() == 0) {
-            datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getId());
+            datChoBUS.xoaPhieuGiuCho(bookingSession.getPhieuGiuCho().getPhieuGiuChoID());
         }
 
         SwingUtilities.invokeLater(
                 () -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));
 
         // Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
-        if (selectedToa != null && v.getVe().getGhe().getToa().getId().equals(selectedToa.getId())
+        if (selectedToa != null && v.getVe().getGhe().getToa().getToaID().equals(selectedToa.getToaID())
                 && (removedOutbound || removedReturn)) {
             // Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
-            if (selectedChuyen != null && v.getVe().getChuyen().getId().equals(selectedChuyen.getId())) {
+            if (selectedChuyen != null && v.getVe().getChuyen().getChuyenID().equals(selectedChuyen.getChuyenID())) {
                 refreshSeatOnDelete(v);
             }
         }
@@ -475,12 +475,12 @@ public class PanelBuoc2Controller {
             return Collections.emptySet();
         }
 
-        String currentChuyenID = getSelectedChuyen().getId();
-        String currentToaID = currentToa.getId();
+        String currentChuyenID = getSelectedChuyen().getChuyenID();
+        String currentToaID = currentToa.getToaID();
 
         Set<Integer> selectedSoGheSet = getBookingSession().getSelectedTicketsForTrip(getCurrentTripIndex()).stream()
-                .filter(v -> currentChuyenID.equals(v.getVe().getChuyen().getId())
-                        && currentToaID.equals(v.getVe().getGhe().getToa().getId()))
+                .filter(v -> currentChuyenID.equals(v.getVe().getChuyen().getChuyenID())
+                        && currentToaID.equals(v.getVe().getGhe().getToa().getToaID()))
                 .map(VeSession::getSoGhe).collect(Collectors.toSet());
 
         return selectedSoGheSet;

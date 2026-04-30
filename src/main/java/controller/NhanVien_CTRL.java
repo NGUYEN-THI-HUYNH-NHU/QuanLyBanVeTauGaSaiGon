@@ -4,7 +4,7 @@ import bus.NhanVien_BUS;
 import bus.NhatKyAudit_BUS;
 import entity.CaLam;
 import entity.NhanVien;
-import entity.type.VaiTroNhanVien;
+import entity.type.VaiTroNhanVienEnums;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -43,26 +43,50 @@ public class NhanVien_CTRL {
         return nhanVien_bus.suaNhanvVien(nv, nguoiThucHienID);
     }
 
-    public boolean validHoTen(String hoTen) { return nhanVien_bus.validHoTen(hoTen); }
-    public boolean validSDT(String sdt) { return nhanVien_bus.validSDT(sdt); }
-    public boolean validEmail(String email) { return nhanVien_bus.validEmail(email); }
-    public boolean validDiaChi(String diaChi) { return nhanVien_bus.validDiaChi(diaChi); }
-    public boolean validCaLam(String caLam) { return nhanVien_bus.validCaLam(caLam); }
-    public boolean ngaySinh(LocalDate ngaySinh) { return nhanVien_bus.ngaySinh(ngaySinh); }
-    public boolean ngayThamGia(LocalDate ngayThamGia) { return nhanVien_bus.ngayThamGia(ngayThamGia); }
-    public boolean validGioiTinh(boolean isNu) { return nhanVien_bus.validGioiTinh(isNu); }
+    public boolean validHoTen(String hoTen) {
+        return nhanVien_bus.validHoTen(hoTen);
+    }
+
+    public boolean validSDT(String sdt) {
+        return nhanVien_bus.validSDT(sdt);
+    }
+
+    public boolean validEmail(String email) {
+        return nhanVien_bus.validEmail(email);
+    }
+
+    public boolean validDiaChi(String diaChi) {
+        return nhanVien_bus.validDiaChi(diaChi);
+    }
+
+    public boolean validCaLam(String caLam) {
+        return nhanVien_bus.validCaLam(caLam);
+    }
+
+    public boolean ngaySinh(LocalDate ngaySinh) {
+        return nhanVien_bus.ngaySinh(ngaySinh);
+    }
+
+    public boolean ngayThamGia(LocalDate ngayThamGia) {
+        return nhanVien_bus.ngayThamGia(ngayThamGia);
+    }
+
+    public boolean validGioiTinh(boolean isNu) {
+        return nhanVien_bus.validGioiTinh(isNu);
+    }
 
     public String taoMaNhanVien() {
         return nhanVien_bus.taoMaNhanVienTuDong();
     }
 
-    public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVien vaiTro, Boolean isHoatDong) {
+    public List<NhanVien> timKiemNhanVien(String ten, String sdt, VaiTroNhanVienEnums vaiTro, Boolean isHoatDong) {
         return nhanVien_bus.timKiemNhanVien(ten, sdt, vaiTro, isHoatDong);
     }
 
-    public VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV) {
+    public VaiTroNhanVienEnums layVaiTroNhanVienTheoMaNV(String maNV) {
         return nhanVien_bus.layVaiTroNhanVienTheoMaNV(maNV);
     }
+
     //==================================================CALAM==========================================
     //lấy danh sách ca làm
     public List<CaLam> layDanhSachCaLam() {

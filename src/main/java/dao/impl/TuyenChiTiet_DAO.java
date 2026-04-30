@@ -1,6 +1,6 @@
 package dao.impl;/*
  * @ (#) TuyenChiTiet_DAO.java   1.0     21/10/2025
-package dao.impl;
+package dao;
 
 
 /**
@@ -50,7 +50,7 @@ public class TuyenChiTiet_DAO {
             pstm.setString(1, tuyenID);
             try (ResultSet rs = pstm.executeQuery()) {
                 while (rs.next()) {
-                    Tuyen tuyen = Tuyen.builder().id(rs.getString("tuyenID")).moTa(rs.getString("moTa")).build();
+                    Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
                     Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
                     TuyenChiTiet tct = new TuyenChiTiet(
                             tuyen,
@@ -82,7 +82,7 @@ public class TuyenChiTiet_DAO {
 
             try (PreparedStatement pstmtChiTiet = con.prepareStatement(sql)) {
                 for (TuyenChiTiet chiTiet : danhSachChiTiet) {
-                    pstmtChiTiet.setString(1, chiTiet.getTuyen().getId());
+                    pstmtChiTiet.setString(1, chiTiet.getTuyen().getTuyenID());
                     pstmtChiTiet.setString(2, chiTiet.getGa().getGaID());
                     pstmtChiTiet.setInt(3, chiTiet.getThuTu());
                     pstmtChiTiet.setInt(4, chiTiet.getKhoangCachTuGaXuatPhatKm());

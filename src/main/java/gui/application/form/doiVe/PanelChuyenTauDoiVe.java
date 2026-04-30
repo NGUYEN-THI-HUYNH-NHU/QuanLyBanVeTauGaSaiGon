@@ -70,7 +70,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
                         controllerDoiVe.onChuyenSelected(c);
                     }
                 });
-                card.putClientProperty("chuyenID", c.getId());
+                card.putClientProperty("chuyenID", c.getChuyenID());
                 flowPanel.add(card);
             }
         }
@@ -97,7 +97,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 2, 0, 2);
 
-        JLabel lblTau = new JLabel(c.getTau() == null ? "Tàu" : c.getTau().getId(), SwingConstants.CENTER);
+        JLabel lblTau = new JLabel(c.getTau() == null ? "Tàu" : c.getTau().getTauID(), SwingConstants.CENTER);
         lblTau.setFont(fontLbl.deriveFont(Font.BOLD, 10f));
         gbc.gridy = 0;
         overlay.add(lblTau, gbc);
@@ -128,7 +128,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         overlay.add(lblCho, gbc);
 
         // Lưu label vào Map để update sau
-        mapSeatLabels.put(c.getId(), lblCho);
+        mapSeatLabels.put(c.getChuyenID(), lblCho);
 
         // thêm overlay và bottom label
         p.add(overlay, BorderLayout.NORTH);

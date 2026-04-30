@@ -1,5 +1,13 @@
 package gui.application.form.khuyenMai;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.toedter.calendar.JDateChooser;
+import controller.KhuyenMai_CTRL;
+import entity.*;
+import entity.type.HangToaEnums;
+import entity.type.LoaiDoiTuongEnums;
+import entity.type.LoaiTauEnums;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -14,46 +22,30 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.toedter.calendar.JDateChooser;
-import controller.KhuyenMai_CTRL;
-import entity.DieuKienKhuyenMai;
-import entity.KhuyenMai;
-import entity.NhanVien;
-import entity.Tuyen;
-import entity.type.HangToa;
-import entity.type.LoaiDoiTuong;
-import entity.type.LoaiTau;
-
-
 
 public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVien nhanVien;
     private final KhuyenMai_CTRL khuyenMai_ctrl;
     private final Timer autoUpdateTimer;
+    //màu cố định
+    private final Color COLOR_PRIMARY = new Color(30, 100, 150);
+    private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
+    private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
+    //font cố định
+    private final Font titleFont = new Font("Roboto", Font.BOLD, 20);
+    private final Font labelFont = new Font("Roboto", Font.PLAIN, 13);
+    private final Font inputFont = new Font("Roboto", Font.PLAIN, 13);
     private JTextField txtMaKM, txtCodeKH, txtMoTa, txtTyLeGiamGia, txtTienGiamGia, txtSoLuong, txtGioiHan, txtNgayTrongTuan, txtMinGiaTriHoaDon;
     private JCheckBox txtTrangThai, txtNgayLe;
     private JDateChooser txtNgayBD, txtNgayKT;
     private JButton btnAdd, btnEdit, btnFind, btnClean;
     private DefaultTableModel tableModel;
     private JTable table;
-    private JComboBox<HangToa> txtHangToa;
-    private JComboBox<LoaiTau> txtLoaiTau;
-    private JComboBox<LoaiDoiTuong> txtLoaiDoiTuong;
+    private JComboBox<HangToaEnums> txtHangToa;
+    private JComboBox<LoaiTauEnums> txtLoaiTau;
+    private JComboBox<LoaiDoiTuongEnums> txtLoaiDoiTuong;
     private JComboBox<Tuyen> txtTuyen;
     private List<JComponent> allFields;
-
-
-    //màu cố định
-    private final Color COLOR_PRIMARY = new Color(30, 100, 150);
-    private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
-    private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
-
-
-    //font cố định
-    private final Font titleFont = new Font("Roboto", Font.BOLD, 20);
-    private final Font labelFont = new Font("Roboto", Font.PLAIN, 13);
-    private final Font inputFont = new Font("Roboto", Font.PLAIN, 13);
     private JTabbedPane tabPane;
 
 
@@ -79,7 +71,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         goiYMaKhuyenMai();
 
 
-        autoUpdateTimer = new Timer(86400000 , e -> khuyenMai_ctrl.tuDongCapNhatTrangThai());
+        autoUpdateTimer = new Timer(86400000, e -> khuyenMai_ctrl.tuDongCapNhatTrangThai());
         autoUpdateTimer.start();
         autoUpdateTimer.setRepeats(true);
 
@@ -144,7 +136,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
 
         // Tiêu đề
         JLabel lblTitle = new JLabel("QUẢN LÝ KHUYẾN MÃI");
-        lblTitle.setFont(new Font("Roboto", Font.BOLD ,26));
+        lblTitle.setFont(new Font("Roboto", Font.BOLD, 26));
         lblTitle.setForeground(COLOR_TEXT_TITLE);
         lblTitle.setHorizontalAlignment(JLabel.CENTER);
 
@@ -164,7 +156,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                 BorderFactory.createLineBorder(COLOR_PRIMARY),
                 "Thông tin khuyến mãi", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Roboto", Font.BOLD, 13),
-                        COLOR_PRIMARY));
+                COLOR_PRIMARY));
         panelThongTin.setBackground(COLOR_BG_PANEL);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -191,7 +183,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
 
         // Tiền giảm giá
         txtTienGiamGia = new JTextField(20);
-        formNhapThongTin(panelThongTin, gbc, 4, "Tiền giảm giá:", txtTienGiamGia,inputFont);
+        formNhapThongTin(panelThongTin, gbc, 4, "Tiền giảm giá:", txtTienGiamGia, inputFont);
 
         // Ngày bắt đầu
         txtNgayBD = new JDateChooser();
@@ -208,6 +200,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         return panelThongTin;
 
     }
+
     // panel điều kiện
     private JPanel createPanelDieuKien() {
         JPanel panelDieuKien = new JPanel(new GridBagLayout());
@@ -241,15 +234,15 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         formNhapThongTin(panelDieuKien, gbc, 3, "Tuyến:", txtTuyen, inputFont);
 
         // Hạng toa
-        txtHangToa = taoComboBoxCoTatCa(HangToa.class);
+        txtHangToa = taoComboBoxCoTatCa(HangToaEnums.class);
         formNhapThongTin(panelDieuKien, gbc, 4, "Hạng toa:", txtHangToa, inputFont);
 
         // Loại tàu
-        txtLoaiTau = taoComboBoxCoTatCa(LoaiTau.class);
+        txtLoaiTau = taoComboBoxCoTatCa(LoaiTauEnums.class);
         formNhapThongTin(panelDieuKien, gbc, 5, "Loại tàu:", txtLoaiTau, inputFont);
 
         // Loại đối tượng
-        txtLoaiDoiTuong = taoComboBoxCoTatCa(LoaiDoiTuong.class);
+        txtLoaiDoiTuong = taoComboBoxCoTatCa(LoaiDoiTuongEnums.class);
         formNhapThongTin(panelDieuKien, gbc, 6, "Loại đối tượng:", txtLoaiDoiTuong, inputFont);
 
         // Ngày trong tuần
@@ -290,18 +283,17 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         mainPanel.add(panelTop, BorderLayout.CENTER);
 
 
-
         JPanel panelButtons = new JPanel(new BorderLayout());
         panelButtons.setBackground(Color.WHITE);
 
         JLabel lblTieuChi = new JLabel();
         lblTieuChi.setText("""
-                        <html>
-                        <b>Tìm kiếm theo:</b> Code KM, Mô tả, Tuyến, Trạng thái, Loại tàu, Hạng toa, Loại đối tượng
-                        <br>
-                        Khoảng thời gian (Xoá thời gian nếu không sử dụng).
-                        </html>
-                        """);
+                <html>
+                <b>Tìm kiếm theo:</b> Code KM, Mô tả, Tuyến, Trạng thái, Loại tàu, Hạng toa, Loại đối tượng
+                <br>
+                Khoảng thời gian (Xoá thời gian nếu không sử dụng).
+                </html>
+                """);
         lblTieuChi.setFont(new Font("Roboto", Font.ITALIC, 12));
         lblTieuChi.setForeground(new Color(51, 65, 85));
         lblTieuChi.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 10));
@@ -361,7 +353,6 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
     }
 
 
-
     // khuôn của form
     private void formNhapThongTin(JPanel panel, GridBagConstraints gbc, int y, String labelText, JComponent field, Font font) {
         gbc.gridx = 0;
@@ -397,14 +388,14 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         tabPane = new JTabbedPane();
         tabPane.setFont(new Font("Roboto", Font.BOLD, 13));
 
-        String[] loaiKM = { "Tất cả","Mùa", "Lễ hội", "Đối tượng", "Tuyến", "Hạng vé", "Loại tàu", "Hạng toa", "Ngày trong tuần", "Min giá hóa đơn" };
+        String[] loaiKM = {"Tất cả", "Mùa", "Lễ hội", "Đối tượng", "Tuyến", "Hạng vé", "Loại tàu", "Hạng toa", "Ngày trong tuần", "Min giá hóa đơn"};
         for (String loai : loaiKM) {
             tabPane.addTab(loai, new JLabel(""));
         }
 
         // Tạo bảng danh sách
-        String[] columnNames = { "Mã khuyến mãi", "Code KH", "Mô tả", "Tỷ lệ giảm giá", "Tiền giảm giá",
-                "Ngày bắt đầu", "Ngày kết thúc", "Số lượng", "Giới hạn/khách", "Trạng thái" };
+        String[] columnNames = {"Mã khuyến mãi", "Code KH", "Mô tả", "Tỷ lệ giảm giá", "Tiền giảm giá",
+                "Ngày bắt đầu", "Ngày kết thúc", "Số lượng", "Giới hạn/khách", "Trạng thái"};
 
 
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -422,7 +413,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         header.setForeground(Color.WHITE);
         header.setFont(new Font("Roboto", Font.BOLD, 13));
 
-        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -471,11 +462,12 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
 
         return panel;
     }
+
     //cap nhap trang thai
-    private void capNhatTrangThaiTuDong(){
-        if(khuyenMai_ctrl.tuDongCapNhatTrangThai()){
+    private void capNhatTrangThaiTuDong() {
+        if (khuyenMai_ctrl.tuDongCapNhatTrangThai()) {
             System.out.print("Cập nhật trạng thái khuyến mãi thành công!");
-        }else{
+        } else {
             System.out.print("Cập nhật trạng thái khuyến mãi thất bại!");
         }
     }
@@ -521,7 +513,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
     }
 
     //reset form
-    public void resetForm(){
+    public void resetForm() {
         txtMaKM.setText("");
         txtCodeKH.setText("");
         txtMoTa.setText("");
@@ -544,6 +536,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
 
         initPlaceholders();
     }
+
     //Valid form
     public boolean validForm(boolean isEdit) {
         // 1. Lấy dữ liệu từ form
@@ -557,9 +550,9 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         String minGiaTriStr = getRealText(txtMinGiaTriHoaDon, "VD: 200.000");
 
         Tuyen tuyen = (Tuyen) txtTuyen.getSelectedItem();
-        HangToa hangToa = (HangToa) txtHangToa.getSelectedItem();
-        LoaiTau loaiTau = (LoaiTau) txtLoaiTau.getSelectedItem();
-        LoaiDoiTuong loaiDoiTuong = (LoaiDoiTuong) txtLoaiDoiTuong.getSelectedItem();
+        HangToaEnums hangToa = (HangToaEnums) txtHangToa.getSelectedItem();
+        LoaiTauEnums loaiTau = (LoaiTauEnums) txtLoaiTau.getSelectedItem();
+        LoaiDoiTuongEnums loaiDoiTuong = (LoaiDoiTuongEnums) txtLoaiDoiTuong.getSelectedItem();
 
         double tyLeGiamGia = 0;
         double tienGiamGia = 0;
@@ -648,7 +641,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                 txtSoLuong.requestFocus();
                 return false;
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Số lượng không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             txtSoLuong.requestFocus();
             return false;
@@ -668,7 +661,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                 txtGioiHan.requestFocus();
                 return false;
             }
-        }else{
+        } else {
             JOptionPane.showMessageDialog(this, "Giới hạn mỗi khách hàng không được để trống!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             txtGioiHan.requestFocus();
             return false;
@@ -780,9 +773,20 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
 
         // Khi người dùng gõ
         txtCodeKH.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { filterGoiY(); }
-            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { filterGoiY(); }
-            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { filterGoiY(); }
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterGoiY();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterGoiY();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterGoiY();
+            }
 
             private void filterGoiY() {
                 String text = txtCodeKH.getText().trim().toUpperCase();
@@ -872,6 +876,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
             return "Không xác định";
         }
     }
+
     //thêm khuyến mãi
     public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
         boolean flag = khuyenMai_ctrl.themKhuyenMai(km, dkkm);
@@ -885,7 +890,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
     }
 
     //sửa khuyến mãi
-    private boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm){
+    private boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
         boolean flag = khuyenMai_ctrl.suaKhuyenMai(km, dkkm);
         if (flag) {
             String loai = xacDinhLoaiKhuyenMai(km.getMaKhuyenMai());
@@ -946,6 +951,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         }
         return dsTimDuoc;
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -956,7 +962,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
             }
         }
 
-        if(o.equals(btnClean)){
+        if (o.equals(btnClean)) {
             resetForm();
             return;
         }
@@ -969,7 +975,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
         String moTa = getRealText(txtMoTa, "VD: Giảm 10% giá vé dịp 30/4");
         double tyLeGiamGia = getRealText(txtTyLeGiamGia, "VD: 0.1 (ở dạng số thập phân, 10% = 0.1)").isEmpty() ? 0 : Double.parseDouble(txtTyLeGiamGia.getText().trim());
         double tienGiamGia = getRealText(txtTienGiamGia, "VD: 20000").isEmpty() ? 0 : parseTien(txtTienGiamGia.getText());
-        double soLuong = getRealText(txtSoLuong, "VD: 100 (số lượng mã)").isEmpty() ? 0 : Double.parseDouble(txtSoLuong.getText().trim());
+        int soLuong = getRealText(txtSoLuong, "VD: 100 (số lượng mã)").isEmpty() ? 0 : Integer.parseInt(txtSoLuong.getText().trim());
         int gioiHan = getRealText(txtGioiHan, "VD: 1 (mỗi khách chỉ dùng 1 lần)").isEmpty() ? 0 : Integer.parseInt(txtGioiHan.getText().trim());
         boolean trangThai = txtTrangThai.isSelected();
 
@@ -1076,7 +1082,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                 txtTienGiamGia.setText(dinhDangTien(km.getTienGiamGia()));
                 txtNgayBD.setDate(Date.valueOf(km.getNgayBatDau()));
                 txtNgayKT.setDate(Date.valueOf(km.getNgayKetThuc()));
-                txtSoLuong.setText(String.valueOf((int)km.getSoLuong()));
+                txtSoLuong.setText(String.valueOf((int) km.getSoLuong()));
                 txtGioiHan.setText(String.valueOf(km.getGioiHanMoiKhachHang()));
                 txtTrangThai.setSelected(km.isTrangThai());
 
@@ -1087,7 +1093,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                     txtHangToa.setSelectedItem(dkkm.getHangToa());
                     txtLoaiDoiTuong.setSelectedItem(dkkm.getLoaiDoiTuong());
                     txtNgayTrongTuan.setText(dkkm.getNgayTrongTuan() > 0 ? String.valueOf(dkkm.getNgayTrongTuan()) : "");
-                    txtNgayLe.setSelected(dkkm.isNgayLe());
+                    txtNgayLe.setSelected(dkkm.getNgayLe());
                     txtMinGiaTriHoaDon.setText(dinhDangTien(dkkm.getMinGiaTriDonHang()));
                 } else {
                     txtTuyen.setSelectedItem(null);
@@ -1101,7 +1107,8 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
             }
         }
     }
-            //tạo jcombox có tất cả
+
+    //tạo jcombox có tất cả
 // Hàm tạo JComboBox có mục "Tất cả" — tự động fallback về "Tất cả" khi null
     private <T extends Enum<T>> JComboBox<T> taoComboBoxCoTatCa(Class<T> enumClass) {
         JComboBox<T> comboBox = new JComboBox<>();
@@ -1156,8 +1163,6 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
             return 0;
         }
     }
-
-
 
 
     //tạo jcombox tuyen
@@ -1255,18 +1260,23 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
     public void mousePressed(MouseEvent e) {
 
     }
+
     public void mouseReleased(MouseEvent e) {
 
     }
+
     public void mouseEntered(MouseEvent e) {
 
     }
+
     public void mouseExited(MouseEvent e) {
 
     }
+
     public void keyTyped(KeyEvent e) {
 
     }
+
     public void keyReleased(KeyEvent e) {
 
     }

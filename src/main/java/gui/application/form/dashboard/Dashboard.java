@@ -2,7 +2,7 @@ package gui.application.form.dashboard;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import connectDB.ConnectDB;
-import dao.Dashboard_DAO;
+import dao.impl.Dashboard_DAO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,8 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Arc2D; // Import cho PieChart
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.Arc2D;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -105,6 +104,21 @@ public class Dashboard extends JPanel {
             // viewType = 0 để biểu đồ đường/cột hiển thị chi tiết theo từng ngày trong tháng
             loadDashboardData(startMonth, endMonth, 0, fmt);
         }
+    }
+
+    public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        SwingUtilities.invokeLater(() -> {
+            JFrame f = new JFrame("Dashboard Light");
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            f.setContentPane(new Dashboard());
+            f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            f.setVisible(true);
+        });
     }
 
     // ========================================================================
@@ -205,16 +219,19 @@ public class Dashboard extends JPanel {
         }
 
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
 
         int stt = 1;
         for (Object[] row : dataList) {
             Object[] tRow;
             if (isLowOccupancy) {
-                tRow = new Object[]{ stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7] + "%" };
+                tRow = new Object[]{stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7] + "%"};
             } else {
-                tRow = new Object[]{ stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6] };
+                tRow = new Object[]{stt++, row[0], row[1], row[2], row[3], row[4], row[5], row[6]};
             }
             model.addRow(tRow);
         }
@@ -240,7 +257,7 @@ public class Dashboard extends JPanel {
         // Căn giữa nội dung các cột
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for(int i=0; i<table.getColumnCount(); i++) {
+        for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
@@ -296,7 +313,11 @@ public class Dashboard extends JPanel {
         lblFilter.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         f.add(lblFilter);
-        f.add(btnToday); f.add(btnWeek); f.add(btnMonth); f.add(btnYear); f.add(btnAll);
+        f.add(btnToday);
+        f.add(btnWeek);
+        f.add(btnMonth);
+        f.add(btnYear);
+        f.add(btnAll);
         h.add(f, BorderLayout.EAST);
         return h;
     }
@@ -326,55 +347,52 @@ public class Dashboard extends JPanel {
         }
     }
 
-    private class FilterActionListener implements ActionListener {
-        @Override public void actionPerformed(ActionEvent e) {
-            JButton s = (JButton) e.getSource();
-            updateFilterButtonStyle(s);
-
-            LocalDate n = LocalDate.now();
-            LocalDate st = null, en = null;
-            int v = 0;
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM");
-
-            if (s==btnToday) { st=n; en=n; }
-            else if (s==btnWeek) { st=n.with(DayOfWeek.MONDAY); en=n.with(DayOfWeek.SUNDAY); f=DateTimeFormatter.ofPattern("EEE (dd/MM)", new Locale("vi", "VN")); }
-            else if (s==btnMonth) { st=n.withDayOfMonth(1); en=n.with(TemporalAdjusters.lastDayOfMonth()); }
-            else if (s==btnYear) { st=n.withDayOfYear(1); en=n.with(TemporalAdjusters.lastDayOfYear()); v=1; f=DateTimeFormatter.ofPattern("'T'M"); }
-            else if (s==btnAll) { st=null; en=null; f=DateTimeFormatter.ofPattern("yyyy"); v=2; }
-
-            loadDashboardData(st, en, v, f);
-        }
-    }
-
     private JPanel createMainGrid() {
         JPanel g = new JPanel(new GridBagLayout());
         g.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6);
         c.fill = GridBagConstraints.BOTH;
-        c.gridy = 0; c.gridx = 0; c.weightx = 1; c.weighty = 0;
+        c.gridy = 0;
+        c.gridx = 0;
+        c.weightx = 1;
+        c.weighty = 0;
 
         // KPI Row
-        kpiRevenue = new KpiCard("TỔNG DOANH THU", "...", "+0%", CHART_COLORS[1]); g.add(kpiRevenue, c);
-        c.gridx = 1; kpiTicketsSold = new KpiCard("SỐ VÉ ĐÃ BÁN", "...", "+0%", CHART_COLORS[0]); g.add(kpiTicketsSold, c);
-        c.gridx = 2; kpiOccupancy = new KpiCard("TỶ LỆ LẤP ĐẦY", "...", "0/0", CHART_COLORS[2]); g.add(kpiOccupancy, c);
-        c.gridx = 3; kpiRefundRate = new KpiCard("TỶ LỆ HOÀN ĐỔI", "...", "0/0", CHART_COLORS[4]); g.add(kpiRefundRate, c);
+        kpiRevenue = new KpiCard("TỔNG DOANH THU", "...", "+0%", CHART_COLORS[1]);
+        g.add(kpiRevenue, c);
+        c.gridx = 1;
+        kpiTicketsSold = new KpiCard("SỐ VÉ ĐÃ BÁN", "...", "+0%", CHART_COLORS[0]);
+        g.add(kpiTicketsSold, c);
+        c.gridx = 2;
+        kpiOccupancy = new KpiCard("TỶ LỆ LẤP ĐẦY", "...", "0/0", CHART_COLORS[2]);
+        g.add(kpiOccupancy, c);
+        c.gridx = 3;
+        kpiRefundRate = new KpiCard("TỶ LỆ HOÀN ĐỔI", "...", "0/0", CHART_COLORS[4]);
+        g.add(kpiRefundRate, c);
 
         // Chart Row 1
-        c.gridy = 1; c.weighty = 0.5; c.gridx = 0; c.gridwidth = 2;
+        c.gridy = 1;
+        c.weighty = 0.5;
+        c.gridx = 0;
+        c.gridwidth = 2;
         revenuePieChart = new RevenuePieChartPanel(new HashMap<>());
         g.add(revenuePieChart, c);
 
-        c.gridx = 2; c.gridwidth = 2;
+        c.gridx = 2;
+        c.gridwidth = 2;
         invoiceAnalysisChart = new InvoiceAnalysisChartPanel();
         g.add(invoiceAnalysisChart, c);
 
         // Chart Row 2
-        c.gridy = 2; c.gridx = 0; c.gridwidth = 2;
+        c.gridy = 2;
+        c.gridx = 0;
+        c.gridwidth = 2;
         stackedBarChart = new StackedBarChartPanel(new LinkedHashMap<>());
         g.add(stackedBarChart, c);
 
-        c.gridx = 2; c.gridwidth = 2;
+        c.gridx = 2;
+        c.gridwidth = 2;
         alertsPanel = new AlertsPanel();
         g.add(alertsPanel, c);
 
@@ -403,8 +421,10 @@ public class Dashboard extends JPanel {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int x = 5; int y = 5;
-            int w = getWidth() - 10; int h = getHeight() - 10;
+            int x = 5;
+            int y = 5;
+            int w = getWidth() - 10;
+            int h = getHeight() - 10;
             int arc = 20; // Độ bo tròn
 
             // 1. Vẽ bóng đổ (Shadow)
@@ -470,14 +490,14 @@ public class Dashboard extends JPanel {
 
             if (dataMap == null || dataMap.isEmpty()) {
                 g2.setColor(TEXT_MUTED);
-                g2.drawString("Không có dữ liệu.", getWidth()/2 - 50, getHeight()/2);
+                g2.drawString("Không có dữ liệu.", getWidth() / 2 - 50, getHeight() / 2);
                 return;
             }
 
             double total = dataMap.values().stream().mapToDouble(Double::doubleValue).sum();
             if (total == 0) {
                 g2.setColor(TEXT_MUTED);
-                g2.drawString("Doanh thu bằng 0.", getWidth()/2 - 50, getHeight()/2);
+                g2.drawString("Doanh thu bằng 0.", getWidth() / 2 - 50, getHeight() / 2);
                 return;
             }
 
@@ -556,7 +576,7 @@ public class Dashboard extends JPanel {
             }
 
             // --- 5. VẼ LỖ TRÒN (HIỆU ỨNG DONUT) ---
-            int innerSize = (int)(size * 0.50); // Lỗ tròn bằng 50% kích thước
+            int innerSize = (int) (size * 0.50); // Lỗ tròn bằng 50% kích thước
             int innerX = chartX + (size - innerSize) / 2;
             int innerY = chartY + (size - innerSize) / 2;
 
@@ -572,7 +592,7 @@ public class Dashboard extends JPanel {
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             String totalLabel = "Tổng thu";
             int labelW = g2.getFontMetrics().stringWidth(totalLabel);
-            g2.drawString(totalLabel, innerX + (innerSize - labelW)/2, innerY + innerSize/2 - 5);
+            g2.drawString(totalLabel, innerX + (innerSize - labelW) / 2, innerY + innerSize / 2 - 5);
 
             g2.setColor(TEXT_COLOR);
             // Font to hơn, đậm hơn cho số tiền
@@ -589,7 +609,7 @@ public class Dashboard extends JPanel {
             }
 
             int moneyW = g2.getFontMetrics().stringWidth(moneyStr);
-            g2.drawString(moneyStr, innerX + (innerSize - moneyW)/2, innerY + innerSize/2 + 20);
+            g2.drawString(moneyStr, innerX + (innerSize - moneyW) / 2, innerY + innerSize / 2 + 20);
 
             g2.dispose();
         }
@@ -611,10 +631,18 @@ public class Dashboard extends JPanel {
 
             // Sự kiện chuột để hover hiệu ứng
             addMouseMotionListener(new MouseMotionAdapter() {
-                @Override public void mouseMoved(MouseEvent e) { mousePoint = e.getPoint(); repaint(); }
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    mousePoint = e.getPoint();
+                    repaint();
+                }
             });
             addMouseListener(new MouseAdapter() {
-                @Override public void mouseExited(MouseEvent e) { mousePoint = null; repaint(); }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    mousePoint = null;
+                    repaint();
+                }
             });
         }
 
@@ -642,7 +670,7 @@ public class Dashboard extends JPanel {
 
             if (soldData.isEmpty() && refundData.isEmpty()) {
                 g2.setColor(TEXT_MUTED);
-                g2.drawString("Không có dữ liệu.", getWidth()/2 - 40, getHeight()/2);
+                g2.drawString("Không có dữ liệu.", getWidth() / 2 - 40, getHeight() / 2);
                 return;
             }
 
@@ -655,7 +683,7 @@ public class Dashboard extends JPanel {
             int maxRefund = refundData.values().stream().max(Integer::compare).orElse(0);
             int maxVal = Math.max(maxSold, maxRefund);
             if (maxVal == 0) maxVal = 1;
-            maxVal = (int)(maxVal * 1.2); // Tăng trần thêm 20% cho thoáng
+            maxVal = (int) (maxVal * 1.2); // Tăng trần thêm 20% cho thoáng
 
             Insets ins = getInsets();
             int padding = 20, leftM = 40, bottomM = 40;
@@ -691,19 +719,19 @@ public class Dashboard extends JPanel {
                 int vSold = soldData.getOrDefault(d, 0);
                 int vRefund = refundData.getOrDefault(d, 0);
 
-                int x = (n == 1) ? (x0 + w/2) : (x0 + (int)(i * stepX));
-                int ySold = yBase - (int)((double)vSold / maxVal * h);
-                int yRefund = yBase - (int)((double)vRefund / maxVal * h);
+                int x = (n == 1) ? (x0 + w / 2) : (x0 + (int) (i * stepX));
+                int ySold = yBase - (int) ((double) vSold / maxVal * h);
+                int yRefund = yBase - (int) ((double) vRefund / maxVal * h);
 
                 pSold[i] = new Point(x, ySold);
                 pRefund[i] = new Point(x, yRefund);
 
                 // Vẽ nhãn trục X (giãn cách nếu quá nhiều điểm)
-                if (n <= 15 || i % (n/10) == 0 || i == n-1) {
+                if (n <= 15 || i % (n / 10) == 0 || i == n - 1) {
                     g2.setColor(TEXT_MUTED);
                     String label = d.format(dateFormat);
                     int lblW = g2.getFontMetrics().stringWidth(label);
-                    g2.drawString(label, x - lblW/2, yBase + 20);
+                    g2.drawString(label, x - lblW / 2, yBase + 20);
                 }
             }
 
@@ -734,8 +762,8 @@ public class Dashboard extends JPanel {
             for (int i = 0; i < points.length - 1; i++) {
                 double x1 = points[i].x;
                 double y1 = points[i].y;
-                double x2 = points[i+1].x;
-                double y2 = points[i+1].y;
+                double x2 = points[i + 1].x;
+                double y2 = points[i + 1].y;
 
                 // Logic Control Points để tạo độ cong (Curvature)
                 double ctrlX1 = x1 + (x2 - x1) / 3;
@@ -749,7 +777,7 @@ public class Dashboard extends JPanel {
             // --- Bước 1: Tô màu vùng dưới (Area Fill) ---
             // Tạo bản sao của path để khép kín vùng tô màu
             java.awt.geom.GeneralPath fillPath = (java.awt.geom.GeneralPath) path.clone();
-            fillPath.lineTo(points[points.length-1].x, yBase); // Kéo xuống đáy
+            fillPath.lineTo(points[points.length - 1].x, yBase); // Kéo xuống đáy
             fillPath.lineTo(points[0].x, yBase);               // Kéo về đầu
             fillPath.closePath();
 
@@ -778,10 +806,10 @@ public class Dashboard extends JPanel {
 
             // Vẽ điểm tròn trắng viền màu
             g2.setColor(Color.WHITE);
-            g2.fillOval(p.x - r/2, p.y - r/2, r, r);
+            g2.fillOval(p.x - r / 2, p.y - r / 2, r, r);
             g2.setColor(color);
             g2.setStroke(new BasicStroke(2f));
-            g2.drawOval(p.x - r/2, p.y - r/2, r, r);
+            g2.drawOval(p.x - r / 2, p.y - r / 2, r, r);
 
             // Nếu hover thì hiện Tooltip
             if (isHovered) {
@@ -801,8 +829,8 @@ public class Dashboard extends JPanel {
             if (by < 0) by = y + 15;
 
             // Vẽ bóng đổ nhẹ
-            g2.setColor(new Color(0,0,0,30));
-            g2.fillRoundRect(bx+2, by+2, w, h, 5, 5);
+            g2.setColor(new Color(0, 0, 0, 30));
+            g2.fillRoundRect(bx + 2, by + 2, w, h, 5, 5);
 
             // Vẽ nền tooltip
             g2.setColor(new Color(255, 255, 240));
@@ -858,29 +886,45 @@ public class Dashboard extends JPanel {
             });
         }
 
-        public void setViewType(int v) { this.viewType = v; repaint(); }
-        public void setData(Map<LocalDate, Map<String, Integer>> d) { this.data = (d != null) ? d : new LinkedHashMap<>(); repaint(); }
-        public void setDateFormat(DateTimeFormatter p) { this.fmt = p; repaint(); }
+        public void setViewType(int v) {
+            this.viewType = v;
+            repaint();
+        }
+
+        public void setData(Map<LocalDate, Map<String, Integer>> d) {
+            this.data = (d != null) ? d : new LinkedHashMap<>();
+            repaint();
+        }
+
+        public void setDateFormat(DateTimeFormatter p) {
+            this.fmt = p;
+            repaint();
+        }
 
         // --- HELPER METHODS ---
         private String normalizeSeat(String s) {
             s = s.toLowerCase();
             if (s.contains("khoang 4")) return "Giường nằm 4";
             if (s.contains("khoang 6")) return "Giường nằm 6";
-            if (s.contains("ngồi"))     return "Ghế ngồi";
+            if (s.contains("ngồi")) return "Ghế ngồi";
             return s;
         }
 
         private String[] getSeatTypes() {
             LinkedHashSet<String> set = new LinkedHashSet<>();
             for (Map<String, Integer> sm : data.values()) for (String k : sm.keySet()) set.add(normalizeSeat(k));
-            if (set.isEmpty()) { set.add("Giường nằm 4"); set.add("Giường nằm 6"); set.add("Ghế ngồi"); }
+            if (set.isEmpty()) {
+                set.add("Giường nằm 4");
+                set.add("Giường nằm 6");
+                set.add("Ghế ngồi");
+            }
             return set.toArray(new String[0]);
         }
 
         private Map<String, Integer> emptySeatMap(String[] types) {
             Map<String, Integer> m = new LinkedHashMap<>();
-            for (String s : types) m.put(s, 0); return m;
+            for (String s : types) m.put(s, 0);
+            return m;
         }
 
         @Override
@@ -896,7 +940,7 @@ public class Dashboard extends JPanel {
             if (data == null || data.isEmpty()) {
                 g2.setColor(TEXT_MUTED);
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                g2.drawString("Không có dữ liệu.", getWidth()/2 - 50, getHeight()/2);
+                g2.drawString("Không có dữ liệu.", getWidth() / 2 - 50, getHeight() / 2);
                 return;
             }
 
@@ -949,7 +993,8 @@ public class Dashboard extends JPanel {
                 }
             }
 
-            int n = xLabels.size(); if (n == 0) return;
+            int n = xLabels.size();
+            if (n == 0) return;
 
             double max = 0;
             for (Map<String, Integer> sm : stacked) {
@@ -992,7 +1037,8 @@ public class Dashboard extends JPanel {
             int barW = (int) (slotW * 0.6);
             if (barW > 60) barW = 60;
 
-            String hoverText = null; int hx = 0, hy = 0;
+            String hoverText = null;
+            int hx = 0, hy = 0;
 
             for (int i = 0; i < n; i++) {
                 double center = x0 + (i * slotW) + slotW / 2;
@@ -1013,7 +1059,8 @@ public class Dashboard extends JPanel {
 
                         if (mousePoint != null && rect.contains(mousePoint)) {
                             hoverText = seat + ": " + formatter.format(v) + " — " + xLabels.get(i);
-                            hx = mousePoint.x; hy = mousePoint.y;
+                            hx = mousePoint.x;
+                            hy = mousePoint.y;
                             hoveredRect = rect;
                             baseColor = baseColor.brighter();
                         }
@@ -1039,7 +1086,7 @@ public class Dashboard extends JPanel {
                 g2.drawString(lbl, (int) (center - lblW / 2), yBase + 20);
 
                 g2.setColor(new Color(200, 200, 200));
-                g2.drawLine((int)center, yBase, (int)center, yBase + 4);
+                g2.drawLine((int) center, yBase, (int) center, yBase + 4);
             }
 
             if (hoveredRect != null) {
@@ -1067,8 +1114,8 @@ public class Dashboard extends JPanel {
             if (bx + w > getWidth()) bx = x - w - 5;
             if (by < 0) by = y + 15;
 
-            g2.setColor(new Color(0,0,0,30));
-            g2.fillRoundRect(bx+2, by+2, w, h, 5, 5);
+            g2.setColor(new Color(0, 0, 0, 30));
+            g2.fillRoundRect(bx + 2, by + 2, w, h, 5, 5);
 
             g2.setColor(new Color(255, 255, 240));
             g2.fillRoundRect(bx, by, w, h, 5, 5);
@@ -1078,6 +1125,101 @@ public class Dashboard extends JPanel {
             g2.drawString(text, bx + 6, by + h - 6);
         }
     }
+
+    // 6. KPI CARD
+    // =========================================================================
+    // 2. KPI CARD (NÂNG CẤP: GRADIENT + ICON GIẢ LẬP)
+    // =========================================================================
+    static class KpiCard extends JPanel { // Kế thừa JPanel thường để tự vẽ full
+        private String title, value, sub;
+        private Color color1, color2;
+
+        public KpiCard(String title, String value, String sub, Color baseColor) {
+            this.title = title;
+            this.value = value;
+            this.sub = sub;
+            // Tạo hiệu ứng Gradient từ màu gốc
+            this.color1 = baseColor;
+            this.color2 = baseColor.darker();
+            setOpaque(false);
+            setPreferredSize(new Dimension(220, 120));
+        }
+
+        public void setData(String v, String s) {
+            this.value = v;
+            this.sub = s;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int w = getWidth(), h = getHeight();
+
+            // Vẽ Gradient Background
+            GradientPaint gp = new GradientPaint(0, 0, color1, w, h, color2);
+            g2.setPaint(gp);
+            g2.fillRoundRect(0, 0, w, h, 25, 25); // Bo tròn mạnh hơn
+
+            // Vẽ họa tiết trang trí mờ (Circle transparent)
+            g2.setColor(new Color(255, 255, 255, 30));
+            g2.fillOval(w - 60, -20, 100, 100);
+            g2.fillOval(w - 90, h - 50, 70, 70);
+
+            // Vẽ Nội dung
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            g2.drawString(title.toUpperCase(), 20, 30); // Tiêu đề
+
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 26));
+            g2.drawString(value, 20, 70); // Số liệu chính
+
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            g2.drawString(sub, 20, 95); // Phụ đề
+
+            g2.dispose();
+        }
+    }
+
+    private class FilterActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton s = (JButton) e.getSource();
+            updateFilterButtonStyle(s);
+
+            LocalDate n = LocalDate.now();
+            LocalDate st = null, en = null;
+            int v = 0;
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM");
+
+            if (s == btnToday) {
+                st = n;
+                en = n;
+            } else if (s == btnWeek) {
+                st = n.with(DayOfWeek.MONDAY);
+                en = n.with(DayOfWeek.SUNDAY);
+                f = DateTimeFormatter.ofPattern("EEE (dd/MM)", new Locale("vi", "VN"));
+            } else if (s == btnMonth) {
+                st = n.withDayOfMonth(1);
+                en = n.with(TemporalAdjusters.lastDayOfMonth());
+            } else if (s == btnYear) {
+                st = n.withDayOfYear(1);
+                en = n.with(TemporalAdjusters.lastDayOfYear());
+                v = 1;
+                f = DateTimeFormatter.ofPattern("'T'M");
+            } else if (s == btnAll) {
+                st = null;
+                en = null;
+                f = DateTimeFormatter.ofPattern("yyyy");
+                v = 2;
+            }
+
+            loadDashboardData(st, en, v, f);
+        }
+    }
+
     // 5. ALERTS PANEL
     // =========================================================================
     // 5. ALERTS PANEL (ĐÃ FIX LỖI TRÀN CHỮ: CĂN GIỮA NỘI DUNG)
@@ -1224,67 +1366,5 @@ public class Dashboard extends JPanel {
 
             g2.dispose();
         }
-    }
-
-    // 6. KPI CARD
-    // =========================================================================
-    // 2. KPI CARD (NÂNG CẤP: GRADIENT + ICON GIẢ LẬP)
-    // =========================================================================
-    static class KpiCard extends JPanel { // Kế thừa JPanel thường để tự vẽ full
-        private String title, value, sub;
-        private Color color1, color2;
-
-        public KpiCard(String title, String value, String sub, Color baseColor) {
-            this.title = title; this.value = value; this.sub = sub;
-            // Tạo hiệu ứng Gradient từ màu gốc
-            this.color1 = baseColor;
-            this.color2 = baseColor.darker();
-            setOpaque(false);
-            setPreferredSize(new Dimension(220, 120));
-        }
-
-        public void setData(String v, String s) { this.value = v; this.sub = s; repaint(); }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int w = getWidth(), h = getHeight();
-
-            // Vẽ Gradient Background
-            GradientPaint gp = new GradientPaint(0, 0, color1, w, h, color2);
-            g2.setPaint(gp);
-            g2.fillRoundRect(0, 0, w, h, 25, 25); // Bo tròn mạnh hơn
-
-            // Vẽ họa tiết trang trí mờ (Circle transparent)
-            g2.setColor(new Color(255, 255, 255, 30));
-            g2.fillOval(w - 60, -20, 100, 100);
-            g2.fillOval(w - 90, h - 50, 70, 70);
-
-            // Vẽ Nội dung
-            g2.setColor(Color.WHITE);
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
-            g2.drawString(title.toUpperCase(), 20, 30); // Tiêu đề
-
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 26));
-            g2.drawString(value, 20, 70); // Số liệu chính
-
-            g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            g2.drawString(sub, 20, 95); // Phụ đề
-
-            g2.dispose();
-        }
-    }
-
-    public static void main(String[] args) {
-        try { UIManager.setLookAndFeel(new FlatLightLaf()); } catch (Exception e) { e.printStackTrace(); }
-        SwingUtilities.invokeLater(() -> {
-            JFrame f = new JFrame("Dashboard Light");
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            f.setContentPane(new Dashboard());
-            f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            f.setVisible(true);
-        });
     }
 }

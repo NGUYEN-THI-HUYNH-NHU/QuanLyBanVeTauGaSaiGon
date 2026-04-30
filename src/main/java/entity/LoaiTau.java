@@ -31,4 +31,12 @@ public class LoaiTau implements Serializable {
 
     @OneToMany(mappedBy = "loaiTau", fetch = FetchType.LAZY)
     private Set<Tau> taus;
+
+    public LoaiTau(String loaiTauStr) {
+        this.loaiTauID = loaiTauStr;
+    }
+
+    public String getDescription() {
+        return this.moTa;
+    }
 }

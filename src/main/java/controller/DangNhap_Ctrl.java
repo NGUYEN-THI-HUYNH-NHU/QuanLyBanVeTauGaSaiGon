@@ -107,7 +107,7 @@ public class DangNhap_Ctrl {
             AuthService.getInstance().setCurrentUser(nhanVien);
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            if (nhanVien.getVaiTroNhanVien().getId().equals("NHAN_VIEN")) {
+            if (nhanVien.getVaiTroNhanVien().getVaiTroNhanVienID().equals("NHAN_VIEN")) {
                 UngDung.setSelectedMenu(2, 0);
                 NgrokRunner.startNgrok();
             } else {
