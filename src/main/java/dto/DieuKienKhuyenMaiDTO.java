@@ -1,8 +1,9 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+
 @Getter
 @Setter
 @Builder
@@ -11,12 +12,12 @@ import java.time.*;
 @AllArgsConstructor
 public class DieuKienKhuyenMaiDTO implements Serializable {
     private String id;
-    private KhuyenMaiDTO khuyenMai;
-    private TuyenDTO tuyen;
-    private LoaiTauDTO loaiTau;
-    private HangToaDTO hangToa;
-    private LoaiDoiTuongDTO loaiDoiTuong;
-    private Integer ngayTrongTuan;
-    private Boolean ngayLe;
+    private String khuyenMaiID;
+    private String tuyenID;
+    private String loaiTauID;
+    private String hangToaID;
+    private String loaiDoiTuongID;
+    private int ngayTrongTuan;
+    private boolean ngayLe;
     private double minGiaTriDonHang;
 }
