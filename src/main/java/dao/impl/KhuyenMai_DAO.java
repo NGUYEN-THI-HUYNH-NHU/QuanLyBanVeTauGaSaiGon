@@ -58,7 +58,7 @@ public class KhuyenMai_DAO {
                     psDK.setNull(7, Types.INTEGER);
                 }
 
-                psDK.setBoolean(8, dkkm.getNgayLe());
+                psDK.setBoolean(8, dkkm.isNgayLe());
 
                 if (dkkm.getMinGiaTriDonHang() > 0) {
                     psDK.setDouble(9, dkkm.getMinGiaTriDonHang());
@@ -123,7 +123,7 @@ public class KhuyenMai_DAO {
                 if (dk.getNgayTrongTuan() >= 1 && dk.getNgayTrongTuan() <= 7) psDK.setInt(5, dk.getNgayTrongTuan());
                 else psDK.setNull(5, Types.INTEGER);
 
-                psDK.setBoolean(6, dk.getNgayLe());
+                psDK.setBoolean(6, dk.isNgayLe());
 
                 if (dk.getMinGiaTriDonHang() > 0) psDK.setDouble(7, dk.getMinGiaTriDonHang());
                 else psDK.setNull(7, Types.FLOAT);

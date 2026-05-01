@@ -11,12 +11,12 @@ public interface HeSoGiaLoaiTauMapper {
     HeSoGiaLoaiTauMapper INSTANCE = Mappers.getMapper(HeSoGiaLoaiTauMapper.class);
 
     // Entity -> DTO
-    @Mapping(source = "hsgLoaiTauID", target = "id")
+    @Mapping(source = "hsgloaiTauID", target = "id")
     @Mapping(source = "loaiTau.loaiTauID", target = "loaiTauID")
     HeSoGiaLoaiTauDTO toDTO(HeSoGiaLoaiTau entity);
 
     // DTO -> Entity
-    @Mapping(source = "id", target = "hsgLoaiTauID")
-    @Mapping(source = "loaiTauID", target = "loaiTau.hangToaID")
+    @Mapping(source = "id", target = "hsgloaiTauID")
+    @Mapping(source = "loaiTauID", target = "loaiTau.loaiTauID")
     HeSoGiaLoaiTau toEntity(HeSoGiaLoaiTauDTO dto);
 }

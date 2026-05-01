@@ -1094,7 +1094,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                     txtHangToa.setSelectedItem(dkkm.getHangToa());
                     txtLoaiDoiTuong.setSelectedItem(dkkm.getLoaiDoiTuong());
                     txtNgayTrongTuan.setText(dkkm.getNgayTrongTuan() > 0 ? String.valueOf(dkkm.getNgayTrongTuan()) : "");
-                    txtNgayLe.setSelected(dkkm.getNgayLe());
+                    txtNgayLe.setSelected(dkkm.isNgayLe());
                     txtMinGiaTriHoaDon.setText(dinhDangTien(dkkm.getMinGiaTriDonHang()));
                 } else {
                     txtTuyen.setSelectedItem(null);
