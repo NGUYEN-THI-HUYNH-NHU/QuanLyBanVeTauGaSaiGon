@@ -12,13 +12,14 @@ package gui.application.form.thongTin;
  * @version: 1.0
  */
 
-import entity.NhanVien;
+import dto.NhanVienDTO;
+import entity.type.VaiTroNhanVienEnums;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class FormDoiMatKhau extends JPanel {
-    private final NhanVien nhanVien;
+    private final NhanVienDTO nhanVien;
     private final DoiMatKhauController controller;
     private JLabel lblMatKhauHienTai;
     private JLabel lblMatKhauMoi;
@@ -30,13 +31,13 @@ public class FormDoiMatKhau extends JPanel {
     private JLabel lblThongTin;
     private JLabel lblError;
 
-    public FormDoiMatKhau(NhanVien nhanVien) {
+    public FormDoiMatKhau(NhanVienDTO nhanVien) {
         initComponents(nhanVien);
         this.nhanVien = nhanVien;
         this.controller = new DoiMatKhauController(this);
     }
 
-    private void initComponents(NhanVien nhanVien) {
+    private void initComponents(NhanVienDTO nhanVien) {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -47,7 +48,7 @@ public class FormDoiMatKhau extends JPanel {
         txtMatKhauMoi = new JPasswordField();
         txtXacNhanMatKhauMoi = new JPasswordField(55);
         btnDoiMatKhau = new JButton("Đổi mật khẩu");
-        lblThongTin = new JLabel(nhanVien.getHoTen() + " - " + nhanVien.getVaiTroNhanVien().getMoTa());
+        lblThongTin = new JLabel(nhanVien.getHoTen() + " - " + VaiTroNhanVienEnums.valueOf(nhanVien.getVaiTroNhanVienID()));
         lblError = new JLabel();
 
         JLabel titleLabel = new JLabel("Đổi mật khẩu");
@@ -120,7 +121,7 @@ public class FormDoiMatKhau extends JPanel {
         return btnDoiMatKhau;
     }
 
-    public NhanVien getNhanVien() {
+    public NhanVienDTO getNhanVien() {
         return nhanVien;
     }
 }

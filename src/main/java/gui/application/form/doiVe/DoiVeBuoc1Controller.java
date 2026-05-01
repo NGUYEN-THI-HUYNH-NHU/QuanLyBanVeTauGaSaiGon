@@ -18,8 +18,8 @@ import bus.PhieuDungPhongVIP_BUS;
 import bus.Ve_BUS;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import entity.PhieuDungPhongVIP;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -104,7 +104,7 @@ public class DoiVeBuoc1Controller {
                     if (donDatCho != null) {
                         // Nếu tìm thấy -> lấy vé và khách hàng
                         List<VeDTO> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
-                        List<PhieuDungPhongVIP> danhSachPhieu = phieuDungPhongVIPBUS.timCacPhieuTheoVe(danhSachVe);
+                        List<PhieuDungPhongVIPDTO> danhSachPhieu = phieuDungPhongVIPBUS.timCacPhieuTheoVe(danhSachVe);
                         KhachHangDTO khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
 
                         panel.getBtnTraCuu().setEnabled(true);
@@ -139,7 +139,7 @@ public class DoiVeBuoc1Controller {
 
     // Interface để DoiVe1Controller (Mediator) lắng nghe
     protected interface SearchListener {
-        void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, List<PhieuDungPhongVIP> danhSachPhieu,
+        void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, List<PhieuDungPhongVIPDTO> danhSachPhieu,
                              KhachHangDTO khachHang);
 
         void onSearchFailure();

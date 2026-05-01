@@ -4,7 +4,9 @@ import bus.Tuyen_BUS;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
+import dto.NhanVienDTO;
 import entity.NhanVien;
+import mapper.NhanVienMapper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -48,16 +50,16 @@ public class PanelQuanLyTuyen extends JPanel {
     private JTextField txtChiTietTrangThai;
 
 
-    public PanelQuanLyTuyen(NhanVien nhanVien){
+    public PanelQuanLyTuyen(NhanVienDTO nhanVien) {
         setLayout(new BorderLayout());
         this.tuyen_bus = new Tuyen_BUS();
-        this.nhanVienThucHien = nhanVien;
+        this.nhanVienThucHien = NhanVienMapper.INSTANCE.toEntity(nhanVien);
 
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
     }
 
-    public void initComponents(){
+    public void initComponents() {
         Font baseFont = new Font(getFont().getFontName(), Font.PLAIN, 14);
 
         // --- 1. HEADER PANEL (NORTH) ---
@@ -69,11 +71,11 @@ public class PanelQuanLyTuyen extends JPanel {
         panelHeader.setOpaque(false);
         JLabel title = new JLabel("QUẢN LÝ VÀ TRA CỨU TUYẾN ĐƯỜNG SẮT", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        title.setForeground(new Color(36,104,155));
+        title.setForeground(new Color(36, 104, 155));
         panelHeader.add(title, "growx");
 
         // Input fields
-        Color translucentWhite = new Color(255,255,255,180);
+        Color translucentWhite = new Color(255, 255, 255, 180);
         txtGaDi = new JTextField(15);
         txtGaDi.setFont(baseFont);
         txtGaDi.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên ga đi");
@@ -113,12 +115,15 @@ public class PanelQuanLyTuyen extends JPanel {
 
         JPanel col1 = new JPanel(new MigLayout("insets 0, wrap 2, fillx", "[][grow]", "[][]"));
         col1.setOpaque(false);
-        col1.add(new JLabel("Ga Xuất Phát:")); col1.add(txtGaDi, "growx");
-        col1.add(new JLabel("Ga Đích:")); col1.add(txtGaDen, "growx");
+        col1.add(new JLabel("Ga Xuất Phát:"));
+        col1.add(txtGaDi, "growx");
+        col1.add(new JLabel("Ga Đích:"));
+        col1.add(txtGaDen, "growx");
 
         JPanel col2 = new JPanel(new MigLayout("insets 0, wrap 2, fillx", "[][grow]", "[]"));
         col2.setOpaque(false);
-        col2.add(new JLabel("Mã Tuyến:")); col2.add(txtTimKiem, "growx");
+        col2.add(new JLabel("Mã Tuyến:"));
+        col2.add(txtTimKiem, "growx");
 
         panelSearch.add(col1, "grow, pushy");
         panelSearch.add(col2, "grow, pushy, top");
@@ -133,9 +138,12 @@ public class PanelQuanLyTuyen extends JPanel {
         // --- 2. CENTER PANEL (SPLIT PANE) ---
 
         // A. Bảng Danh Sách Tuyến (LEFT)
-        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Quãng Đường (km)","Trạng Thái"};
+        String[] columnNames = {"Mã Tuyến", "Ga XP", "Ga Đích", "Quãng Đường (km)", "Trạng Thái"};
         tableModelTuyen = new DefaultTableModel(columnNames, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         tableTuyen = new JTable(tableModelTuyen);
         tableTuyen.setRowHeight(28);
@@ -144,9 +152,9 @@ public class PanelQuanLyTuyen extends JPanel {
         // Table Style
         JTableHeader hd = tableTuyen.getTableHeader();
         hd.setFont(new Font(getFont().getFontName(), Font.BOLD, 12));
-        hd.setBackground(new Color(36,104,155));
+        hd.setBackground(new Color(36, 104, 155));
         hd.setForeground(Color.white);
-        ((DefaultTableCellRenderer)hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        ((DefaultTableCellRenderer) hd.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
 
         tableTuyen.setShowGrid(true);
         tableTuyen.setShowHorizontalLines(true);
@@ -181,7 +189,7 @@ public class PanelQuanLyTuyen extends JPanel {
         JPanel pnlThongTinCuThe = new JPanel(new MigLayout("fillx, insets 5", "[pref!][grow]", "[]10[]10[]10[]"));
         pnlThongTinCuThe.setBackground(Color.WHITE);
 
-        Font labelFont = new Font(getFont().getFontName(),Font.BOLD, 14);
+        Font labelFont = new Font(getFont().getFontName(), Font.BOLD, 14);
         Font textFont = new Font(getFont().getFontName(), Font.PLAIN, 14);
         Color readOnlyColor = new Color(245, 245, 245);
 
@@ -228,14 +236,13 @@ public class PanelQuanLyTuyen extends JPanel {
         pnlThongTinCuThe.add(txtChiTietTrangThai, "growx, wrap");
 
 
-
         // B2. Panel Danh Sách Ga (Phía dưới)
         JPanel pnlDanhSachGa = new JPanel(new BorderLayout());
         pnlDanhSachGa.setBackground(Color.WHITE);
 
         // Label tiêu đề cho bảng
         JLabel lblTableTitle = new JLabel("Danh sách các ga trung gian trên tuyến:");
-        lblTableTitle.setFont(new Font(getFont().getFontName(),Font.BOLD | Font.ITALIC, 14));
+        lblTableTitle.setFont(new Font(getFont().getFontName(), Font.BOLD | Font.ITALIC, 14));
         lblTableTitle.setForeground(new Color(36, 104, 155));
         lblTableTitle.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
@@ -273,33 +280,39 @@ public class PanelQuanLyTuyen extends JPanel {
         add(splitPane, BorderLayout.CENTER);
 
         // --- 3. POPUP GỢI Ý ---
-        ppGaDi = new JPopupMenu(); listGaDi = new JList<>(); ppGaDi.add(new JScrollPane(listGaDi));
-        ppGaDen = new JPopupMenu(); listGaDen = new JList<>(); ppGaDen.add(new JScrollPane(listGaDen));
-        ppTuyenID = new JPopupMenu(); listTuyenID = new JList<>(); ppTuyenID.add(new JScrollPane(listTuyenID));
+        ppGaDi = new JPopupMenu();
+        listGaDi = new JList<>();
+        ppGaDi.add(new JScrollPane(listGaDi));
+        ppGaDen = new JPopupMenu();
+        listGaDen = new JList<>();
+        ppGaDen.add(new JScrollPane(listGaDen));
+        ppTuyenID = new JPopupMenu();
+        listTuyenID = new JList<>();
+        ppTuyenID.add(new JScrollPane(listTuyenID));
 
         // Load data ban đầu
         capNhatBang(tuyen_bus.getDuLieuBang());
     }
 
     public void setMauBTN() {
-        Color mauNutChu = new Color(36,104,155);
-        JButton[] buttons = { btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
+        Color mauNutChu = new Color(36, 104, 155);
+        JButton[] buttons = {btnThemTuyen, btnCapNhatTuyen, btnLamMoiTuyen};
         for (JButton btn : buttons) {
             btn.setForeground(mauNutChu);
             btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
         }
     }
 
-    public void capNhatBang(List<Object[]> dsTuyen){
+    public void capNhatBang(List<Object[]> dsTuyen) {
         tableModelTuyen.setRowCount(0);
-        for(Object[] row : dsTuyen){
+        for (Object[] row : dsTuyen) {
 
-            Object[] rowData = { row[0], row[1], row[2], row[4], row[5] };
+            Object[] rowData = {row[0], row[1], row[2], row[4], row[5]};
             tableModelTuyen.addRow(rowData);
         }
     }
 
-    public void addListeners(ActionListener timKiemListener, ActionListener lamMoiListener, ActionListener themTuyenListener, ActionListener capNhatTuyenListener){
+    public void addListeners(ActionListener timKiemListener, ActionListener lamMoiListener, ActionListener themTuyenListener, ActionListener capNhatTuyenListener) {
         btnLamMoiTuyen.addActionListener(lamMoiListener);
         btnThemTuyen.addActionListener(themTuyenListener);
         btnCapNhatTuyen.addActionListener(capNhatTuyenListener);
@@ -308,53 +321,8 @@ public class PanelQuanLyTuyen extends JPanel {
         txtTimKiem.addActionListener(timKiemListener);
     }
 
-    public class Validator {
-
-        public static boolean isValidMaTuyen(String str) {
-            return str != null && str.matches("^[A-Z]{3,5}-[A-Z]{3,5}$");
-        }
-
-        public static boolean isValidTenGa(String str) {
-            return str != null && str.matches("^[\\p{L}\\s]+$");
-        }
-
-        public static boolean isValidKhoangCach(String str) {
-            return str != null && str.matches("^[0-9]+(\\.[0-9]{1,2})?$");
-        }
-    }
-
-
-
     public Tuyen_BUS getTuyen_bus() {
         return tuyen_bus;
-    }
-
-    public void setTxtGaDi(JTextField txtGaDi) {
-        this.txtGaDi = txtGaDi;
-    }
-
-    public void setTxtGaDen(JTextField txtGaDen) {
-        this.txtGaDen = txtGaDen;
-    }
-
-    public void setTxtTimKiem(JTextField txtTimKiem) {
-        this.txtTimKiem = txtTimKiem;
-    }
-
-    public void setBtnThemTuyen(JButton btnThemTuyen) {
-        this.btnThemTuyen = btnThemTuyen;
-    }
-
-    public void setBtnCapNhatTuyen(JButton btnCapNhatTuyen) {
-        this.btnCapNhatTuyen = btnCapNhatTuyen;
-    }
-
-    public void setBtnLamMoiTuyen(JButton btnLamMoiTuyen) {
-        this.btnLamMoiTuyen = btnLamMoiTuyen;
-    }
-
-    public void setTableTuyen(JTable tableTuyen) {
-        this.tableTuyen = tableTuyen;
     }
 
     public DefaultTableModel getTableModelTuyen() {
@@ -381,44 +349,12 @@ public class PanelQuanLyTuyen extends JPanel {
         this.pnlChiTiet = pnlChiTiet;
     }
 
-    public void setTxtThongTinChung(JTextArea txtThongTinChung) {
-        this.txtThongTinChung = txtThongTinChung;
-    }
-
     public JTable getTableChiTietGa() {
         return tableChiTietGa;
     }
 
     public void setTableChiTietGa(JTable tableChiTietGa) {
         this.tableChiTietGa = tableChiTietGa;
-    }
-
-    public void setModelChiTietGa(DefaultTableModel modelChiTietGa) {
-        this.modelChiTietGa = modelChiTietGa;
-    }
-
-    public void setPpGaDi(JPopupMenu ppGaDi) {
-        this.ppGaDi = ppGaDi;
-    }
-
-    public void setPpGaDen(JPopupMenu ppGaDen) {
-        this.ppGaDen = ppGaDen;
-    }
-
-    public void setPpTuyenID(JPopupMenu ppTuyenID) {
-        this.ppTuyenID = ppTuyenID;
-    }
-
-    public void setListTuyenID(JList<String> listTuyenID) {
-        this.listTuyenID = listTuyenID;
-    }
-
-    public void setListGaDi(JList<String> listGaDi) {
-        this.listGaDi = listGaDi;
-    }
-
-    public void setListGaDen(JList<String> listGaDen) {
-        this.listGaDen = listGaDen;
     }
 
     public JTextField getTxtChiTietMaTuyen() {
@@ -453,20 +389,113 @@ public class PanelQuanLyTuyen extends JPanel {
         this.txtChiTietMoTa = txtChiTietMoTa;
     }
 
-    public JTable getTableTuyen() { return tableTuyen; }
-    public JTextField getTxtGaDi() { return txtGaDi; }
-    public JTextField getTxtGaDen() { return txtGaDen; }
-    public JTextField getTxtTimKiem() { return txtTimKiem; }
-    public JList<String> getListGaDi() { return listGaDi; }
-    public JPopupMenu getPpGaDi() { return ppGaDi; }
-    public JList<String> getListGaDen() { return listGaDen; }
-    public JPopupMenu getPpGaDen() { return ppGaDen; }
-    public JList<String> getListTuyenID() { return listTuyenID; }
-    public JPopupMenu getPpTuyenID() { return ppTuyenID; }
-    public JButton getBtnCapNhatTuyen() { return btnCapNhatTuyen; }
-    public JButton getBtnThemTuyen() { return btnThemTuyen; }
-    public NhanVien getNhanVienThucHien() { return nhanVienThucHien; }
-    public JButton getBtnLamMoiTuyen() { return btnLamMoiTuyen; }
+    public JTable getTableTuyen() {
+        return tableTuyen;
+    }
+
+    public void setTableTuyen(JTable tableTuyen) {
+        this.tableTuyen = tableTuyen;
+    }
+
+    public JTextField getTxtGaDi() {
+        return txtGaDi;
+    }
+
+    public void setTxtGaDi(JTextField txtGaDi) {
+        this.txtGaDi = txtGaDi;
+    }
+
+    public JTextField getTxtGaDen() {
+        return txtGaDen;
+    }
+
+    public void setTxtGaDen(JTextField txtGaDen) {
+        this.txtGaDen = txtGaDen;
+    }
+
+    public JTextField getTxtTimKiem() {
+        return txtTimKiem;
+    }
+
+    public void setTxtTimKiem(JTextField txtTimKiem) {
+        this.txtTimKiem = txtTimKiem;
+    }
+
+    public JList<String> getListGaDi() {
+        return listGaDi;
+    }
+
+    public void setListGaDi(JList<String> listGaDi) {
+        this.listGaDi = listGaDi;
+    }
+
+    public JPopupMenu getPpGaDi() {
+        return ppGaDi;
+    }
+
+    public void setPpGaDi(JPopupMenu ppGaDi) {
+        this.ppGaDi = ppGaDi;
+    }
+
+    public JList<String> getListGaDen() {
+        return listGaDen;
+    }
+
+    public void setListGaDen(JList<String> listGaDen) {
+        this.listGaDen = listGaDen;
+    }
+
+    public JPopupMenu getPpGaDen() {
+        return ppGaDen;
+    }
+
+    public void setPpGaDen(JPopupMenu ppGaDen) {
+        this.ppGaDen = ppGaDen;
+    }
+
+    public JList<String> getListTuyenID() {
+        return listTuyenID;
+    }
+
+    public void setListTuyenID(JList<String> listTuyenID) {
+        this.listTuyenID = listTuyenID;
+    }
+
+    public JPopupMenu getPpTuyenID() {
+        return ppTuyenID;
+    }
+
+    public void setPpTuyenID(JPopupMenu ppTuyenID) {
+        this.ppTuyenID = ppTuyenID;
+    }
+
+    public JButton getBtnCapNhatTuyen() {
+        return btnCapNhatTuyen;
+    }
+
+    public void setBtnCapNhatTuyen(JButton btnCapNhatTuyen) {
+        this.btnCapNhatTuyen = btnCapNhatTuyen;
+    }
+
+    public JButton getBtnThemTuyen() {
+        return btnThemTuyen;
+    }
+
+    public void setBtnThemTuyen(JButton btnThemTuyen) {
+        this.btnThemTuyen = btnThemTuyen;
+    }
+
+    public NhanVien getNhanVienThucHien() {
+        return nhanVienThucHien;
+    }
+
+    public JButton getBtnLamMoiTuyen() {
+        return btnLamMoiTuyen;
+    }
+
+    public void setBtnLamMoiTuyen(JButton btnLamMoiTuyen) {
+        this.btnLamMoiTuyen = btnLamMoiTuyen;
+    }
 
     public JTextField getTxtChiTietTrangThai() {
         return txtChiTietTrangThai;
@@ -476,6 +505,34 @@ public class PanelQuanLyTuyen extends JPanel {
         this.txtChiTietTrangThai = txtChiTietTrangThai;
     }
 
-    public JTextArea getTxtThongTinChung() { return txtThongTinChung; }
-    public DefaultTableModel getModelChiTietGa() { return modelChiTietGa; }
+    public JTextArea getTxtThongTinChung() {
+        return txtThongTinChung;
+    }
+
+    public void setTxtThongTinChung(JTextArea txtThongTinChung) {
+        this.txtThongTinChung = txtThongTinChung;
+    }
+
+    public DefaultTableModel getModelChiTietGa() {
+        return modelChiTietGa;
+    }
+
+    public void setModelChiTietGa(DefaultTableModel modelChiTietGa) {
+        this.modelChiTietGa = modelChiTietGa;
+    }
+
+    public class Validator {
+
+        public static boolean isValidMaTuyen(String str) {
+            return str != null && str.matches("^[A-Z]{3,5}-[A-Z]{3,5}$");
+        }
+
+        public static boolean isValidTenGa(String str) {
+            return str != null && str.matches("^[\\p{L}\\s]+$");
+        }
+
+        public static boolean isValidKhoangCach(String str) {
+            return str != null && str.matches("^[0-9]+(\\.[0-9]{1,2})?$");
+        }
+    }
 }

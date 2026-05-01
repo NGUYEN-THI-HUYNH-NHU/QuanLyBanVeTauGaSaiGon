@@ -12,8 +12,8 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.Ghe;
-import entity.Toa;
+import dto.GheDTO;
+import dto.ToaDTO;
 import entity.type.TrangThaiGhe;
 import gui.tuyChinh.ColorIcon;
 import gui.tuyChinh.RoundedBorder;
@@ -44,8 +44,8 @@ public class PanelSoDoCho extends JPanel {
     private final JPanel pnlNorth;
     // Lưu trữ các nút ghế để dễ truy cập (tùy chọn)
     private final Map<Integer, JButton> seatButtonMap = new HashMap<>();
-    private Toa currentToa;
-    private List<Toa> toaList;
+    private ToaDTO currentToa;
+    private List<ToaDTO> toaList;
     private int currentIndex = 0;
     private int doanTauLength;
     private PanelBuoc2Controller panelBuoc2Controller;
@@ -92,7 +92,7 @@ public class PanelSoDoCho extends JPanel {
         this.panelBuoc2Controller = c;
     }
 
-    public void setToaList(List<Toa> list) {
+    public void setToaList(List<ToaDTO> list) {
         this.toaList = list;
         this.doanTauLength = (list == null) ? 0 : list.size();
         this.currentIndex = 0;
@@ -103,7 +103,7 @@ public class PanelSoDoCho extends JPanel {
         }
     }
 
-    public void setCurrentToa(Toa t) {
+    public void setCurrentToa(ToaDTO t) {
         this.currentToa = t;
         if (t == null) {
             lblToaInfo.setText("Chưa chọn toa");
@@ -112,7 +112,7 @@ public class PanelSoDoCho extends JPanel {
         }
 
         lblToaInfo.setText("Toa số " + t.getSoToa() + ": "
-                + (t.getHangToa() != null ? t.getHangToa().getHangToaID() : "Chưa xác định"));
+                + (t.getHangToaID() != null ? t.getMoTa() : "Chưa xác định"));
 
         if (panelBuoc2Controller != null) {
             new LoadSeatWorker(t).execute();
@@ -151,16 +151,16 @@ public class PanelSoDoCho extends JPanel {
         b.repaint();
     }
 
-    public void renderSeats(List<Ghe> gheListFull) {
+    public void renderSeats(List<GheDTO> gheListFull) {
         pnlGridChoNgoi.removeAll();
         seatButtonMap.clear();
 
-        if (gheListFull == null || gheListFull.isEmpty() || currentToa == null || currentToa.getHangToa() == null) {
+        if (gheListFull == null || gheListFull.isEmpty() || currentToa == null || currentToa.getHangToaID() == null) {
             showMessage("Không có ghế hoặc thông tin toa không hợp lệ");
             return;
         }
 
-        List<Ghe> gheListFiltered = filterSeatsForDemo(gheListFull, currentToa.getHangToa().getHangToaID());
+        List<GheDTO> gheListFiltered = filterSeatsForDemo(gheListFull, currentToa.getHangToaID());
 
         if (gheListFiltered.isEmpty()) {
             showMessage("Không có ghế phù hợp để hiển thị");
@@ -168,7 +168,7 @@ public class PanelSoDoCho extends JPanel {
         }
 
         // Sắp xếp ghế theo số ghế
-        gheListFiltered.sort(Comparator.comparingInt(Ghe::getSoGhe));
+        gheListFiltered.sort(Comparator.comparingInt(GheDTO::getSoGhe));
 
         Set<Integer> selectedSoGheSet = (panelBuoc2Controller != null)
                 ? panelBuoc2Controller.getSelectedSoGhe(this.currentToa)
@@ -179,14 +179,14 @@ public class PanelSoDoCho extends JPanel {
         try {
             if (panelBuoc2Controller != null && panelBuoc2Controller.getSelectedChuyen() != null) {
 
-                String chuyenID = panelBuoc2Controller.getSelectedChuyen().getChuyenID();
-                String loaiTauID = panelBuoc2Controller.getSelectedChuyen().getTau().getLoaiTau().toString();
+                String chuyenID = panelBuoc2Controller.getSelectedChuyen().getId();
+                String loaiTauID = panelBuoc2Controller.getSelectedChuyen().getLoaiTauID();
 
                 SearchCriteria criteria = panelBuoc2Controller.getCurrentTripCriteria();
                 String gaDiID = (criteria != null) ? criteria.getGaDiId() : null;
                 String gaDenID = (criteria != null) ? criteria.getGaDenId() : null;
 
-                String hangToaID = (currentToa.getHangToa() != null) ? currentToa.getHangToa().getHangToaID() : null;
+                String hangToaID = (currentToa.getHangToaID() != null) ? currentToa.getHangToaID() : null;
 
                 if (chuyenID != null && gaDiID != null && gaDenID != null && loaiTauID != null && hangToaID != null) {
 
@@ -203,7 +203,7 @@ public class PanelSoDoCho extends JPanel {
             System.out.println("PanelSoDoCho: renderSeats() Lỗi tính giá");
         }
 
-        String hangToaID = currentToa.getHangToa().getHangToaID();
+        String hangToaID = currentToa.getHangToaID();
         switch (hangToaID) {
             case "GN_K4":
                 layout_GN_K4(gheListFiltered, selectedSoGheSet, giaFormatted, priceCalculated);
@@ -223,7 +223,7 @@ public class PanelSoDoCho extends JPanel {
         pnlGridChoNgoi.repaint();
     }
 
-    private List<Ghe> filterSeatsForDemo(List<Ghe> originalList, String hangToaID) {
+    private List<GheDTO> filterSeatsForDemo(List<GheDTO> originalList, String hangToaID) {
         int maxSeats;
         switch (hangToaID) {
             case "GN_K4":
@@ -242,7 +242,7 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // --- HÀM TẠO NÚT GHẾ CHUNG ---
-    private JButton createSeatButton(Ghe g, boolean isSelectedInSession, String tooltipPrice, boolean priceCalculated) {
+    private JButton createSeatButton(GheDTO g, boolean isSelectedInSession, String tooltipPrice, boolean priceCalculated) {
         JButton b = new JButton(String.valueOf(g.getSoGhe()));
         b.setOpaque(true);
         b.setMargin(new Insets(0, 0, 0, 0));
@@ -250,7 +250,7 @@ public class PanelSoDoCho extends JPanel {
         b.setFont(new Font(getFont().getFamily(), Font.PLAIN, 10));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        TrangThaiGhe status = g.getTrangThai();
+        TrangThaiGhe status = TrangThaiGhe.valueOf(g.getTrangThai());
         boolean isAvailable = (status == TrangThaiGhe.TRONG);
 
         if (isAvailable) {
@@ -308,7 +308,7 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // Layout cho GN_K4 (Giường nằm khoang 4 - 28 ghế)
-    private void layout_GN_K4(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+    private void layout_GN_K4(List<GheDTO> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
                               boolean priceCalculated) {
         // Layout: 2 hàng (T1, T2), 7 cột khoang, mỗi khoang 2 ghế
         // Định nghĩa cột: 14 cột (7 cặp), có gap lớn hơn giữa các cặp
@@ -323,7 +323,7 @@ public class PanelSoDoCho extends JPanel {
         pnlGridChoNgoi.setLayout(new MigLayout("insets 10, gapy 10, alignx center, aligny center",
                 finalColConstraints.toString(), String.format("[%d!]%d[%d!]", SEAT_HEIGHT, 15, SEAT_HEIGHT)));
 
-        Map<Integer, Ghe> gheMap = gheList.stream().collect(Collectors.toMap(Ghe::getSoGhe, g -> g));
+        Map<Integer, GheDTO> gheMap = gheList.stream().collect(Collectors.toMap(GheDTO::getSoGhe, g -> g));
 
         // Thứ tự ghế
         int[] row2Order = {3, 4, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24, 27, 28};
@@ -332,7 +332,7 @@ public class PanelSoDoCho extends JPanel {
         // Vẽ hàng T2 (Hàng 0 trong MigLayout)
         for (int i = 0; i < row2Order.length; i++) {
             int soGhe = row2Order[i];
-            Ghe g = gheMap.get(soGhe);
+            GheDTO g = gheMap.get(soGhe);
             String cellConstraint = "cell " + i + " 0"; // Xác định ô: cột i, hàng 0
             if (g != null) {
                 boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -346,7 +346,7 @@ public class PanelSoDoCho extends JPanel {
         // Vẽ hàng T1 (Hàng 1 trong MigLayout)
         for (int i = 0; i < row1Order.length; i++) {
             int soGhe = row1Order[i];
-            Ghe g = gheMap.get(soGhe);
+            GheDTO g = gheMap.get(soGhe);
             String cellConstraint = "cell " + i + " 1"; // Xác định ô: cột i, hàng 1
             if (g != null) {
                 boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -359,7 +359,7 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // Layout cho GN_K6 (Giường nằm khoang 6 - 42 ghế)
-    private void layout_GN_K6(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+    private void layout_GN_K6(List<GheDTO> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
                               boolean priceCalculated) {
         // Layout: 3 hàng (T1, T2, T3), 7 cột khoang, mỗi khoang 2 ghế
         // Định nghĩa cột tương tự GN_K4
@@ -375,7 +375,7 @@ public class PanelSoDoCho extends JPanel {
                 new MigLayout("insets 10, gapy 10, alignx center, aligny center", finalColConstraints.toString(),
                         String.format("[%d!]%d[%d!]%d[%d!]", SEAT_HEIGHT, 10, SEAT_HEIGHT, 10, SEAT_HEIGHT)));
 
-        Map<Integer, Ghe> gheMap = gheList.stream().collect(Collectors.toMap(Ghe::getSoGhe, g -> g));
+        Map<Integer, GheDTO> gheMap = gheList.stream().collect(Collectors.toMap(GheDTO::getSoGhe, g -> g));
 
         // Thứ tự ghế
         int[] row3Order = {5, 6, 11, 12, 17, 18, 23, 24, 29, 30, 35, 36, 41, 42};
@@ -385,7 +385,7 @@ public class PanelSoDoCho extends JPanel {
         // Vẽ hàng T3 (Hàng 0)
         for (int i = 0; i < row3Order.length; i++) {
             int soGhe = row3Order[i];
-            Ghe g = gheMap.get(soGhe);
+            GheDTO g = gheMap.get(soGhe);
             String cellConstraint = "cell " + i + " 0";
             if (g != null) {
                 boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -399,7 +399,7 @@ public class PanelSoDoCho extends JPanel {
         // Vẽ hàng T2 (Hàng 1)
         for (int i = 0; i < row2Order.length; i++) {
             int soGhe = row2Order[i];
-            Ghe g = gheMap.get(soGhe);
+            GheDTO g = gheMap.get(soGhe);
             String cellConstraint = "cell " + i + " 1";
             if (g != null) {
                 boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -413,7 +413,7 @@ public class PanelSoDoCho extends JPanel {
         // Vẽ hàng T1 (Hàng 2)
         for (int i = 0; i < row1Order.length; i++) {
             int soGhe = row1Order[i];
-            Ghe g = gheMap.get(soGhe);
+            GheDTO g = gheMap.get(soGhe);
             String cellConstraint = "cell " + i + " 2";
             if (g != null) {
                 boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -426,7 +426,7 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // Layout cho NM_CLC (Ngồi mềm CLC - 56 ghế)
-    private void layout_NM_CLC(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+    private void layout_NM_CLC(List<GheDTO> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
                                boolean priceCalculated) {
         StringBuilder colFormat = new StringBuilder();
         int seatGap = 5;
@@ -468,7 +468,7 @@ public class PanelSoDoCho extends JPanel {
         pnlGridChoNgoi.setLayout(new MigLayout("insets 4, gapy 4, alignx center, aligny center", finalColConstraints,
                 finalRowConstraints));
 
-        Map<Integer, Ghe> gheMap = gheList.stream().collect(Collectors.toMap(Ghe::getSoGhe, g -> g));
+        Map<Integer, GheDTO> gheMap = gheList.stream().collect(Collectors.toMap(GheDTO::getSoGhe, g -> g));
 
         // --- Hardcode vị trí từng ghế (giữ nguyên logic đặt ghế vào cell) ---
         // Hàng 1 (MigLayout row 0)
@@ -537,9 +537,9 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // (Hàm addSeatButtonToGridNM_Cell giữ nguyên)
-    private void addSeatButtonToGridNM_Cell(Map<Integer, Ghe> gheMap, int soGhe, Set<Integer> selectedSoGheSet, int col,
+    private void addSeatButtonToGridNM_Cell(Map<Integer, GheDTO> gheMap, int soGhe, Set<Integer> selectedSoGheSet, int col,
                                             int row, String giaFormatted, boolean priceCalculated) {
-        Ghe g = gheMap.get(soGhe);
+        GheDTO g = gheMap.get(soGhe);
         String constraints = "cell " + col + " " + row; // Tạo ràng buộc cell
         if (g != null && soGhe <= 56) {
             boolean isSelected = selectedSoGheSet.contains(soGhe);
@@ -551,14 +551,14 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // Layout mặc định (GridLayout cũ)
-    private void layout_Default(List<Ghe> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
+    private void layout_Default(List<GheDTO> gheList, Set<Integer> selectedSoGheSet, String giaFormatted,
                                 boolean priceCalculated) {
         int cols = Math.min(gheList.size(), 8); // Tăng số cột mặc định
         int rows = (int) Math.ceil(gheList.size() / (double) cols);
         pnlGridChoNgoi.setLayout(new MigLayout(String.format("wrap %d, insets 10, gap 5 5", cols),
                 "[" + SEAT_WIDTH + "!]", "[" + SEAT_HEIGHT + "!]"));
 
-        for (Ghe g : gheList) {
+        for (GheDTO g : gheList) {
             boolean isSelected = selectedSoGheSet.contains(g.getSoGhe());
             JButton b = createSeatButton(g, isSelected, giaFormatted, priceCalculated);
             pnlGridChoNgoi.add(b, SEAT_SIZE_CONSTRAINTS);
@@ -571,7 +571,7 @@ public class PanelSoDoCho extends JPanel {
             return;
         }
         currentIndex = (currentIndex == 0) ? doanTauLength - 1 : currentIndex - 1;
-        Toa t = toaList.get(currentIndex);
+        ToaDTO t = toaList.get(currentIndex);
         setCurrentToa(t);
         if (panelBuoc2Controller != null) {
             panelBuoc2Controller.highlightToa(t);
@@ -583,7 +583,7 @@ public class PanelSoDoCho extends JPanel {
             return;
         }
         currentIndex = (currentIndex == doanTauLength - 1) ? 0 : currentIndex + 1;
-        Toa t = toaList.get(currentIndex);
+        ToaDTO t = toaList.get(currentIndex);
         setCurrentToa(t);
         if (panelBuoc2Controller != null) {
             panelBuoc2Controller.highlightToa(t);
@@ -604,15 +604,15 @@ public class PanelSoDoCho extends JPanel {
     }
 
     // ==== Background Worker ====
-    private class LoadSeatWorker extends SwingWorker<List<Ghe>, Void> {
-        private final Toa toa;
+    private class LoadSeatWorker extends SwingWorker<List<GheDTO>, Void> {
+        private final ToaDTO toa;
 
-        LoadSeatWorker(Toa t) {
+        LoadSeatWorker(ToaDTO t) {
             this.toa = t;
         }
 
         @Override
-        protected List<Ghe> doInBackground() throws Exception {
+        protected List<GheDTO> doInBackground() throws Exception {
             // --- SỬA LỖI: Không nên dùng callback lồng nhau kiểu này với SwingWorker ---
             // Cách tiếp cận này có thể gây deadlock hoặc lỗi thread.
             // Nên gọi trực tiếp BUS trong doInBackground.
@@ -634,13 +634,13 @@ public class PanelSoDoCho extends JPanel {
                 }
             }
             if (panelBuoc2Controller.getSelectedChuyen() != null) {
-                chuyenID = panelBuoc2Controller.getSelectedChuyen().getChuyenID();
+                chuyenID = panelBuoc2Controller.getSelectedChuyen().getId();
             }
 
             // Gọi BUS trực tiếp
             if (gaDiID != null && gaDenID != null && chuyenID != null && toa != null) {
                 return panelBuoc2Controller.getChuyenBUS().layCacGheTrongToaTrenChuyen(gaDiID, gaDenID, chuyenID,
-                        toa.getToaID());
+                        toa.getId());
             } else {
                 System.err.println("LoadSeatWorker: Thiếu thông tin để tải ghế.");
                 return Collections.emptyList();
@@ -650,7 +650,7 @@ public class PanelSoDoCho extends JPanel {
         @Override
         protected void done() {
             try {
-                List<Ghe> seats = get();
+                List<GheDTO> seats = get();
                 // Gọi renderSeats trên EDT
                 SwingUtilities.invokeLater(() -> renderSeats(seats));
             } catch (InterruptedException | ExecutionException e) {

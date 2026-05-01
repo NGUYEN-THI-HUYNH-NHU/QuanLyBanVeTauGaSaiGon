@@ -143,7 +143,7 @@ public class MappingVeTableModel extends AbstractTableModel {
                 }
                 return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
                         veDoi.getTauID(), veDoi.getNgayGioDi(), veDoi.getSoToa(), veDoi.getSoGhe(), veDoi.getVeID(),
-                        row.getVeDoiRow().getPhieuDungPhongVIP().getPhieuDungPhongVIPID());
+                        row.getVeDoiRow().getPhieuDungPhongVIP().getId());
             case COL_VE_CU_GIA:
                 return veDoi.getGia();
             case COL_CHON_VE_MOI:

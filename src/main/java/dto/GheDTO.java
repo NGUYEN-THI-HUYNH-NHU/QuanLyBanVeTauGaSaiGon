@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.TrangThaiGhe;
 import lombok.*;
 
 import java.io.Serializable;
@@ -13,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class GheDTO implements Serializable {
     private String id;
-    private ToaDTO toa;
+    private String toaID;
     private int soGhe;
-    private TrangThaiGhe trangThai;
+    private String trangThai;
 }

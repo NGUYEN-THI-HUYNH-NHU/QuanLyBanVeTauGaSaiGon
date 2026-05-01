@@ -5,9 +5,9 @@ package gui.application;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.util.concurrent.atomic.AtomicReference;
+import dto.NhanVienDTO;
 
-import entity.NhanVien;
+import java.util.concurrent.atomic.AtomicReference;
 
 /*
  * @description
@@ -16,31 +16,26 @@ import entity.NhanVien;
  * @version: 1.0
  */
 public final class AuthService {
-	private static final AuthService INSTANCE = new AuthService();
-	private final AtomicReference<NhanVien> current = new AtomicReference<>();
+    private static final AuthService INSTANCE = new AuthService();
+    private final AtomicReference<NhanVienDTO> current = new AtomicReference<>();
 
-	private AuthService() {
-	}
+    private AuthService() {
+    }
 
-	public static AuthService getInstance() {
-		return INSTANCE;
-	}
+    public static AuthService getInstance() {
+        return INSTANCE;
+    }
 
-	// gọi khi login thành công
-	public void setCurrentUser(NhanVien nv) {
-		current.set(nv);
-	}
+    public NhanVienDTO getCurrentUser() {
+        return current.get();
+    }
 
-	public NhanVien getCurrentUser() {
-		return current.get();
-	}
+    // gọi khi login thành công
+    public void setCurrentUser(NhanVienDTO nv) {
+        current.set(nv);
+    }
 
-	public void clear() {
-		current.set(null);
-	}
-
-	public boolean isAuthenticated() {
-		return current.get() != null;
-	}
-
+    public void clear() {
+        current.set(null);
+    }
 }

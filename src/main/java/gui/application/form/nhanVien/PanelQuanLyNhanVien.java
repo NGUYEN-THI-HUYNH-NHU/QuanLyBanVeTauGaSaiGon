@@ -3,10 +3,12 @@ package gui.application.form.nhanVien;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 import controller.NhanVien_CTRL;
+import dto.NhanVienDTO;
 import entity.CaLam;
 import entity.NhanVien;
 import entity.VaiTroNhanVien;
 import entity.type.VaiTroNhanVienEnums;
+import mapper.NhanVienMapper;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class PanelQuanLyNhanVien extends JPanel implements ActionListener, MouseListener, KeyListener {
-    private final NhanVien nhanVienHienTai;
+    private final NhanVienDTO nhanVienHienTai;
     private final NhanVien_CTRL nhanVien_ctrl;
     // màu sắc giao diện
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
@@ -44,9 +46,9 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
     private JComboBox<CaLam> cbCaLam;
     private Font font = new Font("Roboto", Font.PLAIN, 12);
 
-    public PanelQuanLyNhanVien(NhanVien nhanVienHienTai) {
+    public PanelQuanLyNhanVien(NhanVienDTO nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
-        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
+        this.nhanVien_ctrl = new NhanVien_CTRL(NhanVienMapper.INSTANCE.toEntity(nhanVienHienTai));
 
         btnAdd = createButton("Thêm", "icon/svg/add-kh.svg");
         btnEdit = createButton("Sửa", "icon/svg/edit-kh.svg");

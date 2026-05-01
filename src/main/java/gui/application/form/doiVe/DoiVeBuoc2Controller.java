@@ -13,8 +13,8 @@ package gui.application.form.doiVe;
  */
 
 import dto.KhachHangDTO;
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import entity.PhieuDungPhongVIP;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class DoiVeBuoc2Controller {
      * @param listVe
      *
      */
-    public void disPlayDonDatCho(List<VeDTO> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHangDTO khachHang) {
+    public void disPlayDonDatCho(List<VeDTO> listVe, List<PhieuDungPhongVIPDTO> listPhieu, KhachHangDTO khachHang) {
         panel.showDonDatCho(listVe, listPhieu, khachHang);
     }
 

@@ -5,10 +5,10 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import dto.PhieuDungPhongVIPDTO;
+import dto.PhieuGiuChoChiTietDTO;
 import dto.VeDTO;
 import entity.KhuyenMai;
-import entity.PhieuDungPhongVIP;
-import entity.PhieuGiuChoChiTiet;
 import entity.SuDungKhuyenMai;
 
 import java.text.DecimalFormat;
@@ -23,8 +23,8 @@ import java.util.Objects;
 public class VeSession {
     private final LocalDateTime thoiDiemHetHan;
     private VeDTO ve;
-    private PhieuGiuChoChiTiet phieuGiuChoChiTiet;
-    private PhieuDungPhongVIP phieuDungPhongVIP;
+    private PhieuGiuChoChiTietDTO phieuGiuChoChiTiet;
+    private PhieuDungPhongVIPDTO phieuDungPhongVIP;
     private int phiPhieuDungPhongChoVIP;
     private KhuyenMai khuyenMaiApDung = null;
     private int giamKM;
@@ -57,11 +57,11 @@ public class VeSession {
         return thoiDiemHetHan;
     }
 
-    public PhieuGiuChoChiTiet getPhieuGiuChoChiTiet() {
+    public PhieuGiuChoChiTietDTO getPhieuGiuChoChiTiet() {
         return phieuGiuChoChiTiet;
     }
 
-    public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTiet phieuGiuChoChiTiet) {
+    public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTietDTO phieuGiuChoChiTiet) {
         this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
     }
 
@@ -73,11 +73,11 @@ public class VeSession {
         this.ve = ve;
     }
 
-    public PhieuDungPhongVIP getPhieuDungPhongVIP() {
+    public PhieuDungPhongVIPDTO getPhieuDungPhongVIP() {
         return phieuDungPhongVIP;
     }
 
-    public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
+    public void setPhieuDungPhongVIP(PhieuDungPhongVIPDTO phieuDungPhongVIP) {
         this.phieuDungPhongVIP = phieuDungPhongVIP;
     }
 

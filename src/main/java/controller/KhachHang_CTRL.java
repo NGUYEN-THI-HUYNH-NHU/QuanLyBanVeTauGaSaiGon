@@ -2,15 +2,15 @@ package controller;
 
 import bus.KhachHang_BUS;
 import dto.KhachHangDTO;
+import dto.NhanVienDTO;
 import entity.KhachHang;
-import entity.NhanVien;
 import gui.application.AuthService;
 
 import java.util.List;
 
 public class KhachHang_CTRL {
     private final KhachHang_BUS khachHang_bus;
-    private final NhanVien nhanVienHienTai;
+    private final NhanVienDTO nhanVienHienTai;
 
 
     public KhachHang_CTRL() {
@@ -19,12 +19,12 @@ public class KhachHang_CTRL {
     }
 
     public boolean themKhachHang(KhachHangDTO kh) {
-        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
+        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getId() : null;
         return khachHang_bus.themKhachHang(kh);
     }
 
     public boolean capNhatKhachHang(KhachHangDTO kh) {
-        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null;
+        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getId() : null;
         return khachHang_bus.capNhatKhachHang(kh);
     }
 

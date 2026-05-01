@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.TrangThaiPDPVIP;
 import lombok.*;
 
 import java.io.Serializable;
@@ -13,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class PhieuDungPhongVIPDTO implements Serializable {
     private String id;
-    private DichVuPhongChoVIPDTO dichVuPhongChoVIP;
-    private VeDTO ve;
-    private TrangThaiPDPVIP trangThai;
+    private String dichVuPhongChoVIPID;
+    private String veID;
+    private String trangThai;
 }

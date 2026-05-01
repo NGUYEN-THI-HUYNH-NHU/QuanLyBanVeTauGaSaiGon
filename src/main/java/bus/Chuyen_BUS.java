@@ -13,9 +13,17 @@ package bus;
  */
 
 import dao.impl.*;
+import dto.ChuyenDTO;
+import dto.GaDTO;
+import dto.GheDTO;
+import dto.ToaDTO;
 import entity.*;
 import entity.type.NhatKyAudit;
 import entity.type.TrangThaiTau;
+import mapper.ChuyenMapper;
+import mapper.GaMapper;
+import mapper.GheMapper;
+import mapper.ToaMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,34 +68,35 @@ public class Chuyen_BUS {
         return result;
     }
 
-    public List<Chuyen> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
-        List<Chuyen> dsChuyen = chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi);
+    public List<ChuyenDTO> timChuyenTheoGaDiGaDenNgayDi(String gaDi, String gaDen, LocalDate ngayDi) {
+        List<ChuyenDTO> dsChuyen = chuyenDAO.getChuyenByGaDiGaDenNgayDi(gaDi, gaDen, ngayDi)
+                .stream().map(ChuyenMapper.INSTANCE::toDTO).collect(Collectors.toList());
         dsChuyen.removeIf(
                 c -> !LocalDateTime.now().plusHours(1).isBefore(LocalDateTime.of(c.getNgayDi(), c.getGioDi())));
         return dsChuyen;
     }
 
     // Gợi ý ga đi (tên)
-    public List<Ga> goiYGaDi(String prefix, int limit) {
-        return gaDAO.searchGaByPrefix(prefix, limit);
+    public List<GaDTO> goiYGaDi(String prefix, int limit) {
+        return gaDAO.searchGaByPrefix(prefix, limit).stream().map(GaMapper.INSTANCE::toDTO).toList();
 
     }
 
     // Gợi ý ga đến dựa trên ga đi đã chọn
-    public List<Ga> goiYGaDenTheoGaDi(String gaDiID, String prefixGaDen, int limit) {
-        return gaDAO.searchGaDenKhaThiByGaDi(gaDiID, prefixGaDen, limit);
+    public List<GaDTO> goiYGaDenTheoGaDi(String gaDiID, String prefixGaDen, int limit) {
+        return gaDAO.searchGaDenKhaThiByGaDi(gaDiID, prefixGaDen, limit).stream().map(GaMapper.INSTANCE::toDTO).toList();
     }
 
-    public Ga timGaTheoTenGa(String tenGa) {
-        return gaDAO.getGaByTenGa(tenGa);
+    public GaDTO timGaTheoTenGa(String tenGa) {
+        return GaMapper.INSTANCE.toDTO(gaDAO.getGaByTenGa(tenGa));
     }
 
-    public List<Toa> layCacToaTheoChuyen(String chuyenID) {
-        return toaDAO.getToaByChuyenID(chuyenID);
+    public List<ToaDTO> layCacToaTheoChuyen(String chuyenID) {
+        return toaDAO.getToaByChuyenID(chuyenID).stream().map(ToaMapper.INSTANCE::toDTO).toList();
     }
 
-    public List<Ghe> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
-        return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID);
+    public List<GheDTO> layCacGheTrongToaTrenChuyen(String gaDiID, String gaDenID, String chuyenID, String toaID) {
+        return gheDAO.getGheByGaDiGaDenChuyenToa(gaDiID, gaDenID, chuyenID, toaID).stream().map(GheMapper.INSTANCE::toDTO).toList();
     }
 
     public int layGiaGheTheoPhanDoan(String chuyenID, String gaDiID, String gaDenID, String loaiTauID,

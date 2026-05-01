@@ -14,8 +14,8 @@ package gui.application.form.doiVe;
 
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import entity.PhieuDungPhongVIP;
 import gui.application.form.doiVe.DoiVeBuoc1Controller.SearchListener;
 import gui.application.form.doiVe.DoiVeBuoc2Controller.ContinueListener;
 import gui.application.form.doiVe.DoiVeBuoc3Controller.ConfirmListener;
@@ -71,7 +71,7 @@ public class DoiVe1Controller {
         // Lắng nghe sự kiện từ Buoc1 (Tra cứu đơn đặt chỗ)
         this.p1Controller.addSearchListener(new SearchListener() {
             @Override
-            public void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, List<PhieuDungPhongVIP> danhSachPhieu,
+            public void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, List<PhieuDungPhongVIPDTO> danhSachPhieu,
                                         KhachHangDTO khachHang) {
                 List<VeDoiRow> listVeTimDuoc = new ArrayList<VeDoiRow>();
                 int soLuongVe = danhSachVe.size();

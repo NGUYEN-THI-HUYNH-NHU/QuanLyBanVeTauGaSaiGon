@@ -12,7 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.Toa;
+import dto.ToaDTO;
 import gui.application.form.doiVe.DoiVeBuoc5Controller;
 
 import javax.imageio.ImageIO;
@@ -131,11 +131,7 @@ public class PanelDoanTau extends JPanel {
         this.controller = controller;
     }
 
-    public void setControllerDoiVe(DoiVeBuoc5Controller controller) {
-        this.controllerDoiVe = controller;
-    }
-
-    public void showToaList(List<Toa> list, Consumer<Toa> onSelect) {
+    public void showToaList(List<ToaDTO> list, Consumer<ToaDTO> onSelect) {
         flow.removeAll();
         selectedButton = null;
 
@@ -143,7 +139,7 @@ public class PanelDoanTau extends JPanel {
             flow.add(new JLabel("Không có toa"));
         } else {
             flow.add(drawDauTau());
-            for (Toa t : list) {
+            for (ToaDTO t : list) {
                 JButton btnToa = drawToa(t);
                 btnToa.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 btnToa.addActionListener(e -> {
@@ -213,11 +209,11 @@ public class PanelDoanTau extends JPanel {
         return null;
     }
 
-    private JButton drawToa(Toa t) {
+    private JButton drawToa(ToaDTO t) {
         JButton btnToa = new JButton(String.valueOf(t.getSoToa()));
         btnToa.setFont(new Font("Roboto", Font.PLAIN, 10));
-        btnToa.putClientProperty("toaID", t.getToaID());
-        btnToa.setToolTipText(String.format("<html>Toa %d - %s</html>", t.getSoToa(), t.getHangToa().getMoTa()));
+        btnToa.putClientProperty("toaID", t.getId());
+        btnToa.setToolTipText(String.format("<html>Toa %d - %s</html>", t.getSoToa(), t.getMoTa()));
 
         if (baseToaImage != null) {
             int fixedIconWidth = 42;

@@ -19,6 +19,9 @@ import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
+import mapper.DonDatChoMapper;
+import mapper.HoaDonMapper;
+import mapper.NhanVienMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
@@ -35,6 +38,7 @@ public class BanVe_BUS {
     private final SuDungKhuyenMai_BUS suDungKhuyenMaiBUS = new SuDungKhuyenMai_BUS();
     private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
     private final NhatKyAudit_BUS nhatKyAuditBUS = new NhatKyAudit_BUS();
+    private final NhanVien nhanVien = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
 
     /**
      * Gói toàn bộ nghiệp vụ thanh toán vào một Transaction CSDL duy nhất.
@@ -59,14 +63,14 @@ public class BanVe_BUS {
             }
 
             // 3. Tạo và Lưu Đơn Đặt Chỗ
-            DonDatCho donDatCho = datChoBUS.taoDonDatCho(session.getNhanVien(), khachHang);
+            DonDatCho donDatCho = datChoBUS.taoDonDatCho(khachHang);
             datChoBUS.themDonDatCho(donDatCho);
-            session.setDonDatCho(donDatCho);
+            session.setDonDatCho(DonDatChoMapper.INSTANCE.toDTO(donDatCho));
 
             // 4. Tạo và Lưu Hóa đơn
             HoaDon hoaDon = hoaDonBUS.taoHoaDon(session);
             hoaDonBUS.themHoaDon(hoaDon);
-            session.setHoaDon(hoaDon);
+            session.setHoaDon(HoaDonMapper.INSTANCE.toDTO(hoaDon));
 
             // 6. Tạo và Lưu Vé (Batch Insert)
             List<Ve> dsVe = veBUS.taoCacVeVaThemVaoBookingSession(session);
@@ -82,7 +86,7 @@ public class BanVe_BUS {
 
             // 9. Tạo và Lưu Hóa Đơn Chi Tiết (khi tạo các hóa đơn chi tiết đã bao gồm gán
             // nó cho sử dụng khuyến mãi tương ứng)
-            List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon(),
+            List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon().getId(),
                     session.getAllSelectedTickets());
             hoaDonBUS.themCacHoaDonChiTiet(listHoaDonChiTiet);
 
@@ -95,10 +99,9 @@ public class BanVe_BUS {
             datChoBUS.capNhatCacPhieuGiuChoChiTiet(phieuGiuCho, TrangThaiPhieuGiuCho.XAC_NHAN);
 
             // Ghi log
-            String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
             for (VeSession v : session.getAllSelectedTickets()) {
-                ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.BAN_VE,
-                        "Bán vé - " + session.getDonDatCho().getDonDatChoID() + ": " + v.getVe().getVeID());
+                ghiLog(v.getVe().getVeID(), nhanVien.getNhanVienID(), entity.type.NhatKyAudit.BAN_VE,
+                        "Bán vé - " + session.getDonDatCho().getId() + ": " + v.getVe().getVeID());
             }
             // --- KẾT THÚC GIAO DỊCH ---
             // Hoàn tất giao dịch

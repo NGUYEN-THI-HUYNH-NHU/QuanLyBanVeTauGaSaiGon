@@ -12,7 +12,7 @@ package gui.application.form.hoaDon;
  * @version: 1.0
  */
 
-import entity.HoaDon;
+import dto.HoaDonDTO;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDateTime;
@@ -37,19 +37,19 @@ public class HoaDonTableModel extends AbstractTableModel {
     private final String[] columnNames = {"STT", "Hóa đơn ID", "KH ID", "Tên khách hàng", "CCCD KH", "Thời điểm tạo",
             "Tổng tiền", "Tiền nhận", "Tiền hoàn", "Tiền mặt", "Xem", "In"};
 
-    private List<HoaDon> rows;
+    private List<HoaDonDTO> rows;
 
-    private Consumer<HoaDon> rowSelectionListener;
+    private Consumer<HoaDonDTO> rowSelectionListener;
 
     public HoaDonTableModel() {
         this.rows = new ArrayList<>();
     }
 
-    public List<HoaDon> getRows() {
+    public List<HoaDonDTO> getRows() {
         return rows;
     }
 
-    public void setRows(List<HoaDon> rows) {
+    public void setRows(List<HoaDonDTO> rows) {
         this.rows = new ArrayList<>(rows);
         fireTableDataChanged(); // Thông báo cho JTable cập nhật
     }
@@ -91,19 +91,19 @@ public class HoaDonTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        HoaDon row = rows.get(rowIndex);
+        HoaDonDTO row = rows.get(rowIndex);
         switch (columnIndex) {
 
             case COL_STT:
                 return rowIndex + 1;
             case COL_HOA_DON_ID:
-                return row.getHoaDonID();
+                return row.getId();
             case COL_KHACH_HANG_ID:
-                return row.getKhachHang().getKhachHangID();
+                return row.getKhachHangDTO().getLoaiKhachHangID();
             case COL_TEN_KHACH_HANG:
-                return row.getKhachHang().getHoTen();
+                return row.getKhachHangDTO().getHoTen();
             case COL_CCCD_KHACH_HANG:
-                return row.getKhachHang().getSoGiayTo();
+                return row.getKhachHangDTO().getSoGiayTo();
             case COL_THOI_DIEM_TAO:
                 return row.getThoiDiemTao();
             case COL_TONG_TIEN:
@@ -125,7 +125,7 @@ public class HoaDonTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        HoaDon row = rows.get(rowIndex);
+        HoaDonDTO row = rows.get(rowIndex);
 
         // Phát sự kiện để HoaDonController bắt
         if (rowSelectionListener != null) {
@@ -133,15 +133,15 @@ public class HoaDonTableModel extends AbstractTableModel {
         }
     }
 
-    public void setRowSelectionListener(Consumer<HoaDon> listener) {
+    public void setRowSelectionListener(Consumer<HoaDonDTO> listener) {
         this.rowSelectionListener = listener;
     }
 
-    public int getRowIndex(HoaDon rowToFind) {
+    public int getRowIndex(HoaDonDTO rowToFind) {
         return rows.indexOf(rowToFind);
     }
 
-    public HoaDon getRow(int rowIndex) {
+    public HoaDonDTO getRow(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < rows.size()) {
             return rows.get(rowIndex);
         }

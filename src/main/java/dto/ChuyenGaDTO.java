@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChuyenGaDTO implements Serializable {
-    private String chuyenID;
+    private String id;
     private String gaID;
     private int thuTu;
     private LocalDate ngayDen;

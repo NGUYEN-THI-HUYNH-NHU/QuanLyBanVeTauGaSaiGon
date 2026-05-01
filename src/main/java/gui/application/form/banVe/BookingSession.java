@@ -18,10 +18,7 @@ package gui.application.form.banVe;
  *
  */
 
-import dto.KhachHangDTO;
-import dto.PhieuGiuChoDTO;
-import entity.*;
-import gui.application.AuthService;
+import dto.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,20 +26,19 @@ import java.util.List;
 
 public class BookingSession {
     private static BookingSession instance;
-    private final List<VeSession> outboundSelected = new ArrayList<>();
     private final List<VeSession> returnSelected = new ArrayList<>();
-    private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
+    private final List<VeSession> outboundSelected = new ArrayList<>();
     // Outbound (chiều đi)
     private SearchCriteria outboundCriteria;
-    private List<Chuyen> outboundResults = new ArrayList<>();
+    private List<ChuyenDTO> outboundResults = new ArrayList<>();
     // Return (chiều về) — có thể null nếu 1 chiều
     private SearchCriteria returnCriteria;
-    private List<Chuyen> returnResults = new ArrayList<>();
+    private List<ChuyenDTO> returnResults = new ArrayList<>();
     private KhachHangDTO khachHang;
     private PhieuGiuChoDTO phieuGiuCho;
-    private GiaoDichThanhToan giaoDichThanhToan;
-    private DonDatCho donDatCho;
-    private HoaDon hoaDon;
+    private GiaoDichThanhToanDTO giaoDichThanhToan;
+    private DonDatChoDTO donDatCho;
+    private HoaDonDTO hoaDon;
 
     public BookingSession() {
     }
@@ -66,12 +62,12 @@ public class BookingSession {
         this.outboundCriteria = c;
     }
 
-    public synchronized List<Chuyen> getOutboundResults() {
+    public synchronized List<ChuyenDTO> getOutboundResults() {
         return Collections.unmodifiableList(outboundResults);
     }
 
-    public synchronized void setOutboundResults(List<Chuyen> results) {
-        this.outboundResults = (results == null) ? new ArrayList<Chuyen>() : new ArrayList<Chuyen>(results);
+    public synchronized void setOutboundResults(List<ChuyenDTO> results) {
+        this.outboundResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
     }
 
     // add/remove selected tickets for outbound
@@ -105,11 +101,11 @@ public class BookingSession {
         this.returnCriteria = c;
     }
 
-    public synchronized List<Chuyen> getReturnResults() {
+    public synchronized List<ChuyenDTO> getReturnResults() {
         return Collections.unmodifiableList(returnResults);
     }
 
-    public synchronized void setReturnResults(List<Chuyen> results) {
+    public synchronized void setReturnResults(List<ChuyenDTO> results) {
         this.returnResults = (results == null) ? new ArrayList<>() : new ArrayList<>(results);
     }
 
@@ -166,11 +162,6 @@ public class BookingSession {
         return allSelectedTickets;
     }
 
-    public void removeAllSelectedTickets() {
-        outboundResults = new ArrayList<Chuyen>();
-        returnResults = new ArrayList<Chuyen>();
-    }
-
     /**
      * Thêm ticket theo tripIndex
      */
@@ -180,18 +171,6 @@ public class BookingSession {
         } else {
             addReturnTicket(v);
         }
-    }
-
-    /**
-     * Xóa tất cả dữ liệu session (khi hủy hoặc hoàn tất)
-     */
-    public synchronized void clearAll() {
-        outboundCriteria = null;
-        outboundResults.clear();
-        outboundSelected.clear();
-        returnCriteria = null;
-        returnResults.clear();
-        returnSelected.clear();
     }
 
     @Override
@@ -215,32 +194,28 @@ public class BookingSession {
     public List<VeSession> getReturnSelected() {
         return returnSelected;
     }
-
-    public NhanVien getNhanVien() {
-        return nhanVien;
-    }
-
-    public DonDatCho getDonDatCho() {
+    
+    public DonDatChoDTO getDonDatCho() {
         return donDatCho;
     }
 
-    public void setDonDatCho(DonDatCho donDatCho) {
+    public void setDonDatCho(DonDatChoDTO donDatCho) {
         this.donDatCho = donDatCho;
     }
 
-    public GiaoDichThanhToan getGiaoDichThanhToan() {
+    public GiaoDichThanhToanDTO getGiaoDichThanhToan() {
         return giaoDichThanhToan;
     }
 
-    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+    public void setGiaoDichThanhToan(GiaoDichThanhToanDTO giaoDichThanhToan) {
         this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
-    public HoaDon getHoaDon() {
+    public HoaDonDTO getHoaDon() {
         return hoaDon;
     }
 
-    public void setHoaDon(HoaDon hoaDon) {
+    public void setHoaDon(HoaDonDTO hoaDon) {
         this.hoaDon = hoaDon;
     }
 }

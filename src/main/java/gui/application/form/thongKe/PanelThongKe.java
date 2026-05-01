@@ -1,8 +1,7 @@
 package gui.application.form.thongKe;
 
 import dao.impl.ThongKeNhanVien_DAO;
-import entity.CaLam;
-import entity.NhanVien;
+import dto.NhanVienDTO;
 import gui.application.AuthService;
 
 import javax.swing.*;
@@ -22,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 public class PanelThongKe extends JPanel {
 
     // ====== FIELD CHÍNH ======
-    private final NhanVien nhanVien;
+    private final NhanVienDTO nhanVien;
     private final ThongKeNhanVien_DAO thongKeNhanVienDAO;
     // Định dạng cho tiền tệ và số nguyên
     private final DecimalFormat currencyFormatter = new DecimalFormat("#,##0 VNĐ");
@@ -54,7 +53,7 @@ public class PanelThongKe extends JPanel {
         this.giaoCaModel = new BaoCaoGiaoCaModel();
 
         // Lấy nhân viên hiện tại từ AuthService
-        NhanVien current = AuthService.getInstance().getCurrentUser();
+        NhanVienDTO current = AuthService.getInstance().getCurrentUser();
         if (current == null) {
             throw new IllegalStateException(
                     "Chưa có nhân viên đăng nhập! Hãy setCurrentUser trước khi mở PanelThongKe.");
@@ -273,13 +272,12 @@ public class PanelThongKe extends JPanel {
 
         final LocalDate currentDay = LocalDate.now();
 
-        CaLam caLam = nhanVien.getCaLam();
-        final String finalCaLamViecText = String.format("%s (%s - %s)", caLam.getCaLamID(),
-                caLam.getGioVaoCa().format(DateTimeFormatter.ofPattern("HH:mm")),
-                caLam.getGioKetCa().format(DateTimeFormatter.ofPattern("HH:mm")));
-        final LocalTime finalGioBatDauCa = caLam.getGioVaoCa();
-        final LocalTime finalGioKetThucCa = caLam.getGioKetCa();
-        final String finalMaNhanVien = nhanVien.getNhanVienID();
+        final String finalCaLamViecText = String.format("%s (%s - %s)", nhanVien.getCaLamID(),
+                nhanVien.getGioVaoCa().format(DateTimeFormatter.ofPattern("HH:mm")),
+                nhanVien.getGioKetCa().format(DateTimeFormatter.ofPattern("HH:mm")));
+        final LocalTime finalGioBatDauCa = nhanVien.getGioVaoCa();
+        final LocalTime finalGioKetThucCa = nhanVien.getGioKetCa();
+        final String finalMaNhanVien = nhanVien.getId();
 
         SwingWorker<ThongKeResult, Void> worker = new SwingWorker<>() {
             @Override

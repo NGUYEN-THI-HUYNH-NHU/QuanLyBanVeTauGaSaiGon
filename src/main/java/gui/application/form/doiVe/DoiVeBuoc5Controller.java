@@ -8,9 +8,9 @@ package gui.application.form.doiVe;
 import bus.Chuyen_BUS;
 import bus.DatCho_BUS;
 import bus.Ve_BUS;
-import entity.Chuyen;
-import entity.Ghe;
-import entity.Toa;
+import dto.ChuyenDTO;
+import dto.GheDTO;
+import dto.ToaDTO;
 import gui.application.form.banVe.PanelChieuLabel;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
@@ -34,9 +34,9 @@ public class DoiVeBuoc5Controller {
     private final List<SeatSelectedListener> seatSelectedListeners = new ArrayList<>();
 
     private ExchangeSession exchangeSession;
-    private List<Chuyen> chuyenList;
-    private Chuyen selectedChuyen;
-    private Toa selectedToa;
+    private List<ChuyenDTO> chuyenList;
+    private ChuyenDTO selectedChuyen;
+    private ToaDTO selectedToa;
 
     public DoiVeBuoc5Controller(PanelChieuLabel chieuLabel, PanelChuyenTauDoiVe chuyenTau, PanelDoanTauDoiVe doanTau,
                                 PanelSoDoChoDoiVe soDoCho) {
@@ -66,7 +66,7 @@ public class DoiVeBuoc5Controller {
         return chuyenBUS.layGiaGheTheoPhanDoan(chuyenID, gaDiID, gaDenID, loaiTauID, hangToaID);
     }
 
-    public void displayChuyenList(SearchCriteria criteria, List<Chuyen> chuyens) {
+    public void displayChuyenList(SearchCriteria criteria, List<ChuyenDTO> chuyens) {
         if (criteria == null || chuyens == null || chuyens.isEmpty()) {
             return;
         }
@@ -83,7 +83,7 @@ public class DoiVeBuoc5Controller {
         loadSeatStatsForChuyens(chuyens, criteria);
 
         if (chuyens != null && !chuyens.isEmpty()) {
-            panelChuyenTau.selectChuyenById(chuyens.get(0).getChuyenID());
+            panelChuyenTau.selectChuyenById(chuyens.get(0).getId());
             onChuyenSelected(chuyens.get(0));
         }
     }
@@ -92,7 +92,7 @@ public class DoiVeBuoc5Controller {
      * @param chuyens
      * @param criteria
      */
-    private void loadSeatStatsForChuyens(List<Chuyen> chuyens, SearchCriteria criteria) {
+    private void loadSeatStatsForChuyens(List<ChuyenDTO> chuyens, SearchCriteria criteria) {
         if (chuyens == null) {
             return;
         }
@@ -104,9 +104,9 @@ public class DoiVeBuoc5Controller {
             @Override
             protected Map<String, int[]> doInBackground() throws Exception {
                 Map<String, int[]> stats = new HashMap<>();
-                for (Chuyen c : chuyens) {
-                    int[] stat = getChuyenBUS().layThongKeCho(c.getChuyenID(), gaDiID, gaDenID);
-                    stats.put(c.getChuyenID(), stat);
+                for (ChuyenDTO c : chuyens) {
+                    int[] stat = getChuyenBUS().layThongKeCho(c.getId(), gaDiID, gaDenID);
+                    stats.put(c.getId(), stat);
                 }
                 return stats;
             }
@@ -126,25 +126,25 @@ public class DoiVeBuoc5Controller {
         }.execute();
     }
 
-    public void onChuyenSelected(Chuyen c) {
+    public void onChuyenSelected(ChuyenDTO c) {
         if (c == null) {
             return;
         }
         this.setSelectedChuyen(c);
 
-        new SwingWorker<List<Toa>, Void>() {
+        new SwingWorker<List<ToaDTO>, Void>() {
             @Override
-            protected List<Toa> doInBackground() throws Exception {
-                return getChuyenBUS().layCacToaTheoChuyen(c.getChuyenID());
+            protected List<ToaDTO> doInBackground() throws Exception {
+                return getChuyenBUS().layCacToaTheoChuyen(c.getId());
             }
 
             @Override
             protected void done() {
                 try {
-                    List<Toa> list = get();
+                    List<ToaDTO> list = get();
                     panelDoanTau.showToaList(list, toa -> onToaSelected(toa));
                     if (list != null && !list.isEmpty()) {
-                        panelDoanTau.selectToaById(list.get(0).getToaID());
+                        panelDoanTau.selectToaById(list.get(0).getId());
                         panelSoDoCho.setToaList(list);
                         panelSoDoCho.setCurrentToa(list.get(0));
                     }
@@ -155,30 +155,16 @@ public class DoiVeBuoc5Controller {
         }.execute();
     }
 
-    public void onToaSelected(Toa toa) {
+    public void onToaSelected(ToaDTO toa) {
         this.selectedToa = toa;
         panelSoDoCho.setCurrentToa(toa);
     }
 
-    private boolean isMissingId(String s) {
-        return s == null || s.trim().isEmpty() || "null".equalsIgnoreCase(s.trim());
-    }
-
-    public void loadSeatsForToa(Toa toa, Consumer<List<Ghe>> callback) {
-        SearchCriteria sc = exchangeSession.getCriteriaTimKiem();
-        if (sc == null || selectedChuyen == null) {
-            callback.accept(Collections.emptyList());
-            return;
-        }
-
-        loadSeatsForToa(sc.getGaDiId(), sc.getGaDenId(), selectedChuyen.getChuyenID(), toa.getToaID(), callback);
-    }
-
     public void loadSeatsForToa(String gaDiID, String gaDenID, String chuyenID, String toaID,
-                                Consumer<List<Ghe>> callback) {
-        new SwingWorker<List<Ghe>, Void>() {
+                                Consumer<List<GheDTO>> callback) {
+        new SwingWorker<List<GheDTO>, Void>() {
             @Override
-            protected List<Ghe> doInBackground() throws Exception {
+            protected List<GheDTO> doInBackground() throws Exception {
                 if (gaDiID == null || gaDenID == null || chuyenID == null || toaID == null) {
                     return Collections.emptyList();
                 }
@@ -197,14 +183,14 @@ public class DoiVeBuoc5Controller {
         }.execute();
     }
 
-    public void highlightToa(Toa toa) {
+    public void highlightToa(ToaDTO toa) {
         if (toa == null) {
             return;
         }
         SwingUtilities.invokeLater(() -> {
             try {
                 if (panelDoanTau != null) {
-                    panelDoanTau.selectToaById(toa.getToaID());
+                    panelDoanTau.selectToaById(toa.getId());
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -213,7 +199,7 @@ public class DoiVeBuoc5Controller {
     }
 
     // user clicked a seat button
-    public void onSeatClicked(Toa toa, Ghe ghe) {
+    public void onSeatClicked(ToaDTO toa, GheDTO ghe) {
         if (ghe == null || toa == null) {
             return;
         }
@@ -244,7 +230,7 @@ public class DoiVeBuoc5Controller {
                             listener.onSeatSelected(v);
                         }
                         // Cập nhật số lượng trên card chuyến tàu
-                        updateSeatCountLocal(selectedChuyen.getChuyenID(), 1); // +1 đặt
+                        updateSeatCountLocal(selectedChuyen.getId(), 1); // +1 đặt
                         panelSoDoCho.setCurrentToa(toa);
                     } else {
                         JOptionPane.showMessageDialog(null, "Không thể giữ ghế (lỗi tạo vé).");
@@ -281,14 +267,14 @@ public class DoiVeBuoc5Controller {
     /**
      * Xử lý khi người dùng bấm vào một ghế ĐÃ ĐƯỢC CHỌN (để bỏ chọn).
      */
-    public void handleSeatDeselection(Toa toa, Ghe ghe) {
+    public void handleSeatDeselection(ToaDTO toa, GheDTO ghe) {
         if (toa == null || ghe == null || getExchangeSession() == null) {
             return;
         }
 
         // 1. Lấy thông tin định danh của ghế
-        String currentChuyenID = getSelectedChuyen().getChuyenID();
-        String currentToaID = toa.getToaID();
+        String currentChuyenID = getSelectedChuyen().getId();
+        String currentToaID = toa.getId();
         int currentSoGhe = ghe.getSoGhe();
 
         // 2. Lấy danh sách vé của CHUYẾN HIỆN TẠI
@@ -339,7 +325,7 @@ public class DoiVeBuoc5Controller {
 
         exchangeSession.removeVeMoi(v);
 
-        datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+        datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(v.getPhieuGiuChoChiTiet().getId());
         if (exchangeSession.getListVeMoiDangChon().size() == 0) {
             datChoBUS.xoaPhieuGiuCho(exchangeSession.getPhieuGiuCho().getPhieuGiuChoID());
         }
@@ -348,21 +334,21 @@ public class DoiVeBuoc5Controller {
                 () -> JOptionPane.showMessageDialog(null, "Giữ chỗ cho vé " + v.prettyString() + " đã hết hạn."));
 
         // Refresh sơ đồ ghế nếu vé hết hạn thuộc toa đang xem
-        if (selectedToa != null && v.getVe().getToaID().equals(selectedToa.getToaID())) {
+        if (selectedToa != null && v.getVe().getToaID().equals(selectedToa.getId())) {
             // Kiểm tra xem vé có thuộc CHUYẾN ĐANG XEM không
-            if (selectedChuyen != null && v.getVe().getChuyenID().equals(selectedChuyen.getChuyenID())) {
+            if (selectedChuyen != null && v.getVe().getChuyenID().equals(selectedChuyen.getId())) {
                 panelSoDoCho.updateSeatVisual(v.getSoGhe(), false);
             }
         }
     }
 
-    public Set<Integer> getSelectedSoGhe(Toa currentToa) {
+    public Set<Integer> getSelectedSoGhe(ToaDTO currentToa) {
         if (currentToa == null || selectedChuyen == null) {
             return Collections.emptySet();
         }
 
-        String currentChuyenID = selectedChuyen.getChuyenID();
-        String currentToaID = currentToa.getToaID();
+        String currentChuyenID = selectedChuyen.getId();
+        String currentToaID = currentToa.getId();
 
         // Lọc từ list vé mới trong ExchangeSession
         return exchangeSession.getListVeMoiDangChon().stream()
@@ -379,11 +365,11 @@ public class DoiVeBuoc5Controller {
         this.exchangeSession = exchangeSession;
     }
 
-    public Chuyen getSelectedChuyen() {
+    public ChuyenDTO getSelectedChuyen() {
         return selectedChuyen;
     }
 
-    public void setSelectedChuyen(Chuyen selectedChuyen) {
+    public void setSelectedChuyen(ChuyenDTO selectedChuyen) {
         this.selectedChuyen = selectedChuyen;
     }
 

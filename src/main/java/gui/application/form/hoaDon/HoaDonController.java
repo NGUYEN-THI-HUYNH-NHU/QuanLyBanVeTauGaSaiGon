@@ -15,9 +15,9 @@ package gui.application.form.hoaDon;
 import bus.HoaDon_BUS;
 import bus.KhachHang_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import dto.HoaDonChiTietDTO;
+import dto.HoaDonDTO;
 import dto.KhachHangDTO;
-import entity.HoaDon;
-import entity.HoaDonChiTiet;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -97,7 +97,7 @@ public class HoaDonController {
                 }
 
                 // Lấy đối tượng Hóa đơn tại dòng click
-                HoaDon selectedHoaDon = view.getTableModel().getRow(row);
+                HoaDonDTO selectedHoaDon = view.getTableModel().getRow(row);
 
                 if (column == HoaDonTableModel.COL_XEM) {
                     handleXemChiTiet(selectedHoaDon);
@@ -166,7 +166,7 @@ public class HoaDonController {
                 searchID, tuNgay, denNgay));
 
         // 4. Lọc hóa đơn theo tiêu chí
-        List<HoaDon> results = hoaDonBUS.locHoaDonTheoCacTieuChi(loaiHD, searchKeyword, searchID, tuNgay, denNgay,
+        List<HoaDonDTO> results = hoaDonBUS.locHoaDonTheoCacTieuChi(loaiHD, searchKeyword, searchID, tuNgay, denNgay,
                 hinhThucTT);
 
         // 5. Cập nhật UI và thông báo kết quả
@@ -198,7 +198,7 @@ public class HoaDonController {
         String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
         // 2. Lấy các hóa đơn theo keyword và loại tra cứu
-        List<HoaDon> result = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type);
+        List<HoaDonDTO> result = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type);
 
         // 3. Update Table
         view.getTableModel().setRows(result);
@@ -388,9 +388,9 @@ public class HoaDonController {
         }
     }
 
-    private void handleXemChiTiet(HoaDon hoaDon) {
+    private void handleXemChiTiet(HoaDonDTO hoaDon) {
         // 1. Lấy danh sách chi tiết
-        List<HoaDonChiTiet> listCT = hoaDonBUS.layCacHoaDonChiTietTheoHoaDonID(hoaDon.getHoaDonID());
+        List<HoaDonChiTietDTO> listCT = hoaDonBUS.layCacHoaDonChiTietTheoHoaDonID(hoaDon.getId());
 
         // 2. Lấy JFrame chứa nó để làm parent cho Modal
         Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(view);
@@ -399,12 +399,12 @@ public class HoaDonController {
         modal.setVisible(true);
     }
 
-    private void handleInHoaDon(HoaDon hd) {
-        int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in hóa đơn " + hd.getHoaDonID() + " không?",
+    private void handleInHoaDon(HoaDonDTO hoaDon) {
+        int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in hóa đơn " + hoaDon.getId() + " không?",
                 "Xác nhận in", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            System.out.println("Đang in hóa đơn: " + hd.getHoaDonID());
+            System.out.println("Đang in hóa đơn: " + hoaDon.getId());
 
             // TODO: logic in hóa đơn
         }

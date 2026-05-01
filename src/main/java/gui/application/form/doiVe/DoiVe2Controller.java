@@ -13,8 +13,8 @@ package gui.application.form.doiVe;
  */
 
 import bus.DatCho_BUS;
+import dto.ChuyenDTO;
 import dto.PhieuGiuChoDTO;
-import entity.Chuyen;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.DoiVeBuoc4Controller.SearchNewTicketListener;
@@ -89,7 +89,7 @@ public class DoiVe2Controller {
         this.buoc4Controller.addSearchListener(new SearchNewTicketListener() {
             @Override
             // 1. Cập nhật chữ ký (signature) của hàm để nhận danh sách
-            public void onSearchSuccess(List<Chuyen> result, SearchCriteria criteria) {
+            public void onSearchSuccess(List<ChuyenDTO> result, SearchCriteria criteria) {
 
                 // 1. Lưu criteria và kết quả vào session
                 exchangeSession.setCriteriaTimKiem(criteria);
@@ -159,7 +159,7 @@ public class DoiVe2Controller {
                 protected Boolean doInBackground() throws Exception {
                     try {
                         return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
-                                veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+                                veSession.getPhieuGiuChoChiTiet().getId());
 
                     } catch (Exception e) {
                         errorMessage = e.getMessage();

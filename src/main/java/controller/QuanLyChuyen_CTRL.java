@@ -13,6 +13,7 @@ package controller;
 import bus.Chuyen_BUS;
 import bus.PhanQuyen_BUS;
 import bus.Tuyen_BUS;
+import dto.GaDTO;
 import entity.*;
 import entity.type.TrangThaiTau;
 import entity.type.VaiTroNhanVienEnums;
@@ -722,7 +723,7 @@ public class QuanLyChuyen_CTRL {
                 input -> {
                     if (input.length() < 2) return new ArrayList<>();
                     return chuyenBus.goiYGaDi(input, 10).stream()
-                            .map(Ga::getTenGa)
+                            .map(GaDTO::getTenGa)
                             .collect(Collectors.toList());
                 },
                 this::timKiemChuyen);

@@ -6,6 +6,7 @@ package controller;
  */
 
 import dao.impl.TaiKhoan_DAO;
+import dto.NhanVienDTO;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import gui.application.AuthService;
@@ -13,6 +14,7 @@ import gui.application.UngDung;
 import gui.application.form.FormDangNhap;
 import gui.application.form.thongTin.ModalQuenMatKhau;
 import gui.application.paymentHelper.NgrokRunner;
+import mapper.NhanVienMapper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +24,7 @@ import java.time.LocalTime;
 
 public class DangNhap_Ctrl {
     private final FormDangNhap view;
-    ;
+
     private TaiKhoan_DAO taiKhoan_DAO = new TaiKhoan_DAO();
 
     public DangNhap_Ctrl(FormDangNhap view) {
@@ -92,22 +94,23 @@ public class DangNhap_Ctrl {
     private void dangNhap() {
         String tenDangNhap = view.getTxtTenDangNhap().getText();
         String matKhau = view.getTxtMatKhau().getText();
-        NhanVien nhanVien = getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
+        NhanVien nhanVienTmp = getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
         UngDung ungDung = UngDung.getInstance();
 
-        if (nhanVien == null) {
+        if (nhanVienTmp == null) {
             JOptionPane.showMessageDialog(view, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
                     "Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
             view.resetDangNhap();
-        } else if (!checkDungCaLam(nhanVien)) {
+        } else if (!checkDungCaLam(nhanVienTmp)) {
             JOptionPane.showMessageDialog(view,
                     "Không thể đăng nhập vào ứng dụng Quản lý Bán vé tàu Ga Sài Gòn vì đây không phải ca làm của bạn.\nVui lòng đăng nhập khi đến ca làm của bạn!");
             view.resetDangNhap();
         } else {
+            NhanVienDTO nhanVien = NhanVienMapper.INSTANCE.toDTO(nhanVienTmp);
             AuthService.getInstance().setCurrentUser(nhanVien);
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
-            if (nhanVien.getVaiTroNhanVien().getVaiTroNhanVienID().equals("NHAN_VIEN")) {
+            if (nhanVien.getVaiTroNhanVienID().equals("NHAN_VIEN")) {
                 UngDung.setSelectedMenu(2, 0);
                 NgrokRunner.startNgrok();
             } else {

@@ -5,6 +5,7 @@ import entity.NhanVien;
 import entity.NhatKyAudit;
 import entity.TaiKhoan;
 import gui.application.AuthService;
+import mapper.NhanVienMapper;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class TaiKhoan_BUS {
 
     public TaiKhoan_BUS() {
         taiKhoan_dao = new TaiKhoan_DAO();
-        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
+        this.nhanVienHienTai = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
     }
 
     // lay danh sach tai khoan
@@ -139,7 +140,7 @@ public class TaiKhoan_BUS {
     }
 
     /**
-     * @param maNV
+     * @param nhanVienID
      * @param cccd
      * @param email
      * @return
@@ -149,7 +150,7 @@ public class TaiKhoan_BUS {
     }
 
     /**
-     * @param text
+     * @param nhanVienID
      * @param newPass
      * @return
      */
@@ -158,7 +159,7 @@ public class TaiKhoan_BUS {
     }
 
     /**
-     * @param verifiedMaNV
+     * @param nhanVienID
      * @param newPass
      * @return
      */

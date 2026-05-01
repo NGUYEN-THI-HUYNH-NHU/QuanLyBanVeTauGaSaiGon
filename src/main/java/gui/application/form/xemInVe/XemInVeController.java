@@ -10,9 +10,7 @@ import bus.Ve_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import dto.KhachHangDTO;
 import dto.VeDTO;
-import entity.NhanVien;
 import entity.type.TrangThaiVe;
-import gui.application.AuthService;
 import gui.application.paymentHelper.PdfTicketExporter;
 import mapper.VeMapper;
 
@@ -35,7 +33,6 @@ import java.util.List;
 public class XemInVeController {
     private final Ve_BUS veBUS;
     private final KhachHang_BUS khachHangBUS;
-    private final NhanVien nhanVien = AuthService.getInstance().getCurrentUser();
     private PanelXemInVe view;
     private JPopupMenu traCuuSuggestionPopup;
     private JPopupMenu khachHangSuggestionPopup;

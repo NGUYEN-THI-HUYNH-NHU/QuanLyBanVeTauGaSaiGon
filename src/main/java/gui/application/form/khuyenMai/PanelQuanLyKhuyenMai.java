@@ -3,6 +3,7 @@ package gui.application.form.khuyenMai;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 import controller.KhuyenMai_CTRL;
+import dto.NhanVienDTO;
 import entity.*;
 import entity.type.HangToaEnums;
 import entity.type.LoaiDoiTuongEnums;
@@ -24,7 +25,7 @@ import java.util.List;
 
 
 public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, MouseListener, KeyListener {
-    private final NhanVien nhanVien;
+    private final NhanVienDTO nhanVien;
     private final KhuyenMai_CTRL khuyenMai_ctrl;
     private final Timer autoUpdateTimer;
     //màu cố định
@@ -49,7 +50,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
     private JTabbedPane tabPane;
 
 
-    public PanelQuanLyKhuyenMai(NhanVien nhanVien) {
+    public PanelQuanLyKhuyenMai(NhanVienDTO nhanVien) {
         this.nhanVien = nhanVien;
         khuyenMai_ctrl = new KhuyenMai_CTRL();
 

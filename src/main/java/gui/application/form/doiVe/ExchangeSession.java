@@ -12,13 +12,7 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
-import dto.DonDatChoDTO;
-import dto.KhachHangDTO;
-import dto.PhieuGiuChoDTO;
-import entity.Chuyen;
-import entity.GiaoDichThanhToan;
-import entity.HoaDon;
-import entity.NhanVien;
+import dto.*;
 import gui.application.AuthService;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
@@ -37,7 +31,7 @@ public class ExchangeSession {
 
     // --- DỮ LIỆU VÉ MỚI (Xử lý ở Giai đoạn 2) ---
     private SearchCriteria criteriaTimKiem;
-    private List<Chuyen> listChuyenTauTimDuoc = new ArrayList<>();
+    private List<ChuyenDTO> listChuyenTauTimDuoc = new ArrayList<>();
     private List<VeSession> listVeMoiDangChon = new ArrayList<>();
 
     // --- DỮ LIỆU MAPPING (Xử lý ở Bước 6) ---
@@ -46,12 +40,12 @@ public class ExchangeSession {
 
     // --- DỮ LIỆU CHUNG ---
     private KhachHangDTO khachHang;
-    private NhanVien nhanVien;
+    private NhanVienDTO nhanVien;
     private PhieuGiuChoDTO phieuGiuCho;
-    private GiaoDichThanhToan giaoDichThanhToan;
+    private GiaoDichThanhToanDTO giaoDichThanhToan;
     private DonDatChoDTO donDatChoCu;
     private DonDatChoDTO donDatChoMoi;
-    private HoaDon hoaDon;
+    private HoaDonDTO hoaDon;
 
     private ExchangeSession() {
         this.nhanVien = AuthService.getInstance().getCurrentUser();
@@ -93,11 +87,11 @@ public class ExchangeSession {
         this.criteriaTimKiem = criteriaTimKiem;
     }
 
-    public List<Chuyen> getListChuyenTauTimDuoc() {
+    public List<ChuyenDTO> getListChuyenTauTimDuoc() {
         return listChuyenTauTimDuoc;
     }
 
-    public void setListChuyenTauTimDuoc(List<Chuyen> listChuyenTauTimDuoc) {
+    public void setListChuyenTauTimDuoc(List<ChuyenDTO> listChuyenTauTimDuoc) {
         this.listChuyenTauTimDuoc = listChuyenTauTimDuoc;
     }
 
@@ -151,14 +145,14 @@ public class ExchangeSession {
         if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
             return null;
         }
-        return listVeCuCanDoi.get(0).getVe().getTenGaDi();
+        return listVeCuCanDoi.get(0).getVe().getGaDiID();
     }
 
     public String getGaDenIdMacDinh() {
         if (listVeCuCanDoi == null || listVeCuCanDoi.isEmpty()) {
             return null;
         }
-        return listVeCuCanDoi.get(0).getVe().getTenGaDen();
+        return listVeCuCanDoi.get(0).getVe().getGaDenID();
     }
 
     public PhieuGiuChoDTO getPhieuGiuCho() {
@@ -185,19 +179,19 @@ public class ExchangeSession {
         this.khachHang = khachHang;
     }
 
-    public NhanVien getNhanVien() {
+    public NhanVienDTO getNhanVien() {
         return nhanVien;
     }
 
-    public void setNhanVien(NhanVien nhanVien) {
+    public void setNhanVien(NhanVienDTO nhanVien) {
         this.nhanVien = nhanVien;
     }
 
-    public GiaoDichThanhToan getGiaoDichThanhToan() {
+    public GiaoDichThanhToanDTO getGiaoDichThanhToan() {
         return giaoDichThanhToan;
     }
 
-    public void setGiaoDichThanhToan(GiaoDichThanhToan giaoDichThanhToan) {
+    public void setGiaoDichThanhToan(GiaoDichThanhToanDTO giaoDichThanhToan) {
         this.giaoDichThanhToan = giaoDichThanhToan;
     }
 
@@ -213,11 +207,11 @@ public class ExchangeSession {
         this.donDatChoMoi = donDatChoMoi;
     }
 
-    public HoaDon getHoaDon() {
+    public HoaDonDTO getHoaDon() {
         return hoaDon;
     }
 
-    public void setHoaDon(HoaDon hoaDon) {
+    public void setHoaDon(HoaDonDTO hoaDon) {
         this.hoaDon = hoaDon;
     }
 }

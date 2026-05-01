@@ -3,6 +3,7 @@ package gui.application.form.thongKe;
 import dao.impl.ThongKeNhanVien_DAO;
 import entity.NhanVien;
 import gui.application.AuthService;
+import mapper.NhanVienMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -61,7 +62,7 @@ public class PanelBaoCao extends JPanel {
     // =================================================================
 
     public PanelBaoCao() {
-        NhanVien current = AuthService.getInstance().getCurrentUser();
+        NhanVien current = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
 
         this.nhanVien = current;
         this.tenNV = nhanVien.getHoTen() != null ? nhanVien.getHoTen() : "Không xác định";
@@ -84,7 +85,7 @@ public class PanelBaoCao extends JPanel {
                        double totalSystem, BaoCaoGiaoCaModel model, List<Object[]> hoaDonList) {
 
         this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
-        NhanVien tempUser = AuthService.getInstance().getCurrentUser();
+        NhanVien tempUser = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
         if (tempUser == null) {
             tempUser = new NhanVien();
         }

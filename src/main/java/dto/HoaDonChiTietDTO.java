@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.LoaiDichVuEnums;
 import lombok.*;
 
 import java.io.Serializable;
@@ -17,7 +16,7 @@ public class HoaDonChiTietDTO implements Serializable {
     private String veID;
     private String phieuDungPhongVIPID;
     private String tenDichVu;
-    private LoaiDichVuEnums loaiDichVu;
+    private String loaiDichVu;
     private String donViTinh;
     private int soLuong;
     private double donGia;

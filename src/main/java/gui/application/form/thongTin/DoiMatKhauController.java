@@ -13,6 +13,7 @@ package gui.application.form.thongTin;
  */
 
 import bus.TaiKhoan_BUS;
+import dto.NhanVienDTO;
 import gui.application.EmailService;
 import gui.application.UngDung;
 
@@ -25,6 +26,7 @@ public class DoiMatKhauController {
     private final TaiKhoan_BUS taiKhoanBUS = new TaiKhoan_BUS();
     private FormDoiMatKhau formDoiMatKhau;
     private ModalQuenMatKhau modalQuenMatKhau;
+    private NhanVienDTO nhanVien;
 
     private String generatedCode = "";
     private String verifiedMaNV = "";
@@ -33,6 +35,7 @@ public class DoiMatKhauController {
 
     public DoiMatKhauController(FormDoiMatKhau formDoiMatKhau) {
         this.formDoiMatKhau = formDoiMatKhau;
+        this.nhanVien = formDoiMatKhau.getNhanVien();
         initChangeController();
     }
 
@@ -72,7 +75,7 @@ public class DoiMatKhauController {
             return;
         }
 
-        if (!taiKhoanBUS.isKhopMatKhau(formDoiMatKhau.getNhanVien().getNhanVienID(), mk)) {
+        if (!taiKhoanBUS.isKhopMatKhau(nhanVien.getId(), mk)) {
             JOptionPane.showMessageDialog(formDoiMatKhau, "Mật khẩu hiện tại không khớp. Vui lòng nhập lại!");
             clearTextFields();
             return;
@@ -94,11 +97,10 @@ public class DoiMatKhauController {
             return;
         }
 
-        if (taiKhoanBUS.doiMatKhau(formDoiMatKhau.getNhanVien().getNhanVienID(), mkMoi)) {
+        if (taiKhoanBUS.doiMatKhau(nhanVien.getId(), mkMoi)) {
             JOptionPane.showMessageDialog(formDoiMatKhau,
                     String.format("Đổi mật khẩu mới cho tài khoản nhân viên %s - %s\nVui lòng đăng nhập lại",
-                            "Thành công", formDoiMatKhau.getNhanVien().getNhanVienID(),
-                            formDoiMatKhau.getNhanVien().getHoTen()));
+                            "Thành công", nhanVien.getId(), nhanVien.getHoTen()));
             UngDung.dangXuat();
         } else {
             JOptionPane.showMessageDialog(formDoiMatKhau, "Lỗi khi đổi mật khẩu. Vui lòng thử lại!");
