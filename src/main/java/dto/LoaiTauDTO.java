@@ -13,4 +13,8 @@ import java.io.Serializable;
 public class LoaiTauDTO implements Serializable {
     private String id;
     private String moTa;
+
+    public LoaiTauDTO(String id) {
+        this.id = id;
+    }
 }

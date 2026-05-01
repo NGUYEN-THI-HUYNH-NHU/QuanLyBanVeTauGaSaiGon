@@ -35,7 +35,7 @@ public class TaiKhoan_DAO {
         connectDB.connect();
     }
 
-    public TaiKhoan getTaiKhoanVoiTenDangNhap(String tenDangNhap) {
+    public TaiKhoan getTaiKhoanByTenDangNhap(String tenDangNhap) {
         TaiKhoan taiKhoan = null;
         Connection connection = connectDB.getConnection();
         PreparedStatement stmt = null;
@@ -177,7 +177,7 @@ public class TaiKhoan_DAO {
                 + "from NhanVien NV join TaiKhoan TK on NV.nhanVienID = TK.nhanVienID join CaLam C on NV.caLamID = C.caLamID\r\n"
                 + "WHERE TK.tenDangNhap = ?;";
 
-        if (getTaiKhoanVoiTenDangNhap(tenDangNhap) != null && xacThuc) {
+        if (getTaiKhoanByTenDangNhap(tenDangNhap) != null && xacThuc) {
             try {
                 statement = connection.prepareStatement(sqlQuery);
                 statement.setString(1, tenDangNhap);

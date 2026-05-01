@@ -113,7 +113,7 @@ public class HoaDonTableModel extends AbstractTableModel {
             case COL_TIEN_HOAN:
                 return row.getTienHoan();
             case COL_IS_TIEN_MAT:
-                return row.isThanhToanTienMat();
+                return row.getIsThanhToanTienMat();
             case COL_XEM:
                 return ""; // Trả về text để renderer vẽ thành nút
             case COL_IN:

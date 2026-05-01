@@ -2,8 +2,8 @@ package controller;
 
 import bus.BieuGiaVe_BUS;
 import bus.Tuyen_BUS;
+import dto.BieuGiaVeDTO;
 import dto.NhanVienDTO;
-import entity.BieuGiaVe;
 import gui.application.form.bieuGia.BieuGiaVeTableButtonRenderer;
 import gui.application.form.bieuGia.BieuGiaVeTableModel;
 import gui.application.form.bieuGia.FormThemSuaBieuGia;
@@ -24,7 +24,7 @@ public class BieuGia_CTRL {
 
     private final BieuGiaVe_BUS bieuGiaVeBUS;
     private final Tuyen_BUS tuyenBus;
-    private List<BieuGiaVe> listCache;
+    private List<BieuGiaVeDTO> listCache;
     private List<String> lastSuggestionData = new ArrayList<>();
 
     private JPopupMenu tuyenSuggestionPopup;
@@ -90,12 +90,12 @@ public class BieuGia_CTRL {
                     return;
                 }
 
-                BieuGiaVe bg = view.getTableModel().getRow(row);
+                BieuGiaVeDTO bg = view.getTableModel().getRow(row);
 
                 if (col == BieuGiaVeTableModel.COL_XEM) {
-                    handleXemChiTiet(bg);
+                    handleXemChiTiet();
                 } else if (col == BieuGiaVeTableModel.COL_SUA) {
-                    handleSua(bg);
+                    handleSua();
                 }
             }
         });
@@ -122,15 +122,15 @@ public class BieuGia_CTRL {
         Set<String> setTuyen = new HashSet<>();
         Set<String> setTau = new HashSet<>();
 
-        for (BieuGiaVe bg : listCache) {
-            if (bg.getBieuGiaVeID() != null) {
-                setMa.add(bg.getBieuGiaVeID());
+        for (BieuGiaVeDTO bg : listCache) {
+            if (bg.getId() != null) {
+                setMa.add(bg.getId());
             }
-            if (bg.getTuyenApDung() != null) {
-                setTuyen.add(bg.getTuyenApDung().getTuyenID());
+            if (bg.getTuyenApDungID() != null) {
+                setTuyen.add(bg.getTuyenApDungID());
             }
-            if (bg.getLoaiTauApDung() != null) {
-                setTau.add(bg.getLoaiTauApDung().toString());
+            if (bg.getLoaiTauApDungID() != null) {
+                setTau.add(bg.getLoaiTauApDungID().toString());
             }
         }
 
@@ -153,7 +153,7 @@ public class BieuGia_CTRL {
         String textTau = ((JTextField) view.getCboLocTau().getEditor().getEditorComponent()).getText().trim();
         String loaiTau = textTau.isEmpty() ? "Tất cả" : textTau;
 
-        List<BieuGiaVe> listSearch = bieuGiaVeBUS.timKiem(tuKhoa, maTuyen, loaiTau);
+        List<BieuGiaVeDTO> listSearch = bieuGiaVeBUS.timKiem(tuKhoa, maTuyen, loaiTau);
         view.getTableModel().setRows(listSearch);
     }
 
@@ -170,7 +170,7 @@ public class BieuGia_CTRL {
 
         form.addBtnLuuListener(e -> {
             try {
-                BieuGiaVe bg = form.getModelFromForm();
+                BieuGiaVeDTO bg = form.getModelFromForm();
 
                 // Lấy nhân viên từ View (đã đăng nhập)
                 NhanVienDTO nv = view.getNhanVienThucHien();
@@ -193,7 +193,7 @@ public class BieuGia_CTRL {
         form.setVisible(true);
     }
 
-    private void handleXemChiTiet(BieuGiaVe bg) {
+    private void handleXemChiTiet() {
         openFormChiTiet();
     }
 
@@ -205,7 +205,7 @@ public class BieuGia_CTRL {
             return;
         }
 
-        BieuGiaVe bgCu = timBieuGiaTheoID(selectedID);
+        BieuGiaVeDTO bgCu = timBieuGiaTheoID(selectedID);
 
         if (bgCu == null) {
             JOptionPane.showMessageDialog(view, "Không tìm thấy dữ liệu gốc (Có thể đã bị xóa)!");
@@ -224,7 +224,7 @@ public class BieuGia_CTRL {
         form.setVisible(true);
     }
 
-    private void handleSua(BieuGiaVe bg) {
+    private void handleSua() {
         openFormSua();
     }
 
@@ -236,7 +236,7 @@ public class BieuGia_CTRL {
             return;
         }
 
-        BieuGiaVe bgCu = timBieuGiaTheoID(selectedID);
+        BieuGiaVeDTO bgCu = timBieuGiaTheoID(selectedID);
 
         if (bgCu == null) {
             JOptionPane.showMessageDialog(view, "Không tìm thấy dữ liệu gốc (Có thể đã bị xóa)!");
@@ -256,7 +256,7 @@ public class BieuGia_CTRL {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    BieuGiaVe bgMoi = form.getModelFromForm();
+                    BieuGiaVeDTO bgMoi = form.getModelFromForm();
 
                     // Lấy nhân viên từ View
                     NhanVienDTO nv = view.getNhanVienThucHien();
@@ -293,12 +293,12 @@ public class BieuGia_CTRL {
         thietLapAutoComplete();
     }
 
-    private BieuGiaVe timBieuGiaTheoID(String id) {
+    private BieuGiaVeDTO timBieuGiaTheoID(String id) {
         if (listCache == null) {
             return null;
         }
-        for (BieuGiaVe bg : listCache) {
-            if (bg.getBieuGiaVeID().equals(id)) {
+        for (BieuGiaVeDTO bg : listCache) {
+            if (bg.getId().equals(id)) {
                 return bg;
             }
         }

@@ -13,5 +13,5 @@ import java.io.Serializable;
 public class TuyenDTO implements Serializable {
     private String id;
     private String moTa;
-    private boolean trangThai;
+    private Boolean trangThai;
 }

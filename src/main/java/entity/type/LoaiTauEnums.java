@@ -2,7 +2,7 @@ package entity.type;
 
 public enum LoaiTauEnums {
     TAU_DU_LICH("Tàu du lịch/ tàu địa phương"),
-    TAU_NHANH("Tàu");
+    TAU_NHANH("Tàu nhanh");
     private final String description;
 
     LoaiTauEnums(String description) {

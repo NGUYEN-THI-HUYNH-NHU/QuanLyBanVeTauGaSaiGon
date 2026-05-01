@@ -48,21 +48,22 @@ public class Ve_BUS {
         int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyen.getId(), criteria.getGaDiId(), criteria.getGaDenId(),
                 chuyen.getLoaiTauID(), toa.getHangToaID());
 
-        Ve ve = new Ve();
-        ve.setChuyen(ChuyenMapper.INSTANCE.toEntity(chuyen));
-        ve.setGaDi(gaDi);
-        ve.setGaDen(gaDen);
-        ve.setGhe(GheMapper.INSTANCE.toEntity(ghe));
-        ve.setNgayGioDi(thoiDiemHetHan);
-        ve.setNgayGioDi(ngayGioDi);
-        ve.setGia(gia);
-        ve.setTrangThai(TrangThaiVe.DA_BAN);
+        Ve ve = Ve.builder()
+                .chuyen(ChuyenMapper.INSTANCE.toEntity(chuyen))
+                .gaDi(gaDi).gaDen(gaDen).ghe(GheMapper.INSTANCE.toEntity(ghe))
+                .ngayGioDi(ngayGioDi).gia(gia).trangThai(TrangThaiVe.DA_BAN)
+                .build();
+        VeDTO veDTO = VeMapper.INSTANCE.toDTO(ve);
+        veDTO.setTauID(toa.getTauID());
+        veDTO.setToaID(toa.getId());
+        veDTO.setHangToaID(toa.getHangToaID());
+        veDTO.setSoToa(toa.getSoToa());
 
         // TODO: tim khuyen mai
         KhuyenMai khuyenMai = khuyenMaiBUS.timKhuyenMaiChoVe(ve);
         int giamKM = 0;
 
-        return new VeSession(VeMapper.INSTANCE.toDTO(ve), khuyenMai, giamKM, thoiDiemHetHan);
+        return new VeSession(veDTO, khuyenMai, giamKM, thoiDiemHetHan);
     }
 
     private String taoVeIDDuyNhat(VeDTO ve) {

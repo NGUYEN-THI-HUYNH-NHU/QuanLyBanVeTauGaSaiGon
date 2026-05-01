@@ -17,7 +17,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "taus")
 @EqualsAndHashCode(exclude = "taus")
 @Entity
 @Table(name = "LoaiTau")

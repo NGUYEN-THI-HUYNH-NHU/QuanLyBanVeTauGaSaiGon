@@ -42,7 +42,7 @@ public class KhuyenMai_DAO {
                 psKM.setDate(7, Date.valueOf(km.getNgayKetThuc()));
                 psKM.setDouble(8, km.getSoLuong());
                 psKM.setInt(9, km.getGioiHanMoiKhachHang());
-                psKM.setBoolean(10, km.isTrangThai());
+                psKM.setBoolean(10, km.getTrangThai());
                 psKM.executeUpdate();
 
                 // DieuKienKhuyenMai
@@ -106,7 +106,7 @@ public class KhuyenMai_DAO {
                 psKM.setDate(6, Date.valueOf(km.getNgayKetThuc()));
                 psKM.setDouble(7, km.getSoLuong());
                 psKM.setInt(8, km.getGioiHanMoiKhachHang());
-                psKM.setBoolean(9, km.isTrangThai());
+                psKM.setBoolean(9, km.getTrangThai());
                 psKM.setString(10, km.getKhuyenMaiID());
                 psKM.executeUpdate();
 

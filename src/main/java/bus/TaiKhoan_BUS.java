@@ -25,7 +25,7 @@ public class TaiKhoan_BUS {
 
     // lay tai khoan theo ten dang nhap
     public TaiKhoan layTKThenDangNhap(String tenDangNhap) {
-        return taiKhoan_dao.getTaiKhoanVoiTenDangNhap(tenDangNhap);
+        return taiKhoan_dao.getTaiKhoanByTenDangNhap(tenDangNhap);
     }
 
     // lay tai khoan theo ma nhan vien

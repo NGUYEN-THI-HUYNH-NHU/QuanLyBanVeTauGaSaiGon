@@ -53,5 +53,5 @@ public class KhuyenMai implements Serializable {
     private int gioiHanMoiKhachHang;
 
     @Column(name = "trangThai", nullable = false)
-    private boolean trangThai;
+    private Boolean trangThai;
 }
