@@ -15,10 +15,9 @@ package gui.application.form.bieuGia;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
-import entity.BieuGiaVe;
-import entity.HangToa;
-import entity.LoaiTau;
-import entity.Tuyen;
+import dto.BieuGiaVeDTO;
+import dto.HangToaDTO;
+import dto.LoaiTauDTO;
 import entity.type.HangToaEnums;
 import entity.type.LoaiTauEnums;
 
@@ -177,19 +176,19 @@ public class FormThemSuaBieuGia extends JDialog {
         }
     }
 
-    private LoaiTau getLoaiTauByDescription(String desc) {
+    private LoaiTauDTO getLoaiTauByDescription(String desc) {
         for (LoaiTauEnums lt : LoaiTauEnums.values()) {
             if (lt.getDescription().equals(desc)) {
-                return new LoaiTau(lt.name());
+                return new LoaiTauDTO(lt.name());
             }
         }
         return null;
     }
 
-    private HangToa getHangToaByDescription(String desc) {
+    private HangToaDTO getHangToaByDescription(String desc) {
         for (HangToaEnums ht : HangToaEnums.values()) {
             if (ht.getDescription().equals(desc)) {
-                return new HangToa(ht.name());
+                return new HangToaDTO(ht.name());
             }
         }
         return null;
@@ -246,29 +245,29 @@ public class FormThemSuaBieuGia extends JDialog {
         btnLuu.addActionListener(l);
     }
 
-    public BieuGiaVe getModelFromForm() {
-        BieuGiaVe bg = new BieuGiaVe();
-        bg.setBieuGiaVeID(this.currentID);
+    public BieuGiaVeDTO getModelFromForm() {
+        BieuGiaVeDTO bg = new BieuGiaVeDTO();
+        bg.setId(this.currentID);
 
         if (cboLoaiTau.getSelectedIndex() > 0) {
             String selectedDesc = cboLoaiTau.getSelectedItem().toString();
-            bg.setLoaiTauApDung(getLoaiTauByDescription(selectedDesc));
+            bg.setLoaiTauApDungID(getLoaiTauByDescription(selectedDesc).getId());
         } else {
-            bg.setLoaiTauApDung(null);
+            bg.setLoaiTauApDungID(null);
         }
 
         if (cboHangToa.getSelectedIndex() > 0) {
             String selectedDesc = cboHangToa.getSelectedItem().toString();
-            bg.setHangToaApDung(getHangToaByDescription(selectedDesc));
+            bg.setHangToaApDungID(getHangToaByDescription(selectedDesc).getId());
         } else {
-            bg.setHangToaApDung(null);
+            bg.setHangToaApDungID(null);
         }
 
         Object selectedObj = cboTuyenSuggest.getSelectedItem();
         String rawTuyen = (selectedObj != null) ? selectedObj.toString().trim() : "";
 
         if (rawTuyen.isEmpty() || rawTuyen.equalsIgnoreCase("Tất cả")) {
-            bg.setTuyenApDung(null);
+            bg.setTuyenApDungID(null);
         } else {
             String tuyenID = rawTuyen;
             if (rawTuyen.contains("(") && rawTuyen.contains(")")) {
@@ -278,7 +277,7 @@ public class FormThemSuaBieuGia extends JDialog {
                     tuyenID = rawTuyen;
                 }
             }
-            bg.setTuyenApDung(new Tuyen(tuyenID));
+            bg.setTuyenApDungID(tuyenID);
         }
 
         try {
@@ -309,25 +308,25 @@ public class FormThemSuaBieuGia extends JDialog {
         return bg;
     }
 
-    public void setModelToForm(BieuGiaVe bg) {
-        this.currentID = bg.getBieuGiaVeID();
+    public void setModelToForm(BieuGiaVeDTO bg) {
+        this.currentID = bg.getId();
 
-        if (bg.getLoaiTauApDung() != null) {
-            cboLoaiTau.setSelectedItem(bg.getLoaiTauApDung().getDescription());
+        if (bg.getLoaiTauApDungID() != null) {
+            cboLoaiTau.setSelectedItem(LoaiTauEnums.valueOf(bg.getLoaiTauApDungID()).getDescription());
         } else {
             cboLoaiTau.setSelectedIndex(0);
         }
 
-        if (bg.getHangToaApDung() != null) {
-            cboHangToa.setSelectedItem(bg.getHangToaApDung().getDescription());
+        if (bg.getHangToaApDungID() != null) {
+            cboHangToa.setSelectedItem(HangToaEnums.valueOf(bg.getHangToaApDungID()).getDescription());
         } else {
             cboHangToa.setSelectedIndex(0);
         }
 
-        if (bg.getTuyenApDung() == null) {
+        if (bg.getTuyenApDungID() == null) {
             cboTuyenSuggest.setSelectedItem("Tất cả");
         } else {
-            String idCanTim = bg.getTuyenApDung().getTuyenID();
+            String idCanTim = bg.getTuyenApDungID();
             boolean found = false;
             for (int i = 0; i < cboTuyenSuggest.getItemCount(); i++) {
                 String item = cboTuyenSuggest.getItemAt(i);

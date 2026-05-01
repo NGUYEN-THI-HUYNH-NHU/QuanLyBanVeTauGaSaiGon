@@ -251,9 +251,9 @@ public class KhuyenMai_BUS {
             thayDoi.append(
                     String.format("Cập nhật số lượng: (%d -> %d)" + "\n", kmCu.getSoLuong(), kmMoi.getSoLuong()));
         }
-        if (!kmMoi.isTrangThai() == (kmCu.isTrangThai())) {
-            thayDoi.append(String.format("Cập nhật trạng thái: ('%s' -> '%s')" + "\n", kmCu.isTrangThai(),
-                    kmMoi.isTrangThai()));
+        if (!kmMoi.getTrangThai() == (kmCu.getTrangThai())) {
+            thayDoi.append(String.format("Cập nhật trạng thái: ('%s' -> '%s')" + "\n", kmCu.getTrangThai(),
+                    kmMoi.getTrangThai()));
         }
 
         // Điều kiện khuyến mãi

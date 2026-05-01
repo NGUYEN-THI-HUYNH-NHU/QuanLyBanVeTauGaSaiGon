@@ -5,16 +5,13 @@ package controller;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import dao.impl.TaiKhoan_DAO;
+import bus.XacThuc_BUS;
 import dto.NhanVienDTO;
-import entity.NhanVien;
-import entity.TaiKhoan;
 import gui.application.AuthService;
 import gui.application.UngDung;
 import gui.application.form.FormDangNhap;
 import gui.application.form.thongTin.ModalQuenMatKhau;
 import gui.application.paymentHelper.NgrokRunner;
-import mapper.NhanVienMapper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +22,7 @@ import java.time.LocalTime;
 public class DangNhap_Ctrl {
     private final FormDangNhap view;
 
-    private TaiKhoan_DAO taiKhoan_DAO = new TaiKhoan_DAO();
+    private XacThuc_BUS xacThucBUS = new XacThuc_BUS();
 
     public DangNhap_Ctrl(FormDangNhap view) {
         this.view = view;
@@ -94,19 +91,18 @@ public class DangNhap_Ctrl {
     private void dangNhap() {
         String tenDangNhap = view.getTxtTenDangNhap().getText();
         String matKhau = view.getTxtMatKhau().getText();
-        NhanVien nhanVienTmp = getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
+        NhanVienDTO nhanVien = getNhanVienVoiTaiKhoan(tenDangNhap, matKhau);
         UngDung ungDung = UngDung.getInstance();
 
-        if (nhanVienTmp == null) {
+        if (nhanVien == null) {
             JOptionPane.showMessageDialog(view, "Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng thử lại.",
                     "Đăng nhập thất bại", JOptionPane.ERROR_MESSAGE);
             view.resetDangNhap();
-        } else if (!checkDungCaLam(nhanVienTmp)) {
+        } else if (!checkDungCaLam(nhanVien)) {
             JOptionPane.showMessageDialog(view,
                     "Không thể đăng nhập vào ứng dụng Quản lý Bán vé tàu Ga Sài Gòn vì đây không phải ca làm của bạn.\nVui lòng đăng nhập khi đến ca làm của bạn!");
             view.resetDangNhap();
         } else {
-            NhanVienDTO nhanVien = NhanVienMapper.INSTANCE.toDTO(nhanVienTmp);
             AuthService.getInstance().setCurrentUser(nhanVien);
             ungDung.createGiaoDienChinh(nhanVien);
             ungDung.setContentPane(ungDung.getGiaoDienChinh());
@@ -120,24 +116,13 @@ public class DangNhap_Ctrl {
         }
     }
 
-    private NhanVien getNhanVienVoiTaiKhoan(String tenDangNhap, String matKhau) {
-        return taiKhoan_DAO.getNhanVienByTenDangNhap(tenDangNhap, checkCredentials(tenDangNhap, matKhau));
+    private NhanVienDTO getNhanVienVoiTaiKhoan(String tenDangNhap, String matKhau) {
+        return xacThucBUS.getNhanVienByTenDangNhap(tenDangNhap, matKhau);
     }
 
-    private boolean checkCredentials(String tenDangNhap, String matKhau) {
-        TaiKhoan taiKhoan = taiKhoan_DAO.getTaiKhoanVoiTenDangNhap(tenDangNhap);
-        if (taiKhoan == null || !taiKhoan.getMatKhauHash().equals(matKhau)) {
-            return false;
-        }
-//		if (taiKhoan == null || !BCrypt.checkpw(matKhau, taiKhoan.getMatKhauHash())) {
-//			return false;
-//		}
-        return true;
-    }
-
-    private boolean checkDungCaLam(NhanVien nhanVien) {
-        LocalTime gioVao = nhanVien.getCaLam().getGioVaoCa();
-        LocalTime gioKet = nhanVien.getCaLam().getGioKetCa();
+    private boolean checkDungCaLam(NhanVienDTO nhanVien) {
+        LocalTime gioVao = nhanVien.getGioVaoCa();
+        LocalTime gioKet = nhanVien.getGioKetCa();
         LocalTime hienTai = LocalTime.now();
 
         // Ca không qua đêm

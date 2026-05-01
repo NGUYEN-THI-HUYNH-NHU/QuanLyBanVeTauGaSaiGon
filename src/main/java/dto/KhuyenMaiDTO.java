@@ -1,8 +1,10 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Builder
@@ -19,5 +21,5 @@ public class KhuyenMaiDTO implements Serializable {
     private LocalDate ngayKetThuc;
     private int soLuong;
     private int gioiHanMoiKhachHang;
-    private boolean trangThai;
+    private Boolean trangThai;
 }

@@ -85,7 +85,7 @@ public class HoaDon_BUS {
         hoaDon.setMaGD(null);
         hoaDon.setTienNhan(0);
         hoaDon.setTienHoan(tongTienHoan);
-        hoaDon.setThanhToanTienMat(true);
+        hoaDon.setIsThanhToanTienMat(true);
 
         return hoaDon;
     }

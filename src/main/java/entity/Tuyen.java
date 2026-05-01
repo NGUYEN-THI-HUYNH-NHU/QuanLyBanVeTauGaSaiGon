@@ -35,7 +35,7 @@ public class Tuyen implements Serializable {
     private String moTa;
 
     @Column(name = "trangThai", nullable = false)
-    private boolean trangThai;
+    private Boolean trangThai;
 
     @OneToMany(mappedBy = "tuyen", fetch = FetchType.LAZY)
     private Set<TuyenChiTiet> tuyenChiTiets;

@@ -125,7 +125,7 @@ public class Tuyen_DAO {
         try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, tuyenMoi.getTuyenID());
             pstmt.setString(2, tuyenMoi.getMoTa());
-            pstmt.setBoolean(3, tuyenMoi.isTrangThai());
+            pstmt.setBoolean(3, tuyenMoi.getTrangThai());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -149,7 +149,7 @@ public class Tuyen_DAO {
         String sql = "UPDATE Tuyen SET moTa = ?, trangThai = ? WHERE tuyenID = ?";
         try (Connection con = connectDB.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
             pstmt.setString(1, tuyenCapNhat.getMoTa());
-            pstmt.setBoolean(2, tuyenCapNhat.isTrangThai());
+            pstmt.setBoolean(2, tuyenCapNhat.getTrangThai());
             pstmt.setString(3, tuyenCapNhat.getTuyenID());
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;

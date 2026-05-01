@@ -6,6 +6,7 @@ package gui.application.form.xemInVe;
  */
 
 import dto.VeDTO;
+import entity.type.TrangThaiVe;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.format.DateTimeFormatter;
@@ -98,7 +99,7 @@ public class VeTableModel extends AbstractTableModel {
             case COL_GIA:
                 return row.getGia();
             case COL_TRANG_THAI:
-                return row.getTrangThai();
+                return TrangThaiVe.valueOf(row.getTrangThai()).getDescription();
             case COL_IN:
                 return ""; // Trả về text để renderer vẽ thành nút
             default:

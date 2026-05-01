@@ -13,10 +13,13 @@ package bus;
  */
 
 import dao.impl.BieuGiaVeDAO;
+import dto.BieuGiaVeDTO;
 import dto.NhanVienDTO;
-import entity.BieuGiaVe;
+import entity.type.HangToaEnums;
+import entity.type.LoaiTauEnums;
 import entity.type.NhatKyAudit;
 import entity.type.VaiTroNhanVienEnums;
+import mapper.BieuGiaVeMapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,35 +37,35 @@ public class BieuGiaVe_BUS {
         nhatKyAuditBus = new NhatKyAudit_BUS();
     }
 
-    public List<BieuGiaVe> layDanhSachBieuGia() {
-        return dao.getAllBieuGia();
+    public List<BieuGiaVeDTO> layDanhSachBieuGia() {
+        return dao.getAllBieuGia().stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
     }
 
-    public List<BieuGiaVe> timKiem(String tuKhoa, String tuyenID, String loaiTauID) {
-        return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID);
+    public List<BieuGiaVeDTO> timKiem(String tuKhoa, String tuyenID, String loaiTauID) {
+        return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID).stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
     }
 
-    public String themBieuGia(BieuGiaVe bg, NhanVienDTO nv) {
+    public String themBieuGia(BieuGiaVeDTO bg, NhanVienDTO nv) {
         String loi = kiemTraHopLe(bg);
         if (loi != null) {
             return loi;
         }
 
         String newID = taoMaBieuGiaNgauNhien();
-        bg.setBieuGiaVeID(newID);
+        bg.setId(newID);
 
         try {
-            if (dao.themBieuGia(bg)) {
+            if (dao.themBieuGia(BieuGiaVeMapper.INSTANCE.toEntity(bg))) {
                 String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
                 String giaLog = (bg.getDonGiaTrenKm() > 0)
                         ? String.format("%.0f đ/km", bg.getDonGiaTrenKm())
                         : String.format("Cố định %.0f VNĐ", bg.getGiaCoBan());
 
                 String chiTietLog = String.format("%s %s Thêm Biểu giá: %s (Độ ưu tiên: %s, Giá: %s)",
-                        tenChucVu, nv.getHoTen(), bg.getBieuGiaVeID(), bg.getDoUuTien(), giaLog
+                        tenChucVu, nv.getHoTen(), bg.getId(), bg.getDoUuTien(), giaLog
                 );
 
-                ghiLogAudit(bg.getBieuGiaVeID(), nv, NhatKyAudit.THEM, chiTietLog);
+                ghiLogAudit(bg.getId(), nv, NhatKyAudit.THEM, chiTietLog);
                 return "Thêm thành công";
             }
         } catch (Exception e) {
@@ -93,34 +96,34 @@ public class BieuGiaVe_BUS {
         return newID;
     }
 
-    public String capNhatBieuGia(BieuGiaVe bgMoi, NhanVienDTO nv) {
+    public String capNhatBieuGia(BieuGiaVeDTO bgMoi, NhanVienDTO nv) {
         String loi = kiemTraHopLe(bgMoi);
         if (loi != null) {
             return loi;
         }
-        BieuGiaVe bgCu = dao.getBieuGiaByID(bgMoi.getBieuGiaVeID());
+        BieuGiaVeDTO bgCu = BieuGiaVeMapper.INSTANCE.toDTO(dao.getBieuGiaByID(bgMoi.getId()));
         try {
-            if (dao.capNhatBieuGia(bgMoi)) {
+            if (dao.capNhatBieuGia(BieuGiaVeMapper.INSTANCE.toEntity(bgMoi))) {
                 List<String> thayDoi = new ArrayList<>();
 
                 if (bgCu != null) {
 
-                    String tuyenCu = (bgCu.getTuyenApDung() != null) ? bgCu.getTuyenApDung().getTuyenID() : "Tất cả";
-                    String tuyenMoi = (bgMoi.getTuyenApDung() != null) ? bgMoi.getTuyenApDung().getTuyenID() : "Tất cả";
+                    String tuyenCu = (bgCu.getTuyenApDungID() != null) ? bgCu.getTuyenApDungID() : "Tất cả";
+                    String tuyenMoi = (bgMoi.getTuyenApDungID() != null) ? bgMoi.getTuyenApDungID() : "Tất cả";
                     if (!tuyenCu.equals(tuyenMoi)) {
                         thayDoi.add(String.format("Tuyến (%s -> %s)", tuyenCu, tuyenMoi));
                     }
 
                     // 2. So sánh Loại Tàu
-                    String tauCu = (bgCu.getLoaiTauApDung() != null) ? bgCu.getLoaiTauApDung().getDescription() : "Tất cả";
-                    String tauMoi = (bgMoi.getLoaiTauApDung() != null) ? bgMoi.getLoaiTauApDung().getDescription() : "Tất cả";
+                    String tauCu = (bgCu.getLoaiTauApDungID() != null) ? LoaiTauEnums.valueOf(bgCu.getLoaiTauApDungID()).getDescription() : "Tất cả";
+                    String tauMoi = (bgMoi.getLoaiTauApDungID() != null) ? LoaiTauEnums.valueOf(bgMoi.getLoaiTauApDungID()).getDescription() : "Tất cả";
                     if (!tauCu.equals(tauMoi)) {
                         thayDoi.add(String.format("Loại tàu (%s -> %s)", tauCu, tauMoi));
                     }
 
                     // 3. So sánh Hạng Toa
-                    String toaCu = (bgCu.getHangToaApDung() != null) ? bgCu.getHangToaApDung().getDescription() : "Tất cả";
-                    String toaMoi = (bgMoi.getHangToaApDung() != null) ? bgMoi.getHangToaApDung().getDescription() : "Tất cả";
+                    String toaCu = (bgCu.getHangToaApDungID() != null) ? HangToaEnums.valueOf(bgCu.getHangToaApDungID()).getDescription() : "Tất cả";
+                    String toaMoi = (bgMoi.getHangToaApDungID() != null) ? HangToaEnums.valueOf(bgMoi.getHangToaApDungID()).getDescription() : "Tất cả";
                     if (!toaCu.equals(toaMoi)) {
                         thayDoi.add(String.format("Hạng toa (%s -> %s)", toaCu, toaMoi));
                     }
@@ -169,10 +172,10 @@ public class BieuGiaVe_BUS {
                 if (!thayDoi.isEmpty()) {
                     String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
                     StringBuilder sbLog = new StringBuilder();
-                    sbLog.append(String.format("%s %s Cập nhật biểu giá %s", tenChucVu, nv.getHoTen(), bgMoi.getBieuGiaVeID()));
+                    sbLog.append(String.format("%s %s Cập nhật biểu giá %s", tenChucVu, nv.getHoTen(), bgMoi.getId()));
                     sbLog.append(" : ").append(String.join(", ", thayDoi));
 
-                    ghiLogAudit(bgMoi.getBieuGiaVeID(), nv, NhatKyAudit.SUA, sbLog.toString());
+                    ghiLogAudit(bgMoi.getId(), nv, NhatKyAudit.SUA, sbLog.toString());
                 }
 
                 return "Cập nhật thành công";
@@ -211,7 +214,7 @@ public class BieuGiaVe_BUS {
     }
 
     // Logic kiểm tra dữ liệu đầu vào
-    private String kiemTraHopLe(BieuGiaVe bg) {
+    private String kiemTraHopLe(BieuGiaVeDTO bg) {
         if (bg.getMinKm() < 0 || bg.getMaxKm() < 0) {
             return "Khoảng cách Km không được âm.";
         }

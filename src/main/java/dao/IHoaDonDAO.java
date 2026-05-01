@@ -1,16 +1,13 @@
 package dao;
 
 import entity.HoaDon;
-import entity.NhanVien;
 
 import java.util.Date;
 import java.util.List;
 
 public interface IHoaDonDAO {
     boolean insertHoaDon(HoaDon hoaDon) throws Exception;
-
-    List<HoaDon> getHoaDonByNhanVien(NhanVien nhanVien);
-
+    
     List<HoaDon> searchHoaDonByFilter(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
                                       Date denNgay, String hinhThucTT);
 

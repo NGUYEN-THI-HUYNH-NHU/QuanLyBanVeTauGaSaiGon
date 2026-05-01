@@ -506,7 +506,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                         km.getNgayKetThuc(),
                         km.getSoLuong(),
                         km.getGioiHanMoiKhachHang(),
-                        km.isTrangThai() ? "Đang hoạt động" : "Ngừng hoạt động"
+                        km.getTrangThai() ? "Đang hoạt động" : "Ngừng hoạt động"
                 };
                 tableModel.addRow(rowData);
             }
@@ -945,7 +945,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                         khuyenMai.getNgayKetThuc(),
                         khuyenMai.getSoLuong(),
                         khuyenMai.getGioiHanMoiKhachHang(),
-                        khuyenMai.isTrangThai() ? "Đang hoạt động" : "Ngừng hoạt động"
+                        khuyenMai.getTrangThai() ? "Đang hoạt động" : "Ngừng hoạt động"
                 };
                 tableModel.addRow(rowData);
             }
@@ -1085,7 +1085,7 @@ public class PanelQuanLyKhuyenMai extends JPanel implements ActionListener, Mous
                 txtNgayKT.setDate(Date.valueOf(km.getNgayKetThuc()));
                 txtSoLuong.setText(String.valueOf((int) km.getSoLuong()));
                 txtGioiHan.setText(String.valueOf(km.getGioiHanMoiKhachHang()));
-                txtTrangThai.setSelected(km.isTrangThai());
+                txtTrangThai.setSelected(km.getTrangThai());
 
                 DieuKienKhuyenMai dkkm = khuyenMai_ctrl.layDieuKienKhuyenMaiTheoMaKhuyenMaiObj(km.getKhuyenMaiID());
                 if (dkkm != null) {

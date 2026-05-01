@@ -18,6 +18,6 @@ public class HoaDonDTO implements Serializable {
     private double tongTien;
     private double tienNhan;
     private double tienHoan;
-    private boolean isThanhToanTienMat;
+    private Boolean isThanhToanTienMat;
     private String maGD;
 }

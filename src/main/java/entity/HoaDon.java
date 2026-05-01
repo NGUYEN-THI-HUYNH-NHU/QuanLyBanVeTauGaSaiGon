@@ -54,7 +54,7 @@ public class HoaDon implements Serializable {
     private double tienHoan;
 
     @Column(name = "isThanhToanTienMat", nullable = false)
-    private boolean isThanhToanTienMat;
+    private Boolean isThanhToanTienMat;
 
     @Column(name = "maGD", length = 50)
     private String maGD;

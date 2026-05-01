@@ -513,10 +513,18 @@ public class PanelBuoc1Controller {
                         if (!field.getText().trim().equalsIgnoreCase(cur)) {
                             return; // user changed meanwhile
                         }
-                        List<GaDTO> res = get();
+
+                        List<GaDTO> fetchedData = get();
+                        if (fetchedData == null) {
+                            fetchedData = java.util.Collections.emptyList();
+                        }
+
+                        // Khởi tạo một mutable list để thực hiện removeIf
+                        List<GaDTO> res = new java.util.ArrayList<>(fetchedData);
+
                         // If this is gaDen, and selectedGaDi exists, remove it (controller ensures
                         // selectedGaDi updated externally)
-                        if (field == panel.getTxtGaDen() && selectedGaDi != null && res != null) {
+                        if (field == panel.getTxtGaDen() && selectedGaDi != null) {
                             res.removeIf(g -> selectedGaDi.equalsIgnoreCase(g.getId()));
                         }
                         showPopup(res);

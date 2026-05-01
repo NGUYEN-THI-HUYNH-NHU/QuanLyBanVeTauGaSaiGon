@@ -125,7 +125,7 @@ public class ModalHoaDon extends JDialog {
         addInfoRow(pInfo, gbc, "Họ tên người mua hàng: ", hoaDon.getKhachHangDTO().getHoTen());
         addInfoRow(pInfo, gbc, "Số định danh/CCCD: ", hoaDon.getKhachHangDTO().getSoGiayTo());
         addInfoRow(pInfo, gbc, "Địa chỉ: ", hoaDon.getKhachHangDTO().getDiaChi());
-        addInfoRow(pInfo, gbc, "Hình thức thanh toán: ", hoaDon.isThanhToanTienMat() ? "Tiền mặt" : "Chuyển khoản");
+        addInfoRow(pInfo, gbc, "Hình thức thanh toán: ", hoaDon.getIsThanhToanTienMat() ? "Tiền mặt" : "Chuyển khoản");
 
         // 2b. Bảng chi tiết
         HoaDonChiTietTableModel model = new HoaDonChiTietTableModel();

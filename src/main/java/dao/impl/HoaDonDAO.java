@@ -50,56 +50,9 @@ public class HoaDonDAO extends AbstractGenericDAO<HoaDon, String> implements IHo
             }
 
             query.setParameter(7, hoaDon.getTienNhan());
-            query.setParameter(9, hoaDon.isThanhToanTienMat());
+            query.setParameter(9, hoaDon.getIsThanhToanTienMat());
 
             return query.executeUpdate() > 0;
-        });
-    }
-
-    /**
-     * @param nhanVien
-     * @return
-     */
-    @Override
-    public List<HoaDon> getHoaDonByNhanVien(NhanVien nhanVien) {
-        return doInTransaction(em -> {
-            String sql = "SELECT H.hoaDonID, H.khachHangID, K.hoTen, K.soGiayTo, H.thoiDiemTao, H.tongTien, H.tienNhan, H.tienHoan, H.isThanhToanTienMat, H.maGD\r\n"
-                    + "FROM HoaDon H JOIN KhachHang K ON H.khachHangID = K.khachHangID\r\n" + "WHERE H.nhanVienID = ?1\r\n"
-                    + "ORDER BY H.thoiDiemTao DESC";
-
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, nhanVien.getNhanVienID());
-
-            List<HoaDon> dsHoaDon = new ArrayList<>();
-            try {
-                List<Object[]> rsList = query.getResultList();
-                for (Object[] rs : rsList) {
-                    HoaDon hoaDon = new HoaDon();
-                    hoaDon.setHoaDonID((String) rs[0]);
-                    hoaDon.setNhanVien(nhanVien);
-                    hoaDon.setKhachHang(new KhachHang((String) rs[1], (String) rs[2], (String) rs[3]));
-
-                    Timestamp ts = (Timestamp) rs[4];
-                    hoaDon.setThoiDiemTao(ts != null ? ts.toLocalDateTime() : null);
-                    hoaDon.setTongTien(((Number) rs[5]).doubleValue());
-                    hoaDon.setTienNhan(((Number) rs[6]).doubleValue());
-                    hoaDon.setTienHoan(((Number) rs[7]).doubleValue());
-
-                    Object isThanhToan = rs[8];
-                    if (isThanhToan instanceof Boolean) {
-                        hoaDon.setThanhToanTienMat((Boolean) isThanhToan);
-                    } else if (isThanhToan instanceof Number) {
-                        hoaDon.setThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
-                    }
-
-                    hoaDon.setMaGD((String) rs[9]);
-
-                    dsHoaDon.add(hoaDon);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return dsHoaDon;
         });
     }
 
@@ -196,9 +149,9 @@ public class HoaDonDAO extends AbstractGenericDAO<HoaDon, String> implements IHo
 
                     Object isThanhToan = rs[7];
                     if (isThanhToan instanceof Boolean) {
-                        hd.setThanhToanTienMat((Boolean) isThanhToan);
+                        hd.setIsThanhToanTienMat((Boolean) isThanhToan);
                     } else if (isThanhToan instanceof Number) {
-                        hd.setThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
+                        hd.setIsThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
                     }
 
                     hd.setMaGD((String) rs[8]);
@@ -282,9 +235,9 @@ public class HoaDonDAO extends AbstractGenericDAO<HoaDon, String> implements IHo
 
                     Object isThanhToan = rs[7];
                     if (isThanhToan instanceof Boolean) {
-                        hd.setThanhToanTienMat((Boolean) isThanhToan);
+                        hd.setIsThanhToanTienMat((Boolean) isThanhToan);
                     } else if (isThanhToan instanceof Number) {
-                        hd.setThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
+                        hd.setIsThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
                     }
 
                     hd.setMaGD((String) rs[8]);
@@ -366,9 +319,9 @@ public class HoaDonDAO extends AbstractGenericDAO<HoaDon, String> implements IHo
 
                     Object isThanhToan = rs[8];
                     if (isThanhToan instanceof Boolean) {
-                        hoaDon.setThanhToanTienMat((Boolean) isThanhToan);
+                        hoaDon.setIsThanhToanTienMat((Boolean) isThanhToan);
                     } else if (isThanhToan instanceof Number) {
-                        hoaDon.setThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
+                        hoaDon.setIsThanhToanTienMat(((Number) isThanhToan).intValue() == 1);
                     }
 
                     hoaDon.setMaGD((String) rs[9]);

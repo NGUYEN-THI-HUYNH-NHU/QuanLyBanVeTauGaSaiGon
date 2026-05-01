@@ -29,7 +29,6 @@ public class Menu extends JPanel {
     protected final int menuTitleVgap = 5;
     protected final int menuMaxWidth = 210;
     protected final int menuMinWidth = 70;
-    protected final int headerFullHgap = 5;
     private final List<SuKienMenu> suKienMenuList = new ArrayList<>();
     private final String headerName = "Ga Sài Gòn";
     private final String[][] menuItems = {{"~Quản Lý~"}, // 0
@@ -57,7 +56,6 @@ public class Menu extends JPanel {
     private JLabel header;
     private JScrollPane scroll;
     private JPanel panelMenu;
-    private ImageIcon avatarIcon;
 
     public Menu(NhanVienDTO nhanVien) {
         setLayout(new BorderLayout());
@@ -172,15 +170,9 @@ public class Menu extends JPanel {
         if (menuFull) {
             header.setText(headerName);
             header.setHorizontalAlignment(getComponentOrientation().isLeftToRight() ? JLabel.LEFT : JLabel.RIGHT);
-            if (avatarIcon != null) {
-                header.setIcon(avatarIcon);
-            }
         } else {
             header.setText("");
             header.setHorizontalAlignment(JLabel.CENTER);
-            if (avatarIcon != null) {
-                header.setIcon(avatarIcon);
-            }
         }
         for (Component com : panelMenu.getComponents()) {
             if (com instanceof ThanhPhanMenu) {
