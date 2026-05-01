@@ -1,8 +1,9 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+
 @Getter
 @Setter
 @Builder
@@ -11,7 +12,7 @@ import java.time.*;
 @AllArgsConstructor
 public class HeSoGiaLoaiTauDTO implements Serializable {
     private String id;
-    private LoaiTauDTO loaiTau;
+    private String loaiTauID;
     private double hsg;
-    private Boolean isCoHieuLuc;
+    private boolean isCoHieuLuc;
 }

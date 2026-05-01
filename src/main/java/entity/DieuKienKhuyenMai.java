@@ -52,10 +52,10 @@ public class DieuKienKhuyenMai implements Serializable {
     private LoaiDoiTuong loaiDoiTuong;
 
     @Column(name = "ngayTrongTuan")
-    private Integer ngayTrongTuan; // Dùng wrapper class (Integer) vì cột này cho phép NULL
+    private int ngayTrongTuan;
 
     @Column(name = "ngayLe")
-    private Boolean ngayLe;
+    private boolean ngayLe;
 
     @Column(name = "minGiaTriDonHang", precision = 12, scale = 2)
     private double minGiaTriDonHang;
