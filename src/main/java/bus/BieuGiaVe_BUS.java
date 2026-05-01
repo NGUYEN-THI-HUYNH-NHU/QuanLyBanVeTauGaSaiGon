@@ -13,9 +13,10 @@ package bus;
  */
 
 import dao.impl.BieuGiaVeDAO;
+import dto.NhanVienDTO;
 import entity.BieuGiaVe;
-import entity.NhanVien;
 import entity.type.NhatKyAudit;
+import entity.type.VaiTroNhanVienEnums;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,7 +42,7 @@ public class BieuGiaVe_BUS {
         return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID);
     }
 
-    public String themBieuGia(BieuGiaVe bg, NhanVien nv) {
+    public String themBieuGia(BieuGiaVe bg, NhanVienDTO nv) {
         String loi = kiemTraHopLe(bg);
         if (loi != null) {
             return loi;
@@ -52,7 +53,7 @@ public class BieuGiaVe_BUS {
 
         try {
             if (dao.themBieuGia(bg)) {
-                String tenChucVu = (nv.getVaiTroNhanVien() != null) ? nv.getVaiTroNhanVien().getDescription() : "";
+                String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
                 String giaLog = (bg.getDonGiaTrenKm() > 0)
                         ? String.format("%.0f đ/km", bg.getDonGiaTrenKm())
                         : String.format("Cố định %.0f VNĐ", bg.getGiaCoBan());
@@ -92,7 +93,7 @@ public class BieuGiaVe_BUS {
         return newID;
     }
 
-    public String capNhatBieuGia(BieuGiaVe bgMoi, NhanVien nv) {
+    public String capNhatBieuGia(BieuGiaVe bgMoi, NhanVienDTO nv) {
         String loi = kiemTraHopLe(bgMoi);
         if (loi != null) {
             return loi;
@@ -166,7 +167,7 @@ public class BieuGiaVe_BUS {
                 }
 
                 if (!thayDoi.isEmpty()) {
-                    String tenChucVu = (nv.getVaiTroNhanVien() != null) ? nv.getVaiTroNhanVien().getDescription() : "";
+                    String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
                     StringBuilder sbLog = new StringBuilder();
                     sbLog.append(String.format("%s %s Cập nhật biểu giá %s", tenChucVu, nv.getHoTen(), bgMoi.getBieuGiaVeID()));
                     sbLog.append(" : ").append(String.join(", ", thayDoi));
@@ -186,14 +187,14 @@ public class BieuGiaVe_BUS {
         return "Cập nhật thất bại (Lỗi không xác định)";
     }
 
-    private void ghiLogAudit(String doiTuongID, NhanVien nv, NhatKyAudit loaiThaoTac, String chiTiet) {
+    private void ghiLogAudit(String doiTuongID, NhanVienDTO nv, NhatKyAudit loaiThaoTac, String chiTiet) {
         if (nv == null) return;
         try {
             String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
             entity.NhatKyAudit log = new entity.NhatKyAudit(
                     maLog,
                     doiTuongID,
-                    nv.getNhanVienID(),
+                    nv.getId(),
                     LocalDateTime.now(),
                     loaiThaoTac,
                     chiTiet,

@@ -2,7 +2,7 @@ package gui.application.form.doiVe;
 
 import bus.DoiVe_BUS;
 import bus.KhuyenMai_BUS;
-import entity.GiaoDichThanhToan;
+import dto.GiaoDichThanhToanDTO;
 import gui.application.AppHttpServer;
 import gui.application.form.banVe.VeSession;
 import gui.application.paymentHelper.PdfTicketExporter;
@@ -148,7 +148,7 @@ public class DoiVe3Controller {
             double tienNhan = 0;
             double tienHoan = 0;
 
-            GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+            GiaoDichThanhToanDTO giaoDich = new GiaoDichThanhToanDTO();
             giaoDich.setTongTien(tongTien);
             giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
@@ -209,7 +209,7 @@ public class DoiVe3Controller {
 
         // Cờ để tránh xử lý 2 lần
         final boolean[] isProcessed = {false};
-        final GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+        final GiaoDichThanhToanDTO giaoDich = new GiaoDichThanhToanDTO();
         giaoDich.setTongTien(tongTien);
         giaoDich.setThanhToanTienMat(false);
 
@@ -335,7 +335,7 @@ public class DoiVe3Controller {
      * Lưu giao dịch và in vé Được gọi khi: 1. Thanh toán tiền mặt xong. 2. Web
      * Server nhận được tín hiệu VNPAY thành công. 3. Khách bấm xác nhận thủ công.
      */
-    private void processPaymentAndSave(GiaoDichThanhToan giaoDich) {
+    private void processPaymentAndSave(GiaoDichThanhToanDTO giaoDich) {
         exchangeSession.setGiaoDichThanhToan(giaoDich);
 
         // Vô hiệu hóa nút để tránh bấm nhiều lần

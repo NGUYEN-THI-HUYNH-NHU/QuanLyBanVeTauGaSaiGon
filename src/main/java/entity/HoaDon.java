@@ -74,4 +74,8 @@ public class HoaDon implements Serializable {
         this.tienHoan = tienHoan;
         this.isThanhToanTienMat = thanhToanTienMat;
     }
+
+    public HoaDon(String hoaDonID) {
+        this.hoaDonID = hoaDonID;
+    }
 }

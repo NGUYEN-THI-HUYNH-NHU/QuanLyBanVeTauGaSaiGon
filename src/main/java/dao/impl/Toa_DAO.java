@@ -40,7 +40,8 @@ public class Toa_DAO {
                 + "    t.toaID,\r\n"
                 + "    t.soToa,\r\n"
                 + "    t.hangToaID,\r\n"
-                + "	   t.sucChua,\r\n"
+                + "    ht.moTa,\r\n"
+                + "    t.sucChua,\r\n"
                 + "    tau.tauID,\r\n"
                 + "    tau.tenTau\r\n"
                 + "FROM Chuyen c\r\n"
@@ -48,6 +49,8 @@ public class Toa_DAO {
                 + "    ON tau.tauID = c.tauID\r\n"
                 + "INNER JOIN Toa t \r\n"
                 + "    ON t.tauID = tau.tauID\r\n"
+                + "INNER JOIN HangToa ht \r\n"
+                + "    ON t.hangToaID = ht.hangToaID\r\n"
                 + "WHERE c.chuyenID = @chuyenID\r\n"
                 + "ORDER BY t.soToa;";
         try {
@@ -58,7 +61,7 @@ public class Toa_DAO {
                 Toa t = new Toa();
                 t.setToaID(rs.getString("toaID"));
                 t.setTau(new Tau(rs.getString("tauID")));
-                t.setHangToa(new HangToa(rs.getString("hangToaID")));
+                t.setHangToa(new HangToa(rs.getString("hangToaID"), rs.getString("moTa")));
                 t.setSucChua(rs.getInt("sucChua"));
                 t.setSoToa(rs.getInt("soToa"));
                 list.add(t);

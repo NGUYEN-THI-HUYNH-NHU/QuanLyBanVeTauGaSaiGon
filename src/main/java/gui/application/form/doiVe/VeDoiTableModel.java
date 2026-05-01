@@ -98,11 +98,11 @@ public class VeDoiTableModel extends AbstractTableModel {
                 VeDTO ve = row.getVe();
                 if (row.getPhieuDungPhongVIP() == null) {
                     return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                            ve.getLoaiTauID(), ve.getNgayGioDi(), ve.getSoToa(), ve.getSoGhe(), ve.getVeID());
+                            ve.getTauID(), ve.getNgayGioDi(), ve.getSoToa(), ve.getSoGhe(), ve.getVeID());
                 }
                 return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
                         ve.getTauID(), ve.getNgayGioDi(), ve.getSoToa(), ve.getSoGhe(), ve.getVeID(),
-                        row.getPhieuDungPhongVIP().getPhieuDungPhongVIPID());
+                        row.getPhieuDungPhongVIP().getId());
             case COL_THANH_TIEN:
                 return row.getVe().getGia();
             case COL_DU_DK:

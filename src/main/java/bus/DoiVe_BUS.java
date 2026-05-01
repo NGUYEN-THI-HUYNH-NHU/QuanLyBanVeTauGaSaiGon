@@ -14,16 +14,17 @@ package bus;
 
 import connectDB.ConnectDB;
 import dto.KhachHangDTO;
+import dto.NhanVienDTO;
 import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
-import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import mapper.DonDatChoMapper;
+import mapper.HoaDonMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.sql.Connection;
@@ -60,17 +61,17 @@ public class DoiVe_BUS {
                 listVeDoi.add(r.getVe());
             }
             KhachHangDTO khachHang = exchangeSession.getKhachHang();
-            NhanVien nhanVien = exchangeSession.getNhanVien();
+            NhanVienDTO nhanVien = exchangeSession.getNhanVien();
 
             // 1. Tạo và Lưu Đơn Đặt Chỗ cho các vé mới
-            DonDatCho donDatChoMoi = datChoBUS.taoDonDatCho(nhanVien, khachHang);
+            DonDatCho donDatChoMoi = datChoBUS.taoDonDatCho(khachHang);
             datChoBUS.themDonDatCho(donDatChoMoi);
             exchangeSession.setDonDatChoMoi(DonDatChoMapper.INSTANCE.toDTO(donDatChoMoi));
 
             // 2. Tạo và Lưu Hóa đơn đổi vé
             HoaDon hoaDon = hoaDonBUS.taoHoaDonDoiVe(exchangeSession);
             hoaDonBUS.themHoaDon(hoaDon);
-            exchangeSession.setHoaDon(hoaDon);
+            exchangeSession.setHoaDon(HoaDonMapper.INSTANCE.toDTO(hoaDon));
 
             // 4. Tạo và Lưu Vé mới (Batch Insert)
             List<Ve> dsVe = veBUS.taoCacVeVaThemVaoExchangeSession(exchangeSession);
@@ -119,17 +120,15 @@ public class DoiVe_BUS {
             }
 
             // Ghi log
-            String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
             for (VeDoiRow v : exchangeSession.getListVeCuCanDoi()) {
-                ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.DOI_VE, "Hủy vé: " + v.getVe().getVeID());
+                ghiLog(v.getVe().getVeID(), nhanVien.getId(), entity.type.NhatKyAudit.DOI_VE, "Hủy vé: " + v.getVe().getVeID());
             }
 
             for (VeSession v : exchangeSession.getListVeMoiDangChon()) {
-                ghiLog(v.getVe().getVeID(), nvID, entity.type.NhatKyAudit.DOI_VE, "Vé đổi: " + v.getVe().getVeID());
+                ghiLog(v.getVe().getVeID(), nhanVien.getId(), entity.type.NhatKyAudit.DOI_VE, "Vé đổi: " + v.getVe().getVeID());
             }
 
             // --- KẾT THÚC GIAO DỊCH ---
-            // Hoàn tất giao dịch
             conn.commit();
             return true;
 

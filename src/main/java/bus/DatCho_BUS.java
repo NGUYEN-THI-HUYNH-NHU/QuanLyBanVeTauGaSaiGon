@@ -23,6 +23,8 @@ import entity.type.TrangThaiPhieuGiuCho;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
 import mapper.KhachHangMapper;
+import mapper.NhanVienMapper;
+import mapper.PhieuGiuChoChiTietMapper;
 import mapper.PhieuGiuChoMapper;
 
 import java.time.Duration;
@@ -35,14 +37,14 @@ public class DatCho_BUS {
     private final PhieuGiuChoDAO pgcDAO = new PhieuGiuChoDAO();
     private final PhieuGiuChoChiTietDAO pgcctDAO = new PhieuGiuChoChiTietDAO();
     private final DonDatChoDAO ddcDAO = new DonDatChoDAO();
+    private final NhanVien nhanVien = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
 
     private PhieuGiuCho taoPhieuGiuCho() {
-        NhanVien nv = AuthService.getInstance().getCurrentUser();
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyHHmmss");
         String pgcID = "PGC-" + now.format(formatter);
 
-        return new PhieuGiuCho(pgcID, nv, TrangThaiPhieuGiuCho.DANG_GIU);
+        return new PhieuGiuCho(pgcID, nhanVien, TrangThaiPhieuGiuCho.DANG_GIU);
     }
 
     public PhieuGiuChoChiTiet taoPhieuGiuChoChiTiet(PhieuGiuCho pgc, VeSession v, int soThuTu) {
@@ -97,13 +99,15 @@ public class DatCho_BUS {
         return pgcDAO.delete(phieuGiuChoID);
     }
 
-    public DonDatCho taoDonDatCho(NhanVien nhanVien, KhachHangDTO khachHang) {
+    public DonDatCho taoDonDatCho(KhachHangDTO khachHang) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyy-HHmmss");
 
         String ddcID = "DDC-" + now.format(formatter);
 
-        return DonDatCho.builder().donDatChoID(ddcID).nhanVien(nhanVien).khachHang(KhachHangMapper.INSTANCE.toEntity(khachHang)).thoiDiemDatCho(now).build();
+        return DonDatCho.builder().donDatChoID(ddcID).nhanVien(nhanVien)
+                .khachHang(KhachHangMapper.INSTANCE.toEntity(khachHang)).
+                thoiDiemDatCho(now).build();
     }
 
     public boolean themDonDatCho(DonDatCho donDatCho) throws Exception {
@@ -157,7 +161,7 @@ public class DatCho_BUS {
                     throw new Exception("Không thể lưu chi tiết giữ chỗ cho ghế " + v.getVe().getSoGhe());
                 }
                 pgc.getChiTiets().add(pgcct);
-                v.setPhieuGiuChoChiTiet(pgcct);
+                v.setPhieuGiuChoChiTiet(PhieuGiuChoChiTietMapper.INSTANCE.toDTO(pgcct));
             }
             return PhieuGiuChoMapper.INSTANCE.toDTO(pgc);
 //            return Mapper.map(pgc);

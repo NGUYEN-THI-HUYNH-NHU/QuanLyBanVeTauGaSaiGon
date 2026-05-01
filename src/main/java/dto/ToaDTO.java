@@ -1,8 +1,9 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+
 @Getter
 @Setter
 @Builder
@@ -11,9 +12,10 @@ import java.time.*;
 @AllArgsConstructor
 public class ToaDTO implements Serializable {
     private String id;
-    private TauDTO tau;
-    private HangToaDTO hangToa;
+    private String tauID;
+    private String loaiTauID;
+    private String hangToaID;
+    private String moTa;
     private int sucChua;
     private int soToa;
-    private Set<GheDTO> ghes;
 }

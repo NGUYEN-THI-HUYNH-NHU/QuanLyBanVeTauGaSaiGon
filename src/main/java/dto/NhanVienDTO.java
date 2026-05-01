@@ -4,6 +4,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 
 public class NhanVienDTO implements Serializable {
     private String id;
-    private String vaiTroNhanVien;
+    private String vaiTroNhanVienID;
     private String hoTen;
     private boolean isNu;
     private LocalDate ngaySinh;
@@ -23,5 +24,8 @@ public class NhanVienDTO implements Serializable {
     private String diaChi;
     private LocalDate ngayThamGia;
     private boolean isHoatDong;
-    private CaLamDTO caLam;
+    private String caLamID;
+    private LocalTime gioVaoCa;
+    private LocalTime gioKetCa;
+    private byte[] avatar;
 }

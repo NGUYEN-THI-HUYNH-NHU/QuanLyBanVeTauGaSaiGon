@@ -12,7 +12,7 @@ package gui.application.form.hoaDon;
  * @version: 1.0
  */
 
-import entity.HoaDonChiTiet;
+import dto.HoaDonChiTietDTO;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -29,14 +29,14 @@ public class HoaDonChiTietTableModel extends AbstractTableModel {
 
     private final String[] columnNames = {"STT", "Mã vé/phiếu", "Tên dịch vụ", "ĐVT", "SL", "Đơn giá", "Thành tiền"};
 
-    private List<HoaDonChiTiet> rows;
+    private List<HoaDonChiTietDTO> rows;
 
     public HoaDonChiTietTableModel() {
         this.rows = new ArrayList<>();
     }
 
     // Hàm cập nhật dữ liệu cho bảng
-    public void setRows(List<HoaDonChiTiet> newRows) {
+    public void setRows(List<HoaDonChiTietDTO> newRows) {
         this.rows = newRows;
         fireTableDataChanged();
     }
@@ -69,17 +69,15 @@ public class HoaDonChiTietTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        HoaDonChiTiet row = rows.get(rowIndex);
+        HoaDonChiTietDTO row = rows.get(rowIndex);
         switch (columnIndex) {
             case COL_STT:
                 return rowIndex + 1;
             case COL_VE_PHIEU_ID:
-                if (row.getVe() != null) {
-                    return row.getVe().getVeID();
-                }
-                if (row.getPhieuDungPhongVIP() != null) {
-                    return row.getPhieuDungPhongVIP().getPhieuDungPhongVIPID();
-                }
+                if (row.getVeID() != null) return row.getVeID();
+
+                if (row.getPhieuDungPhongVIPID() != null) return row.getPhieuDungPhongVIPID();
+
                 return "";
             case COL_TEN_DV:
                 return row.getTenDichVu();

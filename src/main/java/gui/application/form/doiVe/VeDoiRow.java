@@ -12,8 +12,8 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import entity.PhieuDungPhongVIP;
 import entity.type.LoaiDoiTuongEnums;
 import entity.type.TrangThaiVe;
 
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 
 public class VeDoiRow {
     private VeDTO ve;
-    private PhieuDungPhongVIP phieuDungPhongVIP;
+    private PhieuDungPhongVIPDTO phieuDungPhongVIP;
     private String hanhKhach;
     private String loaiDoiVe;
     private double lePhiDoiVe;
@@ -33,7 +33,7 @@ public class VeDoiRow {
     private boolean isDuDieuKien;
     private String dieuKien;
 
-    public VeDoiRow(VeDTO ve, PhieuDungPhongVIP phieuDungPhongVIP) {
+    public VeDoiRow(VeDTO ve, PhieuDungPhongVIPDTO phieuDungPhongVIP) {
         this.ve = ve;
         this.phieuDungPhongVIP = phieuDungPhongVIP;
 
@@ -135,11 +135,11 @@ public class VeDoiRow {
         return isDuDieuKien;
     }
 
-    public PhieuDungPhongVIP getPhieuDungPhongVIP() {
+    public PhieuDungPhongVIPDTO getPhieuDungPhongVIP() {
         return phieuDungPhongVIP;
     }
 
-    public void setPhieuDungPhongVIP(PhieuDungPhongVIP phieuDungPhongVIP) {
+    public void setPhieuDungPhongVIP(PhieuDungPhongVIPDTO phieuDungPhongVIP) {
         this.phieuDungPhongVIP = phieuDungPhongVIP;
     }
 

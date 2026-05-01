@@ -3,8 +3,8 @@ package gui.application.form.khachHang;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.KhachHang_CTRL;
 import dto.KhachHangDTO;
+import dto.NhanVienDTO;
 import entity.KhachHang;
-import entity.NhanVien;
 import entity.type.LoaiDoiTuongEnums;
 import entity.type.LoaiKhachHangEnums;
 
@@ -23,7 +23,7 @@ import java.util.Objects;
 public class PanelQuanLyKhachHang extends JPanel implements ActionListener, MouseListener, KeyListener {
 
     private final KhachHang_CTRL khachHang_ctrl;
-    private final NhanVien nhanVienThucHien;
+    private final NhanVienDTO nhanVienThucHien;
     // màu sắc chủ đạo
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
     private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
@@ -45,7 +45,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     private Font titleFont;
     private JLabel lblAvatar;
 
-    public PanelQuanLyKhachHang(NhanVien nhanVienThucHien) {
+    public PanelQuanLyKhachHang(NhanVienDTO nhanVienThucHien) {
         this.khachHang_ctrl = new KhachHang_CTRL();
         this.nhanVienThucHien = nhanVienThucHien;
 
@@ -69,7 +69,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         initPlaceholders();
     }
 
-    public PanelQuanLyKhachHang(NhanVien nhanVienThucHien, String cccd) {
+    public PanelQuanLyKhachHang(NhanVienDTO nhanVienThucHien, String cccd) {
         this.khachHang_ctrl = new KhachHang_CTRL();
         this.nhanVienThucHien = nhanVienThucHien;
 

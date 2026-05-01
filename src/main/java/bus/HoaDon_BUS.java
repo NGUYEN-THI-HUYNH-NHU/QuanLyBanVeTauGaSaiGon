@@ -15,19 +15,17 @@ package bus;
 import dao.impl.HoaDonChiTietDAO;
 import dao.impl.HoaDonDAO;
 import dao.impl.PhieuDungPhongVIPDAO;
-import dto.DonDatChoDTO;
-import dto.KhachHangDTO;
-import dto.VeDTO;
+import dto.*;
 import entity.*;
 import entity.type.LoaiDichVuEnums;
 import entity.type.LoaiDoiTuongEnums;
+import gui.application.AuthService;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import gui.application.form.doiVe.VeDoiRow;
 import gui.application.form.hoanVe.VeHoanRow;
-import mapper.KhachHangMapper;
-import mapper.VeMapper;
+import mapper.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,20 +36,19 @@ public class HoaDon_BUS {
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     private final HoaDonChiTietDAO hoaDonChiTietDAO = new HoaDonChiTietDAO();
     private final PhieuDungPhongVIPDAO phieuDungPhongVIPDAO = new PhieuDungPhongVIPDAO();
+    private final NhanVien nhanVien = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
 
     /**
      * @param bookingSession
      * @return
      */
     public HoaDon taoHoaDon(BookingSession bookingSession) {
-        String hdID = "HD-" + bookingSession.getDonDatCho().getDonDatChoID().substring(4);
+        String hdID = "HD-" + bookingSession.getDonDatCho().getId().substring(4);
         LocalDateTime now = LocalDateTime.now();
         KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(bookingSession.getKhachHang());
-        HoaDon hoaDon = new HoaDon(hdID, khachHang, bookingSession.getNhanVien(), now,
-                bookingSession.getGiaoDichThanhToan().getTongTien(), bookingSession.getGiaoDichThanhToan().getMaGD(),
-                bookingSession.getGiaoDichThanhToan().getTienNhan(),
-                bookingSession.getGiaoDichThanhToan().getTienHoan(),
-                bookingSession.getGiaoDichThanhToan().isThanhToanTienMat());
+        HoaDon hoaDon = new HoaDon(hdID, khachHang, nhanVien, now, bookingSession.getGiaoDichThanhToan().getTongTien(),
+                bookingSession.getGiaoDichThanhToan().getMaGD(), bookingSession.getGiaoDichThanhToan().getTienNhan(),
+                bookingSession.getGiaoDichThanhToan().getTienHoan(), bookingSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
         return hoaDon;
     }
@@ -64,11 +61,9 @@ public class HoaDon_BUS {
         String hdID = "HDDV-" + exchangeSession.getDonDatChoMoi().getId().substring(4);
         LocalDateTime now = LocalDateTime.now();
         KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(exchangeSession.getKhachHang());
-        HoaDon hoaDon = new HoaDon(hdID, khachHang, exchangeSession.getNhanVien(), now,
-                exchangeSession.getGiaoDichThanhToan().getTongTien(), exchangeSession.getGiaoDichThanhToan().getMaGD(),
-                exchangeSession.getGiaoDichThanhToan().getTienNhan(),
-                exchangeSession.getGiaoDichThanhToan().getTienHoan(),
-                exchangeSession.getGiaoDichThanhToan().isThanhToanTienMat());
+        HoaDon hoaDon = new HoaDon(hdID, khachHang, nhanVien, now, exchangeSession.getGiaoDichThanhToan().getTongTien(),
+                exchangeSession.getGiaoDichThanhToan().getMaGD(), exchangeSession.getGiaoDichThanhToan().getTienNhan(),
+                exchangeSession.getGiaoDichThanhToan().getTienHoan(), exchangeSession.getGiaoDichThanhToan().isThanhToanTienMat());
 
         return hoaDon;
     }
@@ -96,15 +91,16 @@ public class HoaDon_BUS {
     }
 
     /**
-     * @param hoaDon
+     * @param hoaDonID
      * @param listVeMoi
      * @return
      */
-    public List<HoaDonChiTiet> taoCacHoaDonChiTietBanVe(HoaDon hoaDon, List<VeSession> listVeMoi) {
+    public List<HoaDonChiTiet> taoCacHoaDonChiTietBanVe(String hoaDonID, List<VeSession> listVeMoi) {
         List<HoaDonChiTiet> dsHoaDonChiTiet = new ArrayList<HoaDonChiTiet>();
         int stt = 0;
         for (VeSession ve : listVeMoi) {
-            String hdctVeID = hoaDon.getHoaDonID() + "-" + (++stt);
+            String hdctVeID = hoaDonID + "-" + (++stt);
+            HoaDon hoaDon = new HoaDon(hoaDonID);
             VeDTO veDTO = ve.getVe();
             HoaDonChiTiet hdctVe = new HoaDonChiTiet(hdctVeID, hoaDon, new Ve(veDTO.getVeID()), "Vé HK: " + ve,
                     LoaiDichVuEnums.VE_BAN, "Vé", 1, veDTO.getGia(), veDTO.getGia());
@@ -112,7 +108,8 @@ public class HoaDon_BUS {
 
             if (ve.getPhieuDungPhongVIP() != null) {
                 String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
-                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, ve.getPhieuDungPhongVIP(),
+                PhieuDungPhongVIP phieuDungPhongVIP = PhieuDungPhongVIPMapper.INSTANCE.toEntity(ve.getPhieuDungPhongVIP());
+                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuDungPhongVIP,
                         "Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVuEnums.PHONG_VIP, "Phiếu", 1,
                         ve.getPhiPhieuDungPhongChoVIP(), ve.getPhiPhieuDungPhongChoVIP());
                 dsHoaDonChiTiet.add(hdctPhieu);
@@ -186,10 +183,11 @@ public class HoaDon_BUS {
             dsHoaDonChiTiet.add(hdctVeDoi);
 
             // Dòng phiếu đổi (hủy)
-            PhieuDungPhongVIP phieuDoi = listVeDoi.get(i).getPhieuDungPhongVIP();
+            PhieuDungPhongVIPDTO phieuDoi = listVeDoi.get(i).getPhieuDungPhongVIP();
             if (phieuDoi != null) {
                 String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
-                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuDoi,
+                PhieuDungPhongVIP phieuDungPhongVIPDoi = PhieuDungPhongVIPMapper.INSTANCE.toEntity(phieuDoi);
+                HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuDungPhongVIPDoi,
                         "Hủy phiếu dùng phòng chờ VIP theo vé đổi", LoaiDichVuEnums.PHONG_VIP, "Phiếu", 1, 0, 0);
                 dsHoaDonChiTiet.add(hdctPhieu);
             }
@@ -203,11 +201,12 @@ public class HoaDon_BUS {
             dsHoaDonChiTiet.add(hdctVeMoi);
 
             // Dòng phiếu mới (nếu có)
-            PhieuDungPhongVIP phieuMoi = listVeMoi.get(i).getPhieuDungPhongVIP();
+            PhieuDungPhongVIPDTO phieuMoi = listVeMoi.get(i).getPhieuDungPhongVIP();
             if (phieuMoi != null) {
-                if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(phieuMoi.getPhieuDungPhongVIPID()) == null) {
+                if (phieuDungPhongVIPDAO.getPhieuDungPhongVIPByID(phieuMoi.getId()) == null) {
                     String hdctPhieuID = hoaDon.getHoaDonID() + "-" + (++stt);
-                    HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuMoi,
+                    PhieuDungPhongVIP phieuDungPhongVIPMoi = PhieuDungPhongVIPMapper.INSTANCE.toEntity(phieuMoi);
+                    HoaDonChiTiet hdctPhieu = new HoaDonChiTiet(hdctPhieuID, hoaDon, phieuDungPhongVIPMoi,
                             "Phiếu dùng phòng chờ VIP Ga Sài Gòn", LoaiDichVuEnums.PHONG_VIP, "Phiếu", 1, 20000, 20000);
                     dsHoaDonChiTiet.add(hdctPhieu);
                 }
@@ -265,9 +264,10 @@ public class HoaDon_BUS {
      * @param hinhThucTT
      * @return
      */
-    public List<HoaDon> locHoaDonTheoCacTieuChi(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
-                                                Date denNgay, String hinhThucTT) {
-        return hoaDonDAO.searchHoaDonByFilter(loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT);
+    public List<HoaDonDTO> locHoaDonTheoCacTieuChi(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
+                                                   Date denNgay, String hinhThucTT) {
+        return hoaDonDAO.searchHoaDonByFilter(loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT)
+                .stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
     }
 
     /**
@@ -275,8 +275,8 @@ public class HoaDon_BUS {
      * @param type
      * @return
      */
-    public List<HoaDon> layHoaDonTheoKeyWord(String keyword, String type) {
-        return hoaDonDAO.searchHoaDonByKeyword(keyword, type);
+    public List<HoaDonDTO> layHoaDonTheoKeyWord(String keyword, String type) {
+        return hoaDonDAO.searchHoaDonByKeyword(keyword, type).stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
     }
 
     /**
@@ -308,14 +308,14 @@ public class HoaDon_BUS {
      * @param hoaDonID
      * @return
      */
-    public List<HoaDonChiTiet> layCacHoaDonChiTietTheoHoaDonID(String hoaDonID) {
-        return hoaDonChiTietDAO.getHoaDonChiTietByHoaDonID(hoaDonID);
+    public List<HoaDonChiTietDTO> layCacHoaDonChiTietTheoHoaDonID(String hoaDonID) {
+        return hoaDonChiTietDAO.getHoaDonChiTietByHoaDonID(hoaDonID).stream().map(HoaDonChiTietMapper.INSTANCE::toDTO).toList();
     }
 
     /**
      * @return
      */
-    public List<HoaDon> layTatCaHoaDon() {
-        return hoaDonDAO.getAllHoaDon();
+    public List<HoaDonDTO> layTatCaHoaDon() {
+        return hoaDonDAO.getAllHoaDon().stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
     }
 }

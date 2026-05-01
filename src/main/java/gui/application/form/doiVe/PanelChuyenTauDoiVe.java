@@ -12,7 +12,7 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
-import entity.Chuyen;
+import dto.ChuyenDTO;
 import gui.tuyChinh.RoundedBorder;
 
 import javax.swing.*;
@@ -56,7 +56,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         add(scroll, BorderLayout.CENTER);
     }
 
-    public void showChuyenList(List<Chuyen> list) {
+    public void showChuyenList(List<ChuyenDTO> list) {
         flowPanel.removeAll();
         selectedCard = null;
         mapSeatLabels.clear(); // Clear map cũ
@@ -64,13 +64,13 @@ public class PanelChuyenTauDoiVe extends JPanel {
         if (list == null || list.isEmpty()) {
             flowPanel.add(new JLabel("Không có chuyến"));
         } else {
-            for (Chuyen c : list) {
+            for (ChuyenDTO c : list) {
                 JPanel card = createChuyenCard(c, sel -> {
                     if (controllerDoiVe != null) {
                         controllerDoiVe.onChuyenSelected(c);
                     }
                 });
-                card.putClientProperty("chuyenID", c.getChuyenID());
+                card.putClientProperty("chuyenID", c.getId());
                 flowPanel.add(card);
             }
         }
@@ -78,7 +78,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         flowPanel.repaint();
     }
 
-    private JPanel createChuyenCard(Chuyen c, Consumer<Chuyen> onSelect) {
+    private JPanel createChuyenCard(ChuyenDTO c, Consumer<ChuyenDTO> onSelect) {
         int cardW = 108;
         int cardH = 75;
         Font fontLbl = new Font("", Font.PLAIN, 10);
@@ -97,7 +97,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(0, 2, 0, 2);
 
-        JLabel lblTau = new JLabel(c.getTau() == null ? "Tàu" : c.getTau().getTauID(), SwingConstants.CENTER);
+        JLabel lblTau = new JLabel(c.getTauID() == null ? "Tàu" : c.getTauID(), SwingConstants.CENTER);
         lblTau.setFont(fontLbl.deriveFont(Font.BOLD, 10f));
         gbc.gridy = 0;
         overlay.add(lblTau, gbc);
@@ -128,7 +128,7 @@ public class PanelChuyenTauDoiVe extends JPanel {
         overlay.add(lblCho, gbc);
 
         // Lưu label vào Map để update sau
-        mapSeatLabels.put(c.getChuyenID(), lblCho);
+        mapSeatLabels.put(c.getId(), lblCho);
 
         // thêm overlay và bottom label
         p.add(overlay, BorderLayout.NORTH);

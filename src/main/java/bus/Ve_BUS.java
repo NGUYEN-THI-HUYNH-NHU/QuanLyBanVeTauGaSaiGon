@@ -13,14 +13,17 @@ package bus;
  */
 
 import dao.impl.VeDAO;
-import dto.DonDatChoDTO;
-import dto.VeDTO;
-import entity.*;
+import dto.*;
+import entity.Ga;
+import entity.KhuyenMai;
+import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
+import mapper.ChuyenMapper;
+import mapper.GheMapper;
 import mapper.VeMapper;
 
 import java.time.LocalDateTime;
@@ -34,9 +37,7 @@ public class Ve_BUS {
     private final VeDAO veDAO = new VeDAO();
     private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
-    public VeSession createVeSessionForSeat(Chuyen chuyen, Toa toa, Ghe ghe, SearchCriteria criteria) {
-        ghe.setToa(toa);
-
+    public VeSession createVeSessionForSeat(ChuyenDTO chuyen, ToaDTO toa, GheDTO ghe, SearchCriteria criteria) {
         Ga gaDi = new Ga(criteria.getGaDiId(), criteria.getGaDiName());
         Ga gaDen = new Ga(criteria.getGaDenId(), criteria.getGaDenName());
 
@@ -44,14 +45,14 @@ public class Ve_BUS {
 
         LocalDateTime thoiDiemHetHan = LocalDateTime.now().plus(10, ChronoUnit.MINUTES);
 
-        int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyen.getChuyenID(), criteria.getGaDiId(), criteria.getGaDenId(),
-                chuyen.getTau().getLoaiTau().toString(), toa.getHangToa().toString());
+        int gia = chuyenBUS.layGiaGheTheoPhanDoan(chuyen.getId(), criteria.getGaDiId(), criteria.getGaDenId(),
+                chuyen.getLoaiTauID(), toa.getHangToaID());
 
         Ve ve = new Ve();
-        ve.setChuyen(chuyen);
+        ve.setChuyen(ChuyenMapper.INSTANCE.toEntity(chuyen));
         ve.setGaDi(gaDi);
         ve.setGaDen(gaDen);
-        ve.setGhe(ghe);
+        ve.setGhe(GheMapper.INSTANCE.toEntity(ghe));
         ve.setNgayGioDi(thoiDiemHetHan);
         ve.setNgayGioDi(ngayGioDi);
         ve.setGia(gia);
@@ -118,13 +119,13 @@ public class Ve_BUS {
         List<Ve> dsVe = new ArrayList<Ve>();
         List<VeSession> dsVeDi = bookingSession.getOutboundSelected();
         List<VeSession> dsVeVe = bookingSession.getReturnSelected();
-        DonDatCho donDatCho = bookingSession.getDonDatCho();
+        DonDatChoDTO donDatCho = bookingSession.getDonDatCho();
 
         for (VeSession v : dsVeDi) {
             VeDTO ve = v.getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatChoID(donDatCho.getDonDatChoID());
+            ve.setDonDatChoID(donDatCho.getId());
 
             dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             v.setVe(ve);
@@ -133,7 +134,7 @@ public class Ve_BUS {
             VeDTO ve = v.getVe();
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
-            ve.setDonDatChoID(donDatCho.getDonDatChoID());
+            ve.setDonDatChoID(donDatCho.getId());
 
             dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             v.setVe(ve);

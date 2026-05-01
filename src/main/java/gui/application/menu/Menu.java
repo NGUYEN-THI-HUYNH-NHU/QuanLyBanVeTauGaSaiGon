@@ -13,7 +13,7 @@ package gui.application.menu;
  */
 
 import com.formdev.flatlaf.FlatClientProperties;
-import entity.NhanVien;
+import dto.NhanVienDTO;
 import entity.type.VaiTroNhanVienEnums;
 
 import javax.swing.*;
@@ -59,12 +59,12 @@ public class Menu extends JPanel {
     private JPanel panelMenu;
     private ImageIcon avatarIcon;
 
-    public Menu(NhanVien nhanVien) {
+    public Menu(NhanVienDTO nhanVien) {
         setLayout(new BorderLayout());
         putClientProperty(FlatClientProperties.STYLE,
                 "" + "border:20,2,2,2;" + "background:$Menu.background;" + "arc:10");
 
-        init(VaiTroNhanVienEnums.valueOf(nhanVien.getVaiTroNhanVien().getVaiTroNhanVienID()));
+        init(VaiTroNhanVienEnums.valueOf(nhanVien.getVaiTroNhanVienID()));
     }
 
     private void init(VaiTroNhanVienEnums vaiTroNhanVienEnums) {

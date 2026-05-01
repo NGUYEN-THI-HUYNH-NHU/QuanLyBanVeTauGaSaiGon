@@ -15,7 +15,7 @@ import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import db.JPAUtil;
-import entity.NhanVien;
+import dto.NhanVienDTO;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
 import gui.application.form.banVe.PanelBanVe;
@@ -96,7 +96,7 @@ public class UngDung extends JFrame {
                 e.printStackTrace();
             }
         }).start();
-        
+
         SwingUtilities.invokeLater(() -> new UngDung().setVisible(true));
 
         try {
@@ -122,7 +122,7 @@ public class UngDung extends JFrame {
         UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
     }
 
-    public static void loadDataForCreatingNewKhachHang(NhanVien nhanVien, String cccd) {
+    public static void loadDataForCreatingNewKhachHang(NhanVienDTO nhanVien, String cccd) {
         setSelectedMenu(10, 0);
         UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien, cccd));
     }
@@ -135,7 +135,7 @@ public class UngDung extends JFrame {
         return formDangNhap;
     }
 
-    public void createGiaoDienChinh(NhanVien nhanVien) {
+    public void createGiaoDienChinh(NhanVienDTO nhanVien) {
         giaoDienChinh = new GiaoDienChinh(nhanVien);
         setContentPane(giaoDienChinh);
         giaoDienChinh.applyComponentOrientation(getComponentOrientation());

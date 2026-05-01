@@ -1,8 +1,10 @@
 package dto;
+
 import lombok.*;
+
 import java.io.Serializable;
-import java.util.*;
-import java.time.*;
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @Builder

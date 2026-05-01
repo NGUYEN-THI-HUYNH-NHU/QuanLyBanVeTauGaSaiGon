@@ -15,7 +15,9 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.raven.datechooser.DateChooser;
 import com.raven.datechooser.SelectedAction;
 import controller.QuanLyChuyen_CTRL;
+import dto.NhanVienDTO;
 import entity.NhanVien;
+import mapper.NhanVienMapper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -27,39 +29,32 @@ import java.awt.event.KeyEvent;
 
 public class PanelQuanLyChuyen extends JPanel {
     private final NhanVien nhanVienThucHien;
+    private final Font BASE_FONT = new Font(getFont().getFontName(), Font.PLAIN, 14);
+    private final Color COLOR_ACCENT = new Color(36, 104, 155);
+    private final Color COLOR_HEADER = new Color(36, 104, 155);
+    private final Color COLOR_BG = new Color(245, 250, 255);
     private QuanLyChuyen_CTRL quanLyChuyenCtrl;
-
     private JTextField txtChiTietMaChuyen;
     private JTextField txtChiTietTenChuyen;
     private JTextField txtChiTietMaTuyen;
     private JTextField txtChiTietGaDi;
     private JTextField txtChiTietGaDen;
     private JTextField txtChiTietTau;
-
     private JTable tableLichTrinh;
     private DefaultTableModel modelLichTrinh;
     private JScrollPane scrollPaneLichTrinh;
-
     private JPopupMenu ppMaChuyen, ppGaDi, ppGaDen, ppTau;
     private JList<String> listMaChuyen, listGaDi, listGaDen, listTau;
-
     private JTextField txtMaChuyen, txtGaXuatPhat, txtGaDich, txtTau, txtNgayDi;
     private DateChooser dateChooser;
     private JButton btnLamMoi;
-
     private JTable tableChuyen;
     private DefaultTableModel tableModel;
-
     private JTextArea txtChiTietChuyen;
     private JButton btnThemChuyen, btnCapNhatChuen;
 
-    private final Font BASE_FONT = new Font(getFont().getFontName(), Font.PLAIN, 14);
-    private final Color COLOR_ACCENT = new Color(36,104,155);
-    private final Color COLOR_HEADER = new Color(36,104,155);
-    private final Color COLOR_BG = new Color(245, 250, 255);
-
-    public PanelQuanLyChuyen(NhanVien nhanVien){
-        this.nhanVienThucHien = nhanVien;
+    public PanelQuanLyChuyen(NhanVienDTO nhanVien) {
+        this.nhanVienThucHien = NhanVienMapper.INSTANCE.toEntity(nhanVien);
         setLayout(new BorderLayout());
         setBackground(COLOR_BG);
         initComponents();
@@ -67,8 +62,8 @@ public class PanelQuanLyChuyen extends JPanel {
         new QuanLyChuyen_CTRL(this);
     }
 
-    private void initComponents(){
-        JPanel panelNorth  = createNorthPanel();
+    private void initComponents() {
+        JPanel panelNorth = createNorthPanel();
         add(panelNorth, BorderLayout.NORTH);
 
         JSplitPane splitPane = createCenterPanel();
@@ -89,7 +84,7 @@ public class PanelQuanLyChuyen extends JPanel {
         listTau = new JList<>();
     }
 
-    private JPanel createNorthPanel(){
+    private JPanel createNorthPanel() {
         JPanel panelNorth = new JPanel(new MigLayout("wrap 1, fillx, insets 10 10 0 10", "[fill, grow]", "[]10[]"));
         panelNorth.setBackground(COLOR_BG);
 
@@ -100,8 +95,8 @@ public class PanelQuanLyChuyen extends JPanel {
         dateChooser = new DateChooser();
         dateChooser.setTextRefernce(txtNgayDi);
         dateChooser.setDateFormat("dd/MM/yyyy");
-        dateChooser.addEventDateChooser((action, date)->{
-            if(action.getAction() == SelectedAction.DAY_SELECTED){
+        dateChooser.addEventDateChooser((action, date) -> {
+            if (action.getAction() == SelectedAction.DAY_SELECTED) {
                 dateChooser.hidePopup();
             }
         });
@@ -132,13 +127,13 @@ public class PanelQuanLyChuyen extends JPanel {
         panelSearch.setBackground(COLOR_BG);
 
         txtMaChuyen = new JTextField();
-        txtMaChuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,"Nhập Mã Chuyến để tìm kiếm! (vd: SE1_20251001)");
+        txtMaChuyen.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập Mã Chuyến để tìm kiếm! (vd: SE1_20251001)");
         txtGaXuatPhat = new JTextField();
-        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,"Nhập tên Ga Xuất Phát để tìm kiếm!");
+        txtGaXuatPhat.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Xuất Phát để tìm kiếm!");
         txtGaDich = new JTextField();
-        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,"Nhập tên Ga Đích để tìm kiếm!");
+        txtGaDich.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Ga Đích để tìm kiếm!");
         txtTau = new JTextField();
-        txtTau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,"Nhập tên Tàu để tìm kiếm!");
+        txtTau.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Nhập tên Tàu để tìm kiếm!");
 
         JLabel lblGaXuatPhat = new JLabel("Ga Xuất Phát:");
         lblGaXuatPhat.setFont(BASE_FONT);
@@ -164,23 +159,23 @@ public class PanelQuanLyChuyen extends JPanel {
         return panelNorth;
     }
 
-    private JSplitPane createCenterPanel(){
+    private JSplitPane createCenterPanel() {
         JScrollPane tableScrollPane = createTablePanel();
 
         JPanel deatailPanel = createDetailPanel();
         tableScrollPane.setPreferredSize(new Dimension(600, getHeight()));
-        deatailPanel.setPreferredSize(new Dimension(400,getHeight()));
+        deatailPanel.setPreferredSize(new Dimension(400, getHeight()));
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScrollPane, deatailPanel);
         splitPane.setResizeWeight(0.6);
-        splitPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10,10));
+        splitPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
         splitPane.setContinuousLayout(true);
         return splitPane;
     }
 
-    private JScrollPane createTablePanel(){
+    private JScrollPane createTablePanel() {
         String[] columnNames = {"Mã Chuyến", "Tên Chuyến", "Tàu", "Loại Tàu",
                 "Ngày Đi", "Giờ Đi", "Ngày Đến", "Giờ Đến"};
-        tableModel = new DefaultTableModel(columnNames, 0){
+        tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -193,7 +188,7 @@ public class PanelQuanLyChuyen extends JPanel {
         tableChuyen.setShowGrid(true);
         tableChuyen.setShowVerticalLines(true);
         tableChuyen.setShowHorizontalLines(true);
-        tableChuyen.setGridColor(new Color(210,210,210));
+        tableChuyen.setGridColor(new Color(210, 210, 210));
 
         JTableHeader hd = tableChuyen.getTableHeader();
         hd.setFont(BASE_FONT.deriveFont(Font.BOLD, 14));
@@ -202,7 +197,7 @@ public class PanelQuanLyChuyen extends JPanel {
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for(int i = 0; i < tableChuyen.getColumnModel().getColumnCount(); i++){
+        for (int i = 0; i < tableChuyen.getColumnModel().getColumnCount(); i++) {
             tableChuyen.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
         tableChuyen.getColumnModel().getColumn(0).setPreferredWidth(130);
@@ -220,8 +215,8 @@ public class PanelQuanLyChuyen extends JPanel {
         return new JScrollPane(tableChuyen);
     }
 
-    private JPanel createDetailPanel(){
-        JPanel detailPanel = new JPanel(new BorderLayout(0,10));
+    private JPanel createDetailPanel() {
+        JPanel detailPanel = new JPanel(new BorderLayout(0, 10));
         detailPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(COLOR_HEADER),
                 "THÔNG TIN CHI TIẾT CHUYẾN",
@@ -243,30 +238,54 @@ public class PanelQuanLyChuyen extends JPanel {
 
         Font labelFont = BASE_FONT.deriveFont(Font.BOLD);
 
-        pnlThongTin.add(new JLabel("Mã Chuyến:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(new JLabel("Mã Chuyến:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
         pnlThongTin.add(txtChiTietMaChuyen, "growx");
 
-        pnlThongTin.add(new JLabel("Mã Tuyến:"){ { setFont(BASE_FONT); } });
-        pnlThongTin.add(txtChiTietMaTuyen ,"growx");
+        pnlThongTin.add(new JLabel("Mã Tuyến:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
+        pnlThongTin.add(txtChiTietMaTuyen, "growx");
 
-        pnlThongTin.add(new JLabel("Tên Chuyến:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(new JLabel("Tên Chuyến:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
         pnlThongTin.add(txtChiTietTenChuyen, "growx");
 
-        pnlThongTin.add(new JLabel("Ga Xuất Phát:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(new JLabel("Ga Xuất Phát:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
         pnlThongTin.add(txtChiTietGaDi, "growx");
 
-        pnlThongTin.add(new JLabel("Ga Đích:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(new JLabel("Ga Đích:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
         pnlThongTin.add(txtChiTietGaDen, "growx");
 
-        pnlThongTin.add(new JLabel("Tàu:"){ { setFont(BASE_FONT); } });
+        pnlThongTin.add(new JLabel("Tàu:") {
+            {
+                setFont(BASE_FONT);
+            }
+        });
         pnlThongTin.add(txtChiTietTau, "growx");
 
         JPanel pnlLichTrinh = new JPanel(new BorderLayout());
         pnlLichTrinh.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(COLOR_HEADER), "LỊCH TRÌNH", 0, 0, labelFont,
                 COLOR_HEADER));
 
-        String[] columns = {"STT", "Ga Đi", "Ngày Đi", "Giờ Đi", "Ga Đến","Ngày Đến", "Giờ Đến"};
-        modelLichTrinh = new DefaultTableModel(columns, 0){
+        String[] columns = {"STT", "Ga Đi", "Ngày Đi", "Giờ Đi", "Ga Đến", "Ngày Đến", "Giờ Đến"};
+        modelLichTrinh = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -279,7 +298,7 @@ public class PanelQuanLyChuyen extends JPanel {
         tableLichTrinh.setShowGrid(true);
         tableLichTrinh.setShowVerticalLines(true);
         tableLichTrinh.setShowHorizontalLines(true);
-        tableLichTrinh.setGridColor(new Color(210,210,210));
+        tableLichTrinh.setGridColor(new Color(210, 210, 210));
 
         JTableHeader headerLT = tableLichTrinh.getTableHeader();
         headerLT.setFont(BASE_FONT.deriveFont(Font.BOLD, 14));
@@ -288,7 +307,7 @@ public class PanelQuanLyChuyen extends JPanel {
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for(int i = 0; i < tableLichTrinh.getColumnModel().getColumnCount(); i++){
+        for (int i = 0; i < tableLichTrinh.getColumnModel().getColumnCount(); i++) {
             tableLichTrinh.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
@@ -307,7 +326,7 @@ public class PanelQuanLyChuyen extends JPanel {
 
         pnlLichTrinh.add(new JScrollPane(tableLichTrinh), BorderLayout.CENTER);
 
-        JPanel centerContainer = new JPanel(new BorderLayout(0,10));
+        JPanel centerContainer = new JPanel(new BorderLayout(0, 10));
         centerContainer.setBackground(COLOR_BG);
         centerContainer.add(pnlThongTin, BorderLayout.NORTH);
         centerContainer.add(pnlLichTrinh, BorderLayout.CENTER);
@@ -322,7 +341,7 @@ public class PanelQuanLyChuyen extends JPanel {
         btnCapNhatChuen = new JButton("Cập Nhật");
 
         JButton[] buttons = {btnLamMoi, btnThemChuyen, btnCapNhatChuen};
-        for(JButton btn : buttons){
+        for (JButton btn : buttons) {
             btn.setFont(labelFont);
             btn.setBackground(COLOR_ACCENT);
             btn.setForeground(Color.WHITE);
@@ -349,38 +368,17 @@ public class PanelQuanLyChuyen extends JPanel {
         return txt;
     }
 
-    private void setupKeyBindings(){
+    private void setupKeyBindings() {
         InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5,0), "refreshAction");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "refreshAction");
         this.getActionMap().put("refreshAction", new AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                if(btnLamMoi != null && btnLamMoi.isEnabled()){
+                if (btnLamMoi != null && btnLamMoi.isEnabled()) {
                     btnLamMoi.doClick();
                 }
             }
         });
-    }
-
-    public class Validator {
-
-        public static boolean isValidMaTau(String str) {
-            return str != null && str.matches("^[A-Z]{2,4}[0-9]{1,3}$");
-        }
-
-        public static boolean isValidMaChuyen(String str) {
-            // Phần đầu là mã tàu, dấu gạch dưới, sau đó là 8 chữ số ngày tháng
-            return str != null && str.matches("^[A-Z0-9]+_\\d{8}$");
-        }
-
-        public static boolean isValidGio(String str) {
-            // 00-19 hoặc 20-23 : 00-59
-            return str != null && str.matches("^([01]\\d|2[0-3]):[0-5]\\d$");
-        }
-
-        public static boolean isValidNgay(String str) {
-            return str != null && str.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$");
-        }
     }
 
     public NhanVien getNhanVienThucHien() {
@@ -641,6 +639,27 @@ public class PanelQuanLyChuyen extends JPanel {
 
     public void setListTau(JList<String> listTau) {
         this.listTau = listTau;
+    }
+
+    public class Validator {
+
+        public static boolean isValidMaTau(String str) {
+            return str != null && str.matches("^[A-Z]{2,4}[0-9]{1,3}$");
+        }
+
+        public static boolean isValidMaChuyen(String str) {
+            // Phần đầu là mã tàu, dấu gạch dưới, sau đó là 8 chữ số ngày tháng
+            return str != null && str.matches("^[A-Z0-9]+_\\d{8}$");
+        }
+
+        public static boolean isValidGio(String str) {
+            // 00-19 hoặc 20-23 : 00-59
+            return str != null && str.matches("^([01]\\d|2[0-3]):[0-5]\\d$");
+        }
+
+        public static boolean isValidNgay(String str) {
+            return str != null && str.matches("^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$");
+        }
     }
 
 

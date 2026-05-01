@@ -14,8 +14,8 @@ package gui.application.form.doiVe;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import dto.KhachHangDTO;
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import entity.PhieuDungPhongVIP;
 import gui.tuyChinh.TextAreaRenderer;
 
 import javax.swing.*;
@@ -307,7 +307,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
     /**
      * Phương thức này được gọi bởi DoiVeBuoc2Controller để đổ dữ liệu vào view.
      */
-    public void showDonDatCho(List<VeDTO> listVe, List<PhieuDungPhongVIP> listPhieu, KhachHangDTO khachHang) {
+    public void showDonDatCho(List<VeDTO> listVe, List<PhieuDungPhongVIPDTO> listPhieu, KhachHangDTO khachHang) {
         // 1. Cập nhật form thông tin người mua
         if (khachHang != null) {
             txtTen.setText(khachHang.getHoTen());

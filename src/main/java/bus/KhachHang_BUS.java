@@ -7,6 +7,7 @@ import entity.NhanVien;
 import entity.NhatKyAudit;
 import gui.application.AuthService;
 import mapper.KhachHangMapper;
+import mapper.NhanVienMapper;
 
 import java.sql.Connection;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class KhachHang_BUS {
 
     public KhachHang_BUS() {
         khachHang_dao = new KhachHang_DAO();
-        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
+        this.nhanVienHienTai = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
         this.nhatKyAudit_bus = new NhatKyAudit_BUS();
     }
 
@@ -203,8 +204,7 @@ public class KhachHang_BUS {
 
         // 4. Ghi log
         if (ok) {
-            ghiLog(kh.getId(), AuthService.getInstance().getCurrentUser().getNhanVienID(),
-                    entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
+            ghiLog(kh.getId(), nhanVienHienTai.getNhanVienID(), entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
         }
         System.out.println("thanhPhan=" + thanhPhan);
         return ok;

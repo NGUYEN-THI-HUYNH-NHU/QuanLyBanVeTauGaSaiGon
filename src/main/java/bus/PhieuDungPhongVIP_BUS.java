@@ -13,13 +13,14 @@ package bus;
  */
 
 import dao.impl.PhieuDungPhongVIPDAO;
+import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
 import entity.DichVuPhongChoVIP;
 import entity.PhieuDungPhongVIP;
 import entity.Ve;
 import entity.type.TrangThaiPDPVIP;
 import gui.application.form.banVe.VeSession;
-import gui.application.form.doiVe.ExchangeSession;
+import mapper.PhieuDungPhongVIPMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,26 +35,7 @@ public class PhieuDungPhongVIP_BUS {
                 String phieuID = "PVIP-" + v.getVe().getVeID().substring(3);
                 PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001")
                         , new Ve(v.getVe().getVeID()), TrangThaiPDPVIP.CHUA_DUNG);
-                v.setPhieuDungPhongVIP(phieu);
-                dsPhieu.add(phieu);
-            }
-        }
-        return dsPhieu;
-    }
-
-    /**
-     * @param exchangeSession
-     * @return
-     */
-    public List<PhieuDungPhongVIP> taoCacPhieuDungPhongChoVIP(ExchangeSession exchangeSession) {
-        List<PhieuDungPhongVIP> dsPhieu = new ArrayList<PhieuDungPhongVIP>();
-        List<VeSession> dsVe = exchangeSession.getListVeMoiDangChon();
-        for (VeSession v : dsVe) {
-            if (v.getPhiPhieuDungPhongChoVIP() != 0) {
-                String phieuID = "PVIP-" + v.getVe().getVeID().substring(3);
-                PhieuDungPhongVIP phieu = new PhieuDungPhongVIP(phieuID, new DichVuPhongChoVIP("DVVIP001"),
-                        new Ve(v.getVe().getVeID()), TrangThaiPDPVIP.CHUA_DUNG);
-                v.setPhieuDungPhongVIP(phieu);
+                v.setPhieuDungPhongVIP(PhieuDungPhongVIPMapper.INSTANCE.toDTO(phieu));
                 dsPhieu.add(phieu);
             }
         }
@@ -88,11 +70,11 @@ public class PhieuDungPhongVIP_BUS {
      * @param danhSachVe
      * @return
      */
-    public List<PhieuDungPhongVIP> timCacPhieuTheoVe(List<VeDTO> danhSachVe) {
-        List<PhieuDungPhongVIP> listPhieu = new ArrayList<PhieuDungPhongVIP>();
+    public List<PhieuDungPhongVIPDTO> timCacPhieuTheoVe(List<VeDTO> danhSachVe) {
+        List<PhieuDungPhongVIPDTO> listPhieu = new ArrayList<>();
         for (VeDTO ve : danhSachVe) {
             // listPhieu[i] = null nghĩa là danhSachVe[i] không sử dụng phiếu
-            listPhieu.add(phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID()));
+            listPhieu.add(PhieuDungPhongVIPMapper.INSTANCE.toDTO(phieuDungPhongVIPDAO.getPhieuDungPhongVIPByVeID(ve.getVeID())));
         }
         return listPhieu;
     }

@@ -7,8 +7,8 @@ package gui.application.form.banVe;
 
 import bus.BanVe_BUS;
 import bus.KhuyenMai_BUS;
+import dto.GiaoDichThanhToanDTO;
 import dto.VeDTO;
-import entity.GiaoDichThanhToan;
 import entity.type.LoaiDoiTuongEnums;
 import gui.application.AppHttpServer;
 import gui.application.EmailService;
@@ -155,7 +155,7 @@ public class BanVe2Controller {
             boolean isThanhToanTienMat = p5.isThanhToanTienMat();
             double tongTien = p5.getTongThanhToan();
 
-            GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+            GiaoDichThanhToanDTO giaoDich = new GiaoDichThanhToanDTO();
             giaoDich.setTongTien(tongTien);
             giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
@@ -201,7 +201,7 @@ public class BanVe2Controller {
 
         // Cờ để tránh xử lý 2 lần
         final boolean[] isProcessed = {false};
-        final GiaoDichThanhToan giaoDich = new GiaoDichThanhToan();
+        final GiaoDichThanhToanDTO giaoDich = new GiaoDichThanhToanDTO();
         giaoDich.setTongTien(tongTien);
         giaoDich.setThanhToanTienMat(false);
 
@@ -327,7 +327,7 @@ public class BanVe2Controller {
      * Lưu giao dịch và in vé Được gọi khi: 1. Thanh toán tiền mặt xong. 2. Web
      * Server nhận được tín hiệu VNPAY thành công. 3. Khách bấm xác nhận thủ công.
      */
-    private void processPaymentAndSave(GiaoDichThanhToan giaoDich) {
+    private void processPaymentAndSave(GiaoDichThanhToanDTO giaoDich) {
         bookingSession.setGiaoDichThanhToan(giaoDich);
 
         // Vô hiệu hóa nút để tránh bấm nhiều lần
@@ -362,8 +362,7 @@ public class BanVe2Controller {
                                     listVeDaMua.add(vs.getVe());
                                 }
                                 // Gọi service gửi mail
-                                EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho(),
-                                        giaoDich.getTongTien());
+                                EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho().getId(), giaoDich.getTongTien());
                             }).start();
                         }
 

@@ -1,10 +1,8 @@
 package dto;
 
-import entity.type.TrangThaiTau;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -15,9 +13,8 @@ import java.util.Set;
 public class TauDTO implements Serializable {
     private String tauID;
     private String tenTau;
-    private LoaiTauDTO loaiTau;
+    private String loaiTau;
     private int soLuongToa;
-    private TrangThaiTau trangThai;
+    private String trangThai;
     private int vanTocTB;
-    private Set<ToaDTO> toas;
 }

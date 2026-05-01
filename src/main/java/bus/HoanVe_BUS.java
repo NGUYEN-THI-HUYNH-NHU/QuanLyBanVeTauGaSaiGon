@@ -16,15 +16,13 @@ import connectDB.ConnectDB;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
 import dto.VeDTO;
-import entity.GiaoDichHoanDoi;
-import entity.HoaDon;
-import entity.HoaDonChiTiet;
-import entity.NhatKyAudit;
+import entity.*;
 import entity.type.TrangThaiPDPVIP;
 import entity.type.TrangThaiPhieuGiuCho;
 import entity.type.TrangThaiVe;
 import gui.application.AuthService;
 import gui.application.form.hoanVe.VeHoanRow;
+import mapper.NhanVienMapper;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -41,6 +39,7 @@ public class HoanVe_BUS {
     private final PhieuGiuCho_BUS phieuGiuChoChiTietBUS = new PhieuGiuCho_BUS();
     private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
     private final NhatKyAudit_BUS nhatKyAuditBUS = new NhatKyAudit_BUS();
+    private final NhanVien nhanVien = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
 
     /**
      * @param donDatCho
@@ -68,8 +67,7 @@ public class HoanVe_BUS {
             phieuDungPhongVIPBUS.capNhatPhieuDungPhongChoVIP(listVe, TrangThaiPDPVIP.DA_HUY);
 
             // 2. Tạo hóa đơn
-            HoaDon hoaDon = hoaDonBUS.taoHoaDonHoanVe(donDatCho, khachHang, AuthService.getInstance().getCurrentUser(),
-                    tongTienHoan);
+            HoaDon hoaDon = hoaDonBUS.taoHoaDonHoanVe(donDatCho, khachHang, nhanVien, tongTienHoan);
             hoaDonBUS.themHoaDon(hoaDon);
 
             // 3. Tạo và Lưu Hóa Đơn Chi Tiết
@@ -77,8 +75,7 @@ public class HoanVe_BUS {
             hoaDonBUS.themCacHoaDonChiTiet(dsHDCT);
 
             // 4. Tạo và lưu Giao dịch hoàn đổi
-            List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichHoanVe(hoaDon,
-                    AuthService.getInstance().getCurrentUser(), listVeHoanRow);
+            List<GiaoDichHoanDoi> dsGdhd = giaoDichHoanDoiBUS.taoCacGiaoDichHoanVe(hoaDon, nhanVien, listVeHoanRow);
             giaoDichHoanDoiBUS.themCacGiaoDichHoanDoi(dsGdhd);
 
             // 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
@@ -94,9 +91,8 @@ public class HoanVe_BUS {
             }
 
             // Ghi log
-            String nvID = AuthService.getInstance().getCurrentUser().getNhanVienID();
             for (VeDTO v : listVe) {
-                ghiLog(v.getVeID(), nvID, entity.type.NhatKyAudit.HOAN_VE,
+                ghiLog(v.getVeID(), nhanVien.getNhanVienID(), entity.type.NhatKyAudit.HOAN_VE,
                         "Hoàn vé - " + v.getDonDatChoID() + ": " + v.getVeID());
             }
 

@@ -13,7 +13,7 @@
         <class>entity.Ga</class>
         <class>entity.Ghe</class>
         <class>entity.GiaoDichHoanDoi</class>
-        <class>entity.GiaoDichThanhToan</class>
+        <class>dto.GiaoDichThanhToanDTO</class>
         <class>entity.HangToa</class>
         <class>entity.HeSoGiaHangToa</class>
         <class>entity.HeSoGiaLoaiTau</class>
@@ -63,7 +63,7 @@
         <class>entity.Ga</class>
         <class>entity.Ghe</class>
         <class>entity.GiaoDichHoanDoi</class>
-        <class>entity.GiaoDichThanhToan</class>
+        <class>dto.GiaoDichThanhToanDTO</class>
         <class>entity.HangToa</class>
         <class>entity.HeSoGiaHangToa</class>
         <class>entity.HeSoGiaLoaiTau</class>

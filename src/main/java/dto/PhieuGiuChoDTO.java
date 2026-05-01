@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -18,5 +17,4 @@ public class PhieuGiuChoDTO implements Serializable {
     private String hoTenNhanVien;
     private LocalDateTime thoiDiemTao;
     private String trangThai;
-    private Set<PhieuGiuChoChiTietDTO> chiTiets;
 }

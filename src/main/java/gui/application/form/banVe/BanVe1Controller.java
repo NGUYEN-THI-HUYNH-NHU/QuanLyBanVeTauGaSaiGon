@@ -13,8 +13,8 @@ package gui.application.form.banVe;
  */
 
 import bus.DatCho_BUS;
+import dto.ChuyenDTO;
 import dto.PhieuGiuChoDTO;
-import entity.Chuyen;
 import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
 import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
 
@@ -99,7 +99,7 @@ public class BanVe1Controller {
         this.buoc1Controller.addSearchListener(new SearchListener() {
             @Override
             // 1. Cập nhật chữ ký (signature) của hàm để nhận 2 danh sách
-            public void onSearchSuccess(List<Chuyen> outboundResults, List<Chuyen> returnResults,
+            public void onSearchSuccess(List<ChuyenDTO> outboundResults, List<ChuyenDTO> returnResults,
                                         SearchCriteria criteria) {
 
                 // 1. Lưu criteria và kết quả vào session
@@ -309,7 +309,7 @@ public class BanVe1Controller {
                     }
                     if (veSession.getPhieuGiuChoChiTiet() != null) {
                         return datChoBUS.xoaPhieuGiuChoChiTietByPgcctID(
-                                veSession.getPhieuGiuChoChiTiet().getPhieuGiuChoChiTietID());
+                                veSession.getPhieuGiuChoChiTiet().getId());
                     }
                     return true;
                 } catch (Exception e) {

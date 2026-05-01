@@ -3,11 +3,13 @@ package gui.application.form.taiKhoan;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.NhanVien_CTRL;
 import controller.TaiKhoan_CTRL;
+import dto.NhanVienDTO;
 import entity.NhanVien;
 import entity.TaiKhoan;
 import entity.VaiTroTaiKhoan;
 import entity.type.VaiTroNhanVienEnums;
 import entity.type.VaiTroTaiKhoanEnums;
+import mapper.NhanVienMapper;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.*;
@@ -24,7 +26,7 @@ import java.util.List;
 
 public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, MouseListener, KeyListener {
 
-    private final NhanVien nhanVienHienTai;
+    private final NhanVienDTO nhanVienHienTai;
     private final TaiKhoan_CTRL taiKhoan_ctrl;
     private final NhanVien_CTRL nhanVien_ctrl;
 
@@ -48,10 +50,10 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
     private List<JComponent> allFields;
     private String tenDangNhapCu = "";
 
-    public PanelQuanLyTaiKhoan(NhanVien nhanVienHienTai) {
+    public PanelQuanLyTaiKhoan(NhanVienDTO nhanVienHienTai) {
         this.nhanVienHienTai = nhanVienHienTai;
         taiKhoan_ctrl = new TaiKhoan_CTRL();
-        this.nhanVien_ctrl = new NhanVien_CTRL(nhanVienHienTai);
+        this.nhanVien_ctrl = new NhanVien_CTRL(NhanVienMapper.INSTANCE.toEntity(nhanVienHienTai));
 
 
         setLayout(new BorderLayout(10, 10));

@@ -13,7 +13,6 @@ package gui.application;
  */
 
 import dto.VeDTO;
-import entity.DonDatCho;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -26,7 +25,7 @@ public class EmailService {
     private static final String SENDER_EMAIL = "huynhnhu.gmeet@gmail.com";
     private static final String SENDER_PASSWORD = "fgok szfr jcad koeq";
 
-    public static void sendTicketEmail(String recipientEmail, List<VeDTO> listVe, DonDatCho donDatCho, double tongTien) {
+    public static void sendTicketEmail(String recipientEmail, List<VeDTO> listVe, String donDatChoID, double tongTien) {
         // 1. Cấu hình SMTP Server
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -48,10 +47,10 @@ public class EmailService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(SENDER_EMAIL, "F4 GA SÀI GÒN"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
-            message.setSubject("XÁC NHẬN ĐẶT VÉ THÀNH CÔNG - MÃ ĐẶT CHỖ: " + donDatCho.getDonDatChoID());
+            message.setSubject("XÁC NHẬN ĐẶT VÉ THÀNH CÔNG - MÃ ĐẶT CHỖ: " + donDatChoID);
 
             // Tạo nội dung HTML đẹp mắt
-            String htmlContent = generateHtmlContent(listVe, donDatCho.getDonDatChoID(), tongTien);
+            String htmlContent = generateHtmlContent(listVe, donDatChoID, tongTien);
 
             // Thiết lập nội dung là HTML (UTF-8 để hiện tiếng Việt)
             message.setContent(htmlContent, "text/html; charset=UTF-8");

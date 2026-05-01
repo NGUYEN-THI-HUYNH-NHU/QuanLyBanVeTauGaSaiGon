@@ -1,6 +1,5 @@
 package dto;
 
-import entity.type.LoaiGiaoDich;
 import lombok.*;
 
 import java.io.Serializable;
@@ -18,7 +17,7 @@ public class GiaoDichHoanDoiDTO implements Serializable {
     private String hoaDonID;
     private String veGocID;
     private String veMoiID;
-    private LoaiGiaoDich loaiGiaoDich;
+    private String loaiGiaoDich;
     private String lyDo;
     private LocalDateTime thoiDiemGiaoDich;
     private double phiHoanDoi;

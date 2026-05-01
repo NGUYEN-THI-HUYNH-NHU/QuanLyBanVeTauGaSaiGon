@@ -7,6 +7,7 @@ import entity.*;
 import entity.type.TrangThaiSDKM;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
+import mapper.NhanVienMapper;
 import mapper.VeMapper;
 
 import java.sql.Connection;
@@ -24,7 +25,7 @@ public class KhuyenMai_BUS {
 
     public KhuyenMai_BUS() {
         khuyenMai_dao = new KhuyenMai_DAO();
-        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
+        this.nhanVienHienTai = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
         this.nhatKyAudit_bus = new NhatKyAudit_BUS();
     }
 

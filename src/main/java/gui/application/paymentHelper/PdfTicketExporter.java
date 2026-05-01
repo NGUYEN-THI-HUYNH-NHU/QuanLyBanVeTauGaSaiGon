@@ -58,7 +58,7 @@ public class PdfTicketExporter {
         if (session == null || session.getAllSelectedTickets().isEmpty()) {
             return;
         }
-        processDirectPrint(session.getAllSelectedTickets(), session.getDonDatCho().getDonDatChoID());
+        processDirectPrint(session.getAllSelectedTickets(), session.getDonDatCho().getId());
     }
 
     public void exportTicketsToPdf(VeDTO ve) {

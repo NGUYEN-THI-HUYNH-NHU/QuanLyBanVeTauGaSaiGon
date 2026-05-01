@@ -11,82 +11,79 @@ package gui.application.form.doiVe;
  * @date: Nov 17, 2025
  * @version: 1.0
  */
+
+import javax.swing.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.swing.JOptionPane;
-
 public class DoiVeBuoc3Controller {
 
-	private final PanelDoiVeBuoc3 panel;
+    private final PanelDoiVeBuoc3 panel;
 
-	private final ExchangeSession exchangeSession;
+    private final ExchangeSession exchangeSession;
+    private ConfirmListener confirmListener;
+    private RowSelectionChangeListener selectionChangeListener;
+    private Runnable onRefreshListener;
 
-	protected interface RowSelectionChangeListener {
-		void onRowSelectionChanged(VeDoiRow row);
-	}
+    public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel, ExchangeSession exchangeSession) {
+        this.panel = panel;
+        this.exchangeSession = exchangeSession;
 
-	protected interface ConfirmListener {
-		void onConfirm();
-	}
+        // Lắng nghe thay đổi trên row
+        this.panel.addRowSelectionListener(new Consumer<VeDoiRow>() {
+            @Override
+            public void accept(VeDoiRow row) {
+                // Báo sự kiện này lên cho Mediator
+                if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận bỏ chọn hoàn vé này?", "Lưu ý",
+                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    panel.removeRow(row);
+                    if (selectionChangeListener != null) {
+                        selectionChangeListener.onRowSelectionChanged(row);
+                    }
+                }
+            }
+        });
 
-	private ConfirmListener confirmListener;
+        this.panel.getBtnRefresh().addActionListener(e -> {
+            if (onRefreshListener != null) {
+                onRefreshListener.run();
+            }
+        });
 
-	private RowSelectionChangeListener selectionChangeListener;
+        this.panel.getBtnXacNhan().addActionListener(e -> {
+            List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
+            exchangeSession.setListVeCuCanDoi(listVeDoiRow);
+            // Báo sự kiện này lên cho Mediator
+            if (confirmListener != null) {
+                confirmListener.onConfirm();
+            }
+        });
+    }
 
-	private Runnable onRefreshListener;
+    protected void addRefreshListener(Runnable listener) {
+        this.onRefreshListener = listener;
+    }
 
-	protected void addRefreshListener(Runnable listener) {
-		this.onRefreshListener = listener;
-	}
+    /**
+     * Được gọi bởi DoiVeController (Mediator) để hiển thị dữ liệu
+     */
+    public void displayConfirmationData(List<VeDoiRow> selectedRows) {
+        panel.displayConfirmation(selectedRows);
+    }
 
-	public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel, ExchangeSession exchangeSession) {
-		this.panel = panel;
-		this.exchangeSession = exchangeSession;
+    public void addRowSelectionChangeListener(RowSelectionChangeListener listener) {
+        this.selectionChangeListener = listener;
+    }
 
-		// Lắng nghe thay đổi trên row
-		this.panel.addRowSelectionListener(new Consumer<VeDoiRow>() {
-			@Override
-			public void accept(VeDoiRow row) {
-				// Báo sự kiện này lên cho Mediator
-				if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận bỏ chọn hoàn vé này?", "Lưu ý",
-						JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-					panel.removeRow(row);
-					if (selectionChangeListener != null) {
-						selectionChangeListener.onRowSelectionChanged(row);
-					}
-				}
-			}
-		});
+    public void addConfirmListener(ConfirmListener listener) {
+        this.confirmListener = listener;
+    }
 
-		this.panel.getBtnRefresh().addActionListener(e -> {
-			if (onRefreshListener != null) {
-				onRefreshListener.run();
-			}
-		});
+    protected interface RowSelectionChangeListener {
+        void onRowSelectionChanged(VeDoiRow row);
+    }
 
-		this.panel.getBtnXacNhan().addActionListener(e -> {
-			List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
-			exchangeSession.setListVeCuCanDoi(listVeDoiRow);
-			// Báo sự kiện này lên cho Mediator
-			if (confirmListener != null) {
-				confirmListener.onConfirm();
-			}
-		});
-	}
-
-	/**
-	 * Được gọi bởi DoiVeController (Mediator) để hiển thị dữ liệu
-	 */
-	public void displayConfirmationData(List<VeDoiRow> selectedRows) {
-		panel.displayConfirmation(selectedRows);
-	}
-
-	public void addRowSelectionChangeListener(RowSelectionChangeListener listener) {
-		this.selectionChangeListener = listener;
-	}
-
-	public void addConfirmListener(ConfirmListener listener) {
-		this.confirmListener = listener;
-	}
+    protected interface ConfirmListener {
+        void onConfirm();
+    }
 }

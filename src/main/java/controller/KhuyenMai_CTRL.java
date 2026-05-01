@@ -1,6 +1,7 @@
 package controller;
 
 import bus.KhuyenMai_BUS;
+import dto.NhanVienDTO;
 import entity.*;
 import gui.application.AuthService;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 public class KhuyenMai_CTRL {
     private final KhuyenMai_BUS khuyenMai_bus;
-    private final NhanVien nhanVienHienTai;
+    private final NhanVienDTO nhanVienHienTai;
 
     public KhuyenMai_CTRL() {
         this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
@@ -28,13 +29,13 @@ public class KhuyenMai_CTRL {
 
     //thêm khách hàng
     public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
+        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
         return khuyenMai_bus.themKhuyenMai(km, dkkm);
     }
 
     //sửa khách hàng
     public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getNhanVienID() != null) ? nhanVienHienTai.getNhanVienID() : null;
+        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
         return khuyenMai_bus.suaKhuyenMai(km, dkkm);
     }
 
