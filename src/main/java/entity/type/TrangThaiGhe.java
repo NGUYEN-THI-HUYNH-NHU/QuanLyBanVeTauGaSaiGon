@@ -13,13 +13,13 @@ package entity.type;
  */
 
 public enum TrangThaiGhe {
-	DA_BAN("Ghế đã bán"),
-	BI_CHIEM("Ghế bị chiếm dụng"),
-	TRONG("Ghế trống");
+    DA_BAN("Ghế đã bán"),
+    BI_CHIEM("Ghế bị chiếm dụng"),
+    TRONG("Ghế trống");
 
-	private final String description;
+    private final String description;
 
-	TrangThaiGhe(String description) {
+    TrangThaiGhe(String description) {
         this.description = description;
     }
 

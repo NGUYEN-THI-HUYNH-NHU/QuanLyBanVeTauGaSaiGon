@@ -1,4 +1,4 @@
-package gui.application.form.hoanVe;
+package controller.hoanVe;
 /*
  * @(#) PanelHoanVeBuoc2Controller.java  1.0  [3:06:46 PM] Nov 9, 2025
  *
@@ -14,6 +14,8 @@ package gui.application.form.hoanVe;
 
 import dto.KhachHangDTO;
 import dto.VeDTO;
+import gui.application.form.hoanVe.PanelHoanVeBuoc2;
+import gui.application.form.hoanVe.VeHoanRow;
 
 import java.util.List;
 

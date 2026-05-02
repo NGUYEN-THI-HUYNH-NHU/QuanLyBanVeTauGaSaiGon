@@ -17,6 +17,8 @@ import entity.KhuyenMai;
 import gui.application.form.banVe.VeSession;
 
 import javax.swing.table.AbstractTableModel;
+import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,16 +26,14 @@ public class MappingVeTableModel extends AbstractTableModel {
     public static final int COL_STT = 0;
     public static final int COL_HANH_KHACH = 1;
     public static final int COL_VE_CU_INFO = 2;
-    public static final int COL_VE_CU_GIA = 3;
-    public static final int COL_CHON_VE_MOI = 4;
-    public static final int COL_VE_MOI_INFO = 5;
-    public static final int COL_VE_MOI_GIA = 6;
-    public static final int COL_KHUYEN_MAI = 7;
-    public static final int COL_GIAM_KM = 8;
-    public static final int COL_CHON_PHIEU_VIP = 9;
-    public static final int COL_PHIEU_VIP_GIA = 10;
-    public static final int COL_LE_PHI = 11;
-    public static final int COL_CHENH_LECH = 12;
+    public static final int COL_CHON_VE_MOI = 3;
+    public static final int COL_VE_MOI_INFO = 4;
+    public static final int COL_KHUYEN_MAI = 5;
+    public static final int COL_GIAM_KM = 6;
+    public static final int COL_CHON_PHIEU_VIP = 7;
+    public static final int COL_PHIEU_VIP_GIA = 8;
+    public static final int COL_LE_PHI = 9;
+    public static final int COL_CHENH_LECH = 10;
 
     private final String[] columnNames = {"STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Chọn vé mới",
             "Thông tin vé mới", "Giá vé mới", "Chọn KM", "Giảm KM", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi",
@@ -103,8 +103,8 @@ public class MappingVeTableModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == COL_VE_CU_GIA || columnIndex == COL_LE_PHI || columnIndex == COL_VE_MOI_GIA
-                || columnIndex == COL_GIAM_KM || columnIndex == COL_PHIEU_VIP_GIA || columnIndex == COL_CHENH_LECH) {
+        if (columnIndex == COL_LE_PHI || columnIndex == COL_GIAM_KM
+                || columnIndex == COL_PHIEU_VIP_GIA || columnIndex == COL_CHENH_LECH) {
             return Double.class;
         }
         if (columnIndex == COL_CHON_VE_MOI) {
@@ -137,15 +137,19 @@ public class MappingVeTableModel extends AbstractTableModel {
             case COL_HANH_KHACH:
                 return row.getVeDoiRow().getHanhKhach();
             case COL_VE_CU_INFO:
+                DecimalFormat formatter = new DecimalFormat("#,### VNĐ");
                 if (row.getVeDoiRow().getPhieuDungPhongVIP() == null) {
-                    return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Mã vé: %s</html>",
-                            veDoi.getLoaiTauID(), veDoi.getNgayGioDi(), veDoi.getSoToa(), veDoi.getSoGhe(), veDoi.getVeID());
+                    return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b></html>",
+                            veDoi.getTauID(), veDoi.getTenGaDi(), veDoi.getTenGaDen(),
+                            veDoi.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                            veDoi.getHangToaID(), veDoi.getSoToa(), veDoi.getSoGhe(),
+                            formatter.format(veDoi.getGia()));
                 }
-                return String.format("<html>%s %s<br/>Toa: %s; Chỗ: %s<br/>Vé: %s<br/>Phiếu: %s</html>",
-                        veDoi.getTauID(), veDoi.getNgayGioDi(), veDoi.getSoToa(), veDoi.getSoGhe(), veDoi.getVeID(),
-                        row.getVeDoiRow().getPhieuDungPhongVIP().getId());
-            case COL_VE_CU_GIA:
-                return veDoi.getGia();
+                return String.format("<html><b>%s</b> %s - %s<br/>%s<br/>%s Toa %s Chỗ %s<br/>Giá: <b>%s</b><br/>Phiếu: %s</html>",
+                        veDoi.getTauID(), veDoi.getTenGaDi(), veDoi.getTenGaDen(),
+                        veDoi.getNgayGioDi().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                        veDoi.getHangToaID(), veDoi.getSoToa(), veDoi.getSoGhe(),
+                        formatter.format(veDoi.getGia()), row.getVeDoiRow().getPhieuDungPhongVIP().getId());
             case COL_CHON_VE_MOI:
                 return row.getVeSessionMoi(); // Trả về object VeSession để ComboBox hiển thị
             case COL_VE_MOI_INFO:
@@ -154,8 +158,6 @@ public class MappingVeTableModel extends AbstractTableModel {
                     return v.prettyString();
                 }
                 return "Chưa chọn vé";
-            case COL_VE_MOI_GIA:
-                return (row.getVeSessionMoi() != null) ? (double) row.getVeSessionMoi().getVe().getGia() : 0.0;
             case COL_KHUYEN_MAI:
                 // 1. Kiểm tra VeSessionMoi có tồn tại không
                 VeSession vMoi = row.getVeSessionMoi();

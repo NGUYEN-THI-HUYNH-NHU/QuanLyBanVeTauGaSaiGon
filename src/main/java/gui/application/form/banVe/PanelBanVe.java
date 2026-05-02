@@ -12,98 +12,96 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
+import controller.banVe.BanVe1Controller;
+import controller.banVe.BanVe2Controller;
 import gui.application.UngDung;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class PanelBanVe extends JPanel {
-	private CardLayout cardLayout;
-	private JPanel stepPanel;
-	private BookingSession bookingSession;
+    private CardLayout cardLayout;
+    private JPanel stepPanel;
+    private BookingSession bookingSession;
 
-	// Các panel "bước" chính
-	private PanelBanVe1 panelBanVe1;
-	private PanelBanVe2 panelBanVe2;
+    // Các panel "bước" chính
+    private PanelBanVe1 panelBanVe1;
+    private PanelBanVe2 panelBanVe2;
 
-	// Các controller "Mediator" cho từng bước
-	private BanVe1Controller banVe1Controller;
-	private BanVe2Controller banVe2Controller;
+    // Các controller "Mediator" cho từng bước
+    private BanVe1Controller banVe1Controller;
+    private BanVe2Controller banVe2Controller;
 
-	public PanelBanVe() {
-		setLayout(new BorderLayout());
+    public PanelBanVe() {
+        setLayout(new BorderLayout());
 
-		UIManager.put("ScrollBar.width", 8);
+        UIManager.put("ScrollBar.width", 8);
 
-		// 1. Khởi tạo CardLayout và Panel chứa các bước
-		cardLayout = new CardLayout();
-		stepPanel = new JPanel(cardLayout);
+        // 1. Khởi tạo CardLayout và Panel chứa các bước
+        cardLayout = new CardLayout();
+        stepPanel = new JPanel(cardLayout);
 
-		// 2. Khởi tạo BookingSession
-		bookingSession = new BookingSession();
+        // 2. Khởi tạo BookingSession
+        bookingSession = new BookingSession();
 
-		// 3. Khởi tạo các bước
-		panelBanVe1 = new PanelBanVe1();
-		panelBanVe2 = new PanelBanVe2();
+        // 3. Khởi tạo các bước
+        panelBanVe1 = new PanelBanVe1();
+        panelBanVe2 = new PanelBanVe2();
 
-		// 4. Thêm các bước gộp vào CardLayout
-		stepPanel.add(panelBanVe1, "step1");
-		stepPanel.add(panelBanVe2, "step2");
+        // 4. Thêm các bước gộp vào CardLayout
+        stepPanel.add(panelBanVe1, "step1");
+        stepPanel.add(panelBanVe2, "step2");
 
-		add(stepPanel, BorderLayout.CENTER);
+        add(stepPanel, BorderLayout.CENTER);
 
-		// 5. Khởi tạo các Controller (Mediator)
-		banVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
-		banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
+        // 5. Khởi tạo các Controller (Mediator)
+        banVe1Controller = new BanVe1Controller(panelBanVe1, bookingSession);
+        banVe2Controller = new BanVe2Controller(panelBanVe2, bookingSession);
 
-		// 6. Liên kết các Controller (Logic chính)
-		banVe1Controller.addRefreshListener(() -> {
-			UngDung.reloadPanelBanVe();
-		});
+        // 6. Liên kết các Controller (Logic chính)
+        banVe1Controller.addRefreshListener(() -> {
+            UngDung.reloadPanelBanVe();
+        });
 
-		// Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
-		banVe1Controller.addPanel1CompleteListener(() -> {
-			// 1. Chuẩn bị dữ liệu cho PanelBanVe2
-			banVe2Controller.loadDataForConfirmation();
-			// 2. Yêu cầu PanelBanVe chuyển card
-			showPanel("step2");
-		});
+        // Lắng nghe sự kiện "Hoàn tất bước 1" (Bấm Xác nhận ở Buoc3)
+        banVe1Controller.addPanel1CompleteListener(() -> {
+            // 1. Chuẩn bị dữ liệu cho PanelBanVe2
+            banVe2Controller.loadDataForConfirmation();
+            // 2. Yêu cầu PanelBanVe chuyển card
+            showPanel("step2");
+        });
 
-		// Lắng nghe sự kiện "Quay lại" từ PanelBanVe2
-		banVe2Controller.addPanel2ReturnListener(() -> {
-			showPanel("step1");
-		});
+        // Lắng nghe sự kiện "Quay lại" từ PanelBanVe2
+        banVe2Controller.addPanel2ReturnListener(() -> {
+            showPanel("step1");
+        });
 
-		banVe2Controller.addPanel2PaymentSuccessListener(() -> {
-			// 1. Dừng timer cũ
-			banVe1Controller.stopAllTimers();
-			// 2. Clear BookingSession
-			this.bookingSession = new BookingSession();
-			// 3. Tạo panel mới hoàn toàn cho lượt khách sau:
-			UngDung.reloadPanelBanVe();
-		});
-	}
+        banVe2Controller.addPanel2PaymentSuccessListener(() -> {
+            // 1. Dừng timer cũ
+            banVe1Controller.stopAllTimers();
+            // 2. Clear BookingSession
+            this.bookingSession = new BookingSession();
+            // 3. Tạo panel mới hoàn toàn cho lượt khách sau:
+            UngDung.reloadPanelBanVe();
+        });
+    }
 
-	/**
-	 * Hàm công khai để các controller gọi và chuyển Card
-	 * 
-	 * @param panelName Tên của card (ví dụ: "step1", "step2")
-	 */
-	public void showPanel(String panelName) {
-		SwingUtilities.invokeLater(() -> {
-			cardLayout.show(stepPanel, panelName);
-		});
-	}
+    /**
+     * Hàm công khai để các controller gọi và chuyển Card
+     *
+     * @param panelName Tên của card (ví dụ: "step1", "step2")
+     */
+    public void showPanel(String panelName) {
+        SwingUtilities.invokeLater(() -> {
+            cardLayout.show(stepPanel, panelName);
+        });
+    }
 
-	public PanelBanVe1 getPanelBanVe1() {
-		return panelBanVe1;
-	}
+    public PanelBanVe1 getPanelBanVe1() {
+        return panelBanVe1;
+    }
 
-	public PanelBanVe2 getPanelBanVe2() {
-		return panelBanVe2;
-	}
+    public PanelBanVe2 getPanelBanVe2() {
+        return panelBanVe2;
+    }
 }

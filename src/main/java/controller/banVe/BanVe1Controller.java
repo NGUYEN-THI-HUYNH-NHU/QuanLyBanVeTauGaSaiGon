@@ -1,4 +1,4 @@
-package gui.application.form.banVe;
+package controller.banVe;
 
 /*
  * @(#) PanelBanVe1Controller.java  1.0  [10:42:48 AM] Oct 22, 2025
@@ -13,10 +13,11 @@ package gui.application.form.banVe;
  */
 
 import bus.DatCho_BUS;
+import controller.banVe.PanelBuoc1Controller.SearchListener;
+import controller.banVe.PanelBuoc2Controller.SeatSelectedListener;
 import dto.ChuyenDTO;
 import dto.PhieuGiuChoDTO;
-import gui.application.form.banVe.PanelBuoc1Controller.SearchListener;
-import gui.application.form.banVe.PanelBuoc2Controller.SeatSelectedListener;
+import gui.application.form.banVe.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -85,11 +86,11 @@ public class BanVe1Controller {
         initMediatorLogic();
     }
 
-    protected void addRefreshListener(Runnable listener) {
+    public void addRefreshListener(Runnable listener) {
         this.onRefreshListener = listener;
     }
 
-    protected void addPanel1CompleteListener(Runnable listener) {
+    public void addPanel1CompleteListener(Runnable listener) {
         this.onPanel1CompleteListener = listener;
     }
 

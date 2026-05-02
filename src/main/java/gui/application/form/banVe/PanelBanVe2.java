@@ -12,49 +12,46 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 public class PanelBanVe2 extends JPanel {
 
-	private final PanelBuoc4 panelBuoc4;
-	private final PanelBuoc5 panelBuoc5;
-	private JPanel pnlNav;
-	private JButton btnPrev;
-	private JPanel centerPanel;
+    private final PanelBuoc4 panelBuoc4;
+    private final PanelBuoc5 panelBuoc5;
+    private JPanel pnlNav;
+    private JButton btnPrev;
+    private JPanel centerPanel;
 
-	public PanelBanVe2() {
-		setLayout(new BorderLayout(8, 8));
+    public PanelBanVe2() {
+        setLayout(new BorderLayout(8, 8));
 
-		centerPanel = new JPanel(new BorderLayout());
+        centerPanel = new JPanel(new BorderLayout());
 
-		panelBuoc4 = new PanelBuoc4();
-		panelBuoc5 = new PanelBuoc5();
+        panelBuoc4 = new PanelBuoc4();
+        panelBuoc5 = new PanelBuoc5();
 
-		centerPanel.add(panelBuoc4, BorderLayout.NORTH);
-		centerPanel.add(panelBuoc5, BorderLayout.CENTER);
+        centerPanel.add(panelBuoc4, BorderLayout.NORTH);
+        centerPanel.add(panelBuoc5, BorderLayout.CENTER);
 
-		add(centerPanel, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER);
 
-		pnlNav = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		btnPrev = new JButton("Quay lại");
-		pnlNav.add(btnPrev);
+        pnlNav = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        btnPrev = new JButton("Quay lại");
+        pnlNav.add(btnPrev);
 
-		add(pnlNav, BorderLayout.SOUTH);
-	}
+        add(pnlNav, BorderLayout.SOUTH);
+    }
 
-	public PanelBuoc4 getPanelBuoc4() {
-		return panelBuoc4;
-	}
+    public PanelBuoc4 getPanelBuoc4() {
+        return panelBuoc4;
+    }
 
-	public PanelBuoc5 getPanelBuoc5() {
-		return panelBuoc5;
-	}
+    public PanelBuoc5 getPanelBuoc5() {
+        return panelBuoc5;
+    }
 
-	public JButton getBtnPrev() {
-		return btnPrev;
-	}
+    public JButton getBtnPrev() {
+        return btnPrev;
+    }
 }

@@ -1,4 +1,4 @@
-package gui.application.form.doiVe;
+package controller.doiVe;
 /*
  * @(#) DoiVeBuoc6Controller.java  1.0  [8:06:26 PM] Nov 20, 2025
  *
@@ -14,6 +14,9 @@ package gui.application.form.doiVe;
 
 import bus.DatCho_BUS;
 import gui.application.form.banVe.VeSession;
+import gui.application.form.doiVe.ExchangeSession;
+import gui.application.form.doiVe.MappingRow;
+import gui.application.form.doiVe.PanelDoiVeBuoc6;
 
 import javax.swing.*;
 import java.util.ArrayList;

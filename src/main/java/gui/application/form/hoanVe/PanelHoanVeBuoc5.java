@@ -11,251 +11,230 @@ package gui.application.form.hoanVe;
  * @date: Nov 14, 2025
  * @version: 1.0
  */
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
 public class PanelHoanVeBuoc5 extends JPanel {
-	private JRadioButton radTienMat;
-	private JLabel lblTongTienVe;
-	private JLabel lblTongPhiHoan;
-	private JLabel lblTongTienHoan;
-	private JButton btnXacNhanHoanVe;
+    private static final String TIEN_MAT_CARD = "TienMat";
+    private JRadioButton radTienMat;
+    private JLabel lblTongTienVe;
+    private JLabel lblTongPhiHoan;
+    private JLabel lblTongTienHoan;
+    private JButton btnXacNhanHoanVe;
+    private JPanel pnlTienHoan;
+    private JPanel pnlPaymentMethodContainer;
+    private CardLayout paymentCardLayout;
+    private DecimalFormat currencyFormat;
+    private int tongTienHoan = 0;
+    private JPanel pnlChiTiet;
+    private JLabel lblTienHoanAmount;
 
-	private JPanel pnlTienHoan;
-	private JPanel pnlPaymentMethodContainer;
-	private CardLayout paymentCardLayout;
+    public PanelHoanVeBuoc5() {
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createTitledBorder("Thanh Toán"));
 
-	private DecimalFormat currencyFormat;
+        currencyFormat = new DecimalFormat("#,##0đ");
 
-	private int tongTienHoan = 0;
-	private JPanel pnlChiTiet;
-	private JLabel lblTienHoanAmount;
+        // Panel Phương thức thanh toán
+        JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
+        radTienMat = new JRadioButton("Tiền mặt", true);
+        ButtonGroup bgPayment = new ButtonGroup();
+        bgPayment.add(radTienMat);
+        pnlPhuongThuc.add(radTienMat);
+        add(pnlPhuongThuc, BorderLayout.NORTH);
 
-	private static final String TIEN_MAT_CARD = "TienMat";
+        JPanel pnlMain = new JPanel(new GridLayout(1, 2, 10, 0));
+        pnlChiTiet = createChiTietPanel();
 
-	public PanelHoanVeBuoc5() {
-		setLayout(new BorderLayout(8, 8));
-		setBorder(BorderFactory.createTitledBorder("Thanh Toán"));
+        paymentCardLayout = new CardLayout();
+        pnlPaymentMethodContainer = new JPanel(paymentCardLayout);
 
-		currencyFormat = new DecimalFormat("#,##0đ");
+        pnlTienHoan = createTienHoanPanel();
 
-		// Panel Phương thức thanh toán
-		JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-		radTienMat = new JRadioButton("Tiền mặt", true);
-		ButtonGroup bgPayment = new ButtonGroup();
-		bgPayment.add(radTienMat);
-		pnlPhuongThuc.add(radTienMat);
-		add(pnlPhuongThuc, BorderLayout.NORTH);
+        pnlPaymentMethodContainer.add(pnlTienHoan, TIEN_MAT_CARD);
 
-		JPanel pnlMain = new JPanel(new GridLayout(1, 2, 10, 0));
-		pnlChiTiet = createChiTietPanel();
+        pnlMain.add(pnlChiTiet);
+        pnlMain.add(pnlPaymentMethodContainer);
 
-		paymentCardLayout = new CardLayout();
-		pnlPaymentMethodContainer = new JPanel(paymentCardLayout);
+        add(pnlMain, BorderLayout.CENTER);
 
-		pnlTienHoan = createTienHoanPanel();
+        // Logic nội bộ
+        addInternalLogic();
 
-		pnlPaymentMethodContainer.add(pnlTienHoan, TIEN_MAT_CARD);
+        // Show cash panel initially
+        paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
+    }
 
-		pnlMain.add(pnlChiTiet);
-		pnlMain.add(pnlPaymentMethodContainer);
+    private JPanel createChiTietPanel() {
+        JPanel pnl = new JPanel(new GridBagLayout());
+        pnl.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-		add(pnlMain, BorderLayout.CENTER);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        pnl.add(new JLabel("Tổng tiền vé:"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;
+        lblTongTienVe = new JLabel("0 VND");
+        pnl.add(lblTongTienVe, gbc);
 
-		// Logic nội bộ
-		addInternalLogic();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        pnl.add(new JLabel("Tổng phí hoàn:"), gbc);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        lblTongPhiHoan = new JLabel("0 VND", JLabel.RIGHT);
+        lblTongPhiHoan.setForeground(Color.RED);
+        pnl.add(lblTongPhiHoan, gbc);
 
-		// Show cash panel initially
-		paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
-	}
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weighty = 1.0;
+        pnl.add(Box.createVerticalGlue(), gbc);
 
-	private JPanel createChiTietPanel() {
-		JPanel pnl = new JPanel(new GridBagLayout());
-		pnl.setBorder(BorderFactory.createTitledBorder("Chi tiết thanh toán"));
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        JLabel lblTongTienHoanChu;
+        pnl.add(lblTongTienHoanChu = new JLabel("Tổng tiền hoàn:"), gbc);
+        lblTongTienHoanChu.setFont(getFont().deriveFont(Font.BOLD, 14f));
 
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.anchor = GridBagConstraints.WEST;
-		pnl.add(new JLabel("Tổng tiền vé:"), gbc);
-		gbc.gridx = 1;
-		gbc.weightx = 1.0;
-		gbc.anchor = GridBagConstraints.EAST;
-		lblTongTienVe = new JLabel("0 VND");
-		pnl.add(lblTongTienVe, gbc);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        lblTongTienHoan = new JLabel("0 VND");
+        lblTongTienHoan.setForeground(Color.BLUE);
+        lblTongTienHoan.setFont(lblTongTienHoan.getFont().deriveFont(Font.BOLD, 14f));
+        pnl.add(lblTongTienHoan, gbc);
 
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 0;
-		gbc.anchor = GridBagConstraints.WEST;
-		pnl.add(new JLabel("Tổng phí hoàn:"), gbc);
-		gbc.gridx = 1;
-		gbc.anchor = GridBagConstraints.EAST;
-		lblTongPhiHoan = new JLabel("0 VND", JLabel.RIGHT);
-		lblTongPhiHoan.setForeground(Color.RED);
-		pnl.add(lblTongPhiHoan, gbc);
+        return pnl;
+    }
 
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weighty = 1.0;
-		pnl.add(Box.createVerticalGlue(), gbc);
+    private JPanel createTienHoanPanel() {
+        pnlTienHoan = new JPanel(new GridBagLayout());
+        pnlTienHoan.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
 
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		gbc.anchor = GridBagConstraints.WEST;
-		JLabel lblTongTienHoanChu;
-		pnl.add(lblTongTienHoanChu = new JLabel("Tổng tiền hoàn:"), gbc);
-		lblTongTienHoanChu.setFont(getFont().deriveFont(Font.BOLD, 14f));
+        gbc.gridy = 0;
+        JLabel lblTitle = new JLabel("Số tiền cần hoàn lại cho khách:");
+        lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD, 14f));
+        pnlTienHoan.add(lblTitle, gbc);
 
-		gbc.gridx = 1;
-		gbc.anchor = GridBagConstraints.EAST;
-		lblTongTienHoan = new JLabel("0 VND");
-		lblTongTienHoan.setForeground(Color.BLUE);
-		lblTongTienHoan.setFont(lblTongTienHoan.getFont().deriveFont(Font.BOLD, 14f));
-		pnl.add(lblTongTienHoan, gbc);
+        gbc.gridy = 1;
+        lblTienHoanAmount = new JLabel(tongTienHoan + "");
+        lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 24f));
+        lblTienHoanAmount.setForeground(Color.BLUE);
+        lblTienHoanAmount.setHorizontalAlignment(SwingConstants.CENTER);
+        pnlTienHoan.add(lblTienHoanAmount, gbc);
 
-		return pnl;
-	}
+        gbc.gridy = 2;
+        gbc.weighty = 1.0;
+        pnlTienHoan.add(new JLabel(""), gbc);
 
-	private JPanel createTienHoanPanel() {
-		pnlTienHoan = new JPanel(new GridBagLayout());
-		pnlTienHoan.setBorder(BorderFactory.createTitledBorder("Tiền mặt"));
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(10, 10, 10, 10);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.weighty = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        btnXacNhanHoanVe = new JButton("Xác nhận hoàn tiền");
+        btnXacNhanHoanVe.setFont(btnXacNhanHoanVe.getFont().deriveFont(Font.BOLD, 14f));
+        btnXacNhanHoanVe.setBackground(new Color(0, 153, 51));
+        btnXacNhanHoanVe.setForeground(Color.WHITE);
+        pnlTienHoan.add(btnXacNhanHoanVe, gbc);
 
-		gbc.gridy = 0;
-		JLabel lblTitle = new JLabel("Số tiền cần hoàn lại cho khách:");
-		lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD, 14f));
-		pnlTienHoan.add(lblTitle, gbc);
+        return pnlTienHoan;
+    }
 
-		gbc.gridy = 1;
-		lblTienHoanAmount = new JLabel(tongTienHoan + "");
-		lblTienHoanAmount.setFont(lblTienHoanAmount.getFont().deriveFont(Font.BOLD, 24f));
-		lblTienHoanAmount.setForeground(Color.BLUE);
-		lblTienHoanAmount.setHorizontalAlignment(SwingConstants.CENTER);
-		pnlTienHoan.add(lblTienHoanAmount, gbc);
+    private void addInternalLogic() {
+        ActionListener paymentMethodListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTienHoanAmount();
+                paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
 
-		gbc.gridy = 2;
-		gbc.weighty = 1.0;
-		pnlTienHoan.add(new JLabel(""), gbc);
+            }
+        };
+        radTienMat.addActionListener(paymentMethodListener);
+    }
 
-		gbc.gridy = 3;
-		gbc.weighty = 0;
-		gbc.anchor = GridBagConstraints.CENTER;
-		btnXacNhanHoanVe = new JButton("Xác nhận hoàn tiền");
-		btnXacNhanHoanVe.setFont(btnXacNhanHoanVe.getFont().deriveFont(Font.BOLD, 14f));
-		btnXacNhanHoanVe.setBackground(new Color(0, 153, 51));
-		btnXacNhanHoanVe.setForeground(Color.WHITE);
-		pnlTienHoan.add(btnXacNhanHoanVe, gbc);
+    public int getTongTienHoan() {
+        return tongTienHoan;
+    }
 
-		return pnlTienHoan;
-	}
+    private void setTienMatEnabled(boolean enabled) {
+        for (Component c : pnlTienHoan.getComponents()) {
+            if (c instanceof JTextField || c instanceof JPanel || c instanceof JButton) {
+                c.setEnabled(enabled);
+            }
+        }
+    }
 
-	private void addInternalLogic() {
-		ActionListener paymentMethodListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateTienHoanAmount();
-				paymentCardLayout.show(pnlPaymentMethodContainer, TIEN_MAT_CARD);
+    private void updateTienHoanAmount() {
+        // Find the JLabel responsible for displaying the amount within pnlQRCode
+        // This relies on the structure created in createQRCodePanel()
+        for (Component comp : pnlTienHoan.getComponents()) {
+            // A bit fragile, better to store a direct reference if possible
+            if (comp instanceof JLabel && comp.getForeground() == Color.GREEN) {
+                ((JLabel) comp).setText(currencyFormat.format(tongTienHoan));
+                break;
+            }
+        }
+    }
 
-			}
-		};
-		radTienMat.addActionListener(paymentMethodListener);
-	}
+    public void setChiTietThanhToan(int tongVe, int tongPhiHoan) {
+        this.tongTienHoan = tongVe - tongPhiHoan;
 
-	public int getTongTienHoan() {
-		return tongTienHoan;
-	}
+        if (this.tongTienHoan < 0) {
+            this.tongTienHoan = 0;
+        }
 
-	private void setTienMatEnabled(boolean enabled) {
-		for (Component c : pnlTienHoan.getComponents()) {
-			if (c instanceof JTextField || c instanceof JPanel || c instanceof JButton) {
-				c.setEnabled(enabled);
-			}
-		}
-	}
+        lblTongTienVe.setText(currencyFormat.format(tongVe));
+        lblTongPhiHoan.setText(currencyFormat.format(tongPhiHoan));
+        lblTongTienHoan.setText(currencyFormat.format(this.tongTienHoan));
 
-	private void updateTienHoanAmount() {
-		// Find the JLabel responsible for displaying the amount within pnlQRCode
-		// This relies on the structure created in createQRCodePanel()
-		for (Component comp : pnlTienHoan.getComponents()) {
-			// A bit fragile, better to store a direct reference if possible
-			if (comp instanceof JLabel && comp.getForeground() == Color.GREEN) {
-				((JLabel) comp).setText(currencyFormat.format(tongTienHoan));
-				break;
-			}
-		}
-	}
+        lblTienHoanAmount.setText(currencyFormat.format(tongTienHoan));
+    }
 
-	public void setChiTietThanhToan(int tongVe, int tongPhiHoan) {
-		this.tongTienHoan = tongVe - tongPhiHoan;
+    public void setComponentsEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        radTienMat.setEnabled(enabled);
 
-		if (this.tongTienHoan < 0) {
-			this.tongTienHoan = 0;
-		}
+        // Disable detail panel components
+        for (Component c : pnlChiTiet.getComponents()) {
+            c.setEnabled(enabled);
+        }
 
-		lblTongTienVe.setText(currencyFormat.format(tongVe));
-		lblTongPhiHoan.setText(currencyFormat.format(tongPhiHoan));
-		lblTongTienHoan.setText(currencyFormat.format(this.tongTienHoan));
+        // Disable components within the currently visible payment card
+        setTienMatPanelEnabled(enabled);
 
-		lblTienHoanAmount.setText(currencyFormat.format(tongTienHoan));
-	}
+        // Disable confirm buttons specifically if panel is disabled
+        btnXacNhanHoanVe.setEnabled(enabled && radTienMat.isSelected());
+    }
 
-	public void setComponentsEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		radTienMat.setEnabled(enabled);
+    private void setTienMatPanelEnabled(boolean enabled) {
+        for (Component c : pnlTienHoan.getComponents()) {
+            if (!(c instanceof JLabel)) {
+                c.setEnabled(enabled);
+            }
+        }
 
-		// Disable detail panel components
-		for (Component c : pnlChiTiet.getComponents()) {
-			c.setEnabled(enabled);
-		}
+        btnXacNhanHoanVe.setEnabled(enabled);
+    }
 
-		// Disable components within the currently visible payment card
-		setTienMatPanelEnabled(enabled);
+    public JButton getBtnXacNhanHoanVe() {
+        return btnXacNhanHoanVe;
+    }
 
-		// Disable confirm buttons specifically if panel is disabled
-		btnXacNhanHoanVe.setEnabled(enabled && radTienMat.isSelected());
-	}
-
-	private void setTienMatPanelEnabled(boolean enabled) {
-		for (Component c : pnlTienHoan.getComponents()) {
-			if (!(c instanceof JLabel)) {
-				c.setEnabled(enabled);
-			}
-		}
-
-		btnXacNhanHoanVe.setEnabled(enabled);
-	}
-
-	public JButton getBtnXacNhanHoanVe() {
-		return btnXacNhanHoanVe;
-	}
-
-	public JRadioButton getRadTienMat() {
-		return radTienMat;
-	}
+    public JRadioButton getRadTienMat() {
+        return radTienMat;
+    }
 }

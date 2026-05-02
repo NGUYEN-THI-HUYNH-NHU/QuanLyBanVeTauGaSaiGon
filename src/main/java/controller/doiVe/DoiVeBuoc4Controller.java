@@ -1,4 +1,4 @@
-package gui.application.form.doiVe;
+package controller.doiVe;
 
 /*
  * @(#) DoiVeBuoc4Controller.java  1.0  [12:24:37 PM] Nov 18, 2025
@@ -15,6 +15,8 @@ package gui.application.form.doiVe;
 import bus.Chuyen_BUS;
 import dto.ChuyenDTO;
 import gui.application.form.banVe.SearchCriteria;
+import gui.application.form.doiVe.ExchangeSession;
+import gui.application.form.doiVe.PanelDoiVeBuoc4;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

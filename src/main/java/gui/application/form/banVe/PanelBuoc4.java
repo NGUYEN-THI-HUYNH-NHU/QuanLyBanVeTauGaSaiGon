@@ -139,7 +139,7 @@ public class PanelBuoc4 extends JPanel {
         }
     }
 
-    protected interface KhuyenMaiProvider {
+    public interface KhuyenMaiProvider {
         List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
     }
 }

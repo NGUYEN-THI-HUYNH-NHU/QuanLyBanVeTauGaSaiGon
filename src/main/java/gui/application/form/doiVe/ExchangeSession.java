@@ -115,14 +115,6 @@ public class ExchangeSession {
 
     // --- Helpers Logic ---
 
-    public void clearAll() {
-        listVeCuCanDoi.clear();
-        criteriaTimKiem = null;
-        listChuyenTauTimDuoc.clear();
-        listVeMoiDangChon.clear();
-        mapVeCuVoiVeMoi.clear();
-    }
-
     /**
      * Lấy Ga Đi mặc định từ danh sách vé cũ (để điền vào form tìm kiếm)
      */

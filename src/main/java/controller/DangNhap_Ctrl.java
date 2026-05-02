@@ -22,7 +22,7 @@ import java.time.LocalTime;
 public class DangNhap_Ctrl {
     private final FormDangNhap view;
 
-    private XacThuc_BUS xacThucBUS = new XacThuc_BUS();
+    private final XacThuc_BUS xacThucBUS = new XacThuc_BUS();
 
     public DangNhap_Ctrl(FormDangNhap view) {
         this.view = view;

@@ -11,36 +11,37 @@ package gui.application.form.doiVe;
  * @date: Nov 20, 2025
  * @version: 1.0
  */
+
 import gui.application.form.banVe.VeSession;
 
 public class MappingRow {
-	private VeDoiRow veDoiRow; // Vé cũ (Đã có thông tin lệ phí, hành khách)
-	private VeSession veSessionMoi; // Vé mới (Có thể null nếu chưa chọn)
+    private VeDoiRow veDoiRow; // Vé cũ (Đã có thông tin lệ phí, hành khách)
+    private VeSession veSessionMoi; // Vé mới (Có thể null nếu chưa chọn)
 
-	public MappingRow(VeDoiRow veDoiRow, VeSession veSessionMoi) {
-		this.veDoiRow = veDoiRow;
-		this.veSessionMoi = veSessionMoi;
-	}
+    public MappingRow(VeDoiRow veDoiRow, VeSession veSessionMoi) {
+        this.veDoiRow = veDoiRow;
+        this.veSessionMoi = veSessionMoi;
+    }
 
-	public VeDoiRow getVeDoiRow() {
-		return veDoiRow;
-	}
+    public VeDoiRow getVeDoiRow() {
+        return veDoiRow;
+    }
 
-	public VeSession getVeSessionMoi() {
-		return veSessionMoi;
-	}
+    public VeSession getVeSessionMoi() {
+        return veSessionMoi;
+    }
 
-	public void setVeSessionMoi(VeSession veSessionMoi) {
-		this.veSessionMoi = veSessionMoi;
-	}
+    public void setVeSessionMoi(VeSession veSessionMoi) {
+        this.veSessionMoi = veSessionMoi;
+    }
 
-	// Tính tiền chênh lệch: (Giá vé mới + Phí đổi + Giá phiếu dùng phòng chờ VIP
-	// (nếu có)) - Giá vé cũ
-	public double getChenhLech() {
-		double giaMoi = (veSessionMoi != null) ? veSessionMoi.getVe().getGia() : 0;
-		double giaPhieu = (veSessionMoi != null) ? veSessionMoi.getPhiPhieuDungPhongChoVIP() : 0;
-		double giaCu = veDoiRow.getVe().getGia();
-		double phi = veDoiRow.getLePhiDoiVe();
-		return (giaMoi + phi + giaPhieu) - giaCu;
-	}
+    // Tính tiền chênh lệch: (Giá vé mới + Phí đổi + Giá phiếu dùng phòng chờ VIP
+    // (nếu có)) - Giá vé cũ
+    public double getChenhLech() {
+        double giaMoi = (veSessionMoi != null) ? veSessionMoi.getVe().getGia() : 0;
+        double giaPhieu = (veSessionMoi != null) ? veSessionMoi.getPhiPhieuDungPhongChoVIP() : 0;
+        double giaCu = veDoiRow.getVe().getGia();
+        double phi = veDoiRow.getLePhiDoiVe();
+        return (giaMoi + phi + giaPhieu) - giaCu;
+    }
 }

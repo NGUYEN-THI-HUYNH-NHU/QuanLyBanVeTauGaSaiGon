@@ -1,6 +1,6 @@
-package gui.application.form.doiVe;
+package controller.hoanVe;
 /*
- * @(#) DoiVeBuoc3Controller.java  1.0  [5:55:26 PM] Nov 17, 2025
+ * @(#) PanelHoanVeBuoc3Controller.java  1.0  [3:07:04 PM] Nov 9, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,31 +8,31 @@ package gui.application.form.doiVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 17, 2025
+ * @date: Nov 9, 2025
  * @version: 1.0
  */
+
+import gui.application.form.hoanVe.PanelHoanVeBuoc3;
+import gui.application.form.hoanVe.VeHoanRow;
 
 import javax.swing.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class DoiVeBuoc3Controller {
+public class HoanVeBuoc3Controller {
 
-    private final PanelDoiVeBuoc3 panel;
-
-    private final ExchangeSession exchangeSession;
-    private ConfirmListener confirmListener;
+    private final PanelHoanVeBuoc3 panel;
     private RowSelectionChangeListener selectionChangeListener;
-    private Runnable onRefreshListener;
+    private Runnable refreshListener;
+    private ConfirmListener confirmListener;
 
-    public DoiVeBuoc3Controller(PanelDoiVeBuoc3 panel, ExchangeSession exchangeSession) {
+    public HoanVeBuoc3Controller(PanelHoanVeBuoc3 panel) {
         this.panel = panel;
-        this.exchangeSession = exchangeSession;
 
         // Lắng nghe thay đổi trên row
-        this.panel.addRowSelectionListener(new Consumer<VeDoiRow>() {
+        this.panel.addRowSelectionListener(new Consumer<VeHoanRow>() {
             @Override
-            public void accept(VeDoiRow row) {
+            public void accept(VeHoanRow row) {
                 // Báo sự kiện này lên cho Mediator
                 if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận bỏ chọn hoàn vé này?", "Lưu ý",
                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -45,14 +45,16 @@ public class DoiVeBuoc3Controller {
         });
 
         this.panel.getBtnRefresh().addActionListener(e -> {
-            if (onRefreshListener != null) {
-                onRefreshListener.run();
+            if (JOptionPane.showConfirmDialog(panel, "Bạn xác nhận làm mới phiên hoàn vé?", "Lưu ý",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                if (refreshListener != null) {
+                    refreshListener.run();
+                }
             }
         });
 
+        // Lắng nghe nút xác nhận
         this.panel.getBtnXacNhan().addActionListener(e -> {
-            List<VeDoiRow> listVeDoiRow = panel.getVeDoiRows();
-            exchangeSession.setListVeCuCanDoi(listVeDoiRow);
             // Báo sự kiện này lên cho Mediator
             if (confirmListener != null) {
                 confirmListener.onConfirm();
@@ -60,14 +62,10 @@ public class DoiVeBuoc3Controller {
         });
     }
 
-    protected void addRefreshListener(Runnable listener) {
-        this.onRefreshListener = listener;
-    }
-
     /**
-     * Được gọi bởi DoiVeController (Mediator) để hiển thị dữ liệu
+     * Được gọi bởi HoanVeController (Mediator) để hiển thị dữ liệu
      */
-    public void displayConfirmationData(List<VeDoiRow> selectedRows) {
+    public void displayConfirmationData(List<VeHoanRow> selectedRows) {
         panel.displayConfirmation(selectedRows);
     }
 
@@ -79,8 +77,12 @@ public class DoiVeBuoc3Controller {
         this.confirmListener = listener;
     }
 
+    public void addRefreshListener(Runnable listener) {
+        this.refreshListener = listener;
+    }
+
     protected interface RowSelectionChangeListener {
-        void onRowSelectionChanged(VeDoiRow row);
+        void onRowSelectionChanged(VeHoanRow row);
     }
 
     protected interface ConfirmListener {

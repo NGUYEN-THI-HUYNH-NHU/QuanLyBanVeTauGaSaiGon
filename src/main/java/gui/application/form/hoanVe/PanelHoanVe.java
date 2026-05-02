@@ -12,6 +12,8 @@ package gui.application.form.hoanVe;
  * @version: 1.0
  */
 
+import controller.hoanVe.HoanVe1Controller;
+import controller.hoanVe.HoanVe2Controller;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
 import gui.application.UngDung;

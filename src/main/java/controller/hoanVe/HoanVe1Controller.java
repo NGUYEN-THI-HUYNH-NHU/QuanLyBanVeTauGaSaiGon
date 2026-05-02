@@ -1,4 +1,4 @@
-package gui.application.form.hoanVe;
+package controller.hoanVe;
 /*
  * @(#) PanelHoanVeController.java  1.0  [2:51:17 PM] Nov 9, 2025
  *
@@ -12,13 +12,14 @@ package gui.application.form.hoanVe;
  * @version: 1.0
  */
 
+import controller.hoanVe.HoanVeBuoc1Controller.SearchListener;
+import controller.hoanVe.HoanVeBuoc2Controller.ContinueListener;
+import controller.hoanVe.HoanVeBuoc3Controller.ConfirmListener;
+import controller.hoanVe.HoanVeBuoc3Controller.RowSelectionChangeListener;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
 import dto.VeDTO;
-import gui.application.form.hoanVe.HoanVeBuoc1Controller.SearchListener;
-import gui.application.form.hoanVe.HoanVeBuoc2Controller.ContinueListener;
-import gui.application.form.hoanVe.HoanVeBuoc3Controller.ConfirmListener;
-import gui.application.form.hoanVe.HoanVeBuoc3Controller.RowSelectionChangeListener;
+import gui.application.form.hoanVe.*;
 
 import javax.swing.*;
 import java.util.List;
@@ -55,11 +56,11 @@ public class HoanVe1Controller {
         initMediatorLogic();
     }
 
-    protected void addPanel1CompleteListener(Runnable listener) {
+    public void addPanel1CompleteListener(Runnable listener) {
         this.onPanel1CompleteListener = listener;
     }
 
-    protected void addRefreshListener(Runnable listener) {
+    public void addRefreshListener(Runnable listener) {
         this.onRefreshListener = listener;
     }
 

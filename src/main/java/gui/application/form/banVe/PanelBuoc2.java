@@ -11,73 +11,71 @@ package gui.application.form.banVe;
  * @date: Sep 28, 2025
  * @version: 1.0
  */
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 public class PanelBuoc2 extends JPanel {
-	private JTabbedPane tabbedPane;
-	private PanelGioVe panelGioVe;
-	private PanelChuyen panelChieuDi;
-	private PanelChuyen panelChieuVe;
+    private JTabbedPane tabbedPane;
+    private PanelGioVe panelGioVe;
+    private PanelChuyen panelChieuDi;
+    private PanelChuyen panelChieuVe;
 
-	public PanelBuoc2() {
-		setLayout(new BorderLayout(2, 0));
-		setBorder(new TitledBorder(""));
-		setPreferredSize(new Dimension(0, 420));
+    public PanelBuoc2() {
+        setLayout(new BorderLayout(2, 0));
+        setBorder(new TitledBorder(""));
+        setPreferredSize(new Dimension(0, 420));
 
-		panelGioVe = new PanelGioVe();
-		add(panelGioVe, BorderLayout.EAST);
+        panelGioVe = new PanelGioVe();
+        add(panelGioVe, BorderLayout.EAST);
 
-		panelChieuDi = new PanelChuyen();
-		panelChieuVe = new PanelChuyen();
+        panelChieuDi = new PanelChuyen();
+        panelChieuVe = new PanelChuyen();
 
-		tabbedPane = new JTabbedPane();
-		tabbedPane.addTab(" Chiều đi ", panelChieuDi);
-		tabbedPane.addTab(" Chiều về ", panelChieuVe);
+        tabbedPane = new JTabbedPane();
+        tabbedPane.addTab(" Chiều đi ", panelChieuDi);
+        tabbedPane.addTab(" Chiều về ", panelChieuVe);
 
-		add(tabbedPane, BorderLayout.CENTER);
-		add(panelGioVe, BorderLayout.EAST);
-	}
+        add(tabbedPane, BorderLayout.CENTER);
+        add(panelGioVe, BorderLayout.EAST);
+    }
 
-	public PanelGioVe getPanelGioVe() {
-		return panelGioVe;
-	}
+    public PanelGioVe getPanelGioVe() {
+        return panelGioVe;
+    }
 
-	public void showReturnTab(boolean show) {
-		// Tạm thời tắt tab "Chiều về"
-		// (Chúng ta dùng setEnabledAt để giữ vị trí, hoặc removeTab/addTab)
-		if (tabbedPane.getTabCount() > 1) {
-			tabbedPane.setEnabledAt(1, show);
-			if (!show) {
-				// Quay về tab 1 nếu đang ẩn tab 2
-				tabbedPane.setSelectedIndex(0);
-			}
-		}
-	}
+    public void showReturnTab(boolean show) {
+        // Tạm thời tắt tab "Chiều về"
+        // (Chúng ta dùng setEnabledAt để giữ vị trí, hoặc removeTab/addTab)
+        if (tabbedPane.getTabCount() > 1) {
+            tabbedPane.setEnabledAt(1, show);
+            if (!show) {
+                // Quay về tab 1 nếu đang ẩn tab 2
+                tabbedPane.setSelectedIndex(0);
+            }
+        }
+    }
 
-	public JTabbedPane getTabbedPane() {
-		return tabbedPane;
-	}
+    public JTabbedPane getTabbedPane() {
+        return tabbedPane;
+    }
 
-	public PanelChuyen getPanelChieuDi() {
-		return panelChieuDi;
-	}
+    public PanelChuyen getPanelChieuDi() {
+        return panelChieuDi;
+    }
 
-	public PanelChuyen getPanelChieuVe() {
-		return panelChieuVe;
-	}
+    public PanelChuyen getPanelChieuVe() {
+        return panelChieuVe;
+    }
 
-	public void setComponentsEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		panelChieuDi.setEnabled(enabled);
-		panelChieuVe.setEnabled(enabled);
-		if (panelGioVe != null) {
-			panelGioVe.setEnabled(enabled);
-			panelGioVe.getBtnMuaVe().setEnabled(enabled);
-		}
-	}
+    public void setComponentsEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        panelChieuDi.setEnabled(enabled);
+        panelChieuVe.setEnabled(enabled);
+        if (panelGioVe != null) {
+            panelGioVe.setEnabled(enabled);
+            panelGioVe.getBtnMuaVe().setEnabled(enabled);
+        }
+    }
 }

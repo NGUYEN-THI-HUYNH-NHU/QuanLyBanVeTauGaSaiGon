@@ -1,4 +1,4 @@
-package gui.application.form.banVe;
+package controller.banVe;
 /*
  * @(#) PanelBuoc3Controller.java  1.0  [8:06:26 PM] Oct 26, 2025
  *
@@ -11,6 +11,10 @@ import dto.KhachHangDTO;
 import entity.type.LoaiKhachHangEnums;
 import gui.application.AuthService;
 import gui.application.UngDung;
+import gui.application.form.banVe.BookingSession;
+import gui.application.form.banVe.PanelBuoc3;
+import gui.application.form.banVe.PassengerRow;
+import gui.application.form.banVe.VeSession;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

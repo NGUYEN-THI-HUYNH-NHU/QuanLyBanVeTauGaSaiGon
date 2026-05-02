@@ -1,6 +1,6 @@
-package gui.application.form.doiVe;
+package controller.hoanVe;
 /*
- * @(#) DoiVeBuoc1Controller.java  1.0  [5:29:47 PM] Nov 17, 2025
+ * @(#) PanelHoanVeBuoc1Controller.java  1.0  [1:09:40 PM] Nov 9, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */
@@ -8,34 +8,32 @@ package gui.application.form.doiVe;
 /*
  * @description
  * @author: NguyenThiHuynhNhu
- * @date: Nov 17, 2025
+ * @date: Nov 9, 2025
  * @version: 1.0
  */
 
 import bus.DonDatCho_BUS;
 import bus.KhachHang_BUS;
-import bus.PhieuDungPhongVIP_BUS;
 import bus.Ve_BUS;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
-import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
+import gui.application.form.hoanVe.PanelHoanVeBuoc1;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
-public class DoiVeBuoc1Controller {
-    private final PanelDoiVeBuoc1 panel;
+public class HoanVeBuoc1Controller {
+    private final PanelHoanVeBuoc1 panel;
 
     private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
     private final Ve_BUS veBUS = new Ve_BUS();
-    private final PhieuDungPhongVIP_BUS phieuDungPhongVIPBUS = new PhieuDungPhongVIP_BUS();
     private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
     private SearchListener searchListener;
 
-    public DoiVeBuoc1Controller(PanelDoiVeBuoc1 panel) {
+    public HoanVeBuoc1Controller(PanelHoanVeBuoc1 panel) {
         this.panel = panel;
         init();
     }
@@ -81,6 +79,7 @@ public class DoiVeBuoc1Controller {
                 panel.getBtnTraCuu().doClick();
             }
         });
+
     }
 
     public void performSearch() {
@@ -104,14 +103,13 @@ public class DoiVeBuoc1Controller {
                     if (donDatCho != null) {
                         // Nếu tìm thấy -> lấy vé và khách hàng
                         List<VeDTO> danhSachVe = veBUS.timCacVeTheoDonDatChoID(maDDC);
-                        List<PhieuDungPhongVIPDTO> danhSachPhieu = phieuDungPhongVIPBUS.timCacPhieuTheoVe(danhSachVe);
                         KhachHangDTO khachHang = khachHangBUS.timKiemKhachHangTheoSoGiayTo(cccd);
 
                         panel.getBtnTraCuu().setEnabled(true);
 
-                        // Báo cho Mediator (DoiVe1Controller)
+                        // Báo cho Mediator (HoanVe1Controller)
                         if (searchListener != null) {
-                            searchListener.onSearchSuccess(donDatCho, danhSachVe, danhSachPhieu, khachHang);
+                            searchListener.onSearchSuccess(donDatCho, danhSachVe, khachHang);
                         }
                     } else {
                         // Xử lý khi tra cứu thành công nhưng không tìm thấy kết quả
@@ -137,10 +135,9 @@ public class DoiVeBuoc1Controller {
         }.execute();
     }
 
-    // Interface để DoiVe1Controller (Mediator) lắng nghe
+    // Interface để HoanVe1Controller (Mediator) lắng nghe
     protected interface SearchListener {
-        void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, List<PhieuDungPhongVIPDTO> danhSachPhieu,
-                             KhachHangDTO khachHang);
+        void onSearchSuccess(DonDatChoDTO donDatCho, List<VeDTO> danhSachVe, KhachHangDTO khachHang);
 
         void onSearchFailure();
     }

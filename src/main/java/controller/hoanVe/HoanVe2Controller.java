@@ -1,4 +1,4 @@
-package gui.application.form.hoanVe;
+package controller.hoanVe;
 /*
  * @(#) HoanVe2Controller.java  1.0  [3:22:09 PM] Nov 13, 2025
  *
@@ -15,6 +15,10 @@ package gui.application.form.hoanVe;
 import bus.HoanVe_BUS;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
+import gui.application.form.hoanVe.PanelHoanVe2;
+import gui.application.form.hoanVe.PanelHoanVeBuoc4;
+import gui.application.form.hoanVe.PanelHoanVeBuoc5;
+import gui.application.form.hoanVe.VeHoanRow;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -54,7 +58,7 @@ public class HoanVe2Controller {
         this.onReturnListener = listener;
     }
 
-    protected void addPanel2PaymentSuccessListener(Runnable listener) {
+    public void addPanel2PaymentSuccessListener(Runnable listener) {
         this.onPaymentSuccessListener = listener;
     }
 
