@@ -12,37 +12,31 @@ package gui.application.form.banVe;
  * @date: Sep 29, 2025
  * @version: 1.0
  */
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class PanelChieuLabel extends JPanel {
-	private JLabel lblInfo;
+    private JLabel lblInfo;
 
-	public PanelChieuLabel() {
-		setLayout(new BorderLayout());
+    public PanelChieuLabel() {
+        setLayout(new BorderLayout());
 
-		lblInfo = new JLabel("Chiều: —", SwingConstants.CENTER);
-		lblInfo.setPreferredSize(new Dimension(10, 20));
+        lblInfo = new JLabel("Chiều: —", SwingConstants.CENTER);
+        lblInfo.setPreferredSize(new Dimension(10, 20));
 
-		lblInfo.setBackground(new Color(32, 83, 145));
-		lblInfo.putClientProperty(FlatClientProperties.STYLE, "foreground:$Menu.foreground");
-		lblInfo.setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
-		lblInfo.setFont(lblInfo.getFont().deriveFont(Font.BOLD, 16f));
-		lblInfo.setOpaque(true);
+        lblInfo.setBackground(new Color(32, 83, 145));
+        lblInfo.putClientProperty(FlatClientProperties.STYLE, "foreground:$Menu.foreground");
+        lblInfo.setBorder(BorderFactory.createEmptyBorder(2, 1, 2, 1));
+        lblInfo.setFont(lblInfo.getFont().deriveFont(Font.BOLD, 16f));
+        lblInfo.setOpaque(true);
 
-		add(lblInfo, BorderLayout.CENTER);
-	}
+        add(lblInfo, BorderLayout.CENTER);
+    }
 
-	public void setText(String text) {
-		lblInfo.setText("<html><b>" + text + "</b></html>");
-	}
+    public void setText(String text) {
+        lblInfo.setText("<html><b>" + text + "</b></html>");
+    }
 }

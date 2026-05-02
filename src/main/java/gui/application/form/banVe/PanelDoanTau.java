@@ -12,8 +12,9 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
+import controller.banVe.PanelBuoc2Controller;
+import controller.doiVe.DoiVeBuoc5Controller;
 import dto.ToaDTO;
-import gui.application.form.doiVe.DoiVeBuoc5Controller;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

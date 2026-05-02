@@ -1,4 +1,4 @@
-package gui.application.form.doiVe;
+package controller.doiVe;
 /*
  * @(#) DoiVeBuoc2Controller.java  1.0  [5:33:04 PM] Nov 17, 2025
  *
@@ -15,6 +15,8 @@ package gui.application.form.doiVe;
 import dto.KhachHangDTO;
 import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
+import gui.application.form.doiVe.PanelDoiVeBuoc2;
+import gui.application.form.doiVe.VeDoiRow;
 
 import java.util.List;
 

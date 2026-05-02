@@ -5,7 +5,7 @@ package gui.application;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import gui.application.form.banVe.PanelBanVe1;
+import gui.application.form.doiVe.PanelDoiVeBuoc6;
 
 import javax.swing.*;
 
@@ -14,7 +14,7 @@ public class Test {
     public static void main(String[] args) {
         // Tạo cửa sổ JFrame
         JFrame frame = new JFrame("Test");
-        frame.add(new PanelBanVe1());
+        frame.add(new PanelDoiVeBuoc6());
         frame.setSize(1080, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);

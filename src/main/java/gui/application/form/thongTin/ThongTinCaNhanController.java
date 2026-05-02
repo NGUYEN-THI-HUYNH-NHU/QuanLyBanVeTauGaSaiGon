@@ -1,6 +1,6 @@
 package gui.application.form.thongTin;
 /*
- * @(#) ThongTinNhanVienControlller.java  1.0  [5:58:30 PM] Nov 26, 2025
+ * @(#) ThongTinNhanVienController.java  1.0  [5:58:30 PM] Nov 26, 2025
  *
  * Copyright (c) 2025 IUH. All rights reserved.
  */

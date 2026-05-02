@@ -5,39 +5,38 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import java.awt.Component;
-
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 public class PassengerCellRenderer implements TableCellRenderer {
 
-	private final PassengerCellPanel panel;
+    private final PassengerCellPanel panel;
 
-	public PassengerCellRenderer() {
-		this.panel = new PassengerCellPanel();
-		this.panel.setOpaque(true);
-	}
+    public PassengerCellRenderer() {
+        this.panel = new PassengerCellPanel();
+        this.panel.setOpaque(true);
+    }
 
-	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-			int row, int column) {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                                                   int row, int column) {
 
-		if (value instanceof PassengerRow passenger) {
-			panel.setData(passenger);
-			panel.setEditable(false);
-		}
-		// Thiết lập màu nền cho rõ ràng
-		if (isSelected) {
-			panel.setBackground(table.getSelectionBackground());
-		} else {
-			panel.setBackground(table.getBackground());
-		}
+        if (value instanceof PassengerRow passenger) {
+            panel.setData(passenger);
+            panel.setEditable(false);
+        }
+        // Thiết lập màu nền cho rõ ràng
+        if (isSelected) {
+            panel.setBackground(table.getSelectionBackground());
+        } else {
+            panel.setBackground(table.getBackground());
+        }
 
-		return panel;
-	}
+        return panel;
+    }
 
-	public PassengerCellPanel getPanel() {
-		return panel;
-	}
+    public PassengerCellPanel getPanel() {
+        return panel;
+    }
 }

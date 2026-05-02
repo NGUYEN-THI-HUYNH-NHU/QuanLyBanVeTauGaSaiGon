@@ -99,7 +99,7 @@ public class HoaDonTableModel extends AbstractTableModel {
             case COL_HOA_DON_ID:
                 return row.getId();
             case COL_KHACH_HANG_ID:
-                return row.getKhachHangDTO().getLoaiKhachHangID();
+                return row.getKhachHangDTO().getId();
             case COL_TEN_KHACH_HANG:
                 return row.getKhachHangDTO().getHoTen();
             case COL_CCCD_KHACH_HANG:

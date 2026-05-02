@@ -19,12 +19,10 @@ public interface HoaDonMapper {
     // Entity -> DTO
     @Mapping(source = "hoaDonID", target = "id")
     @Mapping(source = "khachHang", target = "khachHangDTO")
-    @Mapping(source = "isThanhToanTienMat", target = "isThanhToanTienMat")
     HoaDonDTO toDTO(HoaDon entity);
 
     // DTO -> Entity
     @Mapping(source = "id", target = "hoaDonID")
     @Mapping(source = "khachHangDTO", target = "khachHang")
-    @Mapping(source = "isThanhToanTienMat", target = "isThanhToanTienMat")
     HoaDon toEntity(HoaDonDTO dto);
 }

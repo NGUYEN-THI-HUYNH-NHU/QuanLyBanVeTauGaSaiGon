@@ -6,7 +6,7 @@ package gui.application.form.donDatCho;
  */
 
 import dto.VeDTO;
-import entity.type.TrangThaiGhe;
+import entity.type.TrangThaiVe;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.format.DateTimeFormatter;
@@ -86,7 +86,7 @@ public class ChiTietDonDatChoTableModel extends AbstractTableModel {
             case COL_GIA:
                 return row.getGia();
             case COL_TRANG_THAI:
-                return TrangThaiGhe.valueOf(row.getTrangThai()).getDescription();
+                return TrangThaiVe.valueOf(row.getTrangThai()).getDescription();
             default:
                 return null;
         }

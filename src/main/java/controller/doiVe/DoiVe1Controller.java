@@ -1,4 +1,4 @@
-package gui.application.form.doiVe;
+package controller.doiVe;
 /*
  * @(#) DoiVe1Controller.java  1.0  [5:31:37 PM] Nov 17, 2025
  *
@@ -12,14 +12,15 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import controller.doiVe.DoiVeBuoc1Controller.SearchListener;
+import controller.doiVe.DoiVeBuoc2Controller.ContinueListener;
+import controller.doiVe.DoiVeBuoc3Controller.ConfirmListener;
+import controller.doiVe.DoiVeBuoc3Controller.RowSelectionChangeListener;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
 import dto.PhieuDungPhongVIPDTO;
 import dto.VeDTO;
-import gui.application.form.doiVe.DoiVeBuoc1Controller.SearchListener;
-import gui.application.form.doiVe.DoiVeBuoc2Controller.ContinueListener;
-import gui.application.form.doiVe.DoiVeBuoc3Controller.ConfirmListener;
-import gui.application.form.doiVe.DoiVeBuoc3Controller.RowSelectionChangeListener;
+import gui.application.form.doiVe.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,11 +59,11 @@ public class DoiVe1Controller {
         initMediatorLogic();
     }
 
-    protected void addPanel1CompleteListener(Runnable listener) {
+    public void addPanel1CompleteListener(Runnable listener) {
         this.onPanel1CompleteListener = listener;
     }
 
-    protected void addPanel1RefreshListner(Runnable listener) {
+    public void addPanel1RefreshListner(Runnable listener) {
         this.onPanel1RefreshListener = listener;
     }
 

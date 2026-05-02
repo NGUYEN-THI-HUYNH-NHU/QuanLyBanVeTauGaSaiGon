@@ -11,198 +11,182 @@ package gui.application.form.donDatCho;
  * @date: Dec 12, 2025
  * @version: 1.0
  */
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
-
 import gui.tuyChinh.DateTimeRenderer;
 
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+
 public class PanelQuanLyDonDatCho extends JPanel {
-	private JTextField txtTuKhoa;
-	private JButton btnTraCuu;
-	private JButton btnRefresh;
-	private JComboBox<String> cboLoaiTimKiem;
+    private final Font fontBold = new Font(getFont().getFontName(), Font.BOLD, 12);
+    private final DonDatChoController controller;
+    private JTextField txtTuKhoa;
+    private JButton btnTraCuu;
+    private JButton btnRefresh;
+    private JComboBox<String> cboLoaiTimKiem;
+    private JDateChooser dateChooserTuNgay;
+    private JDateChooser dateChooserDenNgay;
+    private JCheckBox checkBoxTatCaNgay;
+    private JButton btnLoc;
+    private JButton btnReset;
+    private JTable table;
+    private DonDatChoTableModel tableModel;
 
-	private JDateChooser dateChooserTuNgay;
-	private JDateChooser dateChooserDenNgay;
-	private JCheckBox checkBoxTatCaNgay;
-	private JButton btnLoc;
-	private JButton btnReset;
+    public PanelQuanLyDonDatCho() {
+        setLayout(new BorderLayout());
+        initUI();
+        controller = new DonDatChoController(this);
+    }
 
-	private JTable table;
-	private DonDatChoTableModel tableModel;
-	private final Font fontBold = new Font(getFont().getFontName(), Font.BOLD, 12);
+    private void initUI() {
+        JPanel pnlTop = new JPanel();
+        pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
 
-	private final DonDatChoController controller;
+        // --- 1. PANEL TRA CỨU ---
+        JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlTraCuu.setBorder(new TitledBorder("Tra cứu đơn đặt chỗ"));
 
-	public PanelQuanLyDonDatCho() {
-		setLayout(new BorderLayout());
-		initUI();
-		controller = new DonDatChoController(this);
-	}
+        cboLoaiTimKiem = new JComboBox<>(
+                new String[]{"Mã đặt chỗ", "Số giấy tờ", "Số điện thoại", "Tên khách hàng"});
+        txtTuKhoa = new JTextField(20);
+        btnTraCuu = new JButton("Tìm kiếm");
+        btnTraCuu.setBackground(new Color(36, 104, 155));
+        btnTraCuu.setForeground(Color.WHITE);
+        btnTraCuu.setIcon(new FlatSVGIcon("icon/svg/search.svg", 0.8f));
+        btnRefresh = new JButton("Làm mới");
+        btnRefresh.setIcon(new FlatSVGIcon("icon/svg/refresh-1.svg", 0.8f));
 
-	private void initUI() {
-		JPanel pnlTop = new JPanel();
-		pnlTop.setLayout(new BoxLayout(pnlTop, BoxLayout.Y_AXIS));
+        pnlTraCuu.add(new JLabel("Tiêu chí: "));
+        pnlTraCuu.add(cboLoaiTimKiem);
+        pnlTraCuu.add(txtTuKhoa);
+        pnlTraCuu.add(btnTraCuu);
+        pnlTraCuu.add(btnRefresh);
 
-		// --- 1. PANEL TRA CỨU ---
-		JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		pnlTraCuu.setBorder(new TitledBorder("Tra cứu đơn đặt chỗ"));
+        // --- 2. PANEL LỌC (Thống kê, tìm kiếm theo ngày) ---
+        JPanel pnlLoc = new JPanel(new BorderLayout());
+        pnlLoc.setBorder(new TitledBorder("Bộ lọc nâng cao"));
 
-		cboLoaiTimKiem = new JComboBox<>(
-				new String[] { "Mã đặt chỗ", "Số giấy tờ", "Số điện thoại", "Tên khách hàng" });
-		txtTuKhoa = new JTextField(20);
-		btnTraCuu = new JButton("Tìm kiếm");
-		btnTraCuu.setBackground(new Color(36, 104, 155));
-		btnTraCuu.setForeground(Color.WHITE);
-		btnTraCuu.setIcon(new FlatSVGIcon("icon/svg/search.svg", 0.8f));
-		btnRefresh = new JButton("Làm mới");
-		btnRefresh.setIcon(new FlatSVGIcon("icon/svg/refresh-1.svg", 0.8f));
+        JPanel pnlInput = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 15);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		pnlTraCuu.add(new JLabel("Tiêu chí: "));
-		pnlTraCuu.add(cboLoaiTimKiem);
-		pnlTraCuu.add(txtTuKhoa);
-		pnlTraCuu.add(btnTraCuu);
-		pnlTraCuu.add(btnRefresh);
+        // Dòng 1: Ngày tháng
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        checkBoxTatCaNgay = new JCheckBox("Tất cả ngày");
+        checkBoxTatCaNgay.setSelected(true);
+        pnlInput.add(checkBoxTatCaNgay, gbc);
 
-		// --- 2. PANEL LỌC (Thống kê, tìm kiếm theo ngày) ---
-		JPanel pnlLoc = new JPanel(new BorderLayout());
-		pnlLoc.setBorder(new TitledBorder("Bộ lọc nâng cao"));
+        gbc.gridx = 1;
+        pnlInput.add(new JLabel("Từ ngày:"), gbc);
+        gbc.gridx = 2;
+        dateChooserTuNgay = new JDateChooser();
+        dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
+        dateChooserTuNgay.setEnabled(false);
+        pnlInput.add(dateChooserTuNgay, gbc);
 
-		JPanel pnlInput = new JPanel(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.insets = new Insets(5, 5, 5, 15);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 3;
+        pnlInput.add(new JLabel("Đến ngày:"), gbc);
+        gbc.gridx = 4;
+        dateChooserDenNgay = new JDateChooser();
+        dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
+        dateChooserDenNgay.setEnabled(false);
+        pnlInput.add(dateChooserDenNgay, gbc);
 
-		// Dòng 1: Ngày tháng
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		checkBoxTatCaNgay = new JCheckBox("Tất cả ngày");
-		checkBoxTatCaNgay.setSelected(true);
-		pnlInput.add(checkBoxTatCaNgay, gbc);
+        // Nút lọc nằm bên phải
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnReset = new JButton("Xóa bộ lọc");
+        btnReset.setIcon(new FlatSVGIcon("icon/svg/reset.svg", 0.8f));
+        btnLoc = new JButton("Lọc");
+        btnLoc.setIcon(new FlatSVGIcon("icon/svg/filter.svg", 0.8f));
+        btnLoc.setBackground(new Color(36, 104, 155));
+        btnLoc.setForeground(Color.WHITE);
+        pnlButtons.add(btnLoc);
+        pnlButtons.add(btnReset);
 
-		gbc.gridx = 1;
-		pnlInput.add(new JLabel("Từ ngày:"), gbc);
-		gbc.gridx = 2;
-		dateChooserTuNgay = new JDateChooser();
-		dateChooserTuNgay.setDateFormatString("dd/MM/yyyy");
-		dateChooserTuNgay.setEnabled(false);
-		pnlInput.add(dateChooserTuNgay, gbc);
+        pnlLoc.add(pnlInput, BorderLayout.CENTER);
+        pnlLoc.add(pnlButtons, BorderLayout.SOUTH);
 
-		gbc.gridx = 3;
-		pnlInput.add(new JLabel("Đến ngày:"), gbc);
-		gbc.gridx = 4;
-		dateChooserDenNgay = new JDateChooser();
-		dateChooserDenNgay.setDateFormatString("dd/MM/yyyy");
-		dateChooserDenNgay.setEnabled(false);
-		pnlInput.add(dateChooserDenNgay, gbc);
+        pnlTop.add(pnlTraCuu);
+        pnlTop.add(pnlLoc);
 
-		// Nút lọc nằm bên phải
-		JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		btnReset = new JButton("Xóa bộ lọc");
-		btnReset.setIcon(new FlatSVGIcon("icon/svg/reset.svg", 0.8f));
-		btnLoc = new JButton("Lọc");
-		btnLoc.setIcon(new FlatSVGIcon("icon/svg/filter.svg", 0.8f));
-		btnLoc.setBackground(new Color(36, 104, 155));
-		btnLoc.setForeground(Color.WHITE);
-		pnlButtons.add(btnLoc);
-		pnlButtons.add(btnReset);
+        // --- 3. BẢNG DỮ LIỆU ---
+        tableModel = new DonDatChoTableModel();
+        table = new JTable(tableModel);
+        table.getTableHeader().setFont(fontBold);
+        table.setRowHeight(36);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(220, 220, 220));
 
-		pnlLoc.add(pnlInput, BorderLayout.CENTER);
-		pnlLoc.add(pnlButtons, BorderLayout.SOUTH);
+        // Cấu hình độ rộng cột
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_STT).setMaxWidth(36);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_DDC_ID).setPreferredWidth(100);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(130);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(130);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TONG_VE).setMaxWidth(50);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_HOAN).setMaxWidth(50);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_DOI).setMaxWidth(50);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setPreferredWidth(100);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_XEM).setMaxWidth(40);
 
-		pnlTop.add(pnlTraCuu);
-		pnlTop.add(pnlLoc);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setCellRenderer(new DateTimeRenderer());
 
-		// --- 3. BẢNG DỮ LIỆU ---
-		tableModel = new DonDatChoTableModel();
-		table = new JTable(tableModel);
-		table.getTableHeader().setFont(fontBold);
-		table.setRowHeight(36);
+        // Renderer cho nút Xem
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_XEM)
+                .setCellRenderer(new DonDatChoViewButtonRenderer());
 
-		// Cấu hình độ rộng cột
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_STT).setMaxWidth(36);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_DDC_ID).setPreferredWidth(100);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(130);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(130);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_TONG_VE).setMaxWidth(50);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_HOAN).setMaxWidth(50);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_DOI).setMaxWidth(50);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setPreferredWidth(100);
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_XEM).setMaxWidth(40);
+        JScrollPane scrollPane = new JScrollPane(table);
 
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_THOI_DIEM_DAT).setCellRenderer(new DateTimeRenderer());
+        add(pnlTop, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+    }
 
-		// Renderer cho nút Xem
-		table.getColumnModel().getColumn(DonDatChoTableModel.COL_XEM)
-				.setCellRenderer(new DonDatChoViewButtonRenderer());
+    // Getters để Controller sử dụng
+    public JTextField getTxtTuKhoa() {
+        return txtTuKhoa;
+    }
 
-		JScrollPane scrollPane = new JScrollPane(table);
+    public JButton getBtnTraCuu() {
+        return btnTraCuu;
+    }
 
-		add(pnlTop, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
-	}
+    public JButton getBtnRefresh() {
+        return btnRefresh;
+    }
 
-	// Getters để Controller sử dụng
-	public JTextField getTxtTuKhoa() {
-		return txtTuKhoa;
-	}
+    public JComboBox<String> getCboLoaiTimKiem() {
+        return cboLoaiTimKiem;
+    }
 
-	public JButton getBtnTraCuu() {
-		return btnTraCuu;
-	}
+    public JDateChooser getDateChooserTuNgay() {
+        return dateChooserTuNgay;
+    }
 
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
+    public JDateChooser getDateChooserDenNgay() {
+        return dateChooserDenNgay;
+    }
 
-	public JComboBox<String> getCboLoaiTimKiem() {
-		return cboLoaiTimKiem;
-	}
+    public JCheckBox getCheckBoxTatCaNgay() {
+        return checkBoxTatCaNgay;
+    }
 
-	public JDateChooser getDateChooserTuNgay() {
-		return dateChooserTuNgay;
-	}
+    public JButton getBtnLoc() {
+        return btnLoc;
+    }
 
-	public JDateChooser getDateChooserDenNgay() {
-		return dateChooserDenNgay;
-	}
+    public JButton getBtnReset() {
+        return btnReset;
+    }
 
-	public JCheckBox getCheckBoxTatCaNgay() {
-		return checkBoxTatCaNgay;
-	}
+    public JTable getTable() {
+        return table;
+    }
 
-	public JButton getBtnLoc() {
-		return btnLoc;
-	}
-
-	public JButton getBtnReset() {
-		return btnReset;
-	}
-
-	public JTable getTable() {
-		return table;
-	}
-
-	public DonDatChoTableModel getTableModel() {
-		return tableModel;
-	}
+    public DonDatChoTableModel getTableModel() {
+        return tableModel;
+    }
 }

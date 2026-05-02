@@ -12,6 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
+import controller.banVe.PanelBuoc2Controller;
 import dto.ChuyenDTO;
 import gui.tuyChinh.RoundedBorder;
 

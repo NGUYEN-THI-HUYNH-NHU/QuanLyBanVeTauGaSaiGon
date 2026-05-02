@@ -1,4 +1,4 @@
-package gui.application.form.doiVe;
+package controller.doiVe;
 /*
  * @(#) DoiVe2Controller.java  1.0  [5:41:27 PM] Nov 17, 2025
  *
@@ -13,12 +13,13 @@ package gui.application.form.doiVe;
  */
 
 import bus.DatCho_BUS;
+import controller.doiVe.DoiVeBuoc4Controller.SearchNewTicketListener;
+import controller.doiVe.DoiVeBuoc5Controller.SeatSelectedListener;
 import dto.ChuyenDTO;
 import dto.PhieuGiuChoDTO;
 import gui.application.form.banVe.SearchCriteria;
 import gui.application.form.banVe.VeSession;
-import gui.application.form.doiVe.DoiVeBuoc4Controller.SearchNewTicketListener;
-import gui.application.form.doiVe.DoiVeBuoc5Controller.SeatSelectedListener;
+import gui.application.form.doiVe.*;
 
 import javax.swing.*;
 import java.time.LocalDateTime;
@@ -75,11 +76,11 @@ public class DoiVe2Controller {
         initMediatorLogic();
     }
 
-    protected void addPanel2CompleteListener(Runnable listener) {
+    public void addPanel2CompleteListener(Runnable listener) {
         this.onPanel2CompleteListener = listener;
     }
 
-    protected void addPanel2ReturnListener(Runnable listener) {
+    public void addPanel2ReturnListener(Runnable listener) {
         this.onPanel2ReturnListener = listener;
     }
 

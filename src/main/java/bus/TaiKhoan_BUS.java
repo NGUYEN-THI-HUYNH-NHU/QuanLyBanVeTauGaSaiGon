@@ -6,6 +6,7 @@ import entity.NhatKyAudit;
 import entity.TaiKhoan;
 import gui.application.AuthService;
 import mapper.NhanVienMapper;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 
@@ -83,6 +84,8 @@ public class TaiKhoan_BUS {
 
     // them tai khoan
     public boolean themTaiKhoan(TaiKhoan tk) {
+        String matKhauHash = BCrypt.hashpw(tk.getMatKhauHash(), BCrypt.gensalt());
+        tk.setMatKhauHash(matKhauHash);
         boolean ok = taiKhoan_dao.taoTaiKhoan(tk);
 
         if (ok) {

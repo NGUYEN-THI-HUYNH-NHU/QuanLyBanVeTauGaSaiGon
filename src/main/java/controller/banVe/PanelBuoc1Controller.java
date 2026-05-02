@@ -1,4 +1,4 @@
-package gui.application.form.banVe;
+package controller.banVe;
 /*
  * @(#) PanelBuoc1Controller.java  1.0  [10:42:13 PM] Sep 28, 2025
  *
@@ -15,6 +15,8 @@ package gui.application.form.banVe;
 import bus.Chuyen_BUS;
 import dto.ChuyenDTO;
 import dto.GaDTO;
+import gui.application.form.banVe.PanelBuoc1;
+import gui.application.form.banVe.SearchCriteria;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

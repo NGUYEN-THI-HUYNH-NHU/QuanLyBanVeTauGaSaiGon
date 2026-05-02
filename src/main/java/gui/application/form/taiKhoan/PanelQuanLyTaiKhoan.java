@@ -416,7 +416,7 @@ public class PanelQuanLyTaiKhoan extends JPanel implements ActionListener, Mouse
         for (TaiKhoan tk : taiKhoan_ctrl.layDanhSachTaiKhoan()) {
             model.addRow(new Object[]{
                     tk.getTaiKhoanID(),
-                    tk.getVaiTroTaiKhoan(),
+                    tk.getVaiTroTaiKhoan().getVaiTroTaiKhoanID(),
                     tk.getNhanVien().getNhanVienID(),
                     tk.getTenDangNhap(),
                     tk.getThoiDiemTao().format(dtf),

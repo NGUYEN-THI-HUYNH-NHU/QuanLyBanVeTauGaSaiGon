@@ -12,138 +12,131 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableColumn;
-
 import entity.KhuyenMai;
 import gui.application.form.banVe.KhuyenMaiRenderer;
 import gui.application.form.banVe.VeSession;
 import gui.tuyChinh.CurrencyTopRenderer;
 import gui.tuyChinh.LeftTopRenderer;
 
+import javax.swing.*;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.util.List;
+
 public class PanelDoiVeBuoc7 extends JPanel {
-	private final MappingVeTableModel model;
-	private final JTable table;
+    private final MappingVeTableModel model;
+    private final JTable table;
+    private KhuyenMaiProvider khuyenMaiProvider;
+    private JComboBox cbKhuyenMai;
+    private TableModelListener tableUpdateListener;
 
-	protected interface KhuyenMaiProvider {
-		List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
-	}
 
-	private KhuyenMaiProvider khuyenMaiProvider;
-	private JComboBox cbKhuyenMai;
-	private TableModelListener tableUpdateListener;
+    public PanelDoiVeBuoc7() {
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createTitledBorder("Xác nhận thông tin vé"));
+        setPreferredSize(new Dimension(getWidth(), 350));
 
-	public PanelDoiVeBuoc7() {
-		setLayout(new BorderLayout(8, 8));
-		setBorder(BorderFactory.createTitledBorder("Xác nhận thông tin vé"));
-		setPreferredSize(new Dimension(getWidth(), 350));
+        model = new MappingVeTableModel() {
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return columnIndex == COL_KHUYEN_MAI;
+            }
+        };
+        table = new JTable(model);
 
-		model = new MappingVeTableModel() {
-			@Override
-			public boolean isCellEditable(int rowIndex, int columnIndex) {
-				return columnIndex == COL_KHUYEN_MAI;
-			}
-		};
-		table = new JTable(model);
+        setUpTable();
 
-		setUpTable();
+        JScrollPane sp = new JScrollPane(table);
+        add(sp, BorderLayout.CENTER);
+    }
 
-		JScrollPane sp = new JScrollPane(table);
-		add(sp, BorderLayout.CENTER);
-	}
+    private void setUpTable() {
+        table.setRowHeight(100);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(220, 220, 220));
 
-	private void setUpTable() {
-		table.setRowHeight(120);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(130);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(160);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(160);
 
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(130);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setMinWidth(160);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setMinWidth(120);
+        // Cấu hình Cột Khuyến Mãi
+        // 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
+        TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
+        khuyenMaiCol.setMinWidth(120);
 
-		// Cấu hình Cột Khuyến Mãi
-		// 2. Cấu hình Cột Khuyến Mãi (Tách editor ra)
-		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
-		khuyenMaiCol.setMinWidth(120);
+        cbKhuyenMai = new JComboBox<>();
+        KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
+        khuyenMaiCol.setCellRenderer(renderer);
 
-		cbKhuyenMai = new JComboBox<>();
-		KhuyenMaiRenderer renderer = new KhuyenMaiRenderer();
-		khuyenMaiCol.setCellRenderer(renderer);
+        CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
+        LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
 
-		CurrencyTopRenderer currencyRenderer = new CurrencyTopRenderer();
-		LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
+        // Cột Tiền
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA).setCellRenderer(currencyRenderer);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
 
-		// Cột Tiền
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_GIA).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_GIA).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_PHIEU_VIP_GIA).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_LE_PHI).setCellRenderer(currencyRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_CHENH_LECH).setCellRenderer(currencyRenderer);
+        // Cột Text thường (Tên, Thông tin vé)
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(leftTopRenderer);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(leftTopRenderer);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(leftTopRenderer);
+        table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(leftTopRenderer);
+    }
 
-		// Cột Text thường (Tên, Thông tin vé)
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setCellRenderer(leftTopRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setCellRenderer(leftTopRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_CU_INFO).setCellRenderer(leftTopRenderer);
-		table.getColumnModel().getColumn(MappingVeTableModel.COL_VE_MOI_INFO).setCellRenderer(leftTopRenderer);
-	}
+    public void setKhuyenMaiProvider(KhuyenMaiProvider provider) {
+        this.khuyenMaiProvider = provider;
 
-	public void setKhuyenMaiProvider(KhuyenMaiProvider provider) {
-		this.khuyenMaiProvider = provider;
+        // Khởi tạo Editor SAU KHI đã có provider (và model)
+        TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
+        // Dùng class Editor mới tách
+        KhuyenMaiCellEditor editor = new KhuyenMaiCellEditor(cbKhuyenMai, provider, model);
+        khuyenMaiCol.setCellEditor(editor);
+    }
 
-		// Khởi tạo Editor SAU KHI đã có provider (và model)
-		TableColumn khuyenMaiCol = table.getColumnModel().getColumn(MappingVeTableModel.COL_KHUYEN_MAI);
-		// Dùng class Editor mới tách
-		KhuyenMaiCellEditor editor = new KhuyenMaiCellEditor(cbKhuyenMai, provider, model);
-		khuyenMaiCol.setCellEditor(editor);
-	}
+    // Thêm hàm để Controller đăng ký lắng nghe thay đổi
+    public void addTableUpdateListener(TableModelListener l) {
+        this.tableUpdateListener = l;
+        model.addTableModelListener(l);
+    }
 
-	// Thêm hàm để Controller đăng ký lắng nghe thay đổi
-	public void addTableUpdateListener(TableModelListener l) {
-		this.tableUpdateListener = l;
-		model.addTableModelListener(l);
-	}
+    /**
+     * Được gọi bởi DoiVe3Controller để đổ dữ liệu từ session vào bảng.
+     */
+    public void hienThiThongTin(ExchangeSession session) {
+        if (session == null) {
+            model.setData(null, null);
+            return;
+        }
 
-	/**
-	 * Được gọi bởi DoiVe3Controller để đổ dữ liệu từ session vào bảng.
-	 */
-	public void hienThiThongTin(ExchangeSession session) {
-		if (session == null) {
-			model.setData(null, null);
-			return;
-		}
+        List<VeDoiRow> listVeDoi = session.getListVeCuCanDoi();
+        List<VeSession> listVeMoi = session.getListVeMoiDangChon();
 
-		List<VeDoiRow> listVeDoi = session.getListVeCuCanDoi();
-		List<VeSession> listVeMoi = session.getListVeMoiDangChon();
+        model.setData(listVeDoi, listVeMoi);
+    }
 
-		model.setData(listVeDoi, listVeMoi);
-	}
+    /**
+     * Được gọi bởi controller để bật/tắt toàn bộ panel.
+     */
+    public void setComponentsEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        table.setEnabled(enabled);
+        for (Component comp : getComponents()) {
+            comp.setEnabled(enabled);
+        }
+    }
 
-	/**
-	 * Được gọi bởi controller để bật/tắt toàn bộ panel.
-	 */
-	public void setComponentsEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		table.setEnabled(enabled);
-		for (Component comp : getComponents()) {
-			comp.setEnabled(enabled);
-		}
-	}
+    public MappingVeTableModel getModel() {
+        return model;
+    }
 
-	public MappingVeTableModel getModel() {
-		return model;
-	}
+    public JTable getTable() {
+        return table;
+    }
 
-	public JTable getTable() {
-		return table;
-	}
+    public interface KhuyenMaiProvider {
+        List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
+    }
 
 }

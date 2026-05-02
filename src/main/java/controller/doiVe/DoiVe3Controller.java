@@ -1,17 +1,11 @@
-package gui.application.form.banVe;
-/*
- * @(#) PanelBanVe2Controller.java  1.0  [12:05:37 PM] Oct 22, 2025
- *
- * Copyright (c) 2025 IUH. All rights reserved.
- */
+package controller.doiVe;
 
-import bus.BanVe_BUS;
+import bus.DoiVe_BUS;
 import bus.KhuyenMai_BUS;
 import dto.GiaoDichThanhToanDTO;
-import dto.VeDTO;
-import entity.type.LoaiDoiTuongEnums;
 import gui.application.AppHttpServer;
-import gui.application.EmailService;
+import gui.application.form.banVe.VeSession;
+import gui.application.form.doiVe.*;
 import gui.application.paymentHelper.PdfTicketExporter;
 import gui.application.paymentHelper.VietQRService;
 
@@ -20,148 +14,153 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Controller (Mediator) cho PanelBanVe2. Nhiệm vụ: 1. Lấy dữ liệu từ
- * BookingSession. 2. Đổ dữ liệu vào PanelBuoc4 (Xác nhận) và PanelBuoc5 (Chi
- * tiết giá). 3. Lắng nghe sự kiện "Xác nhận Thanh toán" từ PanelBuoc5. 4. Báo
- * cho Wizard (PanelBanVe) khi thanh toán hoàn tất.
- */
-public class BanVe2Controller {
-    private final PanelBanVe2 view;
-    private final PanelBuoc4 p4;
-    private final PanelBuoc5 p5;
+public class DoiVe3Controller {
+    private final PanelDoiVe3 view;
+    private final PanelDoiVeBuoc7 p7;
+    private final PanelDoiVeBuoc8 p8;
 
-    private final BanVe_BUS banVeBUS = new BanVe_BUS();
+    private final DoiVe_BUS doiVeBUS = new DoiVe_BUS();
     private final KhuyenMai_BUS khuyenMaiBUS = new KhuyenMai_BUS();
 
-    private final BookingSession bookingSession;
-
-    // Listener để báo cho wizard chính (PanelBanVe) biết
-    private Runnable onPanel2ReturnListener;
-    private Runnable onPaymentSuccessListener;
+    private final ExchangeSession exchangeSession;
 
     private JDialog zoomDialog; // Lưu tham chiếu để tắt dialog này từ xa
     private String currentMaGiaoDich; // Lưu mã để ảnh to và nhỏ dùng chung 1 mã
     private String currentNoiDungCK;
 
-    public BanVe2Controller(PanelBanVe2 view, BookingSession session) {
-        this.view = view;
-        this.bookingSession = session;
+    // Listener để báo cho wizard chính (PanelBanVe) biết
+    private Runnable onPanel3ReturnListener;
+    private Runnable onPaymentSuccessListener;
 
-        this.p4 = view.getPanelBuoc4();
-        this.p5 = view.getPanelBuoc5();
+    public DoiVe3Controller(PanelDoiVe3 view, ExchangeSession session) {
+        this.view = view;
+        this.exchangeSession = session;
+
+        this.p7 = view.getPanelDoiVeBuoc7();
+        this.p8 = view.getPanelDoiVeBuoc8();
 
         this.view.getBtnPrev().addActionListener(e -> {
-            if (onPanel2ReturnListener != null) {
-                onPanel2ReturnListener.run();
+            if (onPanel3ReturnListener != null) {
+                onPanel3ReturnListener.run();
             }
         });
 
-        this.p4.setKhuyenMaiProvider((veSession) -> {
+        this.p7.setKhuyenMaiProvider((veSession) -> {
             return khuyenMaiBUS.getDanhSachKhuyenMaiPhuHop(veSession);
         });
 
-        this.p4.addTableUpdateListener((e) -> {
+        this.p7.addTableUpdateListener((e) -> {
             updatePaymentInfo();
         });
+
+        this.p7.getTable()
+                .removeColumn(this.p7.getTable().getColumnModel().getColumn(MappingVeTableModel.COL_CHON_VE_MOI));
+        this.p7.getTable().removeColumn(
+                this.p7.getTable().getColumnModel().getColumn(MappingVeTableModel.COL_CHON_PHIEU_VIP - 1));
 
         // Khởi tạo logic liên kết
         initMediatorLogic();
     }
 
-    public void addPanel2ReturnListener(Runnable listener) {
-        this.onPanel2ReturnListener = listener;
+    public void addPanel3ReturnListener(Runnable listener) {
+        this.onPanel3ReturnListener = listener;
     }
 
-    public void addPanel2PaymentSuccessListener(Runnable listener) {
+    public void addPanel3PaymentSuccessListener(Runnable listener) {
         this.onPaymentSuccessListener = listener;
     }
 
     private void updatePaymentInfo() {
-        int tongTienVe = 0;
-        double giamGiaDT = 0;
-        int khuyenMai = 0;
-        int dichVu = 0;
+        int tongTienVeCu = 0;
+        int tongTienVeMoi = 0;
+        int tongGiamKhuyenMai = 0;
+        int tongTienDichVu = 0;
+        int tongPhiDoiVe = 0;
 
-        List<VeSession> allTickets = bookingSession.getAllSelectedTickets();
-
-        for (VeSession ve : allTickets) {
-            tongTienVe += ve.getVe().getGia();
-            dichVu += ve.getPhiPhieuDungPhongChoVIP();
-            khuyenMai += ve.getGiamKM();
-
-            // (Logic giảm đối tượng giữ nguyên)
-            if (ve.getVe().getKhachHangDTO().getLoaiDoiTuongID().equals(LoaiDoiTuongEnums.TRE_EM.name())) {
-                ve.setGiamDoiTuong((int) (Math.round((ve.getVe().getGia() * 0.25) / 1000) * 1000));
-                giamGiaDT += ve.getGiamDoiTuong();
-            }
+        List<VeDoiRow> listVeDoi = exchangeSession.getListVeCuCanDoi();
+        List<VeSession> listVeMoi = exchangeSession.getListVeMoiDangChon();
+        for (VeDoiRow veDoi : listVeDoi) {
+            tongTienVeCu += veDoi.getVe().getGia();
+            tongPhiDoiVe += veDoi.getLePhiDoiVe();
+        }
+        for (VeSession veMoi : listVeMoi) {
+            tongTienVeMoi += veMoi.getVe().getGia();
+            tongGiamKhuyenMai += veMoi.getGiamKM();
+            tongTienDichVu += veMoi.getPhiPhieuDungPhongChoVIP();
         }
 
-        // Cập nhật lại UI PanelBuoc5
-        p5.setChiTietThanhToan(tongTienVe, (int) giamGiaDT, khuyenMai, dichVu);
+        // Cập nhật lại UI PanelDoiVeBuoc8
+        p8.setChiTietThanhToan(tongTienVeCu, tongTienVeMoi, tongGiamKhuyenMai, tongTienDichVu, tongPhiDoiVe);
+
+        if (p8.getTongThanhToan() <= 0) {
+            p8.setEnableChuyenKhoan(false);
+            p8.selectTienMat();
+        } else {
+            p8.setEnableChuyenKhoan(true);
+        }
     }
 
     /**
-     * Được gọi bởi PanelBanVe TRƯỚC KHI panel này được hiển thị. Nhiệm vụ: Lấy dữ
-     * liệu từ session, tính toán và đổ vào Buoc4, Buoc5.
+     * Được gọi bởi PanelDoiVe TRƯỚC KHI panel này được hiển thị. Nhiệm vụ: Lấy dữ
+     * liệu từ session, tính toán và đổ vào Buoc7, Buoc8.
      */
     public void loadDataForConfirmation() {
-        p4.setComponentsEnabled(true);
-        p5.setComponentsEnabled(true);
+        // 1. Đặt lại trạng thái
+        p7.setComponentsEnabled(true);
+        p8.setComponentsEnabled(true);
 
-        p4.hienThiThongTin(bookingSession);
+        // 2. Tải dữ liệu vào bảng xác nhận (Buoc7)
+        p7.hienThiThongTin(exchangeSession);
 
         updatePaymentInfo();
     }
 
     /**
-     * Hàm nội bộ để kết nối logic giữa Buoc4 và Buoc5
+     * Hàm nội bộ để kết nối logic giữa Buoc7 và Buoc8
      */
     private void initMediatorLogic() {
         // TẠO MỘT LISTENER CHUNG CHO VIỆC ĐỔI PHƯƠNG THỨC
         ActionListener switchPaymentModeListener = e -> {
-            // Chỉ chạy logic khi nguồn phát sự kiện là nút ĐANG ĐƯỢC CHỌN
-            // (Bỏ qua sự kiện của nút vừa bị Deselect)
-            AbstractButton source = (AbstractButton) e.getSource();
-            if (!source.isSelected()) {
-                return;
-            }
-
-            if (p5.isThanhToanTienMat()) {
-                // Chọn Tiền mặt -> Tắt Server
+            if (p8.isThanhToanTienMat()) {
                 stopPaymentServer();
-                p5.getLblQRCodeDisplay().setIcon(null);
-                p5.getLblQRCodeDisplay().setText("Chọn chuyển khoản để hiện QR...");
+                p8.getLblQRCodeDisplay().setIcon(null);
+                p8.getLblQRCodeDisplay().setText("Đang tải mã QR...");
+                // Tắt ảnh to nếu đang mở
                 if (zoomDialog != null && zoomDialog.isVisible()) {
                     closePaymentDialog();
                 }
             } else {
-                // Chọn Chuyển khoản -> Bật Server
                 startPaymentListening();
             }
         };
-
-        if (p5.getRadTienMat() != null) {
-            p5.getRadTienMat().addActionListener(switchPaymentModeListener);
+        if (p8.getRadTienMat() != null) {
+            p8.getRadTienMat().addActionListener(switchPaymentModeListener);
         }
-        if (p5.getRadChuyenKhoan() != null) {
-            p5.getRadChuyenKhoan().addActionListener(switchPaymentModeListener);
+        if (p8.getRadChuyenKhoan() != null) {
+            p8.getRadChuyenKhoan().addActionListener(switchPaymentModeListener);
         }
 
-        p5.getBtnXacNhanVaInCash().addActionListener(e -> {
-            boolean isThanhToanTienMat = p5.isThanhToanTienMat();
-            double tongTien = p5.getTongThanhToan();
+        // Lắng nghe nút thanh toán từ PanelDoiVeBuoc8
+        p8.getBtnXacNhanVaInCash().addActionListener(e -> {
+            boolean isThanhToanTienMat = p8.isThanhToanTienMat();
+            double tongTien = p8.getTongThanhToan();
+            double tienNhan = 0;
+            double tienHoan = 0;
 
             GiaoDichThanhToanDTO giaoDich = new GiaoDichThanhToanDTO();
             giaoDich.setTongTien(tongTien);
             giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
             if (isThanhToanTienMat) {
-                double tienNhan = p5.getTienKhachDua();
-                double tienHoan = tienNhan - tongTien;
+                if (tongTien >= 0) {
+                    tienNhan = p8.getTienKhachDua();
+                    tienHoan = tienNhan - tongTien;
+                } else {
+                    tienNhan = 0;
+                    tienHoan = Math.abs(tongTien);
+                }
 
                 giaoDich.setTongTien(tongTien);
                 giaoDich.setTienNhan(tienNhan);
@@ -171,12 +170,21 @@ public class BanVe2Controller {
             }
         });
 
-        // KHI BẤM VÀO ẢNH NHỎ -> CHỈ HIỆN ẢNH TO (KHÔNG TẠO GIAO DỊCH MỚI)
-        if (p5.getLblQRCodeDisplay() != null) {
-            p5.getLblQRCodeDisplay().addMouseListener(new MouseAdapter() {
+        // 1. Lắng nghe sự kiện chuyển tab (Radio Button)
+        p8.getRadChuyenKhoan().addActionListener(e -> {
+            if (p8.isThanhToanTienMat()) {
+                return;
+            }
+            // Gọi hàm bắt đầu lắng nghe và hiện QR nhỏ
+            startPaymentListening();
+        });
+
+        // 2. KHI BẤM VÀO ẢNH NHỎ -> CHỈ HIỆN ẢNH TO (KHÔNG TẠO GIAO DỊCH MỚI)
+        if (p8.getLblQRCodeDisplay() != null) {
+            p8.getLblQRCodeDisplay().addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (!p5.isThanhToanTienMat() && p5.getLblQRCodeDisplay().getIcon() != null
+                    if (!p8.isThanhToanTienMat() && p8.getLblQRCodeDisplay().getIcon() != null
                             && currentMaGiaoDich != null) {
                         // Gọi hàm để hiện ảnh to
                         showZoomedQRCode();
@@ -184,6 +192,7 @@ public class BanVe2Controller {
                 }
             });
         }
+
     }
 
     /**
@@ -192,8 +201,8 @@ public class BanVe2Controller {
      */
     private void startPaymentListening() {
         // 1. Tạo mã giao dịch (Chỉ chữ và số để tránh lỗi)
-        double tongTien = p5.getTongThanhToan();
-        currentMaGiaoDich = "VETAU" + System.currentTimeMillis();
+        double tongTien = p8.getTongThanhToan();
+        currentMaGiaoDich = "DOIVE" + System.currentTimeMillis();
         currentNoiDungCK = "TT " + currentMaGiaoDich;
 
         System.out.println("--- BẮT ĐẦU THANH TOÁN QR ---");
@@ -218,7 +227,7 @@ public class BanVe2Controller {
                 isProcessed[0] = true;
 
                 SwingUtilities.invokeLater(() -> {
-                    p5.getLblQRCodeDisplay().setIcon(null);
+                    p8.getLblQRCodeDisplay().setIcon(null);
                     // Tắt ảnh to nếu đang mở
                     if (zoomDialog != null && zoomDialog.isVisible()) {
                         closePaymentDialog();
@@ -236,7 +245,7 @@ public class BanVe2Controller {
             }
         });
 
-        // 3. Tải ảnh QR NHỎ (qr_only)
+        // 4. Tải ảnh QR NHỎ (qr_only)
         VietQRService qrService = new VietQRService();
         String qrUrl = qrService.generateQRUrl(tongTien, currentNoiDungCK, "qr_only");
 
@@ -249,7 +258,7 @@ public class BanVe2Controller {
             @Override
             protected void done() {
                 try {
-                    p5.setQRCodeImage(get());
+                    p8.setQRCodeImage(get());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -265,7 +274,7 @@ public class BanVe2Controller {
             return;
         }
 
-        double tongTien = p5.getTongThanhToan();
+        double tongTien = p8.getTongThanhToan();
         VietQRService qrService = new VietQRService();
         String qrUrl = qrService.generateQRUrl(tongTien, currentNoiDungCK, "compact");
 
@@ -328,10 +337,10 @@ public class BanVe2Controller {
      * Server nhận được tín hiệu VNPAY thành công. 3. Khách bấm xác nhận thủ công.
      */
     private void processPaymentAndSave(GiaoDichThanhToanDTO giaoDich) {
-        bookingSession.setGiaoDichThanhToan(giaoDich);
+        exchangeSession.setGiaoDichThanhToan(giaoDich);
 
         // Vô hiệu hóa nút để tránh bấm nhiều lần
-        p5.setComponentsEnabled(false);
+        p8.setComponentsEnabled(false);
 
         // Thực thi giao dịch trong SwingWorker
         new SwingWorker<Boolean, Void>() {
@@ -340,7 +349,7 @@ public class BanVe2Controller {
             @Override
             protected Boolean doInBackground() throws Exception {
                 try {
-                    return banVeBUS.thucHienBanVe(bookingSession);
+                    return doiVeBUS.thucHienDoiVe(exchangeSession);
                 } catch (Exception ex) {
                     errorMessage = ex.getMessage();
                     ex.printStackTrace();
@@ -353,44 +362,32 @@ public class BanVe2Controller {
                 try {
                     boolean saveSuccess = get();
                     if (saveSuccess) {
-                        String emailKhach = bookingSession.getKhachHang().getEmail();
-                        if (emailKhach != null && !emailKhach.isEmpty()) {
-                            // Chạy luồng riêng để gửi email, không chờ đợi
-                            new Thread(() -> {
-                                List<VeDTO> listVeDaMua = new ArrayList<>();
-                                for (VeSession vs : bookingSession.getAllSelectedTickets()) {
-                                    listVeDaMua.add(vs.getVe());
-                                }
-                                // Gọi service gửi mail
-                                EmailService.sendTicketEmail(emailKhach, listVeDaMua, bookingSession.getDonDatCho().getId(), giaoDich.getTongTien());
-                            }).start();
-                        }
-
                         int choice = JOptionPane.showConfirmDialog(view,
-                                "Bán vé thành công! Bạn có muốn in vé ngay không?", "In vé", JOptionPane.YES_NO_OPTION);
+                                "Đổi vé thành công! Bạn có muốn in vé mới ngay không?", "In vé",
+                                JOptionPane.YES_NO_OPTION);
 
                         if (choice == JOptionPane.YES_OPTION) {
                             PdfTicketExporter exporter = new PdfTicketExporter();
-                            exporter.exportTicketsToPdf(bookingSession);
+                            exporter.exportTicketsToPdf(exchangeSession);
                         }
 
-                        p4.setComponentsEnabled(false);
-                        p5.setComponentsEnabled(false);
+                        p7.setComponentsEnabled(false);
+                        p8.setComponentsEnabled(false);
 
-                        // Báo cho wizard chính (PanelBanVe) biết để reset hoặc chuyển trang
+                        // b. Báo cho wizard chính (PanelBanVe) biết
                         if (onPaymentSuccessListener != null) {
                             onPaymentSuccessListener.run();
                         }
                     } else {
-                        JOptionPane.showMessageDialog(view, "Lỗi khi lưu dữ liệu!\n" + errorMessage, "Lỗi",
+                        JOptionPane.showMessageDialog(view, "Lỗi khi lưu thông tin thanh toán!\n" + errorMessage, "Lỗi",
                                 JOptionPane.ERROR_MESSAGE);
-                        p5.setComponentsEnabled(true);
+                        p8.setComponentsEnabled(true);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(view, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
-                    p5.setComponentsEnabled(true);
+                    p8.setComponentsEnabled(true);
                 }
             }
         }.execute();

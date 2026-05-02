@@ -10,6 +10,7 @@ import dao.impl.TaiKhoan_DAO;
 import dto.NhanVienDTO;
 import entity.TaiKhoan;
 import mapper.NhanVienMapper;
+import org.mindrot.jbcrypt.BCrypt;
 
 public class XacThuc_BUS {
     private final TaiKhoan_DAO taiKhoanDAO = new TaiKhoan_DAO();
@@ -19,13 +20,7 @@ public class XacThuc_BUS {
 
     private boolean kiemTraXacThuc(String tenDangNhap, String matKhau) {
         TaiKhoan taiKhoan = taiKhoanDAO.getTaiKhoanByTenDangNhap(tenDangNhap);
-        if (taiKhoan == null || !taiKhoan.getMatKhauHash().equals(matKhau)) {
-            return false;
-        }
-//		if (taiKhoan == null || !BCrypt.checkpw(matKhau, taiKhoan.getMatKhauHash())) {
-//			return false;
-//		}
-        return true;
+        return taiKhoan != null && BCrypt.checkpw(matKhau, taiKhoan.getMatKhauHash());
     }
 
     public NhanVienDTO getNhanVienByTenDangNhap(String tenDangNhap, String matKhau) {

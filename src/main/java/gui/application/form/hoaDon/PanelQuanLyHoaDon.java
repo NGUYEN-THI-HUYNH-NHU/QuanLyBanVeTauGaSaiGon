@@ -186,6 +186,8 @@ public class PanelQuanLyHoaDon extends JPanel {
         table = new JTable(tableModel);
         table.getTableHeader().setFont(new Font(getFont().getFontName(), Font.BOLD, getFont().getSize()));
         table.setRowHeight(36);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(220, 220, 220));
 
         table.getColumnModel().getColumn(0).setMaxWidth(34);
         table.getColumnModel().getColumn(1).setMinWidth(170);
@@ -263,7 +265,7 @@ public class PanelQuanLyHoaDon extends JPanel {
     public HoaDonTableModel getTableModel() {
         return tableModel;
     }
-    
+
     public HoaDonController getController() {
         return controller;
     }
