@@ -35,9 +35,10 @@ import java.util.List;
 public class XemInVeController {
     private final Ve_BUS veBUS = new Ve_BUS();
     private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
-    private final int rowsPerPage = 20;
     private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
     private final JPopupMenu khachHangSuggestionPopup = new JPopupMenu();
+    private int rowsPerPage = 20;
+    private int totalRecords = 0;
     private PanelXemInVe view;
     private KhachHangDTO selectedKhachHang = null;
 
@@ -61,8 +62,8 @@ public class XemInVeController {
         currentPage = 1;
 
         // 1. Đếm tổng số để tính trang
-        int totalRecords = veBUS.countAllVe();
-        calculateTotalPages(totalRecords);
+        totalRecords = veBUS.countAllVe();
+        calculateTotalPages();
 
         // 2. Fetch trang 1
         fetchAndDisplayData();
@@ -143,6 +144,18 @@ public class XemInVeController {
                 fetchAndDisplayData();
             }
         });
+
+        view.getCboRowsPerPage().addActionListener(e -> {
+            int selectedRows = (Integer) view.getCboRowsPerPage().getSelectedItem();
+            if (this.rowsPerPage != selectedRows) {
+                this.rowsPerPage = selectedRows;
+                this.currentPage = 1; // Quay về trang 1
+
+                // Tính lại tổng số trang và load dữ liệu
+                calculateTotalPages();
+                fetchAndDisplayData();
+            }
+        });
     }
 
     private void handleNgayLoc() {
@@ -181,12 +194,10 @@ public class XemInVeController {
         String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
         // 3. Đếm tổng số record thỏa mãn để chia trang
-        int totalRecords = veBUS.countVeByFilter(tuKhoaTraCuu, loaiTraCuu, loaiVe, searchKeyword, searchID, isTatCaNgay ? null : tuNgay, isTatCaNgay ? null : denNgay);
-        calculateTotalPages(totalRecords);
+        totalRecords = veBUS.countVeByFilter(tuKhoaTraCuu, loaiTraCuu, loaiVe, searchKeyword, searchID, isTatCaNgay ? null : tuNgay, isTatCaNgay ? null : denNgay);
+        calculateTotalPages();
 
         if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!");
-        else view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
-
 
         // 4. Lấy dữ liệu trang 1 và hiển thị
         fetchAndDisplayData();
@@ -212,9 +223,11 @@ public class XemInVeController {
         String keyword = view.getTxtTuKhoa().getText().trim();
         String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
+        if (keyword.isEmpty()) return;
+
         // 2. Đếm tổng số record
-        int totalRecords = veBUS.countVeByKeyword(keyword, type);
-        calculateTotalPages(totalRecords);
+        totalRecords = veBUS.countVeByKeyword(keyword, type);
+        calculateTotalPages();
 
         if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
                 JOptionPane.INFORMATION_MESSAGE);
@@ -495,7 +508,7 @@ public class XemInVeController {
         return path[0].getComponent() == popup;
     }
 
-    private void calculateTotalPages(int totalRecords) {
+    private void calculateTotalPages() {
         totalPages = (int) Math.ceil((double) totalRecords / rowsPerPage);
         if (totalPages == 0) totalPages = 1;
     }

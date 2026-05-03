@@ -16,9 +16,7 @@ public interface IVeDAO {
     List<String> getVeIDsStartingWith(String baseID);
 
     boolean updateTrangThaiVe(String veID, TrangThaiVe trangThai);
-
-    List<Ve> getAllVe();
-
+    
     List<Ve> searchVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay, int page, int limit);
 
     List<Ve> searchVeByKeyword(String keyword, String type, int page, int limi);

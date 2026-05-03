@@ -16,11 +16,13 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.toedter.calendar.JDateChooser;
 import controller.donDatCho.DonDatChoController;
 import gui.tuyChinh.DateTimeRenderer;
+import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 
+@Getter
 public class PanelQuanLyDonDatCho extends JPanel {
     private final Font fontBold = new Font(getFont().getFontName(), Font.BOLD, 12);
     private final DonDatChoController controller;
@@ -35,6 +37,10 @@ public class PanelQuanLyDonDatCho extends JPanel {
     private JButton btnReset;
     private JTable table;
     private DonDatChoTableModel tableModel;
+    private JButton btnPrevPage;
+    private JButton btnNextPage;
+    private JPanel pnlPageNumbers;
+    private JComboBox<Integer> cboRowsPerPage;
 
     public PanelQuanLyDonDatCho() {
         setLayout(new BorderLayout());
@@ -124,10 +130,9 @@ public class PanelQuanLyDonDatCho extends JPanel {
         table.setGridColor(new Color(220, 220, 220));
 
         // Cấu hình độ rộng cột
-        table.getColumnModel().getColumn(DonDatChoTableModel.COL_STT).setMaxWidth(36);
         table.getColumnModel().getColumn(DonDatChoTableModel.COL_DDC_ID).setPreferredWidth(100);
-        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(130);
-        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(130);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setPreferredWidth(140);
+        table.getColumnModel().getColumn(DonDatChoTableModel.COL_TEN_KH).setMinWidth(140);
         table.getColumnModel().getColumn(DonDatChoTableModel.COL_TONG_VE).setMaxWidth(50);
         table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_HOAN).setMaxWidth(50);
         table.getColumnModel().getColumn(DonDatChoTableModel.COL_SO_DOI).setMaxWidth(50);
@@ -142,52 +147,38 @@ public class PanelQuanLyDonDatCho extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Tạo Panel Phân Trang
+        JPanel pnlPagination = new JPanel(new BorderLayout());
+        pnlPagination.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Khu vực canh giữa: Chứa các nút tiến/lùi và số trang
+        JPanel pnlPageControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        btnPrevPage = new JButton("<");
+        btnNextPage = new JButton(">");
+        pnlPageNumbers = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+
+        pnlPageControls.add(btnPrevPage);
+        pnlPageControls.add(pnlPageNumbers);
+        pnlPageControls.add(btnNextPage);
+
+        // Khu vực góc Phải: dropdown tùy chỉnh số dòng
+        JPanel pnlRowsCount = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pnlRowsCount.add(new JLabel("Số dòng/trang:"));
+        cboRowsPerPage = new JComboBox<>(new Integer[]{10, 15, 20, 25, 50});
+        cboRowsPerPage.setSelectedItem(20);
+        cboRowsPerPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        pnlRowsCount.add(cboRowsPerPage);
+
+        // Ghép vào thanh phân trang
+        pnlPagination.add(pnlPageControls, BorderLayout.CENTER);
+        pnlPagination.add(pnlRowsCount, BorderLayout.EAST);
+
+        // Bọc Table và Phân trang lại
+        JPanel pnlCenter = new JPanel(new BorderLayout());
+        pnlCenter.add(scrollPane, BorderLayout.CENTER);
+        pnlCenter.add(pnlPagination, BorderLayout.SOUTH);
+
         add(pnlTop, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-    }
-
-    // Getters để Controller sử dụng
-    public JTextField getTxtTuKhoa() {
-        return txtTuKhoa;
-    }
-
-    public JButton getBtnTraCuu() {
-        return btnTraCuu;
-    }
-
-    public JButton getBtnRefresh() {
-        return btnRefresh;
-    }
-
-    public JComboBox<String> getCboLoaiTimKiem() {
-        return cboLoaiTimKiem;
-    }
-
-    public JDateChooser getDateChooserTuNgay() {
-        return dateChooserTuNgay;
-    }
-
-    public JDateChooser getDateChooserDenNgay() {
-        return dateChooserDenNgay;
-    }
-
-    public JCheckBox getCheckBoxTatCaNgay() {
-        return checkBoxTatCaNgay;
-    }
-
-    public JButton getBtnLoc() {
-        return btnLoc;
-    }
-
-    public JButton getBtnReset() {
-        return btnReset;
-    }
-
-    public JTable getTable() {
-        return table;
-    }
-
-    public DonDatChoTableModel getTableModel() {
-        return tableModel;
+        add(pnlCenter, BorderLayout.CENTER);
     }
 }

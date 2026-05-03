@@ -178,49 +178,6 @@ public class VeDAO extends AbstractGenericDAO<Ve, String> implements IVeDAO {
     }
 
     @Override
-    public List<Ve> getAllVe() {
-        return doInTransaction(em -> {
-            String sql = "SELECT V.veID, V.donDatChoID, D.thoiDiemDatCho, V.khachHangID, V.chuyenID, V.gheID, V.gaDiID, Ga1.tenGa AS tenGaDi, V.gaDenID, Ga2.tenGa AS tenGaDen, V.ngayGioDi, V.gia, V.trangThai, K.hoTen, K.loaiDoiTuongID, K.soGiayTo, G.soGhe, T.toaID, T.soToa, T.hangToaID, TAU.tauID,\r\n"
-                    + "CASE WHEN GD.veMoiID IS NOT NULL THEN 1 ELSE 0 END AS isVeDoi "
-                    + "FROM Ve V JOIN KhachHang K ON V.khachHangID = K.khachHangID " + "JOIN Ghe g ON V.gheID = G.gheID "
-                    + "JOIN TOA T ON G.toaID = T.toaID " + "JOIN Tau TAU ON T.tauID = TAU.tauID "
-                    + "JOIN GA Ga1 ON V.gaDiID = Ga1.gaID " + "JOIN GA Ga2 ON V.gaDenID = Ga2.gaID "
-                    + "JOIN DonDatCho D ON V.donDatChoID = D.donDatChoID "
-                    + "LEFT JOIN GiaoDichHoanDoi GD ON V.veID = GD.veMoiID \r\n" + "ORDER BY D.thoiDiemDatCho DESC";
-            Query query = em.createNativeQuery(sql);
-            List<Ve> dsVe = new ArrayList<Ve>();
-
-            try {
-                List<Object[]> rsList = query.getResultList();
-                for (Object[] rs : rsList) {
-                    Ve ve = new Ve();
-                    ve.setVeID((String) rs[0]);
-                    ve.setKhachHang(new KhachHang((String) rs[3], (String) rs[13],
-                            new LoaiDoiTuong((String) rs[14]), (String) rs[15]));
-                    ve.setDonDatCho(new DonDatCho((String) rs[1]));
-                    ve.setChuyen(new Chuyen((String) rs[4]));
-                    ve.setGhe(new Ghe((String) rs[5],
-                            new Toa((String) rs[17], new Tau((String) rs[20]),
-                                    new HangToa((String) rs[19]), ((Number) rs[18]).intValue()),
-                            ((Number) rs[16]).intValue()));
-                    ve.setGaDi(new Ga((String) rs[6], (String) rs[7]));
-                    ve.setGaDen(new Ga((String) rs[8], (String) rs[9]));
-                    Timestamp t = (Timestamp) rs[10];
-                    ve.setNgayGioDi(t != null ? t.toLocalDateTime() : null);
-                    ve.setGia(((Number) rs[11]).doubleValue());
-                    ve.setTrangThai(TrangThaiVe.valueOf((String) rs[12]));
-                    ve.setVeDoi(((Number) rs[21]).intValue() == 1);
-
-                    dsVe.add(ve);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return dsVe;
-        });
-    }
-
-    @Override
     public List<Ve> searchVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay, int page, int limit) {
         return doInTransaction(em -> {
             List<Ve> list = new ArrayList<>();

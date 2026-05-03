@@ -15,18 +15,17 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class VeTableModel extends AbstractTableModel {
-    public static final int COL_STT = 0;
-    public static final int COL_VE_ID = 1;
-    public static final int COL_TEN_KHACH_HANG = 2;
-    public static final int COL_CCCD_KHACH_HANG = 3;
-    public static final int COL_DDC_ID = 4;
-    public static final int COL_CHUYEN = 5;
-    public static final int COL_GHE = 6;
-    public static final int COL_GIA = 7;
-    public static final int COL_TRANG_THAI = 8;
-    public static final int COL_IN = 9;
+    public static final int COL_VE_ID = 0;
+    public static final int COL_TEN_KHACH_HANG = 1;
+    public static final int COL_CCCD_KHACH_HANG = 2;
+    public static final int COL_DDC_ID = 3;
+    public static final int COL_CHUYEN = 4;
+    public static final int COL_GHE = 5;
+    public static final int COL_GIA = 6;
+    public static final int COL_TRANG_THAI = 7;
+    public static final int COL_IN = 8;
 
-    private final String[] columnNames = {"STT", "Vé ID", "Tên khách hàng", "CCCD KH", "Đơn đặt chỗ ID", "TT chuyến",
+    private final String[] columnNames = {"Vé ID", "Tên khách hàng", "CCCD KH", "Đơn đặt chỗ ID", "TT chuyến",
             "TT ghế", "Giá", "Trạng thái", "In"};
 
     private List<VeDTO> rows;
@@ -80,9 +79,6 @@ public class VeTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         VeDTO row = rows.get(rowIndex);
         switch (columnIndex) {
-
-            case COL_STT:
-                return rowIndex + 1;
             case COL_VE_ID:
                 return row.getVeID();
             case COL_TEN_KHACH_HANG:

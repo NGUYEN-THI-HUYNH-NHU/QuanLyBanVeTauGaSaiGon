@@ -20,17 +20,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class VeDoiTableModel extends AbstractTableModel {
-    public static final int COL_STT = 0;
-    public static final int COL_TEN = 1;
-    public static final int COL_THONG_TIN_VE_DOI = 2;
-    public static final int COL_THANH_TIEN = 3;
-    public static final int COL_DU_DK = 4;
-    public static final int COL_LE_PHI = 5;
-    public static final int COL_THONG_TIN_PHI = 6;
-    public static final int COL_LY_DO = 7;
-    public static final int COL_TG_CON_LAI = 8;
-    public static final int COL_CHON = 9;
-    private final String[] columnNames = {"STT", "Hành khách", "Thông tin vé đổi", "Thành tiền", "Đủ điều kiện",
+    public static final int COL_TEN = 0;
+    public static final int COL_THONG_TIN_VE_DOI = 1;
+    public static final int COL_THANH_TIEN = 2;
+    public static final int COL_DU_DK = 3;
+    public static final int COL_LE_PHI = 4;
+    public static final int COL_THONG_TIN_PHI = 5;
+    public static final int COL_LY_DO = 6;
+    public static final int COL_TG_CON_LAI = 7;
+    public static final int COL_CHON = 8;
+    private final String[] columnNames = {"Hành khách", "Thông tin vé đổi", "Thành tiền", "Đủ điều kiện",
             "Lệ phí", "Thông tin phí", "Lý do đổi", "TG còn lại", "Chọn"};
     private List<VeDoiRow> rows;
 
@@ -90,8 +89,6 @@ public class VeDoiTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         VeDoiRow row = rows.get(rowIndex);
         switch (columnIndex) {
-            case COL_STT:
-                return rowIndex + 1;
             case COL_TEN:
                 return row.getHanhKhach();
             case COL_THONG_TIN_VE_DOI:

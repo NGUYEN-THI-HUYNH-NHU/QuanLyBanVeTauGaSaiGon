@@ -32,18 +32,19 @@ import java.util.List;
 
 public class DonDatChoController {
     private final PanelQuanLyDonDatCho view;
-    private final DonDatCho_BUS donDatChoBUS;
-    private final Ve_BUS veBUS;
-    private JPopupMenu traCuuSuggestionPopup;
+    private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
+    private final Ve_BUS veBUS = new Ve_BUS();
+    private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
+    private int rowsPerPage = 20;
+    private int totalRecords = 0;
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private SearchState currentState = SearchState.ALL;
 
     public DonDatChoController(PanelQuanLyDonDatCho view) {
         this.view = view;
 
-        this.traCuuSuggestionPopup = new JPopupMenu();
         this.traCuuSuggestionPopup.setFocusable(false);
-
-        this.donDatChoBUS = new DonDatCho_BUS();
-        this.veBUS = new Ve_BUS();
 
         init();
     }
@@ -88,6 +89,33 @@ public class DonDatChoController {
                 } else {
                     view.getTable().setCursor(Cursor.getDefaultCursor());
                 }
+            }
+        });
+
+        // Sự kiện chuyển trang
+        view.getBtnPrevPage().addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchAndDisplayData();
+            }
+        });
+
+        view.getBtnNextPage().addActionListener(e -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                fetchAndDisplayData();
+            }
+        });
+
+        view.getCboRowsPerPage().addActionListener(e -> {
+            int selectedRows = (Integer) view.getCboRowsPerPage().getSelectedItem();
+            if (this.rowsPerPage != selectedRows) {
+                this.rowsPerPage = selectedRows;
+                this.currentPage = 1; // Quay về trang 1
+
+                // Tính lại tổng số trang và load dữ liệu
+                calculateTotalPages();
+                fetchAndDisplayData();
             }
         });
 
@@ -191,58 +219,64 @@ public class DonDatChoController {
     }
 
     private void loadData() {
-        List<DonDatChoDTO> list = donDatChoBUS.layDanhSachDonDatCho();
-        view.getTableModel().setRows(list);
+        currentState = SearchState.ALL;
+        currentPage = 1;
+
+        // 1. Đếm tổng số để tính trang
+        totalRecords = donDatChoBUS.countAllDonDatCho();
+        calculateTotalPages();
+
+        // 2. Fetch trang 1
+        fetchAndDisplayData();
     }
 
     private void handleTraCuu() {
+        currentState = SearchState.SEARCH;
+        currentPage = 1;
+
         String keyword = view.getTxtTuKhoa().getText().trim();
         String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-        List<DonDatChoDTO> results;
+        if (keyword.isEmpty()) return;
 
-        if (keyword.isEmpty()) {
-            loadData();
-            return;
-        }
+        // 2. Đếm tổng số record
+        totalRecords = donDatChoBUS.countDonDatChoByKeyword(keyword, type);
+        calculateTotalPages();
 
-        results = donDatChoBUS.layDonDatChoTheoKeyword(keyword, type);
+        if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
 
-        view.getTableModel().setRows(results);
-        if (results.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Không tìm thấy đơn đặt chỗ nào!", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            System.out.println("Tìm thấy " + results.size() + " kết quả cho: " + keyword);
-        }
+        // 3. Lấy dữ liệu trang 1 và hiển thị
+        fetchAndDisplayData();
     }
 
     private void handleLoc() {
-        // 1. Lấy dữ liệu từ View
-        Date tuNgay = view.getCheckBoxTatCaNgay().isSelected() ? null : view.getDateChooserTuNgay().getDate();
-        Date denNgay = view.getCheckBoxTatCaNgay().isSelected() ? null : view.getDateChooserDenNgay().getDate();
+        currentState = SearchState.FILTER;
+        currentPage = 1;
 
-        // 3. Validate Ngày tháng
+        // 1. Lấy dữ liệu từ View
+        boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
+        Date tuNgay = isTatCaNgay ? null : view.getDateChooserTuNgay().getDate();
+        Date denNgay = isTatCaNgay ? null : view.getDateChooserDenNgay().getDate();
+
+        // 2. Validate Ngày tháng
         if (tuNgay != null && denNgay != null && tuNgay.after(denNgay)) {
             JOptionPane.showMessageDialog(view, "Ngày bắt đầu không được lớn hơn ngày kết thúc!", "Lỗi bộ lọc",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        System.out.println(String.format("Filter: Ngay=%s-%s", tuNgay, denNgay));
+        String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+        String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-        // 4. Lọc hóa đơn theo tiêu chí
-        List<DonDatChoDTO> results = donDatChoBUS.locHoaDonTheoCacTieuChi(tuNgay, denNgay);
+        // 3. Đếm tổng số record thỏa mãn để chia trang
+        totalRecords = donDatChoBUS.countDonDatChoByFilter(tuKhoaTraCuu, loaiTraCuu, tuNgay, denNgay);
+        calculateTotalPages();
 
-        // 5. Cập nhật UI và thông báo kết quả
-        view.getTableModel().setRows(results);
+        if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!");
 
-        if (results.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Không tìm thấy hóa đơn nào phù hợp!", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
-        }
+        // 4. Lấy dữ liệu trang 1 và hiển thị
+        fetchAndDisplayData();
     }
 
     private void handleRefresh() {
@@ -349,4 +383,79 @@ public class DonDatChoController {
         // Phần tử đầu tiên của path thường là JPopupMenu cha
         return path[0].getComponent() == popup;
     }
+
+    private void calculateTotalPages() {
+        totalPages = (int) Math.ceil((double) totalRecords / rowsPerPage);
+        if (totalPages == 0) totalPages = 1;
+    }
+
+    // Gọi truy vấn đúng với trạng thái hiện tại kèm theo OFFSET (page)
+    private void fetchAndDisplayData() {
+        List<DonDatChoDTO> dtos = new ArrayList<>();
+
+        if (currentState == SearchState.ALL) {
+            dtos = donDatChoBUS.getDonDatChoByPage(currentPage, rowsPerPage);
+        } else if (currentState == SearchState.FILTER) {
+            boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
+            Date tuNgay = isTatCaNgay ? null : view.getDateChooserTuNgay().getDate();
+            Date denNgay = isTatCaNgay ? null : view.getDateChooserDenNgay().getDate();
+            String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+            String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = donDatChoBUS.locDonDatChoTheoCacTieuChi(tuKhoaTraCuu, loaiTraCuu, tuNgay, denNgay, currentPage, rowsPerPage);
+        } else if (currentState == SearchState.SEARCH) {
+            String keyword = view.getTxtTuKhoa().getText().trim();
+            String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = donDatChoBUS.layDonDatChoTheoKeyword(keyword, type, currentPage, rowsPerPage);
+        }
+
+        view.getTableModel().setRows(dtos);
+        renderPageNumbers();
+    }
+
+    // Vẽ lại các nút số trang
+    private void renderPageNumbers() {
+        JPanel pnlPages = view.getPnlPageNumbers();
+        pnlPages.removeAll();
+
+        int maxPagesToShow = 5;
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        for (int i = startPage; i <= endPage; i++) {
+            int pageNum = i;
+            JButton btnPage = new JButton(String.valueOf(pageNum));
+            btnPage.setMargin(new Insets(2, 6, 2, 6));
+            btnPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            if (pageNum == currentPage) {
+                btnPage.setBackground(new Color(38, 117, 191));
+                btnPage.setForeground(Color.WHITE);
+                btnPage.setFont(btnPage.getFont().deriveFont(Font.BOLD));
+            } else {
+                btnPage.setBackground(Color.WHITE);
+                btnPage.setForeground(Color.BLACK);
+            }
+
+            btnPage.addActionListener(e -> {
+                currentPage = pageNum;
+                fetchAndDisplayData(); // Bấm sang số nào thì chạy lại query cho số đó
+            });
+
+            pnlPages.add(btnPage);
+        }
+
+        view.getBtnPrevPage().setEnabled(currentPage > 1);
+        view.getBtnNextPage().setEnabled(currentPage < totalPages);
+
+        pnlPages.revalidate();
+        pnlPages.repaint();
+    }
+
+    private enum SearchState {ALL, FILTER, SEARCH}
 }
