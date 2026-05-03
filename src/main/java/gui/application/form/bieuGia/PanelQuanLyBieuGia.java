@@ -13,7 +13,7 @@ package gui.application.form.bieuGia;
  */
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import controller.BieuGia_CTRL;
+import controller.bieuGiaVe.BieuGia_CTRL;
 import dto.NhanVienDTO;
 
 import javax.swing.*;

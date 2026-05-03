@@ -35,8 +35,8 @@ public class MappingVeTableModel extends AbstractTableModel {
     public static final int COL_LE_PHI = 9;
     public static final int COL_CHENH_LECH = 10;
 
-    private final String[] columnNames = {"STT", "Hành khách", "Thông tin vé cũ", "Giá vé cũ", "Chọn vé mới",
-            "Thông tin vé mới", "Giá vé mới", "Chọn KM", "Giảm KM", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi",
+    private final String[] columnNames = {"STT", "Hành khách", "Thông tin vé cũ", "Chọn vé mới",
+            "Thông tin vé mới", "Chọn KM", "Giảm KM", "Phòng chờ", "Giá dịch vụ", "Lệ phí đổi",
             "Chênh lệch"};
 
     private List<MappingRow> rows;

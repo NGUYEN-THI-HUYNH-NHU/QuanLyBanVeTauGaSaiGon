@@ -12,6 +12,7 @@ package gui.application.form.thongTin;
  * @version: 1.0
  */
 
+import controller.xacThuc.ThongTinCaNhanController;
 import dto.NhanVienDTO;
 
 import javax.swing.*;
@@ -188,7 +189,7 @@ public class FormThongTinCaNhan extends JPanel {
         hienThiAnh(nhanVien.getAvatar());
     }
 
-    void hienThiAnh(byte[] imgData) {
+    public void hienThiAnh(byte[] imgData) {
         if (imgData != null && imgData.length > 0) {
             ImageIcon icon = new ImageIcon(imgData);
             Image img = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);

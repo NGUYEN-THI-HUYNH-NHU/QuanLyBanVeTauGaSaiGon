@@ -89,56 +89,122 @@ public class GiaoDienChinh extends JLayeredPane {
     private void initMenuEvent(NhanVienDTO nhanVien) {
         menu.addSuKienMenu((int index, int subIndex, HanhDongMenu action) -> {
             switch (index) {
-                case 1 -> UngDung.showGiaoDienChinh(new Dashboard());
+                case 1 -> {
+                    UngDung.showGiaoDienChinh(new Dashboard());
+                    UngDung.updateWindowTitle("Dashboard");
+                }
                 // UC cua NHAN_VIEN
-                case 2 ->
-                        UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
+                case 2 -> {
+                    UngDung.showGiaoDienChinh(UngDung.getInstance().getOrCreatePanel("PanelBanVe", () -> new PanelBanVe()));
+                    UngDung.updateWindowTitle("Bán vé");
+                }
+
                 case 3 -> {
                     switch (subIndex) {
-                        case 1 -> UngDung.showGiaoDienChinh(
-                                UngDung.getInstance().getOrCreatePanel("PanelHoanVe", () -> new PanelHoanVe()));
-                        case 2 -> UngDung.showGiaoDienChinh(
-                                UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
-                        case 3 -> UngDung.showGiaoDienChinh(new PanelXemInVe());
+                        case 1 -> {
+                            UngDung.showGiaoDienChinh(
+                                    UngDung.getInstance().getOrCreatePanel("PanelHoanVe", () -> new PanelHoanVe()));
+                            UngDung.updateWindowTitle("Hoàn vé");
+                        }
+                        case 2 -> {
+                            UngDung.showGiaoDienChinh(
+                                    UngDung.getInstance().getOrCreatePanel("PanelDoiVe", () -> new PanelDoiVe()));
+                            UngDung.updateWindowTitle("Đổi vé");
+                        }
+                        case 3 -> {
+                            UngDung.showGiaoDienChinh(new PanelXemInVe());
+                            UngDung.updateWindowTitle("Xem & In vé");
+                        }
                         default -> action.cancel();
                     }
                 }
-                case 4 -> UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
-                case 5 -> UngDung.showGiaoDienChinh(new PanelQuanLyDonDatCho());
+                case 4 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyHoaDon());
+                    UngDung.updateWindowTitle("Quản lý hóa đơn");
+                }
+                case 5 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyDonDatCho());
+                    UngDung.updateWindowTitle("Quản lý đơn đặt chỗ");
+                }
                 case 14 -> {
                     switch (subIndex) {
-                        case 1 -> UngDung.showGiaoDienChinh(new PanelThongKe());
-                        case 2 -> UngDung.showGiaoDienChinh(new PanelBaoCao());
+                        case 1 -> {
+                            UngDung.showGiaoDienChinh(new PanelThongKe());
+                            UngDung.updateWindowTitle("Thống kê");
+                        }
+                        case 2 -> {
+                            UngDung.showGiaoDienChinh(new PanelBaoCao());
+                            UngDung.updateWindowTitle("Báo cáo");
+                        }
                     }
                 }
 
                 // UC cua QUAN_LY
-                case 6 -> UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
-                case 7 -> UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
-                case 8 -> UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+                case 6 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyTuyen(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý tuyến");
+                }
+                case 7 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyChuyen(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý chuyến");
+                }
+                case 8 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyBieuGia(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý biểu giá");
+                }
 
-                case 9 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
-                case 10 -> UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien));
-                case 11 -> UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
-                case 12 -> UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
+                case 9 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyKhuyenMai(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý khuyến mãi");
+                }
+                case 10 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý khách hàng");
+                }
+                case 11 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyNhanVien(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý nhân viên");
+                }
+                case 12 -> {
+                    UngDung.showGiaoDienChinh(new PanelQuanLyTaiKhoan(nhanVien));
+                    UngDung.updateWindowTitle("Quản lý tài khoản");
+                }
 
                 // UC dung chung
                 case 15 -> {
                     switch (subIndex) {
-                        case 1 -> UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
-                        case 2 -> UngDung.showGiaoDienChinh(new PanelThongKeVe());
-                        case 3 -> UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
+                        case 1 -> {
+                            UngDung.showGiaoDienChinh(new PanelThongKeDoanhThu());
+                            UngDung.updateWindowTitle("Thống kê doanh thu");
+                        }
+                        case 2 -> {
+                            UngDung.showGiaoDienChinh(new PanelThongKeVe());
+                            UngDung.updateWindowTitle("Thống kê vé");
+                        }
+                        case 3 -> {
+                            UngDung.showGiaoDienChinh(new PanelThongKeKhachHang());
+                            UngDung.updateWindowTitle("Thống kê khách hàng");
+                        }
                         default -> action.cancel();
                     }
                 }
                 case 16 -> {
                     switch (subIndex) {
-                        case 1 -> UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
-                        case 2 -> UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
+                        case 1 -> {
+                            UngDung.showGiaoDienChinh(new FormThongTinCaNhan(nhanVien));
+                            UngDung.updateWindowTitle("Thông tin cá nhân");
+                        }
+                        case 2 -> {
+                            UngDung.showGiaoDienChinh(new FormDoiMatKhau(nhanVien));
+                            UngDung.updateWindowTitle("Đổi mật khẩu");
+                        }
                         default -> action.cancel();
                     }
                 }
-                case 17 -> UngDung.showGiaoDienChinh(new PanelNhatKyAudit(nhanVien));
+                case 17 -> {
+                    UngDung.showGiaoDienChinh(new PanelNhatKyAudit(nhanVien));
+                    UngDung.updateWindowTitle("Nhật ký Audit");
+                }
                 case 18 -> {
                     if (JOptionPane.showConfirmDialog(this,
                             "Bạn xác nhận điều hướng sang trình duyệt để mở trang About us?", "Xác nhận",
@@ -146,7 +212,10 @@ public class GiaoDienChinh extends JLayeredPane {
                         AboutUsHelper.openAboutUs();
                     }
                 }
-                case 19 -> UngDung.showGiaoDienChinh(new PanelTroGiup());
+                case 19 -> {
+                    UngDung.showGiaoDienChinh(new PanelTroGiup());
+                    UngDung.updateWindowTitle("Trợ giúp");
+                }
                 case 20 -> UngDung.dangXuat();
                 default -> action.cancel();
             }

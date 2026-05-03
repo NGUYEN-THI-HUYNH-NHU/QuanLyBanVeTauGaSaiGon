@@ -1,4 +1,4 @@
-package controller;
+package controller.bieuGiaVe;
 
 import bus.BieuGiaVe_BUS;
 import bus.Tuyen_BUS;

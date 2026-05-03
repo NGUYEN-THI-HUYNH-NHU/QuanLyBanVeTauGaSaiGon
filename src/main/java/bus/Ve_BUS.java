@@ -117,7 +117,7 @@ public class Ve_BUS {
      * @return List<Ve>
      */
     public List<Ve> taoCacVeVaThemVaoBookingSession(BookingSession bookingSession) {
-        List<Ve> dsVe = new ArrayList<Ve>();
+        List<Ve> dsVe = new ArrayList<>();
         List<VeSession> dsVeDi = bookingSession.getOutboundSelected();
         List<VeSession> dsVeVe = bookingSession.getReturnSelected();
         DonDatChoDTO donDatCho = bookingSession.getDonDatCho();
@@ -200,16 +200,14 @@ public class Ve_BUS {
         }
     }
 
-    /**
-     * @return
-     */
-    public List<Ve> layCacVe() {
-        return veDAO.getAllVe();
+    public List<VeDTO> locVeTheoCacTieuChi(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
+                                           Date denNgay, int page, int limit) {
+        return veDAO.searchVeByFilter(tuKhoaTraCuu, loaiTraCuu, trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay, page, limit).stream().map(VeMapper.INSTANCE::toDTO).toList();
     }
 
-    public List<Ve> locVeTheoCacTieuChi(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
-                                        Date denNgay) {
-        return veDAO.searchVeByFilter(trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay);
+    public int countVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay,
+                               Date denNgay) {
+        return veDAO.countVeByFilter(tuKhoaTraCuu, loaiTraCuu, trangThaiVe, khachHang, soGiayTo, tuNgay, denNgay);
     }
 
     /**
@@ -225,8 +223,13 @@ public class Ve_BUS {
      * @param type
      * @return
      */
-    public List<Ve> layVeTheoKeyword(String keyword, String type) {
-        return veDAO.searchVeByKeyword(keyword, type);
+    public List<VeDTO> layVeTheoKeyword(String keyword, String type, int page, int limit) {
+        return veDAO.searchVeByKeyword(keyword, type, page, limit)
+                .stream().map(VeMapper.INSTANCE::toDTO).toList();
+    }
+
+    public int countVeByKeyword(String keyword, String type) {
+        return veDAO.countVeByKeyword(keyword, type);
     }
 
     /**
@@ -243,5 +246,13 @@ public class Ve_BUS {
      */
     public List<String> layTop10SoGiayToKhachHang(String keyword) {
         return veDAO.getTop10SoGiayToKhachHang(keyword);
+    }
+
+    public int countAllVe() {
+        return veDAO.countAllVe();
+    }
+
+    public List<VeDTO> getVeByPage(int currentPage, int rowsPerPage) {
+        return veDAO.getVeByPage(currentPage, rowsPerPage).stream().map(VeMapper.INSTANCE::toDTO).toList();
     }
 }

@@ -1,4 +1,4 @@
-package gui.application.form.hoaDon;
+package controller.hoaDon;
 
 /*
  * @(#) HoaDonController.java  1.0  [2:58:25 PM] Nov 24, 2025
@@ -18,6 +18,10 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import dto.HoaDonChiTietDTO;
 import dto.HoaDonDTO;
 import dto.KhachHangDTO;
+import gui.application.form.hoaDon.HoaDonTableButtonRenderer;
+import gui.application.form.hoaDon.HoaDonTableModel;
+import gui.application.form.hoaDon.ModalHoaDon;
+import gui.application.form.hoaDon.PanelQuanLyHoaDon;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

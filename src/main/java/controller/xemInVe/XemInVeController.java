@@ -1,4 +1,4 @@
-package gui.application.form.xemInVe;
+package controller.xemInVe;
 /*
  * @(#) XemInVeController.java  1.0  [7:11:00 PM] Dec 17, 2025
  *
@@ -11,8 +11,10 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import dto.KhachHangDTO;
 import dto.VeDTO;
 import entity.type.TrangThaiVe;
+import gui.application.form.xemInVe.PanelXemInVe;
+import gui.application.form.xemInVe.VeTableButtonRenderer;
+import gui.application.form.xemInVe.VeTableModel;
 import gui.application.paymentHelper.PdfTicketExporter;
-import mapper.VeMapper;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -31,35 +33,39 @@ import java.util.List;
  */
 
 public class XemInVeController {
-    private final Ve_BUS veBUS;
-    private final KhachHang_BUS khachHangBUS;
+    private final Ve_BUS veBUS = new Ve_BUS();
+    private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
+    private final int rowsPerPage = 20;
+    private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
+    private final JPopupMenu khachHangSuggestionPopup = new JPopupMenu();
     private PanelXemInVe view;
-    private JPopupMenu traCuuSuggestionPopup;
-    private JPopupMenu khachHangSuggestionPopup;
     private KhachHangDTO selectedKhachHang = null;
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private SearchState currentState = SearchState.ALL;
 
     public XemInVeController(PanelXemInVe view) {
         this.view = view;
-        this.traCuuSuggestionPopup = new JPopupMenu();
-        this.khachHangSuggestionPopup = new JPopupMenu();
+
         // Tắt focusable của popup để focus vẫn nằm ở TextField khi gõ
         this.traCuuSuggestionPopup.setFocusable(false);
         this.khachHangSuggestionPopup.setFocusable(false);
 
-        this.veBUS = new Ve_BUS();
-        this.khachHangBUS = new KhachHang_BUS();
-
         loadAllVe();
-
         init();
     }
 
     private void loadAllVe() {
-        List<VeDTO> dtos = veBUS.layCacVe()
-                .stream()
-                .map(VeMapper.INSTANCE::toDTO)
-                .toList();
-        this.view.getTableModel().setRows(dtos);
+        currentState = SearchState.ALL;
+        currentPage = 1;
+
+        // 1. Đếm tổng số để tính trang
+        int totalRecords = veBUS.countAllVe();
+        calculateTotalPages(totalRecords);
+
+        // 2. Fetch trang 1
+        fetchAndDisplayData();
     }
 
     private void init() {
@@ -122,6 +128,21 @@ public class XemInVeController {
                 }
             }
         });
+
+        // Sự kiện chuyển trang
+        view.getBtnPrevPage().addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchAndDisplayData();
+            }
+        });
+
+        view.getBtnNextPage().addActionListener(e -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                fetchAndDisplayData();
+            }
+        });
     }
 
     private void handleNgayLoc() {
@@ -130,59 +151,47 @@ public class XemInVeController {
         view.getDateChooserDenNgay().setEnabled(!isSelected);
     }
 
-    // Xử lý khi bấm nút Lọc
     private void handleLoc() {
-        // 1. Lấy dữ liệu từ View
-        String loaiVe = (String) view.getCboLoaiVe().getSelectedItem();
-        String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+        currentState = SearchState.FILTER;
+        currentPage = 1;
+
+        // 1. Validate Ngày tháng trước khi làm các việc khác
         boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
         Date tuNgay = view.getDateChooserTuNgay().getDate();
         Date denNgay = view.getDateChooserDenNgay().getDate();
 
-        String searchKeyword = null; // Dùng tìm theo tên/sđt/cccd (LIKE)
-        String searchID = null; // Dùng tìm chính xác theo ID (=)
-
-        // 2. Logic thông minh
-        if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen())) {
-            // Nếu người dùng chọn từ gợi ý và không sửa tên -> Tìm chính xác theo ID
-            searchID = selectedKhachHang.getId();
-        } else {
-            // Nếu tự gõ hoặc đã sửa tên -> Tìm tương đối theo từ khóa
-            searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
-            selectedKhachHang = null; // Reset biến nhớ để tránh nhầm lẫn lần sau
-        }
-
-        // 3. Validate Ngày tháng
-        if (isTatCaNgay) {
-            tuNgay = null;
-            denNgay = null;
-        } else if (tuNgay != null && denNgay != null && tuNgay.after(denNgay)) {
+        if (!isTatCaNgay && tuNgay != null && denNgay != null && tuNgay.after(denNgay)) {
             JOptionPane.showMessageDialog(view, "Ngày bắt đầu không được lớn hơn ngày kết thúc!", "Lỗi bộ lọc",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiVe, searchKeyword,
-                searchID, tuNgay, denNgay));
+        String loaiVe = (String) view.getCboLoaiVe().getSelectedItem();
+        String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+        String searchKeyword = null;
+        String searchID = null;
 
-        // 4. Lọc vé theo tiêu chí
-        List<VeDTO> dtos = veBUS.locVeTheoCacTieuChi(loaiVe, searchKeyword, searchID, tuNgay, denNgay)
-                .stream()
-                .map(VeMapper.INSTANCE::toDTO)
-                .toList();
-
-        // 5. Cập nhật UI và thông báo kết quả
-        view.getTableModel().setRows(dtos);
-
-        if (dtos.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
+        if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen())) {
+            searchID = selectedKhachHang.getId();
         } else {
-            view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
+            searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
         }
+
+        String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+        String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+        // 3. Đếm tổng số record thỏa mãn để chia trang
+        int totalRecords = veBUS.countVeByFilter(tuKhoaTraCuu, loaiTraCuu, loaiVe, searchKeyword, searchID, isTatCaNgay ? null : tuNgay, isTatCaNgay ? null : denNgay);
+        calculateTotalPages(totalRecords);
+
+        if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy vé nào phù hợp!");
+        else view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
+
+
+        // 4. Lấy dữ liệu trang 1 và hiển thị
+        fetchAndDisplayData();
     }
 
-    // Xử lý khi bấm nút Xóa bộ lọc
     private void handleReset() {
         view.getCboLoaiVe().setSelectedIndex(0);
         view.getTxtKhachHangSuggest().setText("");
@@ -196,33 +205,45 @@ public class XemInVeController {
     }
 
     private void handleTraCuu() {
+        currentState = SearchState.SEARCH;
+        currentPage = 1;
+
         // 1. Lấy dữ liệu
         String keyword = view.getTxtTuKhoa().getText().trim();
         String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-        // 2. Lấy các vé theo keyword và loại tra cứu
-        List<VeDTO> dtos = veBUS.layVeTheoKeyword(keyword, type)
-                .stream()
-                .map(VeMapper.INSTANCE::toDTO)
-                .toList();
-        // 3. Update Table
-        view.getTableModel().setRows(dtos);
+        // 2. Đếm tổng số record
+        int totalRecords = veBUS.countVeByKeyword(keyword, type);
+        calculateTotalPages(totalRecords);
 
-        if (dtos.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            System.out.println("Tìm thấy " + dtos.size() + " kết quả cho: " + keyword);
-        }
+        if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
+
+        // 3. Lấy dữ liệu trang 1 và hiển thị
+        fetchAndDisplayData();
     }
 
-    // Xử lý khi bấm nút Làm mới
     private void handleRefresh() {
         view.getTxtTuKhoa().setText("");
         view.getCboLoaiTimKiem().setSelectedIndex(0);
 
         handleReset();
         loadAllVe();
+    }
+
+    private void handleInVe(VeDTO ve) {
+        if (!ve.getTrangThai().equals(TrangThaiVe.DA_BAN.name())) {
+            JOptionPane.showMessageDialog(view, "Vé " + TrangThaiVe.valueOf(ve.getTrangThai()).getDescription() + ". Không thể in");
+            return;
+        }
+
+        int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in vé " + ve.getVeID() + " không?",
+                "Xác nhận in", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            PdfTicketExporter exporter = new PdfTicketExporter();
+            exporter.exportTicketsToPdf(ve);
+        }
     }
 
     private void setupTraCuuSuggestion() {
@@ -392,21 +413,6 @@ public class XemInVeController {
         }
     }
 
-    private void handleInVe(VeDTO ve) {
-        if (!ve.getTrangThai().equals(TrangThaiVe.DA_BAN.name())) {
-            JOptionPane.showMessageDialog(view, "Vé " + TrangThaiVe.valueOf(ve.getTrangThai()).getDescription() + ". Không thể in");
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(view, "Bạn có muốn in vé " + ve.getVeID() + " không?",
-                "Xác nhận in", JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            PdfTicketExporter exporter = new PdfTicketExporter();
-            exporter.exportTicketsToPdf(ve);
-        }
-    }
-
     private void addSuggestionKeyListeners(JTextField textField, JPopupMenu popup, Runnable defaultEnterAction) {
         textField.addKeyListener(new KeyAdapter() {
             @Override
@@ -488,4 +494,88 @@ public class XemInVeController {
         // Phần tử đầu tiên của path thường là JPopupMenu cha
         return path[0].getComponent() == popup;
     }
+
+    private void calculateTotalPages(int totalRecords) {
+        totalPages = (int) Math.ceil((double) totalRecords / rowsPerPage);
+        if (totalPages == 0) totalPages = 1;
+    }
+
+    // Gọi truy vấn đúng với trạng thái hiện tại kèm theo OFFSET (page)
+    private void fetchAndDisplayData() {
+        List<VeDTO> dtos = new ArrayList<>();
+
+        if (currentState == SearchState.ALL) {
+            dtos = veBUS.getVeByPage(currentPage, rowsPerPage);
+        } else if (currentState == SearchState.FILTER) {
+            String loaiVe = (String) view.getCboLoaiVe().getSelectedItem();
+            String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+            boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
+            Date tuNgay = isTatCaNgay ? null : view.getDateChooserTuNgay().getDate();
+            Date denNgay = isTatCaNgay ? null : view.getDateChooserDenNgay().getDate();
+
+            String searchKeyword = null;
+            String searchID = null;
+            if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen()))
+                searchID = selectedKhachHang.getId();
+            else searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
+
+            String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+            String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = veBUS.locVeTheoCacTieuChi(tuKhoaTraCuu, loaiTraCuu, loaiVe, searchKeyword, searchID, tuNgay, denNgay, currentPage, rowsPerPage);
+        } else if (currentState == SearchState.SEARCH) {
+            String keyword = view.getTxtTuKhoa().getText().trim();
+            String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = veBUS.layVeTheoKeyword(keyword, type, currentPage, rowsPerPage);
+        }
+
+        view.getTableModel().setRows(dtos);
+        renderPageNumbers();
+    }
+
+    // Vẽ lại các nút số trang
+    private void renderPageNumbers() {
+        JPanel pnlPages = view.getPnlPageNumbers();
+        pnlPages.removeAll();
+
+        int maxPagesToShow = 5;
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        for (int i = startPage; i <= endPage; i++) {
+            int pageNum = i;
+            JButton btnPage = new JButton(String.valueOf(pageNum));
+            btnPage.setMargin(new Insets(2, 6, 2, 6));
+            btnPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            if (pageNum == currentPage) {
+                btnPage.setBackground(new Color(38, 117, 191));
+                btnPage.setForeground(Color.WHITE);
+                btnPage.setFont(btnPage.getFont().deriveFont(Font.BOLD));
+            } else {
+                btnPage.setBackground(Color.WHITE);
+                btnPage.setForeground(Color.BLACK);
+            }
+
+            btnPage.addActionListener(e -> {
+                currentPage = pageNum;
+                fetchAndDisplayData(); // Bấm sang số nào thì chạy lại query cho số đó
+            });
+
+            pnlPages.add(btnPage);
+        }
+
+        view.getBtnPrevPage().setEnabled(currentPage > 1);
+        view.getBtnNextPage().setEnabled(currentPage < totalPages);
+
+        pnlPages.revalidate();
+        pnlPages.repaint();
+    }
+
+    private enum SearchState {ALL, FILTER, SEARCH}
 }

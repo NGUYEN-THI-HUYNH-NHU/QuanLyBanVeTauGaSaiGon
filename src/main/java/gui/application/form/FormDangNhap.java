@@ -11,7 +11,7 @@ package gui.application.form;/*
 								*/
 
 import com.formdev.flatlaf.FlatClientProperties;
-import controller.DangNhap_Ctrl;
+import controller.xacThuc.DangNhap_Ctrl;
 import gui.tuyChinh.RoundedBorder;
 import net.miginfocom.swing.MigLayout;
 
@@ -35,8 +35,8 @@ public class FormDangNhap extends JPanel {
         setLayout(new GridBagLayout());
         setOpaque(false);
 
-        pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]20[]"));
-        pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(240, 240, 240)));
+        pnlLogin = new JPanel(new MigLayout("wrap 1, fillx", "[grow,fill]", "[]40[]10[]10[]10[]40[]60[]"));
+        pnlLogin.setBorder(new RoundedBorder(20, new Color(220, 220, 220), 1, true, new Color(250, 250, 250)));
         pnlLogin.setOpaque(false);
         pnlLogin.setPreferredSize(new Dimension(360, 400));
 
@@ -53,6 +53,20 @@ public class FormDangNhap extends JPanel {
         btnLogin.setBackground(new Color(0, 95, 159));
         pnlLogin.add(btnQuenMK = new JButton("Quên mật khẩu?"));
         btnQuenMK.setForeground(new Color(7, 43, 143));
+        btnQuenMK.setBorderPainted(false);
+        btnQuenMK.setContentAreaFilled(false);
+        btnQuenMK.setFocusPainted(false);
+        btnQuenMK.setMargin(new Insets(50, 0, 0, 0));
+        btnQuenMK.setText("<html><u>Quên mật khẩu?</u></html>");
+        btnQuenMK.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnQuenMK.setForeground(new Color(0, 81, 204));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnQuenMK.setForeground(new Color(7, 43, 143));
+            }
+        });
         btnLogin.setForeground(Color.WHITE);
 
         GridBagConstraints gbc = new GridBagConstraints();

@@ -32,15 +32,15 @@ import java.util.function.Supplier;
 
 public class UngDung extends JFrame {
     private static final long serialVersionUID = 1L;
+    private static final String BASE_TITLE = "Quản Lý Bán Vé Tàu Ga Sài Gòn";
     private static UngDung ungDung;
     private final FormDangNhap formDangNhap;
     private GiaoDienChinh giaoDienChinh;
-
     // Biến để lưu trữ các màn hình cần giữ trạng thái
     private Map<String, Component> panelCache = new HashMap<>();
 
     private UngDung() {
-        super("Quản Lý Bán Vé Tàu Ga Sài Gòn");
+        super(BASE_TITLE);
         ungDung = this;
         formDangNhap = new FormDangNhap();
 
@@ -79,6 +79,7 @@ public class UngDung extends JFrame {
         ungDung.formDangNhap.getTxtTenDangNhap().requestFocusInWindow();
         SwingUtilities.updateComponentTreeUI(ungDung.formDangNhap);
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
+        updateWindowTitle(null);
     }
 
     public static void main(String args[]) {
@@ -125,6 +126,11 @@ public class UngDung extends JFrame {
     public static void loadDataForCreatingNewKhachHang(NhanVienDTO nhanVien, String cccd) {
         setSelectedMenu(10, 0);
         UngDung.showGiaoDienChinh(new PanelQuanLyKhachHang(nhanVien, cccd));
+    }
+
+    public static void updateWindowTitle(String suffix) {
+        if (suffix == null || suffix.isBlank()) ungDung.setTitle(BASE_TITLE);
+        else ungDung.setTitle(BASE_TITLE + " - " + suffix);
     }
 
     public GiaoDienChinh getGiaoDienChinh() {
