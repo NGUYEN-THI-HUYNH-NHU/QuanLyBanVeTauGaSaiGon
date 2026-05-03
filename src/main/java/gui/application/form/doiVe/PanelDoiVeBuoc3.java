@@ -65,7 +65,6 @@ public class PanelDoiVeBuoc3 extends JPanel {
         table.setGridColor(new Color(220, 220, 220));
 
         // Cấu hình độ rộng cột (dùng chỉ số mới)
-        table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setMaxWidth(30);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(130);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(200);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setMinWidth(120);
@@ -94,7 +93,6 @@ public class PanelDoiVeBuoc3 extends JPanel {
         LeftTopRenderer leftTopRenderer = new LeftTopRenderer();
         table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setCellRenderer(leftTopRenderer);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setCellRenderer(leftTopRenderer);
-        table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setCellRenderer(leftTopRenderer);
 
         table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK));
         table.removeColumn(table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI - 1));

@@ -69,8 +69,7 @@ public class PanelDoiVeBuoc2 extends JPanel {
         table.setGridColor(new Color(220, 220, 220));
 
         // Cấu hình độ rộng cột
-        table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setMaxWidth(30);
-        table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(130);
+        table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(140);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_VE_DOI).setMinWidth(160);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_DU_DK).setMinWidth(100);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_THONG_TIN_PHI).setMinWidth(100);
@@ -205,7 +204,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
         // Cột Thời gian
         table.getColumnModel().getColumn(VeDoiTableModel.COL_TG_CON_LAI).setCellRenderer(timeRenderer);
         // Cột Tiền
-        table.getColumnModel().getColumn(VeDoiTableModel.COL_STT).setCellRenderer(currencyFormatRenderer);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_THANH_TIEN).setCellRenderer(currencyFormatRenderer);
         table.getColumnModel().getColumn(VeDoiTableModel.COL_LE_PHI).setCellRenderer(currencyFormatRenderer);
         // Cột Text thường (Tên, Thông tin vé)

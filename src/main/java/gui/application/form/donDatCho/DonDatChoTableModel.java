@@ -20,19 +20,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DonDatChoTableModel extends AbstractTableModel {
-    public static final int COL_STT = 0;
-    public static final int COL_DDC_ID = 1;
-    public static final int COL_TEN_KH = 2;
-    public static final int COL_CCCD_KH = 3;
-    public static final int COL_SDT_KH = 4;
-    public static final int COL_TONG_VE = 5;
-    public static final int COL_SO_HOAN = 6;
-    public static final int COL_SO_DOI = 7;
-    public static final int COL_THOI_DIEM_DAT = 8;
-    public static final int COL_NGUOI_LAP = 9;
-    public static final int COL_XEM = 10;
+    public static final int COL_DDC_ID = 0;
+    public static final int COL_TEN_KH = 1;
+    public static final int COL_CCCD_KH = 2;
+    public static final int COL_SDT_KH = 3;
+    public static final int COL_TONG_VE = 4;
+    public static final int COL_SO_HOAN = 5;
+    public static final int COL_SO_DOI = 6;
+    public static final int COL_THOI_DIEM_DAT = 7;
+    public static final int COL_NGUOI_LAP = 8;
+    public static final int COL_XEM = 9;
 
-    private final String[] columnNames = {"STT", "Mã đặt chỗ", "Tên khách hàng", "CCCD KH", "SĐT KH", "SL vé",
+    private final String[] columnNames = {"Mã đặt chỗ", "Tên khách hàng", "CCCD KH", "SĐT KH", "SL vé",
             "Đã hoàn", "Đã đổi", "Ngày đặt chỗ", "Người lập", "Xem"};
 
     private List<DonDatChoDTO> rows;
@@ -81,15 +80,13 @@ public class DonDatChoTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex > COL_STT && columnIndex < COL_TONG_VE;
+        return columnIndex < COL_TONG_VE;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         DonDatChoDTO row = rows.get(rowIndex);
         switch (columnIndex) {
-            case COL_STT:
-                return rowIndex + 1;
             case COL_DDC_ID:
                 return row.getId();
             case COL_TEN_KH:

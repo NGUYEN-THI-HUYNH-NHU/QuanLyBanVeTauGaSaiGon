@@ -46,6 +46,7 @@ public class PanelXemInVe extends JPanel {
     private JButton btnPrevPage;
     private JButton btnNextPage;
     private JPanel pnlPageNumbers;
+    private JComboBox<Integer> cboRowsPerPage;
 
     public PanelXemInVe() {
         setLayout(new BorderLayout());
@@ -182,16 +183,15 @@ public class PanelXemInVe extends JPanel {
         table.setShowGrid(true);
         table.setGridColor(new Color(220, 220, 220));
 
-        table.getColumnModel().getColumn(0).setMaxWidth(30);
-        table.getColumnModel().getColumn(1).setMinWidth(180);
-        table.getColumnModel().getColumn(2).setMinWidth(130);
-        table.getColumnModel().getColumn(3).setMinWidth(90);
+        table.getColumnModel().getColumn(0).setMinWidth(180);
+        table.getColumnModel().getColumn(1).setMinWidth(130);
+        table.getColumnModel().getColumn(2).setMinWidth(90);
+        table.getColumnModel().getColumn(3).setMinWidth(110);
         table.getColumnModel().getColumn(4).setMinWidth(110);
-        table.getColumnModel().getColumn(5).setMinWidth(110);
-        table.getColumnModel().getColumn(6).setMinWidth(70);
+        table.getColumnModel().getColumn(5).setMinWidth(70);
+        table.getColumnModel().getColumn(6).setMaxWidth(70);
         table.getColumnModel().getColumn(7).setMaxWidth(70);
-        table.getColumnModel().getColumn(8).setMaxWidth(70);
-        table.getColumnModel().getColumn(9).setMaxWidth(40);
+        table.getColumnModel().getColumn(8).setMaxWidth(40);
 
         LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
         CurrencyRenderer currencyRenderer = new CurrencyRenderer();
@@ -226,15 +226,31 @@ public class PanelXemInVe extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // THÊM: Tạo Panel Phân Trang
-        JPanel pnlPagination = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        // Tạo Panel Phân Trang
+        JPanel pnlPagination = new JPanel(new BorderLayout());
+        pnlPagination.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Khu vực canh giữa: Chứa các nút tiến/lùi và số trang
+        JPanel pnlPageControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         btnPrevPage = new JButton("<");
         btnNextPage = new JButton(">");
         pnlPageNumbers = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
 
-        pnlPagination.add(btnPrevPage);
-        pnlPagination.add(pnlPageNumbers);
-        pnlPagination.add(btnNextPage);
+        pnlPageControls.add(btnPrevPage);
+        pnlPageControls.add(pnlPageNumbers);
+        pnlPageControls.add(btnNextPage);
+
+        // Khu vực góc Phải: dropdown tùy chỉnh số dòng
+        JPanel pnlRowsCount = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pnlRowsCount.add(new JLabel("Số dòng/trang:"));
+        cboRowsPerPage = new JComboBox<>(new Integer[]{10, 15, 20, 25, 50});
+        cboRowsPerPage.setSelectedItem(20);
+        cboRowsPerPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        pnlRowsCount.add(cboRowsPerPage);
+
+        // Ghép vào thanh phân trang
+        pnlPagination.add(pnlPageControls, BorderLayout.CENTER);
+        pnlPagination.add(pnlRowsCount, BorderLayout.EAST);
 
         // Bọc Table và Phân trang lại
         JPanel pnlCenter = new JPanel(new BorderLayout());

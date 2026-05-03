@@ -10,23 +10,24 @@ public interface IDonDatChoDAO extends IGenericDAO<DonDatCho, String> {
 
     boolean insertDonDatCho(DonDatCho donDatCho) throws Exception;
 
-    List<DonDatCho> getListDonDatCho();
+    List<DonDatCho> searchDonDatChoByKeyword(String keyword, String type, int page, int limit);
 
+    List<DonDatCho> searchDonDatChoByFilter(String tuKhoaTraCuu, String loaiTraCuu, Date tuNgay, Date denNgay, int page, int limit);
 
-    List<DonDatCho> searchDonDatChoByKeyword(String keyword, String type);
+    int countDonDatChoByKeyword(String keyword, String type);
 
+    int countDonDatChoByFilter(String keyword, String type, Date tuNgay, Date denNgay);
+
+    int countAll();
+
+    List<DonDatCho> getDonDatChoByPage(int page, int limit);
 
     List<String> getTop10DonDatChoID(String keyword);
 
-
     List<String> getTop10SoGiayTo(String keyword);
-
 
     List<String> getTop10SoDienThoai(String keyword);
 
-
     List<String> getTop10TenKhachHang(String keyword);
 
-
-    List<DonDatCho> searchDonDatChoByFilter(Date tuNgay, Date denNgay);
 }
