@@ -1,4 +1,5 @@
-package gui.application.form.quanLyChuyen;/*
+package gui.application.form.quanLyChuyen;
+/*
  * @ (#) PanelQuanLyChuyen.java   1.0     26/11/2025
 package gui.application.form.quanLyChuyen;
 
@@ -69,7 +70,7 @@ public class PanelQuanLyChuyen extends JPanel {
         JSplitPane splitPane = createCenterPanel();
         add(splitPane, BorderLayout.CENTER);
 
-        setupKeyBindings();
+//        setupKeyBindings();
 
         ppMaChuyen = new JPopupMenu();
         listMaChuyen = new JList<>();

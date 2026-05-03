@@ -1,6 +1,7 @@
 package bus;
 
-import dao.impl.KhachHang_DAO;
+import dao.IKhachHangDAO;
+import dao.impl.KhachHangDAO;
 import dto.KhachHangDTO;
 import entity.KhachHang;
 import entity.NhanVien;
@@ -8,206 +9,202 @@ import entity.NhatKyAudit;
 import gui.application.AuthService;
 import mapper.KhachHangMapper;
 import mapper.NhanVienMapper;
-
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public class KhachHang_BUS {
-    private final KhachHang_DAO khachHang_dao;
+    private final IKhachHangDAO khachHangDAO;
     private final NhanVien nhanVienHienTai;
     private final NhatKyAudit_BUS nhatKyAudit_bus;
 
     public KhachHang_BUS() {
-        khachHang_dao = new KhachHang_DAO();
+        this.khachHangDAO = new KhachHangDAO();
         this.nhanVienHienTai = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
         this.nhatKyAudit_bus = new NhatKyAudit_BUS();
     }
 
-    // them khach hang
-    public boolean themKhachHang(KhachHangDTO kh) {
-        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
-        boolean ok = khachHang_dao.themKhachHang(khachHang);
+    // ================= LẤY DỮ LIỆU =================
 
-        if (ok) {
-            ghiLog(kh.getId(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
-                    entity.type.NhatKyAudit.THEM, "Thêm khách hàng: " + kh.getHoTen() + " - " + kh.getSoDienThoai());
-        }
-        return ok;
+    public List<KhachHang> getAllKhachHang() {
+        // SỬA TẠI ĐÂY: Gọi đúng hàm đã được Override có LEFT JOIN FETCH ở DAO
+        return khachHangDAO.getAllKhachHang();
     }
 
-    // ghi log
-    public void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
-        if (nhatKyAudit_bus == null) {
-            return;
+    public KhachHang timKiemKhachHangTheoSDT(String sdt) {
+        return khachHangDAO.timKhachHangTheoSDT(sdt);
+    }
+
+    public KhachHangDTO timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
+        KhachHang kh = khachHangDAO.timKhachHangTheoSoGiayTo(soGiayTo);
+        return kh != null ? KhachHangMapper.INSTANCE.toDTO(kh) : null;
+    }
+
+    public List<KhachHangDTO> layGoiYKhachHang(String keyword) {
+        return khachHangDAO.getTop10KhachHangSuggest(keyword).stream()
+                .map(KhachHangMapper.INSTANCE::toDTO)
+                .toList();
+    }
+
+    // ================= THÊM KHÁCH HÀNG =================
+
+    public boolean themKhachHang(KhachHangDTO kh) {
+        if (kh == null) return false;
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
+        try {
+            khachHangDAO.create(khachHang);
+            ghiLog(kh.getId(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
+                    entity.type.NhatKyAudit.THEM, "Thêm khách hàng: " + kh.getHoTen() + " - " + kh.getSoDienThoai());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
+    }
+
+    public boolean themHoacCapNhatKhachHang(KhachHangDTO khDTO) {
+        return true;
+    }
+
+    public boolean themHoacCapNhatKhachHang(Connection con, KhachHangDTO khDTO) {
+        return themHoacCapNhatKhachHang(khDTO);
+    }
+
+    // ================= CẬP NHẬT KHÁCH HÀNG =================
+
+    public boolean capNhatLoaiKhachHang(KhachHang kh) {
+        return khachHangDAO.capNhatLoaiKhachHang(kh);
+    }
+
+    public boolean capNhatKhachHang(KhachHangDTO kh) {
+        if (kh == null) return false;
+        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
+
+        KhachHang khachHangCu = khachHangDAO.findById(kh.getId());
+        if (khachHangCu == null) {
+            return false;
+        }
+
+        // 1. Build chi tiết thay đổi TRƯỚC khi cập nhật
+        String thanhPhan = thanhPhanDaBiSua(khachHangCu, khachHang);
+
+        // 2. Cập nhật khách hàng
+        try {
+            khachHangDAO.update(khachHang);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // 3. Ghi log nếu có thay đổi
+        if (thanhPhan != null && !thanhPhan.isBlank()) {
+            ghiLog(kh.getId(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
+                    entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
+        }
+
+        return true;
+    }
+
+    // ================= LOGGING LOGIC =================
+
+    public void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+        if (nhatKyAudit_bus == null) return;
 
         String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ? "SYSTEM" : nguoiThucHienID;
 
-        NhatKyAudit audit = new NhatKyAudit(nhatKyAudit_bus.taoMaNhatKyAuditMoi(), doiTuongID, nguoi,
-                LocalDateTime.now(), loai, chiTiet, "KHACH_HANG");
+        NhatKyAudit audit = new NhatKyAudit(
+                nhatKyAudit_bus.taoMaNhatKyAuditMoi(),
+                doiTuongID,
+                nguoi,
+                LocalDateTime.now(),
+                loai,
+                chiTiet,
+                "KHACH_HANG"
+        );
 
         nhatKyAudit_bus.ghiNhatKyAudit(audit);
-
     }
 
+    // ================= VALIDATION LOGIC =================
 
-    // tìm kiếm khách hàng theo sdt
-    public KhachHang timKiemKhachHangTheoSDT(String sdt) {
-        return khachHang_dao.timKhachHangTheoSDT(sdt);
-    }
-
-    // tìm kiếm khách hàng theo sgt
-    public KhachHangDTO timKiemKhachHangTheoSoGiayTo(String soGiayTo) {
-        return KhachHangMapper.INSTANCE.toDTO(khachHang_dao.timKhachHangTheoSoGiayTo(soGiayTo));
-    }
-
-    // Lấy danh sách tất cả khách hàng
-    public List<KhachHang> getAllKhachHang() {
-        return khachHang_dao.getAllKhachHang();
-    }
-
-    // Kiểm tra định dạng email
     public boolean isValidEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
         return email != null && email.matches(emailRegex);
     }
 
-    // Kiểm tra định dạng sdt
     public boolean isValidPhoneNumber(String phoneNumber) {
         String phoneRegex = "^(0[35789][0-9]{8})$";
         return phoneNumber != null && phoneNumber.matches(phoneRegex);
     }
 
-    // Kiểm tra tên
     public boolean isValidTen(String ten) {
         String tenRegex = "^([A-ZÀ-ỸĐ][a-zà-ỹđ]*)(\\s[A-ZÀ-ỸĐ][a-zà-ỹđ]*)*$";
         return ten != null && ten.matches(tenRegex);
     }
 
-    // Kiểm tra địa chỉ
     public boolean isValidDiaChi(String diaChi) {
         String diaChiRegex = "^[\\p{L}0-9\\s,./-]+$";
         return diaChi != null && diaChi.matches(diaChiRegex);
     }
 
-    // Kiểm tra trùng số điện thoại trong CSDL
+    // ================= KIỂM TRA TRÙNG DỮ LIỆU TỐI ƯU =================
+
     public boolean kiemTraTrungSDT(String sdt) {
-        for (KhachHang kh : khachHang_dao.getAllKhachHang()) {
-            if (kh.getSoDienThoai() != null && kh.getSoDienThoai().equalsIgnoreCase(sdt)) {
-                return true;
-            }
-        }
-        return false;
+        if (sdt == null || sdt.isBlank()) return false;
+        return khachHangDAO.timKhachHangTheoSDT(sdt.trim()) != null;
     }
 
-    // Kiểm tra trùng số giấy tờ trong CSDL
     public boolean kiemTraTrungSoGiayTo(String soGiayTo) {
-        for (KhachHang kh : khachHang_dao.getAllKhachHang()) {
-            if (kh.getSoGiayTo() != null && kh.getSoGiayTo().equalsIgnoreCase(soGiayTo)) {
-                return true;
-            }
-        }
-        return false;
+        if (soGiayTo == null || soGiayTo.isBlank()) return false;
+        return khachHangDAO.timKhachHangTheoSoGiayTo(soGiayTo.trim()) != null;
     }
 
-    // Tạo mã khách hàng tự động
+    // ================= TẠO MÃ TỰ ĐỘNG TỐI ƯU =================
+
     public String taoMaKhachHangTuDong() {
-        List<KhachHang> danhSachKhachHang = khachHang_dao.getAllKhachHang();
-        int maxID = 0;
-        for (KhachHang kh : danhSachKhachHang) {
-            String idStr = kh.getKhachHangID().replace("KH", "");
-            try {
-                int id = Integer.parseInt(idStr);
-                if (id > maxID) {
-                    maxID = id;
-                }
-            } catch (NumberFormatException e) {
-
-            }
-        }
-        return String.format("KH%05d", maxID + 1);
+        return khachHangDAO.taoMaKhachHangTuDong();
     }
 
-    public boolean themHoacCapNhatKhachHang(Connection conn, KhachHangDTO khachHang) throws Exception {
-        return khachHang_dao.saveOrUpdate(conn, KhachHangMapper.INSTANCE.toEntity(khachHang));
-    }
+    // ================= LẤY THÀNH PHẦN BỊ THAY ĐỔI =================
 
-    // Cập nhật loại khách hàng
-    public boolean capNhatLoaiKhachHang(KhachHang kh) {
-        return khachHang_dao.capNhatLoaiKhachHang(kh);
-    }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<KhachHangDTO> layGoiYKhachHang(String keyword) {
-        return khachHang_dao.getTop10KhachHangSuggest(keyword).stream().map(KhachHangMapper.INSTANCE::toDTO).toList();
-    }
-
-    // ================= LẤY THÀNH PHẦN BỊ THAY ĐỔI ===================
     public String thanhPhanDaBiSua(KhachHang cu, KhachHang moi) {
         StringBuilder thayDoi = new StringBuilder();
 
-        if (!cu.getHoTen().equals(moi.getHoTen())) {
-            thayDoi.append("Cập nhật tên khách hàng: (" + "" + cu.getHoTen() + ")" + " -> (" + moi.getHoTen() + ")\n");
+        if (!Objects.equals(cu.getHoTen(), moi.getHoTen())) {
+            thayDoi.append("Cập nhật tên khách hàng: (").append(cu.getHoTen()).append(") -> (").append(moi.getHoTen()).append(")\n");
         }
-        if (moi.getSoDienThoai() != null && cu.getSoDienThoai() != null
-                && !cu.getSoDienThoai().equals(moi.getSoDienThoai())) {
-            thayDoi.append("Cập nhật số điện thoại: (" + "" + cu.getSoDienThoai() + ")" + " -> (" + moi.getSoDienThoai()
-                    + ")\n");
+        if (!Objects.equals(cu.getSoDienThoai(), moi.getSoDienThoai())) {
+            thayDoi.append("Cập nhật số điện thoại: (").append(cu.getSoDienThoai()).append(") -> (").append(moi.getSoDienThoai()).append(")\n");
         }
-        if (moi.getEmail() != null && cu.getEmail() != null && !cu.getEmail().equals(moi.getEmail())) {
-            thayDoi.append("Cập nhật email: (" + "" + cu.getEmail() + ")" + " -> (" + moi.getEmail() + ")\n");
+        if (!Objects.equals(cu.getEmail(), moi.getEmail())) {
+            thayDoi.append("Cập nhật email: (").append(cu.getEmail()).append(") -> (").append(moi.getEmail()).append(")\n");
         }
-        if (moi.getDiaChi() != null && cu.getDiaChi() != null && !cu.getDiaChi().equals(moi.getDiaChi())) {
-            thayDoi.append("Cập nhật địa chỉ: (" + "" + cu.getDiaChi() + ")" + " -> (" + moi.getDiaChi() + ")\n");
+        if (!Objects.equals(cu.getDiaChi(), moi.getDiaChi())) {
+            thayDoi.append("Cập nhật địa chỉ: (").append(cu.getDiaChi()).append(") -> (").append(moi.getDiaChi()).append(")\n");
         }
-        if (!cu.getSoGiayTo().equals(moi.getSoGiayTo())) {
-            thayDoi.append(
-                    "Cập nhật số giấy tờ: (" + "" + cu.getSoGiayTo() + ")" + " -> (" + moi.getSoGiayTo() + ")\n");
+        if (!Objects.equals(cu.getSoGiayTo(), moi.getSoGiayTo())) {
+            thayDoi.append("Cập nhật số giấy tờ: (").append(cu.getSoGiayTo()).append(") -> (").append(moi.getSoGiayTo()).append(")\n");
         }
-        if (!cu.getLoaiKhachHang().equals(moi.getLoaiKhachHang())) {
-            thayDoi.append("Cập nhật loại khách hàng: (" + "" + cu.getLoaiKhachHang() + ")" + " -> ("
-                    + moi.getLoaiKhachHang() + ")\n");
+
+        // SỬA TẠI ĐÂY: Trích xuất ID ra trước để so sánh chuỗi, tránh Lazy Loading
+        String maLKHCu = cu.getLoaiKhachHang() != null ? cu.getLoaiKhachHang().getLoaiKhachHangID() : null;
+        String maLKHMoi = moi.getLoaiKhachHang() != null ? moi.getLoaiKhachHang().getLoaiKhachHangID() : null;
+        if (!Objects.equals(maLKHCu, maLKHMoi)) {
+            String descCu = cu.getLoaiKhachHang() != null ? cu.getLoaiKhachHang().getDescription() : "Không có";
+            String descMoi = moi.getLoaiKhachHang() != null ? moi.getLoaiKhachHang().getDescription() : "Không có";
+            thayDoi.append("Cập nhật loại khách hàng: (").append(descCu).append(") -> (").append(descMoi).append(")\n");
         }
-        if (moi.getLoaiDoiTuong() != null && moi.getLoaiDoiTuong() != null
-                && !cu.getLoaiDoiTuong().equals(moi.getLoaiDoiTuong())) {
-            thayDoi.append("Cập nhật ngày sinh: (" + "" + cu.getLoaiDoiTuong() + ")" + " -> (" + moi.getLoaiDoiTuong()
-                    + ")\n");
+
+        // SỬA TẠI ĐÂY: Trích xuất ID ra trước để so sánh chuỗi, tránh Lazy Loading
+        String maLDTCu = cu.getLoaiDoiTuong() != null ? cu.getLoaiDoiTuong().getLoaiDoiTuongID() : null;
+        String maLDTMoi = moi.getLoaiDoiTuong() != null ? moi.getLoaiDoiTuong().getLoaiDoiTuongID() : null;
+        if (!Objects.equals(maLDTCu, maLDTMoi)) {
+            String descCu = cu.getLoaiDoiTuong() != null ? cu.getLoaiDoiTuong().getDescription() : "Không có";
+            String descMoi = moi.getLoaiDoiTuong() != null ? moi.getLoaiDoiTuong().getDescription() : "Không có";
+            thayDoi.append("Cập nhật loại đối tượng: (").append(descCu).append(") -> (").append(descMoi).append(")\n");
         }
+
         return thayDoi.toString();
     }
-
-    // Cập nhật khách hàng
-    public boolean capNhatKhachHang(KhachHangDTO kh) {
-        KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
-
-        // 1. Lấy thông tin khách hàng cũ
-        KhachHang khachHangCu = khachHang_dao.timKhachHangTheoID(kh.getId());
-        if (khachHangCu == null) {
-            return false;
-        }
-
-        // 2. Cập nhật khách hàng
-        boolean ok = khachHang_dao.capNhatKhachHang(khachHang);
-        if (!ok) {
-            return false;
-        }
-
-        // 3. build chi tiet thay doi
-        String thanhPhan = thanhPhanDaBiSua(khachHangCu, khachHang);
-        if (thanhPhan == null || thanhPhan.isBlank()) {
-            return true;
-        }
-
-        // 4. Ghi log
-        if (ok) {
-            ghiLog(kh.getId(), nhanVienHienTai.getNhanVienID(), entity.type.NhatKyAudit.SUA, "Cập nhật khách hàng: " + thanhPhan);
-        }
-        System.out.println("thanhPhan=" + thanhPhan);
-        return ok;
-    }
-
 }

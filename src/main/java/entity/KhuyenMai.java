@@ -5,14 +5,12 @@ package entity;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -53,5 +51,22 @@ public class KhuyenMai implements Serializable {
     private int gioiHanMoiKhachHang;
 
     @Column(name = "trangThai", nullable = false)
-    private Boolean trangThai;
+    private boolean trangThai;
+
+    @OneToOne(mappedBy = "khuyenMai", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private DieuKienKhuyenMai dieuKienKhuyenMai;
+
+    public KhuyenMai(String khuyenMaiID, String maKhuyenMai, String moTa, double tyLeGiamGia, double tienGiamGia, LocalDate ngayBatDau, LocalDate ngayKetThuc, int soLuong, int gioiHanMoiKhachHang, boolean trangThai) {
+        this.khuyenMaiID = khuyenMaiID;
+        this.maKhuyenMai = maKhuyenMai;
+        this.moTa = moTa;
+        this.tyLeGiamGia = tyLeGiamGia;
+        this.tienGiamGia = tienGiamGia;
+        this.ngayBatDau = ngayBatDau;
+        this.ngayKetThuc = ngayKetThuc;
+        this.soLuong = soLuong;
+        this.gioiHanMoiKhachHang = gioiHanMoiKhachHang;
+        this.trangThai = trangThai;
+        this.dieuKienKhuyenMai = null;
+    }
 }

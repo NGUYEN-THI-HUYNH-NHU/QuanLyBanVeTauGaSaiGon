@@ -3,8 +3,8 @@ package controller;
 import bus.TaiKhoan_BUS;
 import dto.NhanVienDTO;
 import entity.TaiKhoan;
+import entity.VaiTroTaiKhoan;
 import gui.application.AuthService;
-
 import java.util.List;
 
 public class TaiKhoan_CTRL {
@@ -12,66 +12,72 @@ public class TaiKhoan_CTRL {
     private final NhanVienDTO nhanVienHienTai;
 
     public TaiKhoan_CTRL() {
-        taiKhoan_bus = new TaiKhoan_BUS();
+        this.taiKhoan_bus = new TaiKhoan_BUS();
         this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
     }
 
-    // lay danh sach tai khoan
+    // Lấy danh sách tài khoản
     public List<TaiKhoan> layDanhSachTaiKhoan() {
         return taiKhoan_bus.layDanhSachTaiKhoan();
     }
 
-    // them tai khoan
+    // Thêm tài khoản
     public boolean themTaiKhoan(TaiKhoan tk) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
         return taiKhoan_bus.themTaiKhoan(tk);
     }
 
-    // cap nhat tai khoan
+    // Cập nhật tài khoản
     public boolean capNhatTaiKhoan(TaiKhoan tk) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
         return taiKhoan_bus.suaTaiKhoan(tk);
     }
 
-    // lay tai khoan theo ten dang nhap
+    // Lấy tài khoản theo tên đăng nhập
     public TaiKhoan layTKTheoTenDangNhap(String tenDN) {
         return taiKhoan_bus.layTKThenDangNhap(tenDN);
     }
 
-    // tao ma tai khoan
+    // Tạo mã tài khoản tự động
     public String taoMaTaiKhoan() {
         return taiKhoan_bus.taoMaTaiKhoan();
     }
 
-    // kiem tra ten dang nhap da ton tai
+    // Kiểm tra tên đăng nhập đã tồn tại trong DB chưa
     public boolean kiemTraTenDangNhapTonTai(String tenDN) {
         return taiKhoan_bus.kiemTraTenDangNhapTonTai(tenDN);
     }
 
-    // kiem tra ten dang nhap
+    // Kiểm tra regex tên đăng nhập hợp lệ
     public boolean kiemTraTenDangNhap(String tenDN) {
         return taiKhoan_bus.kiemTraTenDangNhap(tenDN);
     }
 
-    // doi mat khau
+    // Đổi mật khẩu
     public boolean doiMatKhau(String tenDN, String matKhauMoi) {
         return taiKhoan_bus.doiMatKhau(tenDN, matKhauMoi);
     }
 
-    // kiem tra mat khau
+    // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp nhau không
     public boolean kiemTraMatKhau(String matKhau, String xacNhanMatKhau) {
         return taiKhoan_bus.kiemTraXacNhanMatKhau(matKhau, xacNhanMatKhau);
     }
 
-    // tim kiem tong hop
-    public List<TaiKhoan> timKiemTongHop(String maNV, String vaiTro, String tenDN, Boolean trangThai) {
-        return taiKhoan_bus.timKiemTongHop(maNV, vaiTro, tenDN, trangThai);
+    // Tìm kiếm tổng hợp tài khoản
+    public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai) {
+        return taiKhoan_bus.timKiemTongHop(maNV, tenDN, vaiTro, trangThai);
     }
 
-    //lấy tài khoản bằng tên mã nhân viên
+    // Lấy tài khoản bằng mã nhân viên
     public TaiKhoan layTKTheoMaNV(String maNV) {
         return taiKhoan_bus.layTKTheoMaNV(maNV);
     }
 
+    // SỬA TẠI ĐÂY: Lấy tài khoản theo ID tài khoản để phục vụ việc giữ lại mật khẩu khi Sửa
+    public TaiKhoan layTaiKhoanTheoID(String id) {
+        return taiKhoan_bus.layTKTheoID(id);
+    }
 
+    // SỬA TẠI ĐÂY: Lấy đối tượng VaiTroTaiKhoan từ Database để tránh lỗi Lazy Loading
+    public VaiTroTaiKhoan layVaiTroTheoID(String vaiTroID) {
+        return taiKhoan_bus.layVaiTroTheoID(vaiTroID);
+    }
 }

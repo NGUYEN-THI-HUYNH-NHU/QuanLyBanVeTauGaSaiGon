@@ -34,8 +34,8 @@ public class VaiTroNhanVien implements Serializable {
     public VaiTroNhanVien(String vaiTroNhanVienID) {
         this.vaiTroNhanVienID = vaiTroNhanVienID;
     }
-
     public String getDescription() {
         return this.moTa;
     }
+
 }

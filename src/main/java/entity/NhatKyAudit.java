@@ -11,20 +11,44 @@ package entity;
  * @date: Sep 22, 2025
  * @version: 1.0
  */
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Entity
+@Table(name = "NhatKyAudit")
+@Setter
+@Getter
+@NoArgsConstructor
+@Builder
 public class NhatKyAudit {
+	@Id
+	@Column(name = "nhatKyID", length = 50)
 	private String nhatKyAuditID;
+
+	@Column(name = "doiTuongID", length = 50)
 	private String doiTuongID;
+
+	@Column(name = "nhanVienID", length = 50)
 	private String nhanVienID;
+
+	@Column(name = "thoiDiemThaoTac")
 	private LocalDateTime thoiDiemThaoTac;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "loaiThaoTac", length = 50)
 	private entity.type.NhatKyAudit loaiThaoTac;
+
+	@Column(name = "chiTiet", columnDefinition = "NVARCHAR(MAX)")
 	private String chiTiet;
+
+	@Column(name = "doiTuongThaoTac", length = 100)
 	private String doiTuongThaoTac;
 
 	public NhatKyAudit(String nhatKyAuditID, String doiTuongID, String nhanVienID, LocalDateTime thoiDiemThaoTac,
-			entity.type.NhatKyAudit loaiThaoTac, String chiTiet, String doiTuongThaoTac) {
+					   entity.type.NhatKyAudit loaiThaoTac, String chiTiet, String doiTuongThaoTac) {
 		this.nhatKyAuditID = nhatKyAuditID;
 		this.doiTuongID = doiTuongID;
 		this.nhanVienID = nhanVienID;
@@ -32,65 +56,6 @@ public class NhatKyAudit {
 		this.loaiThaoTac = loaiThaoTac;
 		this.chiTiet = chiTiet;
 		this.doiTuongThaoTac = doiTuongThaoTac;
-	}
-
-	public String getNhatKyAuditID() {
-		return nhatKyAuditID;
-	}
-
-	public entity.type.NhatKyAudit getLoaiThaoTac() {
-		return loaiThaoTac;
-	}
-
-	public void setLoaiThaoTac(entity.type.NhatKyAudit loaiThaoTac) {
-		this.loaiThaoTac = loaiThaoTac;
-	}
-
-	public String getDoiTuongThaoTac() {
-		return doiTuongThaoTac;
-	}
-
-	public String getNhanVienID() {
-		return nhanVienID;
-	}
-
-	public LocalDateTime getThoiDiemThaoTac() {
-		return thoiDiemThaoTac;
-	}
-
-	public String getDoiTuongID() {
-		return doiTuongID;
-	}
-
-	public String getChiTiet() {
-		return chiTiet;
-	}
-
-	public void setNhatKyAuditID(String nhatKyAuditID) {
-		if (nhatKyAuditID == null || nhatKyAuditID.isEmpty()) {
-			throw new IllegalArgumentException("NhatKyAuditID không được để trống!");
-		}
-		this.nhatKyAuditID = nhatKyAuditID;
-	}
-
-	public void setDoiTuongThaoTac(String doiTuongThaoTac) {
-		this.doiTuongThaoTac = doiTuongThaoTac;
-	}
-
-	public void setDoiTuongID(String doiTuongID) {
-		this.doiTuongID = doiTuongID;
-	}
-
-	public void setNhanVienID(String nhanVienID) {
-		this.nhanVienID = nhanVienID;
-	}
-
-	public void setThoiDiemThaoTac(LocalDateTime thoiDiemThaoTac) {
-		this.thoiDiemThaoTac = thoiDiemThaoTac;
-	}
-
-	public void setChiTiet(String chiTiet) {
-		this.chiTiet = chiTiet;
 	}
 
 	@Override
