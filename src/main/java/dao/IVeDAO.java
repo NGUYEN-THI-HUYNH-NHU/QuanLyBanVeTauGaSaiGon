@@ -19,9 +19,9 @@ public interface IVeDAO {
 
     List<Ve> getAllVe();
 
-    List<Ve> searchVeByFilter(String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay);
+    List<Ve> searchVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay, int page, int limit);
 
-    List<Ve> searchVeByKeyword(String keyword, String type);
+    List<Ve> searchVeByKeyword(String keyword, String type, int page, int limi);
 
     // CÁC HÀM HỖ TRỢ SUGGESTION (Auto-complete)
     // Lấy Top 10 Mã Hóa Đơn gần đúng
@@ -32,4 +32,8 @@ public interface IVeDAO {
 
     // Lấy Top 10 Mã Khách Hàng (Tìm trong bảng KhachHang để gợi ý ID tồn tại)
     List<String> getTop10SoGiayToKhachHang(String keyword);
+
+    int countVeByKeyword(String keyword, String type);
+
+    int countVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay);
 }

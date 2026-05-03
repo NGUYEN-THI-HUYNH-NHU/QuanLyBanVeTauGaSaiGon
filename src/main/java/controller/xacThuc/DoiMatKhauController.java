@@ -1,4 +1,4 @@
-package gui.application.form.thongTin;
+package controller.xacThuc;
 /*
  * @(#) DoiMatKhauControllre.java  1.0  [4:54:35 PM] Nov 30, 2025
  *
@@ -16,6 +16,8 @@ import bus.TaiKhoan_BUS;
 import dto.NhanVienDTO;
 import gui.application.EmailService;
 import gui.application.UngDung;
+import gui.application.form.thongTin.FormDoiMatKhau;
+import gui.application.form.thongTin.ModalQuenMatKhau;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;

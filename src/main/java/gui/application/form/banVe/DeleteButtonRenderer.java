@@ -22,6 +22,8 @@ public class DeleteButtonRenderer extends JButton implements TableCellRenderer {
 
     public DeleteButtonRenderer() {
         setIcon(new FlatSVGIcon("icon/svg/delete.svg", 0.5f));
+        setToolTipText("Xóa vé");
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         setOpaque(true);
     }
 

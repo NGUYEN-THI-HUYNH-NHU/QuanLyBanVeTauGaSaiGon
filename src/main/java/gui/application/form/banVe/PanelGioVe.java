@@ -118,7 +118,7 @@ public class PanelGioVe extends JPanel {
         btnTrash.setToolTipText("Xóa vé");
         btnTrash.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnTrash.setFocusable(false);
-        btnTrash.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        btnTrash.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         btnTrash.setBackground(Color.WHITE);
         btnTrash.addActionListener(e -> {
             if (mediator != null) {

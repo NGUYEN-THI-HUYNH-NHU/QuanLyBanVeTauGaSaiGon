@@ -108,6 +108,7 @@ public class Menu extends JPanel {
                         vaiTroNhanVienEnums.toString());
                 panelMenu.add(menuItem);
             }
+
         }
     }
 

@@ -36,6 +36,8 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        Component comp = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+
         // 1. Lấy dữ liệu dòng hiện tại
         PassengerRow p = model.getRowAt(row);
         VeSession v = p.getVeSession();
@@ -53,6 +55,12 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
                 }
             }
             cbKhuyenMai.setSelectedItem(KhuyenMai_BUS.getBestPromotion(v, listKM));
+        }
+
+        if (comp instanceof JComponent) {
+            JComponent jComp = (JComponent) comp;
+            jComp.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, table.getGridColor()));
+            jComp.setOpaque(true);
         }
 
         return super.getTableCellEditorComponent(table, value, isSelected, row, column);

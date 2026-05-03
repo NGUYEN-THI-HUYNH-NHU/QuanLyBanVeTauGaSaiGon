@@ -52,9 +52,7 @@ public class PanelDoiVeBuoc7 extends JPanel {
     }
 
     private void setUpTable() {
-        table.setRowHeight(100);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(220, 220, 220));
+        table.setRowHeight(90);
 
         table.getColumnModel().getColumn(MappingVeTableModel.COL_STT).setMaxWidth(30);
         table.getColumnModel().getColumn(MappingVeTableModel.COL_HANH_KHACH).setMinWidth(130);

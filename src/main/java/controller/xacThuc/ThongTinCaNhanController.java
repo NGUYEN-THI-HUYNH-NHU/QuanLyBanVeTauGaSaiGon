@@ -1,4 +1,4 @@
-package gui.application.form.thongTin;
+package controller.xacThuc;
 /*
  * @(#) ThongTinNhanVienController.java  1.0  [5:58:30 PM] Nov 26, 2025
  *
@@ -8,6 +8,7 @@ package gui.application.form.thongTin;
 import bus.NhanVien_BUS;
 import bus.NhatKyAudit_BUS;
 import dto.NhanVienDTO;
+import gui.application.form.thongTin.FormThongTinCaNhan;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
