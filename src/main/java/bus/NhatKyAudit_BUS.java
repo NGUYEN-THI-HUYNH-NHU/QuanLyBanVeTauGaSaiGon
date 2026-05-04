@@ -1,16 +1,16 @@
 package bus;
 
-import dao.impl.NhatKyAudit_DAO;
+import dao.INhatKyAuditDAO;
+import dao.impl.NhatKyAuditDAO;
 import entity.NhatKyAudit;
-
 import java.time.LocalDate;
 import java.util.List;
 
 public class NhatKyAudit_BUS {
-    private final NhatKyAudit_DAO nhatKyAudit_dao;
+    private final INhatKyAuditDAO nhatKyAudit_dao;
 
     public NhatKyAudit_BUS() {
-        nhatKyAudit_dao = new NhatKyAudit_DAO();
+        this.nhatKyAudit_dao = new NhatKyAuditDAO();
     }
 
     // ghi nhật ký audit

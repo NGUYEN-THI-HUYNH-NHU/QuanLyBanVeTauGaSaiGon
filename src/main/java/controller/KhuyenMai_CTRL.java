@@ -10,53 +10,87 @@ import java.util.List;
 
 public class KhuyenMai_CTRL {
     private final KhuyenMai_BUS khuyenMai_bus;
-    private final NhanVienDTO nhanVienHienTai;
 
     public KhuyenMai_CTRL() {
-        this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
-        khuyenMai_bus = new KhuyenMai_BUS();
+        this.khuyenMai_bus = new KhuyenMai_BUS();
     }
 
-    //lấy danh sách khuyến mãi
+    private String getMaNguoiThucHienHienTai() {
+        NhanVienDTO currentUser = AuthService.getInstance().getCurrentUser();
+        return (currentUser != null && currentUser.getId() != null) ? currentUser.getId() : "SYSTEM";
+    }
+
+    // ================= LẤY DỮ LIỆU =================
+
     public List<KhuyenMai> layDanhSachKhuyenMai() {
         return khuyenMai_bus.layDanhSachKhuyenMai();
     }
 
-    //lấy khuyến mãi theo loại
     public List<KhuyenMai> layKhuyenMaiTheoLoai(String loai) {
-        return khuyenMai_bus.layDanhSachKhuyenMai();
+        return khuyenMai_bus.layKhuyenMaiTheoLoai(loai);
     }
 
-    //thêm khách hàng
-    public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
-        return khuyenMai_bus.themKhuyenMai(km, dkkm);
-    }
-
-    //sửa khách hàng
-    public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        String nguoiThucHienID = (nhanVienHienTai != null && nhanVienHienTai.getId() != null) ? nhanVienHienTai.getId() : null;
-        return khuyenMai_bus.suaKhuyenMai(km, dkkm);
-    }
-
-    //tìm khuyến mãi
     public List<KhuyenMai> timKhuyenMai(String tuKhoa, String maTuyen, Boolean trangThai,
                                         LocalDate ngayBatDau, LocalDate ngayKetThuc,
                                         LoaiTau loaiTau, HangToa hangToa, LoaiDoiTuong loaiDoiTuong) {
         return khuyenMai_bus.timKiemKhuyenMai(tuKhoa, maTuyen, trangThai, ngayBatDau, ngayKetThuc, loaiTau, hangToa, loaiDoiTuong);
     }
 
-    //lay ma dieu kien khuyen mai theo ma khuyen mai
     public String layDieuKienKhuyenMaiTheoMaKhuyenMai(String khuyenMaiID) {
         return khuyenMai_bus.layDieuKienKhuyenMaiTheoMaKhuyenMai(khuyenMaiID);
     }
 
-    //lay dieu kien khuyen mai theo ma khuyen mai
     public DieuKienKhuyenMai layDieuKienKhuyenMaiTheoMaKhuyenMaiObj(String khuyenMaiID) {
-        return khuyenMai_bus.layKhuyenMaiTheoMaKhuyenMai(khuyenMaiID);
+        return khuyenMai_bus.layKhuyenMaiTheoMaKhuyenMaiObj(khuyenMaiID);
     }
 
-    //==========regex
+    public KhuyenMai layKhuyenMaiTheoID(String khuyenMaiID) {
+        return khuyenMai_bus.layKhuyenMaiTheoID(khuyenMaiID);
+    }
+
+    public List<Tuyen> layDanhSachTuyen() {
+        return khuyenMai_bus.layDanhSachTuyen();
+    }
+
+    // Bổ sung 3 hàm để GUI nạp dữ liệu vào ComboBox thực thể
+    public List<LoaiTau> layDanhSachLoaiTau() {
+        return khuyenMai_bus.layDanhSachLoaiTau();
+    }
+
+    public List<HangToa> layDanhSachHangToa() {
+        return khuyenMai_bus.layDanhSachHangToa();
+    }
+
+    public List<LoaiDoiTuong> layDanhSachLoaiDoiTuong() {
+        return khuyenMai_bus.layDanhSachLoaiDoiTuong();
+    }
+
+    // ================= THAO TÁC NGHIỆP VỤ (Hành động) =================
+
+    public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
+        return khuyenMai_bus.themKhuyenMai(km, dkkm, getMaNguoiThucHienHienTai());
+    }
+
+    public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
+        return khuyenMai_bus.suaKhuyenMai(km, dkkm, getMaNguoiThucHienHienTai());
+    }
+
+    public boolean tuDongCapNhatTrangThai() {
+        return khuyenMai_bus.capNhatTrangThaiKhuyenMai();
+    }
+
+    // ================= SINH MÃ TỰ ĐỘNG =================
+
+    public String taoMaKhuyenMaiTuDong() {
+        return khuyenMai_bus.taoMaKhuyenMaiTuDong();
+    }
+
+    public String taoMaDieuKienKhuyenMaiTuDong() {
+        return khuyenMai_bus.taoDieuKienKhuyenMaiTuDong();
+    }
+
+    // ================= TẦNG VALIDATION =================
+
     public boolean kiemTraCodeKhuyenMai(String code) {
         return khuyenMai_bus.kiemTraCodeKhuyenMai(code);
     }
@@ -96,31 +130,4 @@ public class KhuyenMai_CTRL {
     public boolean kiemTraMinGiaTriDonHang(double minGiaTriDonHang) {
         return khuyenMai_bus.kiemTraMinGiaTriDonHang(minGiaTriDonHang);
     }
-
-    //tao mã khuyến mãi tự động
-    public String taoMaKhuyenMaiTuDong() {
-        return khuyenMai_bus.taoMaKhuyenMaiTuDong();
-    }
-
-    //tao mã điều kiện khuyến mãi tự động
-    public String taoMaDieuKienKhuyenMaiTuDong() {
-        return khuyenMai_bus.taoDieuKienKhuyenMaiTuDong();
-    }
-
-    //lay danh sach tuyen
-    public List<Tuyen> layDanhSachTuyen() {
-        return khuyenMai_bus.layDanhSachTuyen();
-    }
-
-    //tu dong cap nhat trang thai
-    public boolean tuDongCapNhatTrangThai() {
-        return khuyenMai_bus.capNhatTrangThaiKhuyenMai();
-    }
-
-    //tim khuyen mai theo ID
-    public KhuyenMai layKhuyenMaiTheoID(String khuyenMaiID) {
-        return khuyenMai_bus.layKhuyenMaiTheoID(khuyenMaiID);
-    }
-
-
 }

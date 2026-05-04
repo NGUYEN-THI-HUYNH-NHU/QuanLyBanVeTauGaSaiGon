@@ -1,7 +1,7 @@
 package gui.application.form.thongKe;
 
 import com.toedter.calendar.JDateChooser;
-import dao.impl.ThongKeVe_DAO;
+import dao.impl.ThongKeVeDAO;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -53,7 +53,7 @@ public class PanelThongKeVe extends JPanel {
     private static final String CARD_NGAY = "CARD_NGAY";
     private static final String CARD_THANG = "CARD_THANG";
     private static final String CARD_NAM = "CARD_NAM";
-    private final ThongKeVe_DAO thongKeVeDAO;
+    private final ThongKeVeDAO thongKeVeDAO;
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
     // ====== Lọc thời gian ======
@@ -102,7 +102,7 @@ public class PanelThongKeVe extends JPanel {
     private JLabel lblInfoLoaiVe;
 
     public PanelThongKeVe() {
-        this.thongKeVeDAO = new ThongKeVe_DAO();
+        this.thongKeVeDAO = new ThongKeVeDAO();
 
         // --- Khởi tạo components lọc ---
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
@@ -496,7 +496,7 @@ public class PanelThongKeVe extends JPanel {
         worker.execute();
     }
 
-    private void capNhatChartVaTable(Map<String, ThongKeVe_DAO.ThongKeVeChiTietItem> data, String chartTitle, String reportTitle) {
+    private void capNhatChartVaTable(Map<String, ThongKeVeDAO.ThongKeVeChiTietItem> data, String chartTitle, String reportTitle) {
         lblChiTietTitle.setText("Báo cáo thống kê vé chi tiết theo " + reportTitle.toLowerCase());
 
         if (data == null || data.isEmpty()) {
@@ -571,9 +571,9 @@ public class PanelThongKeVe extends JPanel {
         // --- Fill Table ---
         chiTietTableModel.setRowCount(0);
         int stt = 1;
-        for (Map.Entry<String, ThongKeVe_DAO.ThongKeVeChiTietItem> entry : data.entrySet()) {
+        for (Map.Entry<String, ThongKeVeDAO.ThongKeVeChiTietItem> entry : data.entrySet()) {
             String thoiGian = entry.getKey();
-            ThongKeVe_DAO.ThongKeVeChiTietItem item = entry.getValue();
+            ThongKeVeDAO.ThongKeVeChiTietItem item = entry.getValue();
             chiTietTableModel.addRow(new Object[]{stt++, thoiGian, item.tongSoVeBan, item.tongVeConHieuLuc,
                     item.tongVeDaDung, item.tongVeDaDoi, item.tongVeHoan, item.tongTienVe});
         }
@@ -1126,6 +1126,6 @@ public class PanelThongKeVe extends JPanel {
     private static class ThongKeVeResult {
         int tongSoVeBan, tongVeConHieuLuc, tongVeDaDung, tongVeDaDoi, tongVeHoan;
         double tongTienVe;
-        Map<String, ThongKeVe_DAO.ThongKeVeChiTietItem> thongKeVeChiTietTheoThoiGian;
+        Map<String, ThongKeVeDAO.ThongKeVeChiTietItem> thongKeVeChiTietTheoThoiGian;
     }
 }

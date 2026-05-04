@@ -1,172 +1,187 @@
 package bus;
 
-import dao.impl.TaiKhoan_DAO;
+import dao.ITaiKhoanDAO;
+import dao.impl.TaiKhoanDAO;
 import entity.NhanVien;
 import entity.NhatKyAudit;
 import entity.TaiKhoan;
+import entity.VaiTroTaiKhoan;
 import gui.application.AuthService;
 import mapper.NhanVienMapper;
-import org.mindrot.jbcrypt.BCrypt;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public class TaiKhoan_BUS {
-    private final TaiKhoan_DAO taiKhoan_dao;
+    private final ITaiKhoanDAO taiKhoanDAO;
     private final NhanVien nhanVienHienTai;
 
     public TaiKhoan_BUS() {
-        taiKhoan_dao = new TaiKhoan_DAO();
+        this.taiKhoanDAO = new TaiKhoanDAO();
         this.nhanVienHienTai = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
     }
 
-    // lay danh sach tai khoan
+    // ================= LẤY DỮ LIỆU =================
+
     public List<TaiKhoan> layDanhSachTaiKhoan() {
-        return taiKhoan_dao.getDanhSachTaiKhoan();
+        // SỬA TẠI ĐÂY: Gọi đúng hàm của DAO đã có LEFT JOIN FETCH
+        return taiKhoanDAO.getDanhSachTaiKhoan();
     }
 
-    // lay tai khoan theo ten dang nhap
     public TaiKhoan layTKThenDangNhap(String tenDangNhap) {
-        return taiKhoan_dao.getTaiKhoanByTenDangNhap(tenDangNhap);
+        return taiKhoanDAO.getTaiKhoanVoiTenDangNhap(tenDangNhap);
     }
 
-    // lay tai khoan theo ma nhan vien
     public TaiKhoan layTKTheoMaNV(String maNV) {
-        return taiKhoan_dao.getTaiKhoanVoiNhanVienID(maNV);
+        return taiKhoanDAO.getTaiKhoanVoiNhanVienID(maNV);
     }
 
-    // kiem tra ten dang nhap da ton tai
     public boolean kiemTraTenDangNhapTonTai(String tenDN) {
-        return taiKhoan_dao.kiemTraTenDangNhap(tenDN);
+        return taiKhoanDAO.kiemTraTenDangNhap(tenDN);
     }
 
-    // doi mat khau
-    public boolean doiMatKhau(String tenDN, String matKhauMoi) {
-        return taiKhoan_dao.capNhatMatKhau(tenDN, matKhauMoi);
-    }
-
-    // tao ma tai khoan
     public String taoMaTaiKhoan() {
-        return taiKhoan_dao.taoMaTaiKhoanMoi();
+        return taiKhoanDAO.taoMaTaiKhoanMoi();
     }
 
-    // regex
-    // kiem tra ten dang nhap
-    public boolean kiemTraTenDangNhap(String tenDN) {
-        String regex = "^[a-zA-Z0-9._-]{5,20}$";
-        return tenDN.matches(regex);
+    // SỬA TẠI ĐÂY: Thêm hàm lấy tài khoản theo ID
+    public TaiKhoan layTKTheoID(String id) {
+        return taiKhoanDAO.findById(id);
     }
 
-    // kiem tra xac nhan mat khau
-    public boolean kiemTraXacNhanMatKhau(String matKhau, String xacNhanMatKhau) {
-        return matKhau.equals(xacNhanMatKhau);
+    // SỬA TẠI ĐÂY: Thêm hàm lấy vai trò đầy đủ dữ liệu từ DB
+    public VaiTroTaiKhoan layVaiTroTheoID(String vaiTroID) {
+        dao.impl.AbstractGenericDAO<VaiTroTaiKhoan, String> vaiTroDAO =
+                new dao.impl.AbstractGenericDAO<>(VaiTroTaiKhoan.class) {};
+        return vaiTroDAO.findById(vaiTroID);
     }
 
-    // tim kiem tong hop
-    public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai) {
-        return taiKhoan_dao.timKiemTongHop(maNV, tenDN, vaiTro, trangThai);
+    // ================= THAO TÁC CẬP NHẬT / THÊM MỚI =================
+
+    public boolean doiMatKhau(String nhanVienID, String matKhauMoi) {
+        return taiKhoanDAO.capNhatMatKhau(nhanVienID, matKhauMoi);
     }
 
-    public boolean isKhopMatKhau(String nhanVienID, String matKhau) {
-        return taiKhoan_dao.getTaiKhoanVoiNhanVienID(nhanVienID).getMatKhauHash().equals(matKhau);
-    }
-
-    // ghi log
-    public void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
-        if (nguoiThucHienID == null || nguoiThucHienID.isBlank()) {
-            nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : "SYSTEM";
-        }
-
-        NhatKyAudit_BUS nhatKyAudit_bus = new NhatKyAudit_BUS();
-        NhatKyAudit audit = new NhatKyAudit(nhatKyAudit_bus.taoMaNhatKyAuditMoi(), doiTuongID, nguoiThucHienID,
-                java.time.LocalDateTime.now(), loai, chiTiet, "TAI_KHOAN");
-        nhatKyAudit_bus.ghiNhatKyAudit(audit);
-    }
-
-    // them tai khoan
     public boolean themTaiKhoan(TaiKhoan tk) {
-        String matKhauHash = BCrypt.hashpw(tk.getMatKhauHash(), BCrypt.gensalt());
-        tk.setMatKhauHash(matKhauHash);
-        boolean ok = taiKhoan_dao.taoTaiKhoan(tk);
-
-        if (ok) {
+        if (tk == null) return false;
+        try {
+            taiKhoanDAO.create(tk);
             ghiLog(tk.getTaiKhoanID(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
                     entity.type.NhatKyAudit.THEM, "Thêm tài khoản: " + "Mã tài khoản " + tk.getTaiKhoanID() + "\n"
                             + "Tên đăng nhập: " + tk.getTenDangNhap());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return ok;
     }
 
-    // tìm các thành phần đã bị thay đổi
-    public String thanhPhanDaBiThayDoi(TaiKhoan cu, TaiKhoan moi) {
-        StringBuilder thayDoi = new StringBuilder();
-
-        if (!cu.getTenDangNhap().equals(moi.getTenDangNhap())) {
-            thayDoi.append(String.format("Cập nhật tên đăng nhập: ('%s' -> '%s')" + "\n", cu.getTenDangNhap(),
-                    moi.getTenDangNhap()));
-        }
-        if (cu.isTrangThai() != moi.isTrangThai()) {
-            thayDoi.append(String.format("Cập nhật trạng thái: ('%s' -> '%s')" + "\n",
-                    cu.isTrangThai() ? "Hoạt động" : "Khóa", moi.isTrangThai() ? "Hoạt động" : "Khóa"));
-        }
-        if (!cu.getVaiTroTaiKhoan().equals(moi.getVaiTroTaiKhoan())) {
-            thayDoi.append(String.format("Cập nhật vai trò: ('%s' -> '%s')" + "\n", cu.getVaiTroTaiKhoan(),
-                    moi.getVaiTroTaiKhoan()));
-        }
-        if (!cu.getMatKhauHash().equals(moi.getMatKhauHash())) {
-            thayDoi.append("Cập nhật mật khẩu" + "\n");
-        }
-        return thayDoi.toString();
-    }
-
-    // sua tai khoan
     public boolean suaTaiKhoan(TaiKhoan tkMoi) {
+        if (tkMoi == null) return false;
 
-        // 1. Lay tai khoan cu
-        TaiKhoan tkCu = taiKhoan_dao.timTaiKhoanTheoID(tkMoi.getTaiKhoanID());
+        TaiKhoan tkCu = taiKhoanDAO.findById(tkMoi.getTaiKhoanID());
         if (tkCu == null) {
             return false;
         }
 
-        // 2. Tim cac thanh phan bi thay doi
         String thayDoi = thanhPhanDaBiThayDoi(tkCu, tkMoi);
         if (thayDoi.isEmpty()) {
             return true;
         }
 
-        // 3. Cap nhat tai khoan
-        boolean ok = taiKhoan_dao.capNhatTaiKhoan(tkMoi);
-        if (ok) {
+        try {
+            taiKhoanDAO.update(tkMoi);
             ghiLog(tkMoi.getTaiKhoanID(), nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : null,
                     entity.type.NhatKyAudit.SUA, "Sửa tài khoản: " + "\n" + thayDoi);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return ok;
     }
 
-    /**
-     * @param nhanVienID
-     * @param cccd
-     * @param email
-     * @return
-     */
-    public boolean kiemTraThongTinQuenMatKhau(String nhanVienID, String cccd, String email) {
-        return taiKhoan_dao.checkForgotPasswordInfo(nhanVienID, cccd, email);
+    // ================= VALIDATION LOGIC =================
+
+    public boolean kiemTraTenDangNhap(String tenDN) {
+        String regex = "^[a-zA-Z0-9._-]{5,20}$";
+        return tenDN != null && tenDN.matches(regex);
     }
 
-    /**
-     * @param nhanVienID
-     * @param newPass
-     * @return
-     */
+    public boolean kiemTraXacNhanMatKhau(String matKhau, String xacNhanMatKhau) {
+        if (matKhau == null || xacNhanMatKhau == null) return false;
+        return matKhau.equals(xacNhanMatKhau);
+    }
+
+    public boolean isKhopMatKhau(String nhanVienID, String matKhau) {
+        if (nhanVienID == null || matKhau == null) return false;
+        TaiKhoan tk = taiKhoanDAO.getTaiKhoanVoiNhanVienID(nhanVienID);
+        return tk != null && Objects.equals(tk.getMatKhauHash(), matKhau);
+    }
+
+    public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai) {
+        return taiKhoanDAO.timKiemTongHop(maNV, tenDN, vaiTro, trangThai);
+    }
+
+    public boolean kiemTraThongTinQuenMatKhau(String nhanVienID, String soDienThoai, String email) {
+        return taiKhoanDAO.checkForgotPasswordInfo(nhanVienID, soDienThoai, email);
+    }
+
     public boolean kiemTraDatLaiMatKhauTrung(String nhanVienID, String newPass) {
-        return taiKhoan_dao.checkDuplicatingPasswords(nhanVienID, newPass);
+        return taiKhoanDAO.checkDuplicatingPasswords(nhanVienID, newPass);
     }
 
-    /**
-     * @param nhanVienID
-     * @param newPass
-     * @return
-     */
     public boolean capNhatMatKhau(String nhanVienID, String newPass) {
-        return taiKhoan_dao.capNhatMatKhau(nhanVienID, newPass);
+        return taiKhoanDAO.capNhatMatKhau(nhanVienID, newPass);
+    }
+
+    // ================= LOGGING & AUDIT =================
+
+    public void ghiLog(String doiTuongID, String nguoiThucHienID, entity.type.NhatKyAudit loai, String chiTiet) {
+        String nguoi = (nguoiThucHienID == null || nguoiThucHienID.isBlank()) ?
+                (nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : "SYSTEM") : nguoiThucHienID;
+
+        NhatKyAudit_BUS nhatKyAudit_bus = new NhatKyAudit_BUS();
+        NhatKyAudit audit = new NhatKyAudit(
+                nhatKyAudit_bus.taoMaNhatKyAuditMoi(),
+                doiTuongID,
+                nguoi,
+                LocalDateTime.now(),
+                loai,
+                chiTiet,
+                "TAI_KHOAN"
+        );
+        nhatKyAudit_bus.ghiNhatKyAudit(audit);
+    }
+
+    // ================= LẤY THÀNH PHẦN BỊ THAY ĐỔI =================
+
+    public String thanhPhanDaBiThayDoi(TaiKhoan cu, TaiKhoan moi) {
+        StringBuilder thayDoi = new StringBuilder();
+
+        if (cu == null || moi == null) return thayDoi.toString();
+
+        if (!Objects.equals(cu.getTenDangNhap(), moi.getTenDangNhap())) {
+            thayDoi.append(String.format("Cập nhật tên đăng nhập: ('%s' -> '%s')\n", cu.getTenDangNhap(), moi.getTenDangNhap()));
+        }
+        if (cu.isTrangThai() != moi.isTrangThai()) {
+            thayDoi.append(String.format("Cập nhật trạng thái: ('%s' -> '%s')\n",
+                    cu.isTrangThai() ? "Hoạt động" : "Khóa", moi.isTrangThai() ? "Hoạt động" : "Khóa"));
+        }
+
+        // SỬA TẠI ĐÂY: Trích xuất ID vai trò ra để so sánh, tránh lỗi Proxy/Lazy Loading
+        String vtCuID = cu.getVaiTroTaiKhoan() != null ? cu.getVaiTroTaiKhoan().getVaiTroTaiKhoanID() : "Trống";
+        String vtMoiID = moi.getVaiTroTaiKhoan() != null ? moi.getVaiTroTaiKhoan().getVaiTroTaiKhoanID() : "Trống";
+
+        if (!Objects.equals(vtCuID, vtMoiID)) {
+            String vtCuDesc = cu.getVaiTroTaiKhoan() != null ? cu.getVaiTroTaiKhoan().getDescription() : "Trống";
+            String vtMoiDesc = moi.getVaiTroTaiKhoan() != null ? moi.getVaiTroTaiKhoan().getDescription() : "Trống";
+            thayDoi.append(String.format("Cập nhật vai trò: ('%s' -> '%s')\n", vtCuDesc, vtMoiDesc));
+        }
+
+        if (moi.getMatKhauHash() != null && !Objects.equals(cu.getMatKhauHash(), moi.getMatKhauHash())) {
+            thayDoi.append("Cập nhật mật khẩu\n");
+        }
+        return thayDoi.toString();
     }
 }

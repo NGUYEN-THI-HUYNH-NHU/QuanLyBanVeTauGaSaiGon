@@ -40,7 +40,7 @@ public class NhanVien_CTRL {
                         ? nhanVienHienTai.getNhanVienID()
                         : null;
 
-        return nhanVien_bus.suaNhanvVien(nv, nguoiThucHienID);
+        return nhanVien_bus.suaNhanVien(nv, nguoiThucHienID);
     }
 
     public boolean validHoTen(String hoTen) {

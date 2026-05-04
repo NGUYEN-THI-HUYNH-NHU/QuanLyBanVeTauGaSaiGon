@@ -12,19 +12,16 @@ public class KhachHang_CTRL {
     private final KhachHang_BUS khachHang_bus;
     private final NhanVienDTO nhanVienHienTai;
 
-
     public KhachHang_CTRL() {
-        khachHang_bus = new KhachHang_BUS();
+        this.khachHang_bus = new KhachHang_BUS();
         this.nhanVienHienTai = AuthService.getInstance().getCurrentUser();
     }
 
     public boolean themKhachHang(KhachHangDTO kh) {
-        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getId() : null;
         return khachHang_bus.themKhachHang(kh);
     }
 
     public boolean capNhatKhachHang(KhachHangDTO kh) {
-        String nguoiThucHienID = nhanVienHienTai != null ? nhanVienHienTai.getId() : null;
         return khachHang_bus.capNhatKhachHang(kh);
     }
 

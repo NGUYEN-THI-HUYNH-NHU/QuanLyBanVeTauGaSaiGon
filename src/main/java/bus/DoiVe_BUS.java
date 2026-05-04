@@ -110,14 +110,16 @@ public class DoiVe_BUS {
             // 12. Set trạng thái các phiếu giữ chỗ thành HET_GIU
             phieuGiuChoBUS.huyCacPhieuGiuChoChiTiet(listVeDoi, TrangThaiPhieuGiuCho.HET_GIU);
 
+
+//            ==========================================================================MO RA
             // 13. Cập nhật các khuyến mãi đã sử dụng ở các vé cũ
-            Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVeDoi);
-            khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVeDoi);
-            for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
-                String kmID = entry.getKey();
-                int soLuongCanCong = entry.getValue();
-                khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
-            }
+//            Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVeDoi);
+//            khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVeDoi);
+//            for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
+//                String kmID = entry.getKey();
+//                int soLuongCanCong = entry.getValue();
+//                khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
+//            }
 
             // Ghi log
             for (VeDoiRow v : exchangeSession.getListVeCuCanDoi()) {

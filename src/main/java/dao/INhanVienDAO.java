@@ -1,5 +1,6 @@
 package dao;
 
+import entity.CaLam;
 import entity.NhanVien;
 import entity.VaiTroNhanVien;
 
@@ -10,7 +11,17 @@ public interface INhanVienDAO extends IGenericDAO<NhanVien, String> {
 
     String taoMaNhanVienTuDong();
 
-    List<NhanVien> timKiemNhanVien(String ten, String sdt, String vaiTroID, Boolean isHoatDong);
+    List<NhanVien> timKiemNhanVien(String tuKhoa, String vaiTroID, Boolean isHoatDong);
 
     VaiTroNhanVien layVaiTroNhanVienTheoMaNV(String maNV);
+
+    boolean capNhatAvatar(String nhanVienID, byte[] avatarData);
+
+    List<String> layDanhSachMaNhanVien();
+
+    List<CaLam> getAllCaLam();
+
+    CaLam getCaLamById(String caLamID);
+
+    NhanVien getNhanVienByTenDangNhap(String tenDangNhap);
 }

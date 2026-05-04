@@ -81,14 +81,15 @@ public class HoanVe_BUS {
             // 5. Set trạng thái các phiếu giữ chỗ thành HET_GIU
             phieuGiuChoChiTietBUS.huyCacPhieuGiuChoChiTiet(listVe, TrangThaiPhieuGiuCho.HET_GIU);
 
+//            =============================================================================== MO RA
             // 6. Cập nhật các khuyến mãi đã sử dụng
-            Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVe);
-            khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVe);
-            for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
-                String kmID = entry.getKey();
-                int soLuongCanCong = entry.getValue();
-                khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
-            }
+//            Map<String, Integer> mapKhuyenMaiHoan = khuyenMaiBUS.layDanhSachKhuyenMaiCanHoan(conn, listVe);
+//            khuyenMaiBUS.capNhatTrangThaiSDKMCuaVe(conn, listVe);
+//            for (Map.Entry<String, Integer> entry : mapKhuyenMaiHoan.entrySet()) {
+//                String kmID = entry.getKey();
+//                int soLuongCanCong = entry.getValue();
+//                khuyenMaiBUS.congSoLuongKhuyenMai(conn, kmID, soLuongCanCong);
+//            }
 
             // Ghi log
             for (VeDTO v : listVe) {

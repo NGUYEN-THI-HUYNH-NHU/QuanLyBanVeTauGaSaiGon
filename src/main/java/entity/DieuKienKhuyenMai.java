@@ -31,28 +31,28 @@ public class DieuKienKhuyenMai implements Serializable {
     @Column(name = "dieuKienID", length = 50)
     private String dieuKienID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "khuyenMaiID", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "khuyenMaiID", nullable = false, unique = true)
     private KhuyenMai khuyenMai;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tuyenID")
     private Tuyen tuyen;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "loaiTauID")
     private LoaiTau loaiTau;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "hangToaID")
     private HangToa hangToa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "loaiDoiTuongID")
     private LoaiDoiTuong loaiDoiTuong;
 
-    @Column(name = "ngayTrongTuan")
-    private int ngayTrongTuan;
+    @Column(name = "ngayTrongTuan", nullable = true)
+    private Integer ngayTrongTuan;
 
     @Column(name = "ngayLe")
     private boolean ngayLe;

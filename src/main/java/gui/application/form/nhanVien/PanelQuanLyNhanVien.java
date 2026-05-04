@@ -25,12 +25,14 @@ import java.util.List;
 public class PanelQuanLyNhanVien extends JPanel implements ActionListener, MouseListener, KeyListener {
     private final NhanVienDTO nhanVienHienTai;
     private final NhanVien_CTRL nhanVien_ctrl;
-    // màu sắc giao diện
+
+    // Màu sắc giao diện
     private final Color COLOR_PRIMARY = new Color(30, 100, 150);
     private final Color COLOR_BG_MAIN = new Color(248, 250, 251);
     private final Color COLOR_BG_PANEL = new Color(226, 232, 240);
     private final Color COLOR_TEXT_TITLE = new Color(30, 41, 59);
     private final Color COLOR_TEXT_LABEL = new Color(51, 65, 85);
+
     private JTextField txtMaNV, txtTenNV, txtEmail, txtSDT, txtDiaChi;
     private JComboBox<VaiTroNhanVienEnums> cbVaiTro;
     private JRadioButton rbtnNam, rbtnNu;
@@ -98,7 +100,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         gbc.weightx = 1;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        Font font = new Font("Roboto", Font.PLAIN, 12);
 
         txtMaNV = new JTextField(20);
         txtMaNV.setEnabled(false);
@@ -122,11 +123,9 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         group.add(rbtnNu);
         chkDangHoatDong = new JCheckBox("Đang hoạt động", true);
 
-        // Sau khi tạo xong tất cả component input
         JComponent ngaySinhEditor = txtNgaySinh.getDateEditor().getUiComponent();
         JComponent ngayTGEditor = txtNgayThamGia.getDateEditor().getUiComponent();
 
-        // Thiết lập hiển thị cho ComboBox CaLàm
         cbCaLam.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
@@ -139,16 +138,13 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
             }
         });
 
-        // Danh sách thứ tự tab bằng Enter
         allField = List.of(txtTenNV, cbVaiTro, ngaySinhEditor, txtSDT, txtEmail, txtDiaChi, ngayTGEditor, cbCaLam,
                 rbtnNam, rbtnNu, chkDangHoatDong);
 
-        // Gắn KeyListener trực tiếp
         for (JComponent comp : allField) {
             comp.addKeyListener(this);
         }
 
-        // Thiết lập gõ phím cho JComboBoxs
         setupComboKeyboard(cbVaiTro);
         setupComboKeyboard(cbCaLam);
 
@@ -164,7 +160,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         addField(form, gbc, "Trạng thái:", chkDangHoatDong, font);
         addField(form, gbc, "Ca làm:", cbCaLam, font);
 
-        // Nút chức năng
         JPanel footer = new JPanel(new GridBagLayout());
         footer.setBackground(new Color(245, 245, 245));
 
@@ -173,7 +168,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         g.weightx = 1;
         g.fill = GridBagConstraints.HORIZONTAL;
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        JPanel btnPanel = new JPanel(new GridLayout(1, 4, 8, 0));
         btnPanel.setBackground(new Color(245, 245, 245));
 
         btnPanel.add(btnAdd);
@@ -198,7 +193,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         p.add(form, BorderLayout.CENTER);
         p.add(footer, BorderLayout.SOUTH);
         return p;
-
     }
 
     private void loadDataToCaLamCombo() {
@@ -236,12 +230,10 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         button.setFont(new Font("Roboto", Font.BOLD, 12));
         button.setBackground(new Color(173, 216, 230));
         button.setIcon(new FlatSVGIcon(iconPath, 16, 16));
-        button.setPreferredSize(new Dimension(120, 30));
-
+        button.setPreferredSize(new Dimension(105, 30));
         return button;
     }
 
-    // panel chi tiết
     private JPanel panelChiTiet() {
         JPanel info = new JPanel(new BorderLayout());
         info.setBorder(
@@ -249,13 +241,11 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                         TitledBorder.LEFT, TitledBorder.TOP, new Font("Roboto", Font.BOLD, 12), COLOR_PRIMARY));
         info.setBackground(COLOR_BG_PANEL);
 
-        // Avatar
         lblAvatar = new JLabel(new ImageIcon(new ImageIcon(getClass().getResource("/icon/png/avatar.png"))
                 .getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH)));
         lblAvatar.setHorizontalAlignment(SwingConstants.CENTER);
         info.add(lblAvatar, BorderLayout.NORTH);
 
-        // Chi tiết thông tin
         JPanel details = new JPanel(new GridLayout(11, 2, 10, 5));
         details.setBackground(new Color(245, 245, 245));
 
@@ -289,7 +279,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         return info;
     }
 
-    // Đặt placeholder cho 1 JTextField
     private void applyPlaceholder(JTextField field, String placeholder) {
         field.setForeground(Color.GRAY);
         field.setText(placeholder);
@@ -315,7 +304,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         });
     }
 
-    // Chỉ lấy giá trị thực tế từ JTextField, bỏ qua placeholder
     private String getRealText(JTextField field, String placeholder) {
         String text = field.getText().trim();
         if (text.equals(placeholder) && field.getForeground().equals(Color.GRAY)) {
@@ -324,7 +312,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         return text;
     }
 
-    // Gắn placeholder cho các field
     private void initPlaceholders() {
         applyPlaceholder(txtTenNV, "VD: Nguyễn Văn A");
         applyPlaceholder(txtSDT, "VD: 0912345678");
@@ -332,7 +319,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         applyPlaceholder(txtDiaChi, "VD: 45/2 Nguyễn Huệ, Quận 1");
     }
 
-    // mẫu lable giá trị
     private JLabel createValueLabel() {
         JLabel lbl = new JLabel("");
         lbl.setFont(new Font("Roboto", Font.PLAIN, 12));
@@ -340,7 +326,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         return lbl;
     }
 
-    // thêm hàng chi tiết
     private void addDetailRow(JPanel panel, String title, JLabel value, Font font, Color color) {
         JLabel lblTitle = new JLabel(title);
         lblTitle.setFont(font);
@@ -421,13 +406,20 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                     return;
                 }
 
-                // Đổ dữ liệu chi tiết sang form
                 txtMaNV.setText(lblMaNVDetail.getText());
-                cbVaiTro.setSelectedItem(VaiTroNhanVienEnums.valueOf(lblVaiTroDetail.getText()));
+                String selectedRole = lblVaiTroDetail.getText();
+                VaiTroNhanVienEnums vaiTro = VaiTroNhanVienEnums.fromDescription(selectedRole);
+                cbVaiTro.setSelectedItem(vaiTro);
+
                 txtTenNV.setText(lblTenNVDetail.getText());
+                txtTenNV.setForeground(Color.BLACK);
                 txtSDT.setText(lblSDTDetail.getText());
+                txtSDT.setForeground(Color.BLACK);
                 txtEmail.setText(lblEmailDetail.getText());
+                txtEmail.setForeground(Color.BLACK);
                 txtDiaChi.setText(lblDiaChiDetail.getText());
+                txtDiaChi.setForeground(Color.BLACK);
+
                 selectCaLamById(lblCaLamDetail.getText());
                 chkDangHoatDong.setSelected(lblTrangThaiDetail.getText().equals("Đang hoạt động"));
 
@@ -499,36 +491,39 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         }
     }
 
-    // load data len bang
     public void loadDataToTable() {
         model.setRowCount(0);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (NhanVien nv : nhanVien_ctrl.layDanhSachNhanVien()) {
-            model.addRow(new Object[]{nv.getNhanVienID(), nv.getVaiTroNhanVien().toString(), nv.getHoTen(),
-                    nv.isNu() ? "Nữ" : "Nam", nv.getNgaySinh().format(dtf), nv.getSoDienThoai(), nv.getEmail(),
-                    nv.getDiaChi(), nv.getNgayThamGia().format(dtf),
+            model.addRow(new Object[]{
+                    nv.getNhanVienID(),
+                    nv.getVaiTroNhanVien() != null ? nv.getVaiTroNhanVien().getDescription() : "",
+                    nv.getHoTen(),
+                    nv.isNu() ? "Nữ" : "Nam",
+                    nv.getNgaySinh() != null ? nv.getNgaySinh().format(dtf) : "",
+                    nv.getSoDienThoai(),
+                    nv.getEmail(),
+                    nv.getDiaChi(),
+                    nv.getNgayThamGia() != null ? nv.getNgayThamGia().format(dtf) : "",
                     nv.isHoatDong() ? "Đang hoạt động" : "Ngừng hoạt động",
-                    nv.getCaLam() != null ? nv.getCaLam().getCaLamID() : ""});
+                    nv.getCaLam() != null ? nv.getCaLam().getCaLamID() : ""
+            });
         }
     }
 
-    // xóa trắng
     public void cleanInputFields() {
         txtMaNV.setText("");
         txtTenNV.setText("");
         cbVaiTro.setSelectedIndex(0);
-        txtNgaySinh.setDateFormatString("dd/MM/yyyy");
         txtNgaySinh.setCalendar(java.util.Calendar.getInstance());
         txtSDT.setText("");
         txtEmail.setText("");
         txtDiaChi.setText("");
-        txtNgayThamGia.setDateFormatString("dd/MM/yyyy");
         txtNgayThamGia.setCalendar(java.util.Calendar.getInstance());
         cbCaLam.setSelectedIndex(0);
         rbtnNam.setSelected(true);
         chkDangHoatDong.setSelected(true);
 
-        // panel chi tiet
         lblMaNVDetail.setText("");
         lblVaiTroDetail.setText("");
         lblTenNVDetail.setText("");
@@ -540,82 +535,59 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         lblNgayThamGiaDetail.setText("");
         lblTrangThaiDetail.setText("");
         lblCaLamDetail.setText("");
+
+        table.clearSelection();
         initPlaceholders();
     }
 
-    // regex
     private boolean validForm() {
-        // Lấy dữ liệu
         String ten = getRealText(txtTenNV, "VD: Nguyễn Văn A");
         String sdt = getRealText(txtSDT, "VD: 0912345678");
-        String email = getRealText(txtEmail, "VD: email123@gamil.com");
+        String email = getRealText(txtEmail, "VD: email123@gmail.com");
         String diaChi = getRealText(txtDiaChi, "VD: 45/2 Nguyễn Huệ, Quận 1");
         CaLam ca = (CaLam) cbCaLam.getSelectedItem();
+
         if (ca == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn ca làm.", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
             cbCaLam.requestFocus();
             return false;
         }
 
-        // 1) Tên
         if (!nhanVien_ctrl.validHoTen(ten)) {
             JOptionPane.showMessageDialog(this, "Tên không hợp lệ VD: Nguyễn Văn A", "Lỗi dữ liệu",
                     JOptionPane.WARNING_MESSAGE);
             txtTenNV.requestFocus();
             return false;
-        } else if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên không được để trống", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
-            txtTenNV.requestFocus();
-            return false;
         }
 
-        // 2) Số điện thoại
         if (!nhanVien_ctrl.validSDT(sdt)) {
             JOptionPane.showMessageDialog(this,
                     "Số điện thoại không hợp lệ (đầu 0 theo dải nhà mạng VN.VD: 0912345678).", "Lỗi dữ liệu",
                     JOptionPane.WARNING_MESSAGE);
             txtSDT.requestFocus();
             return false;
-        } else if (sdt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại không được để trống", "Lỗi dữ liệu",
-                    JOptionPane.WARNING_MESSAGE);
-            txtSDT.requestFocus();
-            return false;
         }
 
-        // 3) Email
         if (!email.isEmpty() && !nhanVien_ctrl.validEmail(email)) {
             JOptionPane.showMessageDialog(this, "Email không hợp lệ! VD: haNguyen123@gmail.com", "Lỗi dữ liệu",
                     JOptionPane.WARNING_MESSAGE);
             txtEmail.requestFocus();
             return false;
-        } else if (email.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Email không được để trống", "Lỗi dữ liệu",
-                    JOptionPane.WARNING_MESSAGE);
-            txtEmail.requestFocus();
-            return false;
         }
-        // 4) Địa chỉ
+
         if (!nhanVien_ctrl.validDiaChi(diaChi)) {
             JOptionPane.showMessageDialog(this,
                     "Địa chỉ không hợp lệ (tối thiểu 5 ký tự, cho phép chữ/số/khoảng trắng , . -). VD: 45/2 Nguyễn Huệ, Quận 1",
                     "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
             txtDiaChi.requestFocus();
             return false;
-        } else if (diaChi.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Địa chỉ không được để trống", "Lỗi dữ liệu",
-                    JOptionPane.WARNING_MESSAGE);
-            txtDiaChi.requestFocus();
-            return false;
         }
 
-        // 6) Ngày sinh (phải chọn và < hôm nay)
         if (txtNgaySinh.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày sinh.", "Lỗi dữ liệu", JOptionPane.WARNING_MESSAGE);
             txtNgaySinh.requestFocus();
             return false;
         } else {
-            // chuyển đổi Date sang LocalDate
             LocalDate ns = txtNgaySinh.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
             if (!nhanVien_ctrl.ngaySinh(ns)) {
                 JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (phải trước ngày hiện tại).", "Lỗi dữ liệu",
@@ -624,8 +596,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 return false;
             }
         }
-        // 7) Ngày tham gia (nếu nhập phải đúng định dạng dd/MM/yyyy và không sau hôm
-        // nay)
+
         if (txtNgayThamGia.getDate() == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn ngày tham gia.", "Lỗi dữ liệu",
                     JOptionPane.WARNING_MESSAGE);
@@ -644,24 +615,23 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         return true;
     }
 
-    // Them nhan vien
     public void themNhanVien() {
         if (!validForm()) {
             return;
         }
 
         String maNV = nhanVien_ctrl.taoMaNhanVien();
-        VaiTroNhanVien vaiTro = new VaiTroNhanVien(cbVaiTro.getSelectedItem().toString());
+        VaiTroNhanVienEnums vaiTroEnum = (VaiTroNhanVienEnums) cbVaiTro.getSelectedItem();
+        VaiTroNhanVien vaiTro = new VaiTroNhanVien(vaiTroEnum.name());
+        vaiTro.setMoTa(vaiTroEnum.getDescription());
+
         String hoTen = getRealText(txtTenNV, "VD: Nguyễn Văn A");
         boolean isNu = rbtnNu.isSelected();
         LocalDate ngaySinh = txtNgaySinh.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
         String soDienThoai = getRealText(txtSDT, "VD: 0912345678");
         String email = getRealText(txtEmail, "VD: email123@gmail.com");
         String diaChi = getRealText(txtDiaChi, "VD: 45/2 Nguyễn Huệ, Quận 1");
-
-        LocalDate ngayThamGia = txtNgayThamGia.getDate().toInstant().atZone(java.time.ZoneId.systemDefault())
-                .toLocalDate();
-
+        LocalDate ngayThamGia = txtNgayThamGia.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
         boolean isHoatDong = chkDangHoatDong.isSelected();
         CaLam caLam = (CaLam) cbCaLam.getSelectedItem();
 
@@ -680,7 +650,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         }
     }
 
-    // chuyen ca lam tu chi t sang CaLam
     private void selectCaLamById(String caLamId) {
         for (int i = 0; i < cbCaLam.getItemCount(); i++) {
             CaLam ca = cbCaLam.getItemAt(i);
@@ -691,25 +660,23 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         }
     }
 
-    // sua nhan vien
     public void suaNhanVien() {
         try {
             String maNV = txtMaNV.getText().trim();
-            VaiTroNhanVien vaiTro = new VaiTroNhanVien(cbVaiTro.getSelectedItem().toString());
+            VaiTroNhanVienEnums vaiTroEnum = (VaiTroNhanVienEnums) cbVaiTro.getSelectedItem();
+            VaiTroNhanVien vaiTro = new VaiTroNhanVien(vaiTroEnum.name());
+            vaiTro.setMoTa(vaiTroEnum.getDescription());
+
             String hoTen = getRealText(txtTenNV, "VD: Nguyễn Văn A");
             boolean isNu = rbtnNu.isSelected();
-
-            LocalDate ngaySinh = txtNgaySinh.getDate().toInstant().atZone(java.time.ZoneId.systemDefault())
-                    .toLocalDate();
-
+            LocalDate ngaySinh = txtNgaySinh.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
             String soDienThoai = getRealText(txtSDT, "VD: 0912345678");
             String email = getRealText(txtEmail, "VD: email123@gmail.com");
             String diaChi = getRealText(txtDiaChi, "VD: 45/2 Nguyễn Huệ, Quận 1");
 
             LocalDate ngayThamGia = null;
             if (txtNgayThamGia.getDate() != null) {
-                ngayThamGia = txtNgayThamGia.getDate().toInstant().atZone(java.time.ZoneId.systemDefault())
-                        .toLocalDate();
+                ngayThamGia = txtNgayThamGia.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
             }
 
             boolean isHoatDong = chkDangHoatDong.isSelected();
@@ -717,6 +684,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
 
             NhanVien nv = new NhanVien(maNV, vaiTro, hoTen, isNu, ngaySinh, soDienThoai, email, diaChi, ngayThamGia,
                     isHoatDong, caLam);
+
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Bạn có chắc chắn muốn cập nhật thông tin nhân viên này không?", "Xác nhận cập nhật",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -741,7 +709,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         }
     }
 
-    // tim kiem nhan vien
     public void timKiemNhanVien() {
         String ten = getRealText(txtTenNV, "VD: Nguyễn Văn A");
         String sdt = getRealText(txtSDT, "VD: 0912345678");
@@ -752,11 +719,19 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         for (NhanVien nv : nhanVien_ctrl.timKiemNhanVien(ten, sdt, vaiTro, isHoatDong)) {
-            model.addRow(new Object[]{nv.getNhanVienID(), nv.getVaiTroNhanVien().toString(), nv.getHoTen(),
-                    nv.isNu() ? "Nữ" : "Nam", nv.getNgaySinh().format(dtf), nv.getSoDienThoai(), nv.getEmail(),
-                    nv.getDiaChi(), nv.getNgayThamGia().format(dtf),
+            model.addRow(new Object[]{
+                    nv.getNhanVienID(),
+                    nv.getVaiTroNhanVien() != null ? nv.getVaiTroNhanVien().getDescription() : "",
+                    nv.getHoTen(),
+                    nv.isNu() ? "Nữ" : "Nam",
+                    nv.getNgaySinh() != null ? nv.getNgaySinh().format(dtf) : "",
+                    nv.getSoDienThoai(),
+                    nv.getEmail(),
+                    nv.getDiaChi(),
+                    nv.getNgayThamGia() != null ? nv.getNgayThamGia().format(dtf) : "",
                     nv.isHoatDong() ? "Đang hoạt động" : "Ngừng hoạt động",
-                    nv.getCaLam() != null ? nv.getCaLam() : ""});
+                    nv.getCaLam() != null ? nv.getCaLam().getCaLamID() : ""
+            });
         }
 
         if (model.getRowCount() == 0) {
@@ -768,9 +743,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-
             Component current = (Component) e.getSource();
-
             if (current instanceof JCheckBox checkbox) {
                 checkbox.doClick();
             }
@@ -786,9 +759,7 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         }
     }
 
-    // bắt phím cho combox
     private void setupComboKeyboard(JComboBox<?> combo) {
-
         JComponent target = combo;
         if (combo.isEditable() && combo.getEditor().getEditorComponent() instanceof JComponent editor) {
             target = editor;
@@ -797,8 +768,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         InputMap im = target.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap am = target.getActionMap();
 
-        // 1) Nhấn DOWN khi chưa mở popup -> mở popup (và vẫn cho di chuyển item)
-
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "openOrMoveDown");
         am.put("openOrMoveDown", new AbstractAction() {
             @Override
@@ -806,7 +775,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 if (!combo.isPopupVisible()) {
                     combo.showPopup();
                 } else {
-
                     Action def = combo.getActionMap().get("selectNext");
                     if (def != null) {
                         def.actionPerformed(e);
@@ -814,8 +782,6 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 }
             }
         });
-
-        // 2) Enter: nếu popup đang mở -> đóng popup (chọn item hiện tại)
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterSelectOrNext");
         am.put("enterSelectOrNext", new AbstractAction() {
@@ -830,33 +796,10 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
         });
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
-    }
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
+    @Override public void keyTyped(KeyEvent e) {}
+    @Override public void keyReleased(KeyEvent e) {}
 }
