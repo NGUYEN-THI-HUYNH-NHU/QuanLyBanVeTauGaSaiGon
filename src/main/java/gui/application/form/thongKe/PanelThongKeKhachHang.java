@@ -1,7 +1,7 @@
 package gui.application.form.thongKe;
 
 import com.toedter.calendar.JDateChooser;
-import dao.impl.ThongKeKhachHang_DAO;
+import dao.impl.ThongKeKhachHangDAO;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -49,7 +49,7 @@ public class PanelThongKeKhachHang extends JPanel {
     private static final String CARD_NGAY = "CARD_NGAY";
     private static final String CARD_THANG = "CARD_THANG";
     private static final String CARD_NAM = "CARD_NAM";
-    private final ThongKeKhachHang_DAO thongKeKHDao;
+    private final ThongKeKhachHangDAO thongKeKHDao;
     // Định dạng dữ liệu hiển thị
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
@@ -94,7 +94,7 @@ public class PanelThongKeKhachHang extends JPanel {
     private JLabel lblInfoPhanLoai;
 
     public PanelThongKeKhachHang() {
-        this.thongKeKHDao = new ThongKeKhachHang_DAO();
+        this.thongKeKHDao = new ThongKeKhachHangDAO();
 
         // 1. Khởi tạo Components
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
@@ -355,7 +355,7 @@ public class PanelThongKeKhachHang extends JPanel {
         // 2. Table Update - ĐÃ LOẠI BỎ KHU VỰC
         chiTietTableModel.setRowCount(0);
         if (res.chiTietKhachHang != null) {
-            for (ThongKeKhachHang_DAO.KhachHangRFM kh : res.chiTietKhachHang.values()) {
+            for (ThongKeKhachHangDAO.KhachHangRFM kh : res.chiTietKhachHang.values()) {
                 chiTietTableModel.addRow(new Object[]{
                         kh.khachHangID,
                         kh.hoTen,
@@ -732,7 +732,7 @@ public class PanelThongKeKhachHang extends JPanel {
 
     // ===== Struct kết quả =====
     private static class ThongKeKHResult {
-        Map<String, ThongKeKhachHang_DAO.KhachHangRFM> chiTietKhachHang;
+        Map<String, ThongKeKhachHangDAO.KhachHangRFM> chiTietKhachHang;
         int tongSoKhachHang;
         double tongDoanhThu;
         long countVIP;
