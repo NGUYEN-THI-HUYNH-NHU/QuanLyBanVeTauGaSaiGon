@@ -212,14 +212,6 @@ public class Ve_BUS {
 
     /**
      * @param keyword
-     * @return
-     */
-    public List<String> layTop10DonDatChoID(String keyword) {
-        return veDAO.getTop10DonDatChoID(keyword);
-    }
-
-    /**
-     * @param keyword
      * @param type
      * @return
      */
@@ -233,19 +225,11 @@ public class Ve_BUS {
     }
 
     /**
-     * @param keyword
+     * @param veID
      * @return
      */
-    public List<String> layTop10VeID(String keyword) {
-        return veDAO.getTop10VeID(keyword);
-    }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10SoGiayToKhachHang(String keyword) {
-        return veDAO.getTop10SoGiayToKhachHang(keyword);
+    public List<String> layTop10VeID(String veID) {
+        return veDAO.getTop10VeID(veID);
     }
 
     public int countAllVe() {

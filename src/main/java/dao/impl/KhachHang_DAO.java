@@ -227,4 +227,30 @@ public class KhachHang_DAO {
         return null;
     }
 
+    public List<String> getTop10SoGiayTo(String soGiayTo) {
+        return getTop10String("soGiayTo", soGiayTo);
+    }
+
+    public List<String> getTop10SoDienThoai(String soDienThoai) {
+        return getTop10String("soDienThoai", soDienThoai);
+    }
+
+    private List<String> getTop10String(String col, String keyword) {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT TOP 10 " + col + " FROM KhachHang WHERE " + col + " LIKE ?";
+        Connection conn = connectDB.getConnection();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            String query = "%" + keyword + "%";
+            ps.setString(1, query);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(rs.getString(col));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

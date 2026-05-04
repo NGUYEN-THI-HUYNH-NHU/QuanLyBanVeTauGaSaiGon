@@ -210,4 +210,15 @@ public class KhachHang_BUS {
         return ok;
     }
 
+    public List<String> layTop10SoGiayTo(String soGiayTo) {
+        return khachHang_dao.getTop10SoGiayTo(soGiayTo);
+    }
+
+    public List<String> layTop10SoDienThoai(String soDienThoai) {
+        return khachHang_dao.getTop10SoDienThoai(soDienThoai);
+    }
+
+    public List<String> layTop10HoTen(String keyword) {
+        return null;
+    }
 }

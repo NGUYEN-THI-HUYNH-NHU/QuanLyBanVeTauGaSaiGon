@@ -5,6 +5,7 @@ package controller.xemInVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import bus.DonDatCho_BUS;
 import bus.KhachHang_BUS;
 import bus.Ve_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
@@ -34,6 +35,7 @@ import java.util.List;
 
 public class XemInVeController {
     private final Ve_BUS veBUS = new Ve_BUS();
+    private final DonDatCho_BUS donDatChoBus = new DonDatCho_BUS();
     private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
     private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
     private final JPopupMenu khachHangSuggestionPopup = new JPopupMenu();
@@ -314,14 +316,10 @@ public class XemInVeController {
         List<String> suggestions = new ArrayList<>();
 
         // 4. Lấy danh sách gợi ý dựa trên loại đang chọn
-        if ("Mã vé".equals(type)) {
-            suggestions = veBUS.layTop10VeID(keyword);
-        } else if ("Mã đặt chỗ".equals(type)) {
-            suggestions = veBUS.layTop10DonDatChoID(keyword);
-        } else if ("Số giấy tờ khách hàng".equals(type)) {
-            suggestions = veBUS.layTop10SoGiayToKhachHang(keyword);
-        }
-
+        if ("Mã vé".equals(type)) suggestions = veBUS.layTop10VeID(keyword);
+        else if ("Mã đặt chỗ".equals(type)) suggestions = donDatChoBus.layTop10DonDatChoID(keyword);
+        else if ("Số giấy tờ khách hàng".equals(type)) suggestions = khachHangBUS.layTop10SoGiayTo(keyword);
+        
         // 5. Hiển thị Popup
         if (!suggestions.isEmpty()) {
             for (String s : suggestions) {

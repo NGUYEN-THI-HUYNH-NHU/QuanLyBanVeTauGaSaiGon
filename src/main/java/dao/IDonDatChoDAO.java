@@ -23,11 +23,4 @@ public interface IDonDatChoDAO extends IGenericDAO<DonDatCho, String> {
     List<DonDatCho> getDonDatChoByPage(int page, int limit);
 
     List<String> getTop10DonDatChoID(String keyword);
-
-    List<String> getTop10SoGiayTo(String keyword);
-
-    List<String> getTop10SoDienThoai(String keyword);
-
-    List<String> getTop10TenKhachHang(String keyword);
-
 }

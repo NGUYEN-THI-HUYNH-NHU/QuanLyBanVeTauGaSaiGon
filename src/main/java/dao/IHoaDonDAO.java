@@ -7,21 +7,19 @@ import java.util.List;
 
 public interface IHoaDonDAO {
     boolean insertHoaDon(HoaDon hoaDon) throws Exception;
-    
-    List<HoaDon> searchHoaDonByFilter(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
-                                      Date denNgay, String hinhThucTT);
 
-    List<HoaDon> searchHoaDonByKeyword(String keyword, String type);
+    List<HoaDon> searchHoaDonByFilter(String tuKhoaTraCuu, String loaiTraCuu, String loaiHD, String khachHang, String khachHangID, Date tuNgay,
+                                      Date denNgay, String hinhThucTT, int page, int limit);
 
-    // CÁC HÀM HỖ TRỢ SUGGESTION (Auto-complete)
-    // Lấy Top 10 Mã Hóa Đơn gần đúng
+    List<HoaDon> searchHoaDonByKeyword(String keyword, String type, int page, int limit);
+
     List<String> getTop10HoaDonID(String keyword);
+    
+    int countAll();
 
-    // Lấy Top 10 Mã Giao Dịch gần đúng
-    List<String> getTop10MaGD(String keyword);
+    int countByFilter(String tuKhoaTraCuu, String loaiTraCuu, String loaiHD, String khachHang, String soGiayTo, Date tuNgay, Date denNgay, String hinhThucTT);
 
-    // Lấy Top 10 Mã Khách Hàng (Tìm trong bảng KhachHang để gợi ý ID tồn tại)
-    List<String> getTop10KhachHangID(String keyword);
+    int countByKeyword(String keyword, String type);
 
-    List<HoaDon> getAllHoaDon();
+    List<HoaDon> getByPage(int page, int limit);
 }

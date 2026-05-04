@@ -13,6 +13,7 @@ package controller.donDatCho;
  */
 
 import bus.DonDatCho_BUS;
+import bus.KhachHang_BUS;
 import bus.Ve_BUS;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import dto.DonDatChoDTO;
@@ -33,6 +34,7 @@ import java.util.List;
 public class DonDatChoController {
     private final PanelQuanLyDonDatCho view;
     private final DonDatCho_BUS donDatChoBUS = new DonDatCho_BUS();
+    private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
     private final Ve_BUS veBUS = new Ve_BUS();
     private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
     private int rowsPerPage = 20;
@@ -182,11 +184,11 @@ public class DonDatChoController {
         if ("Mã đặt chỗ".equals(type)) {
             suggestions = donDatChoBUS.layTop10DonDatChoID(keyword);
         } else if ("Số giấy tờ".equals(type)) {
-            suggestions = donDatChoBUS.layTop10SoGiayTo(keyword);
+            suggestions = khachHangBUS.layTop10SoGiayTo(keyword);
         } else if ("Số điện thoại".equals(type)) {
-            suggestions = donDatChoBUS.layTop10SoDienThoai(keyword);
+            suggestions = khachHangBUS.layTop10SoDienThoai(keyword);
         } else if ("Tên khách hàng".equals(type)) {
-            suggestions = donDatChoBUS.layTop10TenKhachHang(keyword);
+            suggestions = khachHangBUS.layTop10HoTen(keyword);
         }
 
         // 5. Hiển thị Popup
@@ -241,12 +243,15 @@ public class DonDatChoController {
 
         // 2. Đếm tổng số record
         totalRecords = donDatChoBUS.countDonDatChoByKeyword(keyword, type);
-        calculateTotalPages();
 
-        if (totalRecords == 0) JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
-                JOptionPane.INFORMATION_MESSAGE);
+        if (totalRecords == 0) {
+            JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
         // 3. Lấy dữ liệu trang 1 và hiển thị
+        calculateTotalPages();
         fetchAndDisplayData();
     }
 

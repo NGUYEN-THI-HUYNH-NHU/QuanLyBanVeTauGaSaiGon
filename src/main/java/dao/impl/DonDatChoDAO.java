@@ -352,46 +352,6 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
         });
     }
 
-    @Override
-    public List<String> getTop10DonDatChoID(String keyword) {
-        return getTop10String("donDatChoID", "DonDatCho", keyword);
-    }
-
-    @Override
-    public List<String> getTop10SoGiayTo(String keyword) {
-        return getTop10String("soGiayTo", "KhachHang", keyword);
-    }
-
-    @Override
-    public List<String> getTop10SoDienThoai(String keyword) {
-        return getTop10String("soDienThoai", "KhachHang", keyword);
-    }
-
-    @Override
-    public List<String> getTop10TenKhachHang(String keyword) {
-        return getTop10String("hoTen", "KhachHang", keyword);
-    }
-
-    private List<String> getTop10String(String colName, String tableName, String keyword) {
-        return doInTransaction(em -> {
-            List<String> list = new ArrayList<>();
-            String sql = "SELECT TOP 10 " + colName + " FROM " + tableName + " WHERE " + colName + " LIKE ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, "%" + keyword + "%");
-            try {
-                List<Object> results = query.getResultList();
-                for (Object val : results) {
-                    if (val != null) {
-                        list.add(val.toString());
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return list;
-        });
-    }
-
     // --- Helper Methods xử lý ngày giờ ---
 
     private Date atStartOfDay(Date date) {
@@ -467,6 +427,27 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                     d.setSoVeDoi(((Number) row[10]).intValue());
 
                     list.add(d);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return list;
+        });
+    }
+
+    @Override
+    public List<String> getTop10DonDatChoID(String donDatChoID) {
+        return doInTransaction(em -> {
+            List<String> list = new ArrayList<>();
+            String sql = "SELECT TOP 10 D.donDatChoID FROM DonDatCho D WHERE D.donDatChoID LIKE ?1";
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, "%" + donDatChoID + "%");
+            try {
+                List<?> results = query.getResultList();
+                for (Object rs : results) {
+                    if (rs != null) {
+                        list.add((String) rs);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

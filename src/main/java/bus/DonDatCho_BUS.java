@@ -63,31 +63,7 @@ public class DonDatCho_BUS {
     public List<String> layTop10DonDatChoID(String keyword) {
         return donDatChoDAO.getTop10DonDatChoID(keyword);
     }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10SoGiayTo(String keyword) {
-        return donDatChoDAO.getTop10SoGiayTo(keyword);
-    }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10SoDienThoai(String keyword) {
-        return donDatChoDAO.getTop10SoDienThoai(keyword);
-    }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10TenKhachHang(String keyword) {
-        return donDatChoDAO.getTop10TenKhachHang(keyword);
-    }
-
+    
     public int countDonDatChoByFilter(String tuKhoaTraCuu, String loaiTraCuu, Date tuNgay, Date denNgay) {
         return donDatChoDAO.countDonDatChoByFilter(tuKhoaTraCuu, loaiTraCuu, tuNgay, denNgay);
     }
