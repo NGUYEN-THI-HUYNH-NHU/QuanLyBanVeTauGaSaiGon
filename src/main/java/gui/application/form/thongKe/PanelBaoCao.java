@@ -1,9 +1,8 @@
 package gui.application.form.thongKe;
 
-import dao.impl.ThongKeNhanVien_DAO;
-import entity.NhanVien;
+import dao.impl.ThongKeNhanVienDAO;
+import dto.NhanVienDTO;
 import gui.application.AuthService;
-import mapper.NhanVienMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -29,8 +28,8 @@ import java.util.concurrent.ExecutionException;
 public class PanelBaoCao extends JPanel {
 
     private final BaoCaoGiaoCaModel giaoCaModel;
-    private final ThongKeNhanVien_DAO thongKeNhanVienDAO;
-    private final NhanVien nhanVien;
+    private final ThongKeNhanVienDAO thongKeNhanVienDAO;
+    private final NhanVienDTO nhanVien;
 
     private final DecimalFormat currencyFormatter = new DecimalFormat("#,##0");
 
@@ -62,12 +61,12 @@ public class PanelBaoCao extends JPanel {
     // =================================================================
 
     public PanelBaoCao() {
-        NhanVien current = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
+        NhanVienDTO current = AuthService.getInstance().getCurrentUser();
 
         this.nhanVien = current;
         this.tenNV = nhanVien.getHoTen() != null ? nhanVien.getHoTen() : "Không xác định";
 
-        this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
+        this.thongKeNhanVienDAO = new ThongKeNhanVienDAO();
         this.giaoCaModel = new BaoCaoGiaoCaModel();
 
         this.caLV = "Đang tải...";
@@ -84,10 +83,10 @@ public class PanelBaoCao extends JPanel {
     public PanelBaoCao(String tenNV, String caLV, String ngayLV, double cashSystem, double transferSystem,
                        double totalSystem, BaoCaoGiaoCaModel model, List<Object[]> hoaDonList) {
 
-        this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
-        NhanVien tempUser = NhanVienMapper.INSTANCE.toEntity(AuthService.getInstance().getCurrentUser());
+        this.thongKeNhanVienDAO = new ThongKeNhanVienDAO();
+        NhanVienDTO tempUser = AuthService.getInstance().getCurrentUser();
         if (tempUser == null) {
-            tempUser = new NhanVien();
+            tempUser = new NhanVienDTO();
         }
         this.nhanVien = tempUser;
 
@@ -520,7 +519,7 @@ public class PanelBaoCao extends JPanel {
         final String finalCaLamViecText = tempCaLamViecText;
         final LocalTime finalGioBatDauCa = tempGioBatDauCa;
         final LocalTime finalGioKetThucCa = tempGioKetThucCa;
-        final String finalMaNhanVien = nhanVien.getNhanVienID();
+        final String finalMaNhanVien = nhanVien.getId();
 
         SwingWorker<ThongKeResult, Void> worker = new SwingWorker<>() {
             @Override

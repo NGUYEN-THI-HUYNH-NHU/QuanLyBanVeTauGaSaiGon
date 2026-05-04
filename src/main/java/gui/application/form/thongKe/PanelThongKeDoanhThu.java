@@ -1,8 +1,8 @@
 package gui.application.form.thongKe;
 
 import com.toedter.calendar.JDateChooser;
-import dao.impl.ThongKeDoanhThu_DAO;
-import dao.impl.ThongKeVe_DAO;
+import dao.impl.ThongKeDoanhThuDAO;
+import dao.impl.ThongKeVeDAO;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -55,8 +55,8 @@ public class PanelThongKeDoanhThu extends JPanel {
     private static final String CARD_THANG = "CARD_THANG";
     private static final String CARD_NAM = "CARD_NAM";
     // ===== DAO =====
-    private final ThongKeDoanhThu_DAO thongKeDoanhThuDAO;
-    private final ThongKeVe_DAO thongKeVeDAO;
+    private final ThongKeDoanhThuDAO thongKeDoanhThuDAO;
+    private final ThongKeVeDAO thongKeVeDAO;
     // ===== Định dạng =====
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
@@ -110,8 +110,8 @@ public class PanelThongKeDoanhThu extends JPanel {
     private List<String> danhSachGaGoc;
 
     public PanelThongKeDoanhThu() {
-        this.thongKeDoanhThuDAO = new ThongKeDoanhThu_DAO();
-        this.thongKeVeDAO = new ThongKeVe_DAO();
+        this.thongKeDoanhThuDAO = new ThongKeDoanhThuDAO();
+        this.thongKeVeDAO = new ThongKeVeDAO();
 
         // --- Khởi tạo components lọc ---
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
@@ -523,7 +523,7 @@ public class PanelThongKeDoanhThu extends JPanel {
         worker.execute();
     }
 
-    private void capNhatChartVaTable(Map<String, ThongKeDoanhThu_DAO.ThongKeChiTietItem> data, String chartTitle) {
+    private void capNhatChartVaTable(Map<String, ThongKeDoanhThuDAO.ThongKeChiTietItem> data, String chartTitle) {
         if (data == null || data.isEmpty()) {
             capNhatChartRong("📉 Không có dữ liệu doanh thu");
             capNhatBangRong();
@@ -581,8 +581,8 @@ public class PanelThongKeDoanhThu extends JPanel {
 
             chiTietTableModel.setRowCount(0);
             int stt = 1;
-            for (Map.Entry<String, ThongKeDoanhThu_DAO.ThongKeChiTietItem> e : data.entrySet()) {
-                ThongKeDoanhThu_DAO.ThongKeChiTietItem item = e.getValue();
+            for (Map.Entry<String, ThongKeDoanhThuDAO.ThongKeChiTietItem> e : data.entrySet()) {
+                ThongKeDoanhThuDAO.ThongKeChiTietItem item = e.getValue();
                 chiTietTableModel.addRow(new Object[]{stt++, e.getKey(), item.soLuongHoaDonBan,
                         item.soLuongHoaDonHoanDoi, item.tongDoanhThu, item.tongChi, item.loiNhuan});
             }
@@ -1079,7 +1079,7 @@ public class PanelThongKeDoanhThu extends JPanel {
         double tongDoanhThu;
         double tongLoiNhuan;
 
-        Map<String, ThongKeDoanhThu_DAO.ThongKeChiTietItem> thongKeChiTietTheoThoiGian;
+        Map<String, ThongKeDoanhThuDAO.ThongKeChiTietItem> thongKeChiTietTheoThoiGian;
     }
 
     private static class CirclePanel extends JPanel {

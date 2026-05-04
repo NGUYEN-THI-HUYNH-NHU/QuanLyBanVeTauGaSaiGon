@@ -1,6 +1,6 @@
 package gui.application.form.thongKe;
 
-import dao.impl.ThongKeNhanVien_DAO;
+import dao.impl.ThongKeNhanVienDAO;
 import dto.NhanVienDTO;
 import gui.application.AuthService;
 
@@ -22,7 +22,7 @@ public class PanelThongKe extends JPanel {
 
     // ====== FIELD CHÍNH ======
     private final NhanVienDTO nhanVien;
-    private final ThongKeNhanVien_DAO thongKeNhanVienDAO;
+    private final ThongKeNhanVienDAO thongKeNhanVienDAO;
     // Định dạng cho tiền tệ và số nguyên
     private final DecimalFormat currencyFormatter = new DecimalFormat("#,##0 VNĐ");
     private final DecimalFormat numberFormatter = new DecimalFormat("#,##0");
@@ -48,7 +48,7 @@ public class PanelThongKe extends JPanel {
      * Constructor của PanelThongKe.
      */
     public PanelThongKe() {
-        this.thongKeNhanVienDAO = new ThongKeNhanVien_DAO();
+        this.thongKeNhanVienDAO = new ThongKeNhanVienDAO();
         // Giả định BaoCaoGiaoCaModel đã được tạo trong project
         this.giaoCaModel = new BaoCaoGiaoCaModel();
 
