@@ -19,12 +19,14 @@ import controller.hoaDon.HoaDonController;
 import gui.tuyChinh.CurrencyRenderer;
 import gui.tuyChinh.DateTimeRenderer;
 import gui.tuyChinh.LeftCenterAlignRenderer;
+import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.util.Date;
 
+@Getter
 public class PanelQuanLyHoaDon extends JPanel {
     private final HoaDonController controller;
     private JTextField txtTuKhoa;
@@ -41,6 +43,10 @@ public class PanelQuanLyHoaDon extends JPanel {
     private JTable table;
     private HoaDonTableModel tableModel;
     private JCheckBox checkBoxTatCaNgay;
+    private JButton btnPrevPage;
+    private JButton btnNextPage;
+    private JPanel pnlPageNumbers;
+    private JComboBox<Integer> cboRowsPerPage;
 
     public PanelQuanLyHoaDon() {
         setLayout(new BorderLayout());
@@ -56,7 +62,7 @@ public class PanelQuanLyHoaDon extends JPanel {
         JPanel pnlTraCuu = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlTraCuu.setBorder(new TitledBorder("Tra cứu nhanh"));
 
-        cboLoaiTimKiem = new JComboBox<>(new String[]{"Mã hóa đơn", "Mã khách hàng", "Mã giao dịch"});
+        cboLoaiTimKiem = new JComboBox<>(new String[]{"Mã hóa đơn", "Số điện thoại khách hàng", "Số giấy tờ khách hàng"});
         txtTuKhoa = new JTextField(18);
         btnTraCuu = new JButton("Tra cứu");
         btnTraCuu.setBackground(new Color(36, 104, 155));
@@ -190,18 +196,17 @@ public class PanelQuanLyHoaDon extends JPanel {
         table.setShowGrid(true);
         table.setGridColor(new Color(220, 220, 220));
 
-        table.getColumnModel().getColumn(0).setMaxWidth(34);
-        table.getColumnModel().getColumn(1).setMinWidth(170);
-        table.getColumnModel().getColumn(2).setPreferredWidth(70);
-        table.getColumnModel().getColumn(3).setMinWidth(150);
-        table.getColumnModel().getColumn(4).setMinWidth(96);
-        table.getColumnModel().getColumn(5).setMinWidth(116);
-        table.getColumnModel().getColumn(6).setMinWidth(76);
-        table.getColumnModel().getColumn(7).setMinWidth(76);
-        table.getColumnModel().getColumn(8).setMinWidth(76);
-        table.getColumnModel().getColumn(9).setMinWidth(50);
-        table.getColumnModel().getColumn(10).setMaxWidth(34);
-        table.getColumnModel().getColumn(11).setMaxWidth(34);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setMinWidth(110);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setMinWidth(150);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setMinWidth(80);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_SDT_KHACH_HANG).setMinWidth(80);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setMinWidth(90);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setMinWidth(70);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setMinWidth(70);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_HOAN).setMinWidth(70);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_IS_TIEN_MAT).setMaxWidth(70);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_XEM).setMaxWidth(34);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_IN).setMaxWidth(34);
 
         LeftCenterAlignRenderer leftCenterRenderer = new LeftCenterAlignRenderer();
         CurrencyRenderer currencyRenderer = new CurrencyRenderer();
@@ -209,9 +214,9 @@ public class PanelQuanLyHoaDon extends JPanel {
         table.getColumnModel().getColumn(HoaDonTableModel.COL_THOI_DIEM_TAO).setCellRenderer(new DateTimeRenderer());
 
         table.getColumnModel().getColumn(HoaDonTableModel.COL_HOA_DON_ID).setCellRenderer(leftCenterRenderer);
-        table.getColumnModel().getColumn(HoaDonTableModel.COL_KHACH_HANG_ID).setCellRenderer(leftCenterRenderer);
         table.getColumnModel().getColumn(HoaDonTableModel.COL_TEN_KHACH_HANG).setCellRenderer(leftCenterRenderer);
         table.getColumnModel().getColumn(HoaDonTableModel.COL_CCCD_KHACH_HANG).setCellRenderer(leftCenterRenderer);
+        table.getColumnModel().getColumn(HoaDonTableModel.COL_SDT_KHACH_HANG).setCellRenderer(leftCenterRenderer);
 
         table.getColumnModel().getColumn(HoaDonTableModel.COL_TONG_TIEN).setCellRenderer(currencyRenderer);
         table.getColumnModel().getColumn(HoaDonTableModel.COL_TIEN_NHAN).setCellRenderer(currencyRenderer);
@@ -219,71 +224,38 @@ public class PanelQuanLyHoaDon extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(table);
 
+        // Tạo Panel Phân Trang
+        JPanel pnlPagination = new JPanel(new BorderLayout());
+        pnlPagination.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        // Khu vực canh giữa: Chứa các nút tiến/lùi và số trang
+        JPanel pnlPageControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        btnPrevPage = new JButton("<");
+        btnNextPage = new JButton(">");
+        pnlPageNumbers = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+
+        pnlPageControls.add(btnPrevPage);
+        pnlPageControls.add(pnlPageNumbers);
+        pnlPageControls.add(btnNextPage);
+
+        // Khu vực góc phải: dropdown tùy chỉnh số dòng
+        JPanel pnlRowsCount = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        pnlRowsCount.add(new JLabel("Số dòng/trang:"));
+        cboRowsPerPage = new JComboBox<>(new Integer[]{10, 15, 20, 25, 50});
+        cboRowsPerPage.setSelectedItem(20);
+        cboRowsPerPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        pnlRowsCount.add(cboRowsPerPage);
+
+        // Ghép vào thanh phân trang
+        pnlPagination.add(pnlPageControls, BorderLayout.CENTER);
+        pnlPagination.add(pnlRowsCount, BorderLayout.EAST);
+
+        // Bọc Table và Phân trang lại
+        JPanel pnlCenter = new JPanel(new BorderLayout());
+        pnlCenter.add(scrollPane, BorderLayout.CENTER);
+        pnlCenter.add(pnlPagination, BorderLayout.SOUTH);
+
         add(pnlTop, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-    }
-
-    public JTextField getTxtTuKhoa() {
-        return txtTuKhoa;
-    }
-
-    public JButton getBtnTraCuu() {
-        return btnTraCuu;
-    }
-
-    public JComboBox<String> getCboLoaiTimKiem() {
-        return cboLoaiTimKiem;
-    }
-
-    public JComboBox<String> getCboLoaiHoaDon() {
-        return cboLoaiHoaDon;
-    }
-
-    public JTextField getTxtKhachHangSuggest() {
-        return txtKhachHangSuggest;
-    }
-
-    public JDateChooser getDateChooserTuNgay() {
-        return dateChooserTuNgay;
-    }
-
-    public JDateChooser getDateChooserDenNgay() {
-        return dateChooserDenNgay;
-    }
-
-    public JComboBox<String> getCboHinhThucTT() {
-        return cboHinhThucTT;
-    }
-
-    public JTable getTable() {
-        return table;
-    }
-
-    public void setTable(JTable table) {
-        this.table = table;
-    }
-
-    public HoaDonTableModel getTableModel() {
-        return tableModel;
-    }
-
-    public HoaDonController getController() {
-        return controller;
-    }
-
-    public JButton getBtnReset() {
-        return btnReset;
-    }
-
-    public JButton getBtnLoc() {
-        return btnLoc;
-    }
-
-    public JButton getBtnRefresh() {
-        return btnRefresh;
-    }
-
-    public JCheckBox getCheckBoxTatCaNgay() {
-        return checkBoxTatCaNgay;
+        add(pnlCenter, BorderLayout.CENTER);
     }
 }

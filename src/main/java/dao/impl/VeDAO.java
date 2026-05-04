@@ -462,29 +462,12 @@ public class VeDAO extends AbstractGenericDAO<Ve, String> implements IVeDAO {
     // CÁC HÀM HỖ TRỢ SUGGESTION (Auto-complete)
     // Lấy Top 10 Mã Hóa Đơn gần đúng
     @Override
-    public List<String> getTop10VeID(String keyword) {
-        return getTop10String("veID", "Ve", keyword);
-    }
-
-    // Lấy Top 10 Mã Giao Dịch gần đúng
-    @Override
-    public List<String> getTop10DonDatChoID(String keyword) {
-        return getTop10String("donDatChoID", "DonDatCho", keyword);
-    }
-
-    // Lấy Top 10 Mã Khách Hàng (Tìm trong bảng KhachHang để gợi ý ID tồn tại)
-    @Override
-    public List<String> getTop10SoGiayToKhachHang(String keyword) {
-        return getTop10String("soGiayTo", "KhachHang", keyword);
-    }
-
-    // Hàm chung để query string
-    private List<String> getTop10String(String colName, String tableName, String keyword) {
+    public List<String> getTop10VeID(String veID) {
         return doInTransaction(em -> {
             List<String> list = new ArrayList<>();
-            String sql = "SELECT TOP 10 " + colName + " FROM " + tableName + " WHERE " + colName + " LIKE ?1";
+            String sql = "SELECT TOP 10 V.veID FROM Ve V WHERE V.veID LIKE ?1";
             Query query = em.createNativeQuery(sql);
-            query.setParameter(1, "%" + keyword + "%");
+            query.setParameter(1, "%" + veID + "%");
             try {
                 List<?> results = query.getResultList();
                 for (Object rs : results) {

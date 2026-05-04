@@ -21,20 +21,19 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class HoaDonTableModel extends AbstractTableModel {
-    public static final int COL_STT = 0;
-    public static final int COL_HOA_DON_ID = 1;
-    public static final int COL_KHACH_HANG_ID = 2;
-    public static final int COL_TEN_KHACH_HANG = 3;
-    public static final int COL_CCCD_KHACH_HANG = 4;
-    public static final int COL_THOI_DIEM_TAO = 5;
-    public static final int COL_TONG_TIEN = 6;
-    public static final int COL_TIEN_NHAN = 7;
-    public static final int COL_TIEN_HOAN = 8;
-    public static final int COL_IS_TIEN_MAT = 9;
-    public static final int COL_XEM = 10;
-    public static final int COL_IN = 11;
+    public static final int COL_HOA_DON_ID = 0;
+    public static final int COL_TEN_KHACH_HANG = 1;
+    public static final int COL_CCCD_KHACH_HANG = 2;
+    public static final int COL_SDT_KHACH_HANG = 3;
+    public static final int COL_THOI_DIEM_TAO = 4;
+    public static final int COL_TONG_TIEN = 5;
+    public static final int COL_TIEN_NHAN = 6;
+    public static final int COL_TIEN_HOAN = 7;
+    public static final int COL_IS_TIEN_MAT = 8;
+    public static final int COL_XEM = 9;
+    public static final int COL_IN = 10;
 
-    private final String[] columnNames = {"STT", "Hóa đơn ID", "KH ID", "Tên khách hàng", "CCCD KH", "Thời điểm tạo",
+    private final String[] columnNames = {"Hóa đơn ID", "Tên khách hàng", "CCCD KH", "SĐT KH", "Thời điểm tạo",
             "Tổng tiền", "Tiền nhận", "Tiền hoàn", "Tiền mặt", "Xem", "In"};
 
     private List<HoaDonDTO> rows;
@@ -85,7 +84,7 @@ public class HoaDonTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex > COL_STT && columnIndex < COL_THOI_DIEM_TAO;
+        return columnIndex < COL_THOI_DIEM_TAO;
 
     }
 
@@ -93,17 +92,14 @@ public class HoaDonTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         HoaDonDTO row = rows.get(rowIndex);
         switch (columnIndex) {
-
-            case COL_STT:
-                return rowIndex + 1;
             case COL_HOA_DON_ID:
                 return row.getId();
-            case COL_KHACH_HANG_ID:
-                return row.getKhachHangDTO().getId();
             case COL_TEN_KHACH_HANG:
                 return row.getKhachHangDTO().getHoTen();
             case COL_CCCD_KHACH_HANG:
                 return row.getKhachHangDTO().getSoGiayTo();
+            case COL_SDT_KHACH_HANG:
+                return row.getKhachHangDTO().getSoDienThoai();
             case COL_THOI_DIEM_TAO:
                 return row.getThoiDiemTao();
             case COL_TONG_TIEN:

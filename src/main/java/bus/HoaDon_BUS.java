@@ -264,9 +264,9 @@ public class HoaDon_BUS {
      * @param hinhThucTT
      * @return
      */
-    public List<HoaDonDTO> locHoaDonTheoCacTieuChi(String loaiHD, String khachHang, String khachHangID, Date tuNgay,
-                                                   Date denNgay, String hinhThucTT) {
-        return hoaDonDAO.searchHoaDonByFilter(loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT)
+    public List<HoaDonDTO> locHoaDonTheoCacTieuChi(String tuKhoaTraCuu, String loaiTraCuu, String loaiHD, String khachHang, String khachHangID, Date tuNgay,
+                                                   Date denNgay, String hinhThucTT, int page, int limit) {
+        return hoaDonDAO.searchHoaDonByFilter(tuKhoaTraCuu, loaiTraCuu, loaiHD, khachHang, khachHangID, tuNgay, denNgay, hinhThucTT, page, limit)
                 .stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
     }
 
@@ -275,8 +275,8 @@ public class HoaDon_BUS {
      * @param type
      * @return
      */
-    public List<HoaDonDTO> layHoaDonTheoKeyWord(String keyword, String type) {
-        return hoaDonDAO.searchHoaDonByKeyword(keyword, type).stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
+    public List<HoaDonDTO> layHoaDonTheoKeyWord(String keyword, String type, int page, int limit) {
+        return hoaDonDAO.searchHoaDonByKeyword(keyword, type, page, limit).stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
     }
 
     /**
@@ -287,22 +287,6 @@ public class HoaDon_BUS {
         return hoaDonDAO.getTop10HoaDonID(keyword);
     }
 
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10KhachHangID(String keyword) {
-        return hoaDonDAO.getTop10KhachHangID(keyword);
-
-    }
-
-    /**
-     * @param keyword
-     * @return
-     */
-    public List<String> layTop10MaGD(String keyword) {
-        return hoaDonDAO.getTop10MaGD(keyword);
-    }
 
     /**
      * @param hoaDonID
@@ -312,10 +296,20 @@ public class HoaDon_BUS {
         return hoaDonChiTietDAO.getHoaDonChiTietByHoaDonID(hoaDonID).stream().map(HoaDonChiTietMapper.INSTANCE::toDTO).toList();
     }
 
-    /**
-     * @return
-     */
-    public List<HoaDonDTO> layTatCaHoaDon() {
-        return hoaDonDAO.getAllHoaDon().stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
+    public int countAllHoaDon() {
+        return hoaDonDAO.countAll();
     }
+
+    public int countHoaDonByFilter(String tuKhoaTraCuu, String loaiTraCuu, String loaiHD, String khachHang, String soGiayTo, Date tuNgay, Date denNgay, String hinhThucTT) {
+        return hoaDonDAO.countByFilter(tuKhoaTraCuu, loaiTraCuu, loaiHD, khachHang, soGiayTo, tuNgay, denNgay, hinhThucTT);
+    }
+
+    public int countHoaDonByKeyword(String keyword, String type) {
+        return hoaDonDAO.countByKeyword(keyword, type);
+    }
+
+    public List<HoaDonDTO> getHoaDonByPage(int currentPage, int rowsPerPage) {
+        return hoaDonDAO.getByPage(currentPage, rowsPerPage).stream().map(HoaDonMapper.INSTANCE::toDTO).toList();
+    }
+
 }

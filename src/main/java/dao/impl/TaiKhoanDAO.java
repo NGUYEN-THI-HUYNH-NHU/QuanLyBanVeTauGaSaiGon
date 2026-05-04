@@ -21,7 +21,7 @@ import java.util.List;
 
 public class TaiKhoanDAO extends AbstractGenericDAO<TaiKhoan, String> implements ITaiKhoanDAO {
 
-    public TaiKhoanDAO(){
+    public TaiKhoanDAO() {
         super(TaiKhoan.class);
     }
 

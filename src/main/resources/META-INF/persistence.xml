@@ -1,56 +1,6 @@
 <persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/persistence"
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd"
              version="3.1">
-    <persistence-unit name="mariadb-pu">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>entity.BieuGiaVe</class>
-        <class>entity.CaLam</class>
-        <class>entity.Chuyen</class>
-        <class>entity.ChuyenGa</class>
-        <class>entity.DichVuPhongChoVIP</class>
-        <class>entity.DieuKienKhuyenMai</class>
-        <class>entity.DonDatCho</class>
-        <class>entity.Ga</class>
-        <class>entity.Ghe</class>
-        <class>entity.GiaoDichHoanDoi</class>
-        <class>dto.GiaoDichThanhToanDTO</class>
-        <class>entity.HangToa</class>
-        <class>entity.HeSoGiaHangToa</class>
-        <class>entity.HeSoGiaLoaiTau</class>
-        <class>entity.HoaDon</class>
-        <class>entity.HoaDonChiTiet</class>
-        <class>entity.KhachHang</class>
-        <class>entity.KhoangCachChuan</class>
-        <class>entity.KhuyenMai</class>
-        <class>entity.LoaiDoiTuong</class>
-        <class>entity.LoaiKhachHang</class>
-        <class>entity.LoaiTau</class>
-        <class>entity.NhanVien</class>
-        <class>entity.NhatKyAudit</class>
-        <class>entity.PhieuDungPhongVIP</class>
-        <class>entity.PhieuGiuCho</class>
-        <class>entity.PhieuGiuChoChiTiet</class>
-        <class>entity.SuDungKhuyenMai</class>
-        <class>entity.TaiKhoan</class>
-        <class>entity.Tau</class>
-        <class>entity.Toa</class>
-        <class>entity.Tuyen</class>
-        <class>entity.TuyenChiTiet</class>
-        <class>entity.VaiTroNhanVien</class>
-        <class>entity.VaiTroTaiKhoan</class>
-        <class>entity.Ve</class>
-
-        <properties>
-            <property name="jakarta.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/huynhnhuormogm"/>
-            <property name="jakarta.persistence.jdbc.user" value="root"/>
-            <property name="jakarta.persistence.jdbc.password" value="sapassword"/>
-            <property name="jakarta.persistence.jdbc.dialect" value="org.hibernate.dialect.MariaDBDialect"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
-        </properties>
-    </persistence-unit>
     <persistence-unit name="mssql-pu">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>entity.BieuGiaVe</class>
@@ -93,7 +43,7 @@
             <property name="jakarta.persistence.jdbc.url"
                       value="jdbc:sqlserver://localhost:1433;databaseName=HeThongQuanLyBanVeTauGaSaiGon_V9;trustServerCertificate=true;encrypt=true;"/>
             <property name="jakarta.persistence.jdbc.user" value="sa"/>
-            <property name="jakarta.persistence.jdbc.password" value="123456Aa@"/>
+            <property name="jakarta.persistence.jdbc.password" value="sapassword"/>
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
             <property name="jakarta.persistence.jdbc.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
             <property name="hibernate.show_sql" value="true"/>

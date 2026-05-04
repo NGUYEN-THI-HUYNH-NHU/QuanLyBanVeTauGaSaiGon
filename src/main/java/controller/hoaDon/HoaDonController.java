@@ -33,34 +33,42 @@ import java.util.Date;
 import java.util.List;
 
 public class HoaDonController {
-    private final HoaDon_BUS hoaDonBUS;
-    private final KhachHang_BUS khachHangBUS;
+    private final HoaDon_BUS hoaDonBUS = new HoaDon_BUS();
+    private final KhachHang_BUS khachHangBUS = new KhachHang_BUS();
+    private final JPopupMenu traCuuSuggestionPopup = new JPopupMenu();
+    private final JPopupMenu khachHangSuggestionPopup = new JPopupMenu();
     private PanelQuanLyHoaDon view;
-    private JPopupMenu traCuuSuggestionPopup;
-    private JPopupMenu khachHangSuggestionPopup;
     private KhachHangDTO selectedKhachHang = null;
+    private int rowsPerPage = 20;
+    private int totalRecords = 0;
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private SearchState currentState = SearchState.ALL;
 
     public HoaDonController(PanelQuanLyHoaDon view) {
         this.view = view;
-        this.traCuuSuggestionPopup = new JPopupMenu();
-        this.khachHangSuggestionPopup = new JPopupMenu();
+
         // Tắt focusable của popup để focus vẫn nằm ở TextField khi gõ
         this.traCuuSuggestionPopup.setFocusable(false);
         this.khachHangSuggestionPopup.setFocusable(false);
-
-        this.hoaDonBUS = new HoaDon_BUS();
-        this.khachHangBUS = new KhachHang_BUS();
-
-        loadAllHoaDon();
 
         init();
     }
 
     private void loadAllHoaDon() {
-        this.view.getTableModel().setRows(hoaDonBUS.layTatCaHoaDon());
+        currentState = SearchState.ALL;
+        currentPage = 1;
+
+        // 1. Đếm tổng số để tính trang
+        totalRecords = hoaDonBUS.countAllHoaDon();
+        calculateTotalPages();
+
+        // 2. Fetch trang 1
+        fetchAndDisplayData();
     }
 
     private void init() {
+        loadAllHoaDon();
         attachListeners();
         setupTraCuuSuggestion();
         setupKhachHangSuggestion();
@@ -125,6 +133,33 @@ public class HoaDonController {
                 }
             }
         });
+
+        // Sự kiện chuyển trang
+        view.getBtnPrevPage().addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchAndDisplayData();
+            }
+        });
+
+        view.getBtnNextPage().addActionListener(e -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                fetchAndDisplayData();
+            }
+        });
+
+        view.getCboRowsPerPage().addActionListener(e -> {
+            int selectedRows = (Integer) view.getCboRowsPerPage().getSelectedItem();
+            if (this.rowsPerPage != selectedRows) {
+                this.rowsPerPage = selectedRows;
+                this.currentPage = 1; // Quay về trang 1
+
+                // Tính lại tổng số trang và load dữ liệu
+                calculateTotalPages();
+                fetchAndDisplayData();
+            }
+        });
     }
 
     private void handleNgayLoc() {
@@ -135,28 +170,13 @@ public class HoaDonController {
 
     // Xử lý khi bấm nút Lọc
     private void handleLoc() {
-        // 1. Lấy dữ liệu từ View
-        String loaiHD = (String) view.getCboLoaiHoaDon().getSelectedItem();
-        String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+        currentState = SearchState.FILTER;
+        currentPage = 1;
+
         boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
         Date tuNgay = view.getDateChooserTuNgay().getDate();
         Date denNgay = view.getDateChooserDenNgay().getDate();
-        String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
 
-        String searchKeyword = null; // Dùng tìm theo tên/sđt/cccd (LIKE)
-        String searchID = null; // Dùng tìm chính xác theo ID (=)
-
-        // 2. Logic thông minh
-        if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen())) {
-            // Nếu người dùng chọn từ gợi ý và không sửa tên -> Tìm chính xác theo ID
-            searchID = selectedKhachHang.getId();
-        } else {
-            // Nếu tự gõ hoặc đã sửa tên -> Tìm tương đối theo từ khóa
-            searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
-            selectedKhachHang = null; // Reset biến nhớ để tránh nhầm lẫn lần sau
-        }
-
-        // 3. Validate Ngày tháng
         if (isTatCaNgay) {
             tuNgay = null;
             denNgay = null;
@@ -166,22 +186,34 @@ public class HoaDonController {
             return;
         }
 
-        System.out.println(String.format("Filter: Loai=%s | Keyword=%s | ID=%s | Ngay=%s-%s", loaiHD, searchKeyword,
-                searchID, tuNgay, denNgay));
+        String loaiHD = (String) view.getCboLoaiHoaDon().getSelectedItem();
+        String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+        String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
+        String searchKeyword = null; // Dùng tìm theo tên/sđt/cccd (LIKE)
+        String searchID = null; // Dùng tìm chính xác theo ID (=)
 
-        // 4. Lọc hóa đơn theo tiêu chí
-        List<HoaDonDTO> results = hoaDonBUS.locHoaDonTheoCacTieuChi(loaiHD, searchKeyword, searchID, tuNgay, denNgay,
-                hinhThucTT);
-
-        // 5. Cập nhật UI và thông báo kết quả
-        view.getTableModel().setRows(results);
-
-        if (results.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Không tìm thấy hóa đơn nào phù hợp!", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
+        if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen())) {
+            searchID = selectedKhachHang.getId();
         } else {
-            view.getTable().scrollRectToVisible(view.getTable().getCellRect(0, 0, true));
+            searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
         }
+
+        String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+        String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+        // 3. Đếm tổng số record thỏa mãn để chia trang
+        totalRecords = hoaDonBUS.countHoaDonByFilter(tuKhoaTraCuu, loaiTraCuu,
+                loaiHD, searchKeyword, searchID, tuNgay, denNgay, hinhThucTT);
+
+        if (totalRecords == 0) {
+            JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // 4. Lấy dữ liệu trang 1 và hiển thị
+        calculateTotalPages();
+        fetchAndDisplayData();
     }
 
     // Xử lý khi bấm nút Xóa bộ lọc
@@ -197,22 +229,25 @@ public class HoaDonController {
     }
 
     private void handleTraCuu() {
+        currentState = SearchState.SEARCH;
+        currentPage = 1;
+
         // 1. Lấy dữ liệu
         String keyword = view.getTxtTuKhoa().getText().trim();
         String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
 
-        // 2. Lấy các hóa đơn theo keyword và loại tra cứu
-        List<HoaDonDTO> result = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type);
+        // 2. Đếm tổng số record
+        totalRecords = hoaDonBUS.countHoaDonByKeyword(keyword, type);
 
-        // 3. Update Table
-        view.getTableModel().setRows(result);
-
-        if (result.isEmpty()) {
+        if (totalRecords == 0) {
             JOptionPane.showMessageDialog(view, "Không tìm thấy kết quả nào!", "Thông báo",
                     JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            System.out.println("Tìm thấy " + result.size() + " kết quả cho: " + keyword);
+            return;
         }
+
+        // 3. Lấy dữ liệu trang 1 và hiển thị
+        calculateTotalPages();
+        fetchAndDisplayData();
     }
 
     // Xử lý khi bấm nút Làm mới
@@ -279,13 +314,9 @@ public class HoaDonController {
         List<String> suggestions = new ArrayList<>();
 
         // 4. Lấy danh sách gợi ý dựa trên loại đang chọn
-        if ("Mã hóa đơn".equals(type)) {
-            suggestions = hoaDonBUS.layTop10HoaDonID(keyword);
-        } else if ("Mã khách hàng".equals(type)) {
-            suggestions = hoaDonBUS.layTop10KhachHangID(keyword);
-        } else if ("Mã giao dịch".equals(type)) {
-            suggestions = hoaDonBUS.layTop10MaGD(keyword);
-        }
+        if ("Mã hóa đơn".equals(type)) suggestions = hoaDonBUS.layTop10HoaDonID(keyword);
+        else if ("Số điện thoại khách hàng".equals(type)) suggestions = khachHangBUS.layTop10SoDienThoai(keyword);
+        else if ("Số giấy tờ khách hàng".equals(type)) suggestions = khachHangBUS.layTop10SoGiayTo(keyword);
 
         // 5. Hiển thị Popup
         if (!suggestions.isEmpty()) {
@@ -294,10 +325,10 @@ public class HoaDonController {
                 // Highlight icon khác nhau cho đẹp
                 if ("Mã hóa đơn".equals(type)) {
                     item.setIcon(new FlatSVGIcon("icon/svg/order.svg", 0.6f));
-                } else if ("Mã khách hàng".equals(type)) {
-                    item.setIcon(new FlatSVGIcon("icon/svg/person.svg", 0.6f));
-                } else if ("Mã giao dịch".equals(type)) {
-                    item.setIcon(new FlatSVGIcon("icon/svg/payment.svg", 0.6f));
+                } else if ("Số điện thoại khách hàng".equals(type)) {
+                    item.setIcon(new FlatSVGIcon("icon/svg/phone.svg", 0.6f));
+                } else if ("Số giấy tờ khách hàng".equals(type)) {
+                    item.setIcon(new FlatSVGIcon("icon/svg/idcard.svg", 0.6f));
                 }
 
                 item.addActionListener(e -> {
@@ -495,4 +526,89 @@ public class HoaDonController {
         // Phần tử đầu tiên của path thường là JPopupMenu cha
         return path[0].getComponent() == popup;
     }
+
+    private void calculateTotalPages() {
+        totalPages = (int) Math.ceil((double) totalRecords / rowsPerPage);
+        if (totalPages == 0) totalPages = 1;
+    }
+
+    // Gọi truy vấn đúng với trạng thái hiện tại kèm theo OFFSET (page)
+    private void fetchAndDisplayData() {
+        List<HoaDonDTO> dtos = new ArrayList<>();
+
+        if (currentState == SearchState.ALL) {
+            dtos = hoaDonBUS.getHoaDonByPage(currentPage, rowsPerPage);
+        } else if (currentState == SearchState.FILTER) {
+            String loaiHD = (String) view.getCboLoaiHoaDon().getSelectedItem();
+            String tuKhoaInput = view.getTxtKhachHangSuggest().getText().trim();
+            boolean isTatCaNgay = view.getCheckBoxTatCaNgay().isSelected();
+            Date tuNgay = isTatCaNgay ? null : view.getDateChooserTuNgay().getDate();
+            Date denNgay = isTatCaNgay ? null : view.getDateChooserDenNgay().getDate();
+            String hinhThucTT = (String) view.getCboHinhThucTT().getSelectedItem();
+
+            String searchKeyword = null;
+            String searchID = null;
+            if (selectedKhachHang != null && tuKhoaInput.equals(selectedKhachHang.getHoTen()))
+                searchID = selectedKhachHang.getId();
+            else searchKeyword = tuKhoaInput.isEmpty() ? null : tuKhoaInput;
+
+            String tuKhoaTraCuu = view.getTxtTuKhoa().getText().trim();
+            String loaiTraCuu = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = hoaDonBUS.locHoaDonTheoCacTieuChi(tuKhoaTraCuu, loaiTraCuu, loaiHD, searchKeyword, searchID, tuNgay, denNgay, hinhThucTT, currentPage, rowsPerPage);
+        } else if (currentState == HoaDonController.SearchState.SEARCH) {
+            String keyword = view.getTxtTuKhoa().getText().trim();
+            String type = (String) view.getCboLoaiTimKiem().getSelectedItem();
+
+            dtos = hoaDonBUS.layHoaDonTheoKeyWord(keyword, type, currentPage, rowsPerPage);
+        }
+
+        view.getTableModel().setRows(dtos);
+        renderPageNumbers();
+    }
+
+    // Vẽ lại các nút số trang
+    private void renderPageNumbers() {
+        JPanel pnlPages = view.getPnlPageNumbers();
+        pnlPages.removeAll();
+
+        int maxPagesToShow = 5;
+        int startPage = Math.max(1, currentPage - 2);
+        int endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+
+        for (int i = startPage; i <= endPage; i++) {
+            int pageNum = i;
+            JButton btnPage = new JButton(String.valueOf(pageNum));
+            btnPage.setMargin(new Insets(2, 6, 2, 6));
+            btnPage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            if (pageNum == currentPage) {
+                btnPage.setBackground(new Color(38, 117, 191));
+                btnPage.setForeground(Color.WHITE);
+                btnPage.setFont(btnPage.getFont().deriveFont(Font.BOLD));
+            } else {
+                btnPage.setBackground(Color.WHITE);
+                btnPage.setForeground(Color.BLACK);
+            }
+
+            btnPage.addActionListener(e -> {
+                currentPage = pageNum;
+                fetchAndDisplayData(); // Bấm sang số nào thì chạy lại query cho số đó
+            });
+
+            pnlPages.add(btnPage);
+        }
+
+        view.getBtnPrevPage().setEnabled(currentPage > 1);
+        view.getBtnNextPage().setEnabled(currentPage < totalPages);
+
+        pnlPages.revalidate();
+        pnlPages.repaint();
+    }
+
+    private enum SearchState {ALL, FILTER, SEARCH}
 }

@@ -9,6 +9,7 @@ import entity.NhatKyAudit;
 import gui.application.AuthService;
 import mapper.KhachHangMapper;
 import mapper.NhanVienMapper;
+
 import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -206,5 +207,17 @@ public class KhachHang_BUS {
         }
 
         return thayDoi.toString();
+    }
+
+    public List<String> layTop10SoGiayTo(String soGiayTo) {
+        return khachHangDAO.getTop10SoGiayTo(soGiayTo);
+    }
+
+    public List<String> layTop10SoDienThoai(String soDienThoai) {
+        return khachHangDAO.getTop10SoDienThoai(soDienThoai);
+    }
+
+    public List<String> layTop10HoTen(String hoTen) {
+        return khachHangDAO.getTop10HoTen(hoTen);
     }
 }

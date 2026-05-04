@@ -22,7 +22,7 @@ import java.util.List;
 
 public class NhanVienDAO extends AbstractGenericDAO<NhanVien, String> implements INhanVienDAO {
 
-    public NhanVienDAO(){
+    public NhanVienDAO() {
         super(NhanVien.class);
     }
 
@@ -141,4 +141,21 @@ public class NhanVienDAO extends AbstractGenericDAO<NhanVien, String> implements
     public CaLam getCaLamById(String caLamID) {
         return doInTransaction(em -> em.find(CaLam.class, caLamID));
     }
+
+    @Override
+    public NhanVien getNhanVienByTenDangNhap(String tenDangNhap) {
+        try {
+            return doInTransaction(em ->
+                    em.createQuery("SELECT n FROM NhanVien n " +
+                                    "LEFT JOIN FETCH n.caLam " +
+                                    "LEFT JOIN FETCH n.vaiTroNhanVien " +
+                                    "WHERE n IN (SELECT t.nhanVien FROM TaiKhoan t WHERE t.tenDangNhap = :tenDangNhap)", NhanVien.class)
+                            .setParameter("tenDangNhap", tenDangNhap)
+                            .getSingleResult()
+            );
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

@@ -15,13 +15,14 @@ package dao.impl;
 
 import dao.IKhachHangDAO;
 import entity.KhachHang;
+import jakarta.persistence.Query;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class KhachHangDAO extends AbstractGenericDAO<KhachHang, String> implements IKhachHangDAO {
 
-    public KhachHangDAO(){
+    public KhachHangDAO() {
         super(KhachHang.class);
     }
 
@@ -173,6 +174,41 @@ public class KhachHangDAO extends AbstractGenericDAO<KhachHang, String> implemen
             }
 
             return nextID;
+        });
+    }
+
+    @Override
+    public List<String> getTop10SoGiayTo(String soGiayTo) {
+        return getTop10String("soGiayTo", soGiayTo);
+    }
+
+    @Override
+    public List<String> getTop10SoDienThoai(String soDienThoai) {
+        return getTop10String("soDienThoai", soDienThoai);
+    }
+
+    @Override
+    public List<String> getTop10HoTen(String hoTen) {
+        return getTop10String("hoTen", hoTen);
+    }
+
+    private List<String> getTop10String(String col, String keyword) {
+        return doInTransaction(em -> {
+            List<String> list = new ArrayList<>();
+            String sql = "SELECT TOP 10 " + col + " FROM KhachHang WHERE + col + LIKE ?1";
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, "%" + keyword + "%");
+            try {
+                List<?> results = query.getResultList();
+                for (Object rs : results) {
+                    if (rs != null) {
+                        list.add((String) rs);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return list;
         });
     }
 }

@@ -161,7 +161,7 @@ public class PanelQuanLyDonDatCho extends JPanel {
         pnlPageControls.add(pnlPageNumbers);
         pnlPageControls.add(btnNextPage);
 
-        // Khu vực góc Phải: dropdown tùy chỉnh số dòng
+        // Khu vực góc phải: dropdown tùy chỉnh số dòng
         JPanel pnlRowsCount = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         pnlRowsCount.add(new JLabel("Số dòng/trang:"));
         cboRowsPerPage = new JComboBox<>(new Integer[]{10, 15, 20, 25, 50});
