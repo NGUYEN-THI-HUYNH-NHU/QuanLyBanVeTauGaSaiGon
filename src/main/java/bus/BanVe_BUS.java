@@ -12,7 +12,6 @@ package bus;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import dto.KhachHangDTO;
 import entity.*;
 import entity.type.TrangThaiPhieuGiuCho;
@@ -24,8 +23,6 @@ import mapper.HoaDonMapper;
 import mapper.NhanVienMapper;
 import mapper.PhieuGiuChoMapper;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -47,19 +44,14 @@ public class BanVe_BUS {
      * @return true nếu tất cả các bước thành công
      */
     public boolean thucHienBanVe(BookingSession session) throws Exception {
-        Connection conn = null;
         try {
-            // 1. Lấy kết nối và BẮT ĐẦU TRANSACTION
-            conn = ConnectDB.getInstance().getConnection();
-            conn.setAutoCommit(false);
-
             KhachHangDTO khachHang = session.getKhachHang();
 
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
             // 2. Lưu/Cập nhật Khách Hàng (Người mua + các Hành khách)
-            khachHangBUS.themHoacCapNhatKhachHang(conn, khachHang);
+            khachHangBUS.themHoacCapNhatKhachHang(khachHang);
             for (VeSession v : session.getAllSelectedTickets()) {
-                khachHangBUS.themHoacCapNhatKhachHang(conn, khachHang);
+                khachHangBUS.themHoacCapNhatKhachHang(khachHang);
             }
 
             // 3. Tạo và Lưu Đơn Đặt Chỗ
@@ -91,7 +83,7 @@ public class BanVe_BUS {
             hoaDonBUS.themCacHoaDonChiTiet(listHoaDonChiTiet);
 
             // 10. Lưu các sử dụng khuyến mãi (đã kèm giảm số lượng khuyến mãi tương ứng)
-            khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, session.getAllSelectedTickets());
+            khuyenMaiBUS.themDanhSachSuDungKhuyenMai(session.getAllSelectedTickets());
 
             // 11. Cập nhật Phiếu Giữ Chỗ (sau khi mọi thứ thành công)
             PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(session.getPhieuGiuCho());
@@ -103,34 +95,10 @@ public class BanVe_BUS {
                 ghiLog(v.getVe().getVeID(), nhanVien.getNhanVienID(), entity.type.NhatKyAudit.BAN_VE,
                         "Bán vé - " + session.getDonDatCho().getId() + ": " + v.getVe().getVeID());
             }
-            // --- KẾT THÚC GIAO DỊCH ---
-            // Hoàn tất giao dịch
-            conn.commit();
             return true;
 
         } catch (Exception e) {
-            // Nếu có bất kỳ lỗi nào, hoàn tác tất cả thay đổi
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                    PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(session.getPhieuGiuCho());
-                    datChoBUS.hoanTacGiuCho(phieuGiuCho);
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-            throw new Exception("Lỗi khi xử lý thanh toán: " + e.getMessage());
-        } finally {
-            // Trả lại trạng thái AutoCommit cho kết nối
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            throw new Exception("Lỗi khi xử lý bán vé: " + e.getMessage());
         }
     }
 

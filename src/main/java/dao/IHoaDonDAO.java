@@ -5,7 +5,7 @@ import entity.HoaDon;
 import java.util.Date;
 import java.util.List;
 
-public interface IHoaDonDAO {
+public interface IHoaDonDAO extends IGenericDAO<HoaDon, String> {
 
     List<HoaDon> searchHoaDonByFilter(String tuKhoaTraCuu, String loaiTraCuu, String loaiHD, String khachHang, String khachHangID, Date tuNgay,
                                       Date denNgay, String hinhThucTT, int page, int limit);

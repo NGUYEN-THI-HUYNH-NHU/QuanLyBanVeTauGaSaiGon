@@ -22,13 +22,11 @@ import java.util.function.Function;
 public class BieuGia_CTRL {
     private final PanelQuanLyBieuGia view;
 
-    private final BieuGiaVe_BUS bieuGiaVeBUS;
-    private final Tuyen_BUS tuyenBus;
+    private final BieuGiaVe_BUS bieuGiaVeBUS = new BieuGiaVe_BUS();
+    private final Tuyen_BUS tuyenBus = new Tuyen_BUS();
+    private final JPopupMenu tuyenSuggestionPopup = new JPopupMenu();
     private List<BieuGiaVeDTO> listCache;
     private List<String> lastSuggestionData = new ArrayList<>();
-
-    private JPopupMenu tuyenSuggestionPopup;
-
     private List<String> listMaBieuGia = new ArrayList<>();
     private List<String> listMaTuyen = new ArrayList<>();
     private List<String> listMaTau = new ArrayList<>();
@@ -37,10 +35,7 @@ public class BieuGia_CTRL {
 
     public BieuGia_CTRL(PanelQuanLyBieuGia view) {
         this.view = view;
-        this.bieuGiaVeBUS = new BieuGiaVe_BUS();
-        this.tuyenBus = new Tuyen_BUS();
 
-        this.tuyenSuggestionPopup = new JPopupMenu();
         this.tuyenSuggestionPopup.setFocusable(false);
 
         loadData();

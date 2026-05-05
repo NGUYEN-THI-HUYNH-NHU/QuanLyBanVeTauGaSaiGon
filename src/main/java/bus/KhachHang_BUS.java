@@ -10,7 +10,6 @@ import gui.application.AuthService;
 import mapper.KhachHangMapper;
 import mapper.NhanVienMapper;
 
-import java.sql.Connection;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -65,11 +64,9 @@ public class KhachHang_BUS {
     }
 
     public boolean themHoacCapNhatKhachHang(KhachHangDTO khDTO) {
-        return true;
-    }
-
-    public boolean themHoacCapNhatKhachHang(Connection con, KhachHangDTO khDTO) {
-        return themHoacCapNhatKhachHang(khDTO);
+        KhachHang kh = khachHangDAO.findById(khDTO.getId());
+        if (kh == null) return false;
+        return khachHangDAO.update(KhachHangMapper.INSTANCE.toEntity(khDTO)) != null;
     }
 
     // ================= CẬP NHẬT KHÁCH HÀNG =================

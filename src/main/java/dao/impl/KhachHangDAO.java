@@ -15,7 +15,6 @@ package dao.impl;
 
 import dao.IKhachHangDAO;
 import entity.KhachHang;
-import jakarta.persistence.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -194,21 +193,17 @@ public class KhachHangDAO extends AbstractGenericDAO<KhachHang, String> implemen
 
     private List<String> getTop10String(String col, String keyword) {
         return doInTransaction(em -> {
-            List<String> list = new ArrayList<>();
-            String sql = "SELECT TOP 10 " + col + " FROM KhachHang WHERE + col + LIKE ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, "%" + keyword + "%");
+            String jpql = "SELECT k." + col + " FROM KhachHang k WHERE k." + col + " LIKE :keyword";
+
             try {
-                List<?> results = query.getResultList();
-                for (Object rs : results) {
-                    if (rs != null) {
-                        list.add((String) rs);
-                    }
-                }
+                return em.createQuery(jpql, String.class)
+                        .setParameter("keyword", "%" + keyword + "%")
+                        .setMaxResults(10)
+                        .getResultList();
             } catch (Exception e) {
                 e.printStackTrace();
+                return new ArrayList<>();
             }
-            return list;
         });
     }
 }

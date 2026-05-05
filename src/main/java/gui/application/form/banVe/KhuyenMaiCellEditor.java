@@ -13,18 +13,18 @@ package gui.application.form.banVe;
  */
 
 import bus.KhuyenMai_BUS;
-import entity.KhuyenMai;
+import dto.KhuyenMaiDTO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
 public class KhuyenMaiCellEditor extends DefaultCellEditor {
-    private final JComboBox<KhuyenMai> cbKhuyenMai;
+    private final JComboBox<KhuyenMaiDTO> cbKhuyenMai;
     private final PanelBuoc4.KhuyenMaiProvider khuyenMaiProvider;
     private final VeBanTableModel model;
 
-    public KhuyenMaiCellEditor(JComboBox<KhuyenMai> cbKhuyenMai, PanelBuoc4.KhuyenMaiProvider khuyenMaiProvider,
+    public KhuyenMaiCellEditor(JComboBox<KhuyenMaiDTO> cbKhuyenMai, PanelBuoc4.KhuyenMaiProvider khuyenMaiProvider,
                                VeBanTableModel model) {
         super(cbKhuyenMai);
         this.cbKhuyenMai = cbKhuyenMai;
@@ -44,13 +44,13 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 
         // 2. Gọi Provider để lấy danh sách KM phù hợp
         if (khuyenMaiProvider != null) {
-            List<KhuyenMai> listKM = khuyenMaiProvider.getKhuyenMaiFor(v);
+            List<KhuyenMaiDTO> listKM = khuyenMaiProvider.getKhuyenMaiFor(v);
 
             // 3. Cập nhật ComboBox
             cbKhuyenMai.removeAllItems();
             cbKhuyenMai.addItem(null);
             if (listKM != null) {
-                for (KhuyenMai km : listKM) {
+                for (KhuyenMaiDTO km : listKM) {
                     cbKhuyenMai.addItem(km);
                 }
             }

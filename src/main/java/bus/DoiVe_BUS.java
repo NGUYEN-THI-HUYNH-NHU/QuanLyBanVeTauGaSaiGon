@@ -12,7 +12,6 @@ package bus;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import dto.KhachHangDTO;
 import dto.NhanVienDTO;
 import dto.VeDTO;
@@ -27,12 +26,9 @@ import mapper.DonDatChoMapper;
 import mapper.HoaDonMapper;
 import mapper.PhieuGiuChoMapper;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DoiVe_BUS {
     private final DatCho_BUS datChoBUS = new DatCho_BUS();
@@ -49,12 +45,7 @@ public class DoiVe_BUS {
      * @return
      */
     public boolean thucHienDoiVe(ExchangeSession exchangeSession) throws Exception {
-        Connection conn = null;
         try {
-            // 1. Lấy kết nối và BẮT ĐẦU TRANSACTION
-            conn = ConnectDB.getInstance().getConnection();
-            conn.setAutoCommit(false);
-
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
             List<VeDTO> listVeDoi = new ArrayList<>();
             for (VeDoiRow r : exchangeSession.getListVeCuCanDoi()) {
@@ -91,7 +82,7 @@ public class DoiVe_BUS {
 
             // 8. Lưu các sử dụng khuyến mãi cho vé mới (đã kèm giảm số lượng khuyến mãi
             // tương ứng)
-            khuyenMaiBUS.themDanhSachSuDungKhuyenMai(conn, exchangeSession.getListVeMoiDangChon());
+            khuyenMaiBUS.themDanhSachSuDungKhuyenMai(exchangeSession.getListVeMoiDangChon());
 
             // 9. Cập nhật Phiếu Giữ Chỗ cho vé mới (sau khi mọi thứ thành công)
             PhieuGiuCho phieuGiuCho = PhieuGiuChoMapper.INSTANCE.toEntity(exchangeSession.getPhieuGiuCho());
@@ -130,32 +121,10 @@ public class DoiVe_BUS {
                 ghiLog(v.getVe().getVeID(), nhanVien.getId(), entity.type.NhatKyAudit.DOI_VE, "Vé đổi: " + v.getVe().getVeID());
             }
 
-            // --- KẾT THÚC GIAO DỊCH ---
-            conn.commit();
-            return true;
-
         } catch (Exception e) {
-            // Nếu có bất kỳ lỗi nào, hoàn tác tất cả thay đổi
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
             throw new Exception("Lỗi khi xử lý đổi vé: " + e.getMessage());
-        } finally {
-            // Trả lại trạng thái AutoCommit cho kết nối
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
         }
+        return true;
     }
 
     // ghi log

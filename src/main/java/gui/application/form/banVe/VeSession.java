@@ -5,10 +5,10 @@ package gui.application.form.banVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
+import dto.KhuyenMaiDTO;
 import dto.PhieuDungPhongVIPDTO;
 import dto.PhieuGiuChoChiTietDTO;
 import dto.VeDTO;
-import entity.KhuyenMai;
 import entity.SuDungKhuyenMai;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,12 +30,12 @@ public class VeSession {
     private PhieuGiuChoChiTietDTO phieuGiuChoChiTiet;
     private PhieuDungPhongVIPDTO phieuDungPhongVIP;
     private double phiPhieuDungPhongChoVIP;
-    private KhuyenMai khuyenMaiApDung = null;
+    private KhuyenMaiDTO khuyenMaiApDung = null;
     private double giamKM;
     private SuDungKhuyenMai suDungKhuyenMai;
     private double giamDoiTuong;
 
-    public VeSession(VeDTO ve, KhuyenMai khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
+    public VeSession(VeDTO ve, KhuyenMaiDTO khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
         super();
         this.ve = ve;
         this.khuyenMaiApDung = khuyenMaiApDung;
@@ -52,7 +52,7 @@ public class VeSession {
     public int getSoGhe() {
         return this.ve.getSoGhe();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

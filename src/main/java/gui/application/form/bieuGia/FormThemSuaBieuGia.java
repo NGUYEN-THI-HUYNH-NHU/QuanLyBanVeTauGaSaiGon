@@ -346,7 +346,7 @@ public class FormThemSuaBieuGia extends JDialog {
         txtPhuPhi.setText(String.valueOf(bg.getPhuPhiCaoDiem()));
 
         // 3. Set Radio & Giá
-        if (bg.getGiaCoBan() > 0) {
+        if (bg.getGiaCoBan() != null && bg.getGiaCoBan() > 0) {
             radCoDinh.setSelected(true);
             txtGiaCoDinh.setEnabled(true);
             txtDonGiaKm.setEnabled(false);

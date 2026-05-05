@@ -1,9 +1,10 @@
 package dao;
 
+import entity.PhieuGiuChoChiTiet;
 import entity.Ve;
 import entity.type.TrangThaiPhieuGiuCho;
 
-public interface IPhieuGiuChoChiTietDAO {
+public interface IPhieuGiuChoChiTietDAO extends IGenericDAO<PhieuGiuChoChiTiet, String> {
     boolean checkConflict(String chuyenID, String tenGaDi, String tenGaDen, int soToa,
                           int soGhe);
 

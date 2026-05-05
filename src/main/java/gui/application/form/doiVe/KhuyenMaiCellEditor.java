@@ -5,7 +5,7 @@ package gui.application.form.doiVe;
  * Copyright (c) 2025 IUH. All rights reserved.
  */
 
-import entity.KhuyenMai;
+import dto.KhuyenMaiDTO;
 import gui.application.form.banVe.KhuyenMaiListRenderer;
 import gui.application.form.banVe.VeSession;
 
@@ -21,11 +21,11 @@ import java.util.List;
  */
 
 public class KhuyenMaiCellEditor extends DefaultCellEditor {
-    private final JComboBox<KhuyenMai> cbKhuyenMai;
+    private final JComboBox<KhuyenMaiDTO> cbKhuyenMai;
     private final PanelDoiVeBuoc7.KhuyenMaiProvider khuyenMaiProvider;
     private final MappingVeTableModel model;
 
-    public KhuyenMaiCellEditor(JComboBox<KhuyenMai> cbKhuyenMai, PanelDoiVeBuoc7.KhuyenMaiProvider khuyenMaiProvider,
+    public KhuyenMaiCellEditor(JComboBox<KhuyenMaiDTO> cbKhuyenMai, PanelDoiVeBuoc7.KhuyenMaiProvider khuyenMaiProvider,
                                MappingVeTableModel model) {
         super(cbKhuyenMai);
         this.cbKhuyenMai = cbKhuyenMai;
@@ -46,9 +46,9 @@ public class KhuyenMaiCellEditor extends DefaultCellEditor {
 
         // 2. Chỉ load danh sách nếu đã có Vé Mới
         if (v != null && khuyenMaiProvider != null) {
-            List<KhuyenMai> listKM = khuyenMaiProvider.getKhuyenMaiFor(v);
+            List<KhuyenMaiDTO> listKM = khuyenMaiProvider.getKhuyenMaiFor(v);
             if (listKM != null) {
-                for (KhuyenMai km : listKM) {
+                for (KhuyenMaiDTO km : listKM) {
                     cbKhuyenMai.addItem(km);
                 }
             }

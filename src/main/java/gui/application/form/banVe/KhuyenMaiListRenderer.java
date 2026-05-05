@@ -12,7 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.KhuyenMai;
+import dto.KhuyenMaiDTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,9 +20,9 @@ import java.awt.*;
 public class KhuyenMaiListRenderer extends DefaultListCellRenderer {
     // Logic hiển thị text được tách riêng (Static) để các class khác gọi dùng ké
     public static void renderKhuyenMai(JLabel label, Object value) {
-        if (value instanceof KhuyenMai) {
-            KhuyenMai km = (KhuyenMai) value;
-            if (km.getKhuyenMaiID() != null && !km.getKhuyenMaiID().isEmpty()) {
+        if (value instanceof KhuyenMaiDTO) {
+            KhuyenMaiDTO km = (KhuyenMaiDTO) value;
+            if (km.getId() != null && !km.getId().isEmpty()) {
                 label.setText(km.getMaKhuyenMai() + " (" + getGiamGiaString(km) + ")");
                 label.setToolTipText(km.getMoTa());
             } else {
@@ -35,7 +35,7 @@ public class KhuyenMaiListRenderer extends DefaultListCellRenderer {
         }
     }
 
-    private static String getGiamGiaString(KhuyenMai km) {
+    private static String getGiamGiaString(KhuyenMaiDTO km) {
         if (km.getTyLeGiamGia() > 0) {
             return String.format("-%.0f%%", km.getTyLeGiamGia() * 100);
         } else {

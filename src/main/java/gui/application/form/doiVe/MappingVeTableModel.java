@@ -12,8 +12,8 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
+import dto.KhuyenMaiDTO;
 import dto.VeDTO;
-import entity.KhuyenMai;
 import gui.application.form.banVe.VeSession;
 
 import javax.swing.table.AbstractTableModel;
@@ -112,7 +112,7 @@ public class MappingVeTableModel extends AbstractTableModel {
         }
 
         if (columnIndex == COL_KHUYEN_MAI) {
-            return KhuyenMai.class;
+            return KhuyenMaiDTO.class;
         }
         if (columnIndex == COL_CHON_PHIEU_VIP) {
             return Boolean.class;
@@ -166,8 +166,8 @@ public class MappingVeTableModel extends AbstractTableModel {
                 }
 
                 // 2. Lấy KM và kiểm tra Ghost Object
-                KhuyenMai km = vMoi.getKhuyenMaiApDung();
-                if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+                KhuyenMaiDTO km = vMoi.getKhuyenMaiApDung();
+                if (km != null && (km.getId() == null || km.getId().isEmpty())) {
                     return null;
                 }
                 return km;
@@ -227,10 +227,10 @@ public class MappingVeTableModel extends AbstractTableModel {
             fireTableRowsUpdated(rowIndex, rowIndex);
         } else if (columnIndex == COL_KHUYEN_MAI) {
             VeSession veMoi = (VeSession) getValueAt(rowIndex, COL_CHON_VE_MOI);
-            KhuyenMai km = (KhuyenMai) aValue;
+            KhuyenMaiDTO km = (KhuyenMaiDTO) aValue;
             veMoi.setKhuyenMaiApDung(km);
 
-            if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+            if (km != null && (km.getId() == null || km.getId().isEmpty())) {
                 km = null;
             }
 

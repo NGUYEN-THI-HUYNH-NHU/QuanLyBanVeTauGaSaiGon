@@ -12,7 +12,8 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.KhuyenMai;
+
+import dto.KhuyenMaiDTO;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class VeBanTableModel extends AbstractTableModel {
             return Boolean.class;
         }
         if (columnIndex == COL_KHUYEN_MAI) {
-            return KhuyenMai.class;
+            return KhuyenMaiDTO.class;
         }
         if (columnIndex == COL_HANH_KHACH) {
             return PassengerRow.class;
@@ -86,8 +87,8 @@ public class VeBanTableModel extends AbstractTableModel {
             case 6:
                 return p.getVeSession().getGiamDoiTuong();
             case 7:
-                KhuyenMai km = p.getVeSession().getKhuyenMaiApDung();
-                if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+                KhuyenMaiDTO km = p.getVeSession().getKhuyenMaiApDung();
+                if (km != null && (km.getId() == null || km.getId().isEmpty())) {
                     return null;
                 }
                 return km;
@@ -133,10 +134,10 @@ public class VeBanTableModel extends AbstractTableModel {
             fireTableCellUpdated(rowIndex, COL_GIA_DV);
             fireTableCellUpdated(rowIndex, COL_THANH_TIEN);
         } else if (columnIndex == COL_KHUYEN_MAI) {
-            KhuyenMai km = (KhuyenMai) aValue;
+            KhuyenMaiDTO km = (KhuyenMaiDTO) aValue;
             v.setKhuyenMaiApDung(km);
 
-            if (km != null && (km.getKhuyenMaiID() == null || km.getKhuyenMaiID().isEmpty())) {
+            if (km != null && (km.getId() == null || km.getId().isEmpty())) {
                 km = null;
             }
 
@@ -151,7 +152,7 @@ public class VeBanTableModel extends AbstractTableModel {
                 // (Có thể thêm logic giới hạn tiền giảm tối đa nếu cần)
             }
             v.setGiamKM(tienGiam);
-            
+
             // Cập nhật cả dòng để tính lại Thành tiền
             fireTableRowsUpdated(rowIndex, rowIndex);
         }
