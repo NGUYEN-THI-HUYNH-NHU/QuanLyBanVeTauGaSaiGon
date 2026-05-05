@@ -39,5 +39,5 @@ public class HeSoGiaLoaiTau implements Serializable {
     private double hsg;
 
     @Column(name = "isCoHieuLuc")
-    private Boolean isCoHieuLuc;
+    private Boolean coHieuLuc;
 }

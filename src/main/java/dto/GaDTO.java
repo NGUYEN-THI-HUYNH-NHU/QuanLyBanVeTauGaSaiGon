@@ -13,6 +13,6 @@ import java.io.Serializable;
 public class GaDTO implements Serializable {
     private String id;
     private String tenGa;
-    private boolean isGaLon;
+    private boolean gaLon;
     private String tinhThanh;
 }

@@ -92,7 +92,7 @@ public class Tuyen_BUS {
                     gaTrungGian = "-";
                 }
 
-                String trangThaiHienThi = tuyen.getTrangThai() ? "Hoạt động" : "Không hoạt động";
+                String trangThaiHienThi = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
 
                 Object[] rowData = new Object[]{
                         tuyen.getTuyenID(),
@@ -155,7 +155,7 @@ public class Tuyen_BUS {
 
 
         Tuyen tuyen = dsTuyenChiTiet.get(0).getTuyen();
-        String trangThaiStr = tuyen.getTrangThai() ? "Hoạt động" : "Không hoạt động";
+        String trangThaiStr = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
         StringBuilder sb = new StringBuilder();
         sb.append(
                 "__________________________________________THÔNG TIN CHI TIẾT CỦA TUYẾN__________________________________________\n");
@@ -296,9 +296,9 @@ public class Tuyen_BUS {
                         tuyenCu.getMoTa(), tuyenCapNhat.getMoTa()));
             }
 
-            if (tuyenCu != null && tuyenCu.getTrangThai() != tuyenCapNhat.getTrangThai()) {
-                String ttCu = tuyenCu.getTrangThai() ? "Hoạt động" : "Không hoạt động";
-                String ttMoi = tuyenCapNhat.getTrangThai() ? "Hoạt động" : "Không hoạt động";
+            if (tuyenCu != null && tuyenCu.isTrangThai() != tuyenCapNhat.isTrangThai()) {
+                String ttCu = tuyenCu.isTrangThai() ? "Hoạt động" : "Không hoạt động";
+                String ttMoi = tuyenCapNhat.isTrangThai() ? "Hoạt động" : "Không hoạt động";
                 cacThayDoi.add(String.format("Cập nhật trạng thái (%s -> %s)", ttCu, ttMoi));
             }
 

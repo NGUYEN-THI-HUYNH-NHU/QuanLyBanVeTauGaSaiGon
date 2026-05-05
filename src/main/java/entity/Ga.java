@@ -38,7 +38,7 @@ public class Ga implements Serializable {
     private String tenGa;
 
     @Column(name = "isGaLon", nullable = false)
-    private boolean isGaLon;
+    private boolean gaLon;
 
     @Column(name = "tinhThanh")
     private String tinhThanh;

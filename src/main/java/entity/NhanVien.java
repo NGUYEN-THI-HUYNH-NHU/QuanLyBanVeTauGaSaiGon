@@ -24,7 +24,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 //@AllArgsConstructor
 @Builder
-@ToString
+@ToString(exclude = "avatar")
 @EqualsAndHashCode
 @Entity
 @Table(name = "NhanVien")
@@ -41,7 +41,7 @@ public class NhanVien implements Serializable {
     private String hoTen;
 
     @Column(name = "isNu", nullable = false)
-    private boolean isNu;
+    private boolean nu;
 
     @Column(name = "ngaySinh", nullable = false)
     private LocalDate ngaySinh;
@@ -59,7 +59,7 @@ public class NhanVien implements Serializable {
     private LocalDate ngayThamGia;
 
     @Column(name = "isHoatDong", nullable = false)
-    private boolean isHoatDong;
+    private boolean hoatDong;
 
     @Lob
     @Column(name = "avatar")
@@ -75,13 +75,13 @@ public class NhanVien implements Serializable {
         this.nhanVienID = nhanVienID;
         this.vaiTroNhanVien = vaiTroNhanVien;
         this.hoTen = hoTen;
-        this.isNu = isNu;
+        this.nu = isNu;
         this.ngaySinh = ngaySinh;
         this.soDienThoai = soDienThoai;
         this.email = email;
         this.diaChi = diaChi;
         this.ngayThamGia = ngayThamGia;
-        this.isHoatDong = isHoatDong;
+        this.hoatDong = isHoatDong;
         this.avatar = avatar;
     }
 
@@ -91,13 +91,13 @@ public class NhanVien implements Serializable {
         this.nhanVienID = nhanVienID;
         this.vaiTroNhanVien = vaiTroNhanVien;
         this.hoTen = hoTen;
-        this.isNu = isNu;
+        this.nu = isNu;
         this.ngaySinh = ngaySinh;
         this.soDienThoai = soDienThoai;
         this.email = email;
         this.diaChi = diaChi;
         this.ngayThamGia = ngayThamGia;
-        this.isHoatDong = isHoatDong;
+        this.hoatDong = isHoatDong;
         this.caLam = caLam;
     }
 
@@ -108,13 +108,13 @@ public class NhanVien implements Serializable {
         this.nhanVienID = nhanVienID;
         this.vaiTroNhanVien = vaiTroNhanVien;
         this.hoTen = hoTen;
-        this.isNu = isNu;
+        this.nu = isNu;
         this.ngaySinh = ngaySinh;
         this.soDienThoai = soDienThoai;
         this.email = email;
         this.diaChi = diaChi;
         this.ngayThamGia = ngayThamGia;
-        this.isHoatDong = isHoatDong;
+        this.hoatDong = isHoatDong;
         this.avatar = avatar;
         this.caLam = caLam;
     }

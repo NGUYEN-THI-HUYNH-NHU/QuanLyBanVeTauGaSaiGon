@@ -298,7 +298,7 @@ public class CapNhatTuyen_CTRL {
 
             panelCapNhatTuyen.getTxtMaTuyen().setText(tuyen.getTuyenID());
             panelCapNhatTuyen.getTxtMoTa().setText(tuyen.getMoTa());
-            panelCapNhatTuyen.getCboTrangThai().setSelectedIndex(tuyen.getTrangThai() ? 1 : 0);
+            panelCapNhatTuyen.getCboTrangThai().setSelectedIndex(tuyen.isTrangThai() ? 1 : 0);
 
             panelCapNhatTuyen.getTxtGaXuatPhat().setText(gaXP.getTenGa());
             panelCapNhatTuyen.getTxtGaDich().setText(gaDich.getTenGa());

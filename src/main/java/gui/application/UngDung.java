@@ -5,7 +5,7 @@ package gui;
 					
 						
 /*** @description :
-* @author : Vy, Pham Kha Vy
+* @author : Nguyen Thi Huynh Nhu
 * @version 1.0
 * @created : 25/09/2025
 */
@@ -26,6 +26,7 @@ import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 import javax.swing.*;
 import java.awt.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -36,6 +37,7 @@ public class UngDung extends JFrame {
     private static UngDung ungDung;
     private static JWindow splashScreen;
     private static JProgressBar progressBar;
+    private static JLabel lblStatus;
     private final FormDangNhap formDangNhap;
     private GiaoDienChinh giaoDienChinh;
     // Biến để lưu trữ các màn hình cần giữ trạng thái
@@ -85,42 +87,40 @@ public class UngDung extends JFrame {
     }
 
     public static void main(String args[]) {
-        // 1. Cấu hình FlatLaf PHẢI CHẠY ĐẦU TIÊN trên luồng chính
+        // 1. Cấu hình FlatLaf chạy đầu tiên trên luồng chính
         FlatRobotoFont.install();
         FlatLaf.registerCustomDefaultsSource("theme");
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 12));
         UIManager.put("PasswordField.showRevealButton", true);
         FlatMacLightLaf.setup();
 
-        // 2. Mở Splash Screen và bắt đầu tải dữ liệu trên luồng giao diện (EDT)
+        // 2. Mở Splash Screen và bắt đầu tải dữ liệu trên EDT
         SwingUtilities.invokeLater(() -> {
-            createSplashScreen(); // Vẽ cửa sổ Splash Screen
-            chayCacTacVuNen();    // Gọi hàm load dữ liệu ngầm
+            createSplashScreen();
+            chayCacTacVuNen();
         });
     }
 
     // Hàm phụ trợ quản lý việc load ngầm
     private static void chayCacTacVuNen() {
         new SwingWorker<Void, Integer>() {
+            private String textTrangThai = "";
+
             @Override
             protected Void doInBackground() throws Exception {
-                // Tác vụ 1: Giả lập chờ giao diện vẽ xong (nửa giây)
+                textTrangThai = "Đang chuẩn bị hệ thống...";
                 publish(10);
-                if (progressBar != null) progressBar.setString("Đang chuẩn bị hệ thống...");
-                Thread.sleep(500);
 
-                // Tác vụ 2: Khởi động Hibernate (Nặng nhất)
+                textTrangThai = "Đang chuẩn bị dữ liệu (quá trình này có thể mất chút thời gian)...";
                 publish(30);
-                if (progressBar != null) progressBar.setString("Đang kết nối cơ sở dữ liệu...");
                 try {
                     JPAUtil.getEntityManager().close();
                 } catch (Exception e) {
                     System.err.println("Lỗi Hibernate: " + e.getMessage());
                 }
 
-                // Tác vụ 3: Khởi động Máy chủ Mobile
+                textTrangThai = "Đang khởi động dịch vụ máy chủ...";
                 publish(70);
-                if (progressBar != null) progressBar.setString("Đang khởi động dịch vụ máy chủ...");
                 try {
                     AppHttpServer mobileServer = new AppHttpServer();
                     mobileServer.startServer();
@@ -128,38 +128,33 @@ public class UngDung extends JFrame {
                     System.err.println("Lỗi Server: " + e.getMessage());
                 }
 
-                // Hoàn tất
+                textTrangThai = "Hoàn tất!";
                 publish(100);
-                if (progressBar != null) progressBar.setString("Hoàn tất!");
-                Thread.sleep(500); // Dừng nửa giây để người dùng kịp nhìn thấy 100%
+                Thread.sleep(500);
 
                 return null;
             }
 
             @Override
             protected void process(java.util.List<Integer> chunks) {
-                // Cập nhật thanh tiến trình an toàn trên luồng giao diện
+                // Chạy trên luồng giao diện, dùng để update UI
                 int progress = chunks.get(chunks.size() - 1);
                 if (progressBar != null) {
                     progressBar.setValue(progress);
+                }
+                if (lblStatus != null) {
+                    lblStatus.setText(" " + textTrangThai);
                 }
             }
 
             @Override
             protected void done() {
-                // Bắt lỗi nếu có ngoại lệ xảy ra trong luồng ngầm (tránh bị nuốt lỗi)
                 try {
                     get();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-                // Tắt Splash Screen
-                if (splashScreen != null) {
-                    splashScreen.dispose();
-                }
-
-                // Bật ứng dụng chính (Lúc này FlatLaf đã load đầy đủ)
+                if (splashScreen != null) splashScreen.dispose();
                 new UngDung().setVisible(true);
             }
         }.execute();
@@ -169,29 +164,35 @@ public class UngDung extends JFrame {
         splashScreen = new JWindow();
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.setBackground(Color.WHITE);
-        contentPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1)); // Viền mờ
+        contentPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
 
-        int TARGET_WIDTH = 600;
-        int TARGET_HEIGHT = 350;
+        int TARGET_WIDTH = 560;
+        int TARGET_HEIGHT = 385;
 
-        // 1. Thêm ảnh Splash Screen
-        java.net.URL imgURL = UngDung.class.getResource("/icon/png/splash-screen.png");
+        // 1. Cấu hình Label trạng thái
+        lblStatus = new JLabel(" Đang khởi động hệ thống...");
+        lblStatus.setFont(new Font("Arial", Font.PLAIN, 10));
+        lblStatus.setForeground(Color.WHITE);
+        lblStatus.setOpaque(false);
+        lblStatus.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
+
+        // 2. Thêm ảnh Splash Screen và lồng lblStatus vào trong ảnh
+        URL imgURL = UngDung.class.getResource("/icon/png/splash-screen.png");
         ImageIcon originalIcon = new ImageIcon(imgURL);
-        Image originalImage = originalIcon.getImage();
-        // Thu nhỏ ảnh
-        Image scaledImage = originalImage.getScaledInstance(TARGET_WIDTH, TARGET_HEIGHT, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcon = new ImageIcon(scaledImage);
+        Image scaledImage = originalIcon.getImage().getScaledInstance(TARGET_WIDTH, TARGET_HEIGHT, Image.SCALE_SMOOTH);
+        JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+        imageLabel.setLayout(new BorderLayout());
+        imageLabel.add(lblStatus, BorderLayout.SOUTH);
 
-        JLabel imageLabel = new JLabel(scaledIcon);
         contentPane.add(imageLabel, BorderLayout.CENTER);
 
-        // 2. Thêm thanh tiến trình
+        // 3. Progress Bar
         progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true); // Hiển thị số %
-        progressBar.setForeground(new Color(36, 104, 155));
+        progressBar.setStringPainted(true);
+        progressBar.setForeground(new Color(0, 95, 159));
         progressBar.setBackground(Color.WHITE);
         progressBar.setBorderPainted(false);
-        progressBar.setPreferredSize(new Dimension(progressBar.getWidth(), 12)); // Chiều cao thanh tiến trình
+        progressBar.setPreferredSize(new Dimension(TARGET_WIDTH, 12));
 
         contentPane.add(progressBar, BorderLayout.SOUTH);
 
