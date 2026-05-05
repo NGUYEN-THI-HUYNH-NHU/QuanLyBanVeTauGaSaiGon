@@ -141,16 +141,17 @@ public class VeBanTableModel extends AbstractTableModel {
             }
 
             // TÍNH TOÁN LẠI TIỀN GIẢM KM
-            int tienGiam = 0;
+            double tienGiam = 0;
             if (km != null) {
                 if (km.getTyLeGiamGia() > 0) {
-                    tienGiam = (int) (v.getVe().getGia() * (km.getTyLeGiamGia()));
+                    tienGiam = v.getVe().getGia() * km.getTyLeGiamGia();
                 } else if (km.getTienGiamGia() > 0) {
-                    tienGiam = (int) km.getTienGiamGia();
+                    tienGiam = km.getTienGiamGia();
                 }
                 // (Có thể thêm logic giới hạn tiền giảm tối đa nếu cần)
             }
             v.setGiamKM(tienGiam);
+            
             // Cập nhật cả dòng để tính lại Thành tiền
             fireTableRowsUpdated(rowIndex, rowIndex);
         }

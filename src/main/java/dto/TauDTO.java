@@ -14,7 +14,7 @@ public class TauDTO implements Serializable {
     private String tauID;
     private String tenTau;
     private String loaiTau;
-    private int soLuongToa;
+    private Integer soLuongToa;
     private String trangThai;
-    private int vanTocTB;
+    private Integer vanTocTB;
 }

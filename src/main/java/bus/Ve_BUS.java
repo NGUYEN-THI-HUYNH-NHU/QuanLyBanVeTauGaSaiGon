@@ -127,6 +127,7 @@ public class Ve_BUS {
             String veID = taoVeIDDuyNhat(ve);
             ve.setVeID(veID);
             ve.setDonDatChoID(donDatCho.getId());
+            ve.setGia(ve.getGia() - v.getGiamKM() - v.getGiamDoiTuong());
 
             dsVe.add(VeMapper.INSTANCE.toEntity(ve));
             v.setVe(ve);
@@ -238,5 +239,13 @@ public class Ve_BUS {
 
     public List<VeDTO> getVeByPage(int currentPage, int rowsPerPage) {
         return veDAO.getVeByPage(currentPage, rowsPerPage).stream().map(VeMapper.INSTANCE::toDTO).toList();
+    }
+
+    public VeDTO getVeByVeID(String veID) {
+        return VeMapper.INSTANCE.toDTO(veDAO.getVeByVeID(veID));
+    }
+
+    public boolean updateTrangThaiVe(String veID, TrangThaiVe trangThaiVe) {
+        return veDAO.updateTrangThaiVe(veID, trangThaiVe);
     }
 }

@@ -13,8 +13,12 @@ package bus;
  */
 
 import dao.impl.BieuGiaVeDAO;
+import dao.impl.HangToaDAO;
+import dao.impl.LoaiTauDAO;
+import dao.impl.Tuyen_DAO;
 import dto.BieuGiaVeDTO;
 import dto.NhanVienDTO;
+import entity.BieuGiaVe;
 import entity.type.HangToaEnums;
 import entity.type.LoaiTauEnums;
 import entity.type.NhatKyAudit;
@@ -29,33 +33,34 @@ import java.util.Objects;
 import java.util.Random;
 
 public class BieuGiaVe_BUS {
-    private final BieuGiaVeDAO dao;
-    private final NhatKyAudit_BUS nhatKyAuditBus;
+    private final BieuGiaVeDAO bieuGiaVeDAO = new BieuGiaVeDAO();
+    private final HangToaDAO hangToaDAO = new HangToaDAO();
+    private final LoaiTauDAO loaiTauDAO = new LoaiTauDAO();
+    private final Tuyen_DAO tuyenDAO = new Tuyen_DAO();
+    private final NhatKyAudit_BUS nhatKyAuditBus = new NhatKyAudit_BUS();
 
     public BieuGiaVe_BUS() {
-        dao = new BieuGiaVeDAO();
-        nhatKyAuditBus = new NhatKyAudit_BUS();
     }
 
     public List<BieuGiaVeDTO> layDanhSachBieuGia() {
-        return dao.getAllBieuGia().stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
+        return bieuGiaVeDAO.findAll().stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
     }
 
     public List<BieuGiaVeDTO> timKiem(String tuKhoa, String tuyenID, String loaiTauID) {
-        return dao.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID).stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
+        return bieuGiaVeDAO.getBieuGiaTheoTieuChi(tuKhoa, tuyenID, loaiTauID).stream().map(BieuGiaVeMapper.INSTANCE::toDTO).toList();
     }
 
     public String themBieuGia(BieuGiaVeDTO bg, NhanVienDTO nv) {
         String loi = kiemTraHopLe(bg);
-        if (loi != null) {
-            return loi;
-        }
+        if (loi != null) return loi;
 
         String newID = taoMaBieuGiaNgauNhien();
         bg.setId(newID);
 
         try {
-            if (dao.themBieuGia(BieuGiaVeMapper.INSTANCE.toEntity(bg))) {
+            BieuGiaVe bieuGiaVe = BieuGiaVeMapper.INSTANCE.toEntity(bg);
+            normalizeBieuGiaVe(bieuGiaVe, bg);
+            if (bieuGiaVeDAO.create(bieuGiaVe) != null) {
                 String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
                 String giaLog = (bg.getDonGiaTrenKm() > 0)
                         ? String.format("%.0f đ/km", bg.getDonGiaTrenKm())
@@ -89,7 +94,7 @@ public class BieuGiaVe_BUS {
         do {
             int number = random.nextInt(1000);
             newID = String.format("BGV_%03d", number);
-            biTrung = (dao.getBieuGiaByID(newID) != null);
+            biTrung = (bieuGiaVeDAO.findById(newID) != null);
 
         } while (biTrung);
 
@@ -101,9 +106,12 @@ public class BieuGiaVe_BUS {
         if (loi != null) {
             return loi;
         }
-        BieuGiaVeDTO bgCu = BieuGiaVeMapper.INSTANCE.toDTO(dao.getBieuGiaByID(bgMoi.getId()));
+        BieuGiaVeDTO bgCu = BieuGiaVeMapper.INSTANCE.toDTO(bieuGiaVeDAO.findById(bgMoi.getId()));
         try {
-            if (dao.capNhatBieuGia(BieuGiaVeMapper.INSTANCE.toEntity(bgMoi))) {
+            BieuGiaVe bieuGiaVeMoi = BieuGiaVeMapper.INSTANCE.toEntity(bgMoi);
+            normalizeBieuGiaVe(bieuGiaVeMoi, bgMoi);
+
+            if (bieuGiaVeDAO.update(bieuGiaVeMoi) != null) {
                 List<String> thayDoi = new ArrayList<>();
 
                 if (bgCu != null) {
@@ -209,10 +217,6 @@ public class BieuGiaVe_BUS {
         }
     }
 
-    public boolean xoaBieuGia(String id) {
-        return dao.xoaBieuGia(id);
-    }
-
     // Logic kiểm tra dữ liệu đầu vào
     private String kiemTraHopLe(BieuGiaVeDTO bg) {
         if (bg.getMinKm() < 0 || bg.getMaxKm() < 0) {
@@ -244,5 +248,14 @@ public class BieuGiaVe_BUS {
         }
 
         return null;
+    }
+
+    private void normalizeBieuGiaVe(BieuGiaVe bieuGiaVe, BieuGiaVeDTO bieuGiaVeDTO) {
+        bieuGiaVe.setHangToaApDung(bieuGiaVeDTO.getHangToaApDungID() != null
+                ? hangToaDAO.findById(bieuGiaVeDTO.getHangToaApDungID()) : null);
+        bieuGiaVe.setLoaiTauApDung(bieuGiaVeDTO.getLoaiTauApDungID() != null
+                ? loaiTauDAO.findById(bieuGiaVeDTO.getLoaiTauApDungID()) : null);
+        bieuGiaVe.setTuyenApDung(bieuGiaVeDTO.getTuyenApDungID() != null
+                ? tuyenDAO.findById(bieuGiaVeDTO.getTuyenApDungID()) : null);
     }
 }

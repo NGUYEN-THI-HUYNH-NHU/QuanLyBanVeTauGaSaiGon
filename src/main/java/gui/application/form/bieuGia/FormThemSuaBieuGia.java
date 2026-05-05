@@ -289,10 +289,10 @@ public class FormThemSuaBieuGia extends JDialog {
 
             if (radTheoKm.isSelected()) {
                 bg.setDonGiaTrenKm(Double.parseDouble(txtDonGiaKm.getText().trim()));
-                bg.setGiaCoBan(0);
+                bg.setGiaCoBan(0.0);
             } else {
                 bg.setGiaCoBan(Double.parseDouble(txtGiaCoDinh.getText().trim()));
-                bg.setDonGiaTrenKm(0);
+                bg.setDonGiaTrenKm(0.0);
             }
         } catch (NumberFormatException e) {
             throw new RuntimeException("Dữ liệu số (Km/Giá) không hợp lệ!");

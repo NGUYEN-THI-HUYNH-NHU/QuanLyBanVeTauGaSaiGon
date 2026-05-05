@@ -13,6 +13,6 @@ import java.io.Serializable;
 public class GheDTO implements Serializable {
     private String id;
     private String toaID;
-    private int soGhe;
+    private Integer soGhe;
     private String trangThai;
 }

@@ -84,7 +84,7 @@ public class GiaoDichHoanDoi_BUS {
      */
     public void themCacGiaoDichHoanDoi(List<GiaoDichHoanDoi> dsGdhd) throws Exception {
         for (GiaoDichHoanDoi gd : dsGdhd) {
-            giaoDichHoanDoiDAO.insertGiaoDichHoanDoi(gd);
+            giaoDichHoanDoiDAO.create(gd);
         }
     }
 }

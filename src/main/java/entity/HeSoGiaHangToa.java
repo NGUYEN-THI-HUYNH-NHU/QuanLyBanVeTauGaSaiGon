@@ -36,7 +36,7 @@ public class HeSoGiaHangToa implements Serializable {
     private HangToa hangToa;
 
     @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
-    private double hsg;
+    private Double hsg;
 
     @Column(name = "isCoHieuLuc")
     private boolean coHieuLuc;

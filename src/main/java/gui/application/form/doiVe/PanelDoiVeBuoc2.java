@@ -65,8 +65,6 @@ public class PanelDoiVeBuoc2 extends JPanel {
 
     private void setupTable() {
         table.setRowHeight(70);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(220, 220, 220));
 
         // Cấu hình độ rộng cột
         table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(140);

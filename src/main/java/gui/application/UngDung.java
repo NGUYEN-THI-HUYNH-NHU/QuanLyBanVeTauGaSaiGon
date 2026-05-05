@@ -18,6 +18,7 @@ import db.JPAUtil;
 import dto.NhanVienDTO;
 import gui.application.form.FormDangNhap;
 import gui.application.form.GiaoDienChinh;
+import gui.application.form.SplashScreen;
 import gui.application.form.banVe.PanelBanVe;
 import gui.application.form.doiVe.PanelDoiVe;
 import gui.application.form.hoanVe.PanelHoanVe;
@@ -26,7 +27,6 @@ import gui.application.form.quanLyTuyen.PanelThemTuyen;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -35,9 +35,7 @@ public class UngDung extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final String BASE_TITLE = "Quản Lý Bán Vé Tàu Ga Sài Gòn";
     private static UngDung ungDung;
-    private static JWindow splashScreen;
-    private static JProgressBar progressBar;
-    private static JLabel lblStatus;
+    private static SplashScreen splashScreen;
     private final FormDangNhap formDangNhap;
     private GiaoDienChinh giaoDienChinh;
     // Biến để lưu trữ các màn hình cần giữ trạng thái
@@ -96,7 +94,7 @@ public class UngDung extends JFrame {
 
         // 2. Mở Splash Screen và bắt đầu tải dữ liệu trên EDT
         SwingUtilities.invokeLater(() -> {
-            createSplashScreen();
+            splashScreen = new SplashScreen();
             chayCacTacVuNen();
         });
     }
@@ -139,11 +137,11 @@ public class UngDung extends JFrame {
             protected void process(java.util.List<Integer> chunks) {
                 // Chạy trên luồng giao diện, dùng để update UI
                 int progress = chunks.get(chunks.size() - 1);
-                if (progressBar != null) {
-                    progressBar.setValue(progress);
+                if (splashScreen.getProgressBar() != null) {
+                    splashScreen.getProgressBar().setValue(progress);
                 }
-                if (lblStatus != null) {
-                    lblStatus.setText(" " + textTrangThai);
+                if (splashScreen.getLblStatus() != null) {
+                    splashScreen.getLblStatus().setText(" " + textTrangThai);
                 }
             }
 
@@ -158,48 +156,6 @@ public class UngDung extends JFrame {
                 new UngDung().setVisible(true);
             }
         }.execute();
-    }
-
-    private static void createSplashScreen() {
-        splashScreen = new JWindow();
-        JPanel contentPane = new JPanel(new BorderLayout());
-        contentPane.setBackground(Color.WHITE);
-        contentPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-
-        int TARGET_WIDTH = 560;
-        int TARGET_HEIGHT = 385;
-
-        // 1. Cấu hình Label trạng thái
-        lblStatus = new JLabel(" Đang khởi động hệ thống...");
-        lblStatus.setFont(new Font("Arial", Font.PLAIN, 10));
-        lblStatus.setForeground(Color.WHITE);
-        lblStatus.setOpaque(false);
-        lblStatus.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 0));
-
-        // 2. Thêm ảnh Splash Screen và lồng lblStatus vào trong ảnh
-        URL imgURL = UngDung.class.getResource("/icon/png/splash-screen.png");
-        ImageIcon originalIcon = new ImageIcon(imgURL);
-        Image scaledImage = originalIcon.getImage().getScaledInstance(TARGET_WIDTH, TARGET_HEIGHT, Image.SCALE_SMOOTH);
-        JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-        imageLabel.setLayout(new BorderLayout());
-        imageLabel.add(lblStatus, BorderLayout.SOUTH);
-
-        contentPane.add(imageLabel, BorderLayout.CENTER);
-
-        // 3. Progress Bar
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true);
-        progressBar.setForeground(new Color(0, 95, 159));
-        progressBar.setBackground(Color.WHITE);
-        progressBar.setBorderPainted(false);
-        progressBar.setPreferredSize(new Dimension(TARGET_WIDTH, 12));
-
-        contentPane.add(progressBar, BorderLayout.SOUTH);
-
-        splashScreen.setContentPane(contentPane);
-        splashScreen.pack();
-        splashScreen.setLocationRelativeTo(null);
-        splashScreen.setVisible(true);
     }
 
     public static void reloadPanelBanVe() {
@@ -229,10 +185,6 @@ public class UngDung extends JFrame {
 
     public GiaoDienChinh getGiaoDienChinh() {
         return giaoDienChinh;
-    }
-
-    public FormDangNhap getFormDangNhap() {
-        return formDangNhap;
     }
 
     public void createGiaoDienChinh(NhanVienDTO nhanVien) {

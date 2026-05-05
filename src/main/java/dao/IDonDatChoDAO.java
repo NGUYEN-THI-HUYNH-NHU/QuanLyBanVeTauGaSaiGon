@@ -7,9 +7,7 @@ import java.util.List;
 
 public interface IDonDatChoDAO extends IGenericDAO<DonDatCho, String> {
     DonDatCho findDonDatChoByIDVaSoGiayTo(String donDatChoID, String soGiayTo);
-
-    boolean insertDonDatCho(DonDatCho donDatCho) throws Exception;
-
+    
     List<DonDatCho> searchDonDatChoByKeyword(String keyword, String type, int page, int limit);
 
     List<DonDatCho> searchDonDatChoByFilter(String tuKhoaTraCuu, String loaiTraCuu, Date tuNgay, Date denNgay, int page, int limit);

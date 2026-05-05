@@ -36,10 +36,10 @@ public class TuyenChiTiet implements Serializable {
     private Ga ga;
 
     @Column(name = "thuTu", nullable = false)
-    private int thuTu;
+    private Integer thuTu;
 
     @Column(name = "khoangCachTuGaXuatPhatKm", nullable = false)
-    private int khoangCachTuGaXuatPhatKm;
+    private Integer khoangCachTuGaXuatPhatKm;
 
     @NoArgsConstructor
     @AllArgsConstructor

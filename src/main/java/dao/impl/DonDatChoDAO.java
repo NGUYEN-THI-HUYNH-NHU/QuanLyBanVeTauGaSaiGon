@@ -24,11 +24,6 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
         super(DonDatCho.class);
     }
 
-    /**
-     * @param donDatChoID
-     * @param soGiayTo
-     * @return
-     */
     @Override
     public DonDatCho findDonDatChoByIDVaSoGiayTo(String donDatChoID, String soGiayTo) {
         return doInTransaction(em -> {
@@ -56,59 +51,6 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
                 e.printStackTrace();
             }
             return null;
-        });
-    }
-
-    @Override
-    public boolean insertDonDatCho(DonDatCho donDatCho) {
-        return doInTransaction(em -> {
-            String sql = "INSERT INTO DonDatCho (donDatChoID, nhanVienID, khachHangID, thoiDiemDatCho) VALUES (?1, ?2, ?3, ?4)";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, donDatCho.getDonDatChoID());
-            query.setParameter(2, donDatCho.getNhanVien().getNhanVienID());
-            query.setParameter(3, donDatCho.getKhachHang().getKhachHangID());
-            query.setParameter(4, Timestamp.valueOf(donDatCho.getThoiDiemDatCho()));
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    public List<DonDatCho> getListDonDatCho() {
-        return doInTransaction(em -> {
-            String sql = "SELECT \r\n" + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
-                    + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai,"
-                    + "    nv.nhanVienID, nv.hoTen as hoTenNV," + "    COUNT(v.veID) AS tongSoVe,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_HOAN' THEN 1 ELSE 0 END) AS soVeHoan,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_DOI' THEN 1 ELSE 0 END) AS soVeDoi\r\n" + "FROM DonDatCho d\r\n"
-                    + "JOIN KhachHang k ON d.khachHangID = k.khachHangID\r\n"
-                    + "JOIN NhanVien nv ON d.nhanVienID = nv.nhanVienID\r\n"
-                    + "LEFT JOIN Ve v ON d.donDatChoID = v.donDatChoID \r\n"
-                    + "GROUP BY \r\n" + "    d.donDatChoID, d.thoiDiemDatCho,\r\n"
-                    + "    k.khachHangID, k.hoTen, k.soGiayTo, k.soDienThoai,\r\n" + "    nv.nhanVienID, nv.hoTen\r\n"
-                    + "ORDER BY d.thoiDiemDatCho DESC";
-
-            Query query = em.createNativeQuery(sql);
-            List<DonDatCho> ds = new ArrayList<>();
-            try {
-                List<Object[]> resultList = query.getResultList();
-                for (Object[] row : resultList) {
-                    DonDatCho d = new DonDatCho();
-                    d.setDonDatChoID((String) row[0]);
-                    Timestamp t1 = (Timestamp) row[1];
-                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
-
-                    d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
-                    d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
-
-                    d.setTongSoVe(((Number) row[8]).intValue());
-                    d.setSoVeHoan(((Number) row[9]).intValue());
-                    d.setSoVeDoi(((Number) row[10]).intValue());
-
-                    ds.add(d);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return ds;
         });
     }
 
@@ -352,28 +294,6 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
         });
     }
 
-    // --- Helper Methods xử lý ngày giờ ---
-
-    private Date atStartOfDay(Date date) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0);
-        return localDateTimeToDate(startOfDay);
-    }
-
-    private Date atEndOfDay(Date date) {
-        LocalDateTime localDateTime = dateToLocalDateTime(date);
-        LocalDateTime endOfDay = localDateTime.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-        return localDateTimeToDate(endOfDay);
-    }
-
-    private LocalDateTime dateToLocalDateTime(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    }
-
-    private Date localDateTimeToDate(LocalDateTime localDateTime) {
-        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
     @Override
     public int countAll() {
         return doInTransaction(em -> {
@@ -454,5 +374,27 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
             }
             return list;
         });
+    }
+
+    // --- Helper Methods xử lý ngày giờ ---
+
+    private Date atStartOfDay(Date date) {
+        LocalDateTime localDateTime = dateToLocalDateTime(date);
+        LocalDateTime startOfDay = localDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        return localDateTimeToDate(startOfDay);
+    }
+
+    private Date atEndOfDay(Date date) {
+        LocalDateTime localDateTime = dateToLocalDateTime(date);
+        LocalDateTime endOfDay = localDateTime.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        return localDateTimeToDate(endOfDay);
+    }
+
+    private LocalDateTime dateToLocalDateTime(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    private Date localDateTimeToDate(LocalDateTime localDateTime) {
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

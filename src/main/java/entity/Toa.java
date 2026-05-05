@@ -42,15 +42,15 @@ public class Toa implements Serializable {
     private HangToa hangToa;
 
     @Column(name = "sucChua", nullable = false)
-    private int sucChua;
+    private Integer sucChua;
 
     @Column(name = "soToa", nullable = false)
-    private int soToa;
+    private Integer soToa;
 
     @OneToMany(mappedBy = "toa", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Ghe> ghes;
 
-    public Toa(String toaID, Tau tau, HangToa hangToa, int soToa) {
+    public Toa(String toaID, Tau tau, HangToa hangToa, Integer soToa) {
         super();
         this.toaID = toaID;
         this.tau = tau;
@@ -58,7 +58,7 @@ public class Toa implements Serializable {
         this.soToa = soToa;
     }
 
-    public Toa(String toaID, int soToa) {
+    public Toa(String toaID, Integer soToa) {
         super();
         this.toaID = toaID;
         this.soToa = soToa;

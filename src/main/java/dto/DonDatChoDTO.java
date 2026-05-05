@@ -16,11 +16,11 @@ public class DonDatChoDTO implements Serializable {
     private String nhanVienID;
     private KhachHangDTO khachHangDTO;
     private LocalDateTime thoiDiemDatCho;
-    private int tongSoVe;
-    private int soVeHoan;
-    private int soVeDoi;
+    private Integer tongSoVe;
+    private Integer soVeHoan;
+    private Integer soVeDoi;
 
-    public DonDatChoDTO(String donDatChoID, int tongSoVe, int soVeHoan, int soVeDoi) {
+    public DonDatChoDTO(String donDatChoID, Integer tongSoVe, Integer soVeHoan, Integer soVeDoi) {
         super();
         this.id = donDatChoID;
         this.tongSoVe = tongSoVe;

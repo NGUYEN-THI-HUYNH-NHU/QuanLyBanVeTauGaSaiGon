@@ -30,13 +30,13 @@ public class VeDTO implements Serializable {
     private String loaiTauID;
     private String toaID;
     private String hangToaID;
-    private int soToa;
+    private Integer soToa;
     private String gheID;
-    private int soGhe;
+    private Integer soGhe;
 
     private LocalDateTime ngayGioDi;
 
-    private double gia;
+    private Double gia;
 
     private String trangThai;
 

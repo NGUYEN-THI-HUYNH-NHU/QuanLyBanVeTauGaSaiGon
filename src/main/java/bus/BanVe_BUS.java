@@ -86,7 +86,7 @@ public class BanVe_BUS {
 
             // 9. Tạo và Lưu Hóa Đơn Chi Tiết (khi tạo các hóa đơn chi tiết đã bao gồm gán
             // nó cho sử dụng khuyến mãi tương ứng)
-            List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(session.getHoaDon().getId(),
+            List<HoaDonChiTiet> listHoaDonChiTiet = hoaDonBUS.taoCacHoaDonChiTietBanVe(HoaDonMapper.INSTANCE.toEntity(session.getHoaDon()),
                     session.getAllSelectedTickets());
             hoaDonBUS.themCacHoaDonChiTiet(listHoaDonChiTiet);
 

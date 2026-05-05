@@ -46,7 +46,7 @@ public class PhieuDungPhongVIP_BUS {
             throws Exception {
         if (dsPhieuDungPhongVIP != null) {
             for (PhieuDungPhongVIP phieu : dsPhieuDungPhongVIP) {
-                phieuDungPhongVIPDAO.insertPhieuDungPhongVIP(phieu);
+                phieuDungPhongVIPDAO.create(phieu);
             }
             return true;
         }

@@ -18,7 +18,7 @@ public class HoaDonChiTietDTO implements Serializable {
     private String tenDichVu;
     private String loaiDichVu;
     private String donViTinh;
-    private int soLuong;
-    private double donGia;
-    private double thanhTien;
+    private Integer soLuong;
+    private Double donGia;
+    private Double thanhTien;
 }

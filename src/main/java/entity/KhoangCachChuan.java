@@ -37,7 +37,7 @@ public class KhoangCachChuan implements Serializable {
     private Ga gaCuoi;
 
     @Column(name = "khoangCachKm", nullable = false)
-    private int khoangCachKm;
+    private Integer khoangCachKm;
 
     @NoArgsConstructor
     @AllArgsConstructor

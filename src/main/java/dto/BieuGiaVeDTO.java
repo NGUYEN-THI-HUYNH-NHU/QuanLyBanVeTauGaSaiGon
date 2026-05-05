@@ -15,12 +15,12 @@ public class BieuGiaVeDTO implements Serializable {
     private String tuyenApDungID;
     private String loaiTauApDungID;
     private String hangToaApDungID;
-    private int minKm;
-    private int maxKm;
-    private double donGiaTrenKm;
-    private double giaCoBan;
-    private double phuPhiCaoDiem;
-    private int doUuTien;
+    private Integer minKm;
+    private Integer maxKm;
+    private Double donGiaTrenKm;
+    private Double giaCoBan;
+    private Double phuPhiCaoDiem;
+    private Integer doUuTien;
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
 }

@@ -15,5 +15,5 @@ public class KhoangCachChuanDTO implements Serializable {
     private String tenGaDau;
     private String gaCuoiID;
     private String tenGaCuoi;
-    private int khoangCachKm;
+    private Integer khoangCachKm;
 }

@@ -57,36 +57,19 @@ public class HoaDonChiTiet implements Serializable {
     private String donViTinh;
 
     @Column(name = "soLuong", nullable = false)
-    private int soLuong;
+    private Integer soLuong;
 
     @Column(name = "donGia", nullable = false, precision = 12, scale = 2)
-    private double donGia;
+    private Double donGia;
 
     @Column(name = "thanhTien", nullable = false, precision = 12, scale = 2)
-    private double thanhTien;
-
-    /*
-     * HoaDonChiTiet vé
-     */
-    public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVuEnums loaiDichVu,
-                         String donViTinh, int soLuong, double donGia, double thanhTien) {
-        super();
-        this.hoaDonChiTietID = hoaDonChiTietID;
-        this.hoaDon = hoaDon;
-        this.ve = ve;
-        this.tenDichVu = tenDichVu;
-        this.loaiDichVu = loaiDichVu;
-        this.donViTinh = donViTinh;
-        this.soLuong = soLuong;
-        this.donGia = donGia;
-        this.thanhTien = thanhTien;
-    }
+    private Double thanhTien;
 
     /*
      * HoaDonChiTiet Phiếu dùng phòng chờ VIP
      */
     public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, PhieuDungPhongVIP phieuDungPhongVIP, String tenDichVu,
-                         LoaiDichVuEnums loaiDichVu, String donViTinh, int soLuong, double donGia, double thanhTien) {
+                         LoaiDichVuEnums loaiDichVu, String donViTinh, Integer soLuong, Double donGia, Double thanhTien) {
         super();
         this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;
@@ -100,7 +83,7 @@ public class HoaDonChiTiet implements Serializable {
     }
 
     public HoaDonChiTiet(String hoaDonChiTietID, HoaDon hoaDon, Ve ve, String tenDichVu, LoaiDichVuEnums loaiDichVu,
-                         int soLuong, double donGia, double thanhTien) {
+                         Integer soLuong, Double donGia, Double thanhTien) {
         super();
         this.hoaDonChiTietID = hoaDonChiTietID;
         this.hoaDon = hoaDon;

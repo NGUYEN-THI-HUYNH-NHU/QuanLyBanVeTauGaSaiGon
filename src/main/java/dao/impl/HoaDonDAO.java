@@ -25,38 +25,6 @@ public class HoaDonDAO extends AbstractGenericDAO<HoaDon, String> implements IHo
     }
 
     /**
-     * @param hoaDon
-     * @return
-     */
-    @Override
-    public boolean insertHoaDon(HoaDon hoaDon) throws Exception {
-        return doInTransaction(em -> {
-            String sql = "INSERT INTO HoaDon (hoaDonID, khachHangID, nhanVienID, thoiDiemTao, tongTien, maGD, tienNhan, tienHoan, isThanhToanTienMat) "
-                    + "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
-
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, hoaDon.getHoaDonID());
-            query.setParameter(2, hoaDon.getKhachHang().getKhachHangID());
-            query.setParameter(3, hoaDon.getNhanVien().getNhanVienID());
-            query.setParameter(4, Timestamp.valueOf(hoaDon.getThoiDiemTao()));
-            query.setParameter(5, hoaDon.getTongTien());
-
-            if (hoaDon.getMaGD() != null) {
-                query.setParameter(6, hoaDon.getMaGD());
-                query.setParameter(8, 0.0);
-            } else {
-                query.setParameter(6, null);
-                query.setParameter(8, hoaDon.getTienHoan());
-            }
-
-            query.setParameter(7, hoaDon.getTienNhan());
-            query.setParameter(9, hoaDon.isThanhToanTienMat());
-
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    /**
      * @param loaiHD
      * @param khachHang
      * @param tuNgay

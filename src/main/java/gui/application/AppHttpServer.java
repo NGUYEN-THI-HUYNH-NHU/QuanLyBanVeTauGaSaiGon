@@ -12,6 +12,7 @@ package gui.application;
  * @version: 1.0
  */
 
+import bus.Ve_BUS;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
@@ -20,8 +21,7 @@ import com.google.zxing.common.HybridBinarizer;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import dao.impl.VeDAO;
-import entity.Ve;
+import dto.VeDTO;
 import entity.type.TrangThaiVe;
 
 import javax.imageio.ImageIO;
@@ -36,11 +36,10 @@ public class AppHttpServer {
     // Biến lưu listener hiện tại (chỉ có 1 màn hình bán vé được nghe tại 1 thời
     // điểm)
     private static OnPaymentListener currentPaymentListener;
+    private final Ve_BUS veBUS = new Ve_BUS();
     private HttpServer server;
-    private VeDAO veDAO;
 
     public AppHttpServer() {
-        veDAO = new VeDAO();
     }
 
     // Hàm đăng ký listener từ Controller
@@ -88,24 +87,24 @@ public class AppHttpServer {
 
         if (veID != null && !veID.isEmpty()) {
             // 2. Lấy thông tin từ DB
-            Ve ve = veDAO.getVeByVeID(veID);
+            VeDTO ve = veBUS.getVeByVeID(veID);
 
             if (ve == null) {
                 return "[ ! ] MA KHONG TON TAI\n" + "----------------------\n" + "ID: " + veID;
             } else {
-                TrangThaiVe status = ve.getTrangThai();
+                String status = ve.getTrangThai();
 
                 // Lấy thông tin & Chuẩn hóa
                 String ngayGioDi = ve.getNgayGioDi().format(DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy"));
-                String hoTen = ve.getKhachHang().getHoTen().toUpperCase();
-                String cccd = ve.getKhachHang().getSoGiayTo();
-                String tauID = ve.getGhe().getToa().getTau().getTauID();
-                int soToa = ve.getGhe().getToa().getSoToa();
-                int soGhe = ve.getGhe().getSoGhe();
+                String hoTen = ve.getKhachHangDTO().getHoTen().toUpperCase();
+                String cccd = ve.getKhachHangDTO().getSoGiayTo();
+                String tauID = ve.getTauID();
+                int soToa = ve.getSoToa();
+                int soGhe = ve.getSoGhe();
 
                 // --- TRƯỜNG HỢP 1: VÉ HỢP LỆ ---
-                if (status == TrangThaiVe.DA_BAN) {
-                    boolean updateSuccess = veDAO.updateTrangThaiVe(veID, TrangThaiVe.DA_DUNG);
+                if (status.equals(TrangThaiVe.DA_BAN.name())) {
+                    boolean updateSuccess = veBUS.updateTrangThaiVe(veID, TrangThaiVe.DA_DUNG);
 
                     if (updateSuccess) {
                         return "[ HOP LE - MOI QUA ]\n" + "================================\n" + "Ma ve: " + veID + "\n"
@@ -117,7 +116,7 @@ public class AppHttpServer {
                     }
                 }
                 // --- TRƯỜNG HỢP 2: VÉ ĐÃ DÙNG ---
-                else if (status == TrangThaiVe.DA_DUNG) {
+                else if (status.equals(TrangThaiVe.DA_DUNG.name())) {
                     return "(!) CANH BAO: VE DA DUNG\n" + "Luu y: Ve nay da quet truoc do." + "\n"
                             + "================================\n" + "Ma ve: " + veID + "\n" + "Ngay gio di: "
                             + ngayGioDi + "\n" + "Khach: " + hoTen + "\n" + "CCCD:  " + cccd + "\n" + "Tau:   " + tauID
@@ -395,18 +394,18 @@ public class AppHttpServer {
                 if (decodedText != null) {
                     String veID = extractIdFlexible(decodedText);
                     if (veID != null && !veID.isEmpty()) {
-                        Ve ve = veDAO.getVeByVeID(veID);
+                        VeDTO ve = veBUS.getVeByVeID(veID);
                         if (ve == null) {
                             msg = "Ve khong ton tai: " + veID;
                         } else {
-                            TrangThaiVe status = ve.getTrangThai();
-                            String tenKhach = ve.getKhachHang().getHoTen();
-                            if (status == TrangThaiVe.DA_DUNG) {
+                            String status = ve.getTrangThai();
+                            String tenKhach = ve.getKhachHangDTO().getHoTen();
+                            if (status.equals(TrangThaiVe.DA_DUNG.name())) {
                                 msg = "VE DA DUNG (" + tenKhach + ")";
-                            } else if (status == TrangThaiVe.DA_HOAN || status == TrangThaiVe.DA_DOI) {
+                            } else if (status.equals(TrangThaiVe.DA_HOAN.name()) || status.equals(TrangThaiVe.DA_DOI.name())) {
                                 msg = "VE DA HUY (" + tenKhach + ")";
                             } else {
-                                veDAO.updateTrangThaiVe(veID, TrangThaiVe.DA_DUNG);
+                                veBUS.updateTrangThaiVe(veID, TrangThaiVe.DA_DUNG);
                                 msg = "OK_HOP LE: " + tenKhach; // Bắt đầu bằng OK_ để báo thành công
                             }
                         }

@@ -15,11 +15,11 @@ public class KhuyenMaiDTO implements Serializable {
     private String id;
     private String maKhuyenMai;
     private String moTa;
-    private double tyLeGiamGia;
-    private double tienGiamGia;
+    private Double tyLeGiamGia;
+    private Double tienGiamGia;
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
-    private int soLuong;
-    private int gioiHanMoiKhachHang;
+    private Integer soLuong;
+    private Integer gioiHanMoiKhachHang;
     private Boolean trangThai;
 }

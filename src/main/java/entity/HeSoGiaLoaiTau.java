@@ -36,7 +36,7 @@ public class HeSoGiaLoaiTau implements Serializable {
     private LoaiTau loaiTau;
 
     @Column(name = "hsg", nullable = false, precision = 5, scale = 2)
-    private double hsg;
+    private Double hsg;
 
     @Column(name = "isCoHieuLuc")
     private Boolean coHieuLuc;
