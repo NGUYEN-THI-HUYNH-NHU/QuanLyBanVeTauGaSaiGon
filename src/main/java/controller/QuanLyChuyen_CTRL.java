@@ -10,10 +10,11 @@ package controller;
  * @created : 09/12/2025
  */
 
-import bus.Chuyen_BUS;
-import bus.PhanQuyen_BUS;
-import bus.Tuyen_BUS;
+import bus.*;
+import dto.ChuyenDTO;
+import dto.ChuyenGaDTO;
 import dto.GaDTO;
+import dto.NhanVienDTO;
 import entity.*;
 import entity.type.TrangThaiTau;
 import entity.type.VaiTroNhanVienEnums;
@@ -41,8 +42,8 @@ import java.util.stream.Collectors;
 
 public class QuanLyChuyen_CTRL {
     private final PanelQuanLyChuyen panelQuanLyChuyen;
-    private final Chuyen_BUS chuyenBus;
-    private final Tuyen_BUS tuyenBus;
+    private IChuyenBUS chuyenBus;
+    private ITuyenBUS tuyenBus;
     private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private Map<String, String> mapGaToID;
@@ -62,9 +63,9 @@ public class QuanLyChuyen_CTRL {
 
     public QuanLyChuyen_CTRL(PanelQuanLyChuyen panelQuanLyChuyen) {
         this.panelQuanLyChuyen = panelQuanLyChuyen;
-        this.chuyenBus = new Chuyen_BUS();
-        this.tuyenBus = new Tuyen_BUS();
-        this.vaiTroNhanVienEnums = VaiTroNhanVienEnums.valueOf(panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVien().getVaiTroNhanVienID());
+        this.chuyenBus = new bus.Chuyen_BUS();
+        this.tuyenBus = new bus.Tuyen_BUS();
+        this.vaiTroNhanVienEnums = VaiTroNhanVienEnums.valueOf(panelQuanLyChuyen.getNhanVienThucHien().getVaiTroNhanVienID());
 
         PhanQuyen_BUS.phanQuyenQuanLyChuyen(panelQuanLyChuyen, vaiTroNhanVienEnums);
 
@@ -78,9 +79,9 @@ public class QuanLyChuyen_CTRL {
         LocalDate homNay = LocalDate.now();
         panelQuanLyChuyen.getTxtNgayDi().setText(homNay.format(dateTimeFormatter));
 
-        SwingWorker<List<Chuyen>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<ChuyenDTO>, Void> worker = new SwingWorker<>() {
             @Override
-            protected List<Chuyen> doInBackground() throws Exception {
+            protected List<ChuyenDTO> doInBackground() throws Exception {
 
                 return chuyenBus.layDanhSachChuyenTheoNgay(homNay);
             }
@@ -88,7 +89,7 @@ public class QuanLyChuyen_CTRL {
             @Override
             protected void done() {
                 try {
-                    List<Chuyen> dsChuyen = get();
+                    List<ChuyenDTO> dsChuyen = get();
                     loadDataToTable(dsChuyen);
 
                     Timer timer = new Timer(100, e -> thietLapAutoComplete());
@@ -303,15 +304,15 @@ public class QuanLyChuyen_CTRL {
 
 
     private void fillDataToUpdateForm(String maChuyen) {
-        Chuyen c = chuyenBus.layChuyenTheoMa(maChuyen);
-        List<ChuyenGa> lichTrinh = chuyenBus.layChiTietHanhTrinh(maChuyen);
+        ChuyenDTO c = chuyenBus.layChuyenTheoMa(maChuyen);
+        List<ChuyenGaDTO> lichTrinh = chuyenBus.layChiTietHanhTrinh(maChuyen);
 
         if (c == null) return;
 
-        panelCapNhatChuyen.getTxtMaChuyen().setText(c.getChuyenID());
-        setComboText(panelCapNhatChuyen.getComboTuyen(), c.getTuyen().getTuyenID());
+        panelCapNhatChuyen.getTxtMaChuyen().setText(c.getId());
+        setComboText(panelCapNhatChuyen.getComboTuyen(), c.getTuyenID());
 
-        String dbTauID = c.getTau().getTauID();
+        String dbTauID = c.getTauID();
         String displayTau = dbTauID;
 
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) panelCapNhatChuyen.getComboTau().getModel();
@@ -334,8 +335,8 @@ public class QuanLyChuyen_CTRL {
 
         if (lichTrinh != null && lichTrinh.size() > 1) {
             for (int i = 0; i < lichTrinh.size() - 1; i++) {
-                ChuyenGa gaDi = lichTrinh.get(i);
-                ChuyenGa gaDen = lichTrinh.get(i + 1);
+                ChuyenGaDTO gaDi = lichTrinh.get(i);
+                ChuyenGaDTO gaDen = lichTrinh.get(i + 1);
 
                 String ngayDiStr = (gaDi.getNgayDi() != null) ? gaDi.getNgayDi().format(dateTimeFormatter) : "";
                 String gioDiStr = (gaDi.getGioDi() != null) ? gaDi.getGioDi().format(timeFormatter) : "";
@@ -345,10 +346,10 @@ public class QuanLyChuyen_CTRL {
 
                 modelTable.addRow(new Object[]{
                         (i + 1),
-                        gaDi.getGa().getTenGa(),
+                        gaDi.getTenGa(),
                         ngayDiStr,
                         gioDiStr,
-                        gaDen.getGa().getTenGa(),
+                        gaDen.getTenGa(),
                         ngayDenStr,
                         gioDenStr
                 });
@@ -373,7 +374,7 @@ public class QuanLyChuyen_CTRL {
 
         }
 
-        List<Chuyen> resultList = chuyenBus.timKiemChuyen(maChuyen, gaDi, gaDen, tenTau, ngayDi);
+        List<ChuyenDTO> resultList = chuyenBus.timKiemChuyen(maChuyen, gaDi, gaDen, tenTau, ngayDi);
 
         loadDataToTable(resultList);
         panelQuanLyChuyen.getModelLichTrinh().setRowCount(0);
@@ -521,9 +522,9 @@ public class QuanLyChuyen_CTRL {
 
             // Kiểm tra dự phòng nếu lấy từ Editor không được (tùy thuộc vào Look and Feel)
             if (tuyenID.isEmpty()) {
-                Chuyen cGoc = chuyenBus.layChuyenTheoMa(maChuyen);
-                tuyenID = cGoc.getTuyen().getTuyenID();
-                tauID = cGoc.getTau().getTauID();
+                ChuyenDTO cGoc = chuyenBus.layChuyenTheoMa(maChuyen);
+                tuyenID = cGoc.getTuyenID();
+                tauID = cGoc.getTauID();
             }
             if (maChuyen.endsWith("_PS")) {
                 // Trường hợp 1: Chuyến phát sinh -> Chỉ cập nhật 1 chuyến
@@ -542,57 +543,79 @@ public class QuanLyChuyen_CTRL {
             LocalDate ngayDi = LocalDate.parse(panelCapNhatChuyen.getTxtNgayDi().getText(), dateTimeFormatter);
             LocalTime gioDi = LocalTime.parse(panelCapNhatChuyen.getTxtGioDi().getText(), timeFormatter);
 
-            Chuyen c = new Chuyen(maChuyen);
-            c.setTuyen(new Tuyen(tuyenID));
-            c.setTau(new Tau(tauID, ""));
-            c.setNgayDi(ngayDi);
-            c.setGioDi(gioDi);
+            ChuyenDTO cDTO = ChuyenDTO.builder()
+                    .id(maChuyen)
+                    .tuyenID(tuyenID)
+                    .tauID(tauID)
+                    .ngayDi(ngayDi)
+                    .gioDi(gioDi)
+                    .build();
 
-            String tenGaDau = model.getValueAt(0, 1).toString();
-            String tenGaCuoi = model.getValueAt(model.getRowCount() - 1, 4).toString();
+//            String tenGaDau = model.getValueAt(0, 1).toString();
+//            String tenGaCuoi = model.getValueAt(model.getRowCount() - 1, 4).toString();
+//            String idGaDau = mapGaToID.get(tenGaDau);
+//            String idGaCuoi = mapGaToID.get(tenGaCuoi);
+//
+//            if (idGaDau == null || idGaCuoi == null) {
+//                JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Ga " + (idGaDau == null ? tenGaDau : tenGaCuoi) + " không tồn tại!");
+//                return;
+//            }
+//            c.setGaDi(new Ga(idGaDau, tenGaDau));
+//            c.setGaDen(new Ga(idGaCuoi, tenGaCuoi));
+
+            List<ChuyenGaDTO> listStopsDTO = new ArrayList<>();
+            String tenGaDau = model.getValueAt(0, 1).toString().trim();
             String idGaDau = mapGaToID.get(tenGaDau);
-            String idGaCuoi = mapGaToID.get(tenGaCuoi);
-
-            if (idGaDau == null || idGaCuoi == null) {
-                JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Ga " + (idGaDau == null ? tenGaDau : tenGaCuoi) + " không tồn tại!");
+            if (idGaDau == null) {
+                JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Không tìm thấy mã cho ga " + tenGaDau);
                 return;
             }
-            c.setGaDi(new Ga(idGaDau, tenGaDau));
-            c.setGaDen(new Ga(idGaCuoi, tenGaCuoi));
+            listStopsDTO.add(ChuyenGaDTO.builder()
+                    .id(maChuyen)
+                            .gaID(idGaDau)
+                    .tenGa(tenGaDau)
+                    .thuTu(1)
+                    .ngayDi(LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter))
+                    .gioDi(LocalTime.parse(model.getValueAt(0, 3).toString(), timeFormatter))
+                    .build());
 
-            List<ChuyenGa> listStops = new ArrayList<>();
-            // ... (Logic khởi tạo startNode và vòng lặp listStops giữ nguyên của bạn)
-            ChuyenGa startNode = new ChuyenGa();
-            startNode.setChuyen(c);
-            startNode.setGa(new Ga(idGaDau, tenGaDau));
-            startNode.setThuTu(1);
-            startNode.setNgayDi(LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter));
-            startNode.setGioDi(LocalTime.parse(model.getValueAt(0, 3).toString(), timeFormatter));
-            listStops.add(startNode);
+//            List<ChuyenGa> listStops = new ArrayList<>();
+//            // ... (Logic khởi tạo startNode và vòng lặp listStops giữ nguyên của bạn)
+//            ChuyenGa startNode = new ChuyenGa();
+//            startNode.setChuyen(c);
+//            startNode.setGa(new Ga(idGaDau, tenGaDau));
+//            startNode.setThuTu(1);
+//            startNode.setNgayDi(LocalDate.parse(model.getValueAt(0, 2).toString(), dateTimeFormatter));
+//            startNode.setGioDi(LocalTime.parse(model.getValueAt(0, 3).toString(), timeFormatter));
+//            listStops.add(startNode);
 
             for (int i = 0; i < model.getRowCount(); i++) {
-                String tenGaDen = model.getValueAt(i, 4).toString();
+                String tenGaDen = model.getValueAt(i, 4).toString().trim();
                 String idGaDen = mapGaToID.get(tenGaDen);
-                if (idGaDen == null) continue;
-
-                ChuyenGa stopNode = new ChuyenGa();
-                stopNode.setChuyen(c);
-                stopNode.setGa(new Ga(idGaDen, tenGaDen));
-                stopNode.setThuTu(i + 2);
-                stopNode.setGioDen(LocalTime.parse(model.getValueAt(i, 6).toString(), timeFormatter));
-                stopNode.setNgayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter));
+                if (idGaDen == null) {
+                    JOptionPane.showMessageDialog(dialogCapNhat, "Lỗi: Không tìm thấy mã cho ga " + tenGaDen + " tại chặng " + (i + 1));
+                    return;
+                }
+                ChuyenGaDTO stopDTO = ChuyenGaDTO.builder()
+                        .id(maChuyen)
+                        .gaID(idGaDen)
+                        .tenGa(tenGaDen)
+                        .thuTu(i + 2)
+                        .ngayDen(LocalDate.parse(model.getValueAt(i, 5).toString(), dateTimeFormatter))
+                        .gioDen(LocalTime.parse(model.getValueAt(i, 6).toString(), timeFormatter))
+                        .build();
 
                 if (i < model.getRowCount() - 1) {
                     String nextNgay = model.getValueAt(i + 1, 2).toString();
                     String nextGio = model.getValueAt(i + 1, 3).toString();
-                    if (!nextNgay.isEmpty()) stopNode.setNgayDi(LocalDate.parse(nextNgay, dateTimeFormatter));
-                    if (!nextGio.isEmpty()) stopNode.setGioDi(LocalTime.parse(nextGio, timeFormatter));
+                    if (!nextNgay.isEmpty()) stopDTO.setNgayDi(LocalDate.parse(nextNgay, dateTimeFormatter));
+                    if (!nextGio.isEmpty()) stopDTO.setGioDi(LocalTime.parse(nextGio, timeFormatter));
                 }
-                listStops.add(stopNode);
+                listStopsDTO.add(stopDTO);
             }
 
             // 3. Thực hiện cập nhật và thông báo lỗi đích danh
-            boolean ketQua = chuyenBus.capNhatChuyen(c, listStops, panelQuanLyChuyen.getNhanVienThucHien());
+            boolean ketQua = chuyenBus.capNhatChuyen(cDTO, listStopsDTO, panelQuanLyChuyen.getNhanVienThucHien());
 
             if (ketQua) {
                 JOptionPane.showMessageDialog(dialogCapNhat, "Cập nhật thành công!");
@@ -613,75 +636,52 @@ public class QuanLyChuyen_CTRL {
         }
     }
 
-    private void loadDataToTable(List<Chuyen> list) {
-
+    private void loadDataToTable(List<ChuyenDTO> list) {
         if (panelQuanLyChuyen.getTableChuyen().isEditing()) {
             panelQuanLyChuyen.getTableChuyen().getCellEditor().cancelCellEditing();
         }
 
         DefaultTableModel model = panelQuanLyChuyen.getTableModel();
         model.setRowCount(0);
-        for (Chuyen c : list) {
-            String ngayDenStr = (c.getNgayDen() != null) ? c.getNgayDen().format(dateTimeFormatter) : "N/A";
-            String gioDenStr = (c.getGioDen() != null) ? c.getGioDen().format(timeFormatter) : "N/A";
 
-            String ngayDiStr = (c.getNgayDi() != null) ? c.getNgayDi().format(dateTimeFormatter) : "N/A";
-            String gioDiStr = (c.getGioDi() != null) ? c.getGioDi().format(timeFormatter) : "N/A";
-
-            String loaiTauHienThi = "N/A";
-            if (c.getTau() != null && c.getTau().getLoaiTau() != null) {
-                loaiTauHienThi = c.getTau().getLoaiTau().getDescription();
+        for (ChuyenDTO c : list) {
+            String tenHienThi = c.getTenChuyenHienThi();
+            if (tenHienThi == null || tenHienThi.isEmpty() || tenHienThi.equals("null - null")) {
+                tenHienThi = (c.getTenGaDi() != null ? c.getTenGaDi() : "N/A") + " - " +
+                        (c.getTenGaDen() != null ? c.getTenGaDen() : "N/A");
             }
-
             model.addRow(new Object[]{
-                    c.getChuyenID(),
+                    c.getId(),
                     c.getTenChuyenHienThi(),
-                    (c.getTau() != null) ? c.getTau().getTenTau() : "N/A",
-                    loaiTauHienThi,
-                    ngayDiStr,
-                    gioDiStr,
-                    ngayDenStr,
-                    gioDenStr
+                    c.getTenTau(),
+                    c.getLoaiTauID() != null ? c.getLoaiTauID() : "N/A",
+                    c.getNgayDi().format(dateTimeFormatter),
+                    c.getGioDi().format(timeFormatter),
+                    c.getNgayDen() != null ? c.getNgayDen().format(dateTimeFormatter) : "N/A",
+                    c.getGioDen() != null ? c.getGioDen().format(timeFormatter) : "N/A"
             });
         }
     }
 
     private void hienThiChiTiet(String maChuyen) {
-        Chuyen chuyen = chuyenBus.layChuyenTheoMa(maChuyen);
-        List<ChuyenGa> hanhTrinh = chuyenBus.layChiTietHanhTrinh(maChuyen);
+        ChuyenDTO chuyen = chuyenBus.layChuyenTheoMa(maChuyen);
+        List<ChuyenGaDTO> hanhTrinh = chuyenBus.layChiTietHanhTrinh(maChuyen);
 
         if (chuyen != null) {
-            String gaDiTuyen = chuyen.getTenGaDiHienThi();
-            String gaDenTuyen = chuyen.getTenGaDenHienThi();
-            selectedGaDi = gaDiTuyen;
-            selectedGaDen = gaDenTuyen;
-
-            String maTuyen = (chuyen.getTuyen() != null) ? chuyen.getTuyen().getTuyenID() : "N/A";
-
+            panelQuanLyChuyen.getTxtChiTietMaChuyen().setText(chuyen.getId());
+            panelQuanLyChuyen.getTxtChiTietTenChuyen().setText(chuyen.getTenChuyenHienThi());
             String tenChuyen = chuyen.getTenChuyenHienThi();
-            if (tenChuyen == null || tenChuyen.isEmpty() || tenChuyen.equals("N/A")) {
-                if (hanhTrinh != null && !hanhTrinh.isEmpty()) {
-                    String gaXP = hanhTrinh.get(0).getGa().getTenGa();
-                    String gaDich = hanhTrinh.get(hanhTrinh.size() - 1).getGa().getTenGa();
-                    tenChuyen = gaXP + " - " + gaDich;
-                } else {
-                    tenChuyen = "N/A";
-                }
+            if (tenChuyen == null || tenChuyen.isEmpty()) {
+                tenChuyen = chuyen.getTenGaDi() + " - " + chuyen.getTenGaDen();
             }
-            panelQuanLyChuyen.getTxtChiTietMaChuyen().setText(chuyen.getChuyenID());
             panelQuanLyChuyen.getTxtChiTietTenChuyen().setText(tenChuyen);
-            panelQuanLyChuyen.getTxtChiTietMaTuyen().setText(maTuyen);
+            panelQuanLyChuyen.getTxtChiTietMaTuyen().setText(chuyen.getTuyenID());
+            panelQuanLyChuyen.getTxtChiTietGaDi().setText(chuyen.getTenGaDiHienThi());
+            panelQuanLyChuyen.getTxtChiTietGaDen().setText(chuyen.getTenGaDenHienThi());
+            panelQuanLyChuyen.getTxtChiTietTau().setText(chuyen.getTenTau());
 
-            panelQuanLyChuyen.getTxtChiTietGaDi().setText(gaDiTuyen);
-            panelQuanLyChuyen.getTxtChiTietGaDen().setText(gaDenTuyen);
-            panelQuanLyChuyen.getTxtChiTietTau().setText(chuyen.getTau().getTenTau() != null ? chuyen.getTau().getTenTau() : "N/A");
-        } else {
-            panelQuanLyChuyen.getTxtChiTietMaChuyen().setText("N/A");
-            panelQuanLyChuyen.getTxtChiTietTenChuyen().setText("N/A");
-            panelQuanLyChuyen.getTxtChiTietMaTuyen().setText("N/A");
-            panelQuanLyChuyen.getTxtChiTietGaDi().setText("N/A");
-            panelQuanLyChuyen.getTxtChiTietGaDen().setText("N/A");
-            panelQuanLyChuyen.getTxtChiTietTau().setText("N/A");
+            selectedGaDi = chuyen.getTenGaDiHienThi();
+            selectedGaDen = chuyen.getTenGaDenHienThi();
         }
 
         DefaultTableModel model = panelQuanLyChuyen.getModelLichTrinh();
@@ -689,24 +689,21 @@ public class QuanLyChuyen_CTRL {
 
         if (hanhTrinh != null && hanhTrinh.size() > 1) {
             for (int i = 0; i < hanhTrinh.size() - 1; i++) {
-                ChuyenGa gaDi = hanhTrinh.get(i);
-                ChuyenGa gaDen = hanhTrinh.get(i + 1);
-                String ngayDiStr = (gaDi.getNgayDi() != null) ? gaDi.getNgayDi().format(dateTimeFormatter) : "N/A";
-                String gioDiStr = (gaDi.getGioDi() != null) ? gaDi.getGioDi().format(timeFormatter) : "N/A";
-                String ngayDenStr = (gaDen.getNgayDen() != null) ? gaDen.getNgayDen().format(dateTimeFormatter) : "N/A";
-                String gioDenStr = (gaDen.getGioDen() != null) ? gaDen.getGioDen().format(timeFormatter) : "N/A";
+                ChuyenGaDTO gaDi = hanhTrinh.get(i);
+                ChuyenGaDTO gaDen = hanhTrinh.get(i + 1);
 
                 model.addRow(new Object[]{
                         (i + 1),
-                        gaDi.getGa().getTenGa(),
-                        ngayDiStr,
-                        gioDiStr,
-                        gaDen.getGa().getTenGa(),
-                        ngayDenStr,
-                        gioDenStr
+                        gaDi.getTenGa(),
+                        gaDi.getNgayDi() != null ? gaDi.getNgayDi().format(dateTimeFormatter) : "N/A",
+                        gaDi.getGioDi() != null ? gaDi.getGioDi().format(timeFormatter) : "N/A",
+                        gaDen.getTenGa(),
+                        gaDen.getNgayDen() != null ? gaDen.getNgayDen().format(dateTimeFormatter) : "N/A",
+                        gaDen.getGioDen() != null ? gaDen.getGioDen().format(timeFormatter) : "N/A"
                 });
             }
         }
+
         setupDetailTableRenderer();
         tinhKhoangToMau();
         panelQuanLyChuyen.getTableLichTrinh().repaint();
@@ -1231,7 +1228,7 @@ public class QuanLyChuyen_CTRL {
 
             String tuyenID = layMaTuChuoiHienThi(rawTuyen);
             String tauID = layMaTuChuoiHienThi(rawTau);
-            NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
+            NhanVienDTO nvDTO = panelQuanLyChuyen.getNhanVienThucHien();
 
             int rows = model.getRowCount();
             int cols = model.getColumnCount();
@@ -1250,14 +1247,14 @@ public class QuanLyChuyen_CTRL {
 
                 @Override
                 protected String doInBackground() throws Exception {
-                    List<Chuyen> dsMoi = new ArrayList<>();
-                    List<List<ChuyenGa>> dsLichTrinhMoi = new ArrayList<>();
+                    List<ChuyenDTO> dsMoi = new ArrayList<>();
+                    List<List<ChuyenGaDTO>> dsLichTrinhMoi = new ArrayList<>();
                     LocalDate ngayChay = ngayBatDau;
 
                     while (!ngayChay.isAfter(ngayKetThucWorker)) {
 
-                        Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
-                        List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayChay);
+                        ChuyenDTO c = buildChuyenDTO(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
+                        List<ChuyenGaDTO> stops = buildLichTrinhDTOList(c, dataSnapshot, ngayChay);
 
                         dsMoi.add(c);
                         dsLichTrinhMoi.add(stops);
@@ -1267,7 +1264,7 @@ public class QuanLyChuyen_CTRL {
                         ngayChay = updateNgayTheoChuKy(ngayChay, chuKy);
                     }
                     soLuongChuyenDuLien = dsMoi.size();
-                    return chuyenBus.themChuyenBatch(dsMoi, dsLichTrinhMoi, nv);
+                    return chuyenBus.themChuyenBatch(dsMoi, dsLichTrinhMoi, nvDTO);
                 }
 
                 @Override
@@ -1470,7 +1467,7 @@ public class QuanLyChuyen_CTRL {
     }
 
     private void loadLichTrinhMau(String tuyenID, String loaiTau) {
-        List<Ga> dsGa = chuyenBus.layDsGaChoLichTrinh(tuyenID, loaiTau);
+        List<GaDTO> dsGa = chuyenBus.layDsGaChoLichTrinh(tuyenID, loaiTau);
 
         DefaultTableModel model = panelThemChuyen.getModelLichTrinh();
         model.setRowCount(0);
@@ -1478,8 +1475,8 @@ public class QuanLyChuyen_CTRL {
         if (dsGa == null || dsGa.isEmpty()) return;
 
         for (int i = 0; i < dsGa.size() - 1; i++) {
-            Ga gaDi = dsGa.get(i);
-            Ga gaDen = dsGa.get(i + 1);
+            GaDTO gaDi = dsGa.get(i);
+            GaDTO gaDen = dsGa.get(i + 1);
             model.addRow(new Object[]{(i + 1), gaDi.getTenGa(), "", "", gaDen.getTenGa(), "", ""});
         }
     }
@@ -1534,7 +1531,7 @@ public class QuanLyChuyen_CTRL {
         return (item != null) ? item.toString().trim() : "";
     }
 
-    private Chuyen buildChuyenObject(LocalDate ngayChay, String sGioDi, String tuyenID, String tauID, Object[][] dataSnapshot, String chuKy) {
+    private ChuyenDTO buildChuyenDTO(LocalDate ngayChay, String sGioDi, String tuyenID, String tauID, Object[][] dataSnapshot, String chuKy) {
         LocalTime t = LocalTime.parse(sGioDi, timeFormatter);
         String strNgay = ngayChay.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String strGio = t.format(DateTimeFormatter.ofPattern("HHmm"));
@@ -1542,58 +1539,61 @@ public class QuanLyChuyen_CTRL {
         String hauTo = getHauToTheoChuKy(chuKy);
         String maChuyen = tuyenID.toUpperCase() + "_" + tauID.toUpperCase() + "_" + strNgay + "_" + strGio + "_" + hauTo;
 
-        Chuyen c = new Chuyen(maChuyen);
-        c.setTuyen(new Tuyen(tuyenID));
-        c.setTau(new Tau(tauID, ""));
-        c.setNgayDi(ngayChay);
-        c.setGioDi(t);
-
-        // Lấy tên ga từ snapshot dữ liệu (Ga đầu và Ga cuối)
         String tenGaDau = dataSnapshot[0][1].toString();
         String tenGaCuoi = dataSnapshot[dataSnapshot.length - 1][4].toString();
 
-        c.setGaDi(new Ga(mapGaToID.get(tenGaDau), tenGaDau));
-        c.setGaDen(new Ga(mapGaToID.get(tenGaCuoi), tenGaCuoi));
-        c.setTenChuyenHienThi(tenGaDau + " - " + tenGaCuoi);
-
-        return c;
+        return ChuyenDTO.builder()
+                .id(maChuyen)
+                .tuyenID(tuyenID)
+                .tauID(tauID)
+                .ngayDi(ngayChay)
+                .gioDi(t)
+                .tenGaDi(tenGaDau)
+                .tenGaDen(tenGaCuoi)
+                .tenChuyenHienThi(tenGaDau + " - " + tenGaCuoi)
+                .build();
     }
 
-    private List<ChuyenGa> buildLichTrinhList(Chuyen c, Object[][] dataSnapshot, LocalDate ngayDiChuyen) {
-        List<ChuyenGa> listStops = new ArrayList<>();
+    private List<ChuyenGaDTO> buildLichTrinhDTOList(ChuyenDTO c, Object[][] dataSnapshot, LocalDate ngayDiChuyen) {
+        List<ChuyenGaDTO> listStops = new ArrayList<>();
 
-        // Tính độ lệch ngày so với lịch trình gốc trên bảng giao diện
         LocalDate ngayGocTrongBang = LocalDate.parse(dataSnapshot[0][2].toString(), dateTimeFormatter);
         long dayOffset = java.time.temporal.ChronoUnit.DAYS.between(ngayGocTrongBang, ngayDiChuyen);
 
-        // 1. Ga xuất phát (STT 1)
-        ChuyenGa startNode = new ChuyenGa();
-        startNode.setChuyen(c);
-        startNode.setGa(c.getGaDi());
-        startNode.setThuTu(1);
-        startNode.setNgayDi(ngayDiChuyen);
-        startNode.setGioDi(c.getGioDi());
-        listStops.add(startNode);
+        String tenGaDau = dataSnapshot[0][1].toString().trim();
+        String idGaDau = mapGaToID.get(tenGaDau);
 
-        // 2. Các chặng tiếp theo dựa trên snapshot dữ liệu bảng
+        if (idGaDau == null) {
+            throw new RuntimeException("Không tìm thấy mã cho ga: " + tenGaDau);
+        }
+        listStops.add(ChuyenGaDTO.builder()
+                .id(c.getId())
+                .gaID(idGaDau)
+                .tenGa(tenGaDau)
+                .thuTu(1)
+                .ngayDi(ngayDiChuyen)
+                .gioDi(c.getGioDi())
+                .build());
+
         for (int i = 0; i < dataSnapshot.length; i++) {
             String tenGaDen = dataSnapshot[i][4].toString();
             String idGaDen = mapGaToID.get(tenGaDen);
             if (idGaDen == null) continue;
 
-            ChuyenGa stopNode = new ChuyenGa();
-            stopNode.setChuyen(c);
-            stopNode.setGa(new Ga(idGaDen, tenGaDen));
-            stopNode.setThuTu(i + 2);
-
-            // Cộng dồn độ lệch ngày cho thời gian Đến và Đi
-            stopNode.setNgayDen(LocalDate.parse(dataSnapshot[i][5].toString(), dateTimeFormatter).plusDays(dayOffset));
-            stopNode.setGioDen(LocalTime.parse(dataSnapshot[i][6].toString(), timeFormatter));
+            ChuyenGaDTO stopNode = ChuyenGaDTO.builder()
+                    .id(c.getId())
+                    .gaID(idGaDen)
+                    .tenGa(tenGaDen)
+                    .thuTu(i + 2)
+                    .ngayDen(LocalDate.parse(dataSnapshot[i][5].toString(), dateTimeFormatter).plusDays(dayOffset))
+                    .gioDen(LocalTime.parse(dataSnapshot[i][6].toString(), timeFormatter))
+                    .build();
 
             if (i < dataSnapshot.length - 1) {
                 stopNode.setNgayDi(LocalDate.parse(dataSnapshot[i + 1][2].toString(), dateTimeFormatter).plusDays(dayOffset));
                 stopNode.setGioDi(LocalTime.parse(dataSnapshot[i + 1][3].toString(), timeFormatter));
             }
+
             listStops.add(stopNode);
         }
         return listStops;
@@ -1690,7 +1690,7 @@ public class QuanLyChuyen_CTRL {
         // Lấy thông tin ID
         String tuyenID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTuyen().getEditor().getItem().toString());
         String tauID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTau().getEditor().getItem().toString());
-        NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
+        NhanVienDTO nv = panelQuanLyChuyen.getNhanVienThucHien();
 
         // 2. Chụp Snapshot dữ liệu bảng lịch trình (Bản ghi ga trung gian)
         DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
@@ -1712,17 +1712,17 @@ public class QuanLyChuyen_CTRL {
 
             @Override
             protected String doInBackground() throws Exception {
-                List<Chuyen> dsMoi = new ArrayList<>();
-                List<List<ChuyenGa>> dsLichTrinhMoi = new ArrayList<>();
+                List<ChuyenDTO> dsMoi = new ArrayList<>();
+                List<List<ChuyenGaDTO>> dsLichTrinhMoi = new ArrayList<>();
                 LocalDate ngayChay = ngayBatDau;
 
                 // Lặp để tạo danh sách chuyến theo chu kỳ
                 while (!ngayChay.isAfter(ngayKetThuc)) {
                     // Tạo đối tượng Chuyến (Sử dụng hàm buildChuyenObject 6 tham số đã sửa trước đó)
-                    Chuyen c = buildChuyenObject(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
+                    ChuyenDTO c = buildChuyenDTO(ngayChay, sGioDi, tuyenID, tauID, dataSnapshot, chuKy);
 
                     // Tạo danh sách lịch trình ga (ChuyenGa) tương ứng
-                    List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayChay);
+                    List<ChuyenGaDTO> stops = buildLichTrinhDTOList(c, dataSnapshot, ngayChay);
 
                     dsMoi.add(c);
                     dsLichTrinhMoi.add(stops);
@@ -1767,7 +1767,7 @@ public class QuanLyChuyen_CTRL {
         String sGioDi = panelCapNhatChuyen.getTxtGioDi().getText().trim();
         String tuyenID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTuyen().getEditor().getItem().toString());
         String tauID = layMaTuChuoiHienThi(panelCapNhatChuyen.getComboTau().getEditor().getItem().toString());
-        NhanVien nv = panelQuanLyChuyen.getNhanVienThucHien();
+        NhanVienDTO nv = panelQuanLyChuyen.getNhanVienThucHien();
 
         // 2. Chụp Snapshot bảng lịch trình hiện tại trên Form
         DefaultTableModel model = panelCapNhatChuyen.getModelLichTrinh();
@@ -1788,12 +1788,12 @@ public class QuanLyChuyen_CTRL {
             @Override
             protected String doInBackground() throws Exception {
                 LocalDate ngayDi = LocalDate.parse(sNgayDi, dateTimeFormatter);
-                Chuyen c = buildChuyenObject(ngayDi, sGioDi, tuyenID, tauID, dataSnapshot, "Chuyến phát sinh");
+                ChuyenDTO c = buildChuyenDTO(ngayDi, sGioDi, tuyenID, tauID, dataSnapshot, "Chuyến phát sinh");
 
-                List<ChuyenGa> stops = buildLichTrinhList(c, dataSnapshot, ngayDi);
+                List<ChuyenGaDTO> stops = buildLichTrinhDTOList(c, dataSnapshot, ngayDi);
 
-                List<Chuyen> dsMoi = Collections.singletonList(c);
-                List<List<ChuyenGa>> dsLT = Collections.singletonList(stops);
+                List<ChuyenDTO> dsMoi = Collections.singletonList(c);
+                List<List<ChuyenGaDTO>> dsLT = Collections.singletonList(stops);
 
                 String res = chuyenBus.capNhatChuyenBatch(dsMoi, dsLT, nv);
                 if (res == null) soLuongThanhCong = 1;

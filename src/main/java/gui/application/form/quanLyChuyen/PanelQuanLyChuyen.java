@@ -29,7 +29,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class PanelQuanLyChuyen extends JPanel {
-    private final NhanVien nhanVienThucHien;
+    private final NhanVienDTO nhanVienThucHien;
     private final Font BASE_FONT = new Font(getFont().getFontName(), Font.PLAIN, 14);
     private final Color COLOR_ACCENT = new Color(36, 104, 155);
     private final Color COLOR_HEADER = new Color(36, 104, 155);
@@ -55,7 +55,7 @@ public class PanelQuanLyChuyen extends JPanel {
     private JButton btnThemChuyen, btnCapNhatChuen;
 
     public PanelQuanLyChuyen(NhanVienDTO nhanVien) {
-        this.nhanVienThucHien = NhanVienMapper.INSTANCE.toEntity(nhanVien);
+        this.nhanVienThucHien = nhanVien;
         setLayout(new BorderLayout());
         setBackground(COLOR_BG);
         initComponents();
@@ -70,7 +70,7 @@ public class PanelQuanLyChuyen extends JPanel {
         JSplitPane splitPane = createCenterPanel();
         add(splitPane, BorderLayout.CENTER);
 
-//        setupKeyBindings();
+        setupKeyBindings();
 
         ppMaChuyen = new JPopupMenu();
         listMaChuyen = new JList<>();
@@ -382,7 +382,7 @@ public class PanelQuanLyChuyen extends JPanel {
         });
     }
 
-    public NhanVien getNhanVienThucHien() {
+    public NhanVienDTO getNhanVienThucHien() {
         return nhanVienThucHien;
     }
 

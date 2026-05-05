@@ -13,6 +13,7 @@ package gui.application.form.quanLyTuyen;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.jhlabs.image.GaussianFilter;
 import controller.ThemTuyen_CTRL;
+import dto.NhanVienDTO;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
 
@@ -27,7 +28,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class PanelThemTuyen extends JPanel {
-    private final NhanVien nhanVienThucHien;
+    private final NhanVienDTO nhanVienThucHien;
     private BufferedImage backgroundImage;
 
     private JPanel pnlGaTrungGianDaChon;
@@ -65,7 +66,7 @@ public class PanelThemTuyen extends JPanel {
     private final Color COLOR_TABLE_STRIPE = new Color(240,245,250,180);
     private final Color COLOR_TEXT_BG =new Color(255,255,255,180);
 
-    public PanelThemTuyen(NhanVien nhanVien){
+    public PanelThemTuyen(NhanVienDTO nhanVien){
         this.nhanVienThucHien = nhanVien;
         setLayout(new BorderLayout());
         initComponents();
@@ -233,7 +234,7 @@ public class PanelThemTuyen extends JPanel {
         }
     }
 
-    public NhanVien getNhanVienThucHien() {
+    public NhanVienDTO getNhanVienThucHien() {
         return nhanVienThucHien;
     }
 
