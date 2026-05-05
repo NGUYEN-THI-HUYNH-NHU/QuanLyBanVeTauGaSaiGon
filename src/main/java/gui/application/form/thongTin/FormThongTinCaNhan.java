@@ -33,6 +33,7 @@ public class FormThongTinCaNhan extends JPanel {
 
     public FormThongTinCaNhan(NhanVienDTO nhanVien) {
         this.nhanVien = nhanVien;
+        System.out.println(nhanVien);
 
         setLayout(new BorderLayout());
         initComponents();

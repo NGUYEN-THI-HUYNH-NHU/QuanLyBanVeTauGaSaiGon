@@ -9,7 +9,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @Builder
-@ToString
+@ToString(exclude = "avatar")
 @NoArgsConstructor
 @AllArgsConstructor
 
@@ -17,7 +17,7 @@ public class NhanVienDTO implements Serializable {
     private String id;
     private String vaiTroNhanVienID;
     private String hoTen;
-    private boolean isNu;
+    private boolean nu;
     private LocalDate ngaySinh;
     private String soDienThoai;
     private String email;

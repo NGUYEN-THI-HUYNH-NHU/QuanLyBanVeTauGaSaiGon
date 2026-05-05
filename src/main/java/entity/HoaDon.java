@@ -54,7 +54,7 @@ public class HoaDon implements Serializable {
     private double tienHoan;
 
     @Column(name = "isThanhToanTienMat", nullable = false)
-    private Boolean isThanhToanTienMat;
+    private boolean thanhToanTienMat;
 
     @Column(name = "maGD", length = 50)
     private String maGD;
@@ -72,7 +72,7 @@ public class HoaDon implements Serializable {
         this.maGD = maGD;
         this.tienNhan = tienNhan;
         this.tienHoan = tienHoan;
-        this.isThanhToanTienMat = thanhToanTienMat;
+        this.thanhToanTienMat = thanhToanTienMat;
     }
 
     public HoaDon(String hoaDonID) {

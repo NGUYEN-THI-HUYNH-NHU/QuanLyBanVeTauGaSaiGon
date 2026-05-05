@@ -14,5 +14,5 @@ public class HeSoGiaHangToaDTO implements Serializable {
     private String id;
     private String hangToaID;
     private double hsg;
-    private boolean isCoHieuLuc;
+    private boolean coHieuLuc;
 }
