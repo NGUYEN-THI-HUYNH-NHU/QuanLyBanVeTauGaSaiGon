@@ -39,7 +39,7 @@ public class Chuyen_BUS {
     private GheDAO gheDAO;
     private Toa_DAO toaDAO;
     private Chuyen_DAO chuyenDAO;
-    private ChuyenGa_DAO chuyenGaDao;
+    private ChuyenGaDAO chuyenGaDao;
     private Ga_DAO gaDAO;
     private Tau_DAO tauDao;
 
@@ -47,7 +47,7 @@ public class Chuyen_BUS {
         gheDAO = new GheDAO();
         toaDAO = new Toa_DAO();
         chuyenDAO = new Chuyen_DAO();
-        chuyenGaDao = new ChuyenGa_DAO();
+        chuyenGaDao = new ChuyenGaDAO();
         gaDAO = new Ga_DAO();
         tauDao = new Tau_DAO();
 

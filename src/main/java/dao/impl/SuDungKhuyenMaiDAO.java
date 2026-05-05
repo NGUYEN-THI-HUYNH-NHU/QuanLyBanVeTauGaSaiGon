@@ -17,8 +17,7 @@ import dao.ISuDungKhuyenMaiDAO;
 import entity.SuDungKhuyenMai;
 
 public class SuDungKhuyenMaiDAO extends AbstractGenericDAO<SuDungKhuyenMai, String> implements ISuDungKhuyenMaiDAO {
-    public SuDungKhuyenMaiDAO(){
+    public SuDungKhuyenMaiDAO() {
         super(SuDungKhuyenMai.class);
     }
-
 }
