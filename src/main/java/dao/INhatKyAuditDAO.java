@@ -11,4 +11,8 @@ public interface INhatKyAuditDAO extends IGenericDAO<NhatKyAudit, String>{
     List<NhatKyAudit> timKiemNhatKy(LocalDate tuNgay, LocalDate denNgay, String nhanVienID, String loaiThaoTac, String doiTuongID);
     String layTenNhanVienTheoMaNV(String nhanVienID);
     List<NhatKyAudit> locNhatKyTheoKhoangThoiGian(LocalDate ngayBatDau, LocalDate ngayKetThuc);
+
+    List<NhatKyAudit> layDanhSachPhanTrang(int page, int pageSize, LocalDate tu, LocalDate den, String maNV, String loai);
+
+    long demTongSoDong(LocalDate tu, LocalDate den, String maNV, String loai);
 }

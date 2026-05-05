@@ -407,9 +407,14 @@ public class PanelQuanLyNhanVien extends JPanel implements ActionListener, Mouse
                 }
 
                 txtMaNV.setText(lblMaNVDetail.getText());
-                String selectedRole = lblVaiTroDetail.getText();
-                VaiTroNhanVienEnums vaiTro = VaiTroNhanVienEnums.fromDescription(selectedRole);
-                cbVaiTro.setSelectedItem(vaiTro);
+                String selectedRole = lblVaiTroDetail.getText().trim();
+                for (int i = 0; i < cbVaiTro.getItemCount(); i++) {
+                    VaiTroNhanVienEnums item = cbVaiTro.getItemAt(i);
+                    if (item.getDescription().equalsIgnoreCase(selectedRole)) {
+                        cbVaiTro.setSelectedIndex(i);
+                        break;
+                    }
+                }
 
                 txtTenNV.setText(lblTenNVDetail.getText());
                 txtTenNV.setForeground(Color.BLACK);

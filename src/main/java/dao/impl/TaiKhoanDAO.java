@@ -16,7 +16,6 @@ package dao.impl;
 import dao.ITaiKhoanDAO;
 import entity.NhanVien;
 import entity.TaiKhoan;
-
 import java.util.List;
 
 public class TaiKhoanDAO extends AbstractGenericDAO<TaiKhoan, String> implements ITaiKhoanDAO {

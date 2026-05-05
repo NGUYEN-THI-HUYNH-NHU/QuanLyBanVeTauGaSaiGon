@@ -34,9 +34,9 @@ public class Test {
 
         JFrame frame = new JFrame("Kiểm thử");
 //        frame.add(new PanelQuanLyKhachHang(nv), BorderLayout.CENTER);
-        frame.add(new PanelQuanLyNhanVien(nv), BorderLayout.CENTER);
+//        frame.add(new PanelQuanLyNhanVien(nv), BorderLayout.CENTER);
 //        frame.add(new PanelQuanLyTaiKhoan(nv), BorderLayout.CENTER);
-//        frame.add(new PanelQuanLyKhuyenMai(nv), BorderLayout.CENTER);
+        frame.add(new PanelQuanLyKhuyenMai(nv), BorderLayout.CENTER);
 
         // Cấu hình kích thước và vị trí hiển thị
         frame.setSize(1250, 850);

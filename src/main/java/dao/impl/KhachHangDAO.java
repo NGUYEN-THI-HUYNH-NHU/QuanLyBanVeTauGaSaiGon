@@ -206,4 +206,25 @@ public class KhachHangDAO extends AbstractGenericDAO<KhachHang, String> implemen
             }
         });
     }
+
+    // PHÂN TRANG
+    @Override
+    public List<KhachHang> getKhachHangPhanTrang(int page, int pageSize) {
+        return doInTransaction(em -> {
+            return em.createQuery("SELECT k FROM KhachHang k " +
+                            "LEFT JOIN FETCH k.loaiDoiTuong " +
+                            "LEFT JOIN FETCH k.loaiKhachHang", KhachHang.class)
+                    .setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        });
+    }
+
+    @Override
+    public long getTotalKhachHang() {
+        return doInTransaction(em -> {
+            return em.createQuery("SELECT COUNT(k) FROM KhachHang k", Long.class)
+                    .getSingleResult();
+        });
+    }
 }

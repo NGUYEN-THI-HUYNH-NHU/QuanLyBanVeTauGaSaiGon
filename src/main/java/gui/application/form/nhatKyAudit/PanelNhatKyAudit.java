@@ -43,6 +43,14 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
     private JButton btnLamMoi, btnLoc, btnHomNay, btn7Ngay;
     private List<NhatKyAudit> current = new ArrayList<>();
 
+    // Thành phần phân trang
+    private int currentPage = 1;
+    private int pageSize = 15;
+    private long totalRows = 0;
+    private JPanel paginationNumberPanel;
+    private JComboBox<Integer> cboPageSize;
+    private JButton btnPrevPage, btnNextPage;
+
     public PanelNhatKyAudit(NhanVienDTO nhanVien) {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -55,7 +63,7 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
         initUI();
 
         loadDefault7Days();
-        loadDataToTable(nhatKyAudit_ctrl.layDanhSachNhatKy());
+        loadDataToTable();
     }
 
     private void initUI() {
@@ -188,7 +196,12 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
         // sorter
         table.setRowSorter(new TableRowSorter<>(tableModel));
 
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        // Thành phần phân trang
+        JPanel pnlTableContainer = new JPanel(new BorderLayout());
+        pnlTableContainer.add(new JScrollPane(table), BorderLayout.CENTER);
+        pnlTableContainer.add(createPaginationPanel(), BorderLayout.SOUTH);
+
+        add(pnlTableContainer, BorderLayout.CENTER);
 
         // events
         table.addMouseListener(this);
@@ -234,22 +247,131 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
         }
     }
 
-    private void loadDataToTable(List<NhatKyAudit> list) {
-        current = (list == null) ? new ArrayList<>() : list;
-        tableModel.setRowCount(0);
+    private void loadDataToTable() {
+        // 1. Lấy thông tin từ bộ lọc trên giao diện (Ngày, Nhân viên, Loại thao tác)
+        LocalDate tu = getLocalDate(dcTuNgay);
+        LocalDate den = getLocalDate(dcDenNgay);
+        String nv = (String) cboNhanVien.getSelectedItem();
+        if ("TẤT CẢ".equals(nv)) nv = null;
 
+        entity.type.NhatKyAudit loaiEnum = (entity.type.NhatKyAudit) cboLoai.getSelectedItem();
+        String loai = (loaiEnum == null) ? null : loaiEnum.name();
+
+        // 2. GỌI XUỐNG TẦNG DƯỚI: Lấy đúng "khúc" dữ liệu của trang hiện tại
+        // current bây giờ chỉ chứa 15-20 dòng tùy pageSize, chứ không phải toàn bộ DB
+        current = nhatKyAudit_ctrl.layDanhSachPhanTrang(currentPage, pageSize, tu, den, nv, loai);
+        totalRows = nhatKyAudit_ctrl.demTongSoDong(tu, den, nv, loai);
+
+        // 3. ĐỔ DỮ LIỆU LÊN BẢNG (Đây chính là logic hàm cũ của bạn)
+        tableModel.setRowCount(0);
         for (NhatKyAudit a : current) {
-            String loai = (a.getLoaiThaoTac() == null) ? "" : a.getLoaiThaoTac().name();
+            String loaiThaoTac = (a.getLoaiThaoTac() == null) ? "" : a.getLoaiThaoTac().name();
             String time = (a.getThoiDiemThaoTac() == null) ? "" : a.getThoiDiemThaoTac().format(FMT);
 
-            tableModel.addRow(new Object[]{a.getNhatKyAuditID(), a.getDoiTuongThaoTac(), a.getNhanVienID(), loai,
-                    a.getDoiTuongID(), time, String.format("<html>%s</html>", a.getChiTiet())});
+            tableModel.addRow(new Object[]{
+                    a.getNhatKyAuditID(),
+                    a.getDoiTuongThaoTac(),
+                    a.getNhanVienID(),
+                    loaiThaoTac,
+                    a.getDoiTuongID(),
+                    time,
+                    String.format("<html>%s</html>", a.getChiTiet())
+            });
         }
+
+        renderPageNumbers();
+    }
+
+    // ================ PHÂN TRANG ================
+    private JPanel createPaginationPanel() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(Color.WHITE);
+        p.setBorder(new EmptyBorder(5, 10, 5, 10));
+
+        // Nhóm nút số trang ở giữa
+        JPanel pnlCenter = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        pnlCenter.setBackground(Color.WHITE);
+        btnPrevPage = createPageBtn("<", false);
+        btnNextPage = createPageBtn(">", false);
+        paginationNumberPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 0));
+        paginationNumberPanel.setBackground(Color.WHITE);
+
+        pnlCenter.add(btnPrevPage);
+        pnlCenter.add(paginationNumberPanel);
+        pnlCenter.add(btnNextPage);
+
+        // Nhóm chọn số dòng bên phải
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlRight.setBackground(Color.WHITE);
+        pnlRight.add(new JLabel("Số dòng:"));
+        cboPageSize = new JComboBox<>(new Integer[]{15, 30, 50});
+        cboPageSize.setSelectedItem(pageSize);
+        pnlRight.add(cboPageSize);
+
+        p.add(pnlCenter, BorderLayout.CENTER);
+        p.add(pnlRight, BorderLayout.EAST);
+
+        // Sự kiện khi thay đổi số dòng
+        cboPageSize.addActionListener(e -> {
+            pageSize = (int) cboPageSize.getSelectedItem();
+            currentPage = 1;
+            loadDataToTable();
+        });
+
+        // Sự kiện nút Tiến/Lùi
+        btnPrevPage.addActionListener(e -> { if (currentPage > 1) { currentPage--; loadDataToTable(); } });
+        btnNextPage.addActionListener(e -> {
+            int totalPages = (int) Math.ceil((double) totalRows / pageSize);
+            if (currentPage < totalPages) { currentPage++; loadDataToTable(); }
+        });
+
+        return p;
+    }
+
+    private JButton createPageBtn(String t, boolean sel) {
+        JButton b = new JButton(t);
+        b.setPreferredSize(new Dimension(40, 35));
+        b.setMargin(new Insets(0, 0, 0, 0));
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        if (sel) {
+            b.setBackground(base_color);
+            b.setForeground(Color.WHITE);
+        } else {
+            b.setBackground(Color.WHITE);
+            b.setForeground(Color.BLACK);
+        }
+        return b;
+    }
+
+    private void renderPageNumbers() {
+        paginationNumberPanel.removeAll();
+        int totalPages = (int) Math.ceil((double) totalRows / pageSize);
+        if (totalPages <= 0) totalPages = 1;
+
+        // Thuật toán hiển thị 5 nút số quanh trang hiện tại
+        int start = Math.max(1, currentPage - 2);
+        int end = Math.min(totalPages, start + 4);
+        if (end - start < 4) start = Math.max(1, end - 4);
+        start = Math.max(1, start);
+
+        for (int i = start; i <= end; i++) {
+            final int p = i;
+            JButton b = createPageBtn(String.valueOf(i), i == currentPage);
+            b.addActionListener(e -> { currentPage = p; loadDataToTable(); });
+            paginationNumberPanel.add(b);
+        }
+
+        btnPrevPage.setEnabled(currentPage > 1);
+        btnNextPage.setEnabled(currentPage < totalPages);
+
+        paginationNumberPanel.revalidate();
+        paginationNumberPanel.repaint();
     }
 
     // ================= FILTER =================
 
     private void locTheoKhoangThoiGian() {
+        currentPage = 1;
         LocalDate tu = getLocalDate(dcTuNgay);
         LocalDate den = getLocalDate(dcDenNgay);
 
@@ -273,7 +395,7 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
         String doiTuongID = null;
 
         List<NhatKyAudit> list = nhatKyAudit_ctrl.locNhatKy(tu, den, nhanVien, loai, doiTuongID);
-        loadDataToTable(list);
+        loadDataToTable();
     }
 
     private void onLoc() {
@@ -288,7 +410,7 @@ public class PanelNhatKyAudit extends JPanel implements ActionListener, MouseLis
 
         // làm mới = load full (không lọc)
         List<NhatKyAudit> list = nhatKyAudit_ctrl.layDanhSachNhatKy();
-        loadDataToTable(list);
+        loadDataToTable();
     }
 
     private void onHomNay() {

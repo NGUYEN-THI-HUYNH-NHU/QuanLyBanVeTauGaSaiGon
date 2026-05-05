@@ -33,11 +33,11 @@ public class TaiKhoan implements Serializable {
     @Column(name = "taiKhoanID", length = 50)
     private String taiKhoanID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vaiTroTaiKhoanID", nullable = false)
     private VaiTroTaiKhoan vaiTroTaiKhoan;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "nhanVienID", nullable = false)
     private NhanVien nhanVien;
 

@@ -55,31 +55,31 @@ public class NhanVienDAO extends AbstractGenericDAO<NhanVien, String> implements
     @Override
     public List<NhanVien> timKiemNhanVien(String tuKhoa, String vaiTroID, Boolean isHoatDong) {
         return doInTransaction(em -> {
+            // 1. Khởi tạo câu query với các FETCH JOIN để tránh lỗi LazyInitializationException
             StringBuilder jpql = new StringBuilder(
                     "SELECT n FROM NhanVien n " +
                             "LEFT JOIN FETCH n.caLam " +
                             "LEFT JOIN FETCH n.vaiTroNhanVien " +
-                            "WHERE 1=1"
+                            "WHERE 1=1" // Kỹ thuật dùng 1=1 để dễ dàng nối các điều kiện AND phía sau
             );
 
-            // Chỉ tìm kiếm theo Tên HOẶC Số điện thoại
+            // 2. Nối điều kiện động (Dynamic Query)
             if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
                 jpql.append(" AND (n.hoTen LIKE :tuKhoa OR n.soDienThoai LIKE :tuKhoa)");
             }
 
-            // Kết hợp AND với vai trò (nếu có chọn)
             if (vaiTroID != null && !vaiTroID.trim().isEmpty()) {
                 jpql.append(" AND n.vaiTroNhanVien.vaiTroNhanVienID = :vaiTroID");
             }
 
-            // Kết hợp AND với trạng thái (nếu có chọn)
             if (isHoatDong != null) {
-                jpql.append(" AND n.isHoatDong = :isHoatDong");
+                // ĐÃ SỬA: dùng n.hoatDong khớp với biến trong Class NhanVien
+                jpql.append(" AND n.hoatDong = :isHoatDong");
             }
 
             var query = em.createQuery(jpql.toString(), NhanVien.class);
 
-            // Gán tham số
+            // 3. Gán giá trị cho tham số (Parameter Binding)
             if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
                 query.setParameter("tuKhoa", "%" + tuKhoa.trim() + "%");
             }

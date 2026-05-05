@@ -40,4 +40,12 @@ public class NhatKyAudit_CTRL {
     public List<NhatKyAudit> locNhatKyTheoThoiGian(LocalDate ngayBatDau, LocalDate ngayKetThuc) {
         return nhatKyAuditBus.locNhatKyTheoThoiGian(ngayBatDau, ngayKetThuc);
     }
+
+    public List<NhatKyAudit> layDanhSachPhanTrang(int page, int size, LocalDate tu, LocalDate den, String maNV, String loai) {
+        return nhatKyAuditBus.layDanhSachPhanTrang(page, size, tu, den, maNV, loai);
+    }
+
+    public long demTongSoDong(LocalDate tu, LocalDate den, String maNV, String loai) {
+        return nhatKyAuditBus.demTongSoDong(tu, den, maNV, loai);
+    }
 }

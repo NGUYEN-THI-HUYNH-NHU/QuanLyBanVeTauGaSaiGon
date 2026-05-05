@@ -64,4 +64,12 @@ public class KhachHang_CTRL {
     public String taoMaKhachHang() {
         return khachHang_bus.taoMaKhachHangTuDong();
     }
+
+    public List<KhachHang> getKhachHangPhanTrang(int page, int pageSize) {
+        return khachHang_bus.getKhachHangPhanTrang(page, pageSize);
+    }
+
+    public long getTotalKhachHang() {
+        return khachHang_bus.getTotalKhachHang();
+    }
 }

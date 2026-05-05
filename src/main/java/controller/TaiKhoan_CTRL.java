@@ -71,12 +71,10 @@ public class TaiKhoan_CTRL {
         return taiKhoan_bus.layTKTheoMaNV(maNV);
     }
 
-    // SỬA TẠI ĐÂY: Lấy tài khoản theo ID tài khoản để phục vụ việc giữ lại mật khẩu khi Sửa
     public TaiKhoan layTaiKhoanTheoID(String id) {
         return taiKhoan_bus.layTKTheoID(id);
     }
 
-    // SỬA TẠI ĐÂY: Lấy đối tượng VaiTroTaiKhoan từ Database để tránh lỗi Lazy Loading
     public VaiTroTaiKhoan layVaiTroTheoID(String vaiTroID) {
         return taiKhoan_bus.layVaiTroTheoID(vaiTroID);
     }

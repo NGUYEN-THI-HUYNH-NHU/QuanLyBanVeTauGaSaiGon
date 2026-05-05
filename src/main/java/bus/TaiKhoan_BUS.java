@@ -25,7 +25,6 @@ public class TaiKhoan_BUS {
     // ================= LẤY DỮ LIỆU =================
 
     public List<TaiKhoan> layDanhSachTaiKhoan() {
-        // SỬA TẠI ĐÂY: Gọi đúng hàm của DAO đã có LEFT JOIN FETCH
         return taiKhoanDAO.getDanhSachTaiKhoan();
     }
 
@@ -45,12 +44,11 @@ public class TaiKhoan_BUS {
         return taiKhoanDAO.taoMaTaiKhoanMoi();
     }
 
-    // SỬA TẠI ĐÂY: Thêm hàm lấy tài khoản theo ID
+
     public TaiKhoan layTKTheoID(String id) {
         return taiKhoanDAO.findById(id);
     }
 
-    // SỬA TẠI ĐÂY: Thêm hàm lấy vai trò đầy đủ dữ liệu từ DB
     public VaiTroTaiKhoan layVaiTroTheoID(String vaiTroID) {
         dao.impl.AbstractGenericDAO<VaiTroTaiKhoan, String> vaiTroDAO =
                 new dao.impl.AbstractGenericDAO<>(VaiTroTaiKhoan.class) {};
@@ -104,7 +102,7 @@ public class TaiKhoan_BUS {
     // ================= VALIDATION LOGIC =================
 
     public boolean kiemTraTenDangNhap(String tenDN) {
-        String regex = "^[a-zA-Z0-9._-]{5,20}$";
+        String regex = "^[a-zA-Z0-9._-]{3,20}$";
         return tenDN != null && tenDN.matches(regex);
     }
 
@@ -169,7 +167,7 @@ public class TaiKhoan_BUS {
                     cu.isTrangThai() ? "Hoạt động" : "Khóa", moi.isTrangThai() ? "Hoạt động" : "Khóa"));
         }
 
-        // SỬA TẠI ĐÂY: Trích xuất ID vai trò ra để so sánh, tránh lỗi Proxy/Lazy Loading
+
         String vtCuID = cu.getVaiTroTaiKhoan() != null ? cu.getVaiTroTaiKhoan().getVaiTroTaiKhoanID() : "Trống";
         String vtMoiID = moi.getVaiTroTaiKhoan() != null ? moi.getVaiTroTaiKhoan().getVaiTroTaiKhoanID() : "Trống";
 

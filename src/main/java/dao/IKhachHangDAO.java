@@ -31,4 +31,7 @@ public interface IKhachHangDAO extends IGenericDAO<KhachHang, String> {
 
     List<String> getTop10HoTen(String hoTen);
 
+    List<KhachHang> getKhachHangPhanTrang(int page, int pageSize);
+    long getTotalKhachHang();
+
 }

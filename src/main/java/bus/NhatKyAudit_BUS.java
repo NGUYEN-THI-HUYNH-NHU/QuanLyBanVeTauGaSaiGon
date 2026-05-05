@@ -45,4 +45,12 @@ public class NhatKyAudit_BUS {
         return nhatKyAudit_dao.locNhatKyTheoKhoangThoiGian(ngayBatDau, ngayKetThuc);
     }
 
+    public List<NhatKyAudit> layDanhSachPhanTrang(int page, int size, LocalDate tu, LocalDate den, String maNV, String loai) {
+        return nhatKyAudit_dao.layDanhSachPhanTrang(page, size, tu, den, maNV, loai);
+    }
+
+    public long demTongSoDong(LocalDate tu, LocalDate den, String maNV, String loai) {
+        return nhatKyAudit_dao.demTongSoDong(tu, den, maNV, loai);
+    }
+
 }

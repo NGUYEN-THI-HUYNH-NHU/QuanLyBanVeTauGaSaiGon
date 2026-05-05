@@ -46,6 +46,14 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     private Font titleFont;
     private JLabel lblAvatar;
 
+    // phân trang
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private long totalRows = 0;
+    private JComboBox<Integer> cbPageSize;
+    private JPanel paginationNumberPanel;
+    private JButton btnPrevPage, btnNextPage;
+
     public PanelQuanLyKhachHang(NhanVienDTO nhanVienThucHien) {
         this.khachHang_ctrl = new KhachHang_CTRL();
         this.nhanVienThucHien = nhanVienThucHien;
@@ -233,6 +241,7 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         return infoPanel;
     }
 
+
     private void addDetailRow(JPanel panel, String title, JLabel value, Font font, Color color) {
         JLabel lblTitle = new JLabel(title);
         lblTitle.setFont(font);
@@ -291,17 +300,12 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         return button;
     }
 
-    private JScrollPane createTablePanel() {
+    private JPanel createTablePanel() {
         String[] columnNames = {"STT", "Mã KH", "Tên KH", "SĐT", "Email", "Giấy tờ", "Địa chỉ", "Loại đối tượng", "Loại KH"};
-
         tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFont(new Font("Roboto", Font.PLAIN, 13));
         table.setRowHeight(25);
         table.addMouseListener(this);
 
@@ -312,56 +316,145 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
 
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                           boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (isSelected) {
-                    c.setBackground(new Color(173, 216, 230));
-                    c.setForeground(Color.BLACK);
-                } else {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 248, 255));
-                    c.setForeground(Color.BLACK);
-                }
-                return c;
+            public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean h, int r, int c) {
+                Component comp = super.getTableCellRendererComponent(t, v, s, h, r, c);
+                comp.setBackground(s ? new Color(173, 216, 230) : (r % 2 == 0 ? Color.WHITE : new Color(240, 248, 255)));
+                setHorizontalAlignment(SwingConstants.CENTER);
+                return comp;
             }
         });
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(30, 100, 150), 1),
+        scroll.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
                 "Danh sách khách hàng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Roboto", Font.BOLD, 15)));
-        scroll.setPreferredSize(new Dimension(1000, 2000));
 
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
-        table.getColumnModel().getColumn(1).setPreferredWidth(80);
-        table.getColumnModel().getColumn(2).setPreferredWidth(160);
-        table.getColumnModel().getColumn(3).setPreferredWidth(100);
-        table.getColumnModel().getColumn(4).setPreferredWidth(170);
-        table.getColumnModel().getColumn(5).setPreferredWidth(130);
-        table.getColumnModel().getColumn(6).setPreferredWidth(250);
-        table.getColumnModel().getColumn(7).setPreferredWidth(130);
-        table.getColumnModel().getColumn(8).setPreferredWidth(230);
+        JPanel container = new JPanel(new BorderLayout());
+        container.setBackground(COLOR_BG_MAIN);
+        container.add(scroll, BorderLayout.CENTER);
+        container.add(createPaginationPanel(), BorderLayout.SOUTH);
 
-        return scroll;
+        return container;
     }
 
     public void loadDataToTable() {
-        List<KhachHang> dsKH = khachHang_ctrl.getAllKhachHang();
-        int stt = 1;
-        tableModel.setRowCount(0);
+        // 1. Lấy dữ liệu phân trang
+        List<KhachHang> dsKH = khachHang_ctrl.getKhachHangPhanTrang(currentPage, pageSize);
+        totalRows = khachHang_ctrl.getTotalKhachHang();
+        int totalPages = (int) Math.ceil((double) totalRows / pageSize);
 
+        // 2. Đổ dữ liệu vào bảng
+        tableModel.setRowCount(0);
+        int stt = (currentPage - 1) * pageSize + 1;
         for (KhachHang kh : dsKH) {
             tableModel.addRow(new Object[]{
-                    stt++,
-                    Objects.toString(kh.getKhachHangID(), ""),
-                    Objects.toString(kh.getHoTen(), ""),
-                    Objects.toString(kh.getSoDienThoai(), ""),
-                    Objects.toString(kh.getEmail(), ""),
-                    Objects.toString(kh.getSoGiayTo(), ""),
-                    Objects.toString(kh.getDiaChi(), ""),
-                    kh.getLoaiDoiTuong() == null ? "" : kh.getLoaiDoiTuong().getDescription(),
-                    kh.getLoaiKhachHang() == null ? "" : kh.getLoaiKhachHang().getDescription()
+                    stt++, kh.getKhachHangID(), kh.getHoTen(), kh.getSoDienThoai(),
+                    kh.getEmail(), kh.getSoGiayTo(), kh.getDiaChi(),
+                    kh.getLoaiDoiTuong() != null ? kh.getLoaiDoiTuong().getDescription() : "",
+                    kh.getLoaiKhachHang() != null ? kh.getLoaiKhachHang().getDescription() : ""
             });
         }
+
+        // 3. Vẽ lại các nút số trang
+        updatePaginationUI(totalPages);
+    }
+
+    private void updatePaginationUI(int totalPages) {
+        paginationNumberPanel.removeAll(); // Xóa các nút cũ để vẽ lại
+        if (totalPages <= 0) totalPages = 1;
+
+        int start = Math.max(1, currentPage - 2);
+        int end = Math.min(totalPages, start + 4);
+        if (end - start < 4) start = Math.max(1, end - 4);
+        start = Math.max(1, start);
+
+        for (int i = start; i <= end; i++) {
+            final int pageNum = i;
+            JButton btn = createPaginationButton(String.valueOf(i), i == currentPage);
+            btn.addActionListener(e -> {
+                currentPage = pageNum;
+                loadDataToTable();
+            });
+            paginationNumberPanel.add(btn);
+        }
+
+        btnPrevPage.setEnabled(currentPage > 1);
+        btnNextPage.setEnabled(currentPage < totalPages);
+
+        paginationNumberPanel.revalidate();
+        paginationNumberPanel.repaint();
+    }
+
+
+    // PHÂN TRANG
+    private JButton createPaginationButton(String text, boolean isSelected) {
+        JButton btn = new JButton(text);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(40, 35));
+        btn.setMargin(new Insets(0, 0, 0, 0));
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Roboto", isSelected ? Font.BOLD : Font.PLAIN, 13));
+
+        if (isSelected) {
+            btn.setBackground(COLOR_PRIMARY);
+            btn.setForeground(Color.WHITE);
+        } else {
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(COLOR_TEXT_LABEL);
+        }
+        return btn;
+    }
+
+    private JPanel createPaginationPanel() {
+        JPanel p = new JPanel(new BorderLayout(10, 0));
+        p.setBackground(COLOR_BG_MAIN);
+        p.setBorder(new EmptyBorder(5, 10, 5, 10));
+
+        JPanel pnlCenter = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        pnlCenter.setBackground(COLOR_BG_MAIN);
+
+        // Khởi tạo các nút điều hướng bằng hàm createPaginationButton
+        btnPrevPage = createPaginationButton("<", false);
+        btnNextPage = createPaginationButton(">", false);
+        paginationNumberPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        paginationNumberPanel.setBackground(COLOR_BG_MAIN);
+
+        pnlCenter.add(btnPrevPage);
+        pnlCenter.add(paginationNumberPanel);
+        pnlCenter.add(btnNextPage);
+
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlRight.setBackground(COLOR_BG_MAIN);
+        pnlRight.add(new JLabel("Số dòng/trang:"));
+        cbPageSize = new JComboBox<>(new Integer[]{10, 15, 20});
+        cbPageSize.setSelectedItem(pageSize);
+        pnlRight.add(cbPageSize);
+
+        p.add(pnlCenter, BorderLayout.CENTER);
+        p.add(pnlRight, BorderLayout.EAST);
+
+        // Sự kiện chuyển trang
+        cbPageSize.addActionListener(e -> {
+            pageSize = (Integer) cbPageSize.getSelectedItem();
+            currentPage = 1;
+            loadDataToTable();
+        });
+
+        btnPrevPage.addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                loadDataToTable();
+            }
+        });
+
+        btnNextPage.addActionListener(e -> {
+            int totalPages = (int) Math.ceil((double) totalRows / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadDataToTable();
+            }
+        });
+
+        return p;
     }
 
     private void applyPlaceholder(JTextField field, String placeholder) {

@@ -123,4 +123,45 @@ public class NhatKyAuditDAO extends AbstractGenericDAO<NhatKyAudit, String> impl
                         .getResultList()
         );
     }
+
+    @Override
+    public List<NhatKyAudit> layDanhSachPhanTrang(int page, int pageSize, LocalDate tu, LocalDate den, String maNV, String loai) {
+        return doInTransaction(em -> {
+            StringBuilder jpql = new StringBuilder("SELECT a FROM NhatKyAudit a WHERE 1=1");
+            if (tu != null) jpql.append(" AND a.thoiDiemThaoTac >= :tu");
+            if (den != null) jpql.append(" AND a.thoiDiemThaoTac <= :den");
+            if (maNV != null && !maNV.isEmpty()) jpql.append(" AND a.nhanVienID = :maNV");
+            if (loai != null && !loai.isEmpty()) jpql.append(" AND a.loaiThaoTac = :loai");
+            jpql.append(" ORDER BY a.thoiDiemThaoTac DESC");
+
+            var query = em.createQuery(jpql.toString(), NhatKyAudit.class);
+            if (tu != null) query.setParameter("tu", tu.atStartOfDay());
+            if (den != null) query.setParameter("den", den.atTime(23, 59, 59));
+            if (maNV != null && !maNV.isEmpty()) query.setParameter("maNV", maNV);
+            if (loai != null && !loai.isEmpty()) query.setParameter("loai", entity.type.NhatKyAudit.valueOf(loai));
+
+            return query.setFirstResult((page - 1) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        });
+    }
+
+    @Override
+    public long demTongSoDong(LocalDate tu, LocalDate den, String maNV, String loai) {
+        return doInTransaction(em -> {
+            StringBuilder jpql = new StringBuilder("SELECT COUNT(a) FROM NhatKyAudit a WHERE 1=1");
+            if (tu != null) jpql.append(" AND a.thoiDiemThaoTac >= :tu");
+            if (den != null) jpql.append(" AND a.thoiDiemThaoTac <= :den");
+            if (maNV != null && !maNV.isEmpty()) jpql.append(" AND a.nhanVienID = :maNV");
+            if (loai != null && !loai.isEmpty()) jpql.append(" AND a.loaiThaoTac = :loai");
+
+            var query = em.createQuery(jpql.toString(), Long.class);
+            if (tu != null) query.setParameter("tu", tu.atStartOfDay());
+            if (den != null) query.setParameter("den", den.atTime(23, 59, 59));
+            if (maNV != null && !maNV.isEmpty()) query.setParameter("maNV", maNV);
+            if (loai != null && !loai.isEmpty()) query.setParameter("loai", entity.type.NhatKyAudit.valueOf(loai));
+
+            return query.getSingleResult();
+        });
+    }
 }

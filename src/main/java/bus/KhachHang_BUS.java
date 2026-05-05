@@ -71,10 +71,6 @@ public class KhachHang_BUS {
 
     // ================= CẬP NHẬT KHÁCH HÀNG =================
 
-    public boolean capNhatLoaiKhachHang(KhachHang kh) {
-        return khachHangDAO.capNhatLoaiKhachHang(kh);
-    }
-
     public boolean capNhatKhachHang(KhachHangDTO kh) {
         if (kh == null) return false;
         KhachHang khachHang = KhachHangMapper.INSTANCE.toEntity(kh);
@@ -185,7 +181,6 @@ public class KhachHang_BUS {
             thayDoi.append("Cập nhật số giấy tờ: (").append(cu.getSoGiayTo()).append(") -> (").append(moi.getSoGiayTo()).append(")\n");
         }
 
-        // SỬA TẠI ĐÂY: Trích xuất ID ra trước để so sánh chuỗi, tránh Lazy Loading
         String maLKHCu = cu.getLoaiKhachHang() != null ? cu.getLoaiKhachHang().getLoaiKhachHangID() : null;
         String maLKHMoi = moi.getLoaiKhachHang() != null ? moi.getLoaiKhachHang().getLoaiKhachHangID() : null;
         if (!Objects.equals(maLKHCu, maLKHMoi)) {
@@ -194,7 +189,6 @@ public class KhachHang_BUS {
             thayDoi.append("Cập nhật loại khách hàng: (").append(descCu).append(") -> (").append(descMoi).append(")\n");
         }
 
-        // SỬA TẠI ĐÂY: Trích xuất ID ra trước để so sánh chuỗi, tránh Lazy Loading
         String maLDTCu = cu.getLoaiDoiTuong() != null ? cu.getLoaiDoiTuong().getLoaiDoiTuongID() : null;
         String maLDTMoi = moi.getLoaiDoiTuong() != null ? moi.getLoaiDoiTuong().getLoaiDoiTuongID() : null;
         if (!Objects.equals(maLDTCu, maLDTMoi)) {
@@ -216,5 +210,14 @@ public class KhachHang_BUS {
 
     public List<String> layTop10HoTen(String hoTen) {
         return khachHangDAO.getTop10HoTen(hoTen);
+    }
+
+    // PHÂN TRANG
+    public List<KhachHang> getKhachHangPhanTrang(int page, int pageSize) {
+        return khachHangDAO.getKhachHangPhanTrang(page, pageSize);
+    }
+
+    public long getTotalKhachHang() {
+        return khachHangDAO.getTotalKhachHang();
     }
 }

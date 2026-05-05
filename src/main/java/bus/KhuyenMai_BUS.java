@@ -150,10 +150,6 @@ public class KhuyenMai_BUS {
         return khuyenMaiDAO.taoMaDieuKienTuDong();
     }
 
-    public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        return themKhuyenMai(km, dkkm, nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : "SYSTEM");
-    }
-
     public boolean themKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm, String nguoiThucHienID) {
         if (km == null || dkkm == null) return false;
 
@@ -169,9 +165,6 @@ public class KhuyenMai_BUS {
         return ok;
     }
 
-    public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm) {
-        return suaKhuyenMai(km, dkkm, nhanVienHienTai != null ? nhanVienHienTai.getNhanVienID() : "SYSTEM");
-    }
 
     public boolean suaKhuyenMai(KhuyenMai km, DieuKienKhuyenMai dkkm, String nguoiThucHienID) {
         if (km == null || dkkm == null) return false;
