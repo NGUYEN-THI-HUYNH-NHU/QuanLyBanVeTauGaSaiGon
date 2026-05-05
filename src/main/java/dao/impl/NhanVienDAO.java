@@ -146,10 +146,10 @@ public class NhanVienDAO extends AbstractGenericDAO<NhanVien, String> implements
     public NhanVien getNhanVienByTenDangNhap(String tenDangNhap) {
         try {
             return doInTransaction(em ->
-                    em.createQuery("SELECT n FROM NhanVien n " +
+                    em.createQuery("SELECT n FROM TaiKhoan t JOIN t.nhanVien n " +
                                     "LEFT JOIN FETCH n.caLam " +
                                     "LEFT JOIN FETCH n.vaiTroNhanVien " +
-                                    "WHERE n IN (SELECT t.nhanVien FROM TaiKhoan t WHERE t.tenDangNhap = :tenDangNhap)", NhanVien.class)
+                                    "WHERE t.tenDangNhap = :tenDangNhap", NhanVien.class)
                             .setParameter("tenDangNhap", tenDangNhap)
                             .getSingleResult()
             );

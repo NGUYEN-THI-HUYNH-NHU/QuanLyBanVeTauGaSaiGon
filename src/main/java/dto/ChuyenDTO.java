@@ -21,6 +21,6 @@ public class ChuyenDTO implements Serializable {
     private LocalTime gioDi;
     private LocalDate ngayDen;
     private LocalTime gioDen;
-    private int soChoDat;
-    private int soChoTrong;
+    private Integer soChoDat;
+    private Integer soChoTrong;
 }

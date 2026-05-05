@@ -108,11 +108,8 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
                 String end = (bg.getNgayKetThuc() != null) ? bg.getNgayKetThuc().toString() : "∞";
                 return start + " -> " + end;
             case COL_GIA:
-                if (bg.getGiaCoBan() > 0) {
-                    return "Cố định: " + formatVND(bg.getGiaCoBan());
-                } else {
-                    return formatVND(bg.getDonGiaTrenKm()) + " / Km";
-                }
+                if (bg.getGiaCoBan() != null) return "Cố định: " + formatVND(bg.getGiaCoBan());
+                else return formatVND(bg.getDonGiaTrenKm()) + " / Km";
             case COL_XEM:
                 return "Xem";
             case COL_SUA:

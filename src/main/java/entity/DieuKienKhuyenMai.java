@@ -58,5 +58,5 @@ public class DieuKienKhuyenMai implements Serializable {
     private boolean ngayLe;
 
     @Column(name = "minGiaTriDonHang", precision = 12, scale = 2)
-    private double minGiaTriDonHang;
+    private Double minGiaTriDonHang;
 }

@@ -17,7 +17,7 @@ public class DieuKienKhuyenMaiDTO implements Serializable {
     private String loaiTauID;
     private String hangToaID;
     private String loaiDoiTuongID;
-    private int ngayTrongTuan;
+    private Integer ngayTrongTuan;
     private boolean ngayLe;
-    private double minGiaTriDonHang;
+    private Double minGiaTriDonHang;
 }

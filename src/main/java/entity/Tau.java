@@ -42,19 +42,19 @@ public class Tau implements Serializable {
     private LoaiTau loaiTau;
 
     @Column(name = "soLuongToa", nullable = false)
-    private int soLuongToa;
+    private Integer soLuongToa;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 50)
     private TrangThaiTau trangThai;
 
     @Column(name = "vanTocTB", nullable = false)
-    private int vanTocTB;
+    private Integer vanTocTB;
 
     @OneToMany(mappedBy = "tau", fetch = FetchType.LAZY)
     private Set<Toa> toas;
 
-    public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, TrangThaiTau trangThai) {
+    public Tau(String tauID, String tenTau, LoaiTau loaiTau, Integer soLuongToa, TrangThaiTau trangThai) {
         super();
         this.tauID = tauID;
         this.tenTau = tenTau;
@@ -63,7 +63,7 @@ public class Tau implements Serializable {
         this.trangThai = trangThai;
     }
 
-    public Tau(String tauID, String tenTau, LoaiTau loaiTau, int soLuongToa, TrangThaiTau trangThai, int vanTocTB) {
+    public Tau(String tauID, String tenTau, LoaiTau loaiTau, Integer soLuongToa, TrangThaiTau trangThai, Integer vanTocTB) {
         this.tauID = tauID;
         this.tenTau = tenTau;
         this.loaiTau = loaiTau;

@@ -110,8 +110,8 @@ public class DatCho_BUS {
                 thoiDiemDatCho(now).build();
     }
 
-    public boolean themDonDatCho(DonDatCho donDatCho) throws Exception {
-        return ddcDAO.insertDonDatCho(donDatCho);
+    public boolean themDonDatCho(DonDatCho donDatCho) {
+        return ddcDAO.create(donDatCho) != null;
     }
 
     /**

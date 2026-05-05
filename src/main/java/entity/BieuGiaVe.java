@@ -38,22 +38,22 @@ public class BieuGiaVe implements Serializable {
     private HangToa hangToaApDung;
 
     @Column(name = "minKm", nullable = false)
-    private int minKm;
+    private Integer minKm;
 
     @Column(name = "maxKm", nullable = false)
-    private int maxKm;
+    private Integer maxKm;
 
     @Column(name = "donGiaTrenKm", precision = 10, scale = 4)
-    private double donGiaTrenKm;
+    private Double donGiaTrenKm;
 
     @Column(name = "giaCoBan", precision = 12, scale = 2)
-    private double giaCoBan;
+    private Double giaCoBan;
 
     @Column(name = "phuPhiCaoDiem", precision = 12, scale = 2)
-    private double phuPhiCaoDiem;
+    private Double phuPhiCaoDiem;
 
     @Column(name = "doUuTien", nullable = false)
-    private int doUuTien;
+    private Integer doUuTien;
 
     @Column(name = "ngayBatDau", nullable = false)
     private LocalDate ngayBatDau;

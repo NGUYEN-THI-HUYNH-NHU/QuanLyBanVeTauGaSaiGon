@@ -16,6 +16,6 @@ public class ToaDTO implements Serializable {
     private String loaiTauID;
     private String hangToaID;
     private String moTa;
-    private int sucChua;
-    private int soToa;
+    private Integer sucChua;
+    private Integer soToa;
 }

@@ -37,7 +37,7 @@ public class DichVuPhongChoVIP implements Serializable {
     private String dichVuPhongChoVIPID;
 
     @Column(name = "gia", nullable = false, precision = 8, scale = 2)
-    private double gia;
+    private Double gia;
 
     @Column(name = "moTa", columnDefinition = "NVARCHAR(MAX)")
     private String moTa;

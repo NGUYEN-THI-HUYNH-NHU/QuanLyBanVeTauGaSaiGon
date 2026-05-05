@@ -14,13 +14,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Tuyen_DAO {
-    private ConnectDB connectDB;
-    private Ga_DAO ga_dao;
+public class Tuyen_DAO extends AbstractGenericDAO<Tuyen, String> {
+    private ConnectDB connectDB = ConnectDB.getInstance();
+    private Ga_DAO ga_dao = new Ga_DAO();
 
     public Tuyen_DAO() {
-        connectDB = ConnectDB.getInstance();
-        ga_dao = new Ga_DAO();
+        super(Tuyen.class);
     }
 
     public List<Tuyen> getAllTuyen() {

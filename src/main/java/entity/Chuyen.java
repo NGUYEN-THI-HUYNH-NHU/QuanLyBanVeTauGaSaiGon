@@ -55,9 +55,9 @@ public class Chuyen implements Serializable {
     @Transient
     private LocalTime gioDen;
     @Transient
-    private int soChoDat;
+    private Integer soChoDat;
     @Transient
-    private int soChoTrong;
+    private Integer soChoTrong;
     @Transient
     private String tenChuyenHienThi;
     @Transient
@@ -70,7 +70,7 @@ public class Chuyen implements Serializable {
     private Ga gaDen;
 
     public Chuyen(String chuyenID, Tuyen tuyen, Tau tau, LocalDate ngayDi, LocalTime gioDi, LocalDate ngayDen,
-                  LocalTime gioDen, int soChoDat, int soChoTrong) {
+                  LocalTime gioDen, Integer soChoDat, Integer soChoTrong) {
         super();
         this.chuyenID = chuyenID;
         this.tuyen = tuyen;

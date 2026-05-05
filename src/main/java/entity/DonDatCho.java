@@ -37,11 +37,11 @@ public class DonDatCho implements Serializable {
     private LocalDateTime thoiDiemDatCho;
 
     @Transient
-    private int tongSoVe;
+    private Integer tongSoVe;
     @Transient
-    private int soVeHoan;
+    private Integer soVeHoan;
     @Transient
-    private int soVeDoi;
+    private Integer soVeDoi;
 
     public DonDatCho(String donDatChoID) {
         super();

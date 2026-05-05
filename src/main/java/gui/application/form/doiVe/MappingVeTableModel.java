@@ -235,12 +235,12 @@ public class MappingVeTableModel extends AbstractTableModel {
             }
 
             // TÍNH TOÁN LẠI TIỀN GIẢM KM
-            int tienGiam = 0;
+            double tienGiam = 0;
             if (km != null) {
                 if (km.getTyLeGiamGia() > 0) {
-                    tienGiam = (int) (veMoi.getVe().getGia() * (km.getTyLeGiamGia()));
+                    tienGiam = veMoi.getVe().getGia() * km.getTyLeGiamGia();
                 } else if (km.getTienGiamGia() > 0) {
-                    tienGiam = (int) km.getTienGiamGia();
+                    tienGiam = km.getTienGiamGia();
                 }
                 // (Có thể thêm logic giới hạn tiền giảm tối đa nếu cần)
             }

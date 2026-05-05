@@ -10,15 +10,14 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = "dieuKienKhuyenMai")
+@EqualsAndHashCode(exclude = "dieuKienKhuyenMai")
 @Entity
 @Table(name = "KhuyenMai")
 public class KhuyenMai implements Serializable {
@@ -33,10 +32,10 @@ public class KhuyenMai implements Serializable {
     private String moTa;
 
     @Column(name = "tyLeGiamGia", precision = 5, scale = 2)
-    private double tyLeGiamGia;
+    private Double tyLeGiamGia;
 
     @Column(name = "tienGiamGia", precision = 12, scale = 2)
-    private double tienGiamGia;
+    private Double tienGiamGia;
 
     @Column(name = "ngayBatDau", nullable = false)
     private LocalDate ngayBatDau;
@@ -45,10 +44,10 @@ public class KhuyenMai implements Serializable {
     private LocalDate ngayKetThuc;
 
     @Column(name = "soLuong", nullable = false)
-    private int soLuong;
+    private Integer soLuong;
 
     @Column(name = "gioiHanMoiKhachHang", nullable = false)
-    private int gioiHanMoiKhachHang;
+    private Integer gioiHanMoiKhachHang;
 
     @Column(name = "trangThai", nullable = false)
     private boolean trangThai;
@@ -56,7 +55,7 @@ public class KhuyenMai implements Serializable {
     @OneToOne(mappedBy = "khuyenMai", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DieuKienKhuyenMai dieuKienKhuyenMai;
 
-    public KhuyenMai(String khuyenMaiID, String maKhuyenMai, String moTa, double tyLeGiamGia, double tienGiamGia, LocalDate ngayBatDau, LocalDate ngayKetThuc, int soLuong, int gioiHanMoiKhachHang, boolean trangThai) {
+    public KhuyenMai(String khuyenMaiID, String maKhuyenMai, String moTa, Double tyLeGiamGia, Double tienGiamGia, LocalDate ngayBatDau, LocalDate ngayKetThuc, Integer soLuong, Integer gioiHanMoiKhachHang, boolean trangThai) {
         this.khuyenMaiID = khuyenMaiID;
         this.maKhuyenMai = maKhuyenMai;
         this.moTa = moTa;

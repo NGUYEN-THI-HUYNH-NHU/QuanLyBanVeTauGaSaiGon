@@ -34,25 +34,6 @@ public class BieuGiaVeDAO extends AbstractGenericDAO<BieuGiaVe, String> implemen
     }
 
     @Override
-    public List<BieuGiaVe> getAllBieuGia() {
-        return doInTransaction(em -> {
-            List<BieuGiaVe> list = new ArrayList<>();
-            String sql = "SELECT bieuGiaVeID, tuyenApDungID, loaiTauApDungID, hangToaApDungID, minKm, maxKm, donGiaTrenKm, giaCoBan, phuPhiCaoDiem, doUuTien, ngayBatDau, ngayKetThuc " +
-                    "FROM BieuGiaVe ORDER BY doUuTien DESC, ngayBatDau DESC";
-            Query query = em.createNativeQuery(sql);
-            try {
-                List<Object[]> results = query.getResultList();
-                for (Object[] rs : results) {
-                    list.add(mapRow(rs));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return list;
-        });
-    }
-
-    @Override
     public List<BieuGiaVe> getBieuGiaTheoTieuChi(String tuKhoa, String maTuyen, String loaiTau) {
         return doInTransaction(em -> {
             List<BieuGiaVe> list = new ArrayList<>();
@@ -123,97 +104,5 @@ public class BieuGiaVeDAO extends AbstractGenericDAO<BieuGiaVe, String> implemen
         }
 
         return bg;
-    }
-
-    @Override
-    public boolean themBieuGia(BieuGiaVe bg) {
-        return doInTransaction(em -> {
-            String sql = "INSERT INTO BieuGiaVe(bieuGiaVeID, tuyenApDungID, loaiTauApDungID, hangToaApDungID, "
-                    + "minKm, maxKm, donGiaTrenKm, giaCoBan, phuPhiCaoDiem, doUuTien, ngayBatDau, ngayKetThuc) "
-                    + "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, bg.getBieuGiaVeID());
-            query.setParameter(2, bg.getTuyenApDung() != null ? bg.getTuyenApDung().getTuyenID() : null);
-            query.setParameter(3, bg.getLoaiTauApDung() != null ? bg.getLoaiTauApDung().getLoaiTauID() : null);
-            query.setParameter(4, bg.getHangToaApDung() != null ? bg.getHangToaApDung().getHangToaID() : null);
-            query.setParameter(5, bg.getMinKm());
-            query.setParameter(6, bg.getMaxKm());
-
-            if (bg.getDonGiaTrenKm() > 0) {
-                query.setParameter(7, bg.getDonGiaTrenKm());
-                query.setParameter(8, null);
-            } else {
-                query.setParameter(7, null);
-                query.setParameter(8, bg.getGiaCoBan());
-            }
-
-            query.setParameter(9, bg.getPhuPhiCaoDiem());
-            query.setParameter(10, bg.getDoUuTien());
-            query.setParameter(11, bg.getNgayBatDau() != null ? Date.valueOf(bg.getNgayBatDau()) : null);
-            query.setParameter(12, bg.getNgayKetThuc() != null ? Date.valueOf(bg.getNgayKetThuc()) : null);
-
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    @Override
-    public boolean capNhatBieuGia(BieuGiaVe bg) {
-        return doInTransaction(em -> {
-            String sql = "UPDATE BieuGiaVe SET tuyenApDungID=?1, loaiTauApDungID=?2, hangToaApDungID=?3, "
-                    + "minKm=?4, maxKm=?5, donGiaTrenKm=?6, giaCoBan=?7, phuPhiCaoDiem=?8, doUuTien=?9, "
-                    + "ngayBatDau=?10, ngayKetThuc=?11 WHERE bieuGiaVeID=?12";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, bg.getTuyenApDung() != null ? bg.getTuyenApDung().getTuyenID() : null);
-            query.setParameter(2, bg.getLoaiTauApDung() != null ? bg.getLoaiTauApDung().getLoaiTauID() : null);
-            query.setParameter(3, bg.getHangToaApDung() != null ? bg.getHangToaApDung().getHangToaID() : null);
-            query.setParameter(4, bg.getMinKm());
-            query.setParameter(5, bg.getMaxKm());
-
-            if (bg.getDonGiaTrenKm() > 0) {
-                query.setParameter(6, bg.getDonGiaTrenKm());
-                query.setParameter(7, null);
-            } else {
-                query.setParameter(6, null);
-                query.setParameter(7, bg.getGiaCoBan());
-            }
-
-            query.setParameter(8, bg.getPhuPhiCaoDiem());
-            query.setParameter(9, bg.getDoUuTien());
-            query.setParameter(10, bg.getNgayBatDau() != null ? Date.valueOf(bg.getNgayBatDau()) : null);
-            query.setParameter(11, bg.getNgayKetThuc() != null ? Date.valueOf(bg.getNgayKetThuc()) : null);
-            query.setParameter(12, bg.getBieuGiaVeID());
-
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    @Override
-    public boolean xoaBieuGia(String id) {
-        return doInTransaction(em -> {
-            String sql = "DELETE FROM BieuGiaVe WHERE bieuGiaVeID = ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, id);
-            return query.executeUpdate() > 0;
-        });
-    }
-
-    @Override
-    public BieuGiaVe getBieuGiaByID(String id) {
-        return doInTransaction(em -> {
-            String sql = "SELECT bieuGiaVeID, tuyenApDungID, loaiTauApDungID, hangToaApDungID, minKm, maxKm, donGiaTrenKm, giaCoBan, phuPhiCaoDiem, doUuTien, ngayBatDau, ngayKetThuc " +
-                    "FROM BieuGiaVe WHERE bieuGiaVeID = ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, id);
-
-            try {
-                List<Object[]> rsList = query.getResultList();
-                if (rsList != null && !rsList.isEmpty()) {
-                    return mapRow(rsList.get(0));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
     }
 }

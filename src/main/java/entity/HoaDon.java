@@ -45,13 +45,13 @@ public class HoaDon implements Serializable {
     private LocalDateTime thoiDiemTao;
 
     @Column(name = "tongTien", nullable = false, precision = 12, scale = 2)
-    private double tongTien;
+    private Double tongTien;
 
     @Column(name = "tienNhan", nullable = false, precision = 12, scale = 2)
-    private double tienNhan;
+    private Double tienNhan;
 
     @Column(name = "tienHoan", precision = 12, scale = 2)
-    private double tienHoan;
+    private Double tienHoan;
 
     @Column(name = "isThanhToanTienMat", nullable = false)
     private boolean thanhToanTienMat;

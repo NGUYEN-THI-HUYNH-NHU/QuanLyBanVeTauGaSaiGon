@@ -48,7 +48,7 @@ public abstract class AbstractGenericDAO<T, ID extends Serializable> implements 
     @Override
     public T create(T entity) {
         return doInTransaction(em -> {
-            em.persist(entity);
+            em.merge(entity);
             return entity;
         });
     }

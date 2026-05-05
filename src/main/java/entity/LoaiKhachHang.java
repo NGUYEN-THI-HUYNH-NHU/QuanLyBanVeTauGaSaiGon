@@ -30,10 +30,6 @@ public class LoaiKhachHang implements Serializable {
     @Column(name = "moTa", nullable = false)
     private String moTa;
 
-    public LoaiKhachHang(String loaiKhachHangID) {
-        this.loaiKhachHangID = loaiKhachHangID;
-    }
-
     public String getDescription() {
         return this.moTa;
     }

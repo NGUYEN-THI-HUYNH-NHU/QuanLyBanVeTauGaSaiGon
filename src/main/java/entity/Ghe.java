@@ -38,12 +38,12 @@ public class Ghe implements Serializable {
     private Toa toa;
 
     @Column(name = "soGhe", nullable = false)
-    private int soGhe;
+    private Integer soGhe;
 
     @Transient
     private TrangThaiGhe trangThai;
 
-    public Ghe(String gheID, int soGhe) {
+    public Ghe(String gheID, Integer soGhe) {
         super();
         this.gheID = gheID;
         this.soGhe = soGhe;
@@ -54,7 +54,7 @@ public class Ghe implements Serializable {
         this.gheID = gheID;
     }
 
-    public Ghe(String gheID, Toa toa, int soGhe) {
+    public Ghe(String gheID, Toa toa, Integer soGhe) {
         super();
         this.gheID = gheID;
         this.toa = toa;

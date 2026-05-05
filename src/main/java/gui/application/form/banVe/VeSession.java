@@ -10,6 +10,8 @@ import dto.PhieuGiuChoChiTietDTO;
 import dto.VeDTO;
 import entity.KhuyenMai;
 import entity.SuDungKhuyenMai;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -20,16 +22,18 @@ import java.util.Objects;
  * VeSession — đại diện 1 dòng trong giỏ vé (chưa thanh toán). Lưu đủ thông tin
  * để hiển thị và để backend gọi hold/confirm sau này.
  */
+@Setter
+@Getter
 public class VeSession {
     private final LocalDateTime thoiDiemHetHan;
     private VeDTO ve;
     private PhieuGiuChoChiTietDTO phieuGiuChoChiTiet;
     private PhieuDungPhongVIPDTO phieuDungPhongVIP;
-    private int phiPhieuDungPhongChoVIP;
+    private double phiPhieuDungPhongChoVIP;
     private KhuyenMai khuyenMaiApDung = null;
-    private int giamKM;
+    private double giamKM;
     private SuDungKhuyenMai suDungKhuyenMai;
-    private int giamDoiTuong;
+    private double giamDoiTuong;
 
     public VeSession(VeDTO ve, KhuyenMai khuyenMaiApDung, int giamKM, LocalDateTime thoiDiemHetHan) {
         super();
@@ -45,78 +49,10 @@ public class VeSession {
         this.thoiDiemHetHan = null;
     }
 
-    public int getGiamDoiTuong() {
-        return giamDoiTuong;
-    }
-
-    public void setGiamDoiTuong(int giamDoiTuong) {
-        this.giamDoiTuong = giamDoiTuong;
-    }
-
-    public LocalDateTime getThoiDiemHetHan() {
-        return thoiDiemHetHan;
-    }
-
-    public PhieuGiuChoChiTietDTO getPhieuGiuChoChiTiet() {
-        return phieuGiuChoChiTiet;
-    }
-
-    public void setPhieuGiuChoChiTiet(PhieuGiuChoChiTietDTO phieuGiuChoChiTiet) {
-        this.phieuGiuChoChiTiet = phieuGiuChoChiTiet;
-    }
-
-    public VeDTO getVe() {
-        return ve;
-    }
-
-    public void setVe(VeDTO ve) {
-        this.ve = ve;
-    }
-
-    public PhieuDungPhongVIPDTO getPhieuDungPhongVIP() {
-        return phieuDungPhongVIP;
-    }
-
-    public void setPhieuDungPhongVIP(PhieuDungPhongVIPDTO phieuDungPhongVIP) {
-        this.phieuDungPhongVIP = phieuDungPhongVIP;
-    }
-
-    public int getPhiPhieuDungPhongChoVIP() {
-        return phiPhieuDungPhongChoVIP;
-    }
-
-    public void setPhiPhieuDungPhongChoVIP(int phiPhieuDungPhongChoVIP) {
-        this.phiPhieuDungPhongChoVIP = phiPhieuDungPhongChoVIP;
-    }
-
-    public int getGiamKM() {
-        return giamKM;
-    }
-
-    public void setGiamKM(int giamKM) {
-        this.giamKM = giamKM;
-    }
-
-    public KhuyenMai getKhuyenMaiApDung() {
-        return khuyenMaiApDung;
-    }
-
-    public void setKhuyenMaiApDung(KhuyenMai khuyenMaiApDung) {
-        this.khuyenMaiApDung = khuyenMaiApDung;
-    }
-
     public int getSoGhe() {
         return this.ve.getSoGhe();
     }
-
-    public SuDungKhuyenMai getSuDungKhuyenMai() {
-        return suDungKhuyenMai;
-    }
-
-    public void setSuDungKhuyenMai(SuDungKhuyenMai suDungKhuyenMai) {
-        this.suDungKhuyenMai = suDungKhuyenMai;
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {

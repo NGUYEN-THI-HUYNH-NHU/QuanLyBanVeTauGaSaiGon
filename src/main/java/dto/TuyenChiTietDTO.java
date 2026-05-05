@@ -14,6 +14,6 @@ public class TuyenChiTietDTO implements Serializable {
     private String tuyenID;
     private String gaID;
     private String tenGa;
-    private int thuTu;
-    private int khoangCachTuGaXuatPhatKm;
+    private Integer thuTu;
+    private Integer khoangCachTuGaXuatPhatKm;
 }
