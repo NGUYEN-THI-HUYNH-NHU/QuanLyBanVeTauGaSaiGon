@@ -12,6 +12,8 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
+import lombok.Getter;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Getter
 public class PanelBuoc5 extends JPanel {
     private static final int[] MENHGIAVND = {1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000};
     private static final String TIEN_MAT_CARD = "TienMat";
@@ -330,15 +333,6 @@ public class PanelBuoc5 extends JPanel {
         });
     }
 
-    public int getTongThanhToan() {
-        return tongThanhToan;
-    }
-
-    public int getTienKhachDua() {
-        String text = txtTienKhachDua.getText().replace(".", "").replace(",", "");
-        return Integer.parseInt(text);
-    }
-
     private List<Integer> generateSuggestions(int total) {
         Set<Integer> suggestions = new LinkedHashSet<>();
 
@@ -512,8 +506,7 @@ public class PanelBuoc5 extends JPanel {
         }
         txtTienKhachDua.setEnabled(enabled);
         btnXacNhanVaInCash.setEnabled(enabled);
-        // Don't disable lblTienThoiLai visually
-        // lblTienThoiLai.setEnabled(enabled);
+        lblTienThoiLai.setEnabled(enabled);
     }
 
     /**
@@ -525,18 +518,6 @@ public class PanelBuoc5 extends JPanel {
                 c.setEnabled(enabled);
             }
         }
-    }
-
-    public JButton getBtnXacNhanVaInCash() {
-        return btnXacNhanVaInCash;
-    }
-
-    public JRadioButton getRadChuyenKhoan() {
-        return radChuyenKhoan;
-    }
-
-    public JRadioButton getRadTienMat() {
-        return radTienMat;
     }
 
     public boolean isThanhToanTienMat() {
@@ -552,9 +533,5 @@ public class PanelBuoc5 extends JPanel {
         // Cập nhật trạng thái các panel con
         setTienMatPanelEnabled(isCash);
         setQRCodePanelEnabled(isQR);
-    }
-
-    public JLabel getLblQRCodeDisplay() {
-        return lblQRCodeDisplay;
     }
 }

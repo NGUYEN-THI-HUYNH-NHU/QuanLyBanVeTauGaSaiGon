@@ -28,9 +28,24 @@ public class BieuGiaVeDAO extends AbstractGenericDAO<BieuGiaVe, String> implemen
     }
 
     @Override
+    public List<BieuGiaVe> findAll() {
+        return doInTransaction(em -> {
+            String jpql = "SELECT b FROM BieuGiaVe b " +
+                    "LEFT JOIN FETCH b.loaiTauApDung " +
+                    "LEFT JOIN FETCH b.hangToaApDung " +
+                    "LEFT JOIN FETCH b.tuyenApDung";
+            return em.createQuery(jpql, BieuGiaVe.class).getResultList();
+        });
+    }
+
+    @Override
     public List<BieuGiaVe> getBieuGiaTheoTieuChi(String tuKhoa, String maTuyen, String loaiTau) {
         return doInTransaction(em -> {
-            StringBuilder jpql = new StringBuilder("SELECT b FROM BieuGiaVe b WHERE 1=1");
+            StringBuilder jpql = new StringBuilder("SELECT b FROM BieuGiaVe b " +
+                    "LEFT JOIN FETCH b.loaiTauApDung " +
+                    "LEFT JOIN FETCH b.hangToaApDung " +
+                    "LEFT JOIN FETCH b.tuyenApDung " +
+                    "WHERE 1=1");
 
             if (tuKhoa != null && !tuKhoa.trim().isEmpty()) jpql.append(" AND b.bieuGiaVeID LIKE :tuKhoa");
             if (maTuyen != null && !maTuyen.equalsIgnoreCase("Tất cả") && !maTuyen.isEmpty())

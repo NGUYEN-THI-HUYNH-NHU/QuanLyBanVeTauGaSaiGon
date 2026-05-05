@@ -15,7 +15,6 @@ package bus;
 import dao.impl.VeDAO;
 import dto.*;
 import entity.Ga;
-import entity.KhuyenMai;
 import entity.Ve;
 import entity.type.TrangThaiVe;
 import gui.application.form.banVe.BookingSession;
@@ -24,6 +23,7 @@ import gui.application.form.banVe.VeSession;
 import gui.application.form.doiVe.ExchangeSession;
 import mapper.ChuyenMapper;
 import mapper.GheMapper;
+import mapper.KhuyenMaiMapper;
 import mapper.VeMapper;
 
 import java.time.LocalDateTime;
@@ -59,8 +59,7 @@ public class Ve_BUS {
         veDTO.setHangToaID(toa.getHangToaID());
         veDTO.setSoToa(toa.getSoToa());
 
-        // TODO: tim khuyen mai
-        KhuyenMai khuyenMai = khuyenMaiBUS.timKhuyenMaiChoVe(ve);
+        KhuyenMaiDTO khuyenMai = KhuyenMaiMapper.INSTANCE.toDTO(khuyenMaiBUS.timKhuyenMaiChoVe(ve));
         int giamKM = 0;
 
         return new VeSession(veDTO, khuyenMai, giamKM, thoiDiemHetHan);
@@ -170,11 +169,9 @@ public class Ve_BUS {
      * @param dsVe
      * @return boolean
      */
-    public boolean themCacVe(List<Ve> dsVe) throws Exception {
+    public boolean themCacVe(List<Ve> dsVe) {
         for (Ve v : dsVe) {
-            if (veDAO.create(v) != null) {
-                return false;
-            }
+            if (veDAO.create(v) == null) return false;
         }
         return true;
 

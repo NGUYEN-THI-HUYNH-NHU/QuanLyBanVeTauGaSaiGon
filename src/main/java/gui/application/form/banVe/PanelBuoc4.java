@@ -12,7 +12,7 @@ package gui.application.form.banVe;
  * @version: 1.0
  */
 
-import entity.KhuyenMai;
+import dto.KhuyenMaiDTO;
 import entity.type.LoaiDoiTuongEnums;
 import gui.tuyChinh.CurrencyRenderer;
 
@@ -44,7 +44,7 @@ public class PanelBuoc4 extends JPanel {
         };
         table = new JTable(model);
         table.setRowHeight(110);
-       
+
         table.getColumnModel().getColumn(0).setMaxWidth(36);
         table.getColumnModel().getColumn(1).setPreferredWidth(180);
         table.getColumnModel().getColumn(2).setPreferredWidth(120);
@@ -141,6 +141,6 @@ public class PanelBuoc4 extends JPanel {
     }
 
     public interface KhuyenMaiProvider {
-        List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
+        List<KhuyenMaiDTO> getKhuyenMaiFor(VeSession veSession);
     }
 }

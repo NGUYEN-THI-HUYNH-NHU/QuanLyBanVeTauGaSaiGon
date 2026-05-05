@@ -6,8 +6,6 @@ package gui.application.form.bieuGia;
  */
 
 import dto.BieuGiaVeDTO;
-import entity.type.HangToaEnums;
-import entity.type.LoaiTauEnums;
 
 import javax.swing.table.AbstractTableModel;
 import java.text.NumberFormat;
@@ -98,9 +96,9 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
             case COL_TUYEN:
                 return (bg.getTuyenApDungID() == null ? "Tất cả" : bg.getTuyenApDungID());
             case COL_TAU:
-                return (bg.getLoaiTauApDungID() == null ? "Tất cả" : LoaiTauEnums.valueOf(bg.getLoaiTauApDungID()).getDescription());
+                return (bg.getLoaiTauApDungID() == null ? "Tất cả" : bg.getMoTaLoaiTau());
             case COL_TOA:
-                return (bg.getHangToaApDungID() == null ? "Tất cả" : HangToaEnums.valueOf(bg.getHangToaApDungID()).getDescription());
+                return (bg.getHangToaApDungID() == null ? "Tất cả" : bg.getMoTaHangToa());
             case COL_KHOANG_CACH:
                 return bg.getMinKm() + " - " + bg.getMaxKm() + " km";
             case COL_HIEU_LUC:
@@ -108,7 +106,7 @@ public class BieuGiaVeTableModel extends AbstractTableModel {
                 String end = (bg.getNgayKetThuc() != null) ? bg.getNgayKetThuc().toString() : "∞";
                 return start + " -> " + end;
             case COL_GIA:
-                if (bg.getGiaCoBan() != null) return "Cố định: " + formatVND(bg.getGiaCoBan());
+                if (bg.getGiaCoBan() != null && bg.getGiaCoBan() > 0) return "Cố định: " + formatVND(bg.getGiaCoBan());
                 else return formatVND(bg.getDonGiaTrenKm()) + " / Km";
             case COL_XEM:
                 return "Xem";

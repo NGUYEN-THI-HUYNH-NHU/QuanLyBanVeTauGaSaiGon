@@ -14,7 +14,9 @@ public class BieuGiaVeDTO implements Serializable {
     private String id;
     private String tuyenApDungID;
     private String loaiTauApDungID;
+    private String moTaLoaiTau;
     private String hangToaApDungID;
+    private String moTaHangToa;
     private Integer minKm;
     private Integer maxKm;
     private Double donGiaTrenKm;

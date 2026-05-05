@@ -161,14 +161,18 @@ public class BanVe2Controller {
             giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
             if (isThanhToanTienMat) {
-                double tienNhan = p5.getTienKhachDua();
-                double tienHoan = tienNhan - tongTien;
+                try {
+                    double tienNhan = Double.parseDouble(p5.getTxtTienKhachDua().getText().trim());
+                    double tienHoan = tienNhan - tongTien;
+                    giaoDich.setTongTien(tongTien);
+                    giaoDich.setTienNhan(tienNhan);
+                    giaoDich.setTienHoan(tienHoan);
 
-                giaoDich.setTongTien(tongTien);
-                giaoDich.setTienNhan(tienNhan);
-                giaoDich.setTienHoan(tienHoan);
-
-                processPaymentAndSave(giaoDich);
+                    processPaymentAndSave(giaoDich);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(p5, "Vui lòng nhập tiền khách đưa!");
+                    p5.getTxtTienKhachDua().requestFocus();
+                }
             }
         });
 

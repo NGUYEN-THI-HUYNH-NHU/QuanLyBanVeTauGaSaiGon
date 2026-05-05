@@ -12,7 +12,7 @@ package gui.application.form.doiVe;
  * @version: 1.0
  */
 
-import entity.KhuyenMai;
+import dto.KhuyenMaiDTO;
 import gui.application.form.banVe.KhuyenMaiRenderer;
 import gui.application.form.banVe.VeSession;
 import gui.tuyChinh.CurrencyTopRenderer;
@@ -134,7 +134,7 @@ public class PanelDoiVeBuoc7 extends JPanel {
     }
 
     public interface KhuyenMaiProvider {
-        List<KhuyenMai> getKhuyenMaiFor(VeSession veSession);
+        List<KhuyenMaiDTO> getKhuyenMaiFor(VeSession veSession);
     }
 
 }

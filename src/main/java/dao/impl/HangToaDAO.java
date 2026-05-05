@@ -8,7 +8,7 @@ package dao.impl;
 
 import entity.HangToa;
 
-public class HangToaDAO extends AbstractGenericDAO<HangToa, String> {
+public class HangToaDAO extends AbstractGenericDAO<HangToa, String> implements dao.IHangToaDAO {
     public HangToaDAO() {
         super(HangToa.class);
     }

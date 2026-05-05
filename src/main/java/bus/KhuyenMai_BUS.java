@@ -1,14 +1,15 @@
 package bus;
 
 import dao.impl.KhuyenMaiDAO;
+import dto.KhuyenMaiDTO;
 import dto.VeDTO;
 import entity.*;
 import entity.type.TrangThaiSDKM;
 import gui.application.AuthService;
 import gui.application.form.banVe.VeSession;
+import mapper.KhuyenMaiMapper;
 import mapper.NhanVienMapper;
 
-import java.sql.Connection;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,17 +30,17 @@ public class KhuyenMai_BUS {
 
     // ================= LOGIC NGHIỆP VỤ (PROMOTION LOGIC) =================
 
-    public static KhuyenMai getBestPromotion(VeSession veSession, List<KhuyenMai> listKM) {
+    public static KhuyenMaiDTO getBestPromotion(VeSession veSession, List<KhuyenMaiDTO> listKM) {
         if (listKM == null || listKM.isEmpty() || veSession == null || veSession.getVe() == null) {
             return null;
         }
 
-        KhuyenMai bestKM = null;
+        KhuyenMaiDTO bestKM = null;
         double maxDiscountAmount = -1.0;
         double giaVeGoc = veSession.getVe().getGia();
 
-        for (KhuyenMai km : listKM) {
-            if (km == null || !km.isTrangThai()) continue;
+        for (KhuyenMaiDTO km : listKM) {
+            if (km == null || !km.getTrangThai()) continue;
             double discountAmount = 0;
 
             if (km.getTyLeGiamGia() > 0) {
@@ -130,8 +131,9 @@ public class KhuyenMai_BUS {
         return khuyenMaiDAO.timKiemKhuyenMaiByID(khuyenMaiID);
     }
 
-    public List<KhuyenMai> getDanhSachKhuyenMaiPhuHop(VeSession veSession) {
-        return khuyenMaiDAO.getDanhSachKhuyenMaiPhuHop(veSession);
+    public List<KhuyenMaiDTO> getDanhSachKhuyenMaiPhuHop(VeSession veSession) {
+        return khuyenMaiDAO.getDanhSachKhuyenMaiPhuHop(veSession)
+                .stream().map(KhuyenMaiMapper.INSTANCE::toDTO).toList();
     }
 
     // ================= THAO TÁC CẬP NHẬT / THÊM MỚI =================
@@ -200,9 +202,9 @@ public class KhuyenMai_BUS {
     public void ganDanhSachSuDungKhuyenMai(List<VeSession> listVeSession) {
         if (listVeSession == null) return;
         for (VeSession ve : listVeSession) {
-            if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getKhuyenMaiID() != null) {
+            if (ve.getKhuyenMaiApDung() != null && ve.getKhuyenMaiApDung().getId() != null) {
                 String sdkmID = "SD-" + UUID.randomUUID();
-                ve.setSuDungKhuyenMai(new SuDungKhuyenMai(sdkmID, ve.getKhuyenMaiApDung(), null, TrangThaiSDKM.DA_AP_DUNG));
+                ve.setSuDungKhuyenMai(new SuDungKhuyenMai(sdkmID, KhuyenMaiMapper.INSTANCE.toEntity(ve.getKhuyenMaiApDung()), null, TrangThaiSDKM.DA_AP_DUNG));
             }
         }
     }
@@ -217,7 +219,7 @@ public class KhuyenMai_BUS {
 
                         int updated = em.createQuery(
                                         "UPDATE KhuyenMai km SET km.soLuong = km.soLuong - 1 WHERE km.khuyenMaiID = :id AND km.soLuong > 0")
-                                .setParameter("id", ve.getKhuyenMaiApDung().getKhuyenMaiID())
+                                .setParameter("id", ve.getKhuyenMaiApDung().getId())
                                 .executeUpdate();
 
                         if (updated == 0) {
@@ -230,10 +232,6 @@ public class KhuyenMai_BUS {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    public boolean themDanhSachSuDungKhuyenMai(Connection con, List<VeSession> listVeSession) {
-        return themDanhSachSuDungKhuyenMai(listVeSession);
     }
 
     public Map<String, Integer> layDanhSachKhuyenMaiCanHoan(List<VeDTO> listVe) {

@@ -154,19 +154,24 @@ public class DoiVe3Controller {
             giaoDich.setThanhToanTienMat(isThanhToanTienMat);
 
             if (isThanhToanTienMat) {
-                if (tongTien >= 0) {
-                    tienNhan = p8.getTienKhachDua();
-                    tienHoan = tienNhan - tongTien;
-                } else {
-                    tienNhan = 0;
-                    tienHoan = Math.abs(tongTien);
+                try {
+                    if (tongTien >= 0) {
+                        tienNhan = Double.parseDouble(p8.getTxtTienKhachDua().getText().trim());
+                        tienHoan = tienNhan - tongTien;
+                    } else {
+                        tienNhan = 0;
+                        tienHoan = Math.abs(tongTien);
+                    }
+
+                    giaoDich.setTongTien(tongTien);
+                    giaoDich.setTienNhan(tienNhan);
+                    giaoDich.setTienHoan(tienHoan);
+
+                    processPaymentAndSave(giaoDich);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(p8, "Vui lòng nhập tiền khách đưa!");
+                    p8.getTxtTienKhachDua().requestFocus();
                 }
-
-                giaoDich.setTongTien(tongTien);
-                giaoDich.setTienNhan(tienNhan);
-                giaoDich.setTienHoan(tienHoan);
-
-                processPaymentAndSave(giaoDich);
             }
         });
 

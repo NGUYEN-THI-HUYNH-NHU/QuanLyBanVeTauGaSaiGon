@@ -15,6 +15,7 @@ package gui.application.form.bieuGia;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.bieuGiaVe.BieuGia_CTRL;
 import dto.NhanVienDTO;
+import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -22,6 +23,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 
+@Getter
 public class PanelQuanLyBieuGia extends JPanel {
     private final BieuGia_CTRL controller;
     private final NhanVienDTO nhanVienThucHien;
@@ -150,53 +152,5 @@ public class PanelQuanLyBieuGia extends JPanel {
             return null;
         }
         return tableModel.getValueAt(row, 0).toString();
-    }
-
-    public JTable getTable() {
-        return table;
-    }
-
-    public void setTable(JTable table) {
-        this.table = table;
-    }
-
-    public BieuGiaVeTableModel getTableModel() {
-        return tableModel;
-    }
-
-    public JButton getBtnLamMoi() {
-        return btnLamMoi;
-    }
-
-    public void setBtnLamMoi(JButton btnLamMoi) {
-        this.btnLamMoi = btnLamMoi;
-    }
-
-    public JButton getBtnThemMoi() {
-        return btnThemMoi;
-    }
-
-    public void setBtnThemMoi(JButton btnThemMoi) {
-        this.btnThemMoi = btnThemMoi;
-    }
-
-    public JComboBox<String> getTxtTimKiem() {
-        return txtTimKiem;
-    }
-
-    public JComboBox<String> getCboLocTuyen() {
-        return cboLocTuyen;
-    }
-
-    public JComboBox<String> getCboLocTau() {
-        return cboLocTau;
-    }
-
-    public BieuGia_CTRL getController() {
-        return controller;
-    }
-
-    public NhanVienDTO getNhanVienThucHien() {
-        return nhanVienThucHien;
     }
 }

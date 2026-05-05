@@ -9,9 +9,7 @@ import dao.IDonDatChoDAO;
 import entity.DonDatCho;
 import entity.KhachHang;
 import entity.NhanVien;
-import jakarta.persistence.Query;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -27,28 +25,20 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     @Override
     public DonDatCho findDonDatChoByIDVaSoGiayTo(String donDatChoID, String soGiayTo) {
         return doInTransaction(em -> {
-            String sql = "select d.donDatChoID, d.nhanVienID, d.khachHangID, d.thoiDiemDatCho\r\n"
-                    + "from DonDatCho d join KhachHang k on d.khachHangID = k.khachHangID\r\n"
-                    + "where d.donDatChoID = ?1 and k.soGiayTo = ?2";
-
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, donDatChoID);
-            query.setParameter(2, soGiayTo);
+            String jpql = "SELECT d FROM DonDatCho d "
+                    + "JOIN FETCH d.khachHang k "
+                    + "LEFT JOIN FETCH k.loaiKhachHang "
+                    + "LEFT JOIN FETCH k.loaiDoiTuong "
+                    + "LEFT JOIN FETCH d.nhanVien "
+                    + "WHERE d.donDatChoID = :id AND k.soGiayTo = :soGiayTo";
+            var query = em.createQuery(jpql, DonDatCho.class);
+            query.setParameter("id", donDatChoID);
+            query.setParameter("soGiayTo", soGiayTo);
 
             try {
-                List<Object[]> result = query.getResultList();
-                if (result != null && !result.isEmpty()) {
-                    Object[] row = result.get(0);
-                    DonDatCho d = new DonDatCho();
-                    d.setDonDatChoID((String) row[0]);
-                    d.setNhanVien(new NhanVien((String) row[1]));
-                    d.setKhachHang(new KhachHang((String) row[2]));
-                    Timestamp t1 = (Timestamp) row[3];
-                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
-                    return d;
-                }
+                return query.getSingleResult();
             } catch (Exception e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             }
             return null;
         });
@@ -58,61 +48,49 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     public List<DonDatCho> searchDonDatChoByKeyword(String keyword, String type, int page, int limit) {
         return doInTransaction(em -> {
             List<DonDatCho> list = new ArrayList<>();
-            StringBuilder sql = new StringBuilder("SELECT \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
-                    + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai, \r\n"
-                    + "    nv.nhanVienID, nv.hoTen as hoTenNV,\r\n"
-                    + "    COUNT(v.veID) AS tongSoVe,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_HOAN' THEN 1 ELSE 0 END) AS soVeHoan,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_DOI' THEN 1 ELSE 0 END) AS soVeDoi\r\n"
-                    + "FROM DonDatCho d\r\n"
-                    + "JOIN KhachHang k ON d.khachHangID = k.khachHangID\r\n"
-                    + "JOIN NhanVien nv ON d.nhanVienID = nv.nhanVienID\r\n"
-                    + "LEFT JOIN Ve v ON d.donDatChoID = v.donDatChoID\r\n"
-                    + "WHERE 1=1");
+            StringBuilder jpql = new StringBuilder("SELECT d, k, nv, "
+                    + "COUNT(v.veID), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_HOAN THEN 1 ELSE 0 END), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_DOI THEN 1 ELSE 0 END) "
+                    + "FROM DonDatCho d "
+                    + "JOIN d.khachHang k "
+                    + "JOIN d.nhanVien nv "
+                    + "LEFT JOIN Ve v ON d = v.donDatCho "
+                    + "WHERE 1=1 ");
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 if ("Mã đặt chỗ".equals(type)) {
-                    sql.append(" AND d.donDatChoID LIKE ?1");
+                    jpql.append(" AND d.donDatChoID LIKE :keyword");
                 } else if ("Số giấy tờ".equals(type)) {
-                    sql.append(" AND k.soGiayTo LIKE ?1");
+                    jpql.append(" AND k.soGiayTo LIKE :keyword");
                 } else if ("Số điện thoại".equals(type)) {
-                    sql.append(" AND k.soDienThoai LIKE ?1");
+                    jpql.append(" AND k.soDienThoai LIKE :keyword");
                 } else if ("Tên khách hàng".equals(type)) {
-                    sql.append(" AND k.hoTen LIKE ?1");
+                    jpql.append(" AND k.hoTen LIKE :keyword");
                 }
             }
 
-            sql.append("\r\n GROUP BY \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho,\r\n"
-                    + "    k.khachHangID, k.hoTen, k.soGiayTo, k.soDienThoai,\r\n"
-                    + "    nv.nhanVienID, nv.hoTen \r\n"
-                    + "ORDER BY d.thoiDiemDatCho DESC");
+            jpql.append(" GROUP BY d, k, nv ORDER BY d.thoiDiemDatCho DESC");
 
-            Query query = em.createNativeQuery(sql.toString());
+            var query = em.createQuery(jpql.toString(), Object[].class);
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.setParameter(1, "%" + keyword.trim() + "%");
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
-            // Phân trang
             query.setFirstResult((page - 1) * limit);
             query.setMaxResults(limit);
 
             try {
                 List<Object[]> resultList = query.getResultList();
                 for (Object[] row : resultList) {
-                    DonDatCho d = new DonDatCho();
-                    d.setDonDatChoID((String) row[0]);
-                    Timestamp t1 = (Timestamp) row[1];
-                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
-
-                    d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
-                    d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
-
-                    d.setTongSoVe(((Number) row[8]).intValue());
-                    d.setSoVeHoan(row[9] != null ? ((Number) row[9]).intValue() : 0);
-                    d.setSoVeDoi(row[10] != null ? ((Number) row[10]).intValue() : 0);
-
+                    DonDatCho d = (DonDatCho) row[0];
+                    KhachHang k = (KhachHang) row[1];
+                    NhanVien nv = (NhanVien) row[2];
+                    d.setKhachHang(k);
+                    d.setNhanVien(nv);
+                    d.setTongSoVe(row[3] == null ? 0 : ((Number) row[3]).intValue());
+                    d.setSoVeHoan(row[4] == null ? 0 : ((Number) row[4]).intValue());
+                    d.setSoVeDoi(row[5] == null ? 0 : ((Number) row[5]).intValue());
                     list.add(d);
                 }
             } catch (Exception e) {
@@ -126,80 +104,63 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     public List<DonDatCho> searchDonDatChoByFilter(String tuKhoaTraCuu, String loaiTraCuu, Date tuNgay, Date denNgay, int page, int limit) {
         return doInTransaction(em -> {
             List<DonDatCho> list = new ArrayList<>();
-            StringBuilder sql = new StringBuilder("SELECT \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
-                    + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai, \r\n"
-                    + "    nv.nhanVienID, nv.hoTen as hoTenNV,\r\n"
-                    + "    COUNT(v.veID) AS tongSoVe,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_HOAN' THEN 1 ELSE 0 END) AS soVeHoan,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_DOI' THEN 1 ELSE 0 END) AS soVeDoi\r\n"
-                    + "FROM DonDatCho d\r\n"
-                    + "JOIN KhachHang k ON d.khachHangID = k.khachHangID\r\n"
-                    + "JOIN NhanVien nv ON d.nhanVienID = nv.nhanVienID\r\n"
-                    + "LEFT JOIN Ve v ON d.donDatChoID = v.donDatChoID\r\n"
-                    + "WHERE 1=1");
+            StringBuilder jpql = new StringBuilder("SELECT d, k, nv, "
+                    + "COUNT(v.veID), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_HOAN THEN 1 ELSE 0 END), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_DOI THEN 1 ELSE 0 END) "
+                    + "FROM DonDatCho d "
+                    + "JOIN d.khachHang k "
+                    + "JOIN d.nhanVien nv "
+                    + "LEFT JOIN Ve v ON d = v.donDatCho "
+                    + "WHERE 1=1 ");
 
-            List<Object> params = new ArrayList<>();
-            int paramIndex = 1;
-
-            // 1. Thêm điều kiện từ keyword (Tra cứu)
             if (tuKhoaTraCuu != null && !tuKhoaTraCuu.trim().isEmpty()) {
                 if ("Mã đặt chỗ".equals(loaiTraCuu)) {
-                    sql.append(" AND d.donDatChoID LIKE ?").append(paramIndex++);
-                    params.add("%" + tuKhoaTraCuu.trim() + "%");
+                    jpql.append(" AND d.donDatChoID LIKE :keyword");
                 } else if ("Số giấy tờ".equals(loaiTraCuu)) {
-                    sql.append(" AND k.soGiayTo LIKE ?").append(paramIndex++);
-                    params.add("%" + tuKhoaTraCuu.trim() + "%");
+                    jpql.append(" AND k.soGiayTo LIKE :keyword");
                 } else if ("Số điện thoại".equals(loaiTraCuu)) {
-                    sql.append(" AND k.soDienThoai LIKE ?").append(paramIndex++);
-                    params.add("%" + tuKhoaTraCuu.trim() + "%");
+                    jpql.append(" AND k.soDienThoai LIKE :keyword");
                 } else if ("Tên khách hàng".equals(loaiTraCuu)) {
-                    sql.append(" AND k.hoTen LIKE ?").append(paramIndex++);
-                    params.add("%" + tuKhoaTraCuu.trim() + "%");
+                    jpql.append(" AND k.hoTen LIKE :keyword");
                 }
             }
 
-            // 2. Thêm điều kiện từ filter (Ngày tháng)
             if (tuNgay != null) {
-                sql.append(" AND d.thoiDiemDatCho >= ?").append(paramIndex++);
-                params.add(new Timestamp(atStartOfDay(tuNgay).getTime()));
+                jpql.append(" AND d.thoiDiemDatCho >= :tuNgay");
             }
             if (denNgay != null) {
-                sql.append(" AND d.thoiDiemDatCho <= ?").append(paramIndex++);
-                params.add(new Timestamp(atEndOfDay(denNgay).getTime()));
+                jpql.append(" AND d.thoiDiemDatCho <= :denNgay");
             }
 
-            sql.append("\r\n GROUP BY \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho,\r\n"
-                    + "    k.khachHangID, k.hoTen, k.soGiayTo, k.soDienThoai,\r\n"
-                    + "    nv.nhanVienID, nv.hoTen \r\n"
-                    + "ORDER BY d.thoiDiemDatCho DESC");
+            jpql.append(" GROUP BY d, k, nv ORDER BY d.thoiDiemDatCho DESC");
 
-            Query query = em.createNativeQuery(sql.toString());
+            var query = em.createQuery(jpql.toString(), Object[].class);
 
-            for (int i = 0; i < params.size(); i++) {
-                query.setParameter(i + 1, params.get(i));
+            if (tuKhoaTraCuu != null && !tuKhoaTraCuu.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + tuKhoaTraCuu.trim() + "%");
+            }
+            if (tuNgay != null) {
+                query.setParameter("tuNgay", dateToLocalDateTime(atStartOfDay(tuNgay)));
+            }
+            if (denNgay != null) {
+                query.setParameter("denNgay", dateToLocalDateTime(atEndOfDay(denNgay)));
             }
 
-            // Phân trang
             query.setFirstResult((page - 1) * limit);
             query.setMaxResults(limit);
 
             try {
                 List<Object[]> resultList = query.getResultList();
                 for (Object[] row : resultList) {
-                    DonDatCho d = new DonDatCho();
-                    d.setDonDatChoID((String) row[0]);
-                    Timestamp t1 = (Timestamp) row[1];
-                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
-
-                    d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
-                    d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
-
-                    d.setTongSoVe(((Number) row[8]).intValue());
-                    d.setSoVeHoan(row[9] != null ? ((Number) row[9]).intValue() : 0);
-                    d.setSoVeDoi(row[10] != null ? ((Number) row[10]).intValue() : 0);
-
+                    DonDatCho d = (DonDatCho) row[0];
+                    KhachHang k = (KhachHang) row[1];
+                    NhanVien nv = (NhanVien) row[2];
+                    d.setKhachHang(k);
+                    d.setNhanVien(nv);
+                    d.setTongSoVe(row[3] == null ? 0 : ((Number) row[3]).intValue());
+                    d.setSoVeHoan(row[4] == null ? 0 : ((Number) row[4]).intValue());
+                    d.setSoVeDoi(row[5] == null ? 0 : ((Number) row[5]).intValue());
                     list.add(d);
                 }
             } catch (Exception e) {
@@ -213,30 +174,30 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     @Override
     public int countDonDatChoByKeyword(String keyword, String type) {
         return doInTransaction(em -> {
-            StringBuilder sql = new StringBuilder(
-                    "SELECT COUNT(d.donDatChoID) FROM DonDatCho d "
-                            + "JOIN KhachHang k ON d.khachHangID = k.khachHangID "
-                            + "WHERE 1=1");
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(d) FROM DonDatCho d "
+                            + "JOIN d.khachHang k "
+                            + "WHERE 1=1 ");
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 if ("Mã đặt chỗ".equals(type)) {
-                    sql.append(" AND d.donDatChoID LIKE ?1");
+                    jpql.append(" AND d.donDatChoID LIKE :keyword");
                 } else if ("Số giấy tờ".equals(type)) {
-                    sql.append(" AND k.soGiayTo LIKE ?1");
+                    jpql.append(" AND k.soGiayTo LIKE :keyword");
                 } else if ("Số điện thoại".equals(type)) {
-                    sql.append(" AND k.soDienThoai LIKE ?1");
+                    jpql.append(" AND k.soDienThoai LIKE :keyword");
                 } else if ("Tên khách hàng".equals(type)) {
-                    sql.append(" AND k.hoTen LIKE ?1");
+                    jpql.append(" AND k.hoTen LIKE :keyword");
                 }
             }
 
-            Query query = em.createNativeQuery(sql.toString());
+            var query = em.createQuery(jpql.toString(), Number.class);
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.setParameter(1, "%" + keyword.trim() + "%");
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
             }
 
             try {
-                return ((Number) query.getSingleResult()).intValue();
+                return query.getSingleResult().intValue();
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
@@ -247,46 +208,44 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     @Override
     public int countDonDatChoByFilter(String keyword, String type, Date tuNgay, Date denNgay) {
         return doInTransaction(em -> {
-            StringBuilder sql = new StringBuilder(
-                    "SELECT COUNT(d.donDatChoID) FROM DonDatCho d "
-                            + "JOIN KhachHang k ON d.khachHangID = k.khachHangID "
-                            + "WHERE 1=1");
-
-            List<Object> params = new ArrayList<>();
-            int paramIndex = 1;
+            StringBuilder jpql = new StringBuilder(
+                    "SELECT COUNT(d) FROM DonDatCho d "
+                            + "JOIN d.khachHang k "
+                            + "WHERE 1=1 ");
 
             if (keyword != null && !keyword.trim().isEmpty()) {
                 if ("Mã đặt chỗ".equals(type)) {
-                    sql.append(" AND d.donDatChoID LIKE ?").append(paramIndex++);
-                    params.add("%" + keyword.trim() + "%");
+                    jpql.append(" AND d.donDatChoID LIKE :keyword");
                 } else if ("Số giấy tờ".equals(type)) {
-                    sql.append(" AND k.soGiayTo LIKE ?").append(paramIndex++);
-                    params.add("%" + keyword.trim() + "%");
+                    jpql.append(" AND k.soGiayTo LIKE :keyword");
                 } else if ("Số điện thoại".equals(type)) {
-                    sql.append(" AND k.soDienThoai LIKE ?").append(paramIndex++);
-                    params.add("%" + keyword.trim() + "%");
+                    jpql.append(" AND k.soDienThoai LIKE :keyword");
                 } else if ("Tên khách hàng".equals(type)) {
-                    sql.append(" AND k.hoTen LIKE ?").append(paramIndex++);
-                    params.add("%" + keyword.trim() + "%");
+                    jpql.append(" AND k.hoTen LIKE :keyword");
                 }
             }
 
             if (tuNgay != null) {
-                sql.append(" AND d.thoiDiemDatCho >= ?").append(paramIndex++);
-                params.add(new Timestamp(atStartOfDay(tuNgay).getTime()));
+                jpql.append(" AND d.thoiDiemDatCho >= :tuNgay");
             }
             if (denNgay != null) {
-                sql.append(" AND d.thoiDiemDatCho <= ?").append(paramIndex++);
-                params.add(new Timestamp(atEndOfDay(denNgay).getTime()));
+                jpql.append(" AND d.thoiDiemDatCho <= :denNgay");
             }
 
-            Query query = em.createNativeQuery(sql.toString());
-            for (int i = 0; i < params.size(); i++) {
-                query.setParameter(i + 1, params.get(i));
+            var query = em.createQuery(jpql.toString(), Number.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("keyword", "%" + keyword.trim() + "%");
+            }
+            if (tuNgay != null) {
+                query.setParameter("tuNgay", dateToLocalDateTime(atStartOfDay(tuNgay)));
+            }
+            if (denNgay != null) {
+                query.setParameter("denNgay", dateToLocalDateTime(atEndOfDay(denNgay)));
             }
 
             try {
-                return ((Number) query.getSingleResult()).intValue();
+                return query.getSingleResult().intValue();
             } catch (Exception e) {
                 e.printStackTrace();
                 return 0;
@@ -297,9 +256,9 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     @Override
     public int countAll() {
         return doInTransaction(em -> {
-            String sql = "SELECT COUNT(D.donDatChoID) FROM DonDatCho D";
-            Query query = em.createNativeQuery(sql);
-            return ((Number) query.getSingleResult()).intValue();
+            String jpql = "SELECT COUNT(d) FROM DonDatCho d";
+            var query = em.createQuery(jpql, Number.class);
+            return query.getSingleResult().intValue();
         });
     }
 
@@ -307,45 +266,33 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     public List<DonDatCho> getDonDatChoByPage(int page, int limit) {
         return doInTransaction(em -> {
             List<DonDatCho> list = new ArrayList<>();
-            String sql = "SELECT \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho, \r\n"
-                    + "    k.khachHangID, k.hoTen as hoTenKH, k.soGiayTo, k.soDienThoai, \r\n"
-                    + "    nv.nhanVienID, nv.hoTen as hoTenNV,\r\n"
-                    + "    COUNT(v.veID) AS tongSoVe,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_HOAN' THEN 1 ELSE 0 END) AS soVeHoan,\r\n"
-                    + "    SUM(CASE WHEN v.trangThai = 'DA_DOI' THEN 1 ELSE 0 END) AS soVeDoi\r\n"
-                    + "FROM DonDatCho d\r\n"
-                    + "JOIN KhachHang k ON d.khachHangID = k.khachHangID\r\n"
-                    + "JOIN NhanVien nv ON d.nhanVienID = nv.nhanVienID\r\n"
-                    + "LEFT JOIN Ve v ON d.donDatChoID = v.donDatChoID\r\n"
-                    + "GROUP BY \r\n"
-                    + "    d.donDatChoID, d.thoiDiemDatCho,\r\n"
-                    + "    k.khachHangID, k.hoTen, k.soGiayTo, k.soDienThoai,\r\n"
-                    + "    nv.nhanVienID, nv.hoTen\r\n"
+            String jpql = "SELECT d, k, nv, "
+                    + "COUNT(v.veID), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_HOAN THEN 1 ELSE 0 END), "
+                    + "SUM(CASE WHEN v.trangThai = entity.type.TrangThaiVe.DA_DOI THEN 1 ELSE 0 END) "
+                    + "FROM DonDatCho d "
+                    + "JOIN d.khachHang k "
+                    + "JOIN d.nhanVien nv "
+                    + "LEFT JOIN Ve v ON d = v.donDatCho "
+                    + "GROUP BY d, k, nv "
                     + "ORDER BY d.thoiDiemDatCho DESC";
 
+            var query = em.createQuery(jpql, Object[].class);
 
-            Query query = em.createNativeQuery(sql);
-
-            // Phân trang dưới CSDL bằng JPA (Tự động dịch thành OFFSET ... FETCH NEXT)
             query.setFirstResult((page - 1) * limit);
             query.setMaxResults(limit);
 
             try {
                 List<Object[]> resultList = query.getResultList();
                 for (Object[] row : resultList) {
-                    DonDatCho d = new DonDatCho();
-                    d.setDonDatChoID((String) row[0]);
-                    Timestamp t1 = (Timestamp) row[1];
-                    d.setThoiDiemDatCho(t1 == null ? null : t1.toLocalDateTime());
-
-                    d.setKhachHang(new KhachHang((String) row[2], (String) row[3], (String) row[4], (String) row[5]));
-                    d.setNhanVien(new NhanVien((String) row[6], (String) row[7]));
-
-                    d.setTongSoVe(((Number) row[8]).intValue());
-                    d.setSoVeHoan(((Number) row[9]).intValue());
-                    d.setSoVeDoi(((Number) row[10]).intValue());
-
+                    DonDatCho d = (DonDatCho) row[0];
+                    KhachHang k = (KhachHang) row[1];
+                    NhanVien nv = (NhanVien) row[2];
+                    d.setKhachHang(k);
+                    d.setNhanVien(nv);
+                    d.setTongSoVe(row[3] == null ? 0 : ((Number) row[3]).intValue());
+                    d.setSoVeHoan(row[4] == null ? 0 : ((Number) row[4]).intValue());
+                    d.setSoVeDoi(row[5] == null ? 0 : ((Number) row[5]).intValue());
                     list.add(d);
                 }
             } catch (Exception e) {
@@ -359,20 +306,11 @@ public class DonDatChoDAO extends AbstractGenericDAO<DonDatCho, String> implemen
     public List<String> getTop10DonDatChoID(String donDatChoID) {
         return doInTransaction(em -> {
             List<String> list = new ArrayList<>();
-            String sql = "SELECT TOP 10 D.donDatChoID FROM DonDatCho D WHERE D.donDatChoID LIKE ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, "%" + donDatChoID + "%");
-            try {
-                List<?> results = query.getResultList();
-                for (Object rs : results) {
-                    if (rs != null) {
-                        list.add((String) rs);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return list;
+            String jpql = "SELECT d.donDatChoID FROM DonDatCho d WHERE d.donDatChoID LIKE :id";
+            var query = em.createQuery(jpql, String.class);
+            query.setParameter("id", "%" + donDatChoID + "%");
+            query.setMaxResults(10);
+            return query.getResultList();
         });
     }
 

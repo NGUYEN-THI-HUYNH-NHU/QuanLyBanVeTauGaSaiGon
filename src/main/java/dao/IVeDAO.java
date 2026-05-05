@@ -6,9 +6,9 @@ import entity.type.TrangThaiVe;
 import java.util.Date;
 import java.util.List;
 
-public interface IVeDAO {
+public interface IVeDAO extends IGenericDAO<Ve, String> {
     List<Ve> getVeByDonDatChoID(String donDatChoID);
-    
+
     List<String> getVeIDsStartingWith(String baseID);
 
     boolean updateTrangThaiVe(String veID, TrangThaiVe trangThai);

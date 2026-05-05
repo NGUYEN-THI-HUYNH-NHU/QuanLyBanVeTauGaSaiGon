@@ -12,17 +12,15 @@ package bus;
  * @version: 1.0
  */
 
-import dao.impl.BieuGiaVeDAO;
-import dao.impl.HangToaDAO;
-import dao.impl.LoaiTauDAO;
-import dao.impl.Tuyen_DAO;
+import dao.IBieuGiaVeDAO;
+import dao.IHangToaDAO;
+import dao.ILoaiTauDAO;
+import dao.IVaiTroNhanVienDAO;
+import dao.impl.*;
 import dto.BieuGiaVeDTO;
 import dto.NhanVienDTO;
 import entity.BieuGiaVe;
-import entity.type.HangToaEnums;
-import entity.type.LoaiTauEnums;
 import entity.type.NhatKyAudit;
-import entity.type.VaiTroNhanVienEnums;
 import mapper.BieuGiaVeMapper;
 
 import java.time.LocalDateTime;
@@ -33,11 +31,12 @@ import java.util.Objects;
 import java.util.Random;
 
 public class BieuGiaVe_BUS {
-    private final BieuGiaVeDAO bieuGiaVeDAO = new BieuGiaVeDAO();
-    private final HangToaDAO hangToaDAO = new HangToaDAO();
-    private final LoaiTauDAO loaiTauDAO = new LoaiTauDAO();
+    private final IBieuGiaVeDAO bieuGiaVeDAO = new BieuGiaVeDAO();
+    private final IHangToaDAO hangToaDAO = new HangToaDAO();
+    private final ILoaiTauDAO loaiTauDAO = new LoaiTauDAO();
     private final Tuyen_DAO tuyenDAO = new Tuyen_DAO();
     private final NhatKyAudit_BUS nhatKyAuditBus = new NhatKyAudit_BUS();
+    private final IVaiTroNhanVienDAO vaiTroNhanVienDAO = new VaiTroNhanVienDAO();
 
     public BieuGiaVe_BUS() {
     }
@@ -61,7 +60,7 @@ public class BieuGiaVe_BUS {
             BieuGiaVe bieuGiaVe = BieuGiaVeMapper.INSTANCE.toEntity(bg);
             normalizeBieuGiaVe(bieuGiaVe, bg);
             if (bieuGiaVeDAO.create(bieuGiaVe) != null) {
-                String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
+                String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? vaiTroNhanVienDAO.findById(nv.getVaiTroNhanVienID()).getMoTa() : "";
                 String giaLog = (bg.getDonGiaTrenKm() > 0)
                         ? String.format("%.0f đ/km", bg.getDonGiaTrenKm())
                         : String.format("Cố định %.0f VNĐ", bg.getGiaCoBan());
@@ -123,15 +122,15 @@ public class BieuGiaVe_BUS {
                     }
 
                     // 2. So sánh Loại Tàu
-                    String tauCu = (bgCu.getLoaiTauApDungID() != null) ? LoaiTauEnums.valueOf(bgCu.getLoaiTauApDungID()).getDescription() : "Tất cả";
-                    String tauMoi = (bgMoi.getLoaiTauApDungID() != null) ? LoaiTauEnums.valueOf(bgMoi.getLoaiTauApDungID()).getDescription() : "Tất cả";
+                    String tauCu = (bgCu.getLoaiTauApDungID() != null) ? bgCu.getMoTaLoaiTau() : "Tất cả";
+                    String tauMoi = (bgMoi.getLoaiTauApDungID() != null) ? bgMoi.getMoTaLoaiTau() : "Tất cả";
                     if (!tauCu.equals(tauMoi)) {
                         thayDoi.add(String.format("Loại tàu (%s -> %s)", tauCu, tauMoi));
                     }
 
                     // 3. So sánh Hạng Toa
-                    String toaCu = (bgCu.getHangToaApDungID() != null) ? HangToaEnums.valueOf(bgCu.getHangToaApDungID()).getDescription() : "Tất cả";
-                    String toaMoi = (bgMoi.getHangToaApDungID() != null) ? HangToaEnums.valueOf(bgMoi.getHangToaApDungID()).getDescription() : "Tất cả";
+                    String toaCu = (bgCu.getHangToaApDungID() != null) ? bgCu.getMoTaHangToa() : "Tất cả";
+                    String toaMoi = (bgMoi.getHangToaApDungID() != null) ? bgMoi.getMoTaHangToa() : "Tất cả";
                     if (!toaCu.equals(toaMoi)) {
                         thayDoi.add(String.format("Hạng toa (%s -> %s)", toaCu, toaMoi));
                     }
@@ -178,7 +177,7 @@ public class BieuGiaVe_BUS {
                 }
 
                 if (!thayDoi.isEmpty()) {
-                    String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? VaiTroNhanVienEnums.valueOf(nv.getVaiTroNhanVienID()).getDescription() : "";
+                    String tenChucVu = (nv.getVaiTroNhanVienID() != null) ? vaiTroNhanVienDAO.findById(nv.getVaiTroNhanVienID()).getMoTa() : "";
                     StringBuilder sbLog = new StringBuilder();
                     sbLog.append(String.format("%s %s Cập nhật biểu giá %s", tenChucVu, nv.getHoTen(), bgMoi.getId()));
                     sbLog.append(" : ").append(String.join(", ", thayDoi));
