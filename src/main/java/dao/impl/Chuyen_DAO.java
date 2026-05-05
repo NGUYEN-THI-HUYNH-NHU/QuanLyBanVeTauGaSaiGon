@@ -12,13 +12,12 @@ package dao.impl;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import dao.IChuyenDAO;
 import entity.*;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -35,35 +34,21 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
     @Override
     public List<Chuyen> getChuyenByGaDiGaDenNgayDi(String gaDiID, String gaDenID, LocalDate ngayDi) {
         return doInTransaction(em -> {
-            String querySQL = "DECLARE @gaDiID VARCHAR(50) = :gaDiID;\n"
-                    + "DECLARE @gaDenID VARCHAR(50) = :gaDenID;\n"
-                    + "DECLARE @ngayDi DATE = :ngayDi;\n\n"
-                    + "SELECT\n"
-                    + "    c.chuyenID,\n"
-                    + "    c.tuyenID,\n"
-                    + "    c.tauID,\n"
-                    + "    t.loaiTauID,\r\n"
-                    + "    cgDi.ngayDi   AS ngayDi,\n"
-                    + "    cgDi.gioDi    AS gioDi,\n"
-                    + "    cgDen.ngayDen  AS ngayDen,\n"
-                    + "    cgDen.gioDen  AS gioDen\n"
-                    + "FROM Chuyen c\n"
-                    + "INNER JOIN Tau t ON c.tauID = t.tauID\n"
-                    + "INNER JOIN ChuyenGa cgDi\n"
-                    + "    ON cgDi.chuyenID = c.chuyenID\n"
-                    + "    AND cgDi.gaID = @gaDiID\n"
-                    + "INNER JOIN ChuyenGa cgDen\n"
-                    + "    ON cgDen.chuyenID = c.chuyenID\n"
-                    + "    AND cgDen.gaID = @gaDenID\n"
-                    + "WHERE\n"
-                    + "    cgDi.ngayDi = @ngayDi\n"
-                    + "    AND cgDi.thuTu < cgDen.thuTu\n"
-                    + "ORDER BY cgDi.gioDi, c.chuyenID;\n";
+            String querySQL = "DECLARE @gaDiID VARCHAR(50) = ?;\r\n" + "DECLARE @gaDenID VARCHAR(50) = ?;\r\n"
+                    + "DECLARE @ngayDi DATE = ?;\r\n" + "\r\n" + "SELECT\r\n" + "    c.chuyenID,\r\n" + "    c.tuyenID,\r\n"
+                    + "    c.tauID,\r\n" + "    t.loaiTauID,\r\n" + "    cgDi.ngayDi   AS ngayDi,\r\n"
+                    + "    cgDi.gioDi    AS gioDi,\r\n" + "    cgDen.ngayDen  AS ngayDen,\r\n"
+                    + "    cgDen.gioDen  AS gioDen\r\n" + "FROM Chuyen c\r\n" + "INNER JOIN Tau t ON c.tauID = t.tauID\r\n"
+                    + "INNER JOIN ChuyenGa cgDi\r\n" + "    ON cgDi.chuyenID = c.chuyenID\r\n"
+                    + "    AND cgDi.gaID = @gaDiID\r\n" + "INNER JOIN ChuyenGa cgDen\r\n"
+                    + "    ON cgDen.chuyenID = c.chuyenID\r\n" + "    AND cgDen.gaID = @gaDenID\r\n" + "WHERE\r\n"
+                    + "    cgDi.ngayDi = @ngayDi\r\n" + "    AND cgDi.thuTu < cgDen.thuTu\r\n"
+                    + "ORDER BY cgDi.gioDi, c.chuyenID;\r\n";
 
             Query query = em.createNativeQuery(querySQL);
-            query.setParameter("gaDiID", gaDiID);
-            query.setParameter("gaDenID", gaDenID);
-            query.setParameter("ngayDi", ngayDi);
+            query.setParameter(1, gaDiID);
+            query.setParameter(2, gaDenID);
+            query.setParameter(3, ngayDi);
 
             List<Object[]> results = query.getResultList();
             List<Chuyen> chuyenList = new ArrayList<>();
@@ -210,7 +195,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
 
     @Override
     public boolean themChuyenMoi(Chuyen chuyen, List<ChuyenGa> lichTrinh) {
-        try{
+        try {
             doInTransaction(em -> {
                 String sqlChuyen = "INSERT INTO Chuyen (chuyenID, tuyenID, tauID, ngayDi, gioDi) VALUES (?1, ?2, ?3, ?4, ?5)";
                 em.createNativeQuery(sqlChuyen)
@@ -236,8 +221,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
                 return true;
             });
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -248,7 +232,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
         return doInTransaction(em -> {
             Map<String, String> map = new HashMap<>();
             List<Object[]> results = em.createNativeQuery("SELECT gaID, tenGa FROM Ga").getResultList();
-            for(Object[] row : results) {
+            for (Object[] row : results) {
                 map.put((String) row[1], (String) row[0]);
             }
             return map;
@@ -257,7 +241,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
 
     @Override
     public boolean capNhatChuyen(Chuyen chuyen, List<ChuyenGa> lichTrinhMoi) {
-        try{
+        try {
             doInTransaction(em -> {
                 String sqlUpdateChuyen = "UPDATE Chuyen SET tuyenID=?1, tauID=?2, ngayDi=?3, gioDi=?4 WHERE chuyenID=?5";
                 int rows = em.createNativeQuery(sqlUpdateChuyen)
@@ -268,7 +252,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
                         .setParameter(5, chuyen.getChuyenID())
                         .executeUpdate();
 
-                if(rows == 0) {
+                if (rows == 0) {
                     throw new RuntimeException("Không tìm thấy chuyến để cập nhật");
                 }
 
@@ -291,8 +275,7 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
                 return true;
             });
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
