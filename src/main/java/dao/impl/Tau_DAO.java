@@ -13,38 +13,42 @@ package dao.impl;
  */
 
 import connectDB.ConnectDB;
+import entity.Tau;
 import entity.type.TrangThaiTau;
+import jakarta.persistence.Query;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
-public class Tau_DAO {
-    private ConnectDB connectDB;
+public class Tau_DAO extends AbstractGenericDAO<Tau, String> implements dao.ITauDAO {
 
     public Tau_DAO() {
-        connectDB = ConnectDB.getInstance();
-        connectDB.connect();
+        super(Tau.class);
     }
 
+    @Override
     public TrangThaiTau layTrangThaiTau(String tauID) {
-        Connection con = connectDB.getConnection();
-        String sql = "SELECT trangThai FROM Tau WHERE tauID = ?";
-        try (PreparedStatement pst = con.prepareStatement(sql)) {
-            pst.setString(1, tauID);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    String statusStr = rs.getString("trangThai");
-                    if (statusStr != null) {
-                        return TrangThaiTau.valueOf(statusStr);
-                    }
+        return doInTransaction(em -> {
+            String sql = "SELECT trangThai FROM Tau WHERE tauID = ?1";
+
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, tauID);
+
+            List<?> results = query.getResultList();
+
+            if (!results.isEmpty() && results.get(0) != null) {
+                String statusStr = (String) results.get(0);
+                try {
+                    return TrangThaiTau.valueOf(statusStr);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null; // Tàu không tồn tại
+            return null;
+        });
     }
 
 }

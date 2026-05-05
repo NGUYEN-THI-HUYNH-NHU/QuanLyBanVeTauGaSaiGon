@@ -10,9 +10,8 @@ package controller;
  * @created : 30/09/2025
  */
 
-import bus.Ga_BUS;
-import bus.PhanQuyen_BUS;
-import bus.Tuyen_BUS;
+import bus.*;
+import dto.TuyenDTO;
 import entity.Tuyen;
 import entity.type.VaiTroNhanVienEnums;
 import gui.application.form.quanLyTuyen.PanelCapNhatTuyen;
@@ -30,8 +29,8 @@ import java.util.function.Function;
 
 public class QuanLyTuyen_CTRL {
     private final PanelQuanLyTuyen pnlTuyen;
-    private final Tuyen_BUS tuyen_bus;
-    private Ga_BUS ga_bus;
+    private final ITuyenBUS tuyen_bus;
+    private IGaBUS ga_bus;
     private VaiTroNhanVienEnums vaiTroHienTai;
 
     private PanelThemTuyen panelThemTuyen;
@@ -39,11 +38,11 @@ public class QuanLyTuyen_CTRL {
     private JDialog dialogThemTuyen;
     private JDialog dialogCapNhatTuyen;
 
-    public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, Tuyen_BUS tuyen_bus) {
+    public QuanLyTuyen_CTRL(PanelQuanLyTuyen pnlTuyen, ITuyenBUS tuyen_bus) {
         this.pnlTuyen = pnlTuyen;
         this.tuyen_bus = tuyen_bus;
         this.ga_bus = new Ga_BUS();
-        this.vaiTroHienTai = VaiTroNhanVienEnums.valueOf(pnlTuyen.getNhanVienThucHien().getVaiTroNhanVien().getVaiTroNhanVienID());
+        this.vaiTroHienTai = VaiTroNhanVienEnums.valueOf(pnlTuyen.getNhanVienThucHien().getVaiTroNhanVienID());
         pnlTuyen.addListeners(new TimKiemListener(), new LamMoiListener(), new ThemTuyenListener(), new CapNhatTuyenListener());
         pnlTuyen.getTableTuyen().addMouseListener(new TuyenTableListener());
 
@@ -118,7 +117,7 @@ public class QuanLyTuyen_CTRL {
         Object objID = table.getValueAt(modelRow, 0);
         String tuyenID = (objID != null) ? objID.toString() : "";
 
-        Tuyen tuyen = tuyen_bus.getTuyenTheoMa(tuyenID);
+        TuyenDTO tuyen = tuyen_bus.getTuyenTheoMa(tuyenID);
 
         List<Object[]> dsGaChiTiet = tuyen_bus.getDuLieuGaTrungGianChiTiet(tuyenID);
 
@@ -136,7 +135,7 @@ public class QuanLyTuyen_CTRL {
                 tenTuyen = objTenGaXP.toString() + " - " + objTenGaDen.toString();
             }
 
-            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getTuyenID());
+            pnlTuyen.getTxtChiTietMaTuyen().setText(tuyen.getId());
             pnlTuyen.getTxtChiTietTenTuyen().setText(tenTuyen);
             pnlTuyen.getTxtChiTietKhoangCach().setText(khoangCach);
             pnlTuyen.getTxtChiTietMoTa().setText(tuyen.getMoTa());
@@ -229,7 +228,7 @@ public class QuanLyTuyen_CTRL {
 
         if (txt.isShowing()) {
             pp.show(txt, 0, txt.getHeight());
-            txt.requestFocus();
+//            txt.requestFocus();
         }
     }
 
@@ -329,7 +328,7 @@ public class QuanLyTuyen_CTRL {
     private void thietLapPhimTatF5() {
         JComponent root = pnlTuyen;
 
-        InputMap im = root.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        InputMap im = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = root.getActionMap();
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0), "LAM_MOI_TUYEN");

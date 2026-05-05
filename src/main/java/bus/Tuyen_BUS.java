@@ -9,21 +9,30 @@ package bus;/*
 			* @created : 30/09/2025
 			*/
 
+import dao.IGaDAO;
+import dao.IKhoangCachChuanDAO;
+import dao.ITuyenChiTietDAO;
+import dao.ITuyenDAO;
 import dao.impl.Ga_DAO;
 import dao.impl.KhoangCachChuan_DAO;
 import dao.impl.TuyenChiTiet_DAO;
 import dao.impl.Tuyen_DAO;
+import dto.NhanVienDTO;
+import dto.TuyenChiTietDTO;
+import dto.TuyenDTO;
 import entity.*;
+import mapper.TuyenChiTietMapper;
+import mapper.TuyenMapper;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Tuyen_BUS {
-    private final Tuyen_DAO tuyen_dao;
-    private final Ga_DAO ga_dao;
-    private final TuyenChiTiet_DAO tuyenChiTietDao;
-    private final KhoangCachChuan_DAO khoangCachChuanDao;
+public class Tuyen_BUS implements ITuyenBUS {
+    private final ITuyenDAO tuyen_dao;
+    private final IGaDAO ga_dao;
+    private final ITuyenChiTietDAO tuyenChiTietDao;
+    private final IKhoangCachChuanDAO khoangCachChuanDao;
     private final Map<String, Map<String, Integer>> graphKhoangCachChuan;
     private final NhatKyAudit_BUS nhatKyAuditBus;
 
@@ -38,74 +47,48 @@ public class Tuyen_BUS {
         graphKhoangCachChuan = khoangCachChuanDao.getAllKhoangCachMap();
     }
 
-    public List<Tuyen> getAllTuyen() {
-        return tuyen_dao.getAllTuyen();
+    @Override
+    public List<TuyenDTO> getAllTuyen() {
+        return tuyen_dao.getAllTuyen().stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<Tuyen> getTuyenByID(String tuyenID) {
-        return tuyen_dao.getTuyenByID(tuyenID);
+    @Override
+    public List<TuyenDTO> getTuyenByID(String tuyenID) {
+        return tuyen_dao.getTuyenByID(tuyenID).stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
+    @Override
     public List<String> timIDTuyenChoGoiY(String input) {
         if (input == null || input.trim().isEmpty()) {
             return new ArrayList<>();
         }
-
-        // Gọi xuống DAO
         List<Tuyen> dsTuyen = tuyen_dao.getTuyenByID(input.trim());
-        List<String> idTuyenList = new ArrayList<>();
-
-        for (Tuyen tuyen : dsTuyen) {
-            idTuyenList.add(tuyen.getTuyenID());
-        }
-
-        return idTuyenList;
+        return dsTuyen.stream().map(Tuyen::getTuyenID).collect(Collectors.toList());
     }
 
-    public List<Tuyen> timTuyenTheoGa(String gaDi, String gaDen) {
+    @Override
+    public List<TuyenDTO> timTuyenTheoGa(String gaDi, String gaDen) {
         if ((gaDi == null || gaDi.trim().isEmpty()) && (gaDen == null || gaDen.trim().isEmpty())) {
             return new ArrayList<>();
         }
-        return tuyen_dao.getTuyenTheoGa(gaDi.trim(), gaDen.trim());
+        return tuyen_dao.getTuyenTheoGa(gaDi.trim(), gaDen.trim()).stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
+    @Override
     public List<Object[]> getDuLieuBang() {
-        return convertTuyenListToTableData(tuyen_dao.getAllTuyen());
-    }
+        List<entity.Tuyen> dsEntity = tuyen_dao.getAllTuyen();
 
-    private List<Object[]> convertTuyenListToTableData(List<Tuyen> dsTuyen) {
-        List<Object[]> dsDuLieuBang = new ArrayList<>();
+        List<dto.TuyenDTO> dsDTO = dsEntity.stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
 
-        for (Tuyen tuyen : dsTuyen) {
-            List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyen.getTuyenID());
-
-            if (dsTuyenChiTiet != null && dsTuyenChiTiet.size() >= 2) {
-                TuyenChiTiet gaDiTCT = dsTuyenChiTiet.get(0);
-                TuyenChiTiet gaDenTCT = dsTuyenChiTiet.get(dsTuyenChiTiet.size() - 1);
-                int khoangCach = gaDenTCT.getKhoangCachTuGaXuatPhatKm();
-
-                String gaTrungGian;
-                if (dsTuyenChiTiet.size() > 2) {
-                    gaTrungGian = dsTuyenChiTiet.subList(1, dsTuyenChiTiet.size() - 1).stream()
-                            .map(tct -> tct.getGa().getTenGa()).collect(Collectors.joining(" -> "));
-                } else {
-                    gaTrungGian = "-";
-                }
-
-                String trangThaiHienThi = tuyen.isTrangThai() ? "Hoạt động" : "Không hoạt động";
-
-                Object[] rowData = new Object[]{
-                        tuyen.getTuyenID(),
-                        gaDiTCT.getGa().getTenGa(),
-                        gaDenTCT.getGa().getTenGa(),
-                        gaTrungGian,
-                        khoangCach,
-                        trangThaiHienThi
-                };
-                dsDuLieuBang.add(rowData);
-            }
-        }
-        return dsDuLieuBang;
+        return convertTuyenListToTableData(dsDTO);
     }
 
     /**
@@ -114,6 +97,7 @@ public class Tuyen_BUS {
      * @param tuyenID Mã tuyến cần tìm kiếm.
      * @return List<Object[]> dữ liệu bảng.
      */
+    @Override
     public List<Object[]> getDuLieuBangTheoTuyenID(String tuyenID) {
         if (tuyenID == null || tuyenID.trim().isEmpty()) {
             return new ArrayList<>();
@@ -122,8 +106,11 @@ public class Tuyen_BUS {
         // 1. Lấy List<Tuyen> từ DAO
         List<Tuyen> dsTuyen = tuyen_dao.getTuyenByID(tuyenID.trim());
 
+        List<dto.TuyenDTO> dsTuyenDTO = dsTuyen.stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
         // 2. Chuyển đổi sang List<Object[]> (Sử dụng logic tương tự hàm getDuLieuBang)
-        return convertTuyenListToTableData(dsTuyen);
+        return convertTuyenListToTableData(dsTuyenDTO);
     }
 
     /**
@@ -133,17 +120,22 @@ public class Tuyen_BUS {
      * @param gaDen Tên ga đích.
      * @return List<Object[]> dữ liệu bảng.
      */
+    @Override
     public List<Object[]> getDuLieuBangTheoGa(String gaDi, String gaDen) {
         // 1. Lọc Tuyến thỏa mãn điều kiện Ga Đi/Ga Đến từ DAO
         List<Tuyen> dsTuyen = tuyen_dao.getTuyenTheoGa(gaDi.trim(), gaDen.trim());
 
+        List<dto.TuyenDTO> dsTuyenDTO = dsTuyen.stream()
+                .map(TuyenMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
         // 2. Chuyển đổi sang List<Object[]>
-        return convertTuyenListToTableData(dsTuyen);
+        return convertTuyenListToTableData(dsTuyenDTO);
     }
 
     /**
      * Lấy thông tin chi tiết của tuyến.
      */
+    @Override
     public String getChiTietTuyen(String tuyenID) {
         if (tuyenID == null || tuyenID.isEmpty()) {
             return "Không tìm thấy tuyến";
@@ -177,6 +169,7 @@ public class Tuyen_BUS {
      * @param tuyenID Mã tuyến cần lấy chi tiết.
      * @return List<Object[]> danh sách chi tiết ga trung gian.
      */
+    @Override
     public List<Object[]> getDuLieuGaTrungGianChiTiet(String tuyenID) {
         List<Object[]> dsChiTietBang = new ArrayList<>();
         List<TuyenChiTiet> dsTuyenChiTiet = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
@@ -208,13 +201,17 @@ public class Tuyen_BUS {
      * @param tuyenID Mã tuyến cần lấy chi tiết.
      * @return List<TuyenChiTiet> danh sách chi tiết tuyến.
      */
-    public List<TuyenChiTiet> getDanhSachTuyenChiTiet(String tuyenID) {
-        return tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
+    @Override
+    public List<TuyenChiTietDTO> getDanhSachTuyenChiTiet(String tuyenID) {
+        return tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID).stream()
+                .map(TuyenChiTietMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
     /**
      * tạo mã tuyến
      */
+    @Override
     public String taoMaTuyenCoSo(String tenGaDi, String tenGaDen) {
         Ga gaDi = ga_dao.getGaByTenGa(tenGaDi);
         Ga gaDen = ga_dao.getGaByTenGa(tenGaDen);
@@ -233,6 +230,7 @@ public class Tuyen_BUS {
      * @param maTuyen Ma Tuyen can kiem tra
      * @return true nếu mã đã tồn tại, false nếu chưa.
      */
+    @Override
     public boolean kiemTraMaTuyuenDaTonTai(String maTuyen) {
         if (maTuyen == null || maTuyen.isEmpty()) {
             return false;
@@ -241,120 +239,56 @@ public class Tuyen_BUS {
         return (tuyen != null);
     }
 
-    public boolean themTuyen(Tuyen tuyenMoi, List<TuyenChiTiet> dsTCT, NhanVien nhanVienThucHien) {
-        if (tuyenMoi == null || dsTCT == null || dsTCT.isEmpty()) {
-            return false;
-        }
-        boolean themTuyenThanhCong = false;
-        try {
-            boolean themTuyen = tuyen_dao.themTuyenMoi(tuyenMoi);
-            if (themTuyen) {
-                boolean themChiTiet = tuyenChiTietDao.themDanhSachChiTiet(dsTCT);
-                if (themChiTiet) {
-                    themTuyenThanhCong = true;
-                    String chiTietLog = String.format("%s %s Thêm Tuyến Mới: %s",
-                            nhanVienThucHien.getVaiTroNhanVien(),
-                            nhanVienThucHien.getHoTen(),
-                            tuyenMoi.getMoTa());
-                    ghiNhatKy(tuyenMoi.getTuyenID(), nhanVienThucHien, entity.type.NhatKyAudit.THEM, chiTietLog);
-                } else {
-                    tuyen_dao.xoaTuyen(tuyenMoi.getTuyenID());
-                }
+    @Override
+    public boolean themTuyen(TuyenDTO tuyenMoiDTO, List<TuyenChiTietDTO> dsTCTDTO, NhanVienDTO nvDTO) {
+        Tuyen tuyenMoi = TuyenMapper.INSTANCE.toEntity(tuyenMoiDTO);
+        List<TuyenChiTiet> dsTCT = dsTCTDTO.stream().map(TuyenChiTietMapper.INSTANCE::toEntity).collect(Collectors.toList());
+
+        boolean thanhCong = false;
+        if (tuyen_dao.themTuyenMoi(tuyenMoi)) {
+            if (tuyenChiTietDao.themDanhSachChiTiet(dsTCT)) {
+                thanhCong = true;
+                String log = String.format("%s %s Thêm Tuyến Mới: %s", nvDTO.getVaiTroNhanVienID(), nvDTO.getHoTen(), tuyenMoi.getMoTa());
+                ghiNhatKy(tuyenMoi.getTuyenID(), nvDTO, entity.type.NhatKyAudit.THEM, log);
+            } else {
+                tuyen_dao.xoaTuyen(tuyenMoi.getTuyenID());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return themTuyenThanhCong;
+        return thanhCong;
     }
 
-    public boolean capNhatTuyen(Tuyen tuyenCapNhat, List<TuyenChiTiet> dsChiTietMoi, NhanVien nhanVienThucHien) {
-        if (tuyenCapNhat == null || dsChiTietMoi == null || dsChiTietMoi.size() < 2) {
-            return false;
-        }
-        String tuyenID = tuyenCapNhat.getTuyenID();
+    @Override
+    public boolean capNhatTuyen(TuyenDTO tuyenCapNhatDTO, List<TuyenChiTietDTO> dsChiTietMoiDTO, NhanVienDTO nvDTO) {
+        Tuyen tuyenCapNhat = TuyenMapper.INSTANCE.toEntity(tuyenCapNhatDTO);
+        List<TuyenChiTiet> dsChiTietMoi = dsChiTietMoiDTO.stream().map(TuyenChiTietMapper.INSTANCE::toEntity).collect(Collectors.toList());
 
+        String tuyenID = tuyenCapNhat.getTuyenID();
         Tuyen tuyenCu = tuyen_dao.getTuyenByExactID(tuyenID);
         List<TuyenChiTiet> dsChiTietCu = tuyenChiTietDao.layDanhSachTheoTuyenID(tuyenID);
 
-        String chuoiGaCu = layChuoiGaTrungGian(dsChiTietCu);
-        String chuoiGaMoi = layChuoiGaTrungGian(dsChiTietMoi);
-
-        try {
-            boolean updateTuyen = tuyen_dao.capNhatTuyen(tuyenCapNhat);
-            if (!updateTuyen) return false;
-
-            boolean xoaChiTietCu = tuyenChiTietDao.xoaChiTietTheoTuyenID(tuyenID);
-            if (!xoaChiTietCu) return false;
-
-            boolean themChiTietMoi = tuyenChiTietDao.themDanhSachChiTiet(dsChiTietMoi);
-            if (!themChiTietMoi) return false;
+        if (tuyen_dao.capNhatTuyen(tuyenCapNhat)) {
+            tuyenChiTietDao.xoaChiTietTheoTuyenID(tuyenID);
+            tuyenChiTietDao.themDanhSachChiTiet(dsChiTietMoi);
 
             List<String> cacThayDoi = new ArrayList<>();
-
             if (tuyenCu != null && !tuyenCu.getMoTa().equals(tuyenCapNhat.getMoTa())) {
-                cacThayDoi.add(String.format("Cập nhật mô tả (Cũ: '%s' -> Mới: '%s')",
-                        tuyenCu.getMoTa(), tuyenCapNhat.getMoTa()));
+                cacThayDoi.add(String.format("Cập nhật mô tả (Cũ: '%s' -> Mới: '%s')", tuyenCu.getMoTa(), tuyenCapNhat.getMoTa()));
             }
-
             if (tuyenCu != null && tuyenCu.isTrangThai() != tuyenCapNhat.isTrangThai()) {
-                String ttCu = tuyenCu.isTrangThai() ? "Hoạt động" : "Không hoạt động";
-                String ttMoi = tuyenCapNhat.isTrangThai() ? "Hoạt động" : "Không hoạt động";
-                cacThayDoi.add(String.format("Cập nhật trạng thái (%s -> %s)", ttCu, ttMoi));
+                cacThayDoi.add(String.format("Cập nhật trạng thái (%s -> %s)", tuyenCu.isTrangThai() ? "Hoạt động" : "Không", tuyenCapNhat.isTrangThai() ? "Hoạt động" : "Không"));
             }
 
+            String chuoiGaCu = layChuoiGaTrungGian(dsChiTietCu);
+            String chuoiGaMoi = layChuoiGaTrungGian(dsChiTietMoi);
             if (!chuoiGaCu.equals(chuoiGaMoi)) {
-                cacThayDoi.add(String.format("Cập nhật lộ trình (Ga TG Cũ: [%s] -> Mới: [%s])",
-                        chuoiGaCu.isEmpty() ? "Không có" : chuoiGaCu,
-                        chuoiGaMoi.isEmpty() ? "Không có" : chuoiGaMoi));
-            }
-            String tenChucVu = (nhanVienThucHien.getVaiTroNhanVien() != null) ? nhanVienThucHien.getVaiTroNhanVien().getMoTa() : "";
-
-            StringBuilder sbLog = new StringBuilder();
-            sbLog.append(String.format("%s %s Cập nhật tuyến %s",
-                    tenChucVu,
-                    nhanVienThucHien.getHoTen(),
-                    tuyenID));
-
-            if (!cacThayDoi.isEmpty()) {
-                sbLog.append(" : ").append(String.join(", ", cacThayDoi));
-            } else {
-                sbLog.append(" : (Không có thay đổi nội dung)");
+                cacThayDoi.add(String.format("Cập nhật lộ trình (Ga TG Cũ: [%s] -> Mới: [%s])", chuoiGaCu.isEmpty() ? "Không" : chuoiGaCu, chuoiGaMoi.isEmpty() ? "Không" : chuoiGaMoi));
             }
 
-            ghiNhatKy(tuyenID, nhanVienThucHien, entity.type.NhatKyAudit.SUA, sbLog.toString());
-
+            String logMsg = String.format("%s %s Cập nhật tuyến %s : %s", nvDTO.getVaiTroNhanVienID(), nvDTO.getHoTen(), tuyenID, String.join(", ", cacThayDoi));
+            ghiNhatKy(tuyenID, nvDTO, entity.type.NhatKyAudit.SUA, logMsg);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
         }
-    }
-
-    private void ghiNhatKy(String doiTuongID, NhanVien nv, entity.type.NhatKyAudit loaiThaoTac, String chiTiet) {
-        if (nv == null) return;
-        try {
-            String maLog = nhatKyAuditBus.taoMaNhatKyAuditMoi();
-
-            NhatKyAudit log = new NhatKyAudit(maLog,
-                    doiTuongID,
-                    nv.getNhanVienID(),
-                    LocalDateTime.now(),
-                    loaiThaoTac,
-                    chiTiet,
-                    "Tuyen");
-            nhatKyAuditBus.ghiNhatKyAudit(log);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String layChuoiGaTrungGian(List<TuyenChiTiet> list) {
-        if (list == null || list.size() <= 2) {
-            return "";
-        }
-        return list.subList(1, list.size() - 1).stream()
-                .map(tct -> tct.getGa().getTenGa())
-                .collect(Collectors.joining(", "));
+        return false;
     }
 
 
@@ -366,6 +300,7 @@ public class Tuyen_BUS {
      * @param gaID_Cuoi Ga đích
      * @return Khoảng cách tổng, hoặc -1 nếu không tìm thấy đường đi.
      */
+    @Override
     public int tinhKhoangCachTongDijsktra(String gaID_Dau, String gaID_Cuoi) {
         if (!graphKhoangCachChuan.containsKey(gaID_Dau) || !graphKhoangCachChuan.containsKey(gaID_Cuoi)) {
             return -1;
@@ -419,22 +354,30 @@ public class Tuyen_BUS {
      * @return Map<String, Map<String, Integer>> (Đồ thị GaID -> (GaID liền kề ->
      * KC)
      */
+    @Override
     public Map<String, Map<String, Integer>> getGraphKhoangCachChuan() {
         return graphKhoangCachChuan;
     }
 
-    public List<Tuyen> layKiemTop10Tuyen(String keyword) {
-        return tuyen_dao.getTop10Tuyen(keyword);
+    @Override
+    public List<TuyenDTO> layKiemTop10Tuyen(String keyword) {
+        return tuyen_dao.getTop10Tuyen(keyword).stream().map(TuyenMapper.INSTANCE::toDTO).collect(Collectors.toList());
     }
 
-    public Tuyen getTuyenTheoMa(String maTuyen) {
-        return tuyen_dao.layTuyenTheoMa(maTuyen);
+    @Override
+    public TuyenDTO getTuyenTheoMa(String maTuyen) {
+        Tuyen tuyen = tuyen_dao.layTuyenTheoMa(maTuyen);
+        return tuyen != null ? TuyenMapper.INSTANCE.toDTO(tuyen) : null;
     }
 
-    public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
-        return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen);
+    @Override
+    public List<TuyenChiTietDTO> layDanhSachTuyenChiTiet(String maTuyen) {
+        return tuyen_dao.layDanhSachTuyenChiTiet(maTuyen).stream()
+                .map(TuyenChiTietMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
+    @Override
     public List<String> getAllMaVaTenTuyen() {
         List<Tuyen> dsTuyen = tuyen_dao.getAllTuyen();
         List<String> dsHienThi = new ArrayList<>();
@@ -451,6 +394,7 @@ public class Tuyen_BUS {
     }
 
 
+    @Override
     public int getKhoangCachGiuaHaiGa(String gaDiID, String gaDenID) {
         if (graphKhoangCachChuan != null && graphKhoangCachChuan.containsKey(gaDiID)) {
             Map<String, Integer> neighbors = graphKhoangCachChuan.get(gaDiID);

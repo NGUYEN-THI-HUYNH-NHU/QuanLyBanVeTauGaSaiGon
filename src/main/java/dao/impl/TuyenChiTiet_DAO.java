@@ -14,6 +14,7 @@ import connectDB.ConnectDB;
 import entity.Ga;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
+import jakarta.persistence.Query;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,11 +23,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TuyenChiTiet_DAO {
-    private final ConnectDB connectDB;
+public class TuyenChiTiet_DAO extends AbstractGenericDAO<TuyenChiTiet, String> implements dao.ITuyenChiTietDAO {
 
     public TuyenChiTiet_DAO() {
-        connectDB = ConnectDB.getInstance();
+        super(TuyenChiTiet.class);
     }
 
     /**
@@ -36,35 +36,35 @@ public class TuyenChiTiet_DAO {
      * @param tuyenID ID của tuyến.
      * @return List<TuyenChiTiet> chứa chi tiết các ga trên tuyến, sắp xếp theo thứ tự.
      */
+    @Override
     public List<TuyenChiTiet> layDanhSachTheoTuyenID(String tuyenID) {
-        List<TuyenChiTiet> danhSach = new ArrayList<>();
-        String sql = "SELECT tct.tuyenID, tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
-                "t.moTa, ga.tenGa " +
-                "FROM TuyenChiTiet tct " +
-                "JOIN Tuyen t ON tct.tuyenID = t.tuyenID " +
-                "JOIN Ga ga ON tct.gaID = ga.gaID " +
-                "WHERE tct.tuyenID = ? " +
-                "ORDER BY tct.thuTu ASC";
-        try (Connection con = connectDB.getConnection();
-             PreparedStatement pstm = con.prepareStatement(sql)) {
-            pstm.setString(1, tuyenID);
-            try (ResultSet rs = pstm.executeQuery()) {
-                while (rs.next()) {
-                    Tuyen tuyen = new Tuyen(rs.getString("tuyenID"), rs.getString("moTa"));
-                    Ga ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-                    TuyenChiTiet tct = new TuyenChiTiet(
-                            tuyen,
-                            ga,
-                            rs.getInt("thuTu"),
-                            rs.getInt("khoangCachTuGaXuatPhatKm")
-                    );
-                    danhSach.add(tct);
-                }
+        return doInTransaction(em -> {
+            String sql = "SELECT tct.tuyenID, tct.gaID, tct.thuTu, tct.khoangCachTuGaXuatPhatKm, " +
+                    "t.moTa, ga.tenGa " +
+                    "FROM TuyenChiTiet tct " +
+                    "JOIN Tuyen t ON tct.tuyenID = t.tuyenID " +
+                    "JOIN Ga ga ON tct.gaID = ga.gaID " +
+                    "WHERE tct.tuyenID = ?1 " +
+                    "ORDER BY tct.thuTu ASC";
+
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, tuyenID);
+
+            List<Object[]> results = query.getResultList();
+            List<TuyenChiTiet> danhSach = new ArrayList<>();
+
+            for (Object[] rs : results) {
+                Tuyen tuyen = new Tuyen((String) rs[0], (String) rs[4]);
+                Ga ga = new Ga((String) rs[1], (String) rs[5]);
+
+                int thuTu = rs[2] != null ? ((Number) rs[2]).intValue() : 0;
+                int khoangCach = rs[3] != null ? ((Number) rs[3]).intValue() : 0;
+
+                TuyenChiTiet tct = new TuyenChiTiet(tuyen, ga, thuTu, khoangCach);
+                danhSach.add(tct);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSach;
+            return danhSach;
+        });
     }
 
     /**
@@ -73,34 +73,24 @@ public class TuyenChiTiet_DAO {
      * @param danhSachChiTiet Danh sách các chi tiết tuyến cần thêm.
      * @return boolean true nếu thêm thành công.
      */
+    @Override
     public boolean themDanhSachChiTiet(List<TuyenChiTiet> danhSachChiTiet) {
-        String sql = "INSERT INTO TuyenChiTiet (tuyenID, gaID, thuTu, khoangCachTuGaXuatPhatKm) VALUES (?, ?, ?, ?)";
-        Connection con = null;
         try {
-            con = connectDB.getConnection();
-            con.setAutoCommit(false); // Bắt đầu transaction
+            return doInTransaction(em -> {
+                String sql = "INSERT INTO TuyenChiTiet (tuyenID, gaID, thuTu, khoangCachTuGaXuatPhatKm) VALUES (?1, ?2, ?3, ?4)";
 
-            try (PreparedStatement pstmtChiTiet = con.prepareStatement(sql)) {
                 for (TuyenChiTiet chiTiet : danhSachChiTiet) {
-                    pstmtChiTiet.setString(1, chiTiet.getTuyen().getTuyenID());
-                    pstmtChiTiet.setString(2, chiTiet.getGa().getGaID());
-                    pstmtChiTiet.setInt(3, chiTiet.getThuTu());
-                    pstmtChiTiet.setInt(4, chiTiet.getKhoangCachTuGaXuatPhatKm());
-                    pstmtChiTiet.addBatch();
+                    em.createNativeQuery(sql)
+                            .setParameter(1, chiTiet.getTuyen().getTuyenID())
+                            .setParameter(2, chiTiet.getGa().getGaID())
+                            .setParameter(3, chiTiet.getThuTu())
+                            .setParameter(4, chiTiet.getKhoangCachTuGaXuatPhatKm())
+                            .executeUpdate();
                 }
-                pstmtChiTiet.executeBatch();
-            }
-            con.commit();
-            return true;
-        } catch (SQLException e) {
+                return true;
+            });
+        } catch (Exception e) {
             e.printStackTrace();
-            if (con != null) {
-                try {
-                    con.rollback(); // Rollback nếu có lỗi
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
             return false;
         }
     }
@@ -111,13 +101,17 @@ public class TuyenChiTiet_DAO {
      * @param tuyenID ID của tuyến cần xóa chi tiết.
      * @return boolean true nếu xóa thành công ít nhất một bản ghi.
      */
+    @Override
     public boolean xoaChiTietTheoTuyenID(String tuyenID) {
-        String sql = "DELETE FROM TuyenChiTiet WHERE tuyenID = ?";
-        try (Connection con = connectDB.getConnection();
-             PreparedStatement pstmt = con.prepareStatement(sql)) {
-            pstmt.setString(1, tuyenID);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
+        try {
+            return doInTransaction(em -> {
+                String sql = "DELETE FROM TuyenChiTiet WHERE tuyenID = ?1";
+                int affectedRows = em.createNativeQuery(sql)
+                        .setParameter(1, tuyenID)
+                        .executeUpdate();
+                return affectedRows > 0;
+            });
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

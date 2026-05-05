@@ -2,6 +2,7 @@ package dao.impl;
 
 import connectDB.ConnectDB;
 import entity.Ga;
+import jakarta.persistence.Query;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,185 +11,149 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ga_DAO {
+public class Ga_DAO extends AbstractGenericDAO<Ga, String> implements dao.IGaDAO {
     private ConnectDB connectDB;
 
     public Ga_DAO() {
-        connectDB = ConnectDB.getInstance();
-        connectDB.connect();
+        super(Ga.class);
     }
 
+    @Override
     public List<Ga> searchGaByPrefix(String prefix, int limit) {
-        Connection con = connectDB.getConnection();
-        String sql = "SELECT TOP (?) gaID, tenGa FROM Ga WHERE tenGa LIKE ? ORDER BY tenGa";
-        List<Ga> gaList = null;
+        return doInTransaction(em -> {
+            String sql = "SELECT gaID, tenGa FROM Ga WHERE tenGa LIKE ?1 ORDER BY tenGa";
 
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, limit);
-            ps.setString(2, prefix + "%");
-            ResultSet rs = ps.executeQuery();
-            gaList = new ArrayList<>();
-            while (rs.next())
-                gaList.add(new Ga(rs.getString("gaID"), rs.getString("tenGa")));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, prefix + "%");
+            query.setMaxResults(limit);
 
-        return gaList;
+            List<Object[]> results = query.getResultList();
+            List<Ga> gaList = new ArrayList<>();
+            for (Object[] row : results) {
+                gaList.add(new Ga((String) row[0], (String) row[1]));
+            }
+            return gaList;
+        });
     }
 
+    @Override
     public Ga getGaByTenGa(String tenGa) {
-        Connection conn = connectDB.getConnection();
-        String sql = "SELECT gaID, tenGa FROM Ga WHERE tenGa = ?";
-        Ga ga = null;
+        return doInTransaction(em -> {
+            String sql = "SELECT gaID, tenGa FROM Ga WHERE tenGa = ?1";
 
-        try {
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, tenGa);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next())
-                ga = new Ga(rs.getString("gaID"), rs.getString("tenGa"));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ga;
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, tenGa);
+
+            List<Object[]> results = query.getResultList();
+            if (!results.isEmpty()) {
+                Object[] row = results.get(0);
+                return new Ga((String) row[0], (String) row[1]);
+            }
+            return null;
+        });
     }
 
+    @Override
     public List<Ga> getGaByTenGaList(String tenGaTim) {
-        List<Ga> dsGa = new ArrayList<>();
-        String sql = "SELECT * FROM Ga WHERE LOWER(tenGa) LIKE ?";
+        return doInTransaction(em -> {
+            String sql = "SELECT * FROM Ga WHERE LOWER(tenGa) LIKE ?1";
 
-        try (Connection connection = connectDB.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+            Query query = em.createNativeQuery(sql, Ga.class);
+            query.setParameter(1, "%" + tenGaTim.toLowerCase() + "%");
 
-            statement.setString(1, "%" + tenGaTim.toLowerCase() + "%");
-
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    dsGa.add(new Ga(
-                            rs.getString("gaID"),
-                            rs.getString("tenGa"),
-                            rs.getBoolean("isGaLon"),
-                            rs.getString("tinhThanh")
-                    ));
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return dsGa;
+            @SuppressWarnings("unchecked")
+            List<Ga> dsGa = query.getResultList();
+            return dsGa;
+        });
     }
 
 
+    @Override
     public List<Ga> searchGaDenKhaThiByGaDi(String gaDiID, String prefixGaDen, int limit) {
-        Connection conn = connectDB.getConnection();
-        String sql = "SELECT DISTINCT TOP (?)"
-                + " cg2.gaID, g2.tenGa "
-                + " FROM ChuyenGa cg1 "
-                + " JOIN Chuyen c ON c.chuyenID = cg1.chuyenID "
-                + " JOIN ChuyenGa cg2 ON cg2.chuyenID = cg1.chuyenID AND cg2.thuTu > cg1.thuTu "
-                + " JOIN Ga g2 ON g2.gaID = cg2.gaID "
-                + " WHERE cg1.gaID = ? "
-                + " AND g2.tenGa LIKE ? "
-                + " AND cg2.gaID != ?"
-                + " ORDER BY g2.tenGa";
-        List<Ga> gaList = null;
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setInt(1, limit);
-            ps.setString(2, gaDiID);
-            ps.setString(3, prefixGaDen + "%");
-            ps.setString(4, gaDiID);
-            ResultSet rs = ps.executeQuery();
-            gaList = new ArrayList<>();
-            while (rs.next())
-                gaList.add(new Ga(rs.getString("gaID"), rs.getString("tenGa")));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return gaList;
+        return doInTransaction(em -> {
+            String sql = "SELECT DISTINCT "
+                    + " cg2.gaID, g2.tenGa "
+                    + " FROM ChuyenGa cg1 "
+                    + " JOIN Chuyen c ON c.chuyenID = cg1.chuyenID "
+                    + " JOIN ChuyenGa cg2 ON cg2.chuyenID = cg1.chuyenID AND cg2.thuTu > cg1.thuTu "
+                    + " JOIN Ga g2 ON g2.gaID = cg2.gaID "
+                    + " WHERE cg1.gaID = ?1 "
+                    + " AND g2.tenGa LIKE ?2 "
+                    + " AND cg2.gaID != ?3 "
+                    + " ORDER BY g2.tenGa";
+
+            Query query = em.createNativeQuery(sql);
+            query.setParameter(1, gaDiID);
+            query.setParameter(2, prefixGaDen + "%");
+            query.setParameter(3, gaDiID);
+            query.setMaxResults(limit);
+
+            List<Object[]> results = query.getResultList();
+            List<Ga> gaList = new ArrayList<>();
+            for (Object[] row : results) {
+                gaList.add(new Ga((String) row[0], (String) row[1]));
+            }
+            return gaList;
+        });
     }
 
+    @Override
     public List<Ga> getAllGa() {
-        Connection connection = connectDB.getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        List<Ga> gaDS = null;
-
-        try {
-            statement = connection.prepareStatement("SELECT * FROM Ga");
-            resultSet = statement.executeQuery();
-            gaDS = new ArrayList<Ga>();
-            while (resultSet.next()) {
-                String gaID = resultSet.getString("gaID");
-                String tenGa = resultSet.getString("tenGa");
-                boolean isGaLon = resultSet.getBoolean("isGaLon");
-                String tinhThanh = resultSet.getString("tinhThanh");
-                gaDS.add(new Ga(gaID, tenGa, isGaLon, tinhThanh));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            connectDB.close(statement, resultSet);
-        }
-        return gaDS;
+        return doInTransaction(em -> {
+            String sql = "SELECT * FROM Ga";
+            return em.createNativeQuery(sql, Ga.class).getResultList();
+        });
     }
 
+    @Override
     public Ga getGaByIDTim(String gaIDTim) {
-        Connection connection = connectDB.getConnection();
-        try {
-            PreparedStatement statement = connection
-                    .prepareStatement("SELECT * FROM Ga WHERE gaID = ?");
-            statement.setString(1, gaIDTim);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String gaID = resultSet.getString("gaID");
-                String tenGa = resultSet.getString("tenGa");
-                boolean isGaLon = resultSet.getBoolean("isGaLon");
-                String tinhThanh = resultSet.getString("tinhThanh");
-                return new Ga(gaID, tenGa, isGaLon, tinhThanh);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return doInTransaction(em -> {
+            String sql = "SELECT * FROM Ga WHERE gaID = ?1";
 
-        return null;
+            Query query = em.createNativeQuery(sql, Ga.class);
+            query.setParameter(1, gaIDTim);
+
+            @SuppressWarnings("unchecked")
+            List<Ga> results = query.getResultList();
+            return results.isEmpty() ? null : results.get(0);
+        });
     }
 
+    @Override
     public boolean themGa(Ga gaMoi) {
-        Connection connection = connectDB.getConnection();
-        String insertSQL = "INSERT INTO Ga (gaID,tenGa, tinhThanh) VALUES (?,?,?)";
         try {
-            PreparedStatement statement = connection.prepareStatement(insertSQL);
-            statement.setString(1, gaMoi.getGaID());
-            statement.setString(2, gaMoi.getTenGa());
-            statement.setString(3, gaMoi.getTinhThanh());
-            int hangAnhuong = statement.executeUpdate();
-            System.out.println(hangAnhuong + " hàng đã được thêm vào thành công!");
-            return hangAnhuong > 0;
-        } catch (SQLException e) {
+            return doInTransaction(em -> {
+                String insertSQL = "INSERT INTO Ga (gaID, tenGa, tinhThanh) VALUES (?1, ?2, ?3)";
+                int hangAnhuong = em.createNativeQuery(insertSQL)
+                        .setParameter(1, gaMoi.getGaID())
+                        .setParameter(2, gaMoi.getTenGa())
+                        .setParameter(3, gaMoi.getTinhThanh())
+                        .executeUpdate();
+                System.out.println(hangAnhuong + " hàng đã được thêm vào thành công!");
+                return hangAnhuong > 0;
+            });
+        } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
+    @Override
     public int capNhatGa(String gaIDSua, Ga gaCapNhat) {
-        Connection connection = connectDB.getConnection();
-        String updateSQL = "UPDATE Ga SET tenGa = ?, tinhThanh = ? WHERE gaID = ?";
         try {
-            PreparedStatement statement = connection.prepareStatement(updateSQL);
-            statement.setString(1, gaCapNhat.getTenGa());
-            statement.setString(2, gaCapNhat.getTinhThanh());
-            statement.setString(3, gaIDSua);
-            int hangAnhHuong = statement.executeUpdate();
-            System.out.println(hangAnhHuong + " hàng đã được cập nhật thành công!");
-            return hangAnhHuong;
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return doInTransaction(em -> {
+                String updateSQL = "UPDATE Ga SET tenGa = ?1, tinhThanh = ?2 WHERE gaID = ?3";
+                int hangAnhHuong = em.createNativeQuery(updateSQL)
+                        .setParameter(1, gaCapNhat.getTenGa())
+                        .setParameter(2, gaCapNhat.getTinhThanh())
+                        .setParameter(3, gaIDSua)
+                        .executeUpdate();
+                System.out.println(hangAnhHuong + " hàng đã được cập nhật thành công!");
+                return hangAnhHuong;
+            });
+        } catch (Exception e) {
             System.out.println("Dữ liệu bị trùng, vui lòng kiểm tra lại!");
+            e.printStackTrace();
             return 0;
         }
     }

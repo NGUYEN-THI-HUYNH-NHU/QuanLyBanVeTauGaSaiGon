@@ -13,10 +13,12 @@ public interface ChuyenGaMapper {
     // Entity -> DTO
     @Mapping(source = "chuyen.chuyenID", target = "id")
     @Mapping(source = "ga.gaID", target = "gaID")
+    @Mapping(source = "ga.tenGa", target = "tenGa")
     ChuyenGaDTO toDTO(ChuyenGa entity);
 
     // DTO -> Entity
     @Mapping(source = "id", target = "chuyen.chuyenID")
     @Mapping(source = "gaID", target = "ga.gaID")
+    @Mapping(source = "tenGa", target = "ga.tenGa")
     ChuyenGa toEntity(ChuyenGaDTO dto);
 }

@@ -1,9 +1,11 @@
 package gui.application.form.quanLyTuyen;
 
+import bus.ITuyenBUS;
 import bus.Tuyen_BUS;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import controller.QuanLyTuyen_CTRL;
+import dao.impl.NhanVienDAO;
 import dto.NhanVienDTO;
 import entity.NhanVien;
 import mapper.NhanVienMapper;
@@ -18,8 +20,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class PanelQuanLyTuyen extends JPanel {
-    private final Tuyen_BUS tuyen_bus;
-    private final NhanVien nhanVienThucHien;
+    private final ITuyenBUS tuyen_bus;
+    private final NhanVienDTO nhanVienThucHien;
 
     private JTextField txtGaDi;
     private JTextField txtGaDen;
@@ -53,8 +55,7 @@ public class PanelQuanLyTuyen extends JPanel {
     public PanelQuanLyTuyen(NhanVienDTO nhanVien) {
         setLayout(new BorderLayout());
         this.tuyen_bus = new Tuyen_BUS();
-        this.nhanVienThucHien = NhanVienMapper.INSTANCE.toEntity(nhanVien);
-
+        this.nhanVienThucHien = nhanVien;
         initComponents();
         new QuanLyTuyen_CTRL(this, tuyen_bus);
     }
@@ -62,7 +63,6 @@ public class PanelQuanLyTuyen extends JPanel {
     public void initComponents() {
         Font baseFont = new Font(getFont().getFontName(), Font.PLAIN, 14);
 
-        // --- 1. HEADER PANEL (NORTH) ---
         JPanel panelNorth = new JPanel(new BorderLayout());
         panelNorth.setOpaque(false);
 
@@ -271,7 +271,6 @@ public class PanelQuanLyTuyen extends JPanel {
         pnlChiTiet.add(pnlThongTinCuThe, BorderLayout.NORTH);
         pnlChiTiet.add(pnlDanhSachGa, BorderLayout.CENTER);
 
-        // C. SPLIT PANE (Chia đôi)
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPaneTable, pnlChiTiet);
         splitPane.setResizeWeight(0.65);
         splitPane.setDividerSize(8);
@@ -279,7 +278,6 @@ public class PanelQuanLyTuyen extends JPanel {
 
         add(splitPane, BorderLayout.CENTER);
 
-        // --- 3. POPUP GỢI Ý ---
         ppGaDi = new JPopupMenu();
         listGaDi = new JList<>();
         ppGaDi.add(new JScrollPane(listGaDi));
@@ -321,9 +319,6 @@ public class PanelQuanLyTuyen extends JPanel {
         txtTimKiem.addActionListener(timKiemListener);
     }
 
-    public Tuyen_BUS getTuyen_bus() {
-        return tuyen_bus;
-    }
 
     public DefaultTableModel getTableModelTuyen() {
         return tableModelTuyen;
@@ -485,7 +480,7 @@ public class PanelQuanLyTuyen extends JPanel {
         this.btnThemTuyen = btnThemTuyen;
     }
 
-    public NhanVien getNhanVienThucHien() {
+    public NhanVienDTO getNhanVienThucHien() {
         return nhanVienThucHien;
     }
 

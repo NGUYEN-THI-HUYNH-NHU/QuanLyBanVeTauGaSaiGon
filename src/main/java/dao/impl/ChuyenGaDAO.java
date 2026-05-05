@@ -32,6 +32,14 @@ public class ChuyenGaDAO extends AbstractGenericDAO<ChuyenGa, ChuyenGa.ChuyenGaI
             TypedQuery<ChuyenGa> query = em.createQuery(jpql, ChuyenGa.class);
             query.setParameter("maChuyen", maChuyen);
 
+            List<ChuyenGa> result = query.getResultList();
+
+
+            for (ChuyenGa cg : result) {
+                if (cg.getGa() != null) {
+                    cg.getGa().getTenGa();
+                }
+            }
             return query.getResultList();
         });
     }

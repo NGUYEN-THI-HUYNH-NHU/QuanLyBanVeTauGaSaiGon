@@ -11,10 +11,17 @@ package controller;
  */
 
 import bus.Ga_BUS;
+import bus.IGaBUS;
+import bus.ITuyenBUS;
 import bus.Tuyen_BUS;
+import dao.IKhoangCachChuanDAO;
 import dao.impl.KhoangCachChuan_DAO;
+import dao.impl.NhanVienDAO;
+import dto.GaDTO;
+import dto.NhanVienDTO;
+import dto.TuyenChiTietDTO;
+import dto.TuyenDTO;
 import entity.Ga;
-import entity.NhanVien;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
 import gui.application.form.quanLyTuyen.PanelThemTuyen;
@@ -36,12 +43,12 @@ import java.util.stream.Collectors;
 
 public class ThemTuyen_CTRL {
     private final PanelThemTuyen panelThemTuyen;
-    private final Tuyen_BUS tuyenBus;
+    private ITuyenBUS tuyenBus;
     private final JDialog dialog;
-    private final Ga_BUS gaBus;
-    private final KhoangCachChuan_DAO khoangCachChuanDao;
-    private final Map<String, Ga> dsGaCoSan;
-    private final List<Ga> dsGaDaChon;
+    private IGaBUS gaBus;
+    private IKhoangCachChuanDAO khoangCachChuanDao;
+    private final Map<String, GaDTO> dsGaCoSan;
+    private final List<GaDTO> dsGaDaChon;
     private List<String> lastSuggestionTuyen = new ArrayList<>();
     private List<String> listTenGaGoc;
 
@@ -57,9 +64,10 @@ public class ThemTuyen_CTRL {
     public ThemTuyen_CTRL(PanelThemTuyen panelThemTuyen, JDialog dialog) {
         this.panelThemTuyen = panelThemTuyen;
         this.dialog = dialog;
-        tuyenBus = new Tuyen_BUS();
-        gaBus = new Ga_BUS();
-        khoangCachChuanDao = new KhoangCachChuan_DAO();
+
+        this.gaBus = new Ga_BUS();
+        this.tuyenBus = new Tuyen_BUS();
+        this.khoangCachChuanDao = new KhoangCachChuan_DAO();
 
         dsGaCoSan = new LinkedHashMap<>();
         dsGaDaChon = new ArrayList<>();
@@ -83,12 +91,12 @@ public class ThemTuyen_CTRL {
     }
 
     private void khoiTaoDuLieuBanDau() {
-        List<Ga> listGaFull = gaBus.getAllGa();
+        List<GaDTO> listGaFull = gaBus.getAllGa();
 
         listTenGaGoc = new ArrayList<>();
         dsGaCoSan.clear();
 
-        for (Ga ga : listGaFull) {
+        for (GaDTO ga : listGaFull) {
             dsGaCoSan.put(ga.getTenGa(), ga);
             listTenGaGoc.add(ga.getTenGa());
         }
@@ -329,7 +337,7 @@ public class ThemTuyen_CTRL {
         String tenGaMoi = panelThemTuyen.getTxtGaTrungGian().getText().trim();
         if (tenGaMoi.isEmpty()) return;
 
-        // 1. Kiểm tra Ga Xuất Phát và Ga Đích
+        // Kiểm tra Ga Xuất Phát và Ga Đích
         String tenGaXP = panelThemTuyen.getTxtGaXuatPhat().getText().trim();
         String tenGaDen = panelThemTuyen.getTxtGaDich().getText().trim();
 
@@ -339,17 +347,17 @@ public class ThemTuyen_CTRL {
             return;
         }
 
-        // 2. Kiểm tra Ga hợp lệ
+        // Kiểm tra Ga hợp lệ
         if (!dsGaCoSan.containsKey(tenGaMoi) || !dsGaCoSan.containsKey(tenGaXP) || !dsGaCoSan.containsKey(tenGaDen)) {
             JOptionPane.showMessageDialog(panelThemTuyen, "Tên ga không tồn tại trong hệ thống!", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Ga gaMoi = dsGaCoSan.get(tenGaMoi);
-        Ga gaXP = dsGaCoSan.get(tenGaXP);
-        Ga gaDen = dsGaCoSan.get(tenGaDen);
+        GaDTO gaMoi = dsGaCoSan.get(tenGaMoi);
+        GaDTO gaXP = dsGaCoSan.get(tenGaXP);
+        GaDTO gaDen = dsGaCoSan.get(tenGaDen);
 
-        // 3. Kiểm tra trùng
+        // Kiểm tra trùng
         if (tenGaMoi.equals(tenGaXP) || tenGaMoi.equals(tenGaDen)) {
             JOptionPane.showMessageDialog(panelThemTuyen, "Ga trung gian không được trùng với Ga XP hoặc Ga Đích!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
@@ -359,14 +367,13 @@ public class ThemTuyen_CTRL {
             return;
         }
 
-        // --- 4. KIỂM TRA LOGIC HƯỚNG VÀ THỨ TỰ (QUAN TRỌNG) ---
         try {
             // A. Tính tổng quãng đường (XP -> Đích)
-            int kcTong = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaDen.getGaID());
+            int kcTong = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getId(), gaDen.getId());
             // B. Tính quãng đường từ XP -> Ga Mới
-            int kcTuDauDenMoi = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaMoi.getGaID());
+            int kcTuDauDenMoi = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getId(), gaMoi.getId());
             // C. Tính quãng đường từ Ga Mới -> Đích
-            int kcTuMoiDenDich = tuyenBus.tinhKhoangCachTongDijsktra(gaMoi.getGaID(), gaDen.getGaID());
+            int kcTuMoiDenDich = tuyenBus.tinhKhoangCachTongDijsktra(gaMoi.getId(), gaDen.getId());
 
             // Check lỗi DB
             if (kcTong == -1 || kcTuDauDenMoi == -1 || kcTuMoiDenDich == -1) {
@@ -374,7 +381,7 @@ public class ThemTuyen_CTRL {
                 return;
             }
 
-            // Check 4.1: Ga Mới có nằm TRÊN tuyến đường không?
+            // Check Ga Mới có nằm TRÊN tuyến đường không?
             // Nếu (XP->Mới) + (Mới->Đích) > (XP->Đích) nghĩa là ga này nằm lệch đường hoặc ngược chiều hẳn
             // Cho phép sai số nhỏ (ví dụ 5km) do dữ liệu đường sắt có thể không tuyệt đối thẳng
             if (Math.abs((kcTuDauDenMoi + kcTuMoiDenDich) - kcTong) > 20) {
@@ -386,8 +393,8 @@ public class ThemTuyen_CTRL {
             }
 
             if (!dsGaDaChon.isEmpty()) {
-                Ga gaCuoiCung = dsGaDaChon.get(dsGaDaChon.size() - 1);
-                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getGaID(), gaCuoiCung.getGaID());
+                GaDTO gaCuoiCung = dsGaDaChon.get(dsGaDaChon.size() - 1);
+                int kcTuDauDenCuoiList = tuyenBus.tinhKhoangCachTongDijsktra(gaXP.getId(), gaCuoiCung.getId());
 
                 if (kcTuDauDenMoi <= kcTuDauDenCuoiList) {
                     JOptionPane.showMessageDialog(panelThemTuyen,
@@ -412,7 +419,7 @@ public class ThemTuyen_CTRL {
         }
     }
 
-    private void taovaThemTagGa(Ga ga) {
+    private void taovaThemTagGa(GaDTO ga) {
         JButton btnGaTag = new JButton(ga.getTenGa() + " \u2715");
         btnGaTag.setMargin(new Insets(3, 5, 3, 5));
         btnGaTag.addActionListener(e -> {
@@ -444,17 +451,17 @@ public class ThemTuyen_CTRL {
             return;
         }
 
-        Ga gaXP = dsGaCoSan.get(tenGaDi);
-        Ga gaDich = dsGaCoSan.get(tenGaDen);
+        GaDTO gaXP = dsGaCoSan.get(tenGaDi);
+        GaDTO gaDich = dsGaCoSan.get(tenGaDen);
 
-        List<Ga> toanBoTuyen = new ArrayList<>();
+        List<GaDTO> toanBoTuyen = new ArrayList<>();
         toanBoTuyen.add(gaXP);
         toanBoTuyen.addAll(dsGaDaChon);
         toanBoTuyen.add(gaDich);
 
         int accumulatedDistance = 0;
-        Ga gaTruoc = null;
-        Ga gaHienTai = null;
+        GaDTO gaTruoc = null;
+        GaDTO gaHienTai = null;
         boolean isLoiKhoangCacg = false;
 
         for (int i = 0; i < toanBoTuyen.size(); i++) {
@@ -464,7 +471,7 @@ public class ThemTuyen_CTRL {
             int kcDoan = 0;
 
             if (gaTruoc != null) {
-                kcDoan = tuyenBus.tinhKhoangCachTongDijsktra(gaTruoc.getGaID(), gaHienTai.getGaID());
+                kcDoan = tuyenBus.tinhKhoangCachTongDijsktra(gaTruoc.getId(), gaHienTai.getId());
                 if (kcDoan == -1) {
                     isLoiKhoangCacg = true;
                     break;
@@ -523,9 +530,10 @@ public class ThemTuyen_CTRL {
         boolean trangThai = luaChonTrangThai.equals("Hoạt Động");
         try {
             Integer.parseInt(doDaiKCStr);
-            Tuyen tuyenMoi = Tuyen.builder().tuyenID(maTuyen).moTa(moTa).trangThai(trangThai).build();
+            TuyenDTO tuyenMoiDTO = TuyenDTO.builder().id(maTuyen).moTa(moTa)
+                    .trangThai(panelThemTuyen.getCboTrangThai().getSelectedItem().toString().equals("Hoạt Động")).build();
 
-            List<TuyenChiTiet> dsTuyenChiTiet = new ArrayList<>();
+            List<TuyenChiTietDTO> dsTuyenChiTietDTO = new ArrayList<>();
             DefaultTableModel modelChiTiet = panelThemTuyen.getModelGaChiTiet();
 
             for (int i = 0; i < modelChiTiet.getRowCount(); i++) {
@@ -539,12 +547,11 @@ public class ThemTuyen_CTRL {
                 } else {
                     throw new IllegalArgumentException("Khoảng cách Ga (" + tenGa + ") không hợp lệ.");
                 }
-                Ga ga = dsGaCoSan.get(tenGa);
-                TuyenChiTiet tct = new TuyenChiTiet(tuyenMoi, ga, i + 1, kcXP);
-                dsTuyenChiTiet.add(tct);
+                GaDTO ga = dsGaCoSan.get(tenGa);
+                dsTuyenChiTietDTO.add(new TuyenChiTietDTO(maTuyen, ga.getId(), ga.getTenGa(), i + 1, kcXP));
             }
-            NhanVien nv = panelThemTuyen.getNhanVienThucHien();
-            boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoi, dsTuyenChiTiet, nv);
+            NhanVienDTO nvDTO = panelThemTuyen.getNhanVienThucHien();
+            boolean luuTuyenThanhCong = tuyenBus.themTuyen(tuyenMoiDTO, dsTuyenChiTietDTO, nvDTO);
             if (luuTuyenThanhCong) {
                 JOptionPane.showMessageDialog(panelThemTuyen, "Đã lưu tuyến mới " + maTuyen + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dispose();

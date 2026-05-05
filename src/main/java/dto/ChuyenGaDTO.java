@@ -15,6 +15,7 @@ import java.time.LocalTime;
 public class ChuyenGaDTO implements Serializable {
     private String id;
     private String gaID;
+    private String tenGa;
     private Integer thuTu;
     private LocalDate ngayDen;
     private LocalTime gioDen;

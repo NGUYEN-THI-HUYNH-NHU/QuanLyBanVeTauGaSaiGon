@@ -16,6 +16,7 @@ public class ChuyenDTO implements Serializable {
     private String id;
     private String tuyenID;
     private String tauID;
+    private String tenTau;
     private String loaiTauID;
     private LocalDate ngayDi;
     private LocalTime gioDi;
@@ -23,4 +24,11 @@ public class ChuyenDTO implements Serializable {
     private LocalTime gioDen;
     private Integer soChoDat;
     private Integer soChoTrong;
+    private String tenChuyenHienThi;
+    private String tenGaDiHienThi;
+    private String tenGaDenHienThi;
+    private String gaDiID;
+    private String tenGaDi;
+    private String gaDenID;
+    private String tenGaDen;
 }

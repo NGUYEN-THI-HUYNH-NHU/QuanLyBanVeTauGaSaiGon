@@ -12,6 +12,7 @@ package gui.application.form.quanLyTuyen;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import controller.CapNhatTuyen_CTRL;
+import dto.NhanVienDTO;
 import entity.NhanVien;
 import net.miginfocom.swing.MigLayout;
 
@@ -21,7 +22,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 public class PanelCapNhatTuyen extends JPanel {
-    private final NhanVien nhanVienThucHien;
+    private final NhanVienDTO nhanVienThucHien;
 
     private JPanel pnlGaTrungGianDaChon;
 
@@ -55,9 +56,8 @@ public class PanelCapNhatTuyen extends JPanel {
     private final Color COLOR_DANGER = new Color(220, 80, 80);
     private final Color COLOR_TABLE_BG = new Color(240, 245, 250);
 
-    public PanelCapNhatTuyen(NhanVien nhanVien){
+    public PanelCapNhatTuyen(NhanVienDTO nhanVien){
         this.nhanVienThucHien = nhanVien;
-//        this.setBackground(COLOR_PRIMARY_BG);
         setLayout(new BorderLayout());
         initComponents();
 
@@ -150,7 +150,6 @@ public class PanelCapNhatTuyen extends JPanel {
         tblGaChiTiet.setShowHorizontalLines(true);
         tblGaChiTiet.setShowVerticalLines(true);
         tblGaChiTiet.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-//        tblGaChiTiet.setBackground(COLOR_TABLE_BG);
         tblGaChiTiet.setGridColor(COLOR_BORDER);
         JTableHeader header = tblGaChiTiet.getTableHeader();
         header.setBackground(COLOR_ACCENT);
@@ -179,7 +178,7 @@ public class PanelCapNhatTuyen extends JPanel {
     }
 
 
-    public NhanVien getNhanVienThucHien() {
+    public NhanVienDTO getNhanVienThucHien() {
         return nhanVienThucHien;
     }
 

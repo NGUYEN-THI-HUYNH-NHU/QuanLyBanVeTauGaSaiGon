@@ -10,29 +10,33 @@ package bus;
  * @created : 30/09/2025
  */
 
+import dao.IKhoangCachChuanDAO;
+import dao.ITuyenChiTietDAO;
 import dao.impl.Ga_DAO;
 import dao.impl.KhoangCachChuan_DAO;
 import dao.impl.TuyenChiTiet_DAO;
+import dto.GaDTO;
 import entity.Ga;
+import mapper.GaMapper;
 
 import java.text.Normalizer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class Ga_BUS {
-    private final Ga_DAO ga_dao;
-    private TuyenChiTiet_DAO tuyenChiTietDao;
-    private KhoangCachChuan_DAO khoangCachChuanDao;
+public class Ga_BUS implements IGaBUS {
+    private Ga_DAO ga_dao;
+    private ITuyenChiTietDAO tuyenChiTietDao;
+    private IKhoangCachChuanDAO khoangCachChuanDao;
     private Tuyen_BUS tuyenBus;
 
     public Ga_BUS() {
-        ga_dao = new Ga_DAO();
-        tuyenChiTietDao = new TuyenChiTiet_DAO();
-        khoangCachChuanDao = new KhoangCachChuan_DAO();
-        tuyenBus = new Tuyen_BUS();
+        this.ga_dao = new Ga_DAO();
+        this.tuyenChiTietDao = new TuyenChiTiet_DAO();
+        this.khoangCachChuanDao = new KhoangCachChuan_DAO();
     }
 
+    @Override
     public List<String> timTenGaChoGoiY(String input) {
         if (input == null || input.trim().isEmpty()) {
             return new ArrayList<>();
@@ -47,8 +51,10 @@ public class Ga_BUS {
         return tenGaList;
     }
 
-    public Ga getGaByTenGa(String tenGa) {
-        return ga_dao.getGaByTenGa(tenGa);
+    @Override
+    public GaDTO getGaByTenGa(String tenGa) {
+        Ga ga = ga_dao.getGaByTenGa(tenGa);
+        return ga != null ? GaMapper.INSTANCE.toDTO(ga) : null;
     }
 
     /**
@@ -56,6 +62,7 @@ public class Ga_BUS {
      *
      * @return List<String> danh sách tên ga
      */
+    @Override
     public List<String> getDanhSachTenGa() {
         List<Ga> dsGa = ga_dao.getAllGa();
         List<String> dsTenGa = new ArrayList<>();
@@ -65,64 +72,14 @@ public class Ga_BUS {
         return dsTenGa;
     }
 
-    public List<Ga> getAllGa() {
-        return ga_dao.getAllGa();
+    @Override
+    public List<GaDTO> getAllGa() {
+        return ga_dao.getAllGa().stream()
+                .map(GaMapper.INSTANCE::toDTO)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Loại bỏ dấu tiếng việt
-     *
-     * @param input Chuỗi cần loại bỏ dấu
-     * @return Chuỗi đã loại bỏ dấu
-     */
-    private String removeAccents(String input) {
-        if (input == null) {
-            return "";
-        }
-        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
-        String withoutAccents = normalized.replaceAll("\\p{M}", "");
-        withoutAccents = withoutAccents.replace("[^a-zA-Z\\s]", "");
-        return withoutAccents.toUpperCase(Locale.ROOT);
-    }
-
-    /**
-     * Hàm tạo mã rút gọn 3 ký tự
-     *
-     * @param tenGa Tên Ga đầy đủ
-     * @return Mã rút gọn 3 ký tự
-     */
-    private String taoMaRutGon(String tenGa) {
-        String normalizedName = removeAccents(tenGa);
-        String[] words = normalizedName.split("\\s+");
-        List<String> validWords = Arrays.stream(words).filter(word -> !word.isEmpty()).collect(Collectors.toList());
-
-        int numWords = validWords.size();
-        StringBuilder ma = new StringBuilder();
-
-        if (numWords == 0) {
-            return "";
-        }
-
-        if (numWords == 1) {
-            ma.append(validWords.get(0).charAt(0));
-            ma.append("XX");
-        } else if (numWords == 2) {
-            ma.append(validWords.get(0).charAt(0));
-            ma.append(validWords.get(0).charAt(1));
-            ma.append(validWords.get(1).charAt(0));
-        } else if (numWords == 3) {
-            ma.append(validWords.get(0).charAt(0));
-            ma.append(validWords.get(1).charAt(0));
-            ma.append(validWords.get(2).charAt(0));
-        } else {
-            // Nhiều hơn 3 từ, lấy ký tự đầu tiên của từ đầu tiên, ký tự đầu tiên của từ thứ hai và ký tự đầu tiên của từ cuối cùng
-            ma.append(validWords.get(0).charAt(0));
-            ma.append(validWords.get(1).charAt(0));
-            ma.append(validWords.get(2).charAt(0));
-        }
-        return ma.toString();
-    }
-
+    @Override
     public List<Object[]> getAllGaSortedByKhoangCachChuan() {
         final String START_GA_ID = "SGO";
 
