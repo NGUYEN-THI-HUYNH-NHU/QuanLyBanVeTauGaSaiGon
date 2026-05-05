@@ -14,7 +14,10 @@ package dao.impl;
 
 import dao.IPhieuGiuChoDAO;
 import entity.PhieuGiuCho;
+import entity.type.TrangThaiPhieuGiuCho;
 import jakarta.persistence.Query;
+
+import java.time.LocalDateTime;
 
 public class PhieuGiuChoDAO extends AbstractGenericDAO<PhieuGiuCho, String> implements IPhieuGiuChoDAO {
 
@@ -30,12 +33,12 @@ public class PhieuGiuChoDAO extends AbstractGenericDAO<PhieuGiuCho, String> impl
      * @param newTrangThai  Trạng thái mới ('XAC_NHAN' hoặc 'HET_HAN').
      * @return true nếu cập nhật thành công, false nếu thất bại.
      */
-    public boolean updateTrangThaiPhieuGiuCho(String phieuGiuChoID, String newTrangThai) throws Exception {
+    public boolean updateTrangThaiPhieuGiuCho(String phieuGiuChoID, String newTrangThai) {
         return doInTransaction(em -> {
-            String sql = "UPDATE PhieuGiuCho SET trangThai = ?1 WHERE phieuGiuChoID = ?2";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, newTrangThai);
-            query.setParameter(2, phieuGiuChoID);
+            String jpql = "UPDATE PhieuGiuCho p SET p.trangThai = :newTrangThai WHERE p.phieuGiuChoID = :phieuGiuChoID";
+            Query query = em.createQuery(jpql);
+            query.setParameter("newTrangThai", TrangThaiPhieuGiuCho.valueOf(newTrangThai));
+            query.setParameter("phieuGiuChoID", phieuGiuChoID);
             return query.executeUpdate() > 0;
         });
     }
@@ -49,12 +52,15 @@ public class PhieuGiuChoDAO extends AbstractGenericDAO<PhieuGiuCho, String> impl
      */
     public int cleanUpExpiredPhieuGiuCho(int expiryMinutes) {
         return doInTransaction(em -> {
-            String sql = "UPDATE PhieuGiuCho "
-                    + "SET trangThai = 'HET_HAN' "
-                    + "WHERE trangThai = 'DANG_GIU' "
-                    + "  AND thoiDiemTao < DATEADD(minute, -?1, SYSUTCDATETIME())";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, expiryMinutes);
+            LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(expiryMinutes);
+            String jpql = "UPDATE PhieuGiuCho p "
+                    + "SET p.trangThai = :hetHan "
+                    + "WHERE p.trangThai = :dangGiu "
+                    + "  AND p.thoiDiemTao < :expiryTime";
+            Query query = em.createQuery(jpql);
+            query.setParameter("hetHan", TrangThaiPhieuGiuCho.HET_HAN);
+            query.setParameter("dangGiu", TrangThaiPhieuGiuCho.DANG_GIU);
+            query.setParameter("expiryTime", expiryTime);
             return query.executeUpdate();
         });
     }

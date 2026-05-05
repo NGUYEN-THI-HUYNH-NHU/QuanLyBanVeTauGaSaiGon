@@ -172,7 +172,7 @@ public class Ve_BUS {
      */
     public boolean themCacVe(List<Ve> dsVe) throws Exception {
         for (Ve v : dsVe) {
-            if (!veDAO.insertVe(v)) {
+            if (veDAO.create(v) != null) {
                 return false;
             }
         }
@@ -242,7 +242,7 @@ public class Ve_BUS {
     }
 
     public VeDTO getVeByVeID(String veID) {
-        return VeMapper.INSTANCE.toDTO(veDAO.getVeByVeID(veID));
+        return VeMapper.INSTANCE.toDTO(veDAO.findById(veID));
     }
 
     public boolean updateTrangThaiVe(String veID, TrangThaiVe trangThaiVe) {

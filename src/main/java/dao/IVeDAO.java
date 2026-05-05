@@ -8,11 +8,7 @@ import java.util.List;
 
 public interface IVeDAO {
     List<Ve> getVeByDonDatChoID(String donDatChoID);
-
-    boolean insertVe(Ve ve) throws Exception;
-
-    Ve getVeByVeID(String veID);
-
+    
     List<String> getVeIDsStartingWith(String baseID);
 
     boolean updateTrangThaiVe(String veID, TrangThaiVe trangThai);
@@ -22,7 +18,7 @@ public interface IVeDAO {
     List<Ve> searchVeByKeyword(String keyword, String type, int page, int limi);
 
     List<String> getTop10VeID(String keyword);
-    
+
     int countVeByKeyword(String keyword, String type);
 
     int countVeByFilter(String tuKhoaTraCuu, String loaiTraCuu, String trangThaiVe, String khachHang, String soGiayTo, Date tuNgay, Date denNgay);

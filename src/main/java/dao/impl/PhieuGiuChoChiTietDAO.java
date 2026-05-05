@@ -18,6 +18,7 @@ import entity.Ve;
 import entity.type.TrangThaiPhieuGiuCho;
 import jakarta.persistence.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet, String> implements IPhieuGiuChoChiTietDAO {
@@ -98,8 +99,6 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
     }
 
     /**
-     * Cập nhật trạng thái của TẤT CẢ các chi tiết thuộc về một phiếu cha. Dùng khi
-     * phiếu cha được xác nhận (XAC_NHAN) hoặc hết hạn (HET_HAN).
      *
      * @param phieuGiuChoID ID của phiếu cha
      * @param newTrangThai  Trạng thái mới ('XAC_NHAN', 'HET_GIU')
@@ -107,20 +106,19 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
      */
     @Override
     public boolean updateTrangThaiPhieuGiuChoChiTietByPhieuGiuChoID(String phieuGiuChoID,
-                                                                    String newTrangThai) throws Exception {
+                                                                    String newTrangThai) {
         return doInTransaction(em -> {
-            String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ?1 WHERE phieuGiuChoID = ?2";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, newTrangThai);
-            query.setParameter(2, phieuGiuChoID);
+            String jpql = "UPDATE PhieuGiuChoChiTiet p SET p.trangThai = :newTrangThai " +
+                    "WHERE p.phieuGiuCho.phieuGiuChoID = :phieuGiuChoID";
+            Query query = em.createQuery(jpql);
+            query.setParameter("newTrangThai", TrangThaiPhieuGiuCho.valueOf(newTrangThai));
+            query.setParameter("phieuGiuChoID", phieuGiuChoID);
 
             return query.executeUpdate() > 0;
         });
     }
 
     /**
-     * Chạy định kỳ để dọn dẹp các chi tiết giữ chỗ đã hết hạn. Cập nhật trạng thái
-     * từ 'DANG_GIU' -> 'HET_GIU'.
      *
      * @param expiryMinutes Số phút quy định hết hạn
      * @return Số lượng chi tiết đã được cập nhật
@@ -128,14 +126,18 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
     @Override
     public int cleanUpExpiredPhieuGiuChoChiTiet(int expiryMinutes) {
         return doInTransaction(em -> {
-            String sqlPGCT = "UPDATE pgcct\n" + "SET pgcct.trangThai = 'HET_GIU'\n" + "FROM PhieuGiuChoChiTiet pgcct\n"
-                    + "JOIN PhieuGiuCho pgc ON pgcct.phieuGiuChoID = pgc.phieuGiuChoID\n"
-                    + "WHERE pgcct.trangThai = 'DANG_GIU'\n"
-                    + "  AND (pgc.trangThai = 'DANG_GIU' OR pgc.trangThai = 'HET_HAN')\n"
-                    + "  AND pgc.thoiDiemTao < DATEADD(minute, -?1, SYSUTCDATETIME());";
+            LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(expiryMinutes);
+            String jpql = "UPDATE PhieuGiuChoChiTiet pgcct SET pgcct.trangThai = :hetGiu " +
+                    "WHERE pgcct.trangThai = :dangGiu AND " +
+                    "pgcct.phieuGiuCho.trangThai IN (:dangGiu, :hetHan) AND " +
+                    "pgcct.phieuGiuCho.thoiDiemTao < :expiryTime";
 
-            Query query = em.createNativeQuery(sqlPGCT);
-            query.setParameter(1, expiryMinutes);
+            Query query = em.createQuery(jpql);
+            query.setParameter("hetGiu", TrangThaiPhieuGiuCho.HET_GIU);
+            query.setParameter("dangGiu", TrangThaiPhieuGiuCho.DANG_GIU);
+            query.setParameter("hetHan", TrangThaiPhieuGiuCho.HET_HAN);
+            query.setParameter("expiryTime", expiryTime);
+
             return query.executeUpdate();
         });
     }
@@ -147,9 +149,9 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
     @Override
     public boolean deletePhieuGiuChoChiTietByPgcID(String phieuGiuChoID) {
         return doInTransaction(em -> {
-            String sql = "DELETE FROM PhieuGiuChoChiTiet WHERE phieuGiuChoID = ?1";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, phieuGiuChoID);
+            String jpql = "DELETE FROM PhieuGiuChoChiTiet p WHERE p.phieuGiuCho.phieuGiuChoID = :phieuGiuChoID";
+            Query query = em.createQuery(jpql);
+            query.setParameter("phieuGiuChoID", phieuGiuChoID);
             return query.executeUpdate() > 0;
         });
     }
@@ -161,18 +163,22 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
     @Override
     public boolean updateTrangThaiPhieuGiuChoChiTietByVe(Ve ve, TrangThaiPhieuGiuCho trangThai) {
         return doInTransaction(em -> {
-            String sql = "UPDATE PhieuGiuChoChiTiet SET trangThai = ?1 " + "WHERE chuyenID = ?2 " + "AND gheID = ?3 "
-                    + "AND gaDiID = ?4 " + "AND gaDenID = ?5 " + "AND trangThai = 'XAC_NHAN'";
+            String jpql = "UPDATE PhieuGiuChoChiTiet p SET p.trangThai = :trangThaiMoi " +
+                    "WHERE p.chuyen.chuyenID = :chuyenID " +
+                    "AND p.ghe.gheID = :gheID " +
+                    "AND p.gaDi.gaID = :gaDiID " +
+                    "AND p.gaDen.gaID = :gaDenID " +
+                    "AND p.trangThai = :trangThaiCu";
 
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, trangThai.toString());
-            query.setParameter(2, ve.getChuyen().getChuyenID());
-            query.setParameter(3, ve.getGhe().getGheID());
-            query.setParameter(4, ve.getGaDi().getGaID());
-            query.setParameter(5, ve.getGaDen().getGaID());
+            Query query = em.createQuery(jpql);
+            query.setParameter("trangThaiMoi", trangThai);
+            query.setParameter("chuyenID", ve.getChuyen().getChuyenID());
+            query.setParameter("gheID", ve.getGhe().getGheID());
+            query.setParameter("gaDiID", ve.getGaDi().getGaID());
+            query.setParameter("gaDenID", ve.getGaDen().getGaID());
+            query.setParameter("trangThaiCu", TrangThaiPhieuGiuCho.XAC_NHAN);
 
             return query.executeUpdate() > 0;
         });
     }
 }
-
