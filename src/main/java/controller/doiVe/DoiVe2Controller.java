@@ -13,6 +13,7 @@ package controller.doiVe;
  */
 
 import bus.DatCho_BUS;
+import bus.PhieuGiuCho_BUS;
 import controller.doiVe.DoiVeBuoc4Controller.SearchNewTicketListener;
 import controller.doiVe.DoiVeBuoc5Controller.SeatSelectedListener;
 import dto.ChuyenDTO;
@@ -44,7 +45,8 @@ public class DoiVe2Controller {
     private final DoiVeBuoc5Controller buoc5Controller;
     private final DoiVeBuoc6Controller buoc6Controller;
 
-    private final DatCho_BUS datChoBUS;
+    private final DatCho_BUS datChoBUS = new DatCho_BUS();
+    private final PhieuGiuCho_BUS phieuGiuChoBUS = new PhieuGiuCho_BUS();
 
     private Runnable onPanel2CompleteListener;
     private Runnable onPanel2ReturnListener;
@@ -52,7 +54,6 @@ public class DoiVe2Controller {
     public DoiVe2Controller(PanelDoiVe2 view, ExchangeSession session) {
         this.view = view;
         this.exchangeSession = session;
-        this.datChoBUS = new DatCho_BUS();
 
         // Khởi tạo các panel con
         this.p4 = view.getPanelBuoc4();
@@ -74,6 +75,8 @@ public class DoiVe2Controller {
         view.setBuoc6Enabled(false);
 
         initMediatorLogic();
+
+        phieuGiuChoBUS.donDepPhieuHetHan(10);
     }
 
     public void addPanel2CompleteListener(Runnable listener) {

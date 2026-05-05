@@ -13,6 +13,7 @@ package controller.banVe;
  */
 
 import bus.DatCho_BUS;
+import bus.PhieuGiuCho_BUS;
 import controller.banVe.PanelBuoc1Controller.SearchListener;
 import controller.banVe.PanelBuoc2Controller.SeatSelectedListener;
 import dto.ChuyenDTO;
@@ -45,7 +46,8 @@ public class BanVe1Controller {
     private final PanelBuoc2Controller buoc2ControllerVe;
     private final PanelBuoc3Controller buoc3Controller;
 
-    private final DatCho_BUS datChoBUS;
+    private final DatCho_BUS datChoBUS = new DatCho_BUS();
+    private final PhieuGiuCho_BUS phieuGiuChoBUS = new PhieuGiuCho_BUS();
 
     private Runnable onRefreshListener;
     private Runnable onPanel1CompleteListener;
@@ -53,7 +55,6 @@ public class BanVe1Controller {
     public BanVe1Controller(PanelBanVe1 view, BookingSession session) {
         this.view = view;
         this.bookingSession = session;
-        this.datChoBUS = new DatCho_BUS();
 
         // Khởi tạo các panel con
         this.p1 = view.getPanelBuoc1();
@@ -84,6 +85,8 @@ public class BanVe1Controller {
         view.setBuoc3Enabled(false);
 
         initMediatorLogic();
+
+        phieuGiuChoBUS.donDepPhieuHetHan(10);
     }
 
     public void addRefreshListener(Runnable listener) {
