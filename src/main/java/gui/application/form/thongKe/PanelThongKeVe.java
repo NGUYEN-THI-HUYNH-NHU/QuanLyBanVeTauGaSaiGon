@@ -1,5 +1,6 @@
 package gui.application.form.thongKe;
 
+import bus.ThongKeVe_BUS;
 import com.toedter.calendar.JDateChooser;
 import dao.impl.ThongKeVeDAO;
 import org.apache.poi.ss.usermodel.*;
@@ -41,11 +42,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
-/**
- * Panel hiển thị thống kê vé theo thời gian. Phiên bản: Đồng bộ hoàn toàn với
- * PanelThongKeDoanhThu (Chart Flat, Autocomplete Ga, Khóa Ga).
- */
 public class PanelThongKeVe extends JPanel {
 
     private static final Logger LOGGER = Logger.getLogger(PanelThongKeVe.class.getName());
@@ -53,10 +49,13 @@ public class PanelThongKeVe extends JPanel {
     private static final String CARD_NGAY = "CARD_NGAY";
     private static final String CARD_THANG = "CARD_THANG";
     private static final String CARD_NAM = "CARD_NAM";
-    private final ThongKeVeDAO thongKeVeDAO;
+
+    // ===== BUS =====
+    private final ThongKeVe_BUS thongKeVeBUS;
+
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
-    // ====== Lọc thời gian ======
+
     private final JComboBox<String> cbLoaiThoiGian;
     private final JDateChooser tuNgay;
     private final JDateChooser denNgay;
@@ -67,44 +66,38 @@ public class PanelThongKeVe extends JPanel {
     private final JComboBox<Integer> cbTuNam;
     private final JComboBox<Integer> cbDenNam;
     private final JPanel filterSwitcher;
-    // ====== Lọc tuyến, nhân viên, loại vé ======
     private final JComboBox<String> cbLoaiTuyen;
     private final JComboBox<String> cbGaDi;
     private final JComboBox<String> cbGaDen;
     private final JComboBox<String> cbNhanVien;
     private final JComboBox<String> cbLoaiVe;
-
     private final JButton btnTimKiem;
     private final JButton btnXoaBoLoc;
-
     private final Map<String, String> nhanVienMap = new HashMap<>();
     private final Map<String, String> hangToaMap = new HashMap<>();
-    // ====== Card thống kê ======
+
     private final JLabel lblTongSoVeBanValue;
     private final JLabel lblTongVeConHieuLucValue;
     private final JLabel lblTongVeDaDungValue;
     private final JLabel lblTongVeDaDoiValue;
     private final JLabel lblTongVeHoanValue;
     private final JLabel lblTongTienVeValue;
-    // ====== Biểu đồ & Chi tiết ======
+
     private final JPanel chartPanelContainer;
     private final JTable tableChiTiet;
     private final DefaultTableModel chiTietTableModel;
-    // ====== Thành phần Header Chi tiết ======
     private final JLabel lblChiTietTitle;
     private final JButton btnExportExcel;
-    // Danh sách gốc để phục vụ tìm kiếm (Autocomplete)
+
     private List<String> danhSachGaGoc;
-    // 4 Label hiển thị thông tin lọc
     private JLabel lblInfoThoiGian;
     private JLabel lblInfoTuyen;
     private JLabel lblInfoNhanVien;
     private JLabel lblInfoLoaiVe;
 
     public PanelThongKeVe() {
-        this.thongKeVeDAO = new ThongKeVeDAO();
+        this.thongKeVeBUS = new ThongKeVe_BUS();
 
-        // --- Khởi tạo components lọc ---
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
         tuNgay = new JDateChooser();
         denNgay = new JDateChooser();
@@ -115,7 +108,6 @@ public class PanelThongKeVe extends JPanel {
         cbTuNam = new JComboBox<>();
         cbDenNam = new JComboBox<>();
         filterSwitcher = new JPanel(new CardLayout());
-
         cbLoaiTuyen = new JComboBox<>(new String[]{"Tất cả", "Theo Ga đi/đến"});
         cbGaDi = new JComboBox<>();
         cbGaDen = new JComboBox<>();
@@ -130,7 +122,6 @@ public class PanelThongKeVe extends JPanel {
         btnXoaBoLoc.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btnXoaBoLoc.addActionListener(e -> xoaBoLoc());
 
-        // --- Khởi tạo Cards Value ---
         lblTongSoVeBanValue = createValueLabel("...");
         lblTongVeConHieuLucValue = createValueLabel("...");
         lblTongVeDaDungValue = createValueLabel("...");
@@ -138,7 +129,6 @@ public class PanelThongKeVe extends JPanel {
         lblTongVeHoanValue = createValueLabel("...");
         lblTongTienVeValue = createValueLabel("...");
 
-        // --- Layout Chính ---
         setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
@@ -147,7 +137,6 @@ public class PanelThongKeVe extends JPanel {
                         new Font("Arial", Font.BOLD, 16), new Color(0, 110, 185)),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
-        // ===== Khu vực NORTH: Bộ lọc và Cards =====
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
@@ -168,29 +157,23 @@ public class PanelThongKeVe extends JPanel {
         infoWrapper.setOpaque(false);
         infoWrapper.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
         infoWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         infoWrapper.add(createCard("Tổng số vé bán", lblTongSoVeBanValue, new Color(52, 152, 219)));
         infoWrapper.add(createCard("Vé còn hiệu lực", lblTongVeConHieuLucValue, new Color(46, 204, 113)));
         infoWrapper.add(createCard("Vé đã dùng", lblTongVeDaDungValue, new Color(155, 89, 182)));
         infoWrapper.add(createCard("Vé hoàn", lblTongVeHoanValue, new Color(231, 76, 60)));
         infoWrapper.add(createCard("Vé đổi", lblTongVeDaDoiValue, new Color(243, 156, 18)));
         infoWrapper.add(createCard("Tổng tiền vé", lblTongTienVeValue, new Color(39, 174, 96)));
-
         topPanel.add(infoWrapper);
         add(topPanel, BorderLayout.NORTH);
 
-        // ===== Tab Panel =====
         JTabbedPane tab = new JTabbedPane();
         tab.setFont(new Font(getFont().getFontName(), Font.PLAIN, 14));
         chartPanelContainer = taoPanelTongQuan();
 
-        String[] columnNames = {"STT", "Thời Gian", "Vé bán", "Vé còn hiệu lực", "Vé đã dùng", "Vé đổi", "Vé hoàn",
-                "Tổng tiền vé (VNĐ)"};
-
+        String[] columnNames = {"STT", "Thời Gian", "Vé bán", "Vé còn hiệu lực", "Vé đã dùng", "Vé đổi", "Vé hoàn", "Tổng tiền vé (VNĐ)"};
         chiTietTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-
                 return false;
             }
 
@@ -203,23 +186,16 @@ public class PanelThongKeVe extends JPanel {
                 };
             }
         };
-
-
         tableChiTiet = new JTable(chiTietTableModel);
         tableChiTiet.getColumnModel().getColumn(0).setMaxWidth(34);
 
-        // --- Tạo Panel Chi Tiết & Header ---
-
-        // 1. Tiêu đề lớn
         lblChiTietTitle = new JLabel("Báo cáo thống kê chi tiết", JLabel.CENTER);
         lblChiTietTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 18));
         lblChiTietTitle.setBorder(new EmptyBorder(10, 0, 5, 0));
 
-        // 2. Panel Thông tin lọc (Header phụ)
         JPanel pnlFilterInfo = new JPanel(new GridLayout(2, 2, 20, 5));
         pnlFilterInfo.setOpaque(false);
         pnlFilterInfo.setBorder(new EmptyBorder(0, 50, 10, 50));
-
         Font fontInfo = new Font(getFont().getFontName(), Font.PLAIN, 14);
         lblInfoThoiGian = new JLabel("Thời gian: Tất cả");
         lblInfoThoiGian.setFont(fontInfo);
@@ -229,19 +205,16 @@ public class PanelThongKeVe extends JPanel {
         lblInfoNhanVien.setFont(fontInfo);
         lblInfoLoaiVe = new JLabel("Loại vé: Tất cả");
         lblInfoLoaiVe.setFont(fontInfo);
-
         pnlFilterInfo.add(lblInfoThoiGian);
         pnlFilterInfo.add(lblInfoTuyen);
         pnlFilterInfo.add(lblInfoNhanVien);
         pnlFilterInfo.add(lblInfoLoaiVe);
 
-        // Container chứa Title + Filter Info
         JPanel pnlTopContainer = new JPanel(new BorderLayout());
         pnlTopContainer.setOpaque(false);
         pnlTopContainer.add(lblChiTietTitle, BorderLayout.NORTH);
         pnlTopContainer.add(pnlFilterInfo, BorderLayout.CENTER);
 
-        // 3. Nút Xuất Excel
         btnExportExcel = new JButton("Xuất Excel");
         btnExportExcel.setBackground(new Color(33, 115, 70));
         btnExportExcel.setForeground(Color.WHITE);
@@ -253,115 +226,83 @@ public class PanelThongKeVe extends JPanel {
         bottomPanel.setOpaque(false);
         bottomPanel.add(btnExportExcel);
 
-        // 4. Ghép vào Panel chính
         JPanel panelChiTietContainer = taoPanelChiTiet(pnlTopContainer, tableChiTiet, bottomPanel);
-
         tab.addTab("Tổng quan", chartPanelContainer);
         tab.addTab("Chi tiết", panelChiTietContainer);
         add(tab, BorderLayout.CENTER);
 
-        // --- Load dữ liệu ---
         loadComboBoxesData();
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    // ================== HÀM XỬ LÝ AUTOCOMPLETE ==================
-    // Hàm này giúp biến JComboBox thành ô nhập liệu thông minh
+    // ================== AUTOCOMPLETE ==================
     private void setupAutoComplete(final JComboBox<String> comboBox, final List<String> items) {
         final JTextField textfield = (JTextField) comboBox.getEditor().getEditorComponent();
-
-        // Khi gõ phím
         textfield.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 SwingUtilities.invokeLater(() -> {
                     String text = textfield.getText();
-                    // Không lọc khi dùng các phím điều hướng
-                    if (e.getKeyCode() >= 37 && e.getKeyCode() <= 40) {
-                        return;
-                    }
+                    if (e.getKeyCode() >= 37 && e.getKeyCode() <= 40) return;
                     filterInfo(comboBox, text, items);
                 });
             }
         });
-
-        // Khi click chuột vào thì tự động bôi đen để dễ gõ
         textfield.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (comboBox.isEnabled()) {
-                    comboBox.setPopupVisible(true);
-                }
+                if (comboBox.isEnabled()) comboBox.setPopupVisible(true);
             }
         });
-
         comboBox.setEditable(true);
     }
 
     private void filterInfo(JComboBox<String> comboBox, String enteredText, List<String> items) {
-        if (!comboBox.isPopupVisible()) {
-            comboBox.showPopup();
-        }
-
-        List<String> filterArray = items.stream().filter(p -> p.toLowerCase().contains(enteredText.toLowerCase()))
+        if (!comboBox.isPopupVisible()) comboBox.showPopup();
+        List<String> filterArray = items.stream()
+                .filter(p -> p.toLowerCase().contains(enteredText.toLowerCase()))
                 .collect(Collectors.toList());
-
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboBox.getModel();
         model.removeAllElements();
-
-        for (String s : filterArray) {
-            model.addElement(s);
-        }
-
+        for (String s : filterArray) model.addElement(s);
         JTextField textfield = (JTextField) comboBox.getEditor().getEditorComponent();
         textfield.setText(enteredText);
     }
 
-    // ================== HÀM XỬ LÝ LOGIC ==================
+    // ================== LOGIC ==================
     private void xuLyThongKe() {
         String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
-        if (loaiThoiGian == null) {
-            loaiThoiGian = "Tất cả";
-        }
+        if (loaiThoiGian == null) loaiThoiGian = "Tất cả";
 
         String loaiTuyen = (String) cbLoaiTuyen.getSelectedItem();
-        String tenGaDi = (String) cbGaDi.getEditor().getItem(); // Lấy từ Editor
+        String tenGaDi = (String) cbGaDi.getEditor().getItem();
         String tenGaDen = (String) cbGaDen.getEditor().getItem();
 
-        // Kiểm tra hợp lệ Ga đi / Ga đến
         if (!"Tất cả".equals(loaiTuyen)) {
             if (tenGaDi == null || tenGaDi.trim().isEmpty() || !danhSachGaGoc.contains(tenGaDi)) {
-                JOptionPane.showMessageDialog(this, "Ga đi không hợp lệ hoặc không có trong danh sách!",
-                        "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Ga đi không hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             if (tenGaDen == null || tenGaDen.trim().isEmpty() || !danhSachGaGoc.contains(tenGaDen)) {
-                JOptionPane.showMessageDialog(this, "Ga đến không hợp lệ hoặc không có trong danh sách!",
-                        "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Ga đến không hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                 return;
             }
         }
 
         String selectedNhanVien = (String) cbNhanVien.getSelectedItem();
-        String nhanVienID = (selectedNhanVien == null || "Tất cả".equals(selectedNhanVien)) ? null
-                : nhanVienMap.get(selectedNhanVien);
+        String nhanVienID = (selectedNhanVien == null || "Tất cả".equals(selectedNhanVien)) ? null : nhanVienMap.get(selectedNhanVien);
 
         String selectedLoaiVe = (String) cbLoaiVe.getSelectedItem();
-        String hangToaID = (selectedLoaiVe == null || "Tất cả".equals(selectedLoaiVe)) ? null
-                : hangToaMap.get(selectedLoaiVe);
+        String hangToaID = (selectedLoaiVe == null || "Tất cả".equals(selectedLoaiVe)) ? null : hangToaMap.get(selectedLoaiVe);
 
         LocalDate fromLocalDate, toLocalDate;
-        String titleLoai, titleChart;
-        String infoThoiGian;
+        String titleLoai, titleChart, infoThoiGian;
 
         try {
             switch (loaiThoiGian) {
                 case "Theo ngày" -> {
-                    Date utilFrom = tuNgay.getDate();
-                    Date utilTo = denNgay.getDate();
-                    if (!kiemTraKhoangNgayHopLe(utilFrom, utilTo)) {
-                        return;
-                    }
+                    Date utilFrom = tuNgay.getDate(), utilTo = denNgay.getDate();
+                    if (!kiemTraKhoangNgayHopLe(utilFrom, utilTo)) return;
                     fromLocalDate = utilFrom.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     toLocalDate = utilTo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                     String strDate = String.format("%s - %s", fmtD(fromLocalDate), fmtD(toLocalDate));
@@ -370,15 +311,12 @@ public class PanelThongKeVe extends JPanel {
                     infoThoiGian = strDate;
                 }
                 case "Theo tháng" -> {
-                    int fm = cbTuThang.getSelectedIndex() + 1;
-                    int fy = nvl((Integer) cbTuNamThang.getSelectedItem(), LocalDate.now().getYear());
-                    int tm = cbDenThang.getSelectedIndex() + 1;
-                    int ty = nvl((Integer) cbDenNamThang.getSelectedItem(), LocalDate.now().getYear());
+                    int fm = cbTuThang.getSelectedIndex() + 1, fy = nvl((Integer) cbTuNamThang.getSelectedItem(), LocalDate.now().getYear());
+                    int tm = cbDenThang.getSelectedIndex() + 1, ty = nvl((Integer) cbDenNamThang.getSelectedItem(), LocalDate.now().getYear());
                     fromLocalDate = LocalDate.of(fy, fm, 1);
                     toLocalDate = LocalDate.of(ty, tm, LocalDate.of(ty, tm, 1).lengthOfMonth());
                     if (toLocalDate.isBefore(fromLocalDate)) {
-                        JOptionPane.showMessageDialog(this, "Thời điểm kết thúc phải ≥ thời điểm bắt đầu.", "Lỗi",
-                                JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Thời điểm kết thúc phải ≥ bắt đầu.");
                         return;
                     }
                     String strMonth = String.format("%d/%d - %d/%d", fm, fy, tm, ty);
@@ -392,8 +330,7 @@ public class PanelThongKeVe extends JPanel {
                     fromLocalDate = LocalDate.of(sy, 1, 1);
                     toLocalDate = LocalDate.of(ey, 12, 31);
                     if (toLocalDate.isBefore(fromLocalDate)) {
-                        JOptionPane.showMessageDialog(this, "Năm kết thúc phải ≥ năm bắt đầu.", "Lỗi",
-                                JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Năm kết thúc phải ≥ năm bắt đầu.");
                         return;
                     }
                     String strYear = String.format("%d - %d", sy, ey);
@@ -415,22 +352,11 @@ public class PanelThongKeVe extends JPanel {
             return;
         }
 
-        // --- CẬP NHẬT HEADER LỌC ---
         lblInfoThoiGian.setText("Thời gian: " + infoThoiGian);
+        lblInfoTuyen.setText("Tuyến: " + (!"Tất cả".equals(loaiTuyen) ? tenGaDi + " -> " + tenGaDen : "Tất cả"));
+        lblInfoNhanVien.setText("Nhân viên: " + (selectedNhanVien == null ? "Tất cả" : selectedNhanVien));
+        lblInfoLoaiVe.setText("Loại vé: " + (selectedLoaiVe == null ? "Tất cả" : selectedLoaiVe));
 
-        String infoTuyen = "Tất cả";
-        if (!"Tất cả".equals(loaiTuyen)) {
-            infoTuyen = tenGaDi + " -> " + tenGaDen;
-        }
-        lblInfoTuyen.setText("Tuyến: " + infoTuyen);
-
-        String infoNV = (selectedNhanVien == null) ? "Tất cả" : selectedNhanVien;
-        lblInfoNhanVien.setText("Nhân viên: " + infoNV);
-
-        String infoLoaiVe = (selectedLoaiVe == null) ? "Tất cả" : selectedLoaiVe;
-        lblInfoLoaiVe.setText("Loại vé: " + infoLoaiVe);
-
-        // --- CẬP NHẬT TRẠNG THÁI UI ---
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         lblTongSoVeBanValue.setText("...");
         lblTongVeConHieuLucValue.setText("...");
@@ -441,37 +367,23 @@ public class PanelThongKeVe extends JPanel {
         capNhatChartRong("🔄 Đang tải dữ liệu...");
         chiTietTableModel.setRowCount(0);
 
-        final LocalDate finalFrom = fromLocalDate;
-        final LocalDate finalTo = toLocalDate;
-        final String finalDaoLoai = loaiThoiGian;
-        final String finalTitleLoai = titleLoai;
-        final String finalChartTitle = titleChart;
-        final String finalLoaiTuyen = loaiTuyen;
-        final String finalTenGaDi = tenGaDi;
-        final String finalTenGaDen = tenGaDen;
-        final String finalNhanVienID = nhanVienID;
-        final String finalHangToaID = hangToaID;
+        final LocalDate finalFrom = fromLocalDate, finalTo = toLocalDate;
+        final String finalDaoLoai = loaiThoiGian, finalTitleLoai = titleLoai, finalChartTitle = titleChart;
+        final String finalLoaiTuyen = loaiTuyen, finalTenGaDi = tenGaDi, finalTenGaDen = tenGaDen;
+        final String finalNhanVienID = nhanVienID, finalHangToaID = hangToaID;
 
         SwingWorker<ThongKeVeResult, Void> worker = new SwingWorker<>() {
             @Override
-            protected ThongKeVeResult doInBackground() throws Exception {
+            protected ThongKeVeResult doInBackground() {
                 ThongKeVeResult result = new ThongKeVeResult();
-                result.thongKeVeChiTietTheoThoiGian = thongKeVeDAO.getThongKeVeChiTietTheoThoiGian(finalDaoLoai,
-                        finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID,
-                        finalHangToaID, null);
-
-                result.tongSoVeBan = thongKeVeDAO.getTongSoVeBanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen,
-                        finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
-                result.tongVeConHieuLuc = thongKeVeDAO.getTongVeConHieuLucTrongKhoang(finalFrom, finalTo,
-                        finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
-                result.tongVeDaDung = thongKeVeDAO.getTongVeDaDungTrongKhoang(finalFrom, finalTo, finalLoaiTuyen,
-                        finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
-                result.tongVeDaDoi = thongKeVeDAO.getTongVeDaDoiTrongKhoang(finalFrom, finalTo, finalLoaiTuyen,
-                        finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
-                result.tongVeHoan = thongKeVeDAO.getTongVeHoanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen,
-                        finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
-                result.tongTienVe = thongKeVeDAO.getTongTienVeTrongKhoang(finalFrom, finalTo, finalLoaiTuyen,
-                        finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.thongKeVeChiTietTheoThoiGian = thongKeVeBUS.getThongKeVeChiTietTheoThoiGian(
+                        finalDaoLoai, finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongSoVeBan = thongKeVeBUS.getTongSoVeBanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongVeConHieuLuc = thongKeVeBUS.getTongVeConHieuLucTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongVeDaDung = thongKeVeBUS.getTongVeDaDungTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongVeDaDoi = thongKeVeBUS.getTongVeDaDoiTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongVeHoan = thongKeVeBUS.getTongVeHoanTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
+                result.tongTienVe = thongKeVeBUS.getTongTienVeTrongKhoang(finalFrom, finalTo, finalLoaiTuyen, finalTenGaDi, finalTenGaDen, finalNhanVienID, finalHangToaID, null);
                 return result;
             }
 
@@ -486,7 +398,6 @@ public class PanelThongKeVe extends JPanel {
                     lblTongVeDaDoiValue.setText(integerFormatter.format(result.tongVeDaDoi));
                     lblTongVeHoanValue.setText(integerFormatter.format(result.tongVeHoan));
                     lblTongTienVeValue.setText(currencyFormatter.format(result.tongTienVe));
-
                     capNhatChartVaTable(result.thongKeVeChiTietTheoThoiGian, finalChartTitle, finalTitleLoai);
                 } catch (Exception ex) {
                     handleLoadingError(ex, "Lỗi cập nhật UI");
@@ -507,106 +418,83 @@ public class PanelThongKeVe extends JPanel {
         }
 
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        final String seriesVeBan = "Vé bán";
-        final String seriesVeHoanDoi = "Vé hoàn/đổi";
         data.forEach((thoiGian, item) -> {
-            dataset.addValue(item.tongSoVeBan, seriesVeBan, thoiGian);
-            dataset.addValue(item.tongVeHoan + item.tongVeDaDoi, seriesVeHoanDoi, thoiGian);
+            dataset.addValue(item.tongSoVeBan, "Vé bán", thoiGian);
+            dataset.addValue(item.tongVeHoan + item.tongVeDaDoi, "Vé hoàn/đổi", thoiGian);
         });
 
-        JFreeChart barChart = ChartFactory.createBarChart("Số lượng vé theo " + chartTitle.toLowerCase(), "Thời gian",
-                "Số lượng vé", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart barChart = ChartFactory.createBarChart("Số lượng vé theo " + chartTitle.toLowerCase(),
+                "Thời gian", "Số lượng vé", dataset, PlotOrientation.VERTICAL, true, true, false);
 
-        // --- TÙY CHỈNH STYLE (FLAT DESIGN) ---
-
-        // 1. Plot
         CategoryPlot plot = barChart.getCategoryPlot();
         plot.setBackgroundPaint(Color.WHITE);
         plot.setRangeGridlinePaint(Color.GRAY);
-        plot.setOutlineVisible(false); // Bỏ viền
+        plot.setOutlineVisible(false);
         plot.setInsets(new RectangleInsets(10, 5, 5, 10));
 
-        // 2. Trục Y
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setUpperMargin(0.15);
         rangeAxis.setNumberFormatOverride(NumberFormat.getNumberInstance(new Locale("vi", "VN")));
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        // 3. Renderer (Thanh biểu đồ)
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setSeriesPaint(0, new Color(46, 204, 113)); // Xanh (Vé bán)
-        renderer.setSeriesPaint(1, new Color(231, 76, 60)); // Đỏ (Vé hoàn/đổi)
-        renderer.setBarPainter(new StandardBarPainter()); // Phẳng
+        renderer.setSeriesPaint(0, new Color(46, 204, 113));
+        renderer.setSeriesPaint(1, new Color(231, 76, 60));
+        renderer.setBarPainter(new StandardBarPainter());
         renderer.setDrawBarOutline(false);
         renderer.setItemMargin(0.2);
         renderer.setShadowVisible(false);
         renderer.setMaximumBarWidth(0.08);
 
-        // 4. Trục X
         CategoryAxis domainAxis = plot.getDomainAxis();
-        if (!chartTitle.contains("năm") && dataset.getColumnCount() > 8) {
+        if (!chartTitle.contains("năm") && dataset.getColumnCount() > 8)
             domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        } else {
+        else
             domainAxis.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
-        }
         domainAxis.setLowerMargin(0.02);
         domainAxis.setUpperMargin(0.02);
 
-        // 5. Legend & Title
-        if (barChart.getLegend() != null) {
-            barChart.getLegend().setFrame(BlockBorder.NONE);
-        }
+        if (barChart.getLegend() != null) barChart.getLegend().setFrame(BlockBorder.NONE);
         barChart.setBackgroundPaint(Color.WHITE);
         barChart.getTitle().setFont(new Font(getFont().getFontName(), Font.BOLD, 16));
 
         ChartPanel chartDisplayPanel = new ChartPanel(barChart);
         chartDisplayPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         chartDisplayPanel.setBackground(Color.WHITE);
-
         chartPanelContainer.removeAll();
         chartPanelContainer.add(chartDisplayPanel, BorderLayout.CENTER);
         chartPanelContainer.revalidate();
         chartPanelContainer.repaint();
 
-        // --- Fill Table ---
         chiTietTableModel.setRowCount(0);
         int stt = 1;
         for (Map.Entry<String, ThongKeVeDAO.ThongKeVeChiTietItem> entry : data.entrySet()) {
-            String thoiGian = entry.getKey();
             ThongKeVeDAO.ThongKeVeChiTietItem item = entry.getValue();
-            chiTietTableModel.addRow(new Object[]{stt++, thoiGian, item.tongSoVeBan, item.tongVeConHieuLuc,
+            chiTietTableModel.addRow(new Object[]{stt++, entry.getKey(), item.tongSoVeBan, item.tongVeConHieuLuc,
                     item.tongVeDaDung, item.tongVeDaDoi, item.tongVeHoan, item.tongTienVe});
         }
         btnExportExcel.setEnabled(true);
     }
 
-    // ================== HÀM XUẤT EXCEL (UPDATED) ==================
     private void exportTableToExcel(ActionEvent e) {
         if (chiTietTableModel.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Lưu báo cáo Excel");
-        String defaultFileName = "BaoCaoThongKeVe_" + LocalDate.now() + ".xlsx";
-        fileChooser.setSelectedFile(new File(defaultFileName));
+        fileChooser.setSelectedFile(new File("BaoCaoThongKeVe_" + LocalDate.now() + ".xlsx"));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Excel Workbook (*.xlsx)", "xlsx"));
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
-        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
         File fileToSave = fileChooser.getSelectedFile();
-        if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx")) {
+        if (!fileToSave.getAbsolutePath().toLowerCase().endsWith(".xlsx"))
             fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
-        }
-        final File finalFileToSave = fileToSave;
+        final File finalFile = fileToSave;
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook();
-             FileOutputStream outputStream = new FileOutputStream(finalFileToSave)) {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(); FileOutputStream outputStream = new FileOutputStream(finalFile)) {
             Sheet sheet = workbook.createSheet("ChiTietThongKeVe");
 
-            // --- STYLES ---
             CellStyle titleStyle = workbook.createCellStyle();
             org.apache.poi.ss.usermodel.Font titleFont = workbook.createFont();
             titleFont.setBold(true);
@@ -644,42 +532,23 @@ public class PanelThongKeVe extends JPanel {
             centerStyle.cloneStyleFrom(dataStyle);
             centerStyle.setAlignment(HorizontalAlignment.CENTER);
 
-            // --- 1. TIÊU ĐỀ ---
-            Row titleRow = sheet.createRow(0);
-            titleRow.createCell(0).setCellValue(lblChiTietTitle.getText().toUpperCase());
-            titleRow.getCell(0).setCellStyle(titleStyle);
-            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, chiTietTableModel.getColumnCount() - 1));
-
-            // --- 2. HEADER THÔNG TIN LỌC (4 dòng) ---
             int lastCol = Math.max(0, chiTietTableModel.getColumnCount() - 1);
+            Row titleRow = sheet.createRow(0);
+            Cell titleCell = titleRow.createCell(0);
+            titleCell.setCellValue(lblChiTietTitle.getText().toUpperCase());
+            titleCell.setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, lastCol));
 
-            Row row1 = sheet.createRow(1);
-            Cell cellTime = row1.createCell(0);
-            cellTime.setCellValue(lblInfoThoiGian.getText());
-            cellTime.setCellStyle(infoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, lastCol));
+            String[] infoTexts = {lblInfoThoiGian.getText(), lblInfoTuyen.getText(), lblInfoNhanVien.getText(), lblInfoLoaiVe.getText()};
+            for (int i = 0; i < infoTexts.length; i++) {
+                Row r = sheet.createRow(i + 1);
+                Cell c = r.createCell(0);
+                c.setCellValue(infoTexts[i]);
+                c.setCellStyle(infoStyle);
+                sheet.addMergedRegion(new CellRangeAddress(i + 1, i + 1, 0, lastCol));
+            }
 
-            Row row2 = sheet.createRow(2);
-            Cell cellRoute = row2.createCell(0);
-            cellRoute.setCellValue(lblInfoTuyen.getText());
-            cellRoute.setCellStyle(infoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, lastCol));
-
-            Row row3 = sheet.createRow(3);
-            Cell cellNV = row3.createCell(0);
-            cellNV.setCellValue(lblInfoNhanVien.getText());
-            cellNV.setCellStyle(infoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, lastCol));
-
-            Row row4 = sheet.createRow(4);
-            Cell cellType = row4.createCell(0);
-            cellType.setCellValue(lblInfoLoaiVe.getText());
-            cellType.setCellStyle(infoStyle);
-            sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastCol));
-
-            // --- 3. BẢNG DỮ LIỆU ---
             int startRow = 6;
-
             Row headerRow = sheet.createRow(startRow);
             for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
                 Cell cell = headerRow.createCell(col);
@@ -692,7 +561,6 @@ public class PanelThongKeVe extends JPanel {
                 for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
                     Cell cell = dataRow.createCell(col);
                     Object value = chiTietTableModel.getValueAt(row, col);
-
                     if (value instanceof Integer) {
                         cell.setCellValue((Integer) value);
                         cell.setCellStyle(dataStyle);
@@ -701,35 +569,79 @@ public class PanelThongKeVe extends JPanel {
                         cell.setCellStyle(currencyCellStyle);
                     } else if (value instanceof String) {
                         cell.setCellValue((String) value);
-                        if (col == 1) {
-                            cell.setCellStyle(centerStyle);
-                        } else {
-                            cell.setCellStyle(dataStyle);
-                        }
+                        cell.setCellStyle(col == 1 ? centerStyle : dataStyle);
                     } else {
-                        if (value != null) {
-                            cell.setCellValue(value.toString());
-                        }
+                        if (value != null) cell.setCellValue(value.toString());
                         cell.setCellStyle(dataStyle);
                     }
                 }
             }
-            for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) {
-                sheet.autoSizeColumn(col);
-            }
+            for (int col = 0; col < chiTietTableModel.getColumnCount(); col++) sheet.autoSizeColumn(col);
 
             workbook.write(outputStream);
-            JOptionPane.showMessageDialog(this, "Xuất Excel thành công!", "Thành công",
-                    JOptionPane.INFORMATION_MESSAGE);
-            if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().open(finalFileToSave);
-            }
+            JOptionPane.showMessageDialog(this, "Xuất Excel thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            if (Desktop.isDesktopSupported()) Desktop.getDesktop().open(finalFile);
         } catch (Exception ex) {
             handleLoadingError(ex, "Lỗi xuất file Excel");
         }
     }
 
-    // ================== UTILS UI ==================
+    private void loadComboBoxesData() {
+        try {
+            danhSachGaGoc = thongKeVeBUS.getDanhSachTenGa();
+            cbGaDi.removeAllItems();
+            cbGaDen.removeAllItems();
+            if (danhSachGaGoc == null || danhSachGaGoc.isEmpty()) {
+                cbGaDi.addItem("Lỗi");
+                cbGaDen.addItem("Lỗi");
+            } else {
+                for (String ga : danhSachGaGoc) {
+                    cbGaDi.addItem(ga);
+                    cbGaDen.addItem(ga);
+                }
+                setupAutoComplete(cbGaDi, danhSachGaGoc);
+                setupAutoComplete(cbGaDen, danhSachGaGoc);
+            }
+            if (danhSachGaGoc != null) {
+                if (danhSachGaGoc.contains("Sài Gòn")) cbGaDi.setSelectedItem("Sài Gòn");
+                if (danhSachGaGoc.contains("Hà Nội")) cbGaDen.setSelectedItem("Hà Nội");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Lỗi load ga", e);
+        }
+
+        try {
+            Map<String, String> dsNhanVien = thongKeVeBUS.getDanhSachNhanVien();
+            nhanVienMap.clear();
+            cbNhanVien.removeAllItems();
+            cbNhanVien.addItem("Tất cả");
+            if (dsNhanVien != null) {
+                for (Map.Entry<String, String> entry : dsNhanVien.entrySet()) {
+                    String d = entry.getValue() + " (" + entry.getKey() + ")";
+                    nhanVienMap.put(d, entry.getKey());
+                    cbNhanVien.addItem(d);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Lỗi load NV", e);
+        }
+
+        try {
+            Map<String, String> dsHangToa = thongKeVeBUS.getDanhSachLoaiVe();
+            hangToaMap.clear();
+            cbLoaiVe.removeAllItems();
+            cbLoaiVe.addItem("Tất cả");
+            if (dsHangToa != null) {
+                for (Map.Entry<String, String> entry : dsHangToa.entrySet()) {
+                    hangToaMap.put(entry.getValue(), entry.getKey());
+                    cbLoaiVe.addItem(entry.getValue());
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Lỗi load Loại vé", e);
+        }
+    }
+
     private JPanel buildFilterBar() {
         JPanel bar = new JPanel(new GridBagLayout());
         bar.setOpaque(false);
@@ -739,7 +651,6 @@ public class PanelThongKeVe extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         Dimension comboSize = new Dimension(250, 32);
 
-        // Hàng 0
         gbc.gridx = 0;
         gbc.gridy = 0;
         bar.add(new JLabel("Loại thời gian:"), gbc);
@@ -755,7 +666,6 @@ public class PanelThongKeVe extends JPanel {
         filterSwitcher.setPreferredSize(new Dimension(350, 32));
         bar.add(filterSwitcher, gbc);
 
-        // Hàng 1
         gbc.gridx = 0;
         gbc.gridy = 1;
         bar.add(new JLabel("Lọc tuyến:"), gbc);
@@ -771,6 +681,7 @@ public class PanelThongKeVe extends JPanel {
         panelGa.add(new JLabel("Ga đến:"));
         cbGaDen.setPreferredSize(comboSize);
         panelGa.add(cbGaDen);
+
         JPanel panelLoaiVe = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         panelLoaiVe.setOpaque(false);
         panelLoaiVe.add(new JLabel("Loại vé:"));
@@ -787,7 +698,6 @@ public class PanelThongKeVe extends JPanel {
         bar.add(panelCot2, gbc);
         gbc.gridheight = 1;
 
-        // Hàng 2
         gbc.gridx = 0;
         gbc.gridy = 2;
         bar.add(new JLabel("Nhân viên:"), gbc);
@@ -795,13 +705,11 @@ public class PanelThongKeVe extends JPanel {
         cbNhanVien.setPreferredSize(comboSize);
         bar.add(cbNhanVien, gbc);
 
-        // Hàng 3
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 3;
         JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panelButtons.setOpaque(false);
-        btnTimKiem.setText("Tìm kiếm");
         btnTimKiem.setFont(new Font("Arial", Font.BOLD, 13));
         btnTimKiem.setBackground(new Color(33, 150, 83));
         btnTimKiem.setForeground(Color.WHITE);
@@ -811,7 +719,6 @@ public class PanelThongKeVe extends JPanel {
         panelButtons.add(btnXoaBoLoc);
         bar.add(panelButtons, gbc);
 
-        // Events
         cbLoaiThoiGian.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 CardLayout cl = (CardLayout) filterSwitcher.getLayout();
@@ -824,11 +731,9 @@ public class PanelThongKeVe extends JPanel {
             }
         });
 
-        // --- SỰ KIỆN KHÓA/MỞ & RESET GA ---
         cbLoaiTuyen.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                String val = (String) e.getItem();
-                boolean enable = val != null && val.equals("Theo Ga đi/đến");
+                boolean enable = "Theo Ga đi/đến".equals(e.getItem());
                 cbGaDi.setEnabled(enable);
                 cbGaDen.setEnabled(enable);
                 if (!enable) {
@@ -839,10 +744,8 @@ public class PanelThongKeVe extends JPanel {
         });
         cbGaDi.setEnabled(false);
         cbGaDen.setEnabled(false);
-
         btnTimKiem.addActionListener(e -> xuLyThongKe());
         ((CardLayout) filterSwitcher.getLayout()).show(filterSwitcher, CARD_TATCA);
-
         return bar;
     }
 
@@ -869,72 +772,11 @@ public class PanelThongKeVe extends JPanel {
         return panel;
     }
 
-    private void loadComboBoxesData() {
-        try {
-            danhSachGaGoc = thongKeVeDAO.getDanhSachTenGa();
-            cbGaDi.removeAllItems();
-            cbGaDen.removeAllItems();
-            if (danhSachGaGoc == null || danhSachGaGoc.isEmpty()) {
-                cbGaDi.addItem("Lỗi");
-                cbGaDen.addItem("Lỗi");
-            } else {
-                for (String ga : danhSachGaGoc) {
-                    cbGaDi.addItem(ga);
-                    cbGaDen.addItem(ga);
-                }
-                setupAutoComplete(cbGaDi, danhSachGaGoc);
-                setupAutoComplete(cbGaDen, danhSachGaGoc);
-            }
-            if (danhSachGaGoc != null) {
-                if (danhSachGaGoc.contains("Sài Gòn")) {
-                    cbGaDi.setSelectedItem("Sài Gòn");
-                }
-                if (danhSachGaGoc.contains("Hà Nội")) {
-                    cbGaDen.setSelectedItem("Hà Nội");
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi load ga", e);
-        }
-
-        try {
-            Map<String, String> dsNhanVien = thongKeVeDAO.getDanhSachNhanVien();
-            nhanVienMap.clear();
-            cbNhanVien.removeAllItems();
-            cbNhanVien.addItem("Tất cả");
-            if (dsNhanVien != null) {
-                for (Map.Entry<String, String> e : dsNhanVien.entrySet()) {
-                    String d = e.getValue() + " (" + e.getKey() + ")";
-                    nhanVienMap.put(d, e.getKey());
-                    cbNhanVien.addItem(d);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi load NV", e);
-        }
-
-        try {
-            Map<String, String> dsHangToa = thongKeVeDAO.getDanhSachLoaiVe();
-            hangToaMap.clear();
-            cbLoaiVe.removeAllItems();
-            cbLoaiVe.addItem("Tất cả");
-            if (dsHangToa != null) {
-                for (Map.Entry<String, String> e : dsHangToa.entrySet()) {
-                    hangToaMap.put(e.getValue(), e.getKey());
-                    cbLoaiVe.addItem(e.getValue());
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Lỗi load Loại vé", e);
-        }
-    }
-
-    // --- UTILS: ValueLabel, Card, Loading, Date Check ---
-    private JLabel createValueLabel(String initialText) {
-        JLabel label = new JLabel(initialText, SwingConstants.CENTER);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font(getFont().getFontName(), Font.BOLD, 16));
-        return label;
+    private JLabel createValueLabel(String t) {
+        JLabel l = new JLabel(t, SwingConstants.CENTER);
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font(getFont().getFontName(), Font.BOLD, 16));
+        return l;
     }
 
     private JPanel createCard(String title, JLabel valueLabel, Color color) {
@@ -985,8 +827,7 @@ public class PanelThongKeVe extends JPanel {
         c1.setTime(d1);
         Calendar c2 = Calendar.getInstance();
         c2.setTime(d2);
-        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR)
-                && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) && c1.get(Calendar.DAY_OF_YEAR) == c2.get(Calendar.DAY_OF_YEAR);
     }
 
     private String fmtD(LocalDate d) {
@@ -1040,8 +881,7 @@ public class PanelThongKeVe extends JPanel {
             cbTuNamThang.setSelectedItem(cy);
             cbDenNamThang.setSelectedItem(cy);
         }
-        Dimension m = new Dimension(120, 28);
-        Dimension y = new Dimension(120, 28);
+        Dimension m = new Dimension(120, 28), y = new Dimension(120, 28);
         cbTuThang.setPreferredSize(m);
         cbDenThang.setPreferredSize(m);
         cbTuNamThang.setPreferredSize(y);
@@ -1079,13 +919,9 @@ public class PanelThongKeVe extends JPanel {
 
     private void addDateConstraint(JDateChooser f, JDateChooser t) {
         PropertyChangeListener l = evt -> {
-            if (!"date".equals(evt.getPropertyName())) {
-                return;
-            }
+            if (!"date".equals(evt.getPropertyName())) return;
             Date d1 = f.getDate(), d2 = t.getDate();
-            if (d1 != null && d2 != null && !isSameDay(d1, d2) && d2.before(d1)) {
-                t.setDate(d1);
-            }
+            if (d1 != null && d2 != null && !isSameDay(d1, d2) && d2.before(d1)) t.setDate(d1);
         };
         f.addPropertyChangeListener("date", l);
         t.addPropertyChangeListener("date", l);
@@ -1100,26 +936,15 @@ public class PanelThongKeVe extends JPanel {
         cbDenThang.setSelectedIndex(now.get(Calendar.MONTH));
         cbTuNam.setSelectedItem(now.get(Calendar.YEAR));
         cbDenNam.setSelectedItem(now.get(Calendar.YEAR));
-
         cbLoaiTuyen.setSelectedIndex(0);
         cbGaDi.setEnabled(false);
         cbGaDen.setEnabled(false);
-        // Reset text nhập trong Editor
         ((JTextField) cbGaDi.getEditor().getEditorComponent()).setText("");
         ((JTextField) cbGaDen.getEditor().getEditorComponent()).setText("");
-
-        if (cbNhanVien.getItemCount() > 0) {
-            cbNhanVien.setSelectedIndex(0);
-        }
-        if (cbLoaiVe.getItemCount() > 0) {
-            cbLoaiVe.setSelectedIndex(0);
-        }
-        if (cbGaDi.getItemCount() > 0) {
-            cbGaDi.setSelectedIndex(0);
-        }
-        if (cbGaDen.getItemCount() > 1) {
-            cbGaDen.setSelectedIndex(1);
-        }
+        if (cbNhanVien.getItemCount() > 0) cbNhanVien.setSelectedIndex(0);
+        if (cbLoaiVe.getItemCount() > 0) cbLoaiVe.setSelectedIndex(0);
+        if (cbGaDi.getItemCount() > 0) cbGaDi.setSelectedIndex(0);
+        if (cbGaDen.getItemCount() > 1) cbGaDen.setSelectedIndex(1);
         xuLyThongKe();
     }
 

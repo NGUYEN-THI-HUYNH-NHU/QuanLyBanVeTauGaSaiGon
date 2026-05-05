@@ -2,7 +2,7 @@ package gui.application.form.dashboard;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import connectDB.ConnectDB;
-import dao.impl.Dashboard_DAO;
+import dao.impl.DashboardDAO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -52,7 +52,7 @@ public class Dashboard extends JPanel {
     private final DecimalFormat percentFormatter = new DecimalFormat("#,##0.0'%'");
 
     // COMPONENTS
-    private Dashboard_DAO dashboardDAO;
+    private DashboardDAO dashboardBUS;
     private KpiCard kpiRevenue, kpiTicketsSold, kpiOccupancy, kpiRefundRate;
 
     // Thay thế BarChart cũ bằng PieChartPanel mới
@@ -74,7 +74,7 @@ public class Dashboard extends JPanel {
     public Dashboard() {
         try {
             ConnectDB.getInstance();
-            this.dashboardDAO = new Dashboard_DAO();
+            this.dashboardBUS = new DashboardDAO();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,7 +86,7 @@ public class Dashboard extends JPanel {
         add(createHeaderBar(), BorderLayout.NORTH);
         add(createMainGrid(), BorderLayout.CENTER);
 
-        if (this.dashboardDAO != null) {
+        if (this.dashboardBUS != null) {
             LocalDate now = LocalDate.now();
 
             // 1. Highlight nút "Tháng này" thay vì "Hôm nay"
@@ -135,11 +135,11 @@ public class Dashboard extends JPanel {
                 updateKpiCards(startDate, endDate);
 
                 // 2. DOANH THU (PIE CHART)
-                Map<String, Double> revenueByMethod = dashboardDAO.getRevenueByPaymentMethod(startDate, endDate);
+                Map<String, Double> revenueByMethod = dashboardBUS.getRevenueByPaymentMethod(startDate, endDate);
                 revenuePieChart.setData(revenueByMethod);
 
                 // 3. NGẢ VÉ (STACKED BAR)
-                Map<LocalDate, Map<String, Integer>> ticketData = dashboardDAO.getTicketsBySeatTypeOverTime(startDate, endDate);
+                Map<LocalDate, Map<String, Integer>> ticketData = dashboardBUS.getTicketsBySeatTypeOverTime(startDate, endDate);
                 stackedBarChart.setViewType(viewType);
                 stackedBarChart.setData(ticketData);
                 stackedBarChart.setDateFormat(currentFmt);
@@ -147,19 +147,19 @@ public class Dashboard extends JPanel {
                 // 4. HÓA ĐƠN (LINE CHART)
                 Map<LocalDate, Integer> sold, refund;
                 if (viewType == 1) { // Năm
-                    sold = dashboardDAO.getInvoicesPaidByMonth(startDate, endDate);
-                    refund = dashboardDAO.getInvoicesRefundedByMonth(startDate, endDate);
+                    sold = dashboardBUS.getInvoicesPaidByMonth(startDate, endDate);
+                    refund = dashboardBUS.getInvoicesRefundedByMonth(startDate, endDate);
                 } else if (viewType == 2) { // Tất cả
-                    sold = dashboardDAO.getInvoicesPaidByYear(startDate, endDate);
-                    refund = dashboardDAO.getInvoicesRefundedByYear(startDate, endDate);
+                    sold = dashboardBUS.getInvoicesPaidByYear(startDate, endDate);
+                    refund = dashboardBUS.getInvoicesRefundedByYear(startDate, endDate);
                 } else { // Ngày/Tuần/Tháng
-                    sold = dashboardDAO.getInvoicesPaidOverTime(startDate, endDate);
-                    refund = dashboardDAO.getInvoicesRefundedOverTime(startDate, endDate);
+                    sold = dashboardBUS.getInvoicesPaidOverTime(startDate, endDate);
+                    refund = dashboardBUS.getInvoicesRefundedOverTime(startDate, endDate);
                 }
                 invoiceAnalysisChart.setData(sold, refund, currentFmt);
 
                 // 5. CẢNH BÁO (ALERTS)
-                int[] alertData = dashboardDAO.getTripOccupancyAlerts(startDate, endDate);
+                int[] alertData = dashboardBUS.getTripOccupancyAlerts(startDate, endDate);
                 alertsPanel.setAlertData(alertData[0], alertData[1]);
 
                 return null;
@@ -169,17 +169,17 @@ public class Dashboard extends JPanel {
     }
 
     private void updateKpiCards(LocalDate s, LocalDate e) {
-        double r = dashboardDAO.getKpiTotalRevenue(s, e);
+        double r = dashboardBUS.getKpiTotalRevenue(s, e);
         kpiRevenue.setData(formatter.format(r) + " VND", "+0%");
 
-        int t = dashboardDAO.getKpiTicketsSold(s, e);
+        int t = dashboardBUS.getKpiTicketsSold(s, e);
         kpiTicketsSold.setData(formatter.format(t), "+0%");
 
-        int seat = dashboardDAO.getTotalAvailableSeats(s, e);
+        int seat = dashboardBUS.getTotalAvailableSeats(s, e);
         double rate = (seat > 0) ? ((double) t / seat * 100) : 0;
         kpiOccupancy.setData(percentFormatter.format(rate), formatter.format(t) + "/" + formatter.format(seat));
 
-        int ref = dashboardDAO.getTotalRefundsAndExchanges(s, e);
+        int ref = dashboardBUS.getTotalRefundsAndExchanges(s, e);
         double refRate = (t > 0) ? ((double) ref / t * 100) : 0;
         kpiRefundRate.setData(percentFormatter.format(refRate), formatter.format(ref) + "/" + formatter.format(t));
     }
@@ -205,9 +205,9 @@ public class Dashboard extends JPanel {
         // 1. LẤY DỮ LIỆU TỪ DAO
         List<Object[]> dataList;
         if (isLowOccupancy) {
-            dataList = dashboardDAO.getLowOccupancyList(currentStart, currentEnd);
+            dataList = dashboardBUS.getLowOccupancyList(currentStart, currentEnd);
         } else {
-            dataList = dashboardDAO.getHighOccupancyList(currentStart, currentEnd);
+            dataList = dashboardBUS.getHighOccupancyList(currentStart, currentEnd);
         }
 
         // 2. CẤU HÌNH CỘT

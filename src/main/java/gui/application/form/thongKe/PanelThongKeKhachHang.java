@@ -1,5 +1,6 @@
 package gui.application.form.thongKe;
 
+import bus.ThongKeKhachHang_BUS;
 import com.toedter.calendar.JDateChooser;
 import dao.impl.ThongKeKhachHangDAO;
 import org.apache.poi.ss.usermodel.*;
@@ -25,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -37,10 +37,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-
 /**
- * Panel Thống kê Khách hàng & Phân tích RFM (Recency - Frequency - Monetary).
- * Phiên bản: Đã xóa cột Khu Vực.
+ * Panel Thống kê Khách hàng & Phân tích RFM.
+ * Đã sửa để dùng ThongKeKhachHang_BUS thay vì DAO trực tiếp.
  */
 public class PanelThongKeKhachHang extends JPanel {
 
@@ -49,12 +48,14 @@ public class PanelThongKeKhachHang extends JPanel {
     private static final String CARD_NGAY = "CARD_NGAY";
     private static final String CARD_THANG = "CARD_THANG";
     private static final String CARD_NAM = "CARD_NAM";
-    private final ThongKeKhachHangDAO thongKeKHDao;
-    // Định dạng dữ liệu hiển thị
+
+    // ===== BUS =====
+    private final ThongKeKhachHang_BUS thongKeKHBUS;
+
     private final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
     private final DecimalFormat integerFormatter = new DecimalFormat("#,##0");
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    // ===== Components Lọc Thời Gian =====
+
     private final JComboBox<String> cbLoaiThoiGian;
     private final JDateChooser tuNgay;
     private final JDateChooser denNgay;
@@ -65,38 +66,29 @@ public class PanelThongKeKhachHang extends JPanel {
     private final JComboBox<Integer> cbTuNam;
     private final JComboBox<Integer> cbDenNam;
     private final JPanel filterSwitcher;
-    // ===== Components Lọc Nghiệp Vụ =====
     private final JComboBox<String> cbLoaiDoiTuong;
     private final JComboBox<String> cbPhanLoai;
-
-    // ===== Nút bấm =====
     private final JButton btnTimKiem;
     private final JButton btnXoaBoLoc;
 
-    // ===== Labels Card =====
     private final JLabel lblTongKhachHangValue;
     private final JLabel lblKhachHangMoiValue;
     private final JLabel lblKhachHangQuayLaiValue;
     private final JLabel lblTongDoanhThuValue;
 
-    // ===== Bảng & Biểu đồ =====
     private final JPanel chartPanelContainer;
     private final JTable tableChiTiet;
     private final DefaultTableModel chiTietTableModel;
-
-    // ===== Thành phần Header Chi tiết =====
     private final JLabel lblChiTietTitle;
     private final JButton btnExportExcel;
 
-    // 3 Label hiển thị thông tin lọc
     private JLabel lblInfoThoiGian;
     private JLabel lblInfoDoiTuong;
     private JLabel lblInfoPhanLoai;
 
     public PanelThongKeKhachHang() {
-        this.thongKeKHDao = new ThongKeKhachHangDAO();
+        this.thongKeKHBUS = new ThongKeKhachHang_BUS();
 
-        // 1. Khởi tạo Components
         cbLoaiThoiGian = new JComboBox<>(new String[]{"Tất cả", "Theo ngày", "Theo tháng", "Theo năm"});
         tuNgay = new JDateChooser();
         denNgay = new JDateChooser();
@@ -107,7 +99,6 @@ public class PanelThongKeKhachHang extends JPanel {
         cbTuNam = new JComboBox<>();
         cbDenNam = new JComboBox<>();
         filterSwitcher = new JPanel(new CardLayout());
-
         cbLoaiDoiTuong = new JComboBox<>(new String[]{"Tất cả"});
         cbPhanLoai = new JComboBox<>(new String[]{"Tất cả", "VIP", "Thân thiết", "Khách quay lại", "Khách mới", "Ngủ đông"});
 
@@ -120,7 +111,6 @@ public class PanelThongKeKhachHang extends JPanel {
         lblKhachHangQuayLaiValue = createValueLabel("...");
         lblTongDoanhThuValue = createValueLabel("...");
 
-        // 2. Layout Chính
         setLayout(new BorderLayout(0, 15));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
@@ -129,7 +119,6 @@ public class PanelThongKeKhachHang extends JPanel {
                         new Font(getFont().getFontName(), Font.BOLD, 16), new Color(0, 110, 185)),
                 new EmptyBorder(5, 5, 5, 5)));
 
-        // 3. Top Panel
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
@@ -141,7 +130,6 @@ public class PanelThongKeKhachHang extends JPanel {
         topPanel.add(sep);
         topPanel.add(Box.createVerticalStrut(15));
 
-        // Cards Tổng quan
         JPanel infoWrapper = new JPanel(new GridLayout(1, 4, 20, 20));
         infoWrapper.setOpaque(false);
         infoWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 10, 5));
@@ -152,16 +140,12 @@ public class PanelThongKeKhachHang extends JPanel {
         topPanel.add(infoWrapper);
         add(topPanel, BorderLayout.NORTH);
 
-        // 4. Center Panel
         JTabbedPane tab = new JTabbedPane();
         tab.setFont(new Font(getFont().getFontName(), Font.PLAIN, 14));
         chartPanelContainer = taoPanelTongQuan();
 
-        // --- CẬP NHẬT CẤU TRÚC BẢNG (ĐÃ XÓA CỘT KHU VỰC) ---
-        // Index cũ: 0-Mã, 1-Tên, 2-KhuVuc, 3-LoaiDT, 4-SoLan, 5-Tien, 6-Ngay, 7-PhanLoai
-        // Index mới: 0-Mã, 1-Tên,          2-LoaiDT, 3-SoLan, 4-Tien, 5-Ngay, 6-PhanLoai
-        String[] columnNames = {"Mã KH", "Tên Khách Hàng", "Loại Đối Tượng", "Số Lần Mua", "Tổng Chi Tiêu (VNĐ)", "Lần Mua Cuối", "Phân Loại"};
-
+        String[] columnNames = {"Mã KH", "Tên Khách Hàng", "Loại Đối Tượng", "Số Lần Mua",
+                "Tổng Chi Tiêu (VNĐ)", "Lần Mua Cuối", "Phân Loại"};
         chiTietTableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -170,20 +154,18 @@ public class PanelThongKeKhachHang extends JPanel {
 
             @Override
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 3) return Integer.class; // Số lần mua
-                if (columnIndex == 4) return Double.class;  // Tiền
+                if (columnIndex == 3) return Integer.class;
+                if (columnIndex == 4) return Double.class;
                 return String.class;
             }
         };
         tableChiTiet = new JTable(chiTietTableModel);
         setupTableDetails();
 
-        // Header Chi tiết
         lblChiTietTitle = new JLabel("Chi tiết danh sách khách hàng", JLabel.CENTER);
         lblChiTietTitle.setFont(new Font(getFont().getFontName(), Font.BOLD, 18));
         lblChiTietTitle.setBorder(new EmptyBorder(10, 0, 5, 0));
 
-        // Panel Filter Info
         JPanel pnlFilterInfo = new JPanel(new GridLayout(2, 2, 20, 5));
         pnlFilterInfo.setOpaque(false);
         pnlFilterInfo.setBorder(new EmptyBorder(0, 50, 10, 50));
@@ -204,7 +186,6 @@ public class PanelThongKeKhachHang extends JPanel {
         pnlTopContainer.add(lblChiTietTitle, BorderLayout.NORTH);
         pnlTopContainer.add(pnlFilterInfo, BorderLayout.CENTER);
 
-        // Export Button
         btnExportExcel = new JButton("Xuất Excel");
         btnExportExcel.setBackground(new Color(33, 115, 70));
         btnExportExcel.setForeground(Color.WHITE);
@@ -217,7 +198,6 @@ public class PanelThongKeKhachHang extends JPanel {
         bottomPanel.add(btnExportExcel);
 
         JPanel panelChiTietContainer = taoPanelChiTiet(pnlTopContainer, tableChiTiet, bottomPanel);
-
         tab.addTab("Cơ cấu khách hàng", chartPanelContainer);
         tab.addTab("Chi tiết khách hàng", panelChiTietContainer);
         add(tab, BorderLayout.CENTER);
@@ -226,9 +206,8 @@ public class PanelThongKeKhachHang extends JPanel {
         SwingUtilities.invokeLater(this::xuLyThongKe);
     }
 
-    // ================== LOGIC XỬ LÝ ==================
+    // ================== LOGIC ==================
     private void xuLyThongKe() {
-        // Logic lọc thời gian giữ nguyên
         String loaiThoiGian = (String) cbLoaiThoiGian.getSelectedItem();
         LocalDate fromDate, toDate;
         String titleLoai, infoThoiGian;
@@ -273,13 +252,11 @@ public class PanelThongKeKhachHang extends JPanel {
         String loaiDoiTuong = (String) cbLoaiDoiTuong.getSelectedItem();
         String phanLoai = (String) cbPhanLoai.getSelectedItem();
 
-        // Update Labels
         lblInfoThoiGian.setText("Thời gian: " + infoThoiGian);
         lblInfoDoiTuong.setText("Đối tượng: " + (loaiDoiTuong == null ? "Tất cả" : loaiDoiTuong));
         lblInfoPhanLoai.setText("Phân loại: " + (phanLoai == null ? "Tất cả" : phanLoai));
         lblChiTietTitle.setText("Chi tiết danh sách khách hàng theo " + titleLoai);
 
-        // Worker
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         lblTongKhachHangValue.setText("...");
         lblKhachHangMoiValue.setText("...");
@@ -290,12 +267,11 @@ public class PanelThongKeKhachHang extends JPanel {
         final LocalDate finalFrom = fromDate, finalTo = toDate;
         SwingWorker<ThongKeKHResult, Void> worker = new SwingWorker<>() {
             @Override
-            protected ThongKeKHResult doInBackground() throws Exception {
+            protected ThongKeKHResult doInBackground() {
                 ThongKeKHResult res = new ThongKeKHResult();
-                res.chiTietKhachHang = thongKeKHDao.getThongKeKhachHang(finalFrom, finalTo, loaiDoiTuong, phanLoai);
+                res.chiTietKhachHang = thongKeKHBUS.getThongKeKhachHang(finalFrom, finalTo, loaiDoiTuong, phanLoai);
                 res.tongSoKhachHang = res.chiTietKhachHang.size();
                 res.tongDoanhThu = res.chiTietKhachHang.values().stream().mapToDouble(k -> k.tongChiTieu).sum();
-
                 Map<String, Long> counts = res.chiTietKhachHang.values().stream()
                         .collect(Collectors.groupingBy(k -> k.phanLoai, Collectors.counting()));
                 res.countMoi = counts.getOrDefault("Khách mới", 0L);
@@ -318,7 +294,8 @@ public class PanelThongKeKhachHang extends JPanel {
                     capNhatChartVaTable(result);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(PanelThongKeKhachHang.this, "Lỗi khi tải dữ liệu: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(PanelThongKeKhachHang.this,
+                            "Lỗi khi tải dữ liệu: " + ex.getMessage());
                 }
             }
         };
@@ -326,7 +303,6 @@ public class PanelThongKeKhachHang extends JPanel {
     }
 
     private void capNhatChartVaTable(ThongKeKHResult res) {
-        // 1. Chart
         DefaultPieDataset dataset = new DefaultPieDataset();
         if (res.countMoi > 0) dataset.setValue("Mới (1 lần)", res.countMoi);
         if (res.countQuayLai > 0) dataset.setValue("Quay lại (2-4 lần)", res.countQuayLai);
@@ -352,17 +328,11 @@ public class PanelThongKeKhachHang extends JPanel {
         chartPanelContainer.revalidate();
         chartPanelContainer.repaint();
 
-        // 2. Table Update - ĐÃ LOẠI BỎ KHU VỰC
         chiTietTableModel.setRowCount(0);
         if (res.chiTietKhachHang != null) {
             for (ThongKeKhachHangDAO.KhachHangRFM kh : res.chiTietKhachHang.values()) {
                 chiTietTableModel.addRow(new Object[]{
-                        kh.khachHangID,
-                        kh.hoTen,
-                        // kh.khuVuc, -> ĐÃ XÓA
-                        kh.loaiDoiTuong,
-                        kh.soLanMua,
-                        kh.tongChiTieu,
+                        kh.khachHangID, kh.hoTen, kh.loaiDoiTuong, kh.soLanMua, kh.tongChiTieu,
                         kh.lanMuaCuoi != null ? kh.lanMuaCuoi.format(dateFormatter) : "",
                         kh.phanLoai
                 });
@@ -371,112 +341,89 @@ public class PanelThongKeKhachHang extends JPanel {
         btnExportExcel.setEnabled(chiTietTableModel.getRowCount() > 0);
     }
 
-    // ================== EXCEL EXPORT (UPDATED) ==================
     private void exportTableToExcel(ActionEvent e) {
         if (chiTietTableModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "Không có dữ liệu để xuất.");
             return;
         }
-
         JFileChooser fc = new JFileChooser();
         fc.setSelectedFile(new File("BaoCaoKhachHang_" + LocalDate.now() + ".xlsx"));
         fc.setFileFilter(new FileNameExtensionFilter("Excel (*.xlsx)", "xlsx"));
+        if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 
-        if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File f = fc.getSelectedFile();
-            if (!f.getName().endsWith(".xlsx")) f = new File(f.getAbsolutePath() + ".xlsx");
+        File f = fc.getSelectedFile();
+        if (!f.getName().endsWith(".xlsx")) f = new File(f.getAbsolutePath() + ".xlsx");
 
-            try (XSSFWorkbook wb = new XSSFWorkbook(); FileOutputStream os = new FileOutputStream(f)) {
-                Sheet sheet = wb.createSheet("KhachHang");
+        try (XSSFWorkbook wb = new XSSFWorkbook(); FileOutputStream os = new FileOutputStream(f)) {
+            Sheet sheet = wb.createSheet("KhachHang");
 
-                // Styles
-                CellStyle titleStyle = wb.createCellStyle();
-                org.apache.poi.ss.usermodel.Font titleFont = wb.createFont();
-                titleFont.setBold(true);
-                titleFont.setFontHeightInPoints((short) 16);
-                titleStyle.setFont(titleFont);
-                titleStyle.setAlignment(HorizontalAlignment.CENTER);
+            CellStyle titleStyle = wb.createCellStyle();
+            org.apache.poi.ss.usermodel.Font titleFont = wb.createFont();
+            titleFont.setBold(true);
+            titleFont.setFontHeightInPoints((short) 16);
+            titleStyle.setFont(titleFont);
+            titleStyle.setAlignment(HorizontalAlignment.CENTER);
 
-                CellStyle infoStyle = wb.createCellStyle();
-                infoStyle.setAlignment(HorizontalAlignment.LEFT);
-                org.apache.poi.ss.usermodel.Font infoFont = wb.createFont();
-                infoFont.setItalic(true);
-                infoStyle.setFont(infoFont);
+            CellStyle infoStyle = wb.createCellStyle();
+            infoStyle.setAlignment(HorizontalAlignment.LEFT);
+            org.apache.poi.ss.usermodel.Font infoFont = wb.createFont();
+            infoFont.setItalic(true);
+            infoStyle.setFont(infoFont);
 
-                CellStyle headerStyle = wb.createCellStyle();
-                org.apache.poi.ss.usermodel.Font font = wb.createFont();
-                font.setBold(true);
-                headerStyle.setFont(font);
-                headerStyle.setAlignment(HorizontalAlignment.CENTER);
-                setBorder(headerStyle);
+            CellStyle headerStyle = wb.createCellStyle();
+            org.apache.poi.ss.usermodel.Font font = wb.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            setBorderStyle(headerStyle);
 
-                CellStyle dataStyle = wb.createCellStyle();
-                setBorder(dataStyle);
+            CellStyle dataStyle = wb.createCellStyle();
+            setBorderStyle(dataStyle);
 
-                // 1. Tiêu đề
-                Row row0 = sheet.createRow(0);
-                row0.setHeightInPoints(30);
-                Cell cellTitle = row0.createCell(0);
-                cellTitle.setCellValue(lblChiTietTitle.getText().toUpperCase());
-                cellTitle.setCellStyle(titleStyle);
-                int lastCol = Math.max(0, chiTietTableModel.getColumnCount() - 1);
-                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, lastCol));
+            int lastCol = Math.max(0, chiTietTableModel.getColumnCount() - 1);
+            Row row0 = sheet.createRow(0);
+            row0.setHeightInPoints(30);
+            Cell cellTitle = row0.createCell(0);
+            cellTitle.setCellValue(lblChiTietTitle.getText().toUpperCase());
+            cellTitle.setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, lastCol));
 
-                // 2. Info Headers
-                Row row1 = sheet.createRow(1);
-                Cell cellTime = row1.createCell(0);
-                cellTime.setCellValue(lblInfoThoiGian.getText());
-                cellTime.setCellStyle(infoStyle);
-                sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, lastCol));
-
-                Row row2 = sheet.createRow(2);
-                Cell cellObj = row2.createCell(0);
-                cellObj.setCellValue(lblInfoDoiTuong.getText());
-                cellObj.setCellStyle(infoStyle);
-                sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, lastCol));
-
-                Row row3 = sheet.createRow(3);
-                Cell cellClass = row3.createCell(0);
-                cellClass.setCellValue(lblInfoPhanLoai.getText());
-                cellClass.setCellStyle(infoStyle);
-                sheet.addMergedRegion(new CellRangeAddress(3, 3, 0, lastCol));
-
-                // 3. Data Table
-                int startRow = 5;
-                Row header = sheet.createRow(startRow);
-                for (int i = 0; i < chiTietTableModel.getColumnCount(); i++) {
-                    Cell c = header.createCell(i);
-                    c.setCellValue(chiTietTableModel.getColumnName(i));
-                    c.setCellStyle(headerStyle);
-                }
-
-                for (int i = 0; i < chiTietTableModel.getRowCount(); i++) {
-                    Row r = sheet.createRow(startRow + 1 + i);
-                    for (int j = 0; j < chiTietTableModel.getColumnCount(); j++) {
-                        Cell c = r.createCell(j);
-                        Object val = chiTietTableModel.getValueAt(i, j);
-                        if (val != null) {
-                            if (val instanceof Number) c.setCellValue(((Number) val).doubleValue());
-                            else c.setCellValue(val.toString());
-                        } else {
-                            c.setCellValue("");
-                        }
-                        c.setCellStyle(dataStyle);
-                    }
-                }
-                for (int i = 0; i < chiTietTableModel.getColumnCount(); i++) sheet.autoSizeColumn(i);
-
-                wb.write(os);
-                Desktop.getDesktop().open(f);
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi xuất file: " + ex.getMessage());
+            String[] infoTexts = {lblInfoThoiGian.getText(), lblInfoDoiTuong.getText(), lblInfoPhanLoai.getText()};
+            for (int i = 0; i < infoTexts.length; i++) {
+                Row r = sheet.createRow(i + 1);
+                Cell c = r.createCell(0);
+                c.setCellValue(infoTexts[i]);
+                c.setCellStyle(infoStyle);
+                sheet.addMergedRegion(new CellRangeAddress(i + 1, i + 1, 0, lastCol));
             }
+
+            int startRow = 5;
+            Row header = sheet.createRow(startRow);
+            for (int i = 0; i < chiTietTableModel.getColumnCount(); i++) {
+                Cell c = header.createCell(i);
+                c.setCellValue(chiTietTableModel.getColumnName(i));
+                c.setCellStyle(headerStyle);
+            }
+            for (int i = 0; i < chiTietTableModel.getRowCount(); i++) {
+                Row r = sheet.createRow(startRow + 1 + i);
+                for (int j = 0; j < chiTietTableModel.getColumnCount(); j++) {
+                    Cell c = r.createCell(j);
+                    Object val = chiTietTableModel.getValueAt(i, j);
+                    if (val instanceof Number) c.setCellValue(((Number) val).doubleValue());
+                    else if (val != null) c.setCellValue(val.toString());
+                    else c.setCellValue("");
+                    c.setCellStyle(dataStyle);
+                }
+            }
+            for (int i = 0; i < chiTietTableModel.getColumnCount(); i++) sheet.autoSizeColumn(i);
+            wb.write(os);
+            Desktop.getDesktop().open(f);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi xuất file: " + ex.getMessage());
         }
     }
 
-    // ================== UTILS ==================
     private void setupButtons() {
         Dimension btnSize = new Dimension(120, 32);
         btnTimKiem.setFont(new Font(getFont().getFontName(), Font.BOLD, 13));
@@ -484,7 +431,6 @@ public class PanelThongKeKhachHang extends JPanel {
         btnTimKiem.setForeground(Color.WHITE);
         btnTimKiem.setPreferredSize(btnSize);
         btnTimKiem.addActionListener(e -> xuLyThongKe());
-
         btnXoaBoLoc.setFont(new Font(getFont().getFontName(), Font.BOLD, 13));
         btnXoaBoLoc.setBackground(new Color(108, 117, 125));
         btnXoaBoLoc.setForeground(Color.WHITE);
@@ -497,16 +443,12 @@ public class PanelThongKeKhachHang extends JPanel {
         tableChiTiet.getTableHeader().setFont(new Font(getFont().getFontName(), Font.BOLD, 14));
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        tableChiTiet.getColumnModel().getColumn(0).setMaxWidth(80); // Mã KH
-
-        // Căn giữa: Mã(0), Số lượng(3), Ngày(5), Phân loại(6)
+        tableChiTiet.getColumnModel().getColumn(0).setMaxWidth(80);
         tableChiTiet.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         tableChiTiet.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         tableChiTiet.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
         tableChiTiet.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
 
-        // Tiền (4): Căn phải
         tableChiTiet.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
@@ -516,7 +458,6 @@ public class PanelThongKeKhachHang extends JPanel {
             }
         });
 
-        // Tô màu Phân loại (6)
         tableChiTiet.getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
@@ -533,7 +474,7 @@ public class PanelThongKeKhachHang extends JPanel {
         });
     }
 
-    private void setBorder(CellStyle style) {
+    private void setBorderStyle(CellStyle style) {
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
@@ -553,7 +494,6 @@ public class PanelThongKeKhachHang extends JPanel {
         xuLyThongKe();
     }
 
-    // UI Helpers (Filter bar, Cards, etc.)
     private JPanel buildFilterBar() {
         JPanel bar = new JPanel(new GridBagLayout());
         bar.setOpaque(false);
@@ -721,24 +661,19 @@ public class PanelThongKeKhachHang extends JPanel {
 
     private void loadComboBoxesData() {
         try {
-            List<String> loaiDTList = thongKeKHDao.getDanhSachLoaiDoiTuong();
+            List<String> loaiDTList = thongKeKHBUS.getDanhSachLoaiDoiTuong();
             cbLoaiDoiTuong.removeAllItems();
             cbLoaiDoiTuong.addItem("Tất cả");
             for (String ldt : loaiDTList) if (ldt != null) cbLoaiDoiTuong.addItem(ldt);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Lỗi tải loại đối tượng", e);
         }
     }
 
-    // ===== Struct kết quả =====
     private static class ThongKeKHResult {
         Map<String, ThongKeKhachHangDAO.KhachHangRFM> chiTietKhachHang;
         int tongSoKhachHang;
         double tongDoanhThu;
-        long countVIP;
-        long countThanThiet;
-        long countQuayLai;
-        long countMoi;
-        long countNguDong;
+        long countVIP, countThanThiet, countQuayLai, countMoi, countNguDong;
     }
 }
