@@ -29,4 +29,9 @@ public class PhieuGiuCho_BUS {
             pgcctDAO.updateTrangThaiPhieuGiuChoChiTietByVe(VeMapper.INSTANCE.toEntity(ve), trangThai);
         }
     }
+
+    public void donDepPhieuHetHan(int expiryMinutes) {
+        pgcctDAO.cleanUpExpiredPhieuGiuChoChiTiet(expiryMinutes);
+        pgcDAO.cleanUpExpiredPhieuGiuCho(expiryMinutes);
+    }
 }

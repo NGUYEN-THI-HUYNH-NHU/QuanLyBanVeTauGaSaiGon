@@ -127,10 +127,13 @@ public class PhieuGiuChoChiTietDAO extends AbstractGenericDAO<PhieuGiuChoChiTiet
     public int cleanUpExpiredPhieuGiuChoChiTiet(int expiryMinutes) {
         return doInTransaction(em -> {
             LocalDateTime expiryTime = LocalDateTime.now().minusMinutes(expiryMinutes);
+
             String jpql = "UPDATE PhieuGiuChoChiTiet pgcct SET pgcct.trangThai = :hetGiu " +
                     "WHERE pgcct.trangThai = :dangGiu AND " +
-                    "pgcct.phieuGiuCho.trangThai IN (:dangGiu, :hetHan) AND " +
-                    "pgcct.phieuGiuCho.thoiDiemTao < :expiryTime";
+                    "pgcct.phieuGiuCho.phieuGiuChoID IN ( " +
+                    "   SELECT p.phieuGiuChoID FROM PhieuGiuCho p " +
+                    "   WHERE p.trangThai IN (:dangGiu, :hetHan) AND p.thoiDiemTao < :expiryTime " +
+                    ")";
 
             Query query = em.createQuery(jpql);
             query.setParameter("hetGiu", TrangThaiPhieuGiuCho.HET_GIU);

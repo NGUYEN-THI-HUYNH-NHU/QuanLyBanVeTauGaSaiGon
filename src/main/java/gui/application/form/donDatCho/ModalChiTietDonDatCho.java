@@ -132,6 +132,8 @@ public class ModalChiTietDonDatCho extends JDialog {
         table.setRowHeight(30);
         table.getTableHeader().setFont(fontBold);
         table.getTableHeader().setBackground(new Color(230, 230, 230));
+        table.setShowGrid(true);
+        table.setGridColor(Color.LIGHT_GRAY);
 
         table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_STT).setMaxWidth(30);
         table.getColumnModel().getColumn(ChiTietDonDatChoTableModel.COL_VE_ID).setMinWidth(150);
