@@ -1,15 +1,10 @@
 package dao.impl;
 
-import connectDB.ConnectDB;
 import entity.Ga;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -225,7 +220,7 @@ public class Tuyen_DAO extends AbstractGenericDAO<Tuyen, String> implements dao.
      */
     @Override
     public List<TuyenChiTiet> layDanhSachTuyenChiTiet(String maTuyen) {
-        return doInTransaction (em -> {
+        return doInTransaction(em -> {
             String sql = "SELECT tct.tuyenID, tct.gaID, tct.thuTu, tct.khoangCachTuGaXP, g.tenGa " +
                     "FROM TuyenChiTiet tct " +
                     "JOIN Ga g ON tct.gaID = g.gaID " +

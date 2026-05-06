@@ -12,7 +12,6 @@ package bus;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import dto.DonDatChoDTO;
 import dto.KhachHangDTO;
 import dto.VeDTO;
@@ -24,12 +23,9 @@ import gui.application.AuthService;
 import gui.application.form.hoanVe.VeHoanRow;
 import mapper.NhanVienMapper;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class HoanVe_BUS {
     private final Ve_BUS veBUS = new Ve_BUS();
@@ -50,11 +46,7 @@ public class HoanVe_BUS {
      */
     public boolean thucHienHoanVe(DonDatChoDTO donDatCho, KhachHangDTO khachHang, List<VeHoanRow> listVeHoanRow,
                                   double tongTienHoan) throws Exception {
-        Connection conn = null;
         try {
-            // 1. Lấy kết nối và BẮT ĐẦU TRANSACTION
-            conn = ConnectDB.getInstance().getConnection();
-            conn.setAutoCommit(false);
 
             // --- BẮT ĐẦU CHUỖI GIAO DỊCH ---
             List<VeDTO> listVe = new ArrayList<>();
@@ -97,32 +89,10 @@ public class HoanVe_BUS {
                         "Hoàn vé - " + v.getDonDatChoID() + ": " + v.getVeID());
             }
 
-            // Hoàn tất giao dịch
-            conn.commit();
-            return true;
-
         } catch (Exception e) {
-            // Nếu có bất kỳ lỗi nào, hoàn tác tất cả thay đổi
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-            throw new Exception("Lỗi khi xử lý hoàn vé: " + e.getMessage());
-        } finally {
-            // Trả lại trạng thái AutoCommit cho kết nối
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
+            throw new IllegalArgumentException(e);
         }
+        return true;
     }
 
     // ghi log

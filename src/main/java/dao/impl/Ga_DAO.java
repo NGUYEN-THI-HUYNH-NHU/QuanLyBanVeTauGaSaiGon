@@ -1,18 +1,12 @@
 package dao.impl;
 
-import connectDB.ConnectDB;
 import entity.Ga;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Ga_DAO extends AbstractGenericDAO<Ga, String> implements dao.IGaDAO {
-    private ConnectDB connectDB;
 
     public Ga_DAO() {
         super(Ga.class);

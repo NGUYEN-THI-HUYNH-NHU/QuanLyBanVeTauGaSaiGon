@@ -28,6 +28,27 @@ public class VeDAO extends AbstractGenericDAO<Ve, String> implements IVeDAO {
         super(Ve.class);
     }
 
+    @Override
+    public Ve findById(String id) {
+        return doInTransaction(em -> {
+            String jpql = "SELECT v FROM Ve v " +
+                    "LEFT JOIN FETCH v.khachHang kh " +
+                    "LEFT JOIN FETCH kh.loaiKhachHang " +
+                    "LEFT JOIN FETCH v.chuyen " +
+                    "LEFT JOIN FETCH v.ghe g " +
+                    "LEFT JOIN FETCH g.toa t " +
+                    "LEFT JOIN FETCH t.tau " +
+                    "LEFT JOIN FETCH v.gaDi " +
+                    "LEFT JOIN FETCH v.gaDen " +
+                    "LEFT JOIN FETCH v.donDatCho " +
+                    "WHERE v.veID = :id";
+            List<Ve> result = em.createQuery(jpql, Ve.class)
+                    .setParameter("id", id)
+                    .getResultList();
+            return result.isEmpty() ? null : result.get(0);
+        });
+    }
+
     /**
      * @param donDatChoID
      * @return

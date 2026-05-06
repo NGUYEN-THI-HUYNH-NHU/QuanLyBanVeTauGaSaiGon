@@ -10,14 +10,9 @@ package dao;
  * @created : 28/10/2025
  */
 
-import connectDB.ConnectDB;
 import entity.KhoangCachChuan;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
