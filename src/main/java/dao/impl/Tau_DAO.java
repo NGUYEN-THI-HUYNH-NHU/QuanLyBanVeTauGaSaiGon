@@ -12,15 +12,10 @@ package dao.impl;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import entity.Tau;
 import entity.type.TrangThaiTau;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 public class Tau_DAO extends AbstractGenericDAO<Tau, String> implements dao.ITauDAO {

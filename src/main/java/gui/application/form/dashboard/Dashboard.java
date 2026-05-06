@@ -1,7 +1,6 @@
 package gui.application.form.dashboard;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import connectDB.ConnectDB;
 import dao.impl.DashboardDAO;
 
 import javax.swing.*;
@@ -73,7 +72,6 @@ public class Dashboard extends JPanel {
     // ========================================================================
     public Dashboard() {
         try {
-            ConnectDB.getInstance();
             this.dashboardBUS = new DashboardDAO();
         } catch (Exception e) {
             e.printStackTrace();

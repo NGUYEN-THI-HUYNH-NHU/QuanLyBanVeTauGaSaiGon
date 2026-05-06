@@ -10,16 +10,11 @@ package dao;
  * @created : 21/10/2025
  */
 
-import connectDB.ConnectDB;
 import entity.Ga;
 import entity.Tuyen;
 import entity.TuyenChiTiet;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

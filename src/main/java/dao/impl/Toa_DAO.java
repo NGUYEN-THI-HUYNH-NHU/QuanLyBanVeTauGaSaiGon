@@ -12,15 +12,11 @@ package dao.impl;
  * @version: 1.0
  */
 
-import connectDB.ConnectDB;
 import entity.HangToa;
 import entity.Tau;
 import entity.Toa;
 import jakarta.persistence.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
