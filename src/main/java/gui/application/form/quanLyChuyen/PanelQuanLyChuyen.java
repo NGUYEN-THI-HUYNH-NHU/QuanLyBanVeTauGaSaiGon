@@ -17,8 +17,6 @@ import com.raven.datechooser.DateChooser;
 import com.raven.datechooser.SelectedAction;
 import controller.QuanLyChuyen_CTRL;
 import dto.NhanVienDTO;
-import entity.NhanVien;
-import mapper.NhanVienMapper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -103,7 +101,7 @@ public class PanelQuanLyChuyen extends JPanel {
         });
 
         JLabel lblGoiY = new JLabel("Chọn ngày để tìm kiếm chuyến!");
-        lblGoiY.setFont(BASE_FONT.deriveFont(Font.ITALIC, 14));
+        lblGoiY.setFont(BASE_FONT.deriveFont(Font.ITALIC, 14f));
         lblGoiY.setForeground(Color.GRAY);
 
         JPanel panelDate = new JPanel(new MigLayout("insets 0"));
@@ -115,7 +113,7 @@ public class PanelQuanLyChuyen extends JPanel {
         headerPanel.add(panelDate, "pos 0 0.5al n n");
 
         JLabel title = new JLabel("QUẢN LÝ CHUYẾN TÀU", SwingConstants.CENTER);
-        title.setFont(BASE_FONT.deriveFont(Font.BOLD, 24));
+        title.setFont(BASE_FONT.deriveFont(Font.BOLD, 24f));
         title.setForeground(COLOR_HEADER);
         headerPanel.add(title, "cell 0 0, grow, center");
 

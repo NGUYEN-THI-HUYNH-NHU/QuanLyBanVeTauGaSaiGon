@@ -303,7 +303,10 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     private JPanel createTablePanel() {
         String[] columnNames = {"STT", "Mã KH", "Tên KH", "SĐT", "Email", "Giấy tờ", "Địa chỉ", "Loại đối tượng", "Loại KH"};
         tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(25);
@@ -389,10 +392,10 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
     private JButton createPaginationButton(String text, boolean isSelected) {
         JButton btn = new JButton(text);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(40, 35));
+//        btn.setPreferredSize(new Dimension(40, 35));
         btn.setMargin(new Insets(0, 0, 0, 0));
         btn.setFocusPainted(false);
-        btn.setFont(new Font("Roboto", isSelected ? Font.BOLD : Font.PLAIN, 13));
+        btn.setFont(new Font("Roboto", isSelected ? Font.BOLD : Font.PLAIN, 12));
 
         if (isSelected) {
             btn.setBackground(COLOR_PRIMARY);
@@ -892,10 +895,27 @@ public class PanelQuanLyKhachHang extends JPanel implements ActionListener, Mous
         });
     }
 
-    @Override public void mousePressed(MouseEvent e) {}
-    @Override public void mouseReleased(MouseEvent e) {}
-    @Override public void mouseEntered(MouseEvent e) {}
-    @Override public void mouseExited(MouseEvent e) {}
-    @Override public void keyTyped(KeyEvent e) {}
-    @Override public void keyReleased(KeyEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
 }

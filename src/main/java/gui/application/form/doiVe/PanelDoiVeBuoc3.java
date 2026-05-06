@@ -61,8 +61,6 @@ public class PanelDoiVeBuoc3 extends JPanel {
         table.getColumnModel().getColumn(VeDoiTableModel.COL_LY_DO).setCellRenderer(new SimpleComboBoxRenderer());
 
         table.setRowHeight(80);
-        table.setShowGrid(true);
-        table.setGridColor(new Color(220, 220, 220));
 
         // Cấu hình độ rộng cột (dùng chỉ số mới)
         table.getColumnModel().getColumn(VeDoiTableModel.COL_TEN).setMinWidth(130);

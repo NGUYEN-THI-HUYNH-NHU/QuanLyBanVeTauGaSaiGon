@@ -94,7 +94,7 @@ public class PanelQuanLyBieuGia extends JPanel {
         // --- 2. TABLE ---
         tableModel = new BieuGiaVeTableModel();
         table = new JTable(tableModel);
-        table.setRowHeight(40);
+        table.setRowHeight(36);
 
         table.getTableHeader().setEnabled(false);
 
