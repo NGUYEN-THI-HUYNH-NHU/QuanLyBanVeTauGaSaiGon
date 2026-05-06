@@ -8,6 +8,7 @@ import entity.TaiKhoan;
 import entity.VaiTroTaiKhoan;
 import gui.application.AuthService;
 import mapper.NhanVienMapper;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +52,8 @@ public class TaiKhoan_BUS {
 
     public VaiTroTaiKhoan layVaiTroTheoID(String vaiTroID) {
         dao.impl.AbstractGenericDAO<VaiTroTaiKhoan, String> vaiTroDAO =
-                new dao.impl.AbstractGenericDAO<>(VaiTroTaiKhoan.class) {};
+                new dao.impl.AbstractGenericDAO<>(VaiTroTaiKhoan.class) {
+                };
         return vaiTroDAO.findById(vaiTroID);
     }
 
@@ -114,7 +116,7 @@ public class TaiKhoan_BUS {
     public boolean isKhopMatKhau(String nhanVienID, String matKhau) {
         if (nhanVienID == null || matKhau == null) return false;
         TaiKhoan tk = taiKhoanDAO.getTaiKhoanVoiNhanVienID(nhanVienID);
-        return tk != null && Objects.equals(tk.getMatKhauHash(), matKhau);
+        return tk != null && BCrypt.checkpw(matKhau, tk.getMatKhauHash());
     }
 
     public List<TaiKhoan> timKiemTongHop(String maNV, String tenDN, String vaiTro, Boolean trangThai) {

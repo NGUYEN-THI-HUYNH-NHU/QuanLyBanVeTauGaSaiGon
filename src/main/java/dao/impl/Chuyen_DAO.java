@@ -457,25 +457,25 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
     @Override
     public int[] getThongKeCho(String chuyenID, String gaDiID, String gaDenID) {
         return doInTransaction(em -> {
-            String sql = "DECLARE @chuyenID VARCHAR(50) = :chuyenID;\n"
-                    + "DECLARE @gaDiID VARCHAR(50) = :gaDiID;\n"
-                    + "DECLARE @gaDenID VARCHAR(50) = :gaDenID;\n\n"
-                    + "DECLARE @orderDi INT = (SELECT thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDiID);\n"
-                    + "DECLARE @orderDen INT = (SELECT thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID AND gaID = @gaDenID);\n\n"
+            String sql = "DECLARE @chuyenID_param VARCHAR(50) = ?1 \n"
+                    + "DECLARE @gaDiID_param VARCHAR(50) = ?2 \n"
+                    + "DECLARE @gaDenID_param VARCHAR(50) = ?3 \n\n"
+                    + "DECLARE @orderDi INT = (SELECT thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID_param AND gaID = @gaDiID_param) \n"
+                    + "DECLARE @orderDen INT = (SELECT thuTu FROM ChuyenGa WHERE chuyenID = @chuyenID_param AND gaID = @gaDenID_param) \n\n"
                     + "SELECT "
                     + "    (SELECT COUNT(g.gheID) FROM Chuyen c JOIN Tau t ON c.tauID = t.tauID "
                     + "     JOIN Toa toa ON t.tauID = toa.tauID JOIN Ghe g ON toa.toaID = g.toaID "
-                    + "     WHERE c.chuyenID = @chuyenID) AS TongSoGhe,\n"
+                    + "     WHERE c.chuyenID = @chuyenID_param) AS TongSoGhe,\n"
                     + "    (SELECT COUNT(DISTINCT v.gheID) FROM Ve v "
                     + "     JOIN ChuyenGa cg_ve_di ON v.gaDiID = cg_ve_di.gaID AND cg_ve_di.chuyenID = v.chuyenID "
                     + "     JOIN ChuyenGa cg_ve_den ON v.gaDenID = cg_ve_den.gaID AND cg_ve_den.chuyenID = v.chuyenID "
-                    + "     WHERE v.chuyenID = @chuyenID AND cg_ve_di.thuTu < @orderDen AND cg_ve_den.thuTu > @orderDi "
+                    + "     WHERE v.chuyenID = @chuyenID_param AND cg_ve_di.thuTu < @orderDen AND cg_ve_den.thuTu > @orderDi "
                     + "    ) AS SoGheDaDat";
 
             Query query = em.createNativeQuery(sql);
-            query.setParameter("chuyenID", chuyenID);
-            query.setParameter("gaDiID", gaDiID);
-            query.setParameter("gaDenID", gaDenID);
+            query.setParameter(1, chuyenID);
+            query.setParameter(2, gaDiID);
+            query.setParameter(3, gaDenID);
 
             List<Object[]> results = query.getResultList();
             int[] result = new int[]{0, 0};
@@ -493,3 +493,4 @@ public class Chuyen_DAO extends AbstractGenericDAO<Chuyen, String> implements IC
         });
     }
 }
+

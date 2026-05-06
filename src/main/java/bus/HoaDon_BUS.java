@@ -277,7 +277,7 @@ public class HoaDon_BUS {
      */
     public void themCacHoaDonChiTiet(List<HoaDonChiTiet> dsHoaDonChiTiet) {
         for (HoaDonChiTiet hdct : dsHoaDonChiTiet) {
-            hoaDonChiTietDAO.create(hdct);
+            hoaDonChiTietDAO.insertHoaDonChiTiet(hdct);
         }
     }
 

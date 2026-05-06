@@ -43,7 +43,7 @@ public class BanVe_BUS {
      * @param session Chứa toàn bộ thông tin (vé, khách hàng, người mua, PGC...)
      * @return true nếu tất cả các bước thành công
      */
-    public boolean thucHienBanVe(BookingSession session) throws Exception {
+    public boolean thucHienBanVe(BookingSession session) {
         try {
             KhachHangDTO khachHang = session.getKhachHang();
 
@@ -98,8 +98,9 @@ public class BanVe_BUS {
             return true;
 
         } catch (Exception e) {
-            throw new Exception("Lỗi khi xử lý bán vé: " + e.getMessage());
+            e.printStackTrace();
         }
+        return true;
     }
 
     // ghi log

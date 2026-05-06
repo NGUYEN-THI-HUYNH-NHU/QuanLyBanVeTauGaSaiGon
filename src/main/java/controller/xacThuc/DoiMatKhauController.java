@@ -18,6 +18,7 @@ import gui.application.EmailService;
 import gui.application.UngDung;
 import gui.application.form.thongTin.FormDoiMatKhau;
 import gui.application.form.thongTin.ModalQuenMatKhau;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -99,7 +100,8 @@ public class DoiMatKhauController {
             return;
         }
 
-        if (taiKhoanBUS.doiMatKhau(nhanVien.getId(), mkMoi)) {
+        String matKhauMoiHash = BCrypt.hashpw(mkMoi, BCrypt.gensalt(12));
+        if (taiKhoanBUS.doiMatKhau(nhanVien.getId(), matKhauMoiHash)) {
             JOptionPane.showMessageDialog(formDoiMatKhau,
                     String.format("Đổi mật khẩu mới cho tài khoản nhân viên %s - %s\nVui lòng đăng nhập lại",
                             "Thành công", nhanVien.getId(), nhanVien.getHoTen()));

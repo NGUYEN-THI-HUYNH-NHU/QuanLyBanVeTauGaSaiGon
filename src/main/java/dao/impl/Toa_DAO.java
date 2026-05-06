@@ -17,7 +17,6 @@ import entity.Tau;
 import entity.Toa;
 import jakarta.persistence.Query;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Toa_DAO extends AbstractGenericDAO<Toa, String> implements dao.IToaDAO {
@@ -28,41 +27,14 @@ public class Toa_DAO extends AbstractGenericDAO<Toa, String> implements dao.IToa
     @Override
     public List<Toa> getToaByChuyenID(String chuyenID) {
         return doInTransaction(em -> {
-            String sql = "SELECT \r\n"
-                    + "    t.toaID,\r\n"
-                    + "    t.soToa,\r\n"
-                    + "    t.hangToaID,\r\n"
-                    + "    ht.moTa,\r\n"
-                    + "    t.sucChua,\r\n"
-                    + "    tau.tauID,\r\n"
-                    + "    tau.tenTau\r\n"
-                    + "FROM Chuyen c\r\n"
-                    + "INNER JOIN Tau tau \r\n"
-                    + "    ON tau.tauID = c.tauID\r\n"
-                    + "INNER JOIN Toa t \r\n"
-                    + "    ON t.tauID = tau.tauID\r\n"
-                    + "INNER JOIN HangToa ht \r\n"
-                    + "    ON t.hangToaID = ht.hangToaID\r\n"
-                    + "WHERE c.chuyenID = ?1\r\n"
-                    + "ORDER BY t.soToa;";
-            Query query = em.createNativeQuery(sql);
-            query.setParameter(1, chuyenID);
-
-            List<Object[]> results = query.getResultList();
-            List<Toa> list = new ArrayList<>();
-
-            for (Object[] row : results) {
-                Toa t = new Toa();
-                t.setToaID((String) row[0]);
-                t.setSoToa(row[1] != null ? ((Number) row[1]).intValue() : 0);
-                t.setHangToa(new HangToa((String) row[2], (String) row[3]));
-                t.setSucChua(row[4] != null ? ((Number) row[4]).intValue() : 0);
-                t.setTau(new Tau((String) row[5]));
-                // Nếu entity Tau có hàm setTenTau, bạn có thể gọi: t.getTau().setTenTau((String) row[6]);
-
-                list.add(t);
-            }
-            return list;
+            String jpql = "SELECT t FROM Toa t " +
+                    "JOIN FETCH t.hangToa " +
+                    "JOIN FETCH t.tau tau " +
+                    "JOIN Chuyen c ON tau = c.tau " +
+                    "WHERE c.chuyenID = :chuyenID ORDER BY t.soToa";
+            return em.createQuery(jpql, Toa.class)
+                    .setParameter("chuyenID", chuyenID)
+                    .getResultList();
         });
     }
 
